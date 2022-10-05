@@ -582,6 +582,8 @@ impl WireguardMonitor {
                 route_manager_handle,
                 #[cfg(windows)]
                 setup_done_tx,
+                #[cfg(windows)]
+                &runtime,
             )
             .map_err(Error::TunnelError)?,
         ))

@@ -1,4 +1,4 @@
-use super::{Error, Result, InterfaceAndGateway, AddressFamily, get_best_default_route_internal,
+use super::{Error, Result, InterfaceAndGateway, AddressFamily, get_best_default_route,
     get_best_default_route::route_has_gateway,
 };
 
@@ -12,6 +12,8 @@ use windows_sys::Win32::NetworkManagement::IpHelper::{
     NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPINTERFACE_ROW, MIB_NOTIFICATION_TYPE,
     MIB_UNICASTIPADDRESS_ROW, NET_LUID_LH, MIB_IPFORWARD_ROW2,
 };
+
+const WIN_FALSE: BOOLEAN = 0;
 
 struct DefaultRouteMonitorContext {
     callback: Box<dyn Fn(EventType, &Option<InterfaceAndGateway>) + Send + 'static>,
@@ -62,7 +64,7 @@ impl DefaultRouteMonitorContext {
         let refresh_current = self.refresh_current_route;
         self.refresh_current_route = false;
 
-        let current_best_route = get_best_default_route_internal(self.family).ok().flatten();
+        let current_best_route = get_best_default_route(self.family).ok().flatten();
 
         match (&self.best_route, current_best_route) {
             (None, None) => (),
@@ -132,8 +134,6 @@ impl std::ops::Drop for Handle {
     }
 }
 
-const WIN_FALSE: BOOLEAN = 0;
-
 // TODO: Rename and document and perhaps trim and perhaps remove the other EventType
 #[derive(PartialEq, Clone, Copy)]
 /// The type of route update passed to the callback
@@ -199,7 +199,7 @@ impl DefaultRouteMonitor {
             // since we are using a Mutex.
             let context = &unsafe { &*(monitor.context) }.context;
             let mut context = context.lock().unwrap();
-            context.best_route = get_best_default_route_internal(context.family)?;
+            context.best_route = get_best_default_route(context.family)?;
         }
 
         Ok(monitor)

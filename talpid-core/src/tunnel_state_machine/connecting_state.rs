@@ -262,8 +262,8 @@ impl ConnectingState {
         }
     }
 
-    fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values.route_manager.clear_routes() {
+    async fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
+        if let Err(error) = shared_values.runtime.block_on(shared_values.route_manager.clear_routes()) {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
         #[cfg(target_os = "linux")]
@@ -411,7 +411,7 @@ impl ConnectingState {
                 #[cfg(windows)]
                 if let Err(error) = shared_values
                     .split_tunnel
-                    .set_tunnel_addresses(Some(&metadata), &shared_values.route_manager)
+                    .set_tunnel_addresses(Some(&metadata), &shared_values.route_manager, &shared_values.runtime)
                 {
                     log::error!(
                         "{}",
@@ -556,7 +556,7 @@ impl TunnelState for ConnectingState {
             }
             Ok(tunnel_parameters) => {
                 #[cfg(windows)]
-                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None, &shared_values.route_manager) {
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None, &shared_values.route_manager, &shared_values.runtime) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(

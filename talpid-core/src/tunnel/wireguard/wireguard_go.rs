@@ -116,12 +116,13 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         route_manager_handle: RouteManagerHandle,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
+        runtime: &tokio::runtime::Handle,
     ) -> Result<Self> {
         use talpid_types::ErrorExt;
 
-        let route_callback_handle = route_manager_handle.add_default_route_change_callback(
+        let route_callback_handle = runtime.block_on(route_manager_handle.add_default_route_change_callback(
             Box::new(WgGoTunnel::default_route_changed_callback),
-        )
+        ))
         .ok();
         if route_callback_handle.is_none() {
             log::warn!("Failed to register default route callback");

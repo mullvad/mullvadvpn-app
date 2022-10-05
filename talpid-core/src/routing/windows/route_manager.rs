@@ -1,23 +1,25 @@
 use super::default_route_monitor::{DefaultRouteMonitor, EventType as RouteMonitorEventType};
 use super::{
-    get_best_default_route_internal, Error, Result, InterfaceAndGateway,
+    get_best_default_route, Error, Result, InterfaceAndGateway,
 };
 use ipnetwork::IpNetwork;
-use crate::{routing::NetNode, windows::{AddressFamily, try_socketaddr_from_inet_sockaddr, inet_sockaddr_from_socketaddr}};
+use crate::{routing::NetNode, 
+    windows::{AddressFamily, try_socketaddr_from_inet_sockaddr, inet_sockaddr_from_socketaddr}
+};
 use std::{collections::HashMap, sync::{Arc, Mutex}, net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr}};
 use widestring::{WideCString, WideCStr};
 use windows_sys::Win32::{
     Foundation::{
-        ERROR_BUFFER_OVERFLOW, ERROR_NOT_FOUND, ERROR_NO_DATA, ERROR_OBJECT_ALREADY_EXISTS,
-        ERROR_SUCCESS, NO_ERROR,
+        ERROR_NOT_FOUND, ERROR_OBJECT_ALREADY_EXISTS,
+        NO_ERROR, ERROR_SUCCESS, ERROR_NO_DATA, ERROR_BUFFER_OVERFLOW
     },
     NetworkManagement::IpHelper::{
         ConvertInterfaceAliasToLuid, CreateIpForwardEntry2, DeleteIpForwardEntry2,
-        GetAdaptersAddresses, InitializeIpForwardEntry, SetIpForwardEntry2,
+        InitializeIpForwardEntry, SetIpForwardEntry2, GetAdaptersAddresses,
         GAA_FLAG_INCLUDE_GATEWAYS, GAA_FLAG_SKIP_ANYCAST, GAA_FLAG_SKIP_DNS_SERVER,
-        GAA_FLAG_SKIP_FRIENDLY_NAME, GAA_FLAG_SKIP_MULTICAST, GET_ADAPTERS_ADDRESSES_FLAGS,
-        IP_ADAPTER_ADDRESSES_LH, IP_ADAPTER_GATEWAY_ADDRESS_LH, IP_ADAPTER_IPV4_ENABLED,
-        IP_ADAPTER_IPV6_ENABLED, IP_ADDRESS_PREFIX, MIB_IPFORWARD_ROW2, NET_LUID_LH,
+        GAA_FLAG_SKIP_FRIENDLY_NAME, GAA_FLAG_SKIP_MULTICAST, IP_ADAPTER_IPV4_ENABLED, 
+        IP_ADAPTER_IPV6_ENABLED, IP_ADAPTER_ADDRESSES_LH, IP_ADAPTER_GATEWAY_ADDRESS_LH,
+        GET_ADAPTERS_ADDRESSES_FLAGS, MIB_IPFORWARD_ROW2, NET_LUID_LH, IP_ADDRESS_PREFIX,
     },
     Networking::WinSock::{
         NlroManual, ADDRESS_FAMILY, AF_INET, AF_INET6, MIB_IPPROTO_NETMGMT, SOCKADDR_IN,
@@ -47,122 +49,6 @@ impl std::ops::Drop for CallbackHandle {
 	}
 }
 
-struct Adapters {
-    buffer: Vec<IP_ADAPTER_ADDRESSES_LH>,
-}
-
-impl Adapters {
-    fn new(family: ADDRESS_FAMILY, flags: GET_ADAPTERS_ADDRESSES_FLAGS) -> Result<Self> {
-        const MSDN_RECOMMENDED_STARTING_BUFFER_SIZE: usize = 1024 * 15;
-        let mut buffer = Vec::with_capacity(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE);
-        buffer.resize(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE, unsafe {
-            std::mem::zeroed()
-        });
-
-        let buffer_size = &mut u32::try_from(buffer.len()).unwrap();
-        let mut buffer_pointer = buffer.as_mut_ptr();
-
-        //
-        // Acquire interfaces.
-        //
-
-        loop {
-            let status = unsafe {
-                GetAdaptersAddresses(
-                    family,
-                    flags,
-                    std::ptr::null_mut() as *mut _,
-                    buffer_pointer,
-                    buffer_size,
-                )
-            };
-
-            if ERROR_SUCCESS == status {
-                // FIXME: If we insert too many objects in the start we will have a bunch of uninitialized zeroed objects
-                // at the end of the vector. We should cosider truncating the vector to the right size here.
-                break;
-            }
-
-            if ERROR_NO_DATA == status {
-                return Ok(Self { buffer: Vec::new() });
-            }
-
-            if ERROR_BUFFER_OVERFLOW != status {
-                return Err(Error::WindowsApi);
-                //THROW_WINDOWS_ERROR(status, "Probe required buffer size for GetAdaptersAddresses");
-            }
-
-            // The needed length is returned in the buffer_size pointer
-            buffer.resize(usize::try_from(*buffer_size).unwrap(), unsafe {
-                std::mem::zeroed()
-            });
-            buffer_pointer = buffer.as_mut_ptr();
-        }
-
-        //
-        // Verify structure compatibility.
-        // The structure has been extended many times.
-        //
-
-        let system_size = unsafe { buffer.get(0).unwrap().Anonymous1.Anonymous.Length };
-        let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
-
-        if system_size < code_size {
-            log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
-            return Err(Error::WindowsApi);
-            //std::stringstream ss;
-
-            //ss << "Expecting IP_ADAPTER_ADDRESSES to have size " << codeSize << " bytes. "
-            //	<< "Found structure with size " << systemSize << " bytes.";
-
-            //THROW_ERROR(ss.str().c_str());
-        }
-
-        //
-        // Initialize members.
-        //
-
-        Ok(Self { buffer })
-    }
-
-    fn iter_mut<'a>(&'a mut self) -> AdaptersIterator<'a> {
-		let cur = if self.buffer.is_empty() {
-			std::ptr::null_mut()
-		} else {
-			&mut self.buffer[0] as *mut _
-		};
-        AdaptersIterator {
-            _adapters: self,
-            cur,
-        }
-    }
-}
-
-struct AdaptersIterator<'a> {
-    _adapters: &'a mut Adapters,
-    cur: *mut IP_ADAPTER_ADDRESSES_LH,
-}
-
-impl<'a> Iterator for AdaptersIterator<'a> {
-    type Item = &'a mut IP_ADAPTER_ADDRESSES_LH;
-    fn next(&mut self) -> Option<Self::Item> {
-		if self.cur.is_null() {
-            None
-        } else {
-            let ret = self.cur;
-			// SAFETY: self.cur is guaranteed to not be null, we are also holding a &mut Adapters which guarantees no other reference
-			// of self could be held right now which has dereferenced the same address that self.cur is pointing to.
-			//
-			// It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
-			// address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
-			// `Next` on a reference returned by this function after that reference has been dropped.
-            self.cur = unsafe { (*self.cur).Next };
-			// SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
-            Some(unsafe { &mut *ret })
-        }
-    }
-}
-
 #[derive(Clone)]
 struct RegisteredRoute {
     network: Network,
@@ -177,10 +63,9 @@ impl std::fmt::Display for RegisteredRoute {
 
 }
 
-// FIXME: This might be an invalid implementation
 impl PartialEq for RegisteredRoute {
     fn eq(&self, other: &Self) -> bool {
-        unsafe { self.luid.Value == other.luid.Value }
+        (unsafe { self.luid.Value == other.luid.Value }) && (self.next_hop == other.next_hop) && (self.network == other.network)
     }
 }
 
@@ -204,10 +89,10 @@ struct RouteRecord {
 
 struct EventEntry {
     record: RouteRecord,
-    event_type: EventType,
+    event_type: RecordEventType,
 }
 
-enum EventType {
+enum RecordEventType {
     AddRoute,
     DeleteRoute,
 }
@@ -226,7 +111,6 @@ pub struct RouteManagerInternal {
 }
 
 impl RouteManagerInternal {
-	// TODO: WinNet_ActivateRouteManager
     pub fn new() -> Result<Self> {
         let routes = Arc::new(Mutex::new(
             Vec::new(),
@@ -268,7 +152,6 @@ impl RouteManagerInternal {
         })
     }
 
-	// TODO: WinNetAddRoutes
     pub fn add_routes(&self, new_routes: Vec<Route>) -> Result<()> {
 		let mut route_manager_routes = self.routes.lock().unwrap();
 
@@ -298,9 +181,8 @@ impl RouteManagerInternal {
                 registered_route,
             };
 
-            // FIXME: Clone?
             event_log.push(EventEntry {
-                event_type: EventType::AddRoute,
+                event_type: RecordEventType::AddRoute,
                 record: new_record.clone(),
             });
 
@@ -327,7 +209,7 @@ impl RouteManagerInternal {
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = node.iface;
-        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
+        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
         spec.NextHop = inet_sockaddr_from_socketaddr(node.gateway);
         spec.Metric = 0;
         spec.Protocol = MIB_IPPROTO_NETMGMT;
@@ -351,7 +233,7 @@ impl RouteManagerInternal {
         }
 
         if NO_ERROR as i32 != status {
-            //THROW_WINDOWS_ERROR(status, "Register route in routing table");
+            log::error!("Could not register route in routing table");
             return Err(Error::WindowsApi);
         }
 
@@ -377,10 +259,10 @@ impl RouteManagerInternal {
 
         match optional_node {
             NetNode::DefaultNode => {
-                let default_route = get_best_default_route_internal(family)?;
+                let default_route = get_best_default_route(family)?;
                 match default_route {
                     None => {
-                        //THROW_ERROR_TYPE(error::NoDefaultRoute, "Unable to determine details of default route");
+                        log::error!("Unable to determine details of default route");
                         return Err(Error::NoDefaultRoute);
                     }
                     Some(default_route) => return Ok(default_route),
@@ -400,7 +282,7 @@ impl RouteManagerInternal {
                                     ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
                                 }
                             {
-                                //let msg = format!("Unable to derive interface LUID from interface alias: {}", device_name);
+                                log::error!("Unable to derive interface LUID from interface alias: {:?}", device_name);
                                 return Err(Error::DeviceNameNotFound);
                             } else {
                                 luid
@@ -434,9 +316,10 @@ impl RouteManagerInternal {
                 // The node is specified only by gateway.
                 //
 
-				let gateway = node.get_address().map(inet_sockaddr_from_ipaddr_no_port).unwrap();
+                // Unwrapping is fine because the node must have an address since no device name was found.
+				let gateway = node.get_address().map(inet_sockaddr_from_ipaddr_port_zero).unwrap();
                 Ok(InterfaceAndGateway {
-                    iface: Self::interface_luid_from_gateway(&gateway)?,
+                    iface: interface_luid_from_gateway(&gateway)?,
                     gateway: try_socketaddr_from_inet_sockaddr(gateway).map_err(|_| Error::InvalidSiFamily)?,
                 })
             }
@@ -458,12 +341,10 @@ impl RouteManagerInternal {
 
         for event in event_log.iter().rev() {
             match event.event_type {
-                EventType::AddRoute => {
+                RecordEventType::AddRoute => {
                     match Self::find_route_record(records, &event.record.registered_route) {
                         None => {
                             log::error!("Internal state inconsistency in route manager");
-                            // Log error
-                            //THROW_ERROR("Internal state inconsistency in route manager");
 							// TODO: Panic here, or not?
                             if result.is_ok() {
                                 result = Err(Error::InternalInconsistentState);
@@ -471,7 +352,6 @@ impl RouteManagerInternal {
                         }
                         Some(record_idx) => {
                             // TODO: make sure this is right
-							// TODO: We should avoid unwrapping as much as possible here, this code should limp on even if something goes wrong
                             let record = match records.get(record_idx) {
                                 None => {
                                     log::error!("Internal state inconsistency in route manager");
@@ -496,7 +376,7 @@ impl RouteManagerInternal {
                         }
                     }
                 }
-                EventType::DeleteRoute => {
+                RecordEventType::DeleteRoute => {
                     match Self::restore_into_routing_table(&event.record.registered_route) {
                         Err(e) => {
                             log::error!("Could not restore route into routing table");
@@ -521,7 +401,7 @@ impl RouteManagerInternal {
         let mut r: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
 
         r.InterfaceLuid = route.luid;
-        r.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
+        r.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
         r.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
 
         let mut status = unsafe { DeleteIpForwardEntry2(&r) };
@@ -547,7 +427,7 @@ impl RouteManagerInternal {
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = route.luid;
-        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_no_port(route.network);
+        spec.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
         spec.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
         spec.Metric = 0;
         spec.Protocol = MIB_IPPROTO_NETMGMT;
@@ -556,6 +436,7 @@ impl RouteManagerInternal {
         let status = unsafe { CreateIpForwardEntry2(&spec) };
 
         if NO_ERROR as i32 != status {
+            log::error!("Could not register route in routing table");
             return Err(Error::WindowsApi);
             //THROW_WINDOWS_ERROR(status, "Register route in routing table");
         }
@@ -578,7 +459,11 @@ impl RouteManagerInternal {
         }
 
         let luid = NET_LUID_LH {
-            Value: u64::from_str_radix(&encoded_luid.to_string().unwrap()[1..], 16)
+            Value: u64::from_str_radix(&encoded_luid.to_string()
+                .map_err(|_| {
+                    log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
+                    Error::Conversion
+                })?[1..], 16)
                 .map_err(|_| {
                     log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
                     Error::Conversion
@@ -588,70 +473,6 @@ impl RouteManagerInternal {
         return Ok(Some(luid));
     }
 
-    fn interface_luid_from_gateway(gateway: &NodeAddress) -> Result<NET_LUID_LH> {
-        const ADAPTER_FLAGS: GET_ADAPTERS_ADDRESSES_FLAGS = GAA_FLAG_SKIP_ANYCAST
-            | GAA_FLAG_SKIP_MULTICAST
-            | GAA_FLAG_SKIP_DNS_SERVER
-            | GAA_FLAG_SKIP_FRIENDLY_NAME
-            | GAA_FLAG_INCLUDE_GATEWAYS;
-
-		let family: u32= unsafe { gateway.si_family }.into();
-        let mut adapters = Adapters::new(family, ADAPTER_FLAGS)?;
-
-        //
-        // Process adapters to find matching ones.
-        //
-
-        let mut matches: Vec<_> = adapters
-            .iter_mut()
-            .filter(|adapter| {
-                match adapter_interface_enabled(adapter, family) {
-                    Ok(b) => {
-                        if !b {
-                            return false;
-                        }
-                    }
-                    Err(_) => return false,
-                }
-
-                let gateways = unsafe {
-                    isolate_gateway_address(adapter.FirstGatewayAddress, family)
-                };
-
-                match unsafe { address_present(gateways, &gateway) } {
-                    Ok(b) => b,
-                    Err(_) => false,
-                }
-            })
-            .collect();
-
-        if matches.is_empty() {
-            return Err(Error::DeviceGatewayNotFound);
-            //THROW_ERROR_TYPE(error::DeviceGatewayNotFound, "Unable to find network adapter with specified gateway");
-        }
-
-        //
-        // Sort matching interfaces ascending by metric.
-        //
-
-        let target_v4 = AF_INET == family;
-
-        matches.sort_by(|lhs, rhs| {
-            if target_v4 {
-                lhs.Ipv4Metric.cmp(&rhs.Ipv4Metric)
-            } else {
-                lhs.Ipv6Metric.cmp(&rhs.Ipv6Metric)
-            }
-        });
-
-        //
-        // Select the interface with the best (lowest) metric.
-        //
-
-        Ok(matches[0].Luid)
-    }
-
-	// TODO: WinNet_DeleteAppliedRoutes
     pub fn delete_applied_routes(&mut self) -> Result<()> {
         let mut routes = self.routes.lock().unwrap();
         //
@@ -668,7 +489,6 @@ impl RouteManagerInternal {
         Ok(())
     }
 
-	// TODO: WinNet_RegisterDefaultRouteChangedCallback
 	pub fn register_default_route_changed_callback(&self, callback: Callback) -> Result<CallbackHandle> {
 		let (nonce, callbacks) = &mut *self.callbacks.lock().unwrap();
 		let old_nonce = *nonce;
@@ -743,7 +563,8 @@ impl RouteManagerInternal {
                     continue;
                 }
             }
-            // FIXME: What if it is None here?
+            // The route can not be None here as we return earlier if the event_type is not RouteMonitorEventType::Updated
+            // which is only passed with a Some route. As such unwrapping is fine.
             affected_route.registered_route.luid = route.as_ref().unwrap().iface;
             affected_route.registered_route.next_hop = route.as_ref().unwrap().gateway;
 
@@ -758,7 +579,6 @@ impl RouteManagerInternal {
     }
 }
 
-// TODO: WinNet_DeactivateRouteManager
 impl std::ops::Drop for RouteManagerInternal {
     fn drop(&mut self) {
 		drop(self.route_monitor_v4.take());
@@ -773,6 +593,70 @@ impl std::ops::Drop for RouteManagerInternal {
     }
 }
 
+fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
+    const ADAPTER_FLAGS: GET_ADAPTERS_ADDRESSES_FLAGS = GAA_FLAG_SKIP_ANYCAST
+        | GAA_FLAG_SKIP_MULTICAST
+        | GAA_FLAG_SKIP_DNS_SERVER
+        | GAA_FLAG_SKIP_FRIENDLY_NAME
+        | GAA_FLAG_INCLUDE_GATEWAYS;
+
+    let family: u32= unsafe { gateway.si_family }.into();
+    let mut adapters = Adapters::new(family, ADAPTER_FLAGS)?;
+
+    //
+    // Process adapters to find matching ones.
+    //
+
+    let mut matches: Vec<_> = adapters
+        .iter_mut()
+        .filter(|adapter| {
+            match adapter_interface_enabled(adapter, family) {
+                Ok(b) => {
+                    if !b {
+                        return false;
+                    }
+                }
+                Err(_) => return false,
+            }
+
+            let gateways = unsafe {
+                isolate_gateway_address(adapter.FirstGatewayAddress, family)
+            };
+
+            match unsafe { address_present(gateways, &gateway) } {
+                Ok(b) => b,
+                Err(_) => false,
+            }
+        })
+        .collect();
+
+    if matches.is_empty() {
+        log::error!("Unable to find network adapter with specified gateway");
+        return Err(Error::DeviceGatewayNotFound);
+        //THROW_ERROR_TYPE(error::DeviceGatewayNotFound, "Unable to find network adapter with specified gateway");
+    }
+
+    //
+    // Sort matching interfaces ascending by metric.
+    //
+
+    let target_v4 = AF_INET == family;
+
+    matches.sort_by(|lhs, rhs| {
+        if target_v4 {
+            lhs.Ipv4Metric.cmp(&rhs.Ipv4Metric)
+        } else {
+            lhs.Ipv6Metric.cmp(&rhs.Ipv6Metric)
+        }
+    });
+
+    //
+    // Select the interface with the best (lowest) metric.
+    //
+
+    Ok(matches[0].Luid)
+}
+
 fn adapter_interface_enabled(
     adapter: &IP_ADAPTER_ADDRESSES_LH,
     family: ADDRESS_FAMILY,
@@ -785,6 +669,7 @@ fn adapter_interface_enabled(
             Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED)
         }
         _ => {
+            log::error!("Missing case handler in match");
             //THROW_ERROR("Missing case handler in switch clause");
             Err(Error::InvalidSiFamily)
         }
@@ -850,24 +735,146 @@ unsafe fn equal_address(lhs: &SOCKADDR_INET, rhs: *const SOCKET_ADDRESS) -> Resu
             Ok(unsafe { lhs.Ipv6.sin6_addr.u.Byte == (*typed_rhs).sin6_addr.u.Byte })
         }
         _ => {
+            log::error!("Missing case handler in match");
             //THROW_ERROR("Missing case handler in switch clause");
             Err(Error::InvalidSiFamily)
         }
     }
 }
 
-fn win_ip_address_prefix_from_ipnetwork_no_port(from: IpNetwork) -> IP_ADDRESS_PREFIX {
+/// Linked list containing `IP_ADAPTER_ADDRESSES_LH` queried from the windows API.
+/// Consume by using the iterator produced by `iter_mut()`
+struct Adapters {
+    buffer: Vec<IP_ADAPTER_ADDRESSES_LH>,
+}
+
+impl Adapters {
+    /// Create a new linked list of adapters from the windows API
+    fn new(family: ADDRESS_FAMILY, flags: GET_ADAPTERS_ADDRESSES_FLAGS) -> Result<Self> {
+        const MSDN_RECOMMENDED_STARTING_BUFFER_SIZE: usize = 1024 * 15;
+        let mut buffer = Vec::with_capacity(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE);
+        buffer.resize(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE, unsafe {
+            std::mem::zeroed()
+        });
+
+        let buffer_size = &mut u32::try_from(buffer.len()).unwrap();
+        let mut buffer_pointer = buffer.as_mut_ptr();
+
+        //
+        // Acquire interfaces.
+        //
+
+        loop {
+            let status = unsafe {
+                GetAdaptersAddresses(
+                    family,
+                    flags,
+                    std::ptr::null_mut() as *mut _,
+                    buffer_pointer,
+                    buffer_size,
+                )
+            };
+
+            if ERROR_SUCCESS == status {
+                // FIXME: If we insert too many objects in the start we will have a bunch of uninitialized zeroed objects
+                // at the end of the vector. We should cosider truncating the vector to the right size here.
+                break;
+            }
+
+            if ERROR_NO_DATA == status {
+                return Ok(Self { buffer: Vec::new() });
+            }
+
+            if ERROR_BUFFER_OVERFLOW != status {
+                log::error!("Probe required buffer size for GetAdaptersAddresses");
+                return Err(Error::WindowsApi);
+            }
+
+            // The needed length is returned in the buffer_size pointer
+            buffer.resize(usize::try_from(*buffer_size).unwrap(), unsafe {
+                std::mem::zeroed()
+            });
+            buffer_pointer = buffer.as_mut_ptr();
+        }
+
+        //
+        // Verify structure compatibility.
+        // The structure has been extended many times.
+        //
+
+        // Unwrapping is fine because we previously would return if we got a ERROR_NO_DATA status. As such the buffer is not empty.
+        let system_size = unsafe { buffer.get(0).unwrap().Anonymous1.Anonymous.Length };
+        let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
+
+        if system_size < code_size {
+            log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
+            return Err(Error::WindowsApi);
+        }
+
+        //
+        // Initialize members.
+        //
+
+        Ok(Self { buffer })
+    }
+
+    /// Produces a mutable iterator for the linked list in `Adapters` see [AdaptersIterator](struct.AdaptersIterator.html)
+    fn iter_mut<'a>(&'a mut self) -> AdaptersIterator<'a> {
+		let cur = if self.buffer.is_empty() {
+			std::ptr::null_mut()
+		} else {
+			&mut self.buffer[0] as *mut _
+		};
+        AdaptersIterator {
+            _adapters: self,
+            cur,
+        }
+    }
+}
+
+/// SAFETY: You are only allowed to dereference `IP_ADAPTER_ADDRESSES_LH.Next` or any following `Next` items in the linked list
+/// if they were produced by the latest call to `next()`. Any raw pointers that were aquired before the call to `next()` are not
+/// valid to dereference after calling `next()`.
+struct AdaptersIterator<'a> {
+    _adapters: &'a mut Adapters,
+    cur: *mut IP_ADAPTER_ADDRESSES_LH,
+}
+
+impl<'a> Iterator for AdaptersIterator<'a> {
+    type Item = &'a mut IP_ADAPTER_ADDRESSES_LH;
+    fn next(&mut self) -> Option<Self::Item> {
+		if self.cur.is_null() {
+            None
+        } else {
+            let ret = self.cur;
+			// SAFETY: self.cur is guaranteed to not be null, we are also holding a &mut Adapters which guarantees no other reference
+			// of self could be held right now which has dereferenced the same address that self.cur is pointing to.
+			//
+			// It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
+			// address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
+			// `Next` on a reference returned by this function after that reference has been dropped.
+            self.cur = unsafe { (*self.cur).Next };
+			// SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
+            Some(unsafe { &mut *ret })
+        }
+    }
+}
+
+/// Convert to a windows defined `IP_ADDRESS_PREFIX` from a `ipnetwork::IpNetwork` but set the port to 0
+pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADDRESS_PREFIX {
 	// Port should not matter so we set it to 0
 	let prefix = crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
 	IP_ADDRESS_PREFIX { Prefix: prefix, PrefixLength: from.prefix() }
 }
 
-fn inet_sockaddr_from_ipaddr_no_port(from: IpAddr) -> SOCKADDR_INET {
+/// Convert to a windows defined `SOCKADDR_INET` from a `IpAddr` but set the port to 0
+pub fn inet_sockaddr_from_ipaddr_port_zero(from: IpAddr) -> SOCKADDR_INET {
 	// Port should not matter so we set it to 0
 	crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
 }
 
-fn ipnetwork_to_address_family(from: IpNetwork) -> AddressFamily {
+/// Convert to a `AddressFamily` from a `ipnetwork::IpNetwork`
+pub fn ipnetwork_to_address_family(from: IpNetwork) -> AddressFamily {
 	if from.is_ipv4() {
 		AddressFamily::Ipv4
 	} else {

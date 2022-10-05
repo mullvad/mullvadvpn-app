@@ -356,7 +356,7 @@ pub fn get_best_default_route(
             };
             let r = Ok(Some(WinNetDefaultRoute {
                 // SAFETY: The fields in this union are always valid
-                interface_luid: unsafe { default_route.interface_luid.Value },
+                interface_luid: unsafe { default_route.iface.Value },
                 gateway,
             }));
             dbg!(&r);

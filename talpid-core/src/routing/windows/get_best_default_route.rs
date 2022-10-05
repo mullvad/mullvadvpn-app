@@ -3,12 +3,13 @@
 //  Go through the code and make sure that the semantics of everything is the same as C++ or that it is correct - done
 //  Do this once before doing all the other changes in the list and then once after
 // Restructure project:
-//  Go through all 3 modules and split the appropriate functions into their own modules
-//  Go through and rename things that should be renamed
-//  Go through the code and split things that we repeat >2 times into their own functions
-//  Go through code and remove unnecessary middle-layer types
+//  Go through all 3 modules and split the appropriate functions into their own modules - new module?
+//  Go through and rename things that should be renamed - done
+//  Go through the code and split things that we repeat >2 times into their own functions - done
+//  Go through code and remove unnecessary middle-layer types - done
 // Correct error handling:
-//  Decide what Error type to use and replace everything with that
+//  Decide what Error type to use and replace everything with that - done
+//  Make sure all errors are the same
 //  Remove unwraps
 //  Log were it is appropriate - done
 // Document:
@@ -40,33 +41,6 @@ const TUNNEL_INTERFACE_DESCS: [&WideCStr; 3] = [
     widecstr!("Wintun"),
     widecstr!("Tunnel"),
 ];
-
-pub struct WinNetDefaultRoute {
-    pub interface_luid: NET_LUID_LH,
-    pub gateway: SocketAddr,
-}
-
-impl PartialEq for WinNetDefaultRoute {
-    fn eq(&self, other: &Self) -> bool {
-        self.gateway.eq(&other.gateway)
-            && unsafe { self.interface_luid.Value == other.interface_luid.Value }
-    }
-}
-
-// TODO: Should we remove the WinNetDefaultRoute type? We could replace it with InterfaceAndGateway.
-// Could we also remove the InterfaceAndGateway or rename it to something else and replace the windows type
-// representation inside of it.
-// TODO: Better documentation
-/// Get the best default route
-pub fn get_best_default_route(family: AddressFamily) -> Result<Option<WinNetDefaultRoute>> {
-    match get_best_default_route_internal(family)? {
-        Some(interface_and_gateway) => Ok(Some(WinNetDefaultRoute {
-            interface_luid: interface_and_gateway.iface,
-            gateway: interface_and_gateway.gateway
-        })),
-        None => Ok(None),
-    }
-}
 
 fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> {
     let family = family.to_af_family();
@@ -122,7 +96,8 @@ impl PartialEq for InterfaceAndGateway {
     }
 }
 
-pub fn get_best_default_route_internal(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
+/// Get the best default route for the given address family or None if none exists.
+pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
     let table = get_ipforward_rows(family)?;
 
     // Remove all candidates without a gateway and which are not on a physical interface.
