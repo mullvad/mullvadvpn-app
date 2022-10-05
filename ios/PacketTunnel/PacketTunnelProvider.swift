@@ -240,50 +240,40 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 }
 
                 completionHandler?(response)
-            case let .transportHTTPRequest(data):
+            case let .transportHTTPRequest(message):
                 guard
-                    let encodedModel = try? JSONDecoder()
-                    .decode(TransportMessage.self, from: data),
-                    let url = encodedModel.url
+                    let url = message.url
                 else {
                     completionHandler?(nil)
                     return
                 }
 
                 var urlRequest = URLRequest(url: url)
-                urlRequest.httpMethod = encodedModel.method
-                urlRequest.httpBody = encodedModel.serializedParameters
-                urlRequest.allHTTPHeaderFields = encodedModel.allHTTPHeaderFields
-
-                // Create unique request UUID and store it along the URLSessionTask in a dictionary.
-                let requestId = UUID()
+                urlRequest.httpMethod = message.method
+                urlRequest.httpBody = message.httpBody
+                urlRequest.allHTTPHeaderFields = message.httpHeaders
 
                 let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
                     // Release URLSessionTask from dictionary
-                    self.allRequests.removeValue(forKey: requestId)
+                    self.allRequests.removeValue(forKey: message.id)
 
                     completionHandler?(
-                        try? TunnelProviderReply(TransportMessageReply(
-                            data: data,
-                            response: .init(response),
-                            error: .init(error)
-                        )).encode()
+                        try? TunnelProviderReply(
+                            TransportMessageReply(
+                                data: data,
+                                response: .init(response),
+                                error: .init(error)
+                            )
+                        ).encode()
                     )
                 }
 
-                self.allRequests[requestId] = task
-
-                completionHandler?(
-                    try? TunnelProviderReply(
-                        PacketTunnelRequestEvent
-                            .initiated(requestId)
-                    ).encode()
-                )
+                self.allRequests[message.id] = task
 
                 task.resume()
-            case let .cancelURLRequest(requestId):
-                self.allRequests[requestId]?.cancel()
-                self.allRequests[requestId] = nil
+            case let .cancelURLRequest(messageId):
+                self.allRequests[messageId]?.cancel()
+                self.allRequests[messageId] = nil
             }
         }
     }

@@ -524,14 +524,10 @@ final class TunnelManager {
         message: TransportMessage,
         completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
     ) -> Cancellable? {
-        do {
-            return tunnel?.sendRequest(
-                try message.encode(),
-                completionHandler: completionHandler
-            )
-        } catch {
-            preconditionFailure()
-        }
+        tunnel?.sendRequest(
+            message,
+            completionHandler: completionHandler
+        )
     }
 
     // MARK: - Tunnel observeration

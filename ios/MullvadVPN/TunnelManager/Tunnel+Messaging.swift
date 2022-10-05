@@ -56,7 +56,7 @@ extension Tunnel {
     ///   - completionHandler: Packet tunnel reply with OperationCompletion.
     /// - Returns: Cancellable.
     func sendRequest(
-        _ requestData: Data,
+        _ requestData: TransportMessage,
         completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
