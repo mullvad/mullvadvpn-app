@@ -29,9 +29,9 @@ extension TransportMessage {
 
         self.id = id
         self.url = url
-        self.method = urlRequest.httpMethod
-        self.httpBody = urlRequest.httpBody
-        self.httpHeaders = urlRequest.allHTTPHeaderFields
+        method = urlRequest.httpMethod
+        httpBody = urlRequest.httpBody
+        httpHeaders = urlRequest.allHTTPHeaderFields
     }
 }
 
