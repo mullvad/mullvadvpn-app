@@ -500,7 +500,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "Du må deaktivere «Be alltid om VPN» for å få tilgang til internettet og legge til mer tid."
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "Du er klar!"
 
 #. The hostname line displayed below the country on the main screen
@@ -722,7 +722,7 @@ msgid "Creating account..."
 msgstr "Oppretter konto ..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "Har du ikke et kontonummer?"
 
 msgctxt "login-view"
@@ -1398,7 +1398,7 @@ msgid "Thanks!"
 msgstr "Takk!"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal."
 
 msgctxt "support-view"
