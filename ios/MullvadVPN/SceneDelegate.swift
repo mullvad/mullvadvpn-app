@@ -363,6 +363,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         return controller
     }
 
+    private func makeDeviceManagementController(accountNumber: String)
+        -> DeviceManagementViewController
+    {
+        let deviceController = DeviceManagementViewController(
+            interactor: DeviceManagementInteractor(accountNumber: accountNumber)
+        )
+        deviceController.delegate = self
+        return deviceController
+    }
+
     private func makeLoginController() -> LoginViewController {
         let controller = LoginViewController()
         controller.delegate = self
@@ -523,10 +533,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
                 {
                     self.lastLoginAction = action
 
-                    let deviceController = DeviceManagementViewController(
-                        interactor: DeviceManagementInteractor(accountNumber: accountNumber)
+                    let deviceController = self.makeDeviceManagementController(
+                        accountNumber: accountNumber
                     )
-                    deviceController.delegate = self
 
                     deviceController
                         .fetchDevices(animateUpdates: false) { [weak self] operationCompletion in
