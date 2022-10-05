@@ -489,7 +489,7 @@ msgid "You need to disable \"Always require VPN\" in order to access the Interne
 msgstr "인터넷에 액세스하여 시간을 추가하려면, \"항상 VPN 필요\"를 비활성화해야 합니다."
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "준비가 완료되었습니다!"
 
 #. The hostname line displayed below the country on the main screen
@@ -711,7 +711,7 @@ msgid "Creating account..."
 msgstr "계정 생성 중..."
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "계정 번호가 없으신가요?"
 
 msgctxt "login-view"
@@ -1387,7 +1387,7 @@ msgid "Thanks!"
 msgstr "감사합니다!"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다."
 
 msgctxt "support-view"
