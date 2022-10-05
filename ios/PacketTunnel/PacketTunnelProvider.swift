@@ -280,6 +280,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case let .cancelURLRequest(messageId):
                 self.allRequests[messageId]?.cancel()
                 self.allRequests[messageId] = nil
+
+                completionHandler?(nil)
             }
         }
     }
