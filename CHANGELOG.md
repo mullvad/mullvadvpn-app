@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add custom option to WireGuard port selector.
 
+####Linux
+- Add ARM64 (aarch64) builds. This is the first release with Linux ARM support.
+
 ### Changed
 - Experimental: Upgrade the support for quantum-resistant WireGuard tunnels to a newer protocol.
 
