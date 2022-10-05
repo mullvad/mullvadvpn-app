@@ -133,6 +133,10 @@ export const formatTimeLeft = (fromDate: DateType, toDate: DateType): string => 
   const years = Math.abs(diff.years);
   const days = Math.abs(diff.days);
 
+  if (days < 1) {
+    return messages.gettext('less than a day left');
+  }
+
   if (days < 730) {
     return sprintf(messages.ngettext('1 day left', '%d days left', days), days);
   }

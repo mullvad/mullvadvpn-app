@@ -151,6 +151,7 @@ describe('Date helper', () => {
   });
 
   it('should format time left correctly', () => {
+    expect(date.formatTimeLeft('2022-09-01', '2022-09-01')).to.equal('less than a day left');
     expect(date.formatTimeLeft('2022-09-01', '2022-09-02')).to.equal('1 day left');
     expect(date.formatTimeLeft('2022-09-01', '2022-09-05')).to.equal('4 days left');
     expect(date.formatTimeLeft('2022-09-01', '2022-09-30')).to.equal('29 days left');
