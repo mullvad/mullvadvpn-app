@@ -16,7 +16,7 @@ use windows_sys::Win32::NetworkManagement::IpHelper::{
 const WIN_FALSE: BOOLEAN = 0;
 
 struct DefaultRouteMonitorContext {
-    callback: Box<dyn Fn(EventType, &Option<InterfaceAndGateway>) + Send + 'static>,
+    callback: Box<dyn for<'a> Fn(EventType<'a>) + Send + 'static>,
     refresh_current_route: bool,
     family: AddressFamily,
     best_route: Option<InterfaceAndGateway>,
@@ -24,7 +24,7 @@ struct DefaultRouteMonitorContext {
 
 impl DefaultRouteMonitorContext {
     fn new(
-        callback: Box<dyn Fn(EventType, &Option<InterfaceAndGateway>) + Send + 'static>,
+        callback: Box<dyn for<'a> Fn(EventType<'a>) + Send + 'static>,
         family: AddressFamily,
     ) -> Self {
         Self {
@@ -70,18 +70,18 @@ impl DefaultRouteMonitorContext {
             (None, None) => (),
             (None, Some(current_best_route)) => {
                 self.best_route = Some(current_best_route);
-                (self.callback)(EventType::Updated, &self.best_route);
+                (self.callback)(EventType::Updated(&self.best_route.as_ref().unwrap()));
             }
             (Some(_), None) => {
                 self.best_route = None;
-                (self.callback)(EventType::Removed, &None);
+                (self.callback)(EventType::Removed);
             }
             (Some(best_route), Some(current_best_route)) => {
                 if best_route != &current_best_route {
                     self.best_route = Some(current_best_route);
-                    (self.callback)(EventType::Updated, &self.best_route);
+                    (self.callback)(EventType::Updated(&self.best_route.as_ref().unwrap()));
                 } else if refresh_current {
-                    (self.callback)(EventType::UpdatedDetails, &self.best_route);
+                    (self.callback)(EventType::UpdatedDetails(&self.best_route.as_ref().unwrap()));
                 }
             }
         }
@@ -137,11 +137,11 @@ impl std::ops::Drop for Handle {
 // TODO: Rename and document and perhaps trim and perhaps remove the other EventType
 #[derive(PartialEq, Clone, Copy)]
 /// The type of route update passed to the callback
-pub enum EventType {
+pub enum EventType<'a> {
     /// New route
-    Updated,
+    Updated(&'a InterfaceAndGateway),
     /// Updated details of the same old route
-    UpdatedDetails,
+    UpdatedDetails(&'a InterfaceAndGateway),
     /// Route removed
     Removed,
 }
@@ -154,7 +154,7 @@ struct ContextAndBurstGuard {
 }
 
 impl DefaultRouteMonitor {
-    pub fn new<F: Fn(EventType, &Option<InterfaceAndGateway>) + Send + 'static>(
+    pub fn new<F: for<'a> Fn(EventType<'a>) + Send + 'static>(
         family: AddressFamily,
         callback: F,
     ) -> Result<Self> {

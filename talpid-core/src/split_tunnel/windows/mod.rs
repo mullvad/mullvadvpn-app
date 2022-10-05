@@ -719,8 +719,8 @@ impl SplitTunnel {
         let moved_context_mutex = context_mutex.clone();
         let mut context = context_mutex.lock().unwrap();
         let callback = runtime.block_on(route_manager.add_default_route_change_callback(Box::new(
-            move |event, addr_family, default_route| {
-                split_tunnel_default_route_change_handler(event, addr_family, default_route, &moved_context_mutex)
+            move |event, addr_family| {
+                split_tunnel_default_route_change_handler(event, addr_family, &moved_context_mutex)
             }
         )))
         .map(Some)
@@ -854,10 +854,9 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 }
 
-fn split_tunnel_default_route_change_handler(
-    event_type: EventType,
+fn split_tunnel_default_route_change_handler<'a>(
+    event_type: EventType<'a>,
     address_family: AddressFamily,
-    default_route: &Option<InterfaceAndGateway>,
     ctx_mutex: &Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>,
 ) {
     use crate::routing::EventType::*;
@@ -873,10 +872,10 @@ fn split_tunnel_default_route_change_handler(
     };
 
     let result = match event_type {
-        Updated | UpdatedDetails => {
+        Updated(default_route) | UpdatedDetails(default_route) => {
             match get_ip_address_for_interface(
                 address_family,
-                default_route.as_ref().unwrap().iface
+                default_route.iface
             ) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),

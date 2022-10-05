@@ -1,6 +1,6 @@
 use crate::{
     windows::{AddressFamily, window::{PowerManagementEvent, PowerManagementListener}},
-    routing::{RouteManagerHandle, CallbackHandle, InterfaceAndGateway, EventType},
+    routing::{RouteManagerHandle, CallbackHandle, EventType},
     winnet,
 };
 use futures::channel::mpsc::UnboundedSender;
@@ -109,8 +109,8 @@ impl BroadcastListener {
         route_manager_handle: RouteManagerHandle,
     ) -> Result<CallbackHandle, Error> {
         let change_handle = route_manager_handle.add_default_route_change_callback(Box::new(
-            move |event, addr_family, route| {
-                Self::connectivity_callback(event, addr_family, route, &system_state)
+            move |event, addr_family| {
+                Self::connectivity_callback(event, addr_family, &system_state)
             }
         )).await.map_err(|e| {
             Error::ConnectivityMonitorError(e)
@@ -118,15 +118,14 @@ impl BroadcastListener {
         Ok(change_handle)
     }
 
-    fn connectivity_callback(
-        event_type: EventType,
+    fn connectivity_callback<'a>(
+        event_type: EventType<'a>,
         family: AddressFamily,
-        _default_route: &Option<InterfaceAndGateway>,
         state_lock: &Arc<Mutex<SystemState>>,
     ) {
         use crate::routing::EventType::*;
 
-        if event_type == UpdatedDetails {
+        if matches!(event_type, UpdatedDetails(_)) {
             // ignore changes that don't affect the route
             return;
         }

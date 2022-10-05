@@ -206,19 +206,18 @@ impl WgGoTunnel {
 
     // Callback to be used to rebind the tunnel sockets when the default route changes
     #[cfg(target_os = "windows")]
-    pub fn default_route_changed_callback(
-        event_type: crate::routing::EventType,
+    pub fn default_route_changed_callback<'a>(
+        event_type: crate::routing::EventType<'a>,
         address_family: crate::windows::AddressFamily,
-        default_route: &Option<crate::routing::InterfaceAndGateway>,
     ) {
         use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
         use crate::routing::EventType::*;
 
         let iface_idx: u32 = match event_type {
-            Updated => {
+            Updated(default_route) => {
                 let mut iface_idx = 0u32;
                 // TODO: Make sure unwrap is fine
-                let iface_luid = default_route.as_ref().unwrap().iface;
+                let iface_luid = default_route.iface;
                 let status =
                     unsafe { ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _) };
                 if status != 0 {
@@ -234,7 +233,7 @@ impl WgGoTunnel {
             // if there is no new default route, specify 0 as the interface index
             Removed => 0,
             // ignore interface updates that don't affect the interface to use
-            UpdatedDetails => return,
+            UpdatedDetails(_) => return,
         };
 
         unsafe { wgRebindTunnelSocket(address_family.to_af_family(), iface_idx) };

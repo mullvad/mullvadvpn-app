@@ -7,6 +7,7 @@
 //  Go through and rename things that should be renamed - done
 //  Go through the code and split things that we repeat >2 times into their own functions - done
 //  Go through code and remove unnecessary middle-layer types - done
+//  Upgrade RouteManager to be an actor - done
 // Correct error handling:
 //  Decide what Error type to use and replace everything with that - done
 //  Make sure all errors are the same

@@ -98,7 +98,7 @@ enum RecordEventType {
 }
 
 pub type Callback = Box<
-    dyn Fn(RouteMonitorEventType, AddressFamily, &Option<InterfaceAndGateway>) + Send,
+    dyn for<'a> Fn(RouteMonitorEventType<'a>, AddressFamily) + Send,
 >;
 
 pub struct RouteManagerInternal {
@@ -125,25 +125,23 @@ impl RouteManagerInternal {
         Ok(Self {
             route_monitor_v4: Some(DefaultRouteMonitor::new(
                 AddressFamily::Ipv4,
-                move |event_type, route| {
+                move |event_type| {
                     Self::default_route_change(
                         &callbacks_ipv4,
                         &routes_ipv4,
                         AF_INET,
                         event_type,
-                        route,
                     );
                 },
             )?),
             route_monitor_v6: Some(DefaultRouteMonitor::new(
                 AddressFamily::Ipv6,
-                move |event_type, route| {
+                move |event_type| {
                     Self::default_route_change(
                         &callbacks_ipv6,
                         &routes_ipv6,
                         AF_INET6,
                         event_type,
-                        route,
                     );
                 },
             )?),
@@ -497,12 +495,11 @@ impl RouteManagerInternal {
 		Ok(CallbackHandle { nonce: old_nonce, callbacks: self.callbacks.clone() } )
 	}
 
-    fn default_route_change(
+    fn default_route_change<'a>(
         callbacks: &Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
         records: &Arc<Mutex<Vec<RouteRecord>>>,
         family: ADDRESS_FAMILY,
-        event_type: RouteMonitorEventType,
-        route: &Option<InterfaceAndGateway>,
+        event_type: RouteMonitorEventType<'a>,
     ) {
         //
         // Forward event to all registered listeners.
@@ -513,7 +510,7 @@ impl RouteManagerInternal {
             for (_, callback) in callbacks.iter() {
                 let family =
                     AddressFamily::try_from_af_family(u16::try_from(family).unwrap()).unwrap();
-				callback(event_type, family, route);
+				callback(event_type, family);
             }
         }
 
@@ -521,9 +518,11 @@ impl RouteManagerInternal {
         // Examine event to determine if best default route has changed.
         //
 
-        if RouteMonitorEventType::Updated != event_type {
+        let route = if let RouteMonitorEventType::Updated(route) = event_type {
+            route
+        } else {
             return;
-        }
+        };
 
         //
         // Examine our routes to see if any of them are policy bound to the best default route.
@@ -563,10 +562,9 @@ impl RouteManagerInternal {
                     continue;
                 }
             }
-            // The route can not be None here as we return earlier if the event_type is not RouteMonitorEventType::Updated
-            // which is only passed with a Some route. As such unwrapping is fine.
-            affected_route.registered_route.luid = route.as_ref().unwrap().iface;
-            affected_route.registered_route.next_hop = route.as_ref().unwrap().gateway;
+
+            affected_route.registered_route.luid = route.iface;
+            affected_route.registered_route.next_hop = route.gateway;
 
             match Self::restore_into_routing_table(&affected_route.registered_route) {
                 Ok(()) => (),
