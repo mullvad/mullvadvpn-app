@@ -1,83 +1,82 @@
-FROM debian:10
+# To build the image:
+# podman build . -t mullvad-android-app-build
+#
+# See the Dockerfile for mullvadvpn-app-build (in the repository root) for more information.
 
-RUN apt-get update && apt-get install -y \
-    curl \
+FROM mullvadvpn-app-build@sha256:<TODO>
+
+# === Define toolchain versions and paths ===
+
+ENV SDK_VERSION=platforms;android-33 \
+    BUILD_TOOLS_VERSION=build-tools;33.0.0
+
+ENV SDK_TOOLS_VERSION=4333796 \
+    SDK_TOOLS_HASH=92ffee5a1d98d856634e8b71132e8a95d96c83a63fde1099be3d86df3106def9
+
+ENV NDK_VERSION=r20b \
+    NDK_HASH=8381c440fe61fcbb01e209211ac01b519cd6adf51ab1c2281d5daad6ca4c8c8c
+
+ENV GRADLE_USER_HOME=/root/.gradle
+
+ENV GOROOT=/usr/local/go \
+    GOPATH=/usr/local/go/go-path
+
+ENV ANDROID_HOME=/opt/android
+ENV ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${NDK_VERSION}
+ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
+
+ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-ar \
+    AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android-ar \
+    AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-ar \
+    AR_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-ar \
+    CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android21-clang \
+    CC_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android21-clang \
+    CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android21-clang \
+    CC_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi21-clang
+
+# === Install/set up the image ===
+
+RUN apt-get update -y && apt-get install -y \
     file \
-    gcc \
-    git \
     gpg \
     make \
     python \
     software-properties-common \
-    unzip
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install OpenJDK 8
+# Install JDK
 COPY adopt-openjdk-apt-key.pgp /tmp/adopt-openjdk-apt-key.pgp
-
 RUN apt-key add < /tmp/adopt-openjdk-apt-key.pgp && \
     rm /tmp/adopt-openjdk-apt-key.pgp && \
     add-apt-repository -y https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ && \
     apt-get update && \
-    apt-get install -y adoptopenjdk-8-hotspot
+    apt-get install -y adoptopenjdk-8-hotspot \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install base Android SDK tools
+RUN curl -sfLo /tmp/sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-${SDK_TOOLS_VERSION}.zip && \
+    echo "$SDK_TOOLS_HASH /tmp/sdk-tools.zip" | sha256sum -c && \
+    mkdir -p $ANDROID_HOME && \
+    unzip -q /tmp/sdk-tools.zip -d $ANDROID_HOME && \
+    rm /tmp/sdk-tools.zip
 
 # Install Android SDK
-RUN curl -sf https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -L -o /tmp/tools_r26.1.1-linux.zip && \
-    cd /tmp && \
-    echo "92ffee5a1d98d856634e8b71132e8a95d96c83a63fde1099be3d86df3106def9 tools_r26.1.1-linux.zip" | sha256sum -c && \
-    mkdir -p /opt/android && \
-    cd /opt/android && \
-    unzip -q /tmp/tools_r26.1.1-linux.zip && \
-    rm /tmp/tools_r26.1.1-linux.zip && \
-    yes | /opt/android/tools/bin/sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
-
-ENV ANDROID_HOME="/opt/android"
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
 
 # Install Android NDK
-RUN cd /tmp && \
-    curl -sf -L -O https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip && \
-    echo "8381c440fe61fcbb01e209211ac01b519cd6adf51ab1c2281d5daad6ca4c8c8c android-ndk-r20b-linux-x86_64.zip" | sha256sum -c && \
-    cd /opt/android && \
-    unzip -q /tmp/android-ndk-r20b-linux-x86_64.zip && \
-    rm /tmp/android-ndk-r20b-linux-x86_64.zip
+RUN curl -sfLo /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip && \
+    echo "$NDK_HASH /tmp/ndk.zip" | sha256sum -c && \
+    unzip -q /tmp/ndk.zip -d $ANDROID_HOME && \
+    rm /tmp/ndk.zip
 
-ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20b" \
-    NDK_TOOLCHAIN_DIR="/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin"
-
-# Install golang
-ENV GOLANG_VERSION 1.18.5
-# Checksum from: https://go.dev/dl/
-ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+# Apply go patch required for Android
 COPY goruntime-boottime-over-monotonic.diff /tmp/goruntime-boottime-over-monotonic.diff
-RUN cd /tmp && \
-    curl -sf -L -o go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-    echo "$GOLANG_HASH go.tgz" | sha256sum -c && \
-    cd /opt && \
-    tar -xzf /tmp/go.tgz && \
-    patch -p1 -f -N -r- -d "/opt/go" < /tmp/goruntime-boottime-over-monotonic.diff && \
-    mkdir /opt/go/go-path && \
-    rm /tmp/goruntime-boottime-over-monotonic.diff /tmp/go.tgz
+RUN patch -p1 -f -N -r- -d $GOROOT < /tmp/goruntime-boottime-over-monotonic.diff && \
+    rm /tmp/goruntime-boottime-over-monotonic.diff
 
-ENV GOROOT=/opt/go GOPATH=/opt/go/go-path PATH=${PATH}:/opt/go/bin
+# Add rust targets
+COPY cargo-config.toml $CARGO_HOME/config
+RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
 
-# Install Rust
-COPY cargo-config.toml /root/.cargo/config
-
-ENV PATH="${PATH}:/root/.cargo/bin" \
-    AR_x86_64_linux_android="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-ar" \
-    AR_i686_linux_android="${NDK_TOOLCHAIN_DIR}/i686-linux-android-ar" \
-    AR_aarch64_linux_android="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-ar" \
-    AR_armv7_linux_androideabi="${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-ar" \
-    CC_x86_64_linux_android="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android21-clang" \
-    CC_i686_linux_android="${NDK_TOOLCHAIN_DIR}/i686-linux-android21-clang" \
-    CC_aarch64_linux_android="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android21-clang" \
-    CC_armv7_linux_androideabi="${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi21-clang"
-
-RUN curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh && \
-    cd /tmp && \
-    echo "173f4881e2de99ba9ad1acb59e65be01b2a44979d83b6ec648d0d22f8654cbce rustup.sh" | sha256sum -c && \
-    chmod +x rustup.sh && \
-    ./rustup.sh -y && \
-    rm rustup.sh && \
-    rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
-
-CMD ["./build-apk.sh", "--no-docker"]
+WORKDIR /build
