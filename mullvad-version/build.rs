@@ -31,10 +31,6 @@ fn main() {
     let product_version = get_product_version(Target::current_target());
     let android_product_version = get_product_version(Target::Android);
 
-    // TODO: Remove this and all other warnings
-    println!("cargo:warning=PRODUCT VERSION {product_version}");
-    println!("cargo:warning=ANDROID PRODUCT VERSION {android_product_version}");
-
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
     fs::write(
