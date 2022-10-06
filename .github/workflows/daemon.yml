@@ -29,7 +29,6 @@ on:
             - integration-tests.sh
             - prepare-release.sh
             - rustfmt.toml
-            - version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:
 jobs:

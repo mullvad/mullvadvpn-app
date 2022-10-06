@@ -11,6 +11,38 @@ CPP_BUILD_TARGETS=${CPP_BUILD_TARGETS:-"x64"}
 
 IS_RELEASE=${IS_RELEASE:-"false"}
 
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
+
+function restore_metadata_backups {
+    mv dist-assets/windows/version.h.bak dist-assets/windows/version.h
+}
+trap 'restore_metadata_backups' EXIT
+
+function inject_version {
+    # Regex that only matches valid Mullvad VPN versions. It also captures
+    # relevant values into capture groups, read out via BASH_REMATCH[x].
+    local VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$"
+
+    if [[ ! $PRODUCT_VERSION =~ $VERSION_REGEX ]]; then
+        echo >&2 "Invalid version format. Please specify version as:"
+        echo >&2 "<YEAR>.<NUMBER>[-beta<NUMBER>]"
+        return 1
+    fi
+
+    local semver_major="20${BASH_REMATCH[1]}"
+    local semver_minor=${BASH_REMATCH[2]}
+    local semver_patch="0"
+
+    # Windows C++
+    cp dist-assets/windows/version.h dist-assets/windows/version.h.bak
+    cat <<EOF > dist-assets/windows/version.h
+#define MAJOR_VERSION $semver_major
+#define MINOR_VERSION $semver_minor
+#define PATCH_VERSION $semver_patch
+#define PRODUCT_VERSION "$PRODUCT_VERSION"
+EOF
+}
+
 function clean_solution {
     local path="$1"
 
@@ -83,6 +115,8 @@ function build_nsis_plugins {
 }
 
 function main {
+    inject_version
+
     local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
     local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
 
