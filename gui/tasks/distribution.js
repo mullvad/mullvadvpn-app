@@ -39,7 +39,9 @@ const config = {
 
   extraMetadata: {
     name: 'mullvad-vpn',
-    version: execSync('cargo run --bin mullvad-version', { encoding: 'utf-8' }).trim()
+    // We have to stick to semver on Windows for now due to:
+    // https://github.com/electron-userland/electron-builder/issues/7173
+    version: productVersion(process.platform === 'win32' ? 'semver' : undefined)
   },
 
   files: [
@@ -242,6 +244,22 @@ function packWin() {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         return true;
       },
+      afterAllArtifactBuild: (buildResult) => {
+        // All of this is a hack to work around the limitation in:
+        // https://github.com/electron-userland/electron-builder/issues/7173
+        const productSemverVersion = productVersion('semver');
+        const productTargetVersion = productVersion();
+
+        // Rename the artifacts so that they don't have the .0 (semver format)
+        for (const artifactPath of buildResult.artifactPaths) {
+          const artifactDir = path.dirname(artifactPath);
+          const artifactSemverFilename = path.basename(artifactPath);
+          const artifactDesiredFilename = artifactSemverFilename.replace(productSemverVersion, productTargetVersion);
+          const targetArtifactPath = path.join(artifactDir, artifactDesiredFilename);
+          console.log("Moving", artifactSemverFilename, "=>", artifactDesiredFilename);
+          fs.renameSync(artifactPath, targetArtifactPath);
+        }
+      },
     },
   });
 }
@@ -405,6 +423,13 @@ function getDebVersion() {
     return `${major}.${minor}-${prerelease[0]}`;
   }
   return `${major}.${minor}`;
+}
+
+// Returns the product version. The `args` argument is optional. Set it to `'semver'`
+// to get the version in semver format.
+function productVersion(args) {
+  const command = `cargo run -q --bin mullvad-version ${args ?? ''}`;
+  return execSync(command, { encoding: 'utf-8' }).trim();
 }
 
 packWin.displayName = 'builder-win';
