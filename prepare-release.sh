@@ -62,12 +62,16 @@ if [[ "$ANDROID" == "true" && $(grep "^## \\[android/$PRODUCT_VERSION\\] - " CHA
     exit 1
 fi
 
-echo "Updating version in metadata files..."
-./version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
-
 if [[ "$DESKTOP" == "true" ]]; then
-    git commit -S -m "Update desktop app versions to $PRODUCT_VERSION" \
-        dist-assets/windows/version.h
+    echo "$PRODUCT_VERSION" > dist-assets/desktop-product-version.txt
+    git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
+        dist-assets/desktop-product-version.txt
+fi
+
+if [[ "$ANDROID" == "true" ]]; then
+    echo "$PRODUCT_VERSION" > dist-assets/android-product-version.txt
+    git commit -S -m "Update android app version to $PRODUCT_VERSION" \
+        dist-assets/android-product-version.txt
 fi
 
 NEW_TAGS=""
@@ -84,8 +88,6 @@ if [[ "$DESKTOP" == "true" ]]; then
     git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
     NEW_TAGS+=" $PRODUCT_VERSION"
 fi
-
-./version-metadata.sh delete-backup
 
 echo "================================================="
 echo "| DONE preparing for a release!                 |"
