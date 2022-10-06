@@ -1,10 +1,14 @@
 use std::{env, process::exit};
 
+pub const ANDROID_VERSION: &str =
+    include_str!(concat!(env!("OUT_DIR"), "/android-product-version.txt"));
+
 fn main() {
     let command = env::args().nth(1);
     match command.as_deref() {
         None => println!("{}", mullvad_version::VERSION),
         Some("semver") => println!("{}", to_semver(mullvad_version::VERSION)),
+        Some("android") => println!("{ANDROID_VERSION}"),
         Some(command) => {
             eprintln!("Unknown command: {command}");
             exit(1);

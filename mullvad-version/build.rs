@@ -7,14 +7,14 @@ const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 const ANDROID_VERSION_FILE_PATH: &str = "../dist-assets/android-product-version.txt";
 const DESKTOP_VERSION_FILE_PATH: &str = "../dist-assets/desktop-product-version.txt";
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum Target {
     Android,
     Desktop,
 }
 
 impl Target {
-    pub fn get() -> Self {
+    pub fn current_target() -> Self {
         println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS");
         match env::var("CARGO_CFG_TARGET_OS")
             .expect("CARGO_CFG_TARGET_OS should be set")
@@ -28,13 +28,45 @@ impl Target {
 }
 
 fn main() {
-    let target = Target::get();
-    let mut product_version = get_product_version(&target);
+    let product_version = get_product_version(Target::current_target());
+    let android_product_version = get_product_version(Target::Android);
 
+    // TODO: Remove this and all other warnings
+    println!("cargo:warning=PRODUCT VERSION {product_version}");
+    println!("cargo:warning=ANDROID PRODUCT VERSION {android_product_version}");
+
+    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
+    fs::write(
+        out_dir.join("android-product-version.txt"),
+        &android_product_version,
+    )
+    .unwrap();
+}
+
+/// Returns the Mullvad product version from the corresponding metadata files,
+/// depending on target platform.
+fn get_product_version(target: Target) -> String {
+    let version_file_path = match target {
+        Target::Android => ANDROID_VERSION_FILE_PATH,
+        Target::Desktop => DESKTOP_VERSION_FILE_PATH,
+    };
+    println!("cargo:rerun-if-changed={version_file_path}");
+    let version = fs::read_to_string(version_file_path)
+        .unwrap_or_else(|_| panic!("Failed to read {version_file_path}"))
+        .trim()
+        .to_owned();
+
+    let dev_suffix = get_dev_suffix(target, &version);
+
+    format!("{version}{dev_suffix}")
+}
+
+fn get_dev_suffix(target: Target, product_version: &str) -> String {
     // Compute the expected tag name for the release named `product_version`
-    let release_tag = match &target {
+    let release_tag = match target {
         Target::Android => format!("android/{product_version}"),
-        Target::Desktop => product_version.clone(),
+        Target::Desktop => product_version.to_owned(),
     };
 
     // Get the git commit hashes for the latest release and current HEAD
@@ -46,28 +78,10 @@ fn main() {
     // Adjust product version string accordingly.
     if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
         let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
-        product_version = format!("{product_version}-dev-{hash_suffix}");
+        format!("-dev-{hash_suffix}")
+    } else {
+        "".to_owned()
     }
-
-    // TODO: Remove this and all other warnings
-    println!("cargo:warning=PRODUCT VERSION {product_version}");
-
-    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
-}
-
-/// Returns the Mullvad product version from the corresponding metadata files,
-/// depending on target platform.
-fn get_product_version(target: &Target) -> String {
-    let version_file_path = match target {
-        Target::Android => ANDROID_VERSION_FILE_PATH,
-        Target::Desktop => DESKTOP_VERSION_FILE_PATH,
-    };
-    println!("cargo:rerun-if-changed={version_file_path}");
-    fs::read_to_string(version_file_path)
-        .unwrap_or_else(|_| panic!("Failed to read {version_file_path}"))
-        .trim()
-        .to_owned()
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to
