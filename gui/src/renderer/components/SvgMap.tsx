@@ -1,5 +1,5 @@
 import { geoMercator, GeoProjection } from 'd3-geo';
-import rbush from 'rbush';
+import RBush, { BBox as RBushBBox } from 'rbush';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 
@@ -8,16 +8,16 @@ import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
 
-interface IGeometryLeaf extends rbush.BBox {
+interface IGeometryLeaf extends RBushBBox {
   id: string;
 }
 
-interface IProvinceAndStateLineLeaf extends rbush.BBox {
+interface IProvinceAndStateLineLeaf extends RBushBBox {
   id: string;
 }
 
-const geometryTree = rbush<IGeometryLeaf>().fromJSON(geometryTreeData);
-const provincesStatesLinesTree = rbush<IProvinceAndStateLineLeaf>().fromJSON(
+const geometryTree = new RBush<IGeometryLeaf>().fromJSON(geometryTreeData);
+const provincesStatesLinesTree = new RBush<IProvinceAndStateLineLeaf>().fromJSON(
   statesProvincesLinesTreeData,
 );
 

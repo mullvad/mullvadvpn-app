@@ -6,7 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Topology, GeometryCollection } from 'topojson-specification';
-import rbush from 'rbush';
+import RBush from 'rbush';
 
 interface GeometryTopologyObjects {
   [key: string]: any;
@@ -51,7 +51,7 @@ function processGeometry(source: string, destination: string) {
     };
   });
 
-  const tree = rbush();
+  const tree = new RBush();
   tree.load(treeData);
   fs.writeFileSync(destination, JSON.stringify(tree.toJSON()));
 
