@@ -13,7 +13,6 @@ for argument in "$@"; do
     case "$argument" in
         "--android")
             ANDROID="true"
-            VERSION_METADATA_ARGS+="--android "
             ;;
         "--desktop")
             DESKTOP="true"
@@ -66,37 +65,9 @@ fi
 echo "Updating version in metadata files..."
 ./version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
 
-echo "Syncing Cargo.lock with new version numbers"
-source env.sh ""
-# If cargo exits with a non zero exit status and it's not a timeout (exit code 124) it's an error
-set +e
-timeout 5s cargo build
-if [[ $? != 0 && $? != 124 ]]; then
-    exit 1
-fi
-set -e
-
-echo "Commiting metadata changes to git..."
-
-git commit -S -m "Update crate versions to $PRODUCT_VERSION" \
-    mullvad-daemon/Cargo.toml \
-    mullvad-cli/Cargo.toml \
-    mullvad-problem-report/Cargo.toml \
-    mullvad-setup/Cargo.toml \
-    mullvad-exclude/Cargo.toml \
-    talpid-openvpn-plugin/Cargo.toml \
-    Cargo.lock
-
 if [[ "$DESKTOP" == "true" ]]; then
     git commit -S -m "Update desktop app versions to $PRODUCT_VERSION" \
-        gui/package.json \
-        gui/package-lock.json \
         dist-assets/windows/version.h
-fi
-
-if [[ "$ANDROID" == "true" ]]; then
-    git commit -S -m "Update Android app version to $PRODUCT_VERSION" \
-        android/app/build.gradle.kts
 fi
 
 NEW_TAGS=""
