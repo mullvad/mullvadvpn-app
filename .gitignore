@@ -31,6 +31,7 @@
 /dist-assets/shell-completions/
 /dist-assets/aarch64-apple-darwin/
 /dist-assets/x86_64-apple-darwin/
+/windows/version.h
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties
