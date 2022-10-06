@@ -1810,9 +1810,6 @@ dependencies = [
 [[package]]
 name = "mullvad-version"
 version = "0.0.0"
-dependencies = [
- "regex",
-]
 
 [[package]]
 name = "multimap"
