@@ -9,10 +9,14 @@
 import SafariServices
 import UIKit
 
+protocol TermsOfServiceViewControllerDelegate: AnyObject {
+    func termsOfServiceViewControllerDidFinish(_ controller: TermsOfServiceViewController)
+}
+
 class TermsOfServiceViewController: UIViewController, RootContainment,
     SFSafariViewControllerDelegate
 {
-    var completionHandler: ((UIViewController) -> Void)?
+    weak var delegate: TermsOfServiceViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -35,12 +39,12 @@ class TermsOfServiceViewController: UIViewController, RootContainment,
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.agreeButton.addTarget(
             self,
-            action: #selector(handleAgreeButton(_:)),
+            action: #selector(handleAgreeButton),
             for: .touchUpInside
         )
         contentView.privacyPolicyLink.addTarget(
             self,
-            action: #selector(handlePrivacyPolicyButton(_:)),
+            action: #selector(handlePrivacyPolicyButton),
             for: .touchUpInside
         )
 
@@ -57,18 +61,17 @@ class TermsOfServiceViewController: UIViewController, RootContainment,
 
     // MARK: - Actions
 
-    @objc private func handlePrivacyPolicyButton(_ sender: Any) {
+    @objc private func handlePrivacyPolicyButton() {
         let safariController = SFSafariViewController(
-            url: ApplicationConfiguration
-                .privacyPolicyURL
+            url: ApplicationConfiguration.privacyPolicyURL
         )
         safariController.delegate = self
 
         present(safariController, animated: true)
     }
 
-    @objc private func handleAgreeButton(_ sender: Any) {
-        completionHandler?(self)
+    @objc private func handleAgreeButton() {
+        delegate?.termsOfServiceViewControllerDidFinish(self)
     }
 
     // MARK: - SFSafariViewControllerDelegate

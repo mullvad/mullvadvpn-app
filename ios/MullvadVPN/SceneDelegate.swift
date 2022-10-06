@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     ConnectViewControllerDelegate, NotificationManagerDelegate,
     SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, UIAdaptivePresentationControllerDelegate, TunnelObserver,
-    RelayCacheObserver, UISplitViewControllerDelegate
+    RelayCacheObserver, UISplitViewControllerDelegate, TermsOfServiceViewControllerDelegate
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -343,15 +343,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         completion: @escaping (UIViewController) -> Void
     ) -> TermsOfServiceViewController {
         let controller = TermsOfServiceViewController()
+        controller.delegate = self
 
         if UIDevice.current.userInterfaceIdiom == .pad {
             controller.modalPresentationStyle = .formSheet
             controller.isModalInPresentation = true
-        }
-
-        controller.completionHandler = { controller in
-            TermsOfService.setAgreed()
-            completion(controller)
         }
 
         return controller
@@ -507,6 +503,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         for container in Set(containers) {
             container.setEnableSettingsButton(isEnabled)
         }
+    }
+
+    // MARK: - TermsOfServiceViewControllerDelegate
+
+    func termsOfServiceViewControllerDidFinish(_ controller: TermsOfServiceViewController) {
+        TermsOfService.setAgreed()
     }
 
     // MARK: - LoginViewControllerDelegate
