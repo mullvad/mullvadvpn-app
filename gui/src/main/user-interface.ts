@@ -8,7 +8,7 @@ import { IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
-import { CommandLineOptions } from './command-line-options';
+import { SHOULD_DISABLE_DEVTOOLS_OPEN } from './command-line-options';
 import { DaemonRpc } from './daemon-rpc';
 import { changeIpcWebContents, IpcMainEventChannel } from './ipc-event-channel';
 import { isMacOs11OrNewer } from './platform-version';
@@ -88,7 +88,7 @@ export default class UserInterface implements WindowControllerDelegate {
     if (process.env.NODE_ENV === 'development') {
       await this.installDevTools();
 
-      if (!process.argv.includes(CommandLineOptions.disableDevtoolsOpen)) {
+      if (!SHOULD_DISABLE_DEVTOOLS_OPEN) {
         // The devtools doesn't open on Windows if openDevTools is called without a delay here.
         window.once('ready-to-show', () => window.webContents.openDevTools({ mode: 'detach' }));
       }

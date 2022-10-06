@@ -18,7 +18,11 @@ import { SystemNotification } from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import { CommandLineOptions } from './command-line-options';
+import {
+  SHOULD_DISABLE_RESET_NAVIGATION,
+  SHOULD_FORWARD_RENDERER_LOG,
+  SHOULD_SHOW_CHANGES,
+} from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -248,7 +252,7 @@ class ApplicationMain
     const rendererLogPath = getRendererLogPath();
 
     if (process.env.NODE_ENV === 'development') {
-      if (process.argv.includes(CommandLineOptions.forwardRendererLog)) {
+      if (SHOULD_FORWARD_RENDERER_LOG) {
         log.addInput(new IpcInput());
       }
     } else {
@@ -389,7 +393,7 @@ class ApplicationMain
       this,
       this.daemonRpc,
       SANDBOX_DISABLED,
-      process.argv.includes(CommandLineOptions.disableResetNavigation),
+      SHOULD_DISABLE_RESET_NAVIGATION,
     );
 
     this.tunnelStateExpectation = new Expectation(async () => {
@@ -693,7 +697,7 @@ class ApplicationMain
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
-      forceShowChanges: process.argv.includes(CommandLineOptions.showChanges),
+      forceShowChanges: SHOULD_SHOW_CHANGES,
       navigationHistory: this.navigationHistory,
       scrollPositions: this.scrollPositions,
     }));
