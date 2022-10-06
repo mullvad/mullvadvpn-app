@@ -247,7 +247,11 @@ class ApplicationMain
     const mainLogPath = getMainLogPath();
     const rendererLogPath = getRendererLogPath();
 
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV === 'development') {
+      if (process.argv.includes(CommandLineOptions.forwardRendererLog)) {
+        log.addInput(new IpcInput());
+      }
+    } else {
       this.rendererLog = new Logger();
       this.rendererLog.addInput(new IpcInput());
 
