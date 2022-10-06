@@ -20,19 +20,15 @@
 //  Write down some tests that will be enough to convince you and others that the code is correct
 //  Run these tests or write a unit test for the easier ones
 
-use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
 use super::{Error, Result};
-use std::{
-    convert::TryInto,
-    net::SocketAddr,
-};
+use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
+use std::{convert::TryInto, net::SocketAddr};
 use widestring::{widecstr, WideCStr};
 use windows_sys::Win32::{
     Foundation::NO_ERROR,
     NetworkManagement::IpHelper::{
-        FreeMibTable, GetIfEntry2, GetIpForwardTable2,
-        IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL, MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
-        NET_LUID_LH,
+        FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL,
+        MIB_IF_ROW2, MIB_IPFORWARD_ROW2, NET_LUID_LH,
     },
 };
 
@@ -122,7 +118,8 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceA
 
     Ok(Some(InterfaceAndGateway {
         iface: annotated[0].route.InterfaceLuid,
-        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop).map_err(|_| Error::InvalidSiFamily)?,
+        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop)
+            .map_err(|_| Error::InvalidSiFamily)?,
     }))
 }
 

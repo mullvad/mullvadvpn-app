@@ -5,6 +5,7 @@ mod volume_monitor;
 mod windows;
 
 use crate::{
+    routing::{CallbackHandle, EventType, InterfaceAndGateway, RouteManager},
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
     windows::{
@@ -13,7 +14,6 @@ use crate::{
         AddressFamily,
     },
     winnet::{self, get_best_default_route, WinNetAddrFamily},
-    routing::{RouteManager, EventType, InterfaceAndGateway, CallbackHandle},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -692,7 +692,12 @@ impl SplitTunnel {
 
     /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
     /// tunnel addresses (if any) to the default route.
-    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>, route_manager: &RouteManager, runtime: &tokio::runtime::Handle) -> Result<(), Error> {
+    pub fn set_tunnel_addresses(
+        &mut self,
+        metadata: Option<&TunnelMetadata>,
+        route_manager: &RouteManager,
+        runtime: &tokio::runtime::Handle,
+    ) -> Result<(), Error> {
         let mut tunnel_ipv4 = None;
         let mut tunnel_ipv6 = None;
 
@@ -718,13 +723,18 @@ impl SplitTunnel {
         self._route_change_callback = None;
         let moved_context_mutex = context_mutex.clone();
         let mut context = context_mutex.lock().unwrap();
-        let callback = runtime.block_on(route_manager.add_default_route_change_callback(Box::new(
-            move |event, addr_family| {
-                split_tunnel_default_route_change_handler(event, addr_family, &moved_context_mutex)
-            }
-        )))
-        .map(Some)
-        .map_err(|_| Error::RegisterRouteChangeCallback)?;
+        let callback = runtime
+            .block_on(route_manager.add_default_route_change_callback(Box::new(
+                move |event, addr_family| {
+                    split_tunnel_default_route_change_handler(
+                        event,
+                        addr_family,
+                        &moved_context_mutex,
+                    )
+                },
+            )))
+            .map(Some)
+            .map_err(|_| Error::RegisterRouteChangeCallback)?;
 
         context.initialize_internet_addresses()?;
         context.register_ips()?;
@@ -873,10 +883,7 @@ fn split_tunnel_default_route_change_handler<'a>(
 
     let result = match event_type {
         Updated(default_route) | UpdatedDetails(default_route) => {
-            match get_ip_address_for_interface(
-                address_family,
-                default_route.iface
-            ) {
+            match get_ip_address_for_interface(address_family, default_route.iface) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),
                     IpAddr::V6(addr) => ctx.addresses.internet_ipv6 = Some(addr),

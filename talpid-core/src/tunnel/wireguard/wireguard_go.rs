@@ -4,9 +4,12 @@ use super::{
 };
 #[cfg(not(windows))]
 use crate::tunnel::tun_provider::TunProvider;
-use crate::tunnel::{RouteManagerHandle, wireguard::logging::{
-    clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
-}};
+use crate::tunnel::{
+    wireguard::logging::{
+        clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
+    },
+    RouteManagerHandle,
+};
 #[cfg(windows)]
 use futures::SinkExt;
 #[cfg(not(windows))]
@@ -120,10 +123,13 @@ impl WgGoTunnel {
     ) -> Result<Self> {
         use talpid_types::ErrorExt;
 
-        let route_callback_handle = runtime.block_on(route_manager_handle.add_default_route_change_callback(
-            Box::new(WgGoTunnel::default_route_changed_callback),
-        ))
-        .ok();
+        let route_callback_handle = runtime
+            .block_on(
+                route_manager_handle.add_default_route_change_callback(Box::new(
+                    WgGoTunnel::default_route_changed_callback,
+                )),
+            )
+            .ok();
         if route_callback_handle.is_none() {
             log::warn!("Failed to register default route callback");
         }
@@ -210,16 +216,17 @@ impl WgGoTunnel {
         event_type: crate::routing::EventType<'a>,
         address_family: crate::windows::AddressFamily,
     ) {
-        use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
         use crate::routing::EventType::*;
+        use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
 
         let iface_idx: u32 = match event_type {
             Updated(default_route) => {
                 let mut iface_idx = 0u32;
                 // TODO: Make sure unwrap is fine
                 let iface_luid = default_route.iface;
-                let status =
-                    unsafe { ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _) };
+                let status = unsafe {
+                    ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _)
+                };
                 if status != 0 {
                     log::error!(
                         "Failed to convert interface LUID to interface index: {}: {}",

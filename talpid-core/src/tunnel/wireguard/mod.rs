@@ -2,7 +2,10 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
-use crate::{tunnel::RouteManagerHandle, routing::{self, RequiredRoute}};
+use crate::{
+    routing::{self, RequiredRoute},
+    tunnel::RouteManagerHandle,
+};
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};

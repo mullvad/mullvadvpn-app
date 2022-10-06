@@ -1,25 +1,28 @@
 use super::default_route_monitor::{DefaultRouteMonitor, EventType as RouteMonitorEventType};
-use super::{
-    get_best_default_route, Error, Result, InterfaceAndGateway,
+use super::{get_best_default_route, Error, InterfaceAndGateway, Result};
+use crate::{
+    routing::NetNode,
+    windows::{inet_sockaddr_from_socketaddr, try_socketaddr_from_inet_sockaddr, AddressFamily},
 };
 use ipnetwork::IpNetwork;
-use crate::{routing::NetNode, 
-    windows::{AddressFamily, try_socketaddr_from_inet_sockaddr, inet_sockaddr_from_socketaddr}
+use std::{
+    collections::HashMap,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::{Arc, Mutex},
 };
-use std::{collections::HashMap, sync::{Arc, Mutex}, net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr}};
-use widestring::{WideCString, WideCStr};
+use widestring::{WideCStr, WideCString};
 use windows_sys::Win32::{
     Foundation::{
-        ERROR_NOT_FOUND, ERROR_OBJECT_ALREADY_EXISTS,
-        NO_ERROR, ERROR_SUCCESS, ERROR_NO_DATA, ERROR_BUFFER_OVERFLOW
+        ERROR_BUFFER_OVERFLOW, ERROR_NOT_FOUND, ERROR_NO_DATA, ERROR_OBJECT_ALREADY_EXISTS,
+        ERROR_SUCCESS, NO_ERROR,
     },
     NetworkManagement::IpHelper::{
         ConvertInterfaceAliasToLuid, CreateIpForwardEntry2, DeleteIpForwardEntry2,
-        InitializeIpForwardEntry, SetIpForwardEntry2, GetAdaptersAddresses,
+        GetAdaptersAddresses, InitializeIpForwardEntry, SetIpForwardEntry2,
         GAA_FLAG_INCLUDE_GATEWAYS, GAA_FLAG_SKIP_ANYCAST, GAA_FLAG_SKIP_DNS_SERVER,
-        GAA_FLAG_SKIP_FRIENDLY_NAME, GAA_FLAG_SKIP_MULTICAST, IP_ADAPTER_IPV4_ENABLED, 
-        IP_ADAPTER_IPV6_ENABLED, IP_ADAPTER_ADDRESSES_LH, IP_ADAPTER_GATEWAY_ADDRESS_LH,
-        GET_ADAPTERS_ADDRESSES_FLAGS, MIB_IPFORWARD_ROW2, NET_LUID_LH, IP_ADDRESS_PREFIX,
+        GAA_FLAG_SKIP_FRIENDLY_NAME, GAA_FLAG_SKIP_MULTICAST, GET_ADAPTERS_ADDRESSES_FLAGS,
+        IP_ADAPTER_ADDRESSES_LH, IP_ADAPTER_GATEWAY_ADDRESS_LH, IP_ADAPTER_IPV4_ENABLED,
+        IP_ADAPTER_IPV6_ENABLED, IP_ADDRESS_PREFIX, MIB_IPFORWARD_ROW2, NET_LUID_LH,
     },
     Networking::WinSock::{
         NlroManual, ADDRESS_FAMILY, AF_INET, AF_INET6, MIB_IPPROTO_NETMGMT, SOCKADDR_IN,
@@ -33,20 +36,20 @@ type NodeAddress = SOCKADDR_INET;
 
 /// Callback handle for the default route changed callback. Produced by the RouteManager.
 pub struct CallbackHandle {
-	nonce: i32,
-	callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
+    nonce: i32,
+    callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
 }
 
 impl std::ops::Drop for CallbackHandle {
-	fn drop(&mut self) {
-		let (_, callbacks) = &mut *self.callbacks.lock().unwrap();
-		match callbacks.remove(&self.nonce) {
-			Some(_) => (),
-			None => {
+    fn drop(&mut self) {
+        let (_, callbacks) = &mut *self.callbacks.lock().unwrap();
+        match callbacks.remove(&self.nonce) {
+            Some(_) => (),
+            None => {
                 log::warn!("Could not un-register route manager callback due to it already being de-registered");
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -58,14 +61,17 @@ struct RegisteredRoute {
 
 impl std::fmt::Display for RegisteredRoute {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_fmt(format_args!("RegisteredRoute {{ luid: {} }}", unsafe { self.luid.Value }))
+        formatter.write_fmt(format_args!("RegisteredRoute {{ luid: {} }}", unsafe {
+            self.luid.Value
+        }))
     }
-
 }
 
 impl PartialEq for RegisteredRoute {
     fn eq(&self, other: &Self) -> bool {
-        (unsafe { self.luid.Value == other.luid.Value }) && (self.next_hop == other.next_hop) && (self.network == other.network)
+        (unsafe { self.luid.Value == other.luid.Value })
+            && (self.next_hop == other.next_hop)
+            && (self.network == other.network)
     }
 }
 
@@ -97,24 +103,20 @@ enum RecordEventType {
     DeleteRoute,
 }
 
-pub type Callback = Box<
-    dyn for<'a> Fn(RouteMonitorEventType<'a>, AddressFamily) + Send,
->;
+pub type Callback = Box<dyn for<'a> Fn(RouteMonitorEventType<'a>, AddressFamily) + Send>;
 
 pub struct RouteManagerInternal {
     route_monitor_v4: Option<DefaultRouteMonitor>,
     route_monitor_v6: Option<DefaultRouteMonitor>,
     routes: Arc<Mutex<Vec<RouteRecord>>>,
-	/// Lock for a nonce and a HashMap of callbacks and their id which is used as a handle to unregister them.
-	/// The nonce is used to create new ids and then incrementing.
+    /// Lock for a nonce and a HashMap of callbacks and their id which is used as a handle to unregister them.
+    /// The nonce is used to create new ids and then incrementing.
     callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
 }
 
 impl RouteManagerInternal {
     pub fn new() -> Result<Self> {
-        let routes = Arc::new(Mutex::new(
-            Vec::new(),
-        ));
+        let routes = Arc::new(Mutex::new(Vec::new()));
         let callbacks = Arc::new(Mutex::new((0, HashMap::new())));
 
         let callbacks_ipv4 = callbacks.clone();
@@ -126,23 +128,13 @@ impl RouteManagerInternal {
             route_monitor_v4: Some(DefaultRouteMonitor::new(
                 AddressFamily::Ipv4,
                 move |event_type| {
-                    Self::default_route_change(
-                        &callbacks_ipv4,
-                        &routes_ipv4,
-                        AF_INET,
-                        event_type,
-                    );
+                    Self::default_route_change(&callbacks_ipv4, &routes_ipv4, AF_INET, event_type);
                 },
             )?),
             route_monitor_v6: Some(DefaultRouteMonitor::new(
                 AddressFamily::Ipv6,
                 move |event_type| {
-                    Self::default_route_change(
-                        &callbacks_ipv6,
-                        &routes_ipv6,
-                        AF_INET6,
-                        event_type,
-                    );
+                    Self::default_route_change(&callbacks_ipv6, &routes_ipv6, AF_INET6, event_type);
                 },
             )?),
             routes,
@@ -151,7 +143,7 @@ impl RouteManagerInternal {
     }
 
     pub fn add_routes(&self, new_routes: Vec<Route>) -> Result<()> {
-		let mut route_manager_routes = self.routes.lock().unwrap();
+        let mut route_manager_routes = self.routes.lock().unwrap();
 
         let mut event_log = vec![];
 
@@ -185,7 +177,8 @@ impl RouteManagerInternal {
             });
 
             // TODO: make sure this makes sense, not clear if it does
-            let existing_record_idx = Self::find_route_record(&mut route_manager_routes, &new_record.registered_route);
+            let existing_record_idx =
+                Self::find_route_record(&mut route_manager_routes, &new_record.registered_route);
 
             match existing_record_idx {
                 None => route_manager_routes.push(new_record),
@@ -196,10 +189,7 @@ impl RouteManagerInternal {
     }
 
     fn add_into_routing_table(route: &Route) -> Result<RegisteredRoute> {
-        let node = Self::resolve_node(
-            ipnetwork_to_address_family(route.network),
-            &route.node,
-        )?;
+        let node = Self::resolve_node(ipnetwork_to_address_family(route.network), &route.node)?;
 
         //TODO: Make sure this is safe
         let mut spec: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
@@ -242,10 +232,7 @@ impl RouteManagerInternal {
         })
     }
 
-    fn resolve_node(
-        family: AddressFamily,
-        optional_node: &NetNode,
-    ) -> Result<InterfaceAndGateway> {
+    fn resolve_node(family: AddressFamily, optional_node: &NetNode) -> Result<InterfaceAndGateway> {
         //
         // There are four cases:
         //
@@ -268,9 +255,9 @@ impl RouteManagerInternal {
             }
             NetNode::RealNode(node) => {
                 if let Some(device_name) = &node.get_device() {
-					// TODO: Handle error
-					let device_name = WideCString::from_str(device_name)
-						.expect("Failed to convert UTF-8 string to null terminated UCS string");
+                    // TODO: Handle error
+                    let device_name = WideCString::from_str(device_name)
+                        .expect("Failed to convert UTF-8 string to null terminated UCS string");
                     // TODO: Make sure this is right
                     let luid = match Self::parse_string_encoded_luid(device_name.as_ucstr())? {
                         None => {
@@ -280,7 +267,10 @@ impl RouteManagerInternal {
                                     ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
                                 }
                             {
-                                log::error!("Unable to derive interface LUID from interface alias: {:?}", device_name);
+                                log::error!(
+                                    "Unable to derive interface LUID from interface alias: {:?}",
+                                    device_name
+                                );
                                 return Err(Error::DeviceNameNotFound);
                             } else {
                                 luid
@@ -292,21 +282,18 @@ impl RouteManagerInternal {
                     return Ok(InterfaceAndGateway {
                         iface: luid,
                         gateway: match node.get_address() {
-							// TODO: Make sure it is fine that a node contains an IP address without a port, this MIGHT be different from c++
-							Some(ip) => {
-								SocketAddr::new(ip, 0)
-							},
-							None => {
-								match family {
-									AddressFamily::Ipv4 => {
-										SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
-									}
-									AddressFamily::Ipv6 => {
-										SocketAddr::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
-									}
-								}
-							}
-						}
+                            // TODO: Make sure it is fine that a node contains an IP address without a port, this MIGHT be different from c++
+                            Some(ip) => SocketAddr::new(ip, 0),
+                            None => match family {
+                                AddressFamily::Ipv4 => {
+                                    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                                }
+                                AddressFamily::Ipv6 => SocketAddr::new(
+                                    IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)),
+                                    0,
+                                ),
+                            },
+                        },
                     });
                 }
 
@@ -315,17 +302,21 @@ impl RouteManagerInternal {
                 //
 
                 // Unwrapping is fine because the node must have an address since no device name was found.
-				let gateway = node.get_address().map(inet_sockaddr_from_ipaddr_port_zero).unwrap();
+                let gateway = node
+                    .get_address()
+                    .map(inet_sockaddr_from_ipaddr_port_zero)
+                    .unwrap();
                 Ok(InterfaceAndGateway {
                     iface: interface_luid_from_gateway(&gateway)?,
-                    gateway: try_socketaddr_from_inet_sockaddr(gateway).map_err(|_| Error::InvalidSiFamily)?,
+                    gateway: try_socketaddr_from_inet_sockaddr(gateway)
+                        .map_err(|_| Error::InvalidSiFamily)?,
                 })
             }
         }
     }
 
     fn find_route_record(records: &mut Vec<RouteRecord>, route: &RegisteredRoute) -> Option<usize> {
-		records
+        records
             .iter()
             .position(|record| route == &record.registered_route)
     }
@@ -343,7 +334,7 @@ impl RouteManagerInternal {
                     match Self::find_route_record(records, &event.record.registered_route) {
                         None => {
                             log::error!("Internal state inconsistency in route manager");
-							// TODO: Panic here, or not?
+                            // TODO: Panic here, or not?
                             if result.is_ok() {
                                 result = Err(Error::InternalInconsistentState);
                             }
@@ -457,15 +448,17 @@ impl RouteManagerInternal {
         }
 
         let luid = NET_LUID_LH {
-            Value: u64::from_str_radix(&encoded_luid.to_string()
-                .map_err(|_| {
+            Value: u64::from_str_radix(
+                &encoded_luid.to_string().map_err(|_| {
                     log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
                     Error::Conversion
-                })?[1..], 16)
-                .map_err(|_| {
-                    log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
-                    Error::Conversion
-                })?,
+                })?[1..],
+                16,
+            )
+            .map_err(|_| {
+                log::error!("Failed to parse string encoded LUID: {:?}", encoded_luid);
+                Error::Conversion
+            })?,
         };
 
         return Ok(Some(luid));
@@ -479,7 +472,10 @@ impl RouteManagerInternal {
 
         for record in (*routes).iter() {
             if let Err(_) = Self::delete_from_routing_table(&record.registered_route) {
-                log::error!("Failed to delete route while clearing applied routes, {}", record.registered_route);
+                log::error!(
+                    "Failed to delete route while clearing applied routes, {}",
+                    record.registered_route
+                );
             }
         }
 
@@ -487,13 +483,19 @@ impl RouteManagerInternal {
         Ok(())
     }
 
-	pub fn register_default_route_changed_callback(&self, callback: Callback) -> Result<CallbackHandle> {
-		let (nonce, callbacks) = &mut *self.callbacks.lock().unwrap();
-		let old_nonce = *nonce;
-		callbacks.insert(old_nonce, callback);
-		*nonce += 1;
-		Ok(CallbackHandle { nonce: old_nonce, callbacks: self.callbacks.clone() } )
-	}
+    pub fn register_default_route_changed_callback(
+        &self,
+        callback: Callback,
+    ) -> Result<CallbackHandle> {
+        let (nonce, callbacks) = &mut *self.callbacks.lock().unwrap();
+        let old_nonce = *nonce;
+        callbacks.insert(old_nonce, callback);
+        *nonce += 1;
+        Ok(CallbackHandle {
+            nonce: old_nonce,
+            callbacks: self.callbacks.clone(),
+        })
+    }
 
     fn default_route_change<'a>(
         callbacks: &Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
@@ -510,7 +512,7 @@ impl RouteManagerInternal {
             for (_, callback) in callbacks.iter() {
                 let family =
                     AddressFamily::try_from_af_family(u16::try_from(family).unwrap()).unwrap();
-				callback(event_type, family);
+                callback(event_type, family);
             }
         }
 
@@ -533,7 +535,8 @@ impl RouteManagerInternal {
 
         for record in (*records).iter_mut() {
             if matches!(record.route.node, NetNode::DefaultNode)
-                && family == u32::from(ipnetwork_to_address_family(record.route.network).to_af_family())
+                && family
+                    == u32::from(ipnetwork_to_address_family(record.route.network).to_af_family())
             {
                 affected_routes.push(record);
             }
@@ -558,7 +561,10 @@ impl RouteManagerInternal {
             match Self::delete_from_routing_table(&affected_route.registered_route) {
                 Ok(()) => (),
                 Err(e) => {
-                    log::error!("Failed to delete route when refreshing existing routes: {}", e);
+                    log::error!(
+                        "Failed to delete route when refreshing existing routes: {}",
+                        e
+                    );
                     continue;
                 }
             }
@@ -579,8 +585,8 @@ impl RouteManagerInternal {
 
 impl std::ops::Drop for RouteManagerInternal {
     fn drop(&mut self) {
-		drop(self.route_monitor_v4.take());
-		drop(self.route_monitor_v6.take());
+        drop(self.route_monitor_v4.take());
+        drop(self.route_monitor_v6.take());
 
         match self.delete_applied_routes() {
             Ok(()) => (),
@@ -598,7 +604,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         | GAA_FLAG_SKIP_FRIENDLY_NAME
         | GAA_FLAG_INCLUDE_GATEWAYS;
 
-    let family: u32= unsafe { gateway.si_family }.into();
+    let family: u32 = unsafe { gateway.si_family }.into();
     let mut adapters = Adapters::new(family, ADAPTER_FLAGS)?;
 
     //
@@ -617,9 +623,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
                 Err(_) => return false,
             }
 
-            let gateways = unsafe {
-                isolate_gateway_address(adapter.FirstGatewayAddress, family)
-            };
+            let gateways = unsafe { isolate_gateway_address(adapter.FirstGatewayAddress, family) };
 
             match unsafe { address_present(gateways, &gateway) } {
                 Ok(b) => b,
@@ -660,12 +664,8 @@ fn adapter_interface_enabled(
     family: ADDRESS_FAMILY,
 ) -> Result<bool> {
     match family {
-        AF_INET => {
-            Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED)
-        }
-        AF_INET6 => {
-            Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED)
-        }
+        AF_INET => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED),
+        AF_INET6 => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED),
         _ => {
             log::error!("Missing case handler in match");
             //THROW_ERROR("Missing case handler in switch clause");
@@ -818,11 +818,11 @@ impl Adapters {
 
     /// Produces a mutable iterator for the linked list in `Adapters` see [AdaptersIterator](struct.AdaptersIterator.html)
     fn iter_mut<'a>(&'a mut self) -> AdaptersIterator<'a> {
-		let cur = if self.buffer.is_empty() {
-			std::ptr::null_mut()
-		} else {
-			&mut self.buffer[0] as *mut _
-		};
+        let cur = if self.buffer.is_empty() {
+            std::ptr::null_mut()
+        } else {
+            &mut self.buffer[0] as *mut _
+        };
         AdaptersIterator {
             _adapters: self,
             cur,
@@ -841,18 +841,18 @@ struct AdaptersIterator<'a> {
 impl<'a> Iterator for AdaptersIterator<'a> {
     type Item = &'a mut IP_ADAPTER_ADDRESSES_LH;
     fn next(&mut self) -> Option<Self::Item> {
-		if self.cur.is_null() {
+        if self.cur.is_null() {
             None
         } else {
             let ret = self.cur;
-			// SAFETY: self.cur is guaranteed to not be null, we are also holding a &mut Adapters which guarantees no other reference
-			// of self could be held right now which has dereferenced the same address that self.cur is pointing to.
-			//
-			// It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
-			// address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
-			// `Next` on a reference returned by this function after that reference has been dropped.
+            // SAFETY: self.cur is guaranteed to not be null, we are also holding a &mut Adapters which guarantees no other reference
+            // of self could be held right now which has dereferenced the same address that self.cur is pointing to.
+            //
+            // It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
+            // address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
+            // `Next` on a reference returned by this function after that reference has been dropped.
             self.cur = unsafe { (*self.cur).Next };
-			// SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
+            // SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
             Some(unsafe { &mut *ret })
         }
     }
@@ -860,22 +860,26 @@ impl<'a> Iterator for AdaptersIterator<'a> {
 
 /// Convert to a windows defined `IP_ADDRESS_PREFIX` from a `ipnetwork::IpNetwork` but set the port to 0
 pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADDRESS_PREFIX {
-	// Port should not matter so we set it to 0
-	let prefix = crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
-	IP_ADDRESS_PREFIX { Prefix: prefix, PrefixLength: from.prefix() }
+    // Port should not matter so we set it to 0
+    let prefix =
+        crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
+    IP_ADDRESS_PREFIX {
+        Prefix: prefix,
+        PrefixLength: from.prefix(),
+    }
 }
 
 /// Convert to a windows defined `SOCKADDR_INET` from a `IpAddr` but set the port to 0
 pub fn inet_sockaddr_from_ipaddr_port_zero(from: IpAddr) -> SOCKADDR_INET {
-	// Port should not matter so we set it to 0
-	crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
+    // Port should not matter so we set it to 0
+    crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
 }
 
 /// Convert to a `AddressFamily` from a `ipnetwork::IpNetwork`
 pub fn ipnetwork_to_address_family(from: IpNetwork) -> AddressFamily {
-	if from.is_ipv4() {
-		AddressFamily::Ipv4
-	} else {
-		AddressFamily::Ipv6
-	}
+    if from.is_ipv4() {
+        AddressFamily::Ipv4
+    } else {
+        AddressFamily::Ipv6
+    }
 }

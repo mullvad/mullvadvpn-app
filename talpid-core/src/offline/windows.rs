@@ -1,6 +1,9 @@
 use crate::{
-    windows::{AddressFamily, window::{PowerManagementEvent, PowerManagementListener}},
-    routing::{RouteManagerHandle, CallbackHandle, EventType},
+    routing::{CallbackHandle, EventType, RouteManagerHandle},
+    windows::{
+        window::{PowerManagementEvent, PowerManagementListener},
+        AddressFamily,
+    },
     winnet,
 };
 use futures::channel::mpsc::UnboundedSender;
@@ -66,8 +69,10 @@ impl BroadcastListener {
             }
         });
 
-        let callback_handle =
-            unsafe { Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle).await? };
+        let callback_handle = unsafe {
+            Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle)
+                .await?
+        };
 
         Ok(BroadcastListener {
             system_state,
@@ -108,13 +113,12 @@ impl BroadcastListener {
         system_state: Arc<Mutex<SystemState>>,
         route_manager_handle: RouteManagerHandle,
     ) -> Result<CallbackHandle, Error> {
-        let change_handle = route_manager_handle.add_default_route_change_callback(Box::new(
-            move |event, addr_family| {
+        let change_handle = route_manager_handle
+            .add_default_route_change_callback(Box::new(move |event, addr_family| {
                 Self::connectivity_callback(event, addr_family, &system_state)
-            }
-        )).await.map_err(|e| {
-            Error::ConnectivityMonitorError(e)
-        })?;
+            }))
+            .await
+            .map_err(|e| Error::ConnectivityMonitorError(e))?;
         Ok(change_handle)
     }
 

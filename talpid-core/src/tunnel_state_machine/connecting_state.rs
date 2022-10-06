@@ -263,7 +263,10 @@ impl ConnectingState {
     }
 
     async fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values.runtime.block_on(shared_values.route_manager.clear_routes()) {
+        if let Err(error) = shared_values
+            .runtime
+            .block_on(shared_values.route_manager.clear_routes())
+        {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
         #[cfg(target_os = "linux")]
@@ -409,10 +412,11 @@ impl ConnectingState {
             ),
             Some((TunnelEvent::InterfaceUp(metadata, allowed_tunnel_traffic), _done_tx)) => {
                 #[cfg(windows)]
-                if let Err(error) = shared_values
-                    .split_tunnel
-                    .set_tunnel_addresses(Some(&metadata), &shared_values.route_manager, &shared_values.runtime)
-                {
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(
+                    Some(&metadata),
+                    &shared_values.route_manager,
+                    &shared_values.runtime,
+                ) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(
@@ -526,10 +530,10 @@ fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
     match error {
         routing::Error::AddRoutesFailed => true,
         //routing::Error::AddRoutesFailed(route_error) => match route_error {
-            // TODO: Fix this
-            //winnet::Error::GetDefaultRoute
-            //| winnet::Error::GetDeviceByName
-            //| winnet::Error::GetDeviceByGateway => true,
+        // TODO: Fix this
+        //winnet::Error::GetDefaultRoute
+        //| winnet::Error::GetDeviceByName
+        //| winnet::Error::GetDeviceByGateway => true,
         //    _ => false,
         //},
         _ => false,
@@ -556,7 +560,11 @@ impl TunnelState for ConnectingState {
             }
             Ok(tunnel_parameters) => {
                 #[cfg(windows)]
-                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None, &shared_values.route_manager, &shared_values.runtime) {
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(
+                    None,
+                    &shared_values.route_manager,
+                    &shared_values.runtime,
+                ) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(

@@ -1,14 +1,18 @@
 use crate::{routing::RequiredRoute, windows::AddressFamily};
 use futures::channel::oneshot;
-use std::{collections::HashSet, net::IpAddr, sync::{Arc, Weak, Mutex}};
-use tokio::sync::mpsc::{self, UnboundedSender, UnboundedReceiver};
+use std::{
+    collections::HashSet,
+    net::IpAddr,
+    sync::{Arc, Mutex, Weak},
+};
+use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
 pub use default_route_monitor::EventType;
-pub use route_manager::{Route, RouteManagerInternal, Callback, CallbackHandle};
-pub use get_best_default_route::{InterfaceAndGateway, get_best_default_route, route_has_gateway};
+pub use get_best_default_route::{get_best_default_route, route_has_gateway, InterfaceAndGateway};
+pub use route_manager::{Callback, CallbackHandle, Route, RouteManagerInternal};
 
-mod get_best_default_route;
 mod default_route_monitor;
+mod get_best_default_route;
 mod route_manager;
 
 /// Windows routing errors.
@@ -82,10 +86,16 @@ pub struct RouteManagerHandle {
 
 impl RouteManagerHandle {
     /// Add a callback which will be called if the default route changes.
-    pub async fn add_default_route_change_callback(&self, callback: Callback) -> Result<CallbackHandle> {
+    pub async fn add_default_route_change_callback(
+        &self,
+        callback: Callback,
+    ) -> Result<CallbackHandle> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
-            .send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, response_tx))
+            .send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(
+                callback,
+                response_tx,
+            ))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
@@ -136,12 +146,17 @@ impl RouteManager {
     }
 
     /// Add a callback which will be called if the default route changes.
-    pub async fn add_default_route_change_callback(&self, callback: Callback) -> Result<CallbackHandle> {
+    pub async fn add_default_route_change_callback(
+        &self,
+        callback: Callback,
+    ) -> Result<CallbackHandle> {
         //Ok(self.internal.lock().unwrap().register_default_route_changed_callback(callback)?)
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
-                .send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, result_tx))
+                .send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(
+                    callback, result_tx,
+                ))
                 .is_err()
             {
                 return Err(Error::RouteManagerDown);
@@ -162,22 +177,25 @@ impl RouteManager {
         }
     }
 
-    async fn listen(mut manage_rx: UnboundedReceiver<RouteManagerCommand>, mut internal: RouteManagerInternal) {
+    async fn listen(
+        mut manage_rx: UnboundedReceiver<RouteManagerCommand>,
+        mut internal: RouteManagerInternal,
+    ) {
         while let Some(command) = manage_rx.recv().await {
             match command {
                 RouteManagerCommand::AddRoutes(routes, tx) => {
                     let routes: Vec<_> = routes
                         .into_iter()
-                        .map(|route| {
-                            Route {
-                                network: route.prefix,
-                                node: route.node,
-                            }
+                        .map(|route| Route {
+                            network: route.prefix,
+                            node: route.node,
                         })
                         .collect();
 
                     let _ = tx.send(
-                        internal.add_routes(routes).map_err(|_| Error::AddRoutesFailed),
+                        internal
+                            .add_routes(routes)
+                            .map_err(|_| Error::AddRoutesFailed),
                     );
                 }
                 RouteManagerCommand::GetMtuForRoute(ip, tx) => {
@@ -243,7 +261,10 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            result_rx.await.map_err(|_| Error::ManagerChannelDown)?.map_err(|_| Error::ClearRoutesFailed)
+            result_rx
+                .await
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(|_| Error::ClearRoutesFailed)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -255,9 +276,9 @@ fn get_mtu_for_route(addr_family: AddressFamily) -> Result<Option<u16>> {
         Ok(Some(route)) => {
             let interface_row = crate::windows::get_ip_interface_entry(addr_family, &route.iface)
                 .map_err(|e| {
-                    log::error!("Could not get ip interface entry: {}", e);
-                    Error::GetMtu
-                })?;
+                log::error!("Could not get ip interface entry: {}", e);
+                Error::GetMtu
+            })?;
             let mtu = interface_row.NlMtu;
             let mtu = u16::try_from(mtu).map_err(|_| Error::GetMtu)?;
             Ok(Some(mtu))

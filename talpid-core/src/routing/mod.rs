@@ -8,7 +8,7 @@ use std::{fmt, net::IpAddr};
 #[path = "windows/mod.rs"]
 mod imp;
 #[cfg(target_os = "windows")]
-pub use imp::{get_best_default_route, CallbackHandle, InterfaceAndGateway, EventType};
+pub use imp::{get_best_default_route, CallbackHandle, EventType, InterfaceAndGateway};
 
 #[cfg(not(target_os = "windows"))]
 #[path = "unix.rs"]

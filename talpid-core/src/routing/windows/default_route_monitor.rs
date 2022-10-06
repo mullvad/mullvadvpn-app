@@ -1,5 +1,6 @@
-use super::{Error, Result, InterfaceAndGateway, AddressFamily, get_best_default_route,
-    get_best_default_route::route_has_gateway,
+use super::{
+    get_best_default_route, get_best_default_route::route_has_gateway, AddressFamily, Error,
+    InterfaceAndGateway, Result,
 };
 
 use std::ffi::c_void;
@@ -9,8 +10,8 @@ use std::time::{Duration, Instant};
 use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
     CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
-    NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPINTERFACE_ROW, MIB_NOTIFICATION_TYPE,
-    MIB_UNICASTIPADDRESS_ROW, NET_LUID_LH, MIB_IPFORWARD_ROW2,
+    NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPFORWARD_ROW2, MIB_IPINTERFACE_ROW,
+    MIB_NOTIFICATION_TYPE, MIB_UNICASTIPADDRESS_ROW, NET_LUID_LH,
 };
 
 const WIN_FALSE: BOOLEAN = 0;
@@ -81,7 +82,9 @@ impl DefaultRouteMonitorContext {
                     self.best_route = Some(current_best_route);
                     (self.callback)(EventType::Updated(&self.best_route.as_ref().unwrap()));
                 } else if refresh_current {
-                    (self.callback)(EventType::UpdatedDetails(&self.best_route.as_ref().unwrap()));
+                    (self.callback)(EventType::UpdatedDetails(
+                        &self.best_route.as_ref().unwrap(),
+                    ));
                 }
             }
         }
@@ -107,7 +110,7 @@ impl std::ops::Drop for DefaultRouteMonitor {
         // SAFETY: This pointer was created by Box::into_raw and is not modified since then.
         // This drop function is also only called once
         let context = unsafe { Box::from_raw(self.context as *mut ContextAndBurstGuard) };
-        
+
         // Stop the burst guard
         context.burst_guard.lock().unwrap().stop();
 
@@ -282,7 +285,6 @@ unsafe extern "system" fn route_change_callback(
     row: *const MIB_IPFORWARD_ROW2,
     _notification_type: MIB_NOTIFICATION_TYPE,
 ) {
-
     // SAFETY: We assume Windows provides this pointer correctly
     let row = unsafe { &*row };
 
