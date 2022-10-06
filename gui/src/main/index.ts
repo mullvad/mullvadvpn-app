@@ -18,6 +18,7 @@ import { SystemNotification } from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
+import { CommandLineOptions } from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -53,11 +54,6 @@ const execAsync = util.promisify(exec);
 // Only import split tunneling library on correct OS.
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 const windowsSplitTunneling = process.platform === 'win32' && require('./windows-split-tunneling');
-
-enum CommandLineOptions {
-  showChanges = '--show-changes',
-  disableResetNavigation = '--disable-reset-navigation', // development only
-}
 
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
