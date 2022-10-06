@@ -77,7 +77,7 @@
     "gulp-typescript": "^5.0.1",
     "playwright": "^1.26.1",
     "prettier": "^2.2.1",
-    "semver": "^7.3.7",
+    "semver": "^7.3.8",
     "sinon": "^14.0.1",
     "ts-node": "^10.9.1",
     "tsc-watch": "^5.0.3",
