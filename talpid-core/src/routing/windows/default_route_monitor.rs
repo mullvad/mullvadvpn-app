@@ -116,7 +116,7 @@ impl std::ops::Drop for DefaultRouteMonitor {
     }
 }
 
-struct Handle(*mut HANDLE);
+struct Handle(HANDLE);
 
 /// SAFETY: Handle is `Send` since it holds sole ownership of a pointer provided by C
 unsafe impl std::marker::Send for Handle {}
@@ -126,7 +126,7 @@ impl std::ops::Drop for Handle {
         // SAFETY: There is no clear safety specification on this function. However self.0 should point to a handle that has
         // been allocated by windows and should be non-null. Even if it would be null that would cause a panic rather than UB.
         unsafe {
-            if NO_ERROR as i32 != CancelMibChangeNotify2(*self.0) {
+            if NO_ERROR as i32 != CancelMibChangeNotify2(self.0) {
                 // If this callback is called after we free the context that could result in UB, in order to avoid that we panic.
                 panic!("Could not cancel change notification callback")
             }
@@ -216,7 +216,7 @@ impl DefaultRouteMonitor {
         // the memory after we cancel the callbacks. This will leak the weak pointer but the context state itself will be correctly dropped
         // when DefaultRouteManager is dropped.
         let context_ptr = context_and_burst;
-        let handle_ptr = std::ptr::null_mut();
+        let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
             != unsafe {
@@ -225,7 +225,7 @@ impl DefaultRouteMonitor {
                     Some(route_change_callback),
                     context_ptr as *const _,
                     WIN_FALSE,
-                    handle_ptr,
+                    &mut handle_ptr,
                 )
             }
         {
@@ -233,7 +233,7 @@ impl DefaultRouteMonitor {
         }
         let notify_route_change_handle = Handle(handle_ptr);
 
-        let handle_ptr = std::ptr::null_mut();
+        let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
             != unsafe {
@@ -242,7 +242,7 @@ impl DefaultRouteMonitor {
                     Some(interface_change_callback),
                     context_ptr as *const _,
                     WIN_FALSE,
-                    handle_ptr,
+                    &mut handle_ptr,
                 )
             }
         {
@@ -250,7 +250,7 @@ impl DefaultRouteMonitor {
         }
         let notify_interface_change_handle = Handle(handle_ptr);
 
-        let handle_ptr = std::ptr::null_mut();
+        let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         if NO_ERROR as i32
             != unsafe {
@@ -259,7 +259,7 @@ impl DefaultRouteMonitor {
                     Some(ip_address_change_callback),
                     context_ptr as *const _,
                     WIN_FALSE,
-                    handle_ptr,
+                    &mut handle_ptr,
                 )
             }
         {
