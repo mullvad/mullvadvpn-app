@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Linux
 - Fix app crashing immediately when using some icon themes.
+- Don't prevent early boot service from running if logging to a file fails.
 
 
 ## [2022.5-beta1] - 2022-09-26
