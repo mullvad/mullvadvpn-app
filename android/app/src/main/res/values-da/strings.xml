@@ -23,6 +23,8 @@
     <string name="buy_credit">Køb kredit</string>
     <string name="buy_more_credit">Køb mere kredit</string>
     <string name="cancel">Annuller</string>
+    <string name="changes_dialog_dismiss_button">Forstået!</string>
+    <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="confirm_local_dns">Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under Indstillinger.</string>
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
     <string name="confirm_removal">Ja, log enhed af</string>
