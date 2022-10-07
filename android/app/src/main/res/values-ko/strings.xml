@@ -23,6 +23,8 @@
     <string name="buy_credit">크레딧 구매</string>
     <string name="buy_more_credit">추가 크레딧 구매</string>
     <string name="cancel">취소</string>
+    <string name="changes_dialog_dismiss_button">확인!</string>
+    <string name="changes_dialog_subtitle">이 버전의 변경 사항:</string>
     <string name="confirm_local_dns">환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다.</string>
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>
     <string name="confirm_removal">예, 장치에서 로그아웃</string>

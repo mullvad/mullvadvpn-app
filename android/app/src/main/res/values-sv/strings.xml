@@ -23,6 +23,8 @@
     <string name="buy_credit">Köp kredit</string>
     <string name="buy_more_credit">Köp mer kredit</string>
     <string name="cancel">Avbryt</string>
+    <string name="changes_dialog_dismiss_button">Jag förstår!</string>
+    <string name="changes_dialog_subtitle">Ändringar i den här versionen:</string>
     <string name="confirm_local_dns">Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under Inställningar.</string>
     <string name="confirm_no_email">Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress.</string>
     <string name="confirm_removal">Ja, logga ut enheten</string>
