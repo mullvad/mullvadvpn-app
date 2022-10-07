@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::{env, process::exit};
 
-pub const ANDROID_VERSION: &str =
+const ANDROID_VERSION: &str =
     include_str!(concat!(env!("OUT_DIR"), "/android-product-version.txt"));
 
 const VERSION_REGEX: &str = r"^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$";
