@@ -640,7 +640,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     func settingsNavigationController(
         _ controller: SettingsNavigationController,
-        willNavigateTo route: SettingsNavigationRoute
+        didNavigateTo route: SettingsNavigationRoute
     ) {
         switch route {
         case .root, .account:

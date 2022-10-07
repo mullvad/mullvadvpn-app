@@ -25,7 +25,7 @@ enum SettingsDismissReason {
 protocol SettingsNavigationControllerDelegate: AnyObject {
     func settingsNavigationController(
         _ controller: SettingsNavigationController,
-        willNavigateTo route: SettingsNavigationRoute
+        didNavigateTo route: SettingsNavigationRoute
     )
 
     func settingsNavigationController(
