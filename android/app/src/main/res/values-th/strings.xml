@@ -23,6 +23,8 @@
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>
     <string name="cancel">ยกเลิก</string>
+    <string name="changes_dialog_dismiss_button">รับทราบ!</string>
+    <string name="changes_dialog_subtitle">การเปลี่ยนแปลงในเวอร์ชันนี้:</string>
     <string name="confirm_local_dns">เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า</string>
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>

@@ -23,6 +23,8 @@
     <string name="buy_credit">Comprar créditos</string>
     <string name="buy_more_credit">Comprar más créditos</string>
     <string name="cancel">Cancelar</string>
+    <string name="changes_dialog_dismiss_button">¡Entendido!</string>
+    <string name="changes_dialog_subtitle">Cambios en esta versión:</string>
     <string name="confirm_local_dns">El servidor DNS local no funcionará a no ser que habilite la opción «Uso compartido de red local» en Preferencias.</string>
     <string name="confirm_no_email">Va a enviar el informe de problemas sin indicar una forma de contacto. Para obtener una respuesta sobre el informe, necesita especificar su dirección de correo electrónico.</string>
     <string name="confirm_removal">Sí, cerrar sesión</string>
