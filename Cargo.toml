@@ -12,6 +12,7 @@ members = [
     "mullvad-types",
     "mullvad-api",
     "mullvad-exclude",
+    "mullvad-version",
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-dbus",
