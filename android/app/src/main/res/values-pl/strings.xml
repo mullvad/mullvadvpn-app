@@ -23,6 +23,7 @@
     <string name="buy_credit">Kup doładowanie</string>
     <string name="buy_more_credit">Doładuj konto</string>
     <string name="cancel">Anuluj</string>
+    <string name="changesHeader">Zmiany w tej wersji:</string>
     <string name="confirm_local_dns">Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach.</string>
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
@@ -66,6 +67,7 @@
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
     <string name="go_to_login">Przejdź do logowania</string>
+    <string name="gotIt">Jasne!</string>
     <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>
     <string name="hide_account_number">Ukryj numer konta</string>
     <string name="hint_default">Domyślnie</string>
