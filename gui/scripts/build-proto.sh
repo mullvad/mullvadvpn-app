@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 ARCH="$(uname -m)"
-PLATFORM="$(uname -s)-${ARCH}"
+PLATFORM="$(uname -s)"
 MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=${MANAGEMENT_INTERFACE_PROTO_BUILD_DIR:-}
 NODE_MODULES_DIR="$(cd ../node_modules/.bin && pwd)"
 PROTO_DIR="../../mullvad-management-interface/proto"
@@ -22,7 +22,7 @@ fi
 mkdir -p $DESTINATION_DIR
 mkdir -p $TYPES_DESTINATION_DIR
 
-if [[ "${ARCH,,}" == "arm64" || "${ARCH,,}" == "aarch64" ]]; then
+if [[ "$PLATFORM" == "Linux" && ("${ARCH,,}" == "arm64" || "${ARCH,,}" == "aarch64") ]]; then
     if [[ -n "${MANAGEMENT_INTERFACE_PROTO_BUILD_DIR}" ]]; then
       cp $MANAGEMENT_INTERFACE_PROTO_BUILD_DIR/*.js $DESTINATION_DIR
       cp $MANAGEMENT_INTERFACE_PROTO_BUILD_DIR/*.ts $TYPES_DESTINATION_DIR
