@@ -83,8 +83,6 @@ function build_nsis_plugins {
 }
 
 function main {
-    cargo run -q --bin mullvad-version version.h > dist-assets/windows/version.h
-
     local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
     local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
 
