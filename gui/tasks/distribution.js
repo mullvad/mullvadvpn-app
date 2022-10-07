@@ -278,10 +278,7 @@ function packMac() {
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
-        if (!noAppleNotarization) {
-          // buildResult.artifactPaths[0] contains the path to the pkg.
-          await notarizeMac(buildResult.artifactPaths[0]);
-        }
+        await notarizeMac(buildResult.artifactPaths[0]);
 
         // Remove the folder that contains the unpacked app. Electron builder cleans up some of
         // these directories and it's changed between versions without a mention in the changelog.
@@ -295,10 +292,8 @@ function packMac() {
         const appOutDir = context.appOutDir;
         appOutDirs.push(appOutDir);
 
-        if (!noAppleNotarization) {
-          const appName = context.packager.appInfo.productFilename;
-          return notarizeMac(path.join(appOutDir, `${appName}.app`));
-        }
+        const appName = context.packager.appInfo.productFilename;
+        return notarizeMac(path.join(appOutDir, `${appName}.app`));
       },
     },
   });
