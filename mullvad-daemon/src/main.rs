@@ -48,28 +48,32 @@ fn main() {
 
 fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     let log_dir = get_log_dir(config)?;
+    let log_path = |filename| log_dir.as_ref().map(|dir| dir.join(filename));
 
-    #[cfg(not(target_os = "linux"))]
-    let log_file_name = DAEMON_LOG_FILENAME;
-
-    #[cfg(target_os = "linux")]
-    let log_file_name = if config.initialize_firewall_and_exit {
-        EARLY_BOOT_LOG_FILENAME
-    } else {
-        DAEMON_LOG_FILENAME
+    let initialize_logging = |log_file: Option<PathBuf>| -> Result<_, String> {
+        logging::init_logger(
+            config.log_level,
+            log_file.as_ref(),
+            config.log_stdout_timestamps,
+        )
+        .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
+        log_panics::init();
+        exception_logging::enable();
+        version::log_version();
+        Ok(())
     };
 
-    let log_file = log_dir.as_ref().map(|dir| dir.join(log_file_name));
+    #[cfg(target_os = "linux")]
+    if config.initialize_firewall_and_exit {
+        if initialize_logging(log_path(EARLY_BOOT_LOG_FILENAME)).is_err() {
+            let _ = initialize_logging(None);
+        }
 
-    logging::init_logger(
-        config.log_level,
-        log_file.as_ref(),
-        config.log_stdout_timestamps,
-    )
-    .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
-    log_panics::init();
-    exception_logging::enable();
-    version::log_version();
+        return Ok(None);
+    }
+
+    initialize_logging(log_path(DAEMON_LOG_FILENAME))?;
+
     if let Some(ref log_dir) = log_dir {
         log::info!("Logging to {}", log_dir.display());
     }
