@@ -1,7 +1,10 @@
-import * as React from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
+import { useAppContext } from '../../renderer/context';
 import { messages } from '../../shared/gettext';
+import { useHistory } from '../lib/history';
+import { useSelector } from '../redux/store';
 import { AriaInputGroup } from './AriaGroup';
 import Selector, { SelectorItem } from './cell/Selector';
 import { CustomScrollbarsRef } from './CustomScrollbars';
@@ -16,91 +19,85 @@ import {
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-interface IProps {
-  preferredLocale: string;
-  preferredLocalesList: Array<{ name: string; code: string }>;
-  setPreferredLocale: (locale: string) => void;
-  onClose: () => void;
-}
-
-interface IState {
-  source: Array<SelectorItem<string>>;
-}
-
-const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  flex: 1,
-});
-
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
 }) as typeof Selector;
 
-export default class SelectLanguage extends React.Component<IProps, IState> {
-  private scrollView = React.createRef<CustomScrollbarsRef>();
-  private selectedCellRef = React.createRef<HTMLButtonElement>();
+export default function SelectLanguage() {
+  const history = useHistory();
+  const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
+  const scrollView = useRef<CustomScrollbarsRef>(null);
+  const selectedCellRef = useRef<HTMLButtonElement>(null);
 
-  constructor(props: IProps) {
-    super(props);
+  const selectLocale = useCallback(
+    async (locale: string) => {
+      await setPreferredLocale(locale);
+      history.pop();
+    },
+    [history.pop],
+  );
 
-    this.state = {
-      source: [
-        ...this.props.preferredLocalesList.map((item) => ({ label: item.name, value: item.code })),
-      ],
-    };
-  }
-
-  public componentDidMount() {
-    this.scrollToSelectedCell();
-  }
-
-  public render() {
-    return (
-      <BackAction action={this.props.onClose}>
-        <Layout>
-          <SettingsContainer>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('select-language-nav', 'Select language')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
-
-              <StyledNavigationScrollbars ref={this.scrollView}>
-                <SettingsHeader>
-                  <HeaderTitle>
-                    {messages.pgettext('select-language-nav', 'Select language')}
-                  </HeaderTitle>
-                </SettingsHeader>
-                <AriaInputGroup>
-                  <StyledSelector
-                    title=""
-                    items={this.state.source}
-                    value={this.props.preferredLocale}
-                    onSelect={this.props.setPreferredLocale}
-                    selectedCellRef={this.selectedCellRef}
-                  />
-                </AriaInputGroup>
-              </StyledNavigationScrollbars>
-            </NavigationContainer>
-          </SettingsContainer>
-        </Layout>
-      </BackAction>
-    );
-  }
-
-  private scrollToSelectedCell() {
-    const ref = this.selectedCellRef.current;
-    const scrollView = this.scrollView.current;
-
-    if (scrollView && ref) {
+  const scrollToSelectedCell = () => {
+    const ref = selectedCellRef.current;
+    const view = scrollView.current;
+    if (view && ref) {
       if (ref instanceof HTMLElement) {
-        scrollView.scrollToElement(ref, 'middle');
+        view.scrollToElement(ref, 'middle');
       }
     }
-  }
+  };
+
+  useEffect(() => {
+    scrollToSelectedCell();
+  }, []);
+
+  return (
+    <BackAction action={history.pop}>
+      <Layout>
+        <SettingsContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('select-language-nav', 'Select language')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
+
+            <NavigationScrollbars ref={scrollView}>
+              <SettingsHeader>
+                <HeaderTitle>
+                  {messages.pgettext('select-language-nav', 'Select language')}
+                </HeaderTitle>
+              </SettingsHeader>
+              <AriaInputGroup>
+                <StyledSelector
+                  title=""
+                  value={preferredLocale}
+                  items={preferredLocalesList}
+                  onSelect={selectLocale}
+                  selectedCellRef={selectedCellRef}
+                />
+              </AriaInputGroup>
+            </NavigationScrollbars>
+          </NavigationContainer>
+        </SettingsContainer>
+      </Layout>
+    </BackAction>
+  );
+}
+
+function usePreferredLocale() {
+  const preferredLocale = useSelector((state) => state.settings.guiSettings.preferredLocale);
+
+  const { getPreferredLocaleList, setPreferredLocale } = useAppContext();
+
+  const preferredLocalesList: SelectorItem<string>[] = useMemo(() => {
+    return [...getPreferredLocaleList().map(({ name, code }) => ({ label: name, value: code }))];
+  }, []);
+
+  return { preferredLocale, preferredLocalesList, setPreferredLocale };
 }
