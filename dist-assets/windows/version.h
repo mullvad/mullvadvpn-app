@@ -1,4 +1,0 @@
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 0
-#define PATCH_VERSION 0
-#define PRODUCT_VERSION "0.0.0"
