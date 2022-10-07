@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+#### Linux
+- Don't prevent early boot service from running if logging to a file fails.
+
 
 ## [2022.5-beta2] - 2022-10-05
 ### Added
