@@ -491,7 +491,7 @@ export default class AppRenderer {
     ];
   }
 
-  public async setPreferredLocale(preferredLocale: string): Promise<void> {
+  public setPreferredLocale = async (preferredLocale: string): Promise<void> => {
     const translations = await IpcRendererEventChannel.guiSettings.setPreferredLocale(
       preferredLocale,
     );
@@ -502,7 +502,7 @@ export default class AppRenderer {
     // load translations for new locale
     loadTranslations(messages, translations.locale, translations.messages);
     loadTranslations(relayLocations, translations.locale, translations.relayLocations);
-  }
+  };
 
   public getPreferredLocaleDisplayName = (localeCode: string): string => {
     const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
