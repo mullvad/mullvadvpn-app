@@ -21,11 +21,12 @@ protocol ConditionalNavigation: AnyObject {
 
 class CustomNavigationController: UINavigationController, UINavigationBarDelegate {
     private static let classInit: Void = {
-        swizzleMethod(
+        let isSwizzled = swizzleMethod(
             aClass: CustomNavigationController.self,
             originalSelector: #selector(UINavigationBarDelegate.navigationBar(_:shouldPop:)),
             newSelector: #selector(customNavigationController_navigationBar(_:shouldPop:))
         )
+        assert(isSwizzled)
     }()
 
     private var popGestureRecognizerDelegate: CustomPopGestureRecognizerDelegate?

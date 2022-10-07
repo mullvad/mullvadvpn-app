@@ -26,11 +26,12 @@ public final class AlertPresenter {
         /// detect when the controller disappears.
         /// The event is broadcasted via
         /// `AlertPresenter.alertControllerDidDismissNotification` notification.
-        swizzleMethod(
+        let isSwizzled = swizzleMethod(
             aClass: UIAlertController.self,
             originalSelector: #selector(UIAlertController.viewDidDisappear(_:)),
             newSelector: #selector(UIAlertController.alertPresenter_viewDidDisappear(_:))
         )
+        assert(isSwizzled)
     }()
 
     public init() {

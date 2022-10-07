@@ -8,9 +8,13 @@
 
 import Foundation
 
-@inlinable func swizzleMethod(aClass: AnyClass, originalSelector: Selector, newSelector: Selector) {
+@inlinable func swizzleMethod(
+    aClass: AnyClass,
+    originalSelector: Selector,
+    newSelector: Selector
+) -> Bool {
     guard let originalMethod = class_getInstanceMethod(aClass, originalSelector),
-          let newMethod = class_getInstanceMethod(aClass, newSelector) else { return }
+          let newMethod = class_getInstanceMethod(aClass, newSelector) else { return false }
 
     if class_addMethod(
         aClass,
@@ -27,4 +31,6 @@ import Foundation
     } else {
         method_exchangeImplementations(originalMethod, newMethod)
     }
+
+    return true
 }
