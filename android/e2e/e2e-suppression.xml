@@ -21,4 +21,11 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
         <cve>CVE-2021-22569</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
+        <cve>CVE-2022-3171</cve>
+    </suppress>
 </suppressions>
