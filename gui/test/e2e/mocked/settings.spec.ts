@@ -33,10 +33,11 @@ test('Account button should be displayed correctly', async () => {
 
   /**
    * 729 days left
+   * Add a one-second margin to the test, since it randomly fails in Github Actions otherwise
    */
   await sendMockIpcResponse<IAccountData>({
     channel: 'account-',
-    response: { expiry: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000).toISOString() },
+    response: { expiry: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000 - 1000).toISOString() },
   });
   expiryText = accountButton.locator('span');
   await expect(expiryText).toContainText(/729 days left/i);
