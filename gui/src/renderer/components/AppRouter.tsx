@@ -5,7 +5,6 @@ import { Route, Switch } from 'react-router';
 import AccountPage from '../containers/AccountPage';
 import LoginPage from '../containers/LoginPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
-import SelectLanguagePage from '../containers/SelectLanguagePage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
@@ -22,6 +21,7 @@ import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
 import MainView from './MainView';
 import OpenVpnSettings from './OpenVpnSettings';
+import SelectLanguage from './SelectLanguage';
 import Settings from './Settings';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
@@ -88,7 +88,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
               <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
               <Route exact path={RoutePath.settings} component={Settings} />
-              <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
+              <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
               <Route exact path={RoutePath.accountSettings} component={AccountPage} />
               <Route
                 exact
