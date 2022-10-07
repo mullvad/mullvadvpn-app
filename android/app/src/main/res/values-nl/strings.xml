@@ -23,6 +23,8 @@
     <string name="buy_credit">Krediet kopen</string>
     <string name="buy_more_credit">Meer krediet kopen</string>
     <string name="cancel">Annuleren</string>
+    <string name="changes_dialog_dismiss_button">Begrepen!</string>
+    <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>

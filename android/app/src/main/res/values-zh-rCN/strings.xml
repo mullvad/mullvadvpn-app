@@ -23,6 +23,8 @@
     <string name="buy_credit">购买额度</string>
     <string name="buy_more_credit">购买更多额度</string>
     <string name="cancel">取消</string>
+    <string name="changes_dialog_dismiss_button">知道了！</string>
+    <string name="changes_dialog_subtitle">此版本中的变更：</string>
     <string name="confirm_local_dns">除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>

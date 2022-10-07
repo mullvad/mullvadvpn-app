@@ -23,6 +23,8 @@
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
+    <string name="changes_dialog_dismiss_button">Anladım!</string>
+    <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="confirm_local_dns">Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
