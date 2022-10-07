@@ -41,7 +41,6 @@ struct InnerParametersGenerator {
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
 
-    // TODO: Move this to `RelaySelector`?
     last_generated_relays: Option<LastSelectedRelays>,
 }
 
@@ -124,6 +123,7 @@ impl InnerParametersGenerator {
         let _data = self.device().await?;
         match self.relay_selector.get_relay(retry_attempt) {
             Ok((SelectedRelay::Custom(custom_relay), _bridge, _obfsucator)) => {
+                self.last_generated_relays = None;
                 custom_relay
                     // TODO: generate proxy settings for custom tunnels
                     .to_tunnel_parameters(self.tunnel_options.clone(), None)
