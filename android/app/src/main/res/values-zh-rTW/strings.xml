@@ -23,6 +23,8 @@
     <string name="buy_credit">購買點數</string>
     <string name="buy_more_credit">購買更多點數</string>
     <string name="cancel">取消</string>
+    <string name="changes_dialog_dismiss_button">知道了！</string>
+    <string name="changes_dialog_subtitle">此版本中的變更：</string>
     <string name="confirm_local_dns">若要使本機 DNS 伺服器運作，需先在「偏好設定」下啟用「本機網路共用」。</string>
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
     <string name="confirm_removal">是，將裝置登出</string>

@@ -23,6 +23,8 @@
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="buy_more_credit">Uudista tilaus</string>
     <string name="cancel">Peruuta</string>
+    <string name="changes_dialog_dismiss_button">Selvä!</string>
+    <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>

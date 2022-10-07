@@ -23,6 +23,8 @@
     <string name="buy_credit">Kup doładowanie</string>
     <string name="buy_more_credit">Doładuj konto</string>
     <string name="cancel">Anuluj</string>
+    <string name="changes_dialog_dismiss_button">Jasne!</string>
+    <string name="changes_dialog_subtitle">Zmiany w tej wersji:</string>
     <string name="confirm_local_dns">Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach.</string>
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
