@@ -23,6 +23,7 @@
     <string name="buy_credit">Køb kredit</string>
     <string name="buy_more_credit">Køb mere kredit</string>
     <string name="cancel">Annuller</string>
+    <string name="changesHeader">Ændringer i denne version:</string>
     <string name="confirm_local_dns">Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under Indstillinger.</string>
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
     <string name="confirm_removal">Ja, log enhed af</string>
@@ -66,6 +67,7 @@
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til login</string>
+    <string name="gotIt">Forstået!</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>

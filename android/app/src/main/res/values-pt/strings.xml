@@ -23,6 +23,7 @@
     <string name="buy_credit">Comprar crédito</string>
     <string name="buy_more_credit">Comprar mais crédito</string>
     <string name="cancel">Cancelar</string>
+    <string name="changesHeader">Alterações nesta versão:</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará exceto se ativar \"Partilha de rede local\" em Preferências.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
@@ -66,6 +67,7 @@
     <string name="foreground_notification_channel_description">Indica o estado atual do túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado do túnel VPN</string>
     <string name="go_to_login">Ir para a ligação</string>
+    <string name="gotIt">Entendido!</string>
     <string name="here_is_your_account_number">Aqui tem o seu número de conta. Guarde-o!</string>
     <string name="hide_account_number">Ocultar número de conta</string>
     <string name="hint_default">Padrão</string>
