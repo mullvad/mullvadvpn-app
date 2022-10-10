@@ -10,31 +10,57 @@ import Foundation
 
 class TransportMonitor: TunnelObserver {
     private let packetTunnelTransport = PacketTunnelTransport()
+    private let urlSessionTunnelTransport = URLSessionTransport(urlSession: REST.sharedURLSession)
 
-    private init() {
+    init() {
         TunnelManager.shared.addObserver(self)
 
         RESTTransportRegistry.shared.register(
-            URLSessionTransport(urlSession: REST.sharedURLSession)
+            urlSessionTunnelTransport
+        )
+
+        RESTTransportRegistry.shared.register(
+            packetTunnelTransport
         )
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        if shouldUsePacketTunnelTransport(state: tunnelStatus.state) {
-            RESTTransportRegistry.shared.register(packetTunnelTransport)
-        }
+        RESTTransportRegistry.shared.setTransports(
+            stateUpdated(tunnelState: tunnelStatus.state, deviceState: manager.deviceState)
+        )
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        if deviceState == .revoked {
-            RESTTransportRegistry.shared.register(packetTunnelTransport)
-        }
+        RESTTransportRegistry.shared.setTransports(
+            stateUpdated(tunnelState: manager.tunnelStatus.state, deviceState: deviceState)
+        )
     }
 
-    private func shouldUsePacketTunnelTransport(state: TunnelState) -> Bool {
-        switch state {
-        case .connecting, .reconnecting: return true
-        default: return false
+    private func stateUpdated(tunnelState: TunnelState, deviceState: DeviceState) -> [RESTTransport] {
+        switch (tunnelState, deviceState) {
+        case (.connected, .revoked):
+            return [packetTunnelTransport]
+
+        case (.pendingReconnect, _):
+            return [urlSessionTunnelTransport]
+
+        case (.waitingForConnectivity, _):
+            return [urlSessionTunnelTransport]
+
+        case (.connecting, _):
+            return [packetTunnelTransport]
+            
+        case (.reconnecting, _):
+            return [packetTunnelTransport]
+
+        case (.disconnecting, _):
+            return [urlSessionTunnelTransport]
+
+        case (.disconnected, _):
+            return [urlSessionTunnelTransport]
+
+        case (.connected, _):
+            return [urlSessionTunnelTransport]
         }
     }
 

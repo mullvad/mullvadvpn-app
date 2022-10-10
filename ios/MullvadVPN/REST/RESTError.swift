@@ -47,7 +47,7 @@ extension REST {
             case let .decodeResponse(error):
                 return "Failure to decode URL response data: \(error.localizedDescription)."
             case .transport:
-                return "Failure to handle, unknown error happened."
+                return "Failure, which was created by packet tunnel, in response of url request."
             }
         }
 
@@ -106,5 +106,9 @@ extension REST {
         init(rawValue: String) {
             self.rawValue = rawValue
         }
+    }
+
+    enum TransportError: Swift.Error {
+        case noTransport
     }
 }

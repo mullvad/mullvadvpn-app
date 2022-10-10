@@ -8,9 +8,13 @@
 
 import Foundation
 
-protocol RESTTransport: NSObject {
+protocol RESTTransport: AnyObject {
+    var name: String { get }
+
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable
+
+    func isTimeoutError(_ error: Error) -> Bool
 }
