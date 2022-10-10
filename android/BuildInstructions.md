@@ -16,7 +16,7 @@ on your platform please submit an issue or a pull request.
 - Install the JDK
 
     ```bash
-    sudo apt install zip default-jdk
+    sudo apt install zip openjdk-8-jdk-headless
     ```
 
 - Install the SDK
@@ -30,7 +30,7 @@ on your platform please submit an issue or a pull request.
 
     wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
     unzip commandlinetools-linux-6609375_latest.zip
-    ./tools/bin/sdkmanager "platforms;android-29" "build-tools;29.0.3" "platform-tools"
+    ./tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools"
     ```
 
     If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
@@ -52,6 +52,8 @@ on your platform please submit an issue or a pull request.
     ```
 
 ## Configuring Rust
+
+- Install `gcc`
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
