@@ -2,9 +2,9 @@
 # podman build . -t mullvadvpn-app-build
 #
 # To run the image and build the app you need to mount the app's source directory into the
-# container. You also probably want to mount in a directory for CARGO_HOME and CARGO_TARGET_DIR
-# so each container does not need to start from scratch with cloning the crates.io index,
-# download all dependencies and building everything.
+# container. You also probably want to mount in a directory for CARGO_HOME, so each container
+# does not need to start from scratch with cloning the crates.io index, download all
+# dependencies and building everything.
 #
 # podman run --rm \
 #     -v ~/.cargo:/root/.cargo:Z \
