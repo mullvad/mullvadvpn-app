@@ -3,9 +3,14 @@ use super::{
     InterfaceAndGateway, Result,
 };
 
-use std::{io, ffi::c_void, 
-sync::{mpsc::{channel, RecvTimeoutError, Sender}, {Arc, Mutex}},
-time::{Duration, Instant},
+use std::{
+    ffi::c_void,
+    io,
+    sync::{
+        mpsc::{channel, RecvTimeoutError, Sender},
+        {Arc, Mutex},
+    },
+    time::{Duration, Instant},
 };
 use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
@@ -222,50 +227,55 @@ impl DefaultRouteMonitor {
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         let status = unsafe {
-                NotifyRouteChange2(
-                    family,
-                    Some(route_change_callback),
-                    context_ptr as *const _,
-                    WIN_FALSE,
-                    &mut handle_ptr,
-                )
-            };
+            NotifyRouteChange2(
+                family,
+                Some(route_change_callback),
+                context_ptr as *const _,
+                WIN_FALSE,
+                &mut handle_ptr,
+            )
+        };
 
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+                status,
+            )));
         }
         let notify_route_change_handle = Handle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         let status = unsafe {
-                NotifyIpInterfaceChange(
-                    family,
-                    Some(interface_change_callback),
-                    context_ptr as *const _,
-                    WIN_FALSE,
-                    &mut handle_ptr,
-                )
-            };
+            NotifyIpInterfaceChange(
+                family,
+                Some(interface_change_callback),
+                context_ptr as *const _,
+                WIN_FALSE,
+                &mut handle_ptr,
+            )
+        };
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+                status,
+            )));
         }
         let notify_interface_change_handle = Handle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
         let status = unsafe {
-                NotifyUnicastIpAddressChange(
-                    family,
-                    Some(ip_address_change_callback),
-                    context_ptr as *const _,
-                    WIN_FALSE,
-                    &mut handle_ptr,
-                )
-            };
-        if NO_ERROR as i32 != status
-        {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
+            NotifyUnicastIpAddressChange(
+                family,
+                Some(ip_address_change_callback),
+                context_ptr as *const _,
+                WIN_FALSE,
+                &mut handle_ptr,
+            )
+        };
+        if NO_ERROR as i32 != status {
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+                status,
+            )));
         }
         let notify_address_change_handle = Handle(handle_ptr);
 

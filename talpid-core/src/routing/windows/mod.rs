@@ -1,10 +1,6 @@
 use crate::{routing::RequiredRoute, windows::AddressFamily};
 use futures::channel::oneshot;
-use std::{
-    collections::HashSet,
-    net::IpAddr,
-    io,
-};
+use std::{collections::HashSet, io, net::IpAddr};
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
 pub use default_route_monitor::EventType;
@@ -206,7 +202,7 @@ impl RouteManager {
                     let _ = tx.send(
                         internal
                             .add_routes(routes)
-                            .map_err(|e| Error::AddRoutesFailed(Box::new(e)))
+                            .map_err(|e| Error::AddRoutesFailed(Box::new(e))),
                     );
                 }
                 RouteManagerCommand::GetMtuForRoute(ip, tx) => {
@@ -222,9 +218,7 @@ impl RouteManager {
                     };
                     let _ = tx.send(res);
                 }
-                RouteManagerCommand::ClearRoutes => {
-                    internal.delete_applied_routes()
-                }
+                RouteManagerCommand::ClearRoutes => internal.delete_applied_routes(),
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }
@@ -265,10 +259,7 @@ impl RouteManager {
     /// [`RouteManager::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
-            if tx
-                .send(RouteManagerCommand::ClearRoutes)
-                .is_err()
-            {
+            if tx.send(RouteManagerCommand::ClearRoutes).is_err() {
                 Err(Error::RouteManagerDown)
             } else {
                 Ok(())

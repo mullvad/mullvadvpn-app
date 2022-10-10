@@ -61,9 +61,7 @@ impl DisconnectedState {
                 );
             }
         } else {
-            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(
-                None,
-            ) {
+            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
                 log::error!(
                     "{}",
                     error

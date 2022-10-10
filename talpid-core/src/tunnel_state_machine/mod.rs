@@ -269,7 +269,9 @@ impl TunnelStateMachine {
             args.command_tx.clone(),
             volume_update_rx,
             power_mgmt_rx.clone(),
-            route_manager.handle().map_err(Error::InitRouteManagerError)?,
+            route_manager
+                .handle()
+                .map_err(Error::InitRouteManagerError)?,
         )
         .map_err(Error::InitSplitTunneling)?;
 

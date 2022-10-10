@@ -7,9 +7,9 @@ use crate::{
 use ipnetwork::IpNetwork;
 use std::{
     collections::HashMap,
+    io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, Mutex},
-    io,
 };
 use widestring::{WideCStr, WideCString};
 use windows_sys::Win32::{
@@ -296,10 +296,9 @@ impl RouteManagerInternal {
                                 AddressFamily::Ipv4 => {
                                     SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
                                 }
-                                AddressFamily::Ipv6 => SocketAddr::new(
-                                    IpAddr::V6(Ipv6Addr::UNSPECIFIED),
-                                    0,
-                                ),
+                                AddressFamily::Ipv6 => {
+                                    SocketAddr::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), 0)
+                                }
                             },
                         },
                     });
@@ -310,10 +309,7 @@ impl RouteManagerInternal {
                 //
 
                 // Unwrapping is fine because the node must have an address since no device name was found.
-                let gateway = node
-                    .get_address()
-                    .map(inet_sockaddr_from_ipaddr)
-                    .unwrap();
+                let gateway = node.get_address().map(inet_sockaddr_from_ipaddr).unwrap();
                 Ok(InterfaceAndGateway {
                     iface: interface_luid_from_gateway(&gateway)?,
                     gateway: try_socketaddr_from_inet_sockaddr(gateway)
@@ -384,7 +380,8 @@ impl RouteManagerInternal {
                     //}
                 }
                 RecordEventType::DeleteRoute => {
-                    if let Err(e) = Self::restore_into_routing_table(&event.record.registered_route) {
+                    if let Err(e) = Self::restore_into_routing_table(&event.record.registered_route)
+                    {
                         log::error!("Could not restore route into routing table");
                         if result.is_ok() {
                             result = Err(e);
@@ -417,7 +414,9 @@ impl RouteManagerInternal {
             Ok(NO_ERROR) => (),
             _ => {
                 //THROW_WINDOWS_ERROR(status, "Delete route in routing table");
-                return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(status)));
+                return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(
+                    status,
+                )));
             }
         }
 

@@ -695,10 +695,7 @@ impl SplitTunnel {
 
     /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
     /// tunnel addresses (if any) to the default route.
-    pub fn set_tunnel_addresses(
-        &mut self,
-        metadata: Option<&TunnelMetadata>,
-    ) -> Result<(), Error> {
+    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
         let mut tunnel_ipv4 = None;
         let mut tunnel_ipv6 = None;
 
@@ -724,16 +721,18 @@ impl SplitTunnel {
         self._route_change_callback = None;
         let moved_context_mutex = context_mutex.clone();
         let mut context = context_mutex.lock().unwrap();
-        let callback = self.runtime
-            .block_on(self.route_manager.add_default_route_change_callback(Box::new(
-                move |event, addr_family| {
-                    split_tunnel_default_route_change_handler(
-                        event,
-                        addr_family,
-                        &moved_context_mutex,
-                    )
-                },
-            )))
+        let callback = self
+            .runtime
+            .block_on(
+                self.route_manager
+                    .add_default_route_change_callback(Box::new(move |event, addr_family| {
+                        split_tunnel_default_route_change_handler(
+                            event,
+                            addr_family,
+                            &moved_context_mutex,
+                        )
+                    })),
+            )
             .map(Some)
             .map_err(|_| Error::RegisterRouteChangeCallback)?;
 

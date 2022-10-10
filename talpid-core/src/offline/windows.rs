@@ -69,7 +69,7 @@ impl BroadcastListener {
             }
         });
 
-        let callback_handle = 
+        let callback_handle =
             Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle)
                 .await?;
 
