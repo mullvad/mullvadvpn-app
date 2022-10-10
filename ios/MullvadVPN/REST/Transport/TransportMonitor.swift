@@ -36,7 +36,10 @@ class TransportMonitor: TunnelObserver {
         )
     }
 
-    private func stateUpdated(tunnelState: TunnelState, deviceState: DeviceState) -> [RESTTransport] {
+    private func stateUpdated(
+        tunnelState: TunnelState,
+        deviceState: DeviceState
+    ) -> [RESTTransport] {
         switch (tunnelState, deviceState) {
         case (.connected, .revoked):
             return [packetTunnelTransport]
@@ -49,7 +52,7 @@ class TransportMonitor: TunnelObserver {
 
         case (.connecting, _):
             return [packetTunnelTransport]
-            
+
         case (.reconnecting, _):
             return [packetTunnelTransport]
 
