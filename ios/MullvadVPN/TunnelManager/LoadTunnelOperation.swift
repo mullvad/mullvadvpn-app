@@ -69,8 +69,8 @@ class LoadTunnelOperation: ResultOperation<Void, TunnelManager.Error> {
         if let tunnelProvider = tunnels?.first {
             if let accountToken = accountToken {
                 // Case 1: tunnel exists and account token is set.
-                // Verify that tunnel can access the configuration via the persistent keychain reference
-                // stored in `passwordReference` field of VPN configuration.
+                // Verify that tunnel can access the configuration via the persistent
+                // keychain reference stored in `passwordReference` field of VPN configuration.
                 handleTunnelConsistency(
                     tunnelProvider: tunnelProvider,
                     accountToken: accountToken,
