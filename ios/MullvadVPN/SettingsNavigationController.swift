@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 import UIKit
 
 enum SettingsNavigationRoute {
@@ -37,6 +38,12 @@ protocol SettingsNavigationControllerDelegate: AnyObject {
 class SettingsNavigationController: CustomNavigationController, SettingsViewControllerDelegate,
     AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate
 {
+    private let operationQueue: AsyncOperationQueue = {
+        let operationQueue = AsyncOperationQueue()
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+
     weak var settingsDelegate: SettingsNavigationControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
@@ -60,12 +67,28 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         super.init(coder: aDecoder)
     }
 
-    override func willPop(navigationItem: UINavigationItem) {
-        let index = viewControllers.firstIndex { $0.navigationItem == navigationItem }
+    deinit {
+        operationQueue.cancelAllOperations()
+        operationQueue.isSuspended = false
+    }
 
-        if viewControllers.count > 1, index == 1 {
-            settingsDelegate?.settingsNavigationController(self, willNavigateTo: .root)
+    override func willPop(navigationItem: UINavigationItem) {
+        operationQueue.isSuspended = true
+    }
+
+    override func didPop(navigationItem: UINavigationItem) {
+        if viewControllers.count == 1 {
+            settingsDelegate?.settingsNavigationController(self, didNavigateTo: .root)
         }
+        operationQueue.isSuspended = false
+    }
+
+    override func didBeginInteractivePop() {
+        operationQueue.isSuspended = true
+    }
+
+    override func didCancelInteractivePop() {
+        operationQueue.isSuspended = false
     }
 
     // MARK: - SettingsViewControllerDelegate
@@ -83,19 +106,53 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     // MARK: - Navigation
 
     func navigate(to route: SettingsNavigationRoute, animated: Bool) {
-        guard route != .root else {
-            popToRootViewController(animated: animated)
-            return
+        let blockOperation = AsyncBlockOperation(dispatchQueue: .main) { [weak self] op in
+            guard let self = self else {
+                op.finish()
+                return
+            }
+
+            self.navigateInner(to: route, animated: animated) {
+                op.finish()
+            }
         }
+        operationQueue.addOperation(blockOperation)
+    }
 
-        settingsDelegate?.settingsNavigationController(self, willNavigateTo: route)
-
-        let nextViewController = makeViewController(for: route)
-
-        if let rootController = viewControllers.first, viewControllers.count > 1 {
-            setViewControllers([rootController, nextViewController], animated: animated)
+    private func navigateInner(
+        to route: SettingsNavigationRoute,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) {
+        if route == .root {
+            popToRootViewController(animated: animated)
+            notifyAnimationCompletion(completion)
         } else {
-            pushViewController(nextViewController, animated: animated)
+            let nextViewController = makeViewController(for: route)
+
+            if let rootController = viewControllers.first, viewControllers.count > 1 {
+                setViewControllers([rootController, nextViewController], animated: animated)
+            } else {
+                pushViewController(nextViewController, animated: animated)
+            }
+
+            notifyAnimationCompletion { [weak self] in
+                completion?()
+
+                if let self = self {
+                    self.settingsDelegate?.settingsNavigationController(self, didNavigateTo: route)
+                }
+            }
+        }
+    }
+
+    private func notifyAnimationCompletion(_ completion: (() -> Void)?) {
+        if let transitionCoordinator = transitionCoordinator {
+            transitionCoordinator.animate(alongsideTransition: nil) { _ in
+                completion?()
+            }
+        } else {
+            completion?()
         }
     }
 
