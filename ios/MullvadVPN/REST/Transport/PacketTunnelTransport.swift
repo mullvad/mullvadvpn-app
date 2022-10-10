@@ -8,7 +8,11 @@
 
 import Foundation
 
-class PacketTunnelTransport: NSObject, RESTTransport {
+class PacketTunnelTransport: RESTTransport {
+    var name: String {
+        "packet-tunnel"
+    }
+
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
@@ -21,7 +25,8 @@ class PacketTunnelTransport: NSObject, RESTTransport {
 
         return try TunnelManager.shared.sendRequest(message: message) { result in
             switch result {
-            case .cancelled: break
+            case .cancelled:
+                completion(nil, nil, URLError.cancelled as? Error)
             case let .success(reply):
                 completion(
                     reply.data,
@@ -36,5 +41,12 @@ class PacketTunnelTransport: NSObject, RESTTransport {
                 )
             }
         }
+    }
+
+    func isTimeoutError(_ error: Error) -> Bool {
+        if case .timeout = error as? SendTunnelProviderMessageError {
+            return true
+        }
+        return false
     }
 }

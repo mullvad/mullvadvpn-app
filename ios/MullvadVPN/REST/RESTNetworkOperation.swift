@@ -137,27 +137,16 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
+            guard let transport = transportRegistry.getTransport() else {
+                didFailToCreateURLRequest(REST.Error.transport(TransportError.noTransport))
+                return
+            }
+
             logger
                 .debug(
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            guard let transport = transportRegistry.getTransport() else {
-                preconditionFailure("Received URL request without registering any transports.")
-            }
-
-            urlSessionTransport(
-                transport: transport,
-                restRequest,
-                endpoint: endpoint
-            )
-        }
-
-        private func urlSessionTransport(
-            transport: RESTTransport,
-            _ restRequest: REST.Request,
-            endpoint: AnyIPEndpoint
-        ) {
             do {
                 networkTask = try transport
                     .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
@@ -186,7 +175,7 @@ extension REST {
             } catch {
                 logger
                     .debug(
-                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) inside the url session transport tunnel."
+                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) using \(transport.name)."
                     )
             }
         }
@@ -226,8 +215,6 @@ extension REST {
                 finish(completion: .cancelled)
                 return
 
-            case .timedOut:
-                transportRegistry.transportDidTimeout(transport)
             case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
                 break
 
@@ -235,9 +222,13 @@ extension REST {
                 _ = addressCacheStore.selectNextEndpoint(endpoint)
             }
 
+            if transport.isTimeoutError(urlError) {
+                transportRegistry.transportDidTimeout(transport)
+            }
+
             logger.error(
                 error: urlError,
-                message: "Failed to perform request to \(endpoint)."
+                message: "Failed to perform request to \(endpoint) using \(transport.name)."
             )
 
             retryRequest(with: urlError)
@@ -250,18 +241,17 @@ extension REST {
         ) {
             logger.error(
                 error: error,
-                message: "Failed to perform request to \(endpoint)."
+                message: "Failed to perform request to \(endpoint) using \(transport.name)."
             )
 
-            if case let .transport(error) = error {
-                if case .timeout = error as? SendTunnelProviderMessageError {
-                    transportRegistry.transportDidTimeout(transport)
-
-                    return
-                }
+            if transport.isTimeoutError(error) {
+                transportRegistry.transportDidTimeout(transport)
             } else {
                 finish(completion: .failure(error))
+                return
             }
+
+            retryRequest(with: error)
         }
 
         private func didReceiveURLResponse(
@@ -310,14 +300,18 @@ extension REST {
             }
         }
 
-        private func retryRequest(with error: URLError) {
+        private func retryRequest(with error: Swift.Error) {
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
                 if retryStrategy.maxRetryCount > 0 {
                     logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
 
-                finish(completion: OperationCompletion(result: .failure(.network(error))))
+                if let error = error as? URLError {
+                    finish(completion: OperationCompletion(result: .failure(.network(error))))
+                } else {
+                    finish(completion: OperationCompletion(result: .failure(.transport(error))))
+                }
                 return
             }
 

@@ -10,7 +10,11 @@ import Foundation
 
 extension URLSessionTask: Cancellable {}
 
-class URLSessionTransport: NSObject, RESTTransport {
+class URLSessionTransport: RESTTransport {
+    var name: String {
+        "urlsession"
+    }
+    
     let urlSession: URLSession
 
     init(urlSession: URLSession) {
@@ -27,5 +31,12 @@ class URLSessionTransport: NSObject, RESTTransport {
         )
         dataTask.resume()
         return dataTask
+    }
+
+    func isTimeoutError(_ error: Error) -> Bool {
+        if let error = error as? URLError, error.code == .timedOut {
+            return true
+        }
+        return false
     }
 }
