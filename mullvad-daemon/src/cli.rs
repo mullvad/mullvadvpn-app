@@ -1,7 +1,5 @@
 use clap::{crate_authors, crate_description, crate_name, App, Arg};
 
-use crate::version;
-
 #[derive(Debug)]
 pub struct Config {
     pub log_level: log::LevelFilter,
@@ -72,7 +70,7 @@ lazy_static::lazy_static! {
 
 fn create_app() -> App<'static> {
     let mut app = App::new(crate_name!())
-        .version(version::PRODUCT_VERSION)
+        .version(mullvad_version::VERSION)
         .author(crate_authors!(", "))
         .about(crate_description!())
         .after_help(ENV_DESC.as_str())

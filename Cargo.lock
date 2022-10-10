@@ -1567,7 +1567,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-api"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1593,7 +1593,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "base64",
  "chrono",
@@ -1606,6 +1606,7 @@ dependencies = [
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-types",
+ "mullvad-version",
  "natord",
  "serde",
  "talpid-types",
@@ -1616,7 +1617,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "android_logger",
  "cfg-if",
@@ -1639,6 +1640,7 @@ dependencies = [
  "mullvad-paths",
  "mullvad-relay-selector",
  "mullvad-types",
+ "mullvad-version",
  "nix 0.23.1",
  "parking_lot 0.11.2",
  "rand 0.8.5",
@@ -1662,7 +1664,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-exclude"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "err-derive",
  "nix 0.23.1",
@@ -1671,7 +1673,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-jni"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
@@ -1694,7 +1696,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-management-interface"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1716,7 +1718,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-paths"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "dirs-next",
  "err-derive",
@@ -1725,7 +1727,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "clap",
  "dirs-next",
@@ -1736,6 +1738,7 @@ dependencies = [
  "log",
  "mullvad-api",
  "mullvad-paths",
+ "mullvad-version",
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
@@ -1747,7 +1750,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-relay-selector"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1769,7 +1772,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-setup"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "clap",
  "env_logger 0.8.4",
@@ -1780,6 +1783,7 @@ dependencies = [
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-types",
+ "mullvad-version",
  "talpid-core",
  "talpid-types",
  "tokio",
@@ -1789,7 +1793,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-types"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
@@ -1801,6 +1805,13 @@ dependencies = [
  "regex",
  "serde",
  "talpid-types",
+]
+
+[[package]]
+name = "mullvad-version"
+version = "0.0.0"
+dependencies = [
+ "regex",
 ]
 
 [[package]]
@@ -2544,9 +2555,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.5.5"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a11647b6b25ff05a515cb92c365cec08801e83423a235b51e231e1808747286"
+checksum = "4c4eb3267174b8c6c2f654116623910a0fef09c4753f8dd83db29c48a0df988b"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2555,9 +2566,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.25"
+version = "0.6.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+checksum = "a3f87b73ce11b1619a3c6332f45341e0047173771e8b8b73f87bfeefb7b56244"
 
 [[package]]
 name = "remove_dir_all"
@@ -3089,7 +3100,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-core"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "atty",
@@ -3160,7 +3171,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-dbus"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "dbus",
  "err-derive",
@@ -3172,11 +3183,12 @@ dependencies = [
 
 [[package]]
 name = "talpid-openvpn-plugin"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 dependencies = [
  "env_logger 0.8.4",
  "err-derive",
  "log",
+ "mullvad-version",
  "openvpn-plugin",
  "parity-tokio-ipc",
  "prost",
@@ -3191,7 +3203,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-platform-metadata"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
@@ -3200,7 +3212,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-time"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "libc",
  "tokio",
@@ -3208,7 +3220,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-tunnel-config-client"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
  "log",
@@ -3223,7 +3235,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-types"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "base64",
  "err-derive",
@@ -3688,7 +3700,7 @@ dependencies = [
 
 [[package]]
 name = "tunnel-obfuscation"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "err-derive",

@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-cli"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Manage the Mullvad VPN daemon via a convenient CLI"
 license = "GPL-3.0"
@@ -24,6 +24,7 @@ itertools = "0.10"
 
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
+mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
@@ -34,6 +35,7 @@ clap_complete = { version = "3.0" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 version = "0.42.0"

@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Error, Result, PRODUCT_VERSION};
+use crate::{new_rpc_client, Command, Error, Result};
 
 pub struct BetaProgram;
 
@@ -41,7 +41,7 @@ impl Command for BetaProgram {
                 let enable_str = matches.value_of("policy").expect("missing policy");
                 let enable = enable_str == "on";
 
-                if !enable && PRODUCT_VERSION.contains("beta") {
+                if !enable && mullvad_version::VERSION.contains("beta") {
                     return Err(Error::InvalidCommand(
                         "The beta program must be enabled while running a beta version",
                     ));

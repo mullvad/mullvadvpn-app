@@ -9,10 +9,8 @@ use talpid_core::{
 };
 use talpid_types::ErrorExt;
 
-pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
-
 lazy_static::lazy_static! {
-    static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(PRODUCT_VERSION).unwrap();
+    static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap();
     static ref IS_DEV_BUILD: bool = APP_VERSION.is_dev();
 }
 
@@ -101,7 +99,7 @@ async fn main() {
     ];
 
     let app = clap::App::new(crate_name!())
-        .version(PRODUCT_VERSION)
+        .version(mullvad_version::VERSION)
         .author(crate_authors!())
         .about(crate_description!())
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)

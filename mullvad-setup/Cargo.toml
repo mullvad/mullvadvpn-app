@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-setup"
-version = "2022.5.0-beta2"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Tool used to manage daemon setup"
 license = "GPL-3.0"
@@ -25,6 +25,7 @@ mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }
+mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 

@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-jni"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "JNI interface for the Mullvad daemon"
 license = "GPL-3.0"

@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-api"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Mullvad VPN API clients. Providing an interface to query our infrastructure for information."
 license = "GPL-3.0"

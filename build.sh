@@ -17,7 +17,7 @@ source scripts/utils/log
 RUSTC_VERSION=$(rustc --version)
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
-PRODUCT_VERSION=$(cd gui/; node -p "require('./package.json').version" | sed -Ee 's/\.0//g')
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
@@ -51,10 +51,7 @@ done
 # Everything that is not a release build is called a "dev build" and has "-dev-{commit hash}"
 # appended to the version name.
 IS_RELEASE="false"
-product_version_commit_hash=$(git rev-parse "$PRODUCT_VERSION^{commit}" || echo "")
-current_head_commit_hash=$(git rev-parse "HEAD^{commit}")
-if [[ "$SIGN" == "true" && "$OPTIMIZE" == "true" && \
-      $product_version_commit_hash == "$current_head_commit_hash" ]]; then
+if [[ "$SIGN" == "true" && "$OPTIMIZE" == "true" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     IS_RELEASE="true"
 fi
 
@@ -135,8 +132,6 @@ if [[ "$IS_RELEASE" == "true" ]]; then
     # Will not allow an outdated lockfile in releases
     CARGO_ARGS+=(--locked)
 else
-    PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
-
     # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
 
@@ -157,20 +152,6 @@ fi
 ################################################################################
 
 log_header "Building Mullvad VPN $PRODUCT_VERSION"
-
-function restore_metadata_backups {
-    pushd "$SCRIPT_DIR" > /dev/null
-    log_info "Restoring version metadata files..."
-    ./version-metadata.sh restore-backup --desktop
-    mv Cargo.lock.bak Cargo.lock || true
-    popd > /dev/null
-}
-trap 'restore_metadata_backups' EXIT
-
-log_info "Updating version in metadata files..."
-cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
-
 
 # Sign all binaries passed as arguments to this function
 function sign_win {
@@ -360,20 +341,15 @@ case "$(uname -s)" in
     Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
     MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
 esac
-
 popd
 
-SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
-for semver_path in dist/*"$SEMVER_VERSION"*; do
-    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
-    log_info "Moving $semver_path -> $product_path"
-    mv "$semver_path" "$product_path"
-
-    if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]; then
-        # sign installer
-        sign_win "$product_path"
-    fi
-done
+# sign installer on Windows
+if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+    for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
+        log_info "Signing $installer_path"
+        sign_win "$installer_path"
+    done
+fi
 
 log_success "**********************************"
 log_success ""

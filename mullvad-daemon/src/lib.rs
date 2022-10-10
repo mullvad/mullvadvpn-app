@@ -1498,7 +1498,7 @@ where
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
         Self::oneshot_send(
             tx,
-            version::PRODUCT_VERSION.to_owned(),
+            mullvad_version::VERSION.to_owned(),
             "get_current_version response",
         );
     }

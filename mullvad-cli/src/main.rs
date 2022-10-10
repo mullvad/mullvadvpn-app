@@ -15,7 +15,6 @@ mod location;
 mod state;
 
 pub const BIN_NAME: &str = "mullvad";
-pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -132,7 +131,7 @@ async fn run() -> Result<()> {
 
 fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'static> {
     clap::App::new(BIN_NAME)
-        .version(PRODUCT_VERSION)
+        .version(mullvad_version::VERSION)
         .author(crate_authors!())
         .about(crate_description!())
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)

@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-relay-selector"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Mullvad VPN"]
 description = "Mullvad VPN relay selector"
 license = "GPL-3.0"
