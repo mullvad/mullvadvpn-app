@@ -265,6 +265,144 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
     }
 }
 
+impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(state: TunnelState) -> Result<Self, FromProtobufTypeError> {
+        use mullvad_types::states::TunnelState as MullvadState;
+        use talpid_types::{net as talpid_net, tunnel as talpid_tunnel};
+
+        let state = match state.state {
+            Some(tunnel_state::State::Disconnected(_)) => MullvadState::Disconnected,
+            Some(tunnel_state::State::Connecting(tunnel_state::Connecting {
+                relay_info:
+                    Some(TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(tunnel_endpoint),
+                        location,
+                    }),
+            })) => MullvadState::Connecting {
+                endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
+                location: location
+                    .map(mullvad_types::location::GeoIpLocation::try_from)
+                    .transpose()?,
+            },
+            Some(tunnel_state::State::Connected(tunnel_state::Connected {
+                relay_info:
+                    Some(TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(tunnel_endpoint),
+                        location,
+                    }),
+            })) => MullvadState::Connected {
+                endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
+                location: location
+                    .map(mullvad_types::location::GeoIpLocation::try_from)
+                    .transpose()?,
+            },
+            Some(tunnel_state::State::Disconnecting(tunnel_state::Disconnecting {
+                after_disconnect,
+            })) => MullvadState::Disconnecting(match AfterDisconnect::from_i32(after_disconnect) {
+                Some(AfterDisconnect::Nothing) => talpid_tunnel::ActionAfterDisconnect::Nothing,
+                Some(AfterDisconnect::Block) => talpid_tunnel::ActionAfterDisconnect::Block,
+                Some(AfterDisconnect::Reconnect) => talpid_tunnel::ActionAfterDisconnect::Reconnect,
+                _ => {
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "invalid \"after_disconnect\" action",
+                    ))
+                }
+            }),
+            Some(tunnel_state::State::Error(tunnel_state::Error {
+                error_state:
+                    Some(ErrorState {
+                        cause,
+                        blocking_error,
+                        auth_fail_reason,
+                        parameter_error,
+                        policy_error,
+                    }),
+            })) => {
+                let cause = match error_state::Cause::from_i32(cause) {
+                    Some(error_state::Cause::AuthFailed) => {
+                        talpid_tunnel::ErrorStateCause::AuthFailed(
+                            if !auth_fail_reason.is_empty() {
+                                Some(auth_fail_reason)
+                            } else {
+                                None
+                            },
+                        )
+                    }
+                    Some(error_state::Cause::Ipv6Unavailable) => {
+                        talpid_tunnel::ErrorStateCause::Ipv6Unavailable
+                    }
+                    Some(error_state::Cause::IsOffline) => {
+                        talpid_tunnel::ErrorStateCause::IsOffline
+                    }
+                    Some(error_state::Cause::SetDnsError) => {
+                        talpid_tunnel::ErrorStateCause::SetDnsError
+                    }
+                    Some(error_state::Cause::SetFirewallPolicyError) => {
+                        let policy_error = policy_error.ok_or(
+                            FromProtobufTypeError::InvalidArgument("missing firewall policy error"),
+                        )?;
+                        let policy_error = try_firewall_policy_error_from_i32(
+                            policy_error.r#type,
+                            policy_error.lock_pid,
+                            policy_error.lock_name,
+                        )?;
+                        talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(policy_error)
+                    }
+                    Some(error_state::Cause::StartTunnelError) => {
+                        talpid_tunnel::ErrorStateCause::StartTunnelError
+                    }
+                    Some(error_state::Cause::TunnelParameterError) => {
+                        let parameter_error = match error_state::GenerationError::from_i32(parameter_error) {
+                            Some(error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError,
+                            Some(error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
+                            Some(error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
+                            Some(error_state::GenerationError::NoWireguardKey) => talpid_tunnel::ParameterGenerationError::NoWireguardKey,
+                            _ => return Err(FromProtobufTypeError::InvalidArgument(
+                                "invalid parameter error",
+                            )),
+                        };
+                        talpid_tunnel::ErrorStateCause::TunnelParameterError(parameter_error)
+                    }
+                    #[cfg(target_os = "android")]
+                    Some(error_state::Cause::VpnPermissionDenied) => {
+                        talpid_tunnel::ErrorStateCause::VpnPermissionDenied
+                    }
+                    #[cfg(target_os = "windows")]
+                    Some(error_state::Cause::SplitTunnelError) => {
+                        talpid_tunnel::ErrorStateCause::SplitTunnelError
+                    }
+                    _ => {
+                        return Err(FromProtobufTypeError::InvalidArgument(
+                            "invalid error cause",
+                        ))
+                    }
+                };
+
+                let block_failure = blocking_error
+                    .map(|blocking_error| {
+                        try_firewall_policy_error_from_i32(
+                            blocking_error.r#type,
+                            blocking_error.lock_pid,
+                            blocking_error.lock_name,
+                        )
+                    })
+                    .transpose()?;
+
+                MullvadState::Error(talpid_tunnel::ErrorState::new(cause, block_failure))
+            }
+            _ => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid tunnel state",
+                ))
+            }
+        };
+
+        Ok(state)
+    }
+}
+
 impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
     type Error = FromProtobufTypeError;
 
@@ -1768,6 +1906,32 @@ fn try_transport_protocol_from_i32(
             "invalid transport protocol",
         ))?
         .into())
+}
+
+#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+fn try_firewall_policy_error_from_i32(
+    policy_error: i32,
+    lock_pid: u32,
+    lock_name: String,
+) -> Result<talpid_types::tunnel::FirewallPolicyError, FromProtobufTypeError> {
+    match error_state::firewall_policy_error::ErrorType::from_i32(policy_error) {
+        Some(error_state::firewall_policy_error::ErrorType::Generic) => {
+            Ok(talpid_types::tunnel::FirewallPolicyError::Generic)
+        }
+        #[cfg(windows)]
+        Some(error_state::firewall_policy_error::ErrorType::Locked) => {
+            let blocking_app = match (lock_pid, lock_name) {
+                (0, name) if name.is_empty() => None,
+                (pid, name) => Some(talpid_types::tunnel::BlockingApplication { pid, name }),
+            };
+            Ok(talpid_types::tunnel::FirewallPolicyError::Locked(
+                blocking_app,
+            ))
+        }
+        _ => Err(FromProtobufTypeError::InvalidArgument(
+            "invalid firewall policy error",
+        )),
+    }
 }
 
 pub fn try_providers_constraint_from_proto(
