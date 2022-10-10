@@ -373,6 +373,10 @@ impl Providers {
         }
         Ok(providers)
     }
+
+    pub fn into_vec(self) -> Vec<Provider> {
+        self.providers.into_iter().collect()
+    }
 }
 
 impl Match<Relay> for Providers {
