@@ -7,8 +7,8 @@
 # download all dependencies and building everything.
 #
 # podman run --rm \
-#     -v ~/.cargo:/root/.cargo:Z -e=CARGO_TARGET_DIR=/root/.cargo/target \
-#     -v .:/build:Z -w /build \
+#     -v ~/.cargo:/root/.cargo:Z \
+#     -v .:/build:Z \
 #     -it mullvadvpn-app-build
 
 # Debian 10 is the oldest supported distro. It has the oldest glibc that we support
@@ -41,3 +41,4 @@ RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && 
 	rm go.tgz
 ENV PATH /usr/local/go/bin:$PATH
 
+WORKDIR /build
