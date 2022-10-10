@@ -9,8 +9,12 @@
 import Foundation
 
 class RESTTransportRegistry {
+    static let shared = RESTTransportRegistry()
+
     private var timeoutCount = 0
     private var transports: [RESTTransport] = []
+
+    private init() {}
 
     func register(_ transport: RESTTransport) {
         if !contains(transport) {
@@ -51,14 +55,14 @@ extension RESTTransportRegistry {
         timeoutCount = 0
     }
 
-    func transportDidTimeout(_ transport: RESTTransport, maxRetryStrategy: Int) {
+    func transportDidTimeout(_ transport: RESTTransport) {
         guard let firstTransport = transports.first,
               firstTransport == transport
         else { return }
 
         timeoutCount += 1
 
-        if timeoutCount >= maxRetryStrategy {
+        if timeoutCount > 5 {
             transports.removeFirst() // remove current transport
             transports.append(transport) // take current transport and put it in the back
             timeoutCount = 0
