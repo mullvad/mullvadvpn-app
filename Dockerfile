@@ -14,6 +14,16 @@
 # Debian 10 is the oldest supported distro. It has the oldest glibc that we support
 FROM debian:10@sha256:604db908f7ce93379b1289c0c7ba73b252002087a3fa64fe904b430083ba5f69
 
+# === Define toolchain versions and paths ===
+
+ENV CARGO_HOME=/root/.cargo
+ENV CARGO_TARGET_DIR=/root/.cargo/target
+
+ENV GOLANG_VERSION 1.18.5
+ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+
+# === Install/set up the image ===
+
 RUN apt-get update -y && apt-get install -y \
 	git \
 	curl \
@@ -32,9 +42,7 @@ COPY gui/package.json .
 RUN curl https://get.volta.sh | bash && bash -c 'source ~/.bashrc && node --version' && rm package.json
 
 # Install golang
-ENV GOLANG_VERSION 1.18.5
 # Checksum from: https://go.dev/dl/
-ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
 	tar -C /usr/local -xzf go.tgz && \
