@@ -1,7 +1,11 @@
 pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
-use std::convert::TryFrom;
+use std::{
+    convert::TryFrom,
+    net::{Ipv4Addr, Ipv6Addr},
+    str::FromStr,
+};
 use talpid_types::{net::wireguard, ErrorExt};
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -26,6 +30,51 @@ impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
             entry_hostname: geoip.entry_hostname.unwrap_or_default(),
             obfuscator_hostname: geoip.obfuscator_hostname.unwrap_or_default(),
         }
+    }
+}
+
+impl TryFrom<GeoIpLocation> for mullvad_types::location::GeoIpLocation {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(geoip: GeoIpLocation) -> Result<Self, Self::Error> {
+        Ok(mullvad_types::location::GeoIpLocation {
+            ipv4: match geoip.ipv4 {
+                addr if addr.is_empty() => None,
+                addr => Some(Ipv4Addr::from_str(&addr).map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid IPv4 address")
+                })?),
+            },
+            ipv6: match geoip.ipv6 {
+                addr if addr.is_empty() => None,
+                addr => Some(Ipv6Addr::from_str(&addr).map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid IPv6 address")
+                })?),
+            },
+            country: geoip.country,
+            city: match geoip.city {
+                city if city.is_empty() => None,
+                city => Some(city),
+            },
+            latitude: geoip.latitude,
+            longitude: geoip.longitude,
+            mullvad_exit_ip: geoip.mullvad_exit_ip,
+            hostname: match geoip.hostname {
+                host if host.is_empty() => None,
+                host => Some(host),
+            },
+            bridge_hostname: match geoip.bridge_hostname {
+                host if host.is_empty() => None,
+                host => Some(host),
+            },
+            entry_hostname: match geoip.entry_hostname {
+                host if host.is_empty() => None,
+                host => Some(host),
+            },
+            obfuscator_hostname: match geoip.obfuscator_hostname {
+                host if host.is_empty() => None,
+                host => Some(host),
+            },
+        })
     }
 }
 
