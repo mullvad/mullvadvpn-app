@@ -25,11 +25,11 @@ ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 # === Install/set up the image ===
 
 RUN apt-get update -y && apt-get install -y \
-	git \
-	curl \
-	gcc \
-	libdbus-1-dev \
-	rpm \
+    git \
+    curl \
+    gcc \
+    libdbus-1-dev \
+    rpm \
     protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,9 +44,9 @@ RUN curl https://get.volta.sh | bash && bash -c 'source ~/.bashrc && node --vers
 # Install golang
 # Checksum from: https://go.dev/dl/
 RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
-	tar -C /usr/local -xzf go.tgz && \
-	rm go.tgz
+    echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
+    tar -C /usr/local -xzf go.tgz && \
+    rm go.tgz
 ENV PATH /usr/local/go/bin:$PATH
 
 WORKDIR /build
