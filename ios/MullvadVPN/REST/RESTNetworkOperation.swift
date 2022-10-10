@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let urlSession: URLSession
+        private let transportRegistry: RESTTransportRegistry
         private let addressCacheStore: AddressCache.Store
 
         private var networkTask: Cancellable?
@@ -39,8 +39,8 @@ extension REST {
             responseHandler: AnyResponseHandler<Success>,
             completionHandler: @escaping CompletionHandler
         ) {
-            urlSession = configuration.session
             addressCacheStore = configuration.addressCacheStore
+            transportRegistry = configuration.transportRegistry
             self.retryStrategy = retryStrategy
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
@@ -142,7 +142,7 @@ extension REST {
                     "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
                 )
 
-            guard let transport = TransportMonitor.shared.getTransport() else {
+            guard let transport = transportRegistry.getTransport() else {
                 preconditionFailure("Received URL request without registering any transports.")
             }
 
@@ -227,10 +227,7 @@ extension REST {
                 return
 
             case .timedOut:
-                TransportMonitor.shared.transportDidTimeout(
-                    transport,
-                    maxRetryStrategy: retryStrategy.maxRetryCount
-                )
+                transportRegistry.transportDidTimeout(transport)
             case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
                 break
 
@@ -258,10 +255,7 @@ extension REST {
 
             if case let .transport(error) = error {
                 if case .timeout = error as? SendTunnelProviderMessageError {
-                    TransportMonitor.shared.transportDidTimeout(
-                        transport,
-                        maxRetryStrategy: retryStrategy.maxRetryCount
-                    )
+                    transportRegistry.transportDidTimeout(transport)
 
                     return
                 }
@@ -280,7 +274,7 @@ extension REST {
 
             logger.debug("Response: \(response.statusCode).")
 
-            TransportMonitor.shared.transportDidFinishLoad(transport)
+            transportRegistry.transportDidFinishLoad(transport)
 
             let handlerResult = responseHandler.handleURLResponse(response, data: data)
 
