@@ -9,6 +9,7 @@ use std::{
     collections::HashMap,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, Mutex},
+    io,
 };
 use widestring::{WideCStr, WideCString};
 use windows_sys::Win32::{
@@ -40,7 +41,7 @@ pub struct CallbackHandle {
     callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
 }
 
-impl std::ops::Drop for CallbackHandle {
+impl Drop for CallbackHandle {
     fn drop(&mut self) {
         let (_, callbacks) = &mut *self.callbacks.lock().unwrap();
         match callbacks.remove(&self.nonce) {
@@ -148,23 +149,30 @@ impl RouteManagerInternal {
         let mut event_log = vec![];
 
         for route in new_routes {
-            let registered_route = match Self::add_into_routing_table(&route) {
-                Ok(registered_route) => registered_route,
-                Err(e) => {
-                    match e {
-                        //Error::RouteManagerError => {
-                        //    // TODO: Look up why this is important to split these?
-                        //    Self::undo_events(&event_log, &mut route_manager_routes)?;
-                        //    return Err(e);
-                        //}
-                        _ => {
-                            // TODO: Look up why this is important to split these?
-                            Self::undo_events(&event_log, &mut route_manager_routes)?;
-                            return Err(e);
-                        }
-                    }
+            let registered_route = Self::add_into_routing_table(&route).map_err(|error| {
+                if let Err(error) = Self::undo_events(&event_log, &mut route_manager_routes) {
+                    error
+                } else {
+                    error
                 }
-            };
+            })?;
+            //let registered_route = match Self::add_into_routing_table(&route) {
+            //    Ok(registered_route) => registered_route,
+            //    Err(e) => {
+            //        match e {
+            //            //Error::RouteManagerError => {
+            //            //    // TODO: Look up why this is important to split these?
+            //            //    Self::undo_events(&event_log, &mut route_manager_routes)?;
+            //            //    return Err(e);
+            //            //}
+            //            _ => {
+            //                // TODO: Look up why this is important to split these?
+            //                Self::undo_events(&event_log, &mut route_manager_routes)?;
+            //                return Err(e);
+            //            }
+            //        }
+            //    }
+            //};
 
             let new_record = RouteRecord {
                 route,
@@ -222,7 +230,7 @@ impl RouteManagerInternal {
 
         if NO_ERROR as i32 != status {
             log::error!("Could not register route in routing table");
-            return Err(Error::WindowsApi);
+            return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
         }
 
         Ok(RegisteredRoute {
@@ -286,10 +294,10 @@ impl RouteManagerInternal {
                             Some(ip) => SocketAddr::new(ip, 0),
                             None => match family {
                                 AddressFamily::Ipv4 => {
-                                    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                                    SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
                                 }
                                 AddressFamily::Ipv6 => SocketAddr::new(
-                                    IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)),
+                                    IpAddr::V6(Ipv6Addr::UNSPECIFIED),
                                     0,
                                 ),
                             },
@@ -304,7 +312,7 @@ impl RouteManagerInternal {
                 // Unwrapping is fine because the node must have an address since no device name was found.
                 let gateway = node
                     .get_address()
-                    .map(inet_sockaddr_from_ipaddr_port_zero)
+                    .map(inet_sockaddr_from_ipaddr)
                     .unwrap();
                 Ok(InterfaceAndGateway {
                     iface: interface_luid_from_gateway(&gateway)?,
@@ -331,50 +339,57 @@ impl RouteManagerInternal {
         for event in event_log.iter().rev() {
             match event.event_type {
                 RecordEventType::AddRoute => {
-                    match Self::find_route_record(records, &event.record.registered_route) {
-                        None => {
-                            log::error!("Internal state inconsistency in route manager");
-                            // TODO: Panic here, or not?
-                            if result.is_ok() {
-                                result = Err(Error::InternalInconsistentState);
-                            }
+                    let record_idx = Self::find_route_record(records, &event.record.registered_route)
+                        .expect("Internal state inconsistency in route manager, could not find route record");
+                    let record = records.get(record_idx)
+                        .expect("Internal state inconsistency in route manager, route record index pointing at nothing");
+
+                    if let Err(e) = Self::delete_from_routing_table(&record.registered_route) {
+                        log::error!("Could not delete from routing table");
+                        if result.is_ok() {
+                            result = Err(e);
                         }
-                        Some(record_idx) => {
-                            // TODO: make sure this is right
-                            let record = match records.get(record_idx) {
-                                None => {
-                                    log::error!("Internal state inconsistency in route manager");
-                                    if result.is_ok() {
-                                        result = Err(Error::InternalInconsistentState);
-                                    }
-                                    continue;
-                                }
-                                Some(rec) => rec,
-                            };
-                            match Self::delete_from_routing_table(&record.registered_route) {
-                                Err(e) => {
-                                    log::error!("Could not delete from routing table");
-                                    if result.is_ok() {
-                                        result = Err(e);
-                                    }
-                                    continue;
-                                }
-                                Ok(()) => (),
-                            }
-                            records.remove(record_idx);
-                        }
+                        continue;
                     }
+                    records.remove(record_idx);
+                    //match Self::find_route_record(records, &event.record.registered_route) {
+                    //    None => {
+                    //        log::error!("Internal state inconsistency in route manager");
+                    //        // TODO: Panic here, or not?
+                    //        if result.is_ok() {
+                    //            result = Err(Error::InternalInconsistentState);
+                    //        }
+                    //    }
+                    //    Some(record_idx) => {
+                    //        // TODO: make sure this is right
+                    //        let record = match records.get(record_idx) {
+                    //            None => {
+                    //                log::error!("Internal state inconsistency in route manager");
+                    //                if result.is_ok() {
+                    //                    result = Err(Error::InternalInconsistentState);
+                    //                }
+                    //                continue;
+                    //            }
+                    //            Some(rec) => rec,
+                    //        };
+                    //        if let Err(e) = Self::delete_from_routing_table(&record.registered_route) {
+                    //            log::error!("Could not delete from routing table");
+                    //            if result.is_ok() {
+                    //                result = Err(e);
+                    //            }
+                    //            continue;
+                    //        }
+                    //        records.remove(record_idx);
+                    //    }
+                    //}
                 }
                 RecordEventType::DeleteRoute => {
-                    match Self::restore_into_routing_table(&event.record.registered_route) {
-                        Err(e) => {
-                            log::error!("Could not restore route into routing table");
-                            if result.is_ok() {
-                                result = Err(e);
-                            }
-                            continue;
+                    if let Err(e) = Self::restore_into_routing_table(&event.record.registered_route) {
+                        log::error!("Could not restore route into routing table");
+                        if result.is_ok() {
+                            result = Err(e);
                         }
-                        Ok(()) => (),
+                        continue;
                     }
                     records.push(event.record.clone());
                 }
@@ -395,14 +410,15 @@ impl RouteManagerInternal {
 
         let mut status = unsafe { DeleteIpForwardEntry2(&r) };
 
-        if ERROR_NOT_FOUND as i32 == status {
-            status = NO_ERROR as i32;
-            log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {}", route);
-        }
-
-        if NO_ERROR as i32 != status {
-            //THROW_WINDOWS_ERROR(status, "Delete route in routing table");
-            return Err(Error::WindowsApi);
+        match u32::try_from(status) {
+            Ok(ERROR_NOT_FOUND) => {
+                log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {}", route);
+            }
+            Ok(NO_ERROR) => (),
+            _ => {
+                //THROW_WINDOWS_ERROR(status, "Delete route in routing table");
+                return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(status)));
+            }
         }
 
         Ok(())
@@ -426,7 +442,7 @@ impl RouteManagerInternal {
 
         if NO_ERROR as i32 != status {
             log::error!("Could not register route in routing table");
-            return Err(Error::WindowsApi);
+            return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
             //THROW_WINDOWS_ERROR(status, "Register route in routing table");
         }
         Ok(())
@@ -490,7 +506,7 @@ impl RouteManagerInternal {
         let (nonce, callbacks) = &mut *self.callbacks.lock().unwrap();
         let old_nonce = *nonce;
         callbacks.insert(old_nonce, callback);
-        *nonce += 1;
+        *nonce = nonce.wrapping_add(1);
         Ok(CallbackHandle {
             nonce: old_nonce,
             callbacks: self.callbacks.clone(),
@@ -509,7 +525,7 @@ impl RouteManagerInternal {
 
         {
             let (_, callbacks) = &mut *callbacks.lock().unwrap();
-            for (_, callback) in callbacks.iter() {
+            for callback in callbacks.values() {
                 let family =
                     AddressFamily::try_from_af_family(u16::try_from(family).unwrap()).unwrap();
                 callback(event_type, family);
@@ -583,7 +599,7 @@ impl RouteManagerInternal {
     }
 }
 
-impl std::ops::Drop for RouteManagerInternal {
+impl Drop for RouteManagerInternal {
     fn drop(&mut self) {
         drop(self.route_monitor_v4.take());
         drop(self.route_monitor_v6.take());
@@ -604,7 +620,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         | GAA_FLAG_SKIP_FRIENDLY_NAME
         | GAA_FLAG_INCLUDE_GATEWAYS;
 
-    let family: u32 = unsafe { gateway.si_family }.into();
+    let family: u32 = u32::from(unsafe { gateway.si_family });
     let mut adapters = Adapters::new(family, ADAPTER_FLAGS)?;
 
     //
@@ -614,21 +630,13 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     let mut matches: Vec<_> = adapters
         .iter_mut()
         .filter(|adapter| {
-            match adapter_interface_enabled(adapter, family) {
-                Ok(b) => {
-                    if !b {
-                        return false;
-                    }
-                }
-                Err(_) => return false,
+            if !adapter_interface_enabled(adapter, family).unwrap_or(false) {
+                return false;
             }
 
             let gateways = unsafe { isolate_gateway_address(adapter.FirstGatewayAddress, family) };
 
-            match unsafe { address_present(gateways, &gateway) } {
-                Ok(b) => b,
-                Err(_) => false,
-            }
+            unsafe { address_present(gateways, &gateway) }.unwrap_or(false)
         })
         .collect();
 
@@ -666,11 +674,7 @@ fn adapter_interface_enabled(
     match family {
         AF_INET => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED),
         AF_INET6 => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED),
-        _ => {
-            log::error!("Missing case handler in match");
-            //THROW_ERROR("Missing case handler in switch clause");
-            Err(Error::InvalidSiFamily)
-        }
+        _ => unreachable!(),
     }
 }
 
@@ -708,7 +712,7 @@ unsafe fn address_present(hay: Vec<*const SOCKET_ADDRESS>, needle: &SOCKADDR_INE
         }
     }
 
-    return Ok(false);
+    Ok(false)
 }
 
 // SAFETY: rhs must be dereferencable
@@ -785,7 +789,7 @@ impl Adapters {
 
             if ERROR_BUFFER_OVERFLOW != status {
                 log::error!("Probe required buffer size for GetAdaptersAddresses");
-                return Err(Error::WindowsApi);
+                return Err(Error::Adapter);
             }
 
             // The needed length is returned in the buffer_size pointer
@@ -806,7 +810,7 @@ impl Adapters {
 
         if system_size < code_size {
             log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
-            return Err(Error::WindowsApi);
+            return Err(Error::Adapter);
         }
 
         //
@@ -870,7 +874,7 @@ pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADD
 }
 
 /// Convert to a windows defined `SOCKADDR_INET` from a `IpAddr` but set the port to 0
-pub fn inet_sockaddr_from_ipaddr_port_zero(from: IpAddr) -> SOCKADDR_INET {
+pub fn inet_sockaddr_from_ipaddr(from: IpAddr) -> SOCKADDR_INET {
     // Port should not matter so we set it to 0
     crate::windows::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
 }

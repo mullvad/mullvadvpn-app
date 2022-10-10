@@ -3,7 +3,7 @@ use futures::channel::oneshot;
 use std::{
     collections::HashSet,
     net::IpAddr,
-    sync::{Arc, Mutex, Weak},
+    io,
 };
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
@@ -24,24 +24,38 @@ pub enum Error {
     /// Failure to initialize route manager
     #[error(display = "Failed to start route manager")]
     FailedToStartManager,
-    /// Failure to add routes
-    #[error(display = "Failed to add routes")]
-    AddRoutesFailed,
-    /// Failure to clear routes
-    #[error(display = "Failed to clear applied routes")]
-    ClearRoutesFailed,
-    /// WinNet returned an error while adding default route callback
-    #[error(display = "Failed to set callback for default route")]
-    FailedToAddDefaultRouteCallback,
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
+    /// Low level error caused by a failure to add to route table
+    #[error(display = "Could not add route to route table")]
+    AddToRouteTable(io::Error),
+    /// Low level error caused by failure to delete route from route table
+    #[error(display = "Failed to delete applied routes")]
+    DeleteFromRouteTable(io::Error),
+    /// GetIpForwardTable2 windows API call failed
+    #[error(display = "Window could not fetch IpForwardTable")]
+    GetIpForwardTableFailed(io::Error),
+    /// GetIfEntry2 windows API call failed
+    #[error(display = "Window could not fetch IfEntry")]
+    GetIfEntryFailed(io::Error),
+    /// Low level error caused by registering default route callback
+    #[error(display = "Attempt to register default route change callback failed")]
+    RegisterRouteCallback(io::Error),
+    /// Low level error caused by windows Adapters API
+    #[error(display = "Windows adapter error")]
+    Adapter,
+    /// High level error caused by a failure to clear the routes in the route manager.
+    /// Contains the lower error
+    #[error(display = "Failed to clear applied routes")]
+    ClearRoutesFailed(Box<Error>),
+    /// High level error caused by a failure to add routes in the route manager.
+    /// Contains the lower error
+    #[error(display = "Failed to add routes")]
+    AddRoutesFailed(Box<Error>),
     /// Something went wrong when getting the mtu of the interface
     #[error(display = "Could not get the mtu of the interface")]
     GetMtu,
-    /// A windows API has errored
-    #[error(display = "A windows API has errored")]
-    WindowsApi,
     /// The SI family was of an unexpected value
     #[error(display = "The SI family was of an unexpected value")]
     InvalidSiFamily,
@@ -66,9 +80,6 @@ pub enum Error {
     /// Could not find device by gateway
     #[error(display = "Could not find device by gateway")]
     GetDeviceByGateway,
-    /// Internal inconsistent state in RouteManager
-    #[error(display = "Route manager inconsistent internal state")]
-    InternalInconsistentState,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -195,7 +206,7 @@ impl RouteManager {
                     let _ = tx.send(
                         internal
                             .add_routes(routes)
-                            .map_err(|_| Error::AddRoutesFailed),
+                            .map_err(|e| Error::AddRoutesFailed(Box::new(e)))
                     );
                 }
                 RouteManagerCommand::GetMtuForRoute(ip, tx) => {
@@ -264,7 +275,7 @@ impl RouteManager {
             result_rx
                 .await
                 .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(|_| Error::ClearRoutesFailed)
+                .map_err(|e| Error::ClearRoutesFailed(Box::new(e)))
         } else {
             Err(Error::RouteManagerDown)
         }

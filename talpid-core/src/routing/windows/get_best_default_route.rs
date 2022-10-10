@@ -22,7 +22,7 @@
 
 use super::{Error, Result};
 use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
-use std::{convert::TryInto, net::SocketAddr};
+use std::{convert::TryInto, net::SocketAddr, io};
 use widestring::{widecstr, WideCStr};
 use windows_sys::Win32::{
     Foundation::NO_ERROR,
@@ -45,8 +45,9 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
 
     // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
     // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
-    if NO_ERROR as i32 != unsafe { GetIpForwardTable2(family, &mut table_ptr) } {
-        return Err(Error::WindowsApi);
+    let status = unsafe { GetIpForwardTable2(family, &mut table_ptr) };
+    if NO_ERROR as i32 != status {
+        return Err(Error::GetIpForwardTableFailed(io::Error::from_raw_os_error(status)));
     }
 
     // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error
@@ -153,8 +154,9 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
 
     // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the row.InterfaceLuid or row.InterfaceIndex and use
     // that information to populate the struct. We guarantee here that these fields are valid since they are set.
-    if NO_ERROR as i32 != unsafe { GetIfEntry2(&mut row) } {
-        return Err(Error::WindowsApi);
+    let status = unsafe { GetIfEntry2(&mut row) };
+    if NO_ERROR as i32 != status {
+        return Err(Error::GetIfEntryFailed(io::Error::from_raw_os_error(status)));
     }
 
     let row_description = WideCStr::from_slice_truncate(&row.Description)

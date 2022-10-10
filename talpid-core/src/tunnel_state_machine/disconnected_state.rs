@@ -63,8 +63,6 @@ impl DisconnectedState {
         } else {
             if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(
                 None,
-                &shared_values.route_manager,
-                &shared_values.runtime,
             ) {
                 log::error!(
                     "{}",

@@ -3,10 +3,10 @@ use super::{
     InterfaceAndGateway, Result,
 };
 
-use std::ffi::c_void;
-use std::sync::mpsc::{channel, RecvTimeoutError, Sender};
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::{io, ffi::c_void, 
+sync::{mpsc::{channel, RecvTimeoutError, Sender}, {Arc, Mutex}},
+time::{Duration, Instant},
+};
 use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
     CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
@@ -102,9 +102,9 @@ pub struct DefaultRouteMonitor {
 
 /// SAFETY: DefaultRouteMonitor is `Send` since `Handle` is `Send` and `ContextAndBurstGuard` is `Sync` as
 /// it holds Mutex<T> and Arc<Mutex<T>> fields.
-unsafe impl std::marker::Send for DefaultRouteMonitor {}
+unsafe impl Send for DefaultRouteMonitor {}
 
-impl std::ops::Drop for DefaultRouteMonitor {
+impl Drop for DefaultRouteMonitor {
     fn drop(&mut self) {
         drop(self.notify_change_handles.take());
         // SAFETY: This pointer was created by Box::into_raw and is not modified since then.
@@ -122,9 +122,9 @@ impl std::ops::Drop for DefaultRouteMonitor {
 struct Handle(HANDLE);
 
 /// SAFETY: Handle is `Send` since it holds sole ownership of a pointer provided by C
-unsafe impl std::marker::Send for Handle {}
+unsafe impl Send for Handle {}
 
-impl std::ops::Drop for Handle {
+impl Drop for Handle {
     fn drop(&mut self) {
         // SAFETY: There is no clear safety specification on this function. However self.0 should point to a handle that has
         // been allocated by windows and should be non-null. Even if it would be null that would cause a panic rather than UB.
@@ -221,8 +221,7 @@ impl DefaultRouteMonitor {
         let context_ptr = context_and_burst;
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
-        if NO_ERROR as i32
-            != unsafe {
+        let status = unsafe {
                 NotifyRouteChange2(
                     family,
                     Some(route_change_callback),
@@ -230,16 +229,16 @@ impl DefaultRouteMonitor {
                     WIN_FALSE,
                     &mut handle_ptr,
                 )
-            }
-        {
-            return Err(Error::WindowsApi);
+            };
+
+        if NO_ERROR as i32 != status {
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
         }
         let notify_route_change_handle = Handle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
-        if NO_ERROR as i32
-            != unsafe {
+        let status = unsafe {
                 NotifyIpInterfaceChange(
                     family,
                     Some(interface_change_callback),
@@ -247,16 +246,15 @@ impl DefaultRouteMonitor {
                     WIN_FALSE,
                     &mut handle_ptr,
                 )
-            }
-        {
-            return Err(Error::WindowsApi);
+            };
+        if NO_ERROR as i32 != status {
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
         }
         let notify_interface_change_handle = Handle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
-        if NO_ERROR as i32
-            != unsafe {
+        let status = unsafe {
                 NotifyUnicastIpAddressChange(
                     family,
                     Some(ip_address_change_callback),
@@ -264,9 +262,10 @@ impl DefaultRouteMonitor {
                     WIN_FALSE,
                     &mut handle_ptr,
                 )
-            }
+            };
+        if NO_ERROR as i32 != status
         {
-            return Err(Error::WindowsApi);
+            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(status)));
         }
         let notify_address_change_handle = Handle(handle_ptr);
 

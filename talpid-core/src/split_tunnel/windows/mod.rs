@@ -5,7 +5,7 @@ mod volume_monitor;
 mod windows;
 
 use crate::{
-    routing::{CallbackHandle, EventType, InterfaceAndGateway, RouteManager},
+    routing::{CallbackHandle, EventType, InterfaceAndGateway, RouteManager, RouteManagerHandle},
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
     windows::{
@@ -121,6 +121,7 @@ pub struct SplitTunnel {
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
     power_mgmt_handle: tokio::task::JoinHandle<()>,
+    route_manager: RouteManagerHandle,
 }
 
 enum Request {
@@ -188,6 +189,7 @@ impl SplitTunnel {
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         power_mgmt_rx: PowerManagementListener,
+        route_manager: RouteManagerHandle,
     ) -> Result<Self, Error> {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
@@ -210,6 +212,7 @@ impl SplitTunnel {
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
             excluded_processes,
             power_mgmt_handle,
+            route_manager,
         })
     }
 
@@ -695,8 +698,6 @@ impl SplitTunnel {
     pub fn set_tunnel_addresses(
         &mut self,
         metadata: Option<&TunnelMetadata>,
-        route_manager: &RouteManager,
-        runtime: &tokio::runtime::Handle,
     ) -> Result<(), Error> {
         let mut tunnel_ipv4 = None;
         let mut tunnel_ipv6 = None;
@@ -723,8 +724,8 @@ impl SplitTunnel {
         self._route_change_callback = None;
         let moved_context_mutex = context_mutex.clone();
         let mut context = context_mutex.lock().unwrap();
-        let callback = runtime
-            .block_on(route_manager.add_default_route_change_callback(Box::new(
+        let callback = self.runtime
+            .block_on(self.route_manager.add_default_route_change_callback(Box::new(
                 move |event, addr_family| {
                     split_tunnel_default_route_change_handler(
                         event,

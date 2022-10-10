@@ -69,10 +69,9 @@ impl BroadcastListener {
             }
         });
 
-        let callback_handle = unsafe {
+        let callback_handle = 
             Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle)
-                .await?
-        };
+                .await?;
 
         Ok(BroadcastListener {
             system_state,
@@ -109,7 +108,7 @@ impl BroadcastListener {
 
     /// The caller must make sure the `system_state` reference is valid
     /// until after `WinNet_DeactivateConnectivityMonitor` has been called.
-    async unsafe fn setup_network_connectivity_listener(
+    async fn setup_network_connectivity_listener(
         system_state: Arc<Mutex<SystemState>>,
         route_manager_handle: RouteManagerHandle,
     ) -> Result<CallbackHandle, Error> {
