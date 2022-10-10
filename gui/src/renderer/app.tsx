@@ -111,8 +111,6 @@ export default class AppRenderer {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
     log.addOutput(new IpcOutput(LogLevel.debug));
 
-    this.setPreferredLocale = this.setPreferredLocale.bind(this);
-
     IpcRendererEventChannel.window.listenShape((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
         this.reduxActions.userInterface.updateWindowArrowPosition(windowShapeParams.arrowPosition);
