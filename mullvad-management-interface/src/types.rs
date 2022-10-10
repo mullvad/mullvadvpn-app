@@ -3,7 +3,7 @@ pub use prost_types::{Duration, Timestamp};
 use mullvad_types::relay_constraints::Constraint;
 use std::{
     convert::TryFrom,
-    net::{Ipv4Addr, Ipv6Addr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
 };
 use talpid_types::{net::wireguard, ErrorExt};
@@ -262,6 +262,86 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
         };
 
         TunnelState { state: Some(state) }
+    }
+}
+
+impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(endpoint: TunnelEndpoint) -> Result<Self, Self::Error> {
+        use talpid_types::net as talpid_net;
+
+        Ok(talpid_net::TunnelEndpoint {
+            endpoint: talpid_net::Endpoint {
+                address: SocketAddr::from_str(&endpoint.address).map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid endpoint address")
+                })?,
+                protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
+            },
+            tunnel_type: try_tunnel_type_from_i32(endpoint.tunnel_type)?,
+            quantum_resistant: endpoint.quantum_resistant,
+            proxy: endpoint
+                .proxy
+                .map(|proxy_ep| {
+                    Ok(talpid_net::proxy::ProxyEndpoint {
+                        endpoint: talpid_net::Endpoint {
+                            address: SocketAddr::from_str(&proxy_ep.address).map_err(|_err| {
+                                FromProtobufTypeError::InvalidArgument(
+                                    "invalid proxy endpoint address",
+                                )
+                            })?,
+                            protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
+                        },
+                        proxy_type: match ProxyType::from_i32(proxy_ep.proxy_type) {
+                            Some(ProxyType::Shadowsocks) => {
+                                talpid_net::proxy::ProxyType::Shadowsocks
+                            }
+                            Some(ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
+                            None => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "unknown proxy type",
+                                ))
+                            }
+                        },
+                    })
+                })
+                .transpose()?,
+            obfuscation: endpoint
+                .obfuscation
+                .map(|obfs_ep| {
+                    Ok(talpid_net::ObfuscationEndpoint {
+                        endpoint: talpid_net::Endpoint {
+                            address: SocketAddr::from_str(&obfs_ep.address).map_err(|_err| {
+                                FromProtobufTypeError::InvalidArgument(
+                                    "invalid proxy endpoint address",
+                                )
+                            })?,
+                            protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
+                        },
+                        obfuscation_type: match ObfuscationType::from_i32(obfs_ep.obfuscation_type)
+                        {
+                            Some(ObfuscationType::Udp2tcp) => talpid_net::ObfuscationType::Udp2Tcp,
+                            None => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "unknown obfuscation type",
+                                ))
+                            }
+                        },
+                    })
+                })
+                .transpose()?,
+            entry_endpoint: endpoint
+                .entry_endpoint
+                .map(|entry| {
+                    Ok(talpid_net::Endpoint {
+                        address: SocketAddr::from_str(&entry.address).map_err(|_err| {
+                            FromProtobufTypeError::InvalidArgument("invalid entry endpoint address")
+                        })?,
+                        protocol: try_transport_protocol_from_i32(entry.protocol)?,
+                    })
+                })
+                .transpose()?,
+        })
     }
 }
 
@@ -1227,17 +1307,8 @@ impl TryFrom<TunnelTypeConstraint> for Constraint<talpid_types::net::TunnelType>
     fn try_from(
         tunnel_type: TunnelTypeConstraint,
     ) -> Result<Constraint<talpid_types::net::TunnelType>, Self::Error> {
-        match TunnelType::from_i32(tunnel_type.tunnel_type) {
-            Some(TunnelType::Openvpn) => {
-                Ok(Constraint::Only(talpid_types::net::TunnelType::OpenVpn))
-            }
-            Some(TunnelType::Wireguard) => {
-                Ok(Constraint::Only(talpid_types::net::TunnelType::Wireguard))
-            }
-            None => Err(FromProtobufTypeError::InvalidArgument(
-                "invalid tunnel protocol",
-            )),
-        }
+        let tunnel_type = try_tunnel_type_from_i32(tunnel_type.tunnel_type)?;
+        Ok(Constraint::Only(tunnel_type))
     }
 }
 
@@ -1674,6 +1745,18 @@ impl TryFrom<TransportPort> for mullvad_types::relay_constraints::TransportPort 
                 Constraint::Only(port.port as u16)
             },
         })
+    }
+}
+
+fn try_tunnel_type_from_i32(
+    tunnel_type: i32,
+) -> Result<talpid_types::net::TunnelType, FromProtobufTypeError> {
+    match TunnelType::from_i32(tunnel_type) {
+        Some(TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
+        Some(TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
+        None => Err(FromProtobufTypeError::InvalidArgument(
+            "invalid tunnel protocol",
+        )),
     }
 }
 
