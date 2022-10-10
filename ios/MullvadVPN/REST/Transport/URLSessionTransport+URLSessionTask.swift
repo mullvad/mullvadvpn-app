@@ -14,7 +14,7 @@ class URLSessionTransport: RESTTransport {
     var name: String {
         "urlsession"
     }
-    
+
     let urlSession: URLSession
 
     init(urlSession: URLSession) {

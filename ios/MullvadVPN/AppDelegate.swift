@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return operationQueue
     }()
 
-    private let transportMonitor: TransportMonitor = TransportMonitor()
+    private let transportMonitor = TransportMonitor()
 
     // MARK: - Application lifecycle
 
