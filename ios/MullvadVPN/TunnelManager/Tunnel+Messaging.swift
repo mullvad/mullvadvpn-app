@@ -63,6 +63,7 @@ extension Tunnel {
             dispatchQueue: dispatchQueue,
             tunnel: self,
             message: .transportHTTPRequest(requestData),
+            timeout: 12,
             completionHandler: completionHandler
         )
 

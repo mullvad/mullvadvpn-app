@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol RESTTransport {
+protocol RESTTransport: NSObject {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void

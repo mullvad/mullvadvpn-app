@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PacketTunnelTransport: RESTTransport {
+class PacketTunnelTransport: NSObject, RESTTransport {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void

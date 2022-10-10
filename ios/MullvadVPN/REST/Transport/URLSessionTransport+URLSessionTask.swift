@@ -10,7 +10,7 @@ import Foundation
 
 extension URLSessionTask: Cancellable {}
 
-struct URLSessionTransport: RESTTransport {
+class URLSessionTransport: NSObject, RESTTransport {
     let urlSession: URLSession
 
     init(urlSession: URLSession) {

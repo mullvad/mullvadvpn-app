@@ -44,13 +44,13 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        timeOut: TimeInterval = 5,
+        timeout: TimeInterval = 5,
         decoderHandler: @escaping DecoderHandler,
         completionHandler: CompletionHandler?
     ) {
         self.tunnel = tunnel
         self.message = message
-        configuration = MessagingConfiguration(timeout: 5)
+        configuration = MessagingConfiguration(timeout: timeout)
 
         self.decoderHandler = decoderHandler
 
@@ -210,37 +210,14 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        completionHandler: CompletionHandler?
+        timeout: TimeInterval = 5,
+        completionHandler: @escaping CompletionHandler
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             message: message,
-            decoderHandler: { data in
-                if let data = data {
-                    return try TunnelProviderReply(messageData: data).value
-                } else {
-                    throw EmptyTunnelProviderResponseError()
-                }
-            },
-            completionHandler: completionHandler
-        )
-    }
-}
-
-/// Separating TransportMessageReply from Codable for future use. (Logs, separate strategies, etc)
-extension SendTunnelProviderMessageOperation where Output == TransportMessageReply {
-    convenience init(
-        dispatchQueue: DispatchQueue,
-        tunnel: Tunnel,
-        message: TunnelProviderMessage,
-        completionHandler: CompletionHandler?
-    ) {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            tunnel: tunnel,
-            message: message,
-            timeOut: 12,
+            timeout: timeout,
             decoderHandler: { data in
                 if let data = data {
                     return try TunnelProviderReply(messageData: data).value
@@ -258,7 +235,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        completionHandler: @escaping CompletionHandler
+        completionHandler: CompletionHandler?
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
