@@ -133,7 +133,7 @@ impl RouteManagerHandle {
 pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
-    ClearRoutes(oneshot::Sender<Result<()>>),
+    ClearRoutes,
     RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<Result<CallbackHandle>>),
     Shutdown,
 }
@@ -222,8 +222,8 @@ impl RouteManager {
                     };
                     let _ = tx.send(res);
                 }
-                RouteManagerCommand::ClearRoutes(tx) => {
-                    let _ = tx.send(internal.delete_applied_routes());
+                RouteManagerCommand::ClearRoutes => {
+                    internal.delete_applied_routes()
                 }
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
@@ -263,19 +263,16 @@ impl RouteManager {
 
     /// Removes all routes previously applied in [`RouteManager::new`] or
     /// [`RouteManager::add_routes`].
-    pub async fn clear_routes(&self) -> Result<()> {
+    pub fn clear_routes(&self) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
             if tx
-                .send(RouteManagerCommand::ClearRoutes(result_tx))
+                .send(RouteManagerCommand::ClearRoutes)
                 .is_err()
             {
-                return Err(Error::RouteManagerDown);
+                Err(Error::RouteManagerDown)
+            } else {
+                Ok(())
             }
-            result_rx
-                .await
-                .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(|e| Error::ClearRoutesFailed(Box::new(e)))
         } else {
             Err(Error::RouteManagerDown)
         }

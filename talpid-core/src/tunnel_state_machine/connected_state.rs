@@ -147,9 +147,7 @@ impl ConnectedState {
     }
 
     fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values
-            .runtime
-            .block_on(shared_values.route_manager.clear_routes())
+        if let Err(error) = shared_values.route_manager.clear_routes()
         {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
