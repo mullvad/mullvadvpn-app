@@ -138,7 +138,9 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard let transport = transportRegistry.getTransport() else {
-                didFailToCreateURLRequest(REST.Error.transport(NoTransportError()))
+                logger.error("Failed to obtain transport.")
+                // Finish operation so it can be removed from the queue
+                finish(completion: .failure(.transport(NoTransportError())))
                 return
             }
 
