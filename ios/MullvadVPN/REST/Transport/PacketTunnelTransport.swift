@@ -26,7 +26,7 @@ class PacketTunnelTransport: RESTTransport {
         return try TunnelManager.shared.sendRequest(message: message) { result in
             switch result {
             case .cancelled:
-                completion(nil, nil, URLError.cancelled as? Error)
+                completion(nil, nil, URLError(.cancelled))
             case let .success(reply):
                 completion(
                     reply.data,
@@ -45,6 +45,8 @@ class PacketTunnelTransport: RESTTransport {
 
     func isTimeoutError(_ error: Error) -> Bool {
         if case .timeout = error as? SendTunnelProviderMessageError {
+            return true
+        } else if let error = error as? URLError, error.code == .timedOut {
             return true
         }
         return false

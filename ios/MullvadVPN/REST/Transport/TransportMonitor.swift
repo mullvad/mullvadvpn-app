@@ -15,12 +15,11 @@ class TransportMonitor: TunnelObserver {
     init() {
         TunnelManager.shared.addObserver(self)
 
-        RESTTransportRegistry.shared.register(
-            urlSessionTunnelTransport
-        )
-
-        RESTTransportRegistry.shared.register(
-            packetTunnelTransport
+        RESTTransportRegistry.shared.setTransports(
+            stateUpdated(
+                tunnelState: TunnelManager.shared.tunnelStatus.state,
+                deviceState: TunnelManager.shared.deviceState
+            )
         )
     }
 

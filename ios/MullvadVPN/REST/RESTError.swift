@@ -108,7 +108,5 @@ extension REST {
         }
     }
 
-    enum TransportError: Swift.Error {
-        case noTransport
-    }
+    struct NoTransportError: Swift.Error {}
 }

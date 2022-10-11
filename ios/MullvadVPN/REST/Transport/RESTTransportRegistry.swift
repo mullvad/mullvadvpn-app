@@ -18,31 +18,18 @@ class RESTTransportRegistry {
 
     private init() {}
 
-    func register(_ transport: RESTTransport) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        if !transports.contains(where: { $0 === transport }) {
-            transports.append(transport)
-        }
-    }
-
-    func unregister(_ transport: RESTTransport) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        guard let index = transports.firstIndex(where: { $0 === transport }) else { return }
-        transports.remove(at: index)
-    }
-
     func setTransports(_ transports: [RESTTransport]) {
         nslock.lock()
         defer { nslock.unlock() }
 
         self.transports = transports
+        timeoutCount = 0
     }
 
     func transportDidFinishLoad(_ transport: RESTTransport) {
+        nslock.lock()
+        defer { nslock.unlock() }
+
         guard let firstTransport = getTransport(),
               firstTransport === transport
         else { return }
@@ -51,6 +38,9 @@ class RESTTransportRegistry {
     }
 
     func transportDidTimeout(_ transport: RESTTransport) {
+        nslock.lock()
+        defer { nslock.unlock() }
+
         guard let firstTransport = getTransport(),
               firstTransport === transport
         else { return }
@@ -61,8 +51,6 @@ class RESTTransportRegistry {
             transports.removeFirst() // remove current transport
             transports.append(transport) // take current transport and put it in the back
 
-            /// Prevent timeoutCount to be 0 (restart) if there is only one transport available.
-            guard transports.count > 1 else { return }
             timeoutCount = 0
         }
     }
