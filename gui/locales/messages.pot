@@ -1725,9 +1725,6 @@ msgstr ""
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr ""
 
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings."
-msgstr ""
-
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
 msgstr[0] ""
