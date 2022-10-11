@@ -1560,9 +1560,6 @@ msgstr ""
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
-msgid "Copied WireGuard public key to clipboard"
-msgstr ""
-
 msgid "Copied to clipboard"
 msgstr ""
 
@@ -1590,9 +1587,6 @@ msgstr ""
 msgid "Failed to fetch list of devices"
 msgstr ""
 
-msgid "Failed to generate a key"
-msgstr ""
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr ""
 
@@ -1602,28 +1596,10 @@ msgstr ""
 msgid "Failed to start tunnel connection"
 msgstr ""
 
-msgid "Generate key"
-msgstr ""
-
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr ""
-
-msgid "Key generated"
-msgstr ""
-
-msgid "Key is invalid"
-msgstr ""
-
-msgid "Key is valid"
-msgstr ""
-
-msgid "Key verification failed"
-msgstr ""
-
-msgid "Manage keys"
 msgstr ""
 
 msgid "Mullvad account number"
@@ -1636,15 +1612,6 @@ msgid "No relay server matches the current settings"
 msgstr ""
 
 msgid "Preferences"
-msgstr ""
-
-msgid "Public key"
-msgstr ""
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr ""
-
-msgid "Regenerate key"
 msgstr ""
 
 msgid "Secured"
@@ -1674,9 +1641,6 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
-msgid "Too many WireGuard keys registered to account"
-msgstr ""
-
 msgid "Unsecured"
 msgstr ""
 
@@ -1692,28 +1656,13 @@ msgstr ""
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
-msgid "Verify key"
-msgstr ""
-
 msgid "Virtual adapter error"
 msgstr ""
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr ""
 
-msgid "WireGuard"
-msgstr ""
-
 msgid "WireGuard MTU"
-msgstr ""
-
-msgid "WireGuard error"
-msgstr ""
-
-msgid "WireGuard key"
-msgstr ""
-
-msgid "WireGuard public key"
 msgstr ""
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -1723,9 +1672,6 @@ msgid "You are running an unsupported app version."
 msgstr ""
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr ""
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device’s Account settings."
 msgstr ""
 
 msgid "Account credit expires in a day"

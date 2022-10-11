@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -62,7 +62,7 @@ msgstr "Boston, MA"
 
 #. SK BTS
 msgid "Bratislava"
-msgstr ""
+msgstr "Bratislava"
 
 #. BR
 msgid "Brazil"
@@ -190,7 +190,7 @@ msgstr "Honolulu, HI"
 
 #. US HOU
 msgid "Houston, TX"
-msgstr ""
+msgstr "Houston, TX"
 
 #. HU
 msgid "Hungary"
@@ -430,7 +430,7 @@ msgstr "Skopje"
 
 #. SK
 msgid "Slovakia"
-msgstr ""
+msgstr "Slovakia"
 
 #. BG SOF
 msgid "Sofia"
@@ -454,7 +454,7 @@ msgstr "Stamford, CT"
 
 #. NO SVG
 msgid "Stavanger"
-msgstr ""
+msgstr "Stavanger"
 
 #. SE STO
 msgid "Stockholm"
@@ -531,3 +531,4 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+

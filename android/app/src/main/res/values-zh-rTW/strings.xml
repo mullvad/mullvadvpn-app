@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_created">已建立帳戶</string>
-    <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在幾分鐘後到期</string>
+    <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在數分鐘後到期</string>
     <string name="account_credit_expires_soon">帳戶點數即將到期</string>
     <string name="account_credit_has_expired">您這個帳戶已經沒有剩餘的 VPN 時間了。</string>
     <string name="account_number">帳戶編號</string>
@@ -33,7 +33,6 @@
     <string name="continue_login">繼續登入</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
-    <string name="copied_wireguard_public_key">已將 WireGuard 公開金鑰複製到剪貼簿</string>
     <string name="copy_account_number">複製帳號</string>
     <string name="create_account">建立帳戶</string>
     <string name="creating_new_account">正在建立帳戶…</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">無法解析自訂伺服器的主機名稱</string>
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
+    <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
     <string name="device_name">裝置名稱</string>
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">已排除的應用程式</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
+    <string name="failed_to_fetch_devices">無法取得裝置清單</string>
+    <string name="failed_to_remove_device">無法移除裝置</string>
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
+    <string name="max_devices_confirm_removal_description">確定要登出&lt;b&gt;%1$s&lt;/b&gt;嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
+    <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="mullvad_account_number">Mullvad 帳號</string>
     <string name="no_matching_bridge_relay">沒有與目前設定相符的橋接中繼伺服器</string>
     <string name="no_matching_relay">沒有與目前設定相符的中繼伺服器</string>
+    <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
     <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
@@ -124,7 +129,6 @@
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">切換 VPN</string>
-    <string name="too_many_keys">帳戶中註冊的 WireGuard 金鑰過多</string>
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
     <string name="unsecured">不安全</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
-    <string name="wireguard_error">WireGuard 錯誤</string>
-    <string name="wireguard_key">WireGuard 金鑰</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_public_key">WireGuard 公開金鑰</string>
+    <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
 </resources>

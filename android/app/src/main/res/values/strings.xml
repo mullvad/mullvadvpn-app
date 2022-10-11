@@ -164,9 +164,9 @@
     device.</string>
     <string name="max_devices_warning_title">Too many devices</string>
     <string name="max_devices_resolved_title">Super!</string>
-    <string name="max_devices_warning_description">You have too many active devices. Please log out
-    of at least one by removing it from the list below. You can find the corresponding nickname
-    under the device’s Account settings.</string>
+    <string name="max_devices_warning_description">Please log out of at least one by removing it
+    from the list below. You can find the corresponding device name under the device’s Account
+    settings.</string>
     <string name="max_devices_resolved_description">You can now continue logging in on this
     device.</string>
     <string name="max_devices_confirm_removal_description">

@@ -33,7 +33,6 @@
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
     <string name="copied_to_clipboard">Skopiowano do schowka</string>
-    <string name="copied_wireguard_public_key">Skopiowano klucz publiczny WireGuard do schowka</string>
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create_account">Utwórz konto</string>
     <string name="creating_new_account">Tworzenie konta...</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać nazwy hosta serwera niestandardowego</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
+    <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>
     <string name="device_name">Nazwa urządzenia</string>
     <string name="disconnect">Rozłącz</string>
     <string name="disconnecting">Rozłączanie</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">Wykluczone aplikacje</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
+    <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
+    <string name="failed_to_remove_device">Niepowodzenie usunięcia urządzenia</string>
     <string name="failed_to_send">Błąd wysyłania</string>
     <string name="failed_to_send_details">Jeśli wyjdziesz z formularza i spróbujesz ponownie później, zastaniesz już wprowadzone dane.</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
     <string name="login_title">Logowanie</string>
+    <string name="max_devices_confirm_removal_description">Czy na pewno chcesz wylogować się z &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Teraz można kontynuować logowanie się na tym urządzeniu.</string>
     <string name="max_devices_resolved_title">Super!</string>
+    <string name="max_devices_warning_description">Wyloguj się z co najmniej jednego urządzenia, usuwając je z poniższej listy. Odpowiednią nazwę urządzenia można znaleźć w ustawieniach konta urządzenia.</string>
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
     <string name="mullvad_account_number">Numer konta Mullvad</string>
     <string name="no_matching_bridge_relay">Żaden pomostowy serwer przekazujący nie odpowiada bieżącym ustawieniom</string>
     <string name="no_matching_relay">Żaden serwer przekazujący nie odpowiada bieżącym ustawieniom</string>
+    <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
     <string name="not_blocking_internet">TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ</string>
     <string name="out_address">Wyjście</string>
     <string name="out_of_time">Koniec czasu</string>
@@ -104,7 +109,7 @@
     <string name="secure_connection">BEZPIECZNE POŁĄCZENIE</string>
     <string name="secured">Zabezpieczone</string>
     <string name="select_location">Wybierz lokalizację</string>
-    <string name="select_location_description">Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatną i bezpieczną lokalizacją w wybranym regionie.</string>
+    <string name="select_location_description">Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatną, bezpieczną lokalizacją w wybranym regionie.</string>
     <string name="send">Wyślij</string>
     <string name="send_anyway">Mimo to wyślij</string>
     <string name="sending">Wysyłanie...</string>
@@ -124,7 +129,6 @@
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Przełącz VPN</string>
-    <string name="too_many_keys">Na koncie zarejestrowano zbyt wiele kluczy WireGuard</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Niezabezpieczone</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
-    <string name="wireguard_error">Błąd WireGuard</string>
-    <string name="wireguard_key">Klucz WireGuard</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
-    <string name="wireguard_public_key">Klucz publiczny WireGuard</string>
+    <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
 </resources>

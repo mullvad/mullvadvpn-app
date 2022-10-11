@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -62,7 +62,7 @@ msgstr "麻州，波士頓"
 
 #. SK BTS
 msgid "Bratislava"
-msgstr ""
+msgstr "布拉提斯拉瓦"
 
 #. BR
 msgid "Brazil"
@@ -190,7 +190,7 @@ msgstr "夏威夷州，檀香山"
 
 #. US HOU
 msgid "Houston, TX"
-msgstr ""
+msgstr "德克薩斯州休士頓"
 
 #. HU
 msgid "Hungary"
@@ -430,7 +430,7 @@ msgstr "斯高彼亞"
 
 #. SK
 msgid "Slovakia"
-msgstr ""
+msgstr "斯洛伐克"
 
 #. BG SOF
 msgid "Sofia"
@@ -454,7 +454,7 @@ msgstr "康乃狄克州，斯坦福"
 
 #. NO SVG
 msgid "Stavanger"
-msgstr ""
+msgstr "斯塔萬格"
 
 #. SE STO
 msgid "Stockholm"
@@ -531,3 +531,4 @@ msgstr "維也納"
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
+
