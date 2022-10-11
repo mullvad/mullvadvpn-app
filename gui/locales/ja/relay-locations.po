@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -62,7 +62,7 @@ msgstr "ボストン、MA"
 
 #. SK BTS
 msgid "Bratislava"
-msgstr "ブラチスラヴァ"
+msgstr "ブラチスラバ"
 
 #. BR
 msgid "Brazil"
@@ -190,7 +190,7 @@ msgstr "ホノルル、HI"
 
 #. US HOU
 msgid "Houston, TX"
-msgstr "ヒューストン, TX"
+msgstr "ヒューストン、TX"
 
 #. HU
 msgid "Hungary"
@@ -531,3 +531,4 @@ msgstr "ウィーン"
 #. CH ZRH
 msgid "Zurich"
 msgstr "チューリッヒ"
+
