@@ -175,7 +175,7 @@ sc.exe start mullvadvpn
 
 Edit the systemd unit file via `systemctl edit mullvad-daemon.service`:
 
-```systemd
+```ini
 [Service]
 Environment="TALPID_DISABLE_OFFLINE_MONITOR=1"
 ```
