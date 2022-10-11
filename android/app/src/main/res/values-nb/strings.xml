@@ -33,7 +33,6 @@
     <string name="continue_login">Fortsett med pålogging</string>
     <string name="copied_mullvad_account_number">Kopierte Mullvad-kontonummer til utklippstavlen</string>
     <string name="copied_to_clipboard">Kopiert til utklippstavlen</string>
-    <string name="copied_wireguard_public_key">Kopierte WireGuard offentlig nøkkel til utklippstavlen</string>
     <string name="copy_account_number">Kopier kontonummer</string>
     <string name="create_account">Opprett konto</string>
     <string name="creating_new_account">Oppretter konto ...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
-    <string name="failed_to_generate_key">Generering av en nøkkel mislyktes</string>
     <string name="failed_to_remove_device">Kunne ikke fjerne enhet</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du avslutter skjemaet og prøver igjen senere, vil informasjonen du allerede har lagt inn fortsatt være der.</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="port_removal_notice">Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret.</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
-    <string name="public_key">Offentlig nøkkel</string>
     <string name="reconnecting">Kobler til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">Bytt plassering</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Velg VPN</string>
-    <string name="too_many_keys">For mange WireGuard-nøkler er registrert til kontoen din</string>
     <string name="try_again">Prøv på nytt</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Usikret</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">WireGuard-feil</string>
-    <string name="wireguard_generate_key">Generer nøkkel</string>
-    <string name="wireguard_key">WireGuard-nøkkel</string>
-    <string name="wireguard_key_generated">Nøkkel generert</string>
-    <string name="wireguard_key_invalid">Nøkkel er ugyldig</string>
-    <string name="wireguard_key_reconnecting">Kobler til på nytt med ny WireGuard-nøkkel ...</string>
-    <string name="wireguard_key_valid">Nøkkel er gyldig</string>
-    <string name="wireguard_key_verification_failure">Nøkkelverifisering mislyktes</string>
-    <string name="wireguard_manage_keys">Behandle nøkler</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
-    <string name="wireguard_public_key">WireGuard offentlig nøkkel</string>
-    <string name="wireguard_replace_key">Generer nøkkel på nytt</string>
-    <string name="wireguard_verify_key">Bekreft nøkkel</string>
 </resources>

@@ -33,7 +33,6 @@
     <string name="continue_login">Войти</string>
     <string name="copied_mullvad_account_number">Номер учетной записи Mullvad скопирован в буфер обмена</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
-    <string name="copied_wireguard_public_key">Открытый ключ WireGuard скопирован в буфер обмена</string>
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="create_account">Создать учетную запись</string>
     <string name="creating_new_account">Создание учетной записи...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_fetch_devices">Не удалось получить список устройств</string>
-    <string name="failed_to_generate_key">Не удалось сгенерировать ключ</string>
     <string name="failed_to_remove_device">Не удалось удалить устройство</string>
     <string name="failed_to_send">Ошибка отправки</string>
     <string name="failed_to_send_details">Если вы выйдете из формы и повторите попытку позже, информация, которую вы уже ввели, сохранится.</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="port_removal_notice">Будут удалены все перенаправленные порты. Локальные настройки сохранятся.</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
-    <string name="public_key">Открытый ключ</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">Сменить местоположение</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Включение VPN</string>
-    <string name="too_many_keys">Для этой учетной записи зарегистрировано слишком много ключей WireGuard</string>
     <string name="try_again">Повторить попытку</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Подключение не защищено</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">При создании туннеля в доступе к VPN было отказано. Попробуйте подключиться снова.</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">Ошибка WireGuard</string>
-    <string name="wireguard_generate_key">Сгенерировать ключ</string>
-    <string name="wireguard_key">Ключ WireGuard</string>
-    <string name="wireguard_key_generated">Ключ сгенерирован</string>
-    <string name="wireguard_key_invalid">Ключ недействителен</string>
-    <string name="wireguard_key_reconnecting">Повторное подключение с новым ключом WireGuard...</string>
-    <string name="wireguard_key_valid">Ключ действителен</string>
-    <string name="wireguard_key_verification_failure">Ошибка проверки ключа</string>
-    <string name="wireguard_manage_keys">Управление ключами</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
-    <string name="wireguard_public_key">Открытый ключ WireGuard</string>
-    <string name="wireguard_replace_key">Сгенерировать ключ</string>
-    <string name="wireguard_verify_key">Проверка ключа</string>
 </resources>

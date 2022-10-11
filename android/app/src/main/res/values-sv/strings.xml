@@ -33,7 +33,6 @@
     <string name="continue_login">Fortsätt med inloggning</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
     <string name="copied_to_clipboard">Kopierat till urklipp</string>
-    <string name="copied_wireguard_public_key">Kopierade offentlig nyckel för WireGuard till urklipp</string>
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create_account">Skapa konto</string>
     <string name="creating_new_account">Skapar konto...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
-    <string name="failed_to_generate_key">Det gick inte att generera en nyckel</string>
     <string name="failed_to_remove_device">Det gick inte att ta bort enheten</string>
     <string name="failed_to_send">Det gick inte att skicka</string>
     <string name="failed_to_send_details">Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar.</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="port_removal_notice">Detta tar bort alla vidarebefordrade portar. Lokala inställningar sparas.</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
-    <string name="public_key">Offentlig nyckel</string>
     <string name="reconnecting">Återansluter</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Växla VPN</string>
-    <string name="too_many_keys">För många WireGuard-nycklar registrerade på kontot</string>
     <string name="try_again">Försök igen</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Oskyddad</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">WireGuard-fel</string>
-    <string name="wireguard_generate_key">Generera nyckel</string>
-    <string name="wireguard_key">WireGuard-nyckel</string>
-    <string name="wireguard_key_generated">Nyckel har genererats</string>
-    <string name="wireguard_key_invalid">Nyckeln är ogiltig</string>
-    <string name="wireguard_key_reconnecting">Återansluter med ny WireGuard-nyckel ...</string>
-    <string name="wireguard_key_valid">Nyckeln är giltig</string>
-    <string name="wireguard_key_verification_failure">Det gick inte att verifiera nyckel</string>
-    <string name="wireguard_manage_keys">Hantera nycklar</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
-    <string name="wireguard_public_key">Offentlig nyckel för WireGuard</string>
-    <string name="wireguard_replace_key">Generera om nyckel</string>
-    <string name="wireguard_verify_key">Verifiera nyckel</string>
 </resources>

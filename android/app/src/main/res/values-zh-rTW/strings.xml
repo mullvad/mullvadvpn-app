@@ -33,7 +33,6 @@
     <string name="continue_login">繼續登入</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
-    <string name="copied_wireguard_public_key">已將 WireGuard 公開金鑰複製到剪貼簿</string>
     <string name="copy_account_number">複製帳號</string>
     <string name="create_account">建立帳戶</string>
     <string name="creating_new_account">正在建立帳戶…</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_fetch_devices">無法取得裝置清單</string>
-    <string name="failed_to_generate_key">無法產生金鑰</string>
     <string name="failed_to_remove_device">無法移除裝置</string>
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="port_removal_notice">這將刪除所有轉送的連接埠。將儲存本機設定。</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
-    <string name="public_key">公開金鑰</string>
     <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">切換 VPN</string>
-    <string name="too_many_keys">帳戶中註冊的 WireGuard 金鑰過多</string>
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
     <string name="unsecured">不安全</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">WireGuard 錯誤</string>
-    <string name="wireguard_generate_key">產生金鑰</string>
-    <string name="wireguard_key">WireGuard 金鑰</string>
-    <string name="wireguard_key_generated">已產生金鑰</string>
-    <string name="wireguard_key_invalid">金鑰無效</string>
-    <string name="wireguard_key_reconnecting">正在使用新 WireGuard 金鑰重新連線...</string>
-    <string name="wireguard_key_valid">金鑰有效</string>
-    <string name="wireguard_key_verification_failure">金鑰驗證失敗</string>
-    <string name="wireguard_manage_keys">管理金鑰</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
-    <string name="wireguard_public_key">WireGuard 公開金鑰</string>
-    <string name="wireguard_replace_key">重新產生金鑰</string>
-    <string name="wireguard_verify_key">驗證金鑰</string>
 </resources>

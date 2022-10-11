@@ -33,7 +33,6 @@
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_to_clipboard">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
-    <string name="copied_wireguard_public_key">คัดลอกคีย์สาธารณะของ WireGuard ไปยังคลิปบอร์ดแล้ว</string>
     <string name="copy_account_number">คัดลอกหมายเลขบัญชี</string>
     <string name="create_account">สร้างบัญชี</string>
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_fetch_devices">ไม่สามารถดึงรายการอุปกรณ์มาได้</string>
-    <string name="failed_to_generate_key">ไม่สามารถสร้างคีย์ได้</string>
     <string name="failed_to_remove_device">ไม่สามารถลบอุปกรณ์ได้</string>
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
     <string name="failed_to_send_details">หากคุณออกจากแบบฟอร์มแล้วเข้ามาใหม่ในภายหลัง ข้อมูลที่คุณกรอกไว้จะยังคงอยู่ที่นี่ดังเดิม</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="port_removal_notice">นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้</string>
     <string name="problem_report_description">ไฟล์บันทึกในแอปของคุณจะแนบไปกับข้อความนี้ เพื่อที่เราจะสามารถช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เพราะจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
-    <string name="public_key">คีย์สาธารณะ</string>
     <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
-    <string name="too_many_keys">มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>
     <string name="unsecured">ไม่ปลอดภัย</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">ข้อผิดพลาด WireGuard</string>
-    <string name="wireguard_generate_key">สร้างคีย์</string>
-    <string name="wireguard_key">คีย์ WireGuard</string>
-    <string name="wireguard_key_generated">สร้างคีย์แล้ว</string>
-    <string name="wireguard_key_invalid">คีย์ไม่ถูกต้อง</string>
-    <string name="wireguard_key_reconnecting">กำลังเชื่อมต่ออีกครั้งด้วยคีย์ WireGuard ใหม่...</string>
-    <string name="wireguard_key_valid">คีย์ถูกต้อง</string>
-    <string name="wireguard_key_verification_failure">การตรวจสอบคีย์ล้มเหลว</string>
-    <string name="wireguard_manage_keys">จัดการคีย์</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>
-    <string name="wireguard_public_key">คีย์สาธารณะของ WireGuard</string>
-    <string name="wireguard_replace_key">สร้างคีย์ใหม่</string>
-    <string name="wireguard_verify_key">ตรวจสอบคีย์</string>
 </resources>

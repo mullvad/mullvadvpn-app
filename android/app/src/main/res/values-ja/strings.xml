@@ -33,7 +33,6 @@
     <string name="continue_login">ログインを続ける</string>
     <string name="copied_mullvad_account_number">Mullvadアカウント番号をクリップボードにコピーしました</string>
     <string name="copied_to_clipboard">クリップボードにコピーしました</string>
-    <string name="copied_wireguard_public_key">WireGuard公開鍵をクリップボードにコピーしました</string>
     <string name="copy_account_number">アカウント番号のコピー</string>
     <string name="create_account">アカウントを作成する</string>
     <string name="creating_new_account">アカウントを作成中...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_fetch_devices">デバイスのリストを取得できませんでした</string>
-    <string name="failed_to_generate_key">鍵を生成できませんでした</string>
     <string name="failed_to_remove_device">デバイスを削除できませんでした</string>
     <string name="failed_to_send">送信に失敗しました</string>
     <string name="failed_to_send_details">フォームを終了して後で再試行しても、入力済みの情報は引き続きここに表示されます。</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="port_removal_notice">これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。</string>
     <string name="problem_report_description">さらに効率よく問題解決を支援するため、お使いのアプリのログファイルをこのメッセージに添付します。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全性は維持され、公開されることはありません。</string>
-    <string name="public_key">公開鍵</string>
     <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">場所を切り替える</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPNの切り替え</string>
-    <string name="too_many_keys">アカウントに登録されているWireGuard鍵が多すぎます</string>
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>
     <string name="unsecured">セキュリティ保護されていません</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">WireGuardのエラー</string>
-    <string name="wireguard_generate_key">鍵を生成</string>
-    <string name="wireguard_key">WireGuard鍵</string>
-    <string name="wireguard_key_generated">鍵が生成されました</string>
-    <string name="wireguard_key_invalid">鍵は無効です</string>
-    <string name="wireguard_key_reconnecting">新しいWireGuard鍵で再接続中...</string>
-    <string name="wireguard_key_valid">鍵は有効です</string>
-    <string name="wireguard_key_verification_failure">鍵を検証できませんでした</string>
-    <string name="wireguard_manage_keys">鍵を管理</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
-    <string name="wireguard_public_key">WireGuard公開鍵</string>
-    <string name="wireguard_replace_key">鍵を再生成</string>
-    <string name="wireguard_verify_key">鍵を検証</string>
 </resources>

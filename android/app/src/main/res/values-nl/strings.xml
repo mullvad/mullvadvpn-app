@@ -33,7 +33,6 @@
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
     <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
-    <string name="copied_wireguard_public_key">Openbare WireGuard-sleutel gekopieerd naar klembord</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
     <string name="create_account">Account aanmaken</string>
     <string name="creating_new_account">Account aanmaken...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">Kon alle netwerkverkeer niet blokkeren. Los het probleem op of meld het aan ons.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_fetch_devices">Ophalen van lijst van apparaten mislukt</string>
-    <string name="failed_to_generate_key">Sleutel genereren mislukt</string>
     <string name="failed_to_remove_device">Verwijderen van apparaat mislukt</string>
     <string name="failed_to_send">Verzenden mislukt</string>
     <string name="failed_to_send_details">Als u het formulier verlaat en het later opnieuw probeert, is de reeds ingevoerde informatie er nog.</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
-    <string name="public_key">Openbare sleutel</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
-    <string name="too_many_keys">Te veel WireGuard-sleutels geregistreerd op account</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Niet beveiligd</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">WireGuard-fout</string>
-    <string name="wireguard_generate_key">Sleutel genereren</string>
-    <string name="wireguard_key">WireGuard-sleutel</string>
-    <string name="wireguard_key_generated">Sleutel gegenereerd</string>
-    <string name="wireguard_key_invalid">Sleutel is ongeldig</string>
-    <string name="wireguard_key_reconnecting">Opnieuw verbinden met nieuwe WireGuard-sleutel...</string>
-    <string name="wireguard_key_valid">Sleutel is geldig</string>
-    <string name="wireguard_key_verification_failure">Sleutelverificatie mislukt</string>
-    <string name="wireguard_manage_keys">Sleutels beheren</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
-    <string name="wireguard_public_key">Openbare WireGuard-sleutel</string>
-    <string name="wireguard_replace_key">Sleutel opnieuw genereren</string>
-    <string name="wireguard_verify_key">Sleutel verifiëren</string>
 </resources>

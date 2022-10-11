@@ -33,7 +33,6 @@
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
     <string name="copied_to_clipboard">Skopiowano do schowka</string>
-    <string name="copied_wireguard_public_key">Skopiowano klucz publiczny WireGuard do schowka</string>
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create_account">Utwórz konto</string>
     <string name="creating_new_account">Tworzenie konta...</string>
@@ -60,7 +59,6 @@
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
-    <string name="failed_to_generate_key">Nie można wygenerować klucza</string>
     <string name="failed_to_remove_device">Niepowodzenie usunięcia urządzenia</string>
     <string name="failed_to_send">Błąd wysyłania</string>
     <string name="failed_to_send_details">Jeśli wyjdziesz z formularza i spróbujesz ponownie później, zastaniesz już wprowadzone dane.</string>
@@ -104,7 +102,6 @@
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="port_removal_notice">Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane.</string>
     <string name="problem_report_description">Aby pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dzienników aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
-    <string name="public_key">Klucz publiczny</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
@@ -133,7 +130,6 @@
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Przełącz VPN</string>
-    <string name="too_many_keys">Na koncie zarejestrowano zbyt wiele kluczy WireGuard</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Niezabezpieczone</string>
@@ -152,18 +148,6 @@
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard">WireGuard</string>
-    <string name="wireguard_error">Błąd WireGuard</string>
-    <string name="wireguard_generate_key">Wygeneruj klucz</string>
-    <string name="wireguard_key">Klucz WireGuard</string>
-    <string name="wireguard_key_generated">Wygenerowano klucz</string>
-    <string name="wireguard_key_invalid">Nieprawidłowy klucz</string>
-    <string name="wireguard_key_reconnecting">Ponowne łączenie przy użyciu nowego klucza WireGuard...</string>
-    <string name="wireguard_key_valid">Prawidłowy klucz</string>
-    <string name="wireguard_key_verification_failure">Błąd weryfikacji klucza</string>
-    <string name="wireguard_manage_keys">Zarządzaj kluczami</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
-    <string name="wireguard_public_key">Klucz publiczny WireGuard</string>
-    <string name="wireguard_replace_key">Ponownie wygeneruj klucz</string>
-    <string name="wireguard_verify_key">Zweryfikuj klucz</string>
 </resources>
