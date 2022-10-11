@@ -144,7 +144,7 @@ export default function Connect() {
 
   const onSelectLocation = useCallback(() => {
     history.show(RoutePath.selectLocation);
-  }, []);
+  }, [history.show]);
 
   const selectedRelayName = useMemo(() => getRelayName(relaySettings, relayLocations), [
     relaySettings,
