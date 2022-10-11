@@ -82,9 +82,17 @@ function build_nsis_plugins {
     build_solution_config "$nsis_root_path/nsis-plugins.sln" "Release" "x86"
 }
 
+function clean_libraries {
+    clean_solution "${CPP_ROOT_PATH:-"./windows/libshared"}"
+    clean_solution "${CPP_ROOT_PATH:-"./windows/windows-libraries"}"
+    clean_solution "${CPP_ROOT_PATH:-"./windows/libwfp"}"
+}
+
 function main {
     local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
     local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
+
+    clean_libraries
 
     build_solution "$winfw_root_path" "winfw.sln"
     build_solution "$winnet_root_path" "winnet.sln"
