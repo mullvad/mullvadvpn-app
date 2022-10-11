@@ -21,7 +21,7 @@ on your platform please submit an issue or a pull request.
 - Install the JDK
 
     ```bash
-    sudo apt install zip default-jdk
+    sudo apt install zip openjdk-8-jdk-headless
     ```
 
 - Install the SDK
