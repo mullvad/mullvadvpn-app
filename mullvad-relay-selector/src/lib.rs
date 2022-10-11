@@ -1330,10 +1330,10 @@ mod test {
         };
     }
 
-    fn new_relay_selector() -> RelaySelector {
+    fn new_relay_selector_with_relays(relay_list: RelayList) -> RelaySelector {
         RelaySelector {
             parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
-                RELAYS.clone(),
+                relay_list,
                 SystemTime::now(),
             ))),
             config: Arc::new(Mutex::new(SelectorConfig {
@@ -1350,6 +1350,10 @@ mod test {
                 default_tunnel_type: TunnelType::Wireguard,
             })),
         }
+    }
+
+    fn new_relay_selector() -> RelaySelector {
+        new_relay_selector_with_relays(RELAYS.clone())
     }
 
     #[test]
@@ -1879,5 +1883,116 @@ mod test {
                 }
             ));
         }
+    }
+
+    /// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
+    /// relay is returned). Also ensure that `include_in_country` is respected if some relays
+    /// have it set to true (i.e., that relay is never returned)
+    #[test]
+    fn test_include_in_country() {
+        let mut relay_list = RelayList {
+            etag: None,
+            countries: vec![RelayListCountry {
+                name: "Sweden".to_string(),
+                code: "se".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Gothenburg".to_string(),
+                    code: "got".to_string(),
+                    latitude: 57.70887,
+                    longitude: 11.97456,
+                    relays: vec![
+                        Relay {
+                            hostname: "se9-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                            include_in_country: false,
+                            active: true,
+                            owned: true,
+                            provider: "31173".to_string(),
+                            weight: 1,
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData {
+                                    public_key: PublicKey::from_base64(
+                                        "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                    )
+                                    .unwrap(),
+                                },
+                            ),
+                            location: None,
+                        },
+                        Relay {
+                            hostname: "se10-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                            include_in_country: false,
+                            active: true,
+                            owned: false,
+                            provider: "31173".to_string(),
+                            weight: 1,
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData {
+                                    public_key: PublicKey::from_base64(
+                                        "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                    )
+                                    .unwrap(),
+                                },
+                            ),
+                            location: None,
+                        },
+                    ],
+                }],
+            }],
+            openvpn: OpenVpnEndpointData {
+                ports: vec![
+                    OpenVpnEndpoint {
+                        port: 1194,
+                        protocol: TransportProtocol::Udp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 443,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 80,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                ],
+            },
+            bridge: BridgeEndpointData {
+                shadowsocks: vec![],
+            },
+            wireguard: WireguardEndpointData {
+                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                udp2tcp_ports: vec![],
+            },
+        };
+
+        // If include_in_country is false for all relays, a relay must be selected anyway.
+        //
+
+        let relay_selector = new_relay_selector_with_relays(relay_list.clone());
+        assert!(relay_selector.get_relay(0).is_ok());
+
+        // If include_in_country is true for some relay, it must always be selected.
+        //
+
+        relay_list.countries[0].cities[0].relays[0].include_in_country = true;
+        let expected_relay = relay_list.countries[0].cities[0].relays[0].clone();
+
+        let relay_selector = new_relay_selector_with_relays(relay_list);
+        let (relay, ..) = relay_selector.get_relay(0).expect("expected match");
+
+        assert!(matches!(
+            relay,
+            SelectedRelay::Normal(NormalSelectedRelay {
+                exit_relay: Relay {
+                    hostname,
+                    ..
+                },
+                ..
+            }) if hostname == expected_relay.hostname
+        ))
     }
 }
