@@ -201,7 +201,7 @@ export function RedeemVoucherSubmitButton() {
   const disabled = submitting || response?.type === 'success';
 
   return (
-    <AppButton.GreenButton key="cancel" disabled={!valueValid || disabled} onClick={onSubmit}>
+    <AppButton.GreenButton disabled={!valueValid || disabled} onClick={onSubmit}>
       {messages.pgettext('redeem-voucher-view', 'Redeem')}
     </AppButton.GreenButton>
   );
