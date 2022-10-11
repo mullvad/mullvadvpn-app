@@ -11,53 +11,23 @@ import Foundation
 class RESTTransportRegistry {
     static let shared = RESTTransportRegistry()
 
-    private var timeoutCount = 0
-    private var transports: [RESTTransport] = []
+    private var transport: RESTTransport?
 
     private let nslock = NSLock()
 
     private init() {}
 
-    func setTransports(_ transports: [RESTTransport]) {
+    func setTransport(_ transport: RESTTransport) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if self.transports.first !== transports.first {
-            timeoutCount = 0
-        }
-
-        self.transports = transports
-    }
-
-    func transportDidFinishLoad(_ transport: RESTTransport) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        guard transports.first === transport else { return }
-
-        timeoutCount = 0
-    }
-
-    func transportDidTimeout(_ transport: RESTTransport) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        guard transports.first === transport else { return }
-
-        timeoutCount += 1
-
-        if timeoutCount > 5 {
-            transports.removeFirst() // remove current transport
-            transports.append(transport) // take current transport and put it in the back
-
-            timeoutCount = 0
-        }
+        self.transport = transport
     }
 
     func getTransport() -> RESTTransport? {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return transports.first
+        return transport
     }
 }

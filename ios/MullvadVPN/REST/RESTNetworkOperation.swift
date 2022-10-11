@@ -210,10 +210,6 @@ extension REST {
                 }
             }
 
-            if transport.isTimeoutError(error) {
-                transportRegistry.transportDidTimeout(transport)
-            }
-
             logger.error(
                 error: error,
                 message: "Failed to perform request to \(endpoint) using \(transport.name)."
@@ -231,8 +227,6 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.debug("Response: \(response.statusCode).")
-
-            transportRegistry.transportDidFinishLoad(transport)
 
             let handlerResult = responseHandler.handleURLResponse(response, data: data)
 

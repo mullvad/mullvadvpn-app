@@ -32,11 +32,4 @@ class URLSessionTransport: RESTTransport {
         dataTask.resume()
         return dataTask
     }
-
-    func isTimeoutError(_ error: Error) -> Bool {
-        if let error = error as? URLError, error.code == .timedOut {
-            return true
-        }
-        return false
-    }
 }

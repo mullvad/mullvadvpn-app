@@ -15,6 +15,4 @@ protocol RESTTransport: AnyObject {
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable
-
-    func isTimeoutError(_ error: Error) -> Bool
 }

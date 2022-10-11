@@ -42,15 +42,4 @@ class PacketTunnelTransport: RESTTransport {
             }
         }
     }
-
-    func isTimeoutError(_ error: Error) -> Bool {
-        if case .timeout = error as? SendTunnelProviderMessageError {
-            return true
-        } else if let error = error as? URLError, error.code == .timedOut {
-            return true
-        } else if error is UnsetTunnelError {
-            return true
-        }
-        return false
-    }
 }
