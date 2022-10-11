@@ -1,11 +1,7 @@
 pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
-use std::{
-    convert::TryFrom,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    str::FromStr,
-};
+use std::{convert::TryFrom, str::FromStr};
 use talpid_types::{net::wireguard, ErrorExt};
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -39,18 +35,10 @@ impl TryFrom<GeoIpLocation> for mullvad_types::location::GeoIpLocation {
     fn try_from(geoip: GeoIpLocation) -> Result<Self, Self::Error> {
         Ok(mullvad_types::location::GeoIpLocation {
             ipv4: option_from_proto_string(geoip.ipv4)
-                .map(|addr| {
-                    Ipv4Addr::from_str(&addr).map_err(|_err| {
-                        FromProtobufTypeError::InvalidArgument("invalid IPv4 address")
-                    })
-                })
+                .map(|addr| arg_from_str(&addr, "invalid IPv4 address"))
                 .transpose()?,
             ipv6: option_from_proto_string(geoip.ipv6)
-                .map(|addr| {
-                    Ipv6Addr::from_str(&addr).map_err(|_err| {
-                        FromProtobufTypeError::InvalidArgument("invalid IPv6 address")
-                    })
-                })
+                .map(|addr| arg_from_str(&addr, "invalid IPv6 address"))
                 .transpose()?,
             country: geoip.country,
             city: option_from_proto_string(geoip.city),
@@ -394,9 +382,7 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
 
         Ok(talpid_net::TunnelEndpoint {
             endpoint: talpid_net::Endpoint {
-                address: SocketAddr::from_str(&endpoint.address).map_err(|_err| {
-                    FromProtobufTypeError::InvalidArgument("invalid endpoint address")
-                })?,
+                address: arg_from_str(&endpoint.address, "invalid endpoint address")?,
                 protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
             },
             tunnel_type: try_tunnel_type_from_i32(endpoint.tunnel_type)?,
@@ -406,11 +392,10 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 .map(|proxy_ep| {
                     Ok(talpid_net::proxy::ProxyEndpoint {
                         endpoint: talpid_net::Endpoint {
-                            address: SocketAddr::from_str(&proxy_ep.address).map_err(|_err| {
-                                FromProtobufTypeError::InvalidArgument(
-                                    "invalid proxy endpoint address",
-                                )
-                            })?,
+                            address: arg_from_str(
+                                &proxy_ep.address,
+                                "invalid proxy endpoint address",
+                            )?,
                             protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
                         },
                         proxy_type: match ProxyType::from_i32(proxy_ep.proxy_type) {
@@ -432,11 +417,10 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 .map(|obfs_ep| {
                     Ok(talpid_net::ObfuscationEndpoint {
                         endpoint: talpid_net::Endpoint {
-                            address: SocketAddr::from_str(&obfs_ep.address).map_err(|_err| {
-                                FromProtobufTypeError::InvalidArgument(
-                                    "invalid proxy endpoint address",
-                                )
-                            })?,
+                            address: arg_from_str(
+                                &obfs_ep.address,
+                                "invalid obfuscation endpoint address",
+                            )?,
                             protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
                         },
                         obfuscation_type: match ObfuscationType::from_i32(obfs_ep.obfuscation_type)
@@ -455,9 +439,7 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 .entry_endpoint
                 .map(|entry| {
                     Ok(talpid_net::Endpoint {
-                        address: SocketAddr::from_str(&entry.address).map_err(|_err| {
-                            FromProtobufTypeError::InvalidArgument("invalid entry endpoint address")
-                        })?,
+                        address: arg_from_str(&entry.address, "invalid entry endpoint address")?,
                         protocol: try_transport_protocol_from_i32(entry.protocol)?,
                     })
                 })
@@ -1871,6 +1853,13 @@ fn option_from_proto_string(s: String) -> Option<String> {
         s if s.is_empty() => None,
         s => Some(s),
     }
+}
+
+fn arg_from_str<T: FromStr<Err = E>, E>(
+    s: &str,
+    invalid_arg_msg: &'static str,
+) -> Result<T, FromProtobufTypeError> {
+    T::from_str(s).map_err(|_err| FromProtobufTypeError::InvalidArgument(invalid_arg_msg))
 }
 
 fn try_transport_protocol_from_i32(
