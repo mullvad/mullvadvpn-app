@@ -174,10 +174,7 @@ extension REST {
                         }
                     }
             } catch {
-                logger
-                    .debug(
-                        "Failure to send request to \(restRequest.pathTemplate.templateString) via \(endpoint) using \(transport.name)."
-                    )
+                didReceiveError(transport: transport, error, endpoint: endpoint)
             }
         }
 

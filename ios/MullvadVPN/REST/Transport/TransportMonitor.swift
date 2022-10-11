@@ -15,12 +15,7 @@ class TransportMonitor: TunnelObserver {
     init() {
         TunnelManager.shared.addObserver(self)
 
-        RESTTransportRegistry.shared.setTransports(
-            stateUpdated(
-                tunnelState: TunnelManager.shared.tunnelStatus.state,
-                deviceState: TunnelManager.shared.deviceState
-            )
-        )
+        setInitialTransports()
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
@@ -32,6 +27,28 @@ class TransportMonitor: TunnelObserver {
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
         RESTTransportRegistry.shared.setTransports(
             stateUpdated(tunnelState: manager.tunnelStatus.state, deviceState: deviceState)
+        )
+    }
+
+    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
+        setInitialTransports()
+    }
+
+    func tunnelManager(
+        _ manager: TunnelManager,
+        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+    ) {}
+
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
+}
+
+private extension TransportMonitor {
+    private func setInitialTransports() {
+        RESTTransportRegistry.shared.setTransports(
+            stateUpdated(
+                tunnelState: TunnelManager.shared.tunnelStatus.state,
+                deviceState: TunnelManager.shared.deviceState
+            )
         )
     }
 
@@ -65,13 +82,4 @@ class TransportMonitor: TunnelObserver {
             return [urlSessionTunnelTransport]
         }
     }
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {}
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {}
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
 }

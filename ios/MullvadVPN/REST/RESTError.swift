@@ -46,8 +46,8 @@ extension REST {
                 return str
             case let .decodeResponse(error):
                 return "Failure to decode URL response data: \(error.localizedDescription)."
-            case .transport:
-                return "Failure, which was created by packet tunnel, in response of url request."
+            case let .transport(error):
+                return "Transport error \(error.localizedDescription)."
             }
         }
 

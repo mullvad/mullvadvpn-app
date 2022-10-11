@@ -530,7 +530,7 @@ final class TunnelManager {
                 completionHandler: completionHandler
             )
         } else {
-            throw SendTunnelProviderMessageError.tunnelDown(.invalid)
+            throw UnsetTunnelError()
         }
     }
 

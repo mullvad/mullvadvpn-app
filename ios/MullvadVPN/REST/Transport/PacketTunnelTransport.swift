@@ -48,6 +48,8 @@ class PacketTunnelTransport: RESTTransport {
             return true
         } else if let error = error as? URLError, error.code == .timedOut {
             return true
+        } else if error is UnsetTunnelError {
+            return true
         }
         return false
     }

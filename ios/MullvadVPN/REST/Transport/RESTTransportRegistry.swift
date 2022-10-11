@@ -22,17 +22,18 @@ class RESTTransportRegistry {
         nslock.lock()
         defer { nslock.unlock() }
 
+        if self.transports.first !== transports.first {
+            timeoutCount = 0
+        }
+
         self.transports = transports
-        timeoutCount = 0
     }
 
     func transportDidFinishLoad(_ transport: RESTTransport) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let firstTransport = getTransport(),
-              firstTransport === transport
-        else { return }
+        guard transports.first === transport else { return }
 
         timeoutCount = 0
     }
@@ -41,9 +42,7 @@ class RESTTransportRegistry {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let firstTransport = getTransport(),
-              firstTransport === transport
-        else { return }
+        guard transports.first === transport else { return }
 
         timeoutCount += 1
 
