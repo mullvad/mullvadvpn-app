@@ -138,7 +138,7 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard let transport = transportRegistry.getTransport() else {
-                didFailToCreateURLRequest(REST.Error.transport(TransportError.noTransport))
+                didFailToCreateURLRequest(REST.Error.transport(NoTransportError()))
                 return
             }
 
@@ -196,60 +196,30 @@ extension REST {
             _ error: Swift.Error,
             endpoint: AnyIPEndpoint
         ) {
-            if let urlError = error as? URLError {
-                didReceiveURLError(transport: transport, urlError, endpoint: endpoint)
-            } else {
-                didReceiveUnknownError(transport: transport, .transport(error), endpoint: endpoint)
-            }
-        }
-
-        private func didReceiveURLError(
-            transport: RESTTransport,
-            _ urlError: URLError,
-            endpoint: AnyIPEndpoint
-        ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            switch urlError.code {
-            case .cancelled:
-                finish(completion: .cancelled)
-                return
+            if let urlError = error as? URLError {
+                switch urlError.code {
+                case .cancelled:
+                    finish(completion: .cancelled)
+                    return
 
-            case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
-                break
+                case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
+                    break
 
-            default:
-                _ = addressCacheStore.selectNextEndpoint(endpoint)
+                default:
+                    _ = addressCacheStore.selectNextEndpoint(endpoint)
+                }
             }
 
-            if transport.isTimeoutError(urlError) {
+            if transport.isTimeoutError(error) {
                 transportRegistry.transportDidTimeout(transport)
             }
 
-            logger.error(
-                error: urlError,
-                message: "Failed to perform request to \(endpoint) using \(transport.name)."
-            )
-
-            retryRequest(with: urlError)
-        }
-
-        private func didReceiveUnknownError(
-            transport: RESTTransport,
-            _ error: REST.Error,
-            endpoint: AnyIPEndpoint
-        ) {
             logger.error(
                 error: error,
                 message: "Failed to perform request to \(endpoint) using \(transport.name)."
             )
-
-            if transport.isTimeoutError(error) {
-                transportRegistry.transportDidTimeout(transport)
-            } else {
-                finish(completion: .failure(error))
-                return
-            }
 
             retryRequest(with: error)
         }
