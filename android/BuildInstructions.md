@@ -33,9 +33,9 @@ on your platform please submit an issue or a pull request.
     cd /opt/android     # Or some other directory to place the Android SDK
     export ANDROID_HOME=$PWD
 
-    wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+    wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
     unzip commandlinetools-linux-6609375_latest.zip
-    ./tools/bin/sdkmanager "platforms;android-29" "build-tools;29.0.3" "platform-tools"
+    ./tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools"
     ```
 
     If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
