@@ -139,7 +139,6 @@ extension REST {
 
             guard let transport = transportRegistry.getTransport() else {
                 logger.error("Failed to obtain transport.")
-                // Finish operation so it can be removed from the queue
                 finish(completion: .failure(.transport(NoTransportError())))
                 return
             }
