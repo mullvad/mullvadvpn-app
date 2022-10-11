@@ -1,13 +1,13 @@
 import { createRef, useCallback, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router';
 
-import AccountPage from '../containers/AccountPage';
 import LoginPage from '../containers/LoginPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import { useAppContext } from '../context';
 import { ITransitionSpecification, transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
+import Account from './Account';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import {
   SetupFinished,
@@ -71,7 +71,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
             <Route exact path={RoutePath.settings} component={Settings} />
             <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
-            <Route exact path={RoutePath.accountSettings} component={AccountPage} />
+            <Route exact path={RoutePath.accountSettings} component={Account} />
             <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
             <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
             <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
