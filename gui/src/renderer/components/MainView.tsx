@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 
 import { hasExpired } from '../../shared/account-expiry';
 import Connect from '../components/Connect';
-import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 
 type ExpiryData = { show: false } | { show: true; expiry: string | undefined };
 
@@ -37,7 +37,7 @@ export default function MainView() {
   }, [showAccountExpired, accountHasExpired]);
 
   if (showAccountExpired.show) {
-    return <ExpiredAccountErrorViewContainer />;
+    return <ExpiredAccountErrorView />;
   } else {
     return <Connect />;
   }
