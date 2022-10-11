@@ -321,17 +321,12 @@ impl RelaySelector {
         };
 
         let matcher = RelayMatcher::new(relay_constraints.clone(), openvpn_data, wireguard_data);
-        let mut matching_locations: Vec<Location> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| {
-                matcher
-                    .filter_matching_relay(relay)
-                    .and_then(|relay| relay.location)
-            })
+
+        let parsed_relays = self.parsed_relays.lock();
+        let mut matching_locations: Vec<Location> = matcher
+            .filter_matching_relay_list(parsed_relays.relays())
+            .into_iter()
+            .filter_map(|relay| relay.location)
             .collect();
         matching_locations.dedup_by(|a, b| a.has_same_city(b));
 
@@ -697,13 +692,9 @@ impl RelaySelector {
         &self,
         matcher: &RelayMatcher<WireguardMatcher>,
     ) -> Result<(Relay, MullvadWireguardEndpoint), Error> {
-        let matching_relays: Vec<Relay> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| matcher.filter_matching_relay(relay))
+        let matching_relays: Vec<Relay> = matcher
+            .filter_matching_relay_list(self.parsed_relays.lock().relays())
+            .into_iter()
             .collect();
 
         let relay = self
@@ -986,7 +977,7 @@ impl RelaySelector {
                     self.parsed_relays.lock().relays().iter().any(|relay| {
                         relay.active
                             && relay.endpoint_data == RelayEndpointData::Openvpn
-                            && location_constraint.matches(relay)
+                            && location_constraint.matches_with_opts(relay, true)
                             && providers_constraint.matches(relay)
                             && ownership_constraint.matches(relay)
                     });
@@ -1002,7 +993,7 @@ impl RelaySelector {
                     self.parsed_relays.lock().relays().iter().any(|relay| {
                         relay.active
                             && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                            && location_constraint.matches(relay)
+                            && location_constraint.matches_with_opts(relay, true)
                             && providers_constraint.matches(relay)
                             && ownership_constraint.matches(relay)
                     });
@@ -1072,13 +1063,9 @@ impl RelaySelector {
         &self,
         matcher: &RelayMatcher<T>,
     ) -> Result<NormalSelectedRelay, Error> {
-        let matching_relays: Vec<Relay> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| matcher.filter_matching_relay(relay))
+        let matching_relays: Vec<Relay> = matcher
+            .filter_matching_relay_list(self.parsed_relays.lock().relays())
+            .into_iter()
             .collect();
 
         self.pick_random_relay(&matching_relays)
