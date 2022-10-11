@@ -35,7 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     ConnectViewControllerDelegate, NotificationManagerDelegate,
     SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, UIAdaptivePresentationControllerDelegate, TunnelObserver,
-    RelayCacheObserver, UISplitViewControllerDelegate, TermsOfServiceViewControllerDelegate
+    UISplitViewControllerDelegate, TermsOfServiceViewControllerDelegate
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -176,7 +176,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             fatalError()
         }
 
-        RelayCache.Tracker.shared.addObserver(self)
         NotificationManager.shared.delegate = self
 
         prevDeviceState = TunnelManager.shared.deviceState
@@ -323,12 +322,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         let selectLocationController = SelectLocationViewController()
         selectLocationController.delegate = self
 
-        if let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() {
-            selectLocationController.setCachedRelays(cachedRelays)
-        }
-
         let relayConstraints = TunnelManager.shared.settings.relayConstraints
-
         selectLocationController.setSelectedRelayLocation(
             relayConstraints.location.value,
             animated: false,
@@ -889,15 +883,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         // no-op
-    }
-
-    // MARK: - RelayCacheObserver
-
-    func relayCache(
-        _ relayCache: RelayCache.Tracker,
-        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
-    ) {
-        selectLocationViewController?.setCachedRelays(cachedRelays)
     }
 
     // MARK: - UISplitViewControllerDelegate

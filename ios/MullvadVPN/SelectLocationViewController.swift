@@ -16,7 +16,7 @@ protocol SelectLocationViewControllerDelegate: AnyObject {
     )
 }
 
-class SelectLocationViewController: UIViewController, UITableViewDelegate {
+class SelectLocationViewController: UIViewController, UITableViewDelegate, RelayCacheObserver {
     static let cellReuseIdentifier = "Cell"
 
     private var tableView: UITableView?
@@ -26,7 +26,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var tableHeaderFooterViewBottomConstraints: [NSLayoutConstraint] = []
 
     private var dataSource: LocationDataSource?
-    private var setCachedRelaysOnViewDidLoad: RelayCache.CachedRelays?
     private var setRelayLocationOnViewDidLoad: RelayLocation?
     private var setScrollPositionOnViewDidLoad: UITableView.ScrollPosition = .none
     private var isViewAppeared = false
@@ -131,8 +130,9 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         ])
         setTableHeaderFooterConstraints()
 
-        if let setCachedRelaysOnViewDidLoad = setCachedRelaysOnViewDidLoad {
-            dataSource?.setRelays(setCachedRelaysOnViewDidLoad.relays)
+        RelayCache.Tracker.shared.addObserver(self)
+        if let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() {
+            dataSource?.setRelays(cachedRelays.relays)
         }
 
         if let setRelayLocationOnViewDidLoad = setRelayLocationOnViewDidLoad {
@@ -227,15 +227,16 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         delegate?.selectLocationViewController(self, didSelectRelayLocation: item.location)
     }
 
-    // MARK: - Public
+    // MARK: - Relay cache observer
 
-    func setCachedRelays(_ cachedRelays: RelayCache.CachedRelays) {
-        guard isViewLoaded else {
-            setCachedRelaysOnViewDidLoad = cachedRelays
-            return
-        }
+    func relayCache(
+        _ relayCache: RelayCache.Tracker,
+        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+    ) {
         dataSource?.setRelays(cachedRelays.relays)
     }
+
+    // MARK: - Public
 
     func setSelectedRelayLocation(
         _ relayLocation: RelayLocation?,
