@@ -1,4 +1,4 @@
-import { createRef, useCallback, useEffect, useRef, useState } from 'react';
+import { createRef, useCallback, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router';
 
 import AccountPage from '../containers/AccountPage';
@@ -37,18 +37,18 @@ export default function AppRouter() {
   const { setNavigationHistory } = useAppContext();
   const focusRef = createRef<IFocusHandle>();
 
-  const unobserveHistory = useRef<() => void>();
+  let unobserveHistory: () => void;
 
   useEffect(() => {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
-    unobserveHistory.current = history.listen((location, _, transition) => {
+    unobserveHistory = history.listen((location, _, transition) => {
       setNavigationHistory(history.asObject);
       setCurrentLocation(location);
       setTransition(transition);
     });
 
-    return () => unobserveHistory.current?.();
+    return () => unobserveHistory?.();
   }, []);
 
   const onNavigation = useCallback(() => {
