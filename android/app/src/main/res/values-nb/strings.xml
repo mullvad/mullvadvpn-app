@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vertsnavnet til den egendefinerte serveren</string>
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
+    <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
     <string name="device_name">Enhetsnavn</string>
     <string name="disconnect">Koble fra</string>
     <string name="disconnecting">Kobler fra</string>
@@ -58,6 +59,9 @@
     <string name="exclude_applications">Ekskluder applikasjoner</string>
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
+    <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
+    <string name="failed_to_generate_key">Generering av en nøkkel mislyktes</string>
+    <string name="failed_to_remove_device">Kunne ikke fjerne enhet</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du avslutter skjemaet og prøver igjen senere, vil informasjonen du allerede har lagt inn fortsatt være der.</string>
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">Ugyldig kontonummer</string>
     <string name="login_fail_title">Kunne ikke logge inn</string>
     <string name="login_title">Logg inn</string>
+    <string name="max_devices_confirm_removal_description">Vil du virkelig logge av &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nå fortsette med å logge på denne enheten.</string>
     <string name="max_devices_resolved_title">Supert!</string>
+    <string name="max_devices_warning_description">Du har for mange aktive enhter. Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
-    <string name="no_matching_bridge_relay">Ingen bro-relayserver samsvarer med de gjeldende innstillingene</string>
-    <string name="no_matching_relay">Ingen relayservere passer til innstillingene</string>
+    <string name="no_matching_bridge_relay">Ingen bro-reléserver samsvarer med de gjeldende innstillingene</string>
+    <string name="no_matching_relay">Ingen reléservere passer til innstillingene</string>
+    <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
     <string name="out_address">Utgående</string>
     <string name="out_of_time">Tiden har utløpt</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="port_removal_notice">Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret.</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
+    <string name="public_key">Offentlig nøkkel</string>
     <string name="reconnecting">Kobler til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">Preferanser</string>
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
+    <string name="split_tunneling">Delt tunnelering</string>
     <string name="split_tunneling_description">Tunneldeling gjør det mulig å velge hvilke applikasjoner som ikke skal rutes gjennom VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling</string>
     <string name="switch_location">Bytt plassering</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-feil</string>
+    <string name="wireguard_generate_key">Generer nøkkel</string>
     <string name="wireguard_key">WireGuard-nøkkel</string>
+    <string name="wireguard_key_generated">Nøkkel generert</string>
+    <string name="wireguard_key_invalid">Nøkkel er ugyldig</string>
+    <string name="wireguard_key_reconnecting">Kobler til på nytt med ny WireGuard-nøkkel ...</string>
+    <string name="wireguard_key_valid">Nøkkel er gyldig</string>
+    <string name="wireguard_key_verification_failure">Nøkkelverifisering mislyktes</string>
+    <string name="wireguard_manage_keys">Behandle nøkler</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_public_key">WireGuard offentlig nøkkel</string>
+    <string name="wireguard_replace_key">Generer nøkkel på nytt</string>
+    <string name="wireguard_verify_key">Bekreft nøkkel</string>
 </resources>

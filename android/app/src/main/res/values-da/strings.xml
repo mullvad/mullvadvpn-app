@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værtsnavnet på den tilpassede server</string>
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
+    <string name="device_inactive_unblock_warning">Hvis du logger på, ophæves blokeringen af internettet på denne enhed.</string>
     <string name="device_name">Enhedsnavn</string>
     <string name="disconnect">Afbryd forbindelse</string>
     <string name="disconnecting">Afbryder</string>
@@ -58,6 +59,9 @@
     <string name="exclude_applications">Ekskluderede applikationer</string>
     <string name="failed_to_block_internet">Kunne ikke blokere al netværkstrafik. Løs problemet selv, eller rapporter problemet til os.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
+    <string name="failed_to_fetch_devices">Kunne ikke hente listen over enheder</string>
+    <string name="failed_to_generate_key">Kunne ikke generere en nøgle</string>
+    <string name="failed_to_remove_device">Enheden kunne ikke fjernes</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her.</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">Ugyldigt kontonummer</string>
     <string name="login_fail_title">Login mislykkedes</string>
     <string name="login_title">Log ind</string>
+    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge ud af &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>
+    <string name="max_devices_warning_description">Du har for mange aktive enheder. Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende alias under enhedens kontoindstillinger.</string>
     <string name="max_devices_warning_title">For mange enheder</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
-    <string name="no_matching_bridge_relay">Ingen bro-relæserver matcher de aktuelle indstillinger</string>
+    <string name="no_matching_bridge_relay">Ingen brorelæserver matcher de aktuelle indstillinger</string>
     <string name="no_matching_relay">Ingen relæserver matcher de aktuelle indstillinger</string>
+    <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>
     <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="port_removal_notice">Dette vil slette alle videresendte porte. Lokale indstillinger vil blive gemt.</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
+    <string name="public_key">Offentlig nøgle</string>
     <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
@@ -115,10 +123,11 @@
     <string name="set_firewall_policy_error">Kunne ikke anvende firewall-regler. Enheden er muligvis ikke sikret</string>
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
-    <string name="settings_advanced">Avanceret</string>
+    <string name="settings_advanced">Avancerede indstillinger</string>
     <string name="settings_preferences">Indstillinger</string>
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapps</string>
+    <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Split tunneling gør det muligt at vælge, hvilke applikationer der ikke skal dirigeres gennem VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunnelforbindelsen</string>
     <string name="switch_location">Skift placering</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-fejl</string>
+    <string name="wireguard_generate_key">Generer nøgle</string>
     <string name="wireguard_key">WireGuard-nøgle</string>
+    <string name="wireguard_key_generated">Nøgle genereret</string>
+    <string name="wireguard_key_invalid">Nøglen er ugyldig</string>
+    <string name="wireguard_key_reconnecting">Genopretter forbindelse med ny WireGuard-nøgle...</string>
+    <string name="wireguard_key_valid">Nøglen er gyldig</string>
+    <string name="wireguard_key_verification_failure">Nøglebekræftelse mislykkedes</string>
+    <string name="wireguard_manage_keys">Administrer nøgler</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_public_key">Offentlig WireGuard-nøgle</string>
+    <string name="wireguard_replace_key">Gendan nøgle</string>
+    <string name="wireguard_verify_key">Bekræft nøgle</string>
 </resources>

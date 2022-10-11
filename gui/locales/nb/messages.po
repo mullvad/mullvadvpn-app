@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ble lagt til, konto betalt til %(expiry)s."
@@ -244,6 +244,10 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Skjul kontonummer"
 
+msgctxt "accessibility"
+msgid "info"
+msgstr "info"
+
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
@@ -304,96 +308,6 @@ msgctxt "account-view"
 msgid "Paid until"
 msgstr "Betalt fram til"
 
-#. Title label in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Advanced"
-msgstr "Avansert"
-
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s-innstillinger"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s-innstillinger"
-
-msgctxt "vpn-settings-view"
-msgid "Add a server"
-msgstr "Legg til en server"
-
-msgctxt "vpn-settings-view"
-msgid "Add anyway"
-msgstr "Legg til likevel"
-
-msgctxt "advanced-settings-view"
-msgid "Advanced"
-msgstr "Avansert"
-
-msgctxt "advanced-settings-view"
-msgid "Always require VPN"
-msgstr "Be alltid om VPN"
-
-msgctxt "advanced-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "Advarsel: Hvis du aktiverer dette, må du alltid ha en Mullvad VPN-tilkobling for å være tilkoblet internett."
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "Aktiver IPv6"
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "Aktiver IPv6-kommunikasjon gjennom tunnelen."
-
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "Aktiver multihop"
-
-msgctxt "vpn-settings-view"
-msgid "Enable to add at least one DNS server."
-msgstr "Aktiver for å legge til minst én DNS-server."
-
-msgctxt "vpn-settings-view"
-msgid "Enter IP"
-msgstr "Angi IP"
-
-msgctxt "advanced-settings-view"
-msgid "If you disconnect or quit the app, this setting will block your internet."
-msgstr "Hvis du kobler fra eller lukker appen, vil denne innstillingen blokkere tilgangen til internettet."
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "Øker anonymiteten ved å dirigere trafikken til én %(wireguard)s-server og ut en annen, noe som gjør det vanskeligere å spore."
-
-msgctxt "advanced-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "Appens innebygde «Kill Switch» er alltid på. Innstillingen bil også blokkere tilgangen til internettet hvis du trykker på Koble fra eller Lukk."
-
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
-msgstr "DNS-serveren som du vil legge til, er en privat IP. Du må forsikre deg om at nettverksgrensesnittene er konfigurert til å kunne bruke den."
-
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "DNS-serveren du vil legge til er offentlig og fungerer bare med %(wireguard)s. For å sikre at den alltid fungerer, se %(wireguard)s «%(tunnelProtocol)s» (i avanserte innstillinger)."
-
-msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "Tunnelprotokoll"
-
-msgctxt "vpn-settings-view"
-msgid "Use custom DNS server"
-msgstr "Bruk egendefinert DNS-server"
-
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "Blokkerer internett: tidsavbrudd for konto"
@@ -422,10 +336,6 @@ msgstr "Endringer i denne versjonen:"
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
-
-msgctxt "connect-view"
-msgid "Always require VPN"
-msgstr "Be alltid om VPN"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -496,8 +406,8 @@ msgid "You have no more VPN time left on this account."
 msgstr "Du har ikke mer VPN-tid igjen på kontoen."
 
 msgctxt "connect-view"
-msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
-msgstr "Du må deaktivere «Be alltid om VPN» for å få tilgang til internettet og legge til mer tid."
+msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
+msgstr "Du må deaktivere «Låsemodus» for å få tilgang til internettet og legge til mer tid."
 
 msgctxt "connect-view"
 msgid "You're all set!"
@@ -532,7 +442,7 @@ msgstr "Utgående"
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log out of **%(deviceName)s**?"
+msgid "Are you sure you want to log **%(deviceName)s** out?"
 msgstr "Vil du virkelig logge av **%(deviceName)s**?"
 
 #. Button for continuing login process.
@@ -547,6 +457,10 @@ msgstr "Enheten er inaktiv"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "Enhetsnavn"
+
+msgctxt "device-management"
+msgid "Failed to remove device"
+msgstr "Kunne ikke fjerne enhet"
 
 msgctxt "device-management"
 msgid "Go to login"
@@ -641,8 +555,8 @@ msgid "Rented only"
 msgstr "Kun leid"
 
 msgctxt "in-app-notifications"
-msgid "\"Always require VPN\" is enabled."
-msgstr "«Be alltid om VPN» er aktivert."
+msgid "\"%(lockdownModeSettingName)s\" is enabled."
+msgstr "«%(lockdownModeSettingName)s» er aktivert."
 
 msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
@@ -700,10 +614,10 @@ msgstr "Kobler til Mullvads systemtjeneste ..."
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
-#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(alwaysRequireVpnSettingsName)s** er aktivert. Deaktiver den for å fjerne blokkeringen av tilkoblingen."
+msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(lockdownModeSettingName)s** er aktivert. Deaktiver den for å fjerne blokkeringen av tilkoblingen."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -912,8 +826,8 @@ msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr "Gyldig %(wireguard)s-nøkkel mangler. Administrer nøkler under Avanserte innstillinger."
 
 msgctxt "notifications"
-msgid "Your device is offline. Try connecting when it's back online."
-msgstr "Enheten din er frakoblet. Forsøk å koble til når den er pålogget igjen."
+msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
+msgstr "Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen."
 
 #. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
@@ -993,153 +907,6 @@ msgstr "For å aktivere UDP, endre **Bromodus** til **Automatisk** eller **Av**.
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "Transportprotokoll"
-
-#. Title label in navigation bar
-msgctxt "preferences-nav"
-msgid "Preferences"
-msgstr "Preferanser"
-
-msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv."
-
-msgctxt "vpn-settings-view"
-msgid "Auto-connect"
-msgstr "Automatisk tilkobling"
-
-msgctxt "vpn-settings-view"
-msgid "Automatically connect to a server when the app launches."
-msgstr "Kobler automatisk til en server når appen starter."
-
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "Betaprogram"
-
-msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "Blokker annonser"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "Blokker voksent innhold"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "Blokker gambling"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "Blokker skadelig programvare"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "Blokker sporere"
-
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "Deaktiver **%(customDnsFeatureName)s** (under Avanserte innstillinger) for å aktivere disse innstillingene."
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
-msgstr "Deaktiver all innholdsblokkering (under %(preferencesPageName)s) for å aktivere denne innstillingen."
-
-msgctxt "user-interface-settings-view"
-msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "Aktiver eller deaktiver systemmeldinger. Kritiske meldinger vil alltid vises."
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "Aktiver for å bli varslet når betaversjoner av appen lanseres."
-
-msgctxt "user-interface-settings-view"
-msgid "Enable to move the app around as a free-standing window."
-msgstr "Aktiver for å flytte appen rundt som et frittstående vindu."
-
-msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "Avbruddsbryter"
-
-msgctxt "vpn-settings-view"
-msgid "Launch app on start-up"
-msgstr "Kjør app ved oppstart"
-
-msgctxt "vpn-settings-view"
-msgid "Local network sharing"
-msgstr "Deling over lokalt nettverk"
-
-msgctxt "user-interface-settings-view"
-msgid "Monochromatic tray icon"
-msgstr "Ensfarget skuffeikon"
-
-msgctxt "user-interface-settings-view"
-msgid "Notifications"
-msgstr "Meldinger"
-
-msgctxt "preferences-view"
-msgid "Preferences"
-msgstr "Preferanser"
-
-msgctxt "user-interface-settings-view"
-msgid "Show only the tray icon when the app starts."
-msgstr "Vis bare skuffeikonet når appen starter."
-
-msgctxt "user-interface-settings-view"
-msgid "Start minimized"
-msgstr "Start i minimert tilstand"
-
-msgctxt "vpn-settings-view"
-msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
-msgstr "Appen har en innebygd avbruddsbryter som er aktivert som standard og ikke kan deaktiveres. Dette er for å forhindre at trafikken din lekker utenfor VPN-tunnelen hvis nettverket ditt plutselig slutter å fungere eller hvis tunnelen av en eller annen grunn svikter. Mullvad beskytter automatisk dataene dine til tilkoblingen er gjenopprettet."
-
-msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "Dette alternativet er utilgjengelig i betaversjonen."
-
-msgctxt "user-interface-settings-view"
-msgid "Unpin app from taskbar"
-msgstr "Fjern appen fra menylinjen"
-
-msgctxt "user-interface-settings-view"
-msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Advarsel: Dette er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse."
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "Advarsel: Dette kan føre til problemer på enkelte nettsteder, tjenester og programmer."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å inneholde skadelig programvare."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å spore brukere."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse annonsedomener."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde voksent innhold."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde gambling-innhold."
 
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
@@ -1234,11 +1001,6 @@ msgctxt "settings-view"
 msgid "Account"
 msgstr "Konto"
 
-#. Navigation button to the 'Advanced' settings view
-msgctxt "settings-view"
-msgid "Advanced"
-msgstr "Avansert"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Appen er ikke synkronisert. Avslutt og start på nytt."
@@ -1247,37 +1009,36 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "Appversjon"
 
-#. Link to the webpage
-msgctxt "support-view"
-msgid "FAQs & Guides"
-msgstr "Ofte stilte spørsmål og veiledninger"
-
-#. Navigation button to the 'Language' settings view
-msgctxt "user-interface-settings-view"
-msgid "Language"
-msgstr "Språk"
-
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "TIDEN HAR UTLØPT"
-
-#. Navigation button to the 'Preferences' view
-msgctxt "settings-view"
-msgid "Preferences"
-msgstr "Preferanser"
 
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr "Lukk app"
 
-#. Navigation button to the 'Report a problem' help view
+#. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
-msgid "Report a problem"
-msgstr "Rapporter et problem"
+msgid "Split tunneling"
+msgstr "Delt tunnelering"
+
+msgctxt "settings-view"
+msgid "Support"
+msgstr "Kundestøtte"
 
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "Oppdatering tilgjengelig. Installer den siste appversjonen for å holde deg oppdatert."
+
+#. Navigation button to the 'User interface settings' view
+msgctxt "settings-view"
+msgid "User interface settings"
+msgstr "Innstillinger for brukergrensesnitt"
+
+#. Navigation button to the 'VPN settings' view
+msgctxt "settings-view"
+msgid "VPN settings"
+msgstr "VPN-innstillinger"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1346,6 +1107,10 @@ msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Kan ikke starte valget. %(detailedErrorMessage)s"
 
 msgctxt "support-view"
+msgid "Beta program"
+msgstr "Betaprogram"
+
+msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Fortsett uansett"
 
@@ -1354,8 +1119,17 @@ msgid "Edit message"
 msgstr "Rediger melding"
 
 msgctxt "support-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Aktiver for å bli varslet når betaversjoner av appen lanseres."
+
+msgctxt "support-view"
 msgid "Failed to send"
 msgstr "Kunne ikke sende"
+
+#. Link to the webpage
+msgctxt "support-view"
+msgid "FAQs & Guides"
+msgstr "Ofte stilte spørsmål og veiledninger"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
@@ -1373,6 +1147,7 @@ msgid "Please describe your problem in English or Swedish."
 msgstr "Beskriv problemet ditt på engelsk eller svensk."
 
 #. Title label in navigation bar
+#. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Rapporter et problem"
@@ -1393,9 +1168,18 @@ msgctxt "support-view"
 msgid "Sent"
 msgstr "Sendt"
 
+#. Title label in navigation bar
+msgctxt "support-view"
+msgid "Support"
+msgstr "Kundestøtte"
+
 msgctxt "support-view"
 msgid "Thanks!"
 msgstr "Takk!"
+
+msgctxt "support-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Dette alternativet er utilgjengelig i betaversjonen."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1457,6 +1241,236 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Bytt plassering"
 
+msgctxt "user-interface-settings-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "Aktiver eller deaktiver systemmeldinger. Kritiske meldinger vil alltid vises."
+
+msgctxt "user-interface-settings-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "Aktiver for å flytte appen rundt som et frittstående vindu."
+
+#. Navigation button to the 'Language' settings view
+msgctxt "user-interface-settings-view"
+msgid "Language"
+msgstr "Språk"
+
+msgctxt "user-interface-settings-view"
+msgid "Monochromatic tray icon"
+msgstr "Ensfarget skuffeikon"
+
+msgctxt "user-interface-settings-view"
+msgid "Notifications"
+msgstr "Meldinger"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "Vis bare skuffeikonet når appen starter."
+
+msgctxt "user-interface-settings-view"
+msgid "Start minimized"
+msgstr "Start i minimert tilstand"
+
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from taskbar"
+msgstr "Fjern appen fra menylinjen"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "Bruk ensfarget skuffeikon i stedet for flerfarget."
+
+#. Title label in navigation bar
+msgctxt "user-interface-settings-view"
+msgid "User interface settings"
+msgstr "Innstillinger for brukergrensesnitt"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "vpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s-innstillinger"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s-innstillinger"
+
+msgctxt "vpn-settings-view"
+msgid "Add a server"
+msgstr "Legg til en server"
+
+msgctxt "vpn-settings-view"
+msgid "Add anyway"
+msgstr "Legg til likevel"
+
+msgctxt "vpn-settings-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "Advarsel: Hvis du aktiverer dette, må du alltid ha en Mullvad VPN-tilkobling for å være tilkoblet internett."
+
+msgctxt "vpn-settings-view"
+msgid "Auto-connect"
+msgstr "Automatisk tilkobling"
+
+msgctxt "vpn-settings-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "Kobler automatisk til en server når appen starter."
+
+msgctxt "vpn-settings-view"
+msgid "Block ads"
+msgstr "Blokker annonser"
+
+msgctxt "vpn-settings-view"
+msgid "Block adult content"
+msgstr "Blokker voksent innhold"
+
+msgctxt "vpn-settings-view"
+msgid "Block gambling"
+msgstr "Blokker gambling"
+
+msgctxt "vpn-settings-view"
+msgid "Block malware"
+msgstr "Blokker skadelig programvare"
+
+msgctxt "vpn-settings-view"
+msgid "Block trackers"
+msgstr "Blokker sporere"
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "vpn-settings-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "Deaktiver **%(customDnsFeatureName)s** (under Avanserte innstillinger) for å aktivere disse innstillingene."
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "vpn-settings-view"
+msgid "Disable all content blockers to activate this setting."
+msgstr "Deaktiver all innholdsblokkering for å aktivere denne innstillingen."
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6"
+msgstr "Aktiver IPv6"
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "Aktiver IPv6-kommunikasjon gjennom tunnelen."
+
+#. The label next to the multihop settings toggle.
+msgctxt "vpn-settings-view"
+msgid "Enable multihop"
+msgstr "Aktiver multihop"
+
+msgctxt "vpn-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "Aktiver for å legge til minst én DNS-server."
+
+msgctxt "vpn-settings-view"
+msgid "Enter IP"
+msgstr "Angi IP"
+
+#. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "Øker anonymiteten ved å dirigere trafikken til én %(wireguard)s-server og ut en annen, noe som gjør det vanskeligere å spore."
+
+msgctxt "vpn-settings-view"
+msgid "Kill switch"
+msgstr "Avbruddsbryter"
+
+msgctxt "vpn-settings-view"
+msgid "Launch app on start-up"
+msgstr "Kjør app ved oppstart"
+
+msgctxt "vpn-settings-view"
+msgid "Local network sharing"
+msgstr "Deling over lokalt nettverk"
+
+msgctxt "vpn-settings-view"
+msgid "Lockdown mode"
+msgstr "Låsemodus"
+
+msgctxt "vpn-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "Appens innebygde avbruddsbryter er alltid på. Innstillingen bil også blokkere tilgangen til internettet hvis du trykker på Koble fra eller Lukk."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
+msgstr "Forskjellen mellom avbruddsbryter og låsemodus er at avbruddsbryteren forhindrer lekkasjer under automatiske tilkoblinger til tunnel, programvarekrasj og lignende hendelser."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "Forskjellen mellom avbruddsbryter og låsemodus er at avbruddsbryteren forhindrer lekkasjer under automatiske tilkoblinger til tunnel, programvarekrasj og lignende hendelser. Med aktivert låsemodus må du være tilkoblet en Mullvad VPN-server for å kunne koble til internettet. Manuell frakobling eller å avslutte appen vil blokkere tilkoblingen."
+
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "DNS-serveren som du vil legge til, er en privat IP. Du må forsikre deg om at nettverksgrensesnittene er konfigurert til å kunne bruke den."
+
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "DNS-serveren du vil legge til er offentlig og fungerer bare med %(wireguard)s. For å sikre at den alltid fungerer, se %(wireguard)s «%(tunnelProtocol)s» (i avanserte innstillinger)."
+
+msgctxt "vpn-settings-view"
+msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
+msgstr "Denne innebygde funksjonen forhindrer lekkasje av trafikk utenfor VPN-tunnelen hvis nettverket plutslig slutter å fungere eller tunnelen feiler. Den blokkerer trafikken til tilkoblingen er gjenopprettet."
+
+msgctxt "vpn-settings-view"
+msgid "Tunnel protocol"
+msgstr "Tunnelprotokoll"
+
+msgctxt "vpn-settings-view"
+msgid "Use custom DNS server"
+msgstr "Bruk egendefinert DNS-server"
+
+#. Title label in navigation bar
+msgctxt "vpn-settings-view"
+msgid "VPN settings"
+msgstr "VPN-innstillinger"
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Advarsel: Dette er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse."
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "Advarsel: Dette kan føre til problemer på enkelte nettsteder, tjenester og programmer."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å inneholde skadelig programvare."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse domener som er kjent for å spore brukere."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse annonsedomener."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde voksent innhold."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "Når den er aktivert, stopper denne funksjonen enheten fra å kontakte visse nettsteder og tjenester som er kjent for å inneholde gambling-innhold."
+
+msgctxt "vpn-settings-view"
+msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "Med Låsmodus aktivert må du være tilkoblet en Mullvad VPN-server for å kunne koble deg til internettet. Manuell frakobling eller avslutning av appen vil blokkere tilkoblingen din."
+
 #. Title label in navigation bar
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -1477,6 +1491,18 @@ msgstr "IP-versjon"
 msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation"
+msgstr "Tilsløring"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgstr "Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter i tilfeller der en vanlig WireGuard-tilkobling ville blitt blokkert."
+
+msgctxt "wireguard-settings-view"
+msgid "On (UDP-over-TCP)"
+msgstr "På (UDP-over-TCP)"
 
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -1504,12 +1530,12 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Dette gir tilgang til %(wireguard)s for enheter som støtter IPv6."
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard-nøkkel"
+msgid "UDP-over-TCP port"
+msgstr "UDP-over-TCP-port"
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard-innstillinger"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr "TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren."
 
 msgid "Account authentication failed."
 msgstr "Autentisering av konto mislykket."
@@ -1523,14 +1549,17 @@ msgstr "Kontokreditt utløper snart"
 msgid "Account time reminders"
 msgstr "Påminnelser om tidsavbrudd for konto"
 
+msgid "Advanced"
+msgstr "Avansert"
+
 msgid "All applications"
 msgstr "Alle applikasjoner"
 
+msgid "Are you sure you want to log out of <b>%s</b>?"
+msgstr "Vil du virkelig logge av <b>%s</b>?"
+
 msgid "Blocking all connections"
 msgstr "Blokkerer alle tilkoblinger"
-
-msgid "Blocking internet"
-msgstr "Blokkerer internettet"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierte Mullvad-kontonummer til utklippstavlen"
@@ -1550,9 +1579,6 @@ msgstr "Kritisk feil (krever din oppmerksomhet)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Egendefinerte DNS-serveradresser %s er ugyldige"
 
-msgid "Disconnecting"
-msgstr "Kobler fra"
-
 msgid "Enable"
 msgstr "Aktiver"
 
@@ -1565,6 +1591,12 @@ msgstr "Kunne ikke anvende brannmurregler. Enheten kan være usikker"
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
 msgstr "Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss."
 
+msgid "Failed to fetch list of devices"
+msgstr "Kunne ikke hente liste over enheter"
+
+msgid "Failed to generate a key"
+msgstr "Generering av en nøkkel mislyktes"
+
 msgid "Failed to resolve the hostname of custom server"
 msgstr "Kunne ikke løse vertsnavnet til den egendefinerte serveren"
 
@@ -1574,23 +1606,56 @@ msgstr "Kunne ikke angi systemets DNS-server"
 msgid "Failed to start tunnel connection"
 msgstr "Kunne ikke starte tunneltilkobling"
 
-msgid "If needed we will contact you on %s"
-msgstr "Vi vil kontakte deg på %s ved behov"
+msgid "Generate key"
+msgstr "Generer nøkkel"
+
+msgid "Going to login will unblock the internet on this device."
+msgstr "Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installer Mullvad VPN (%s) for å holde deg oppdatert"
+
+msgid "Key generated"
+msgstr "Nøkkel generert"
+
+msgid "Key is invalid"
+msgstr "Nøkkel er ugyldig"
+
+msgid "Key is valid"
+msgstr "Nøkkel er gyldig"
+
+msgid "Key verification failed"
+msgstr "Nøkkelverifisering mislyktes"
+
+msgid "Manage keys"
+msgstr "Behandle nøkler"
 
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
 
 msgid "No bridge relay server matches the current settings"
-msgstr "Ingen bro-relayserver samsvarer med de gjeldende innstillingene"
+msgstr "Ingen bro-reléserver samsvarer med de gjeldende innstillingene"
 
 msgid "No relay server matches the current settings"
-msgstr "Ingen relayservere passer til innstillingene"
+msgstr "Ingen reléservere passer til innstillingene"
+
+msgid "Preferences"
+msgstr "Preferanser"
+
+msgid "Public key"
+msgstr "Offentlig nøkkel"
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr "Kobler til på nytt med ny WireGuard-nøkkel ..."
+
+msgid "Regenerate key"
+msgstr "Generer nøkkel på nytt"
 
 msgid "Secured"
 msgstr "Sikret"
+
+msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr "Angi WireGuard MTU-verdi. Verdiområde: %d–%d."
 
 msgid "Show system apps"
 msgstr "Vis systemapper"
@@ -1628,17 +1693,29 @@ msgstr "VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelstatus"
 
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger."
+
+msgid "Verify key"
+msgstr "Bekreft nøkkel"
+
 msgid "Virtual adapter error"
 msgstr "Virtuell adapterfeil"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Mens du er tilkoblet vil din egentlige plassering være skjult med en privat og sikker plassering i den valgte regionen."
 
+msgid "WireGuard"
+msgstr "WireGuard"
+
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard-feil"
+
+msgid "WireGuard key"
+msgstr "WireGuard-nøkkel"
 
 msgid "WireGuard public key"
 msgstr "WireGuard offentlig nøkkel"
@@ -1652,8 +1729,8 @@ msgstr "Du kjører en appversjon som ikke støttes."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %s for å ha den beste sikkerheten"
 
-msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "Du må gå tilbake til hovedskjermen til appen og trykke på \"Koble fra\" før du kan prøve på nytt. Men det er ingen grunn til bekymring, informasjonen du har skrevet i skjemaet blir ikke borte."
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
+msgstr "Du har for mange aktive enhter. Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

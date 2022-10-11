@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
+    <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
     <string name="device_name">Nom de l\'appareil</string>
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
@@ -58,6 +59,9 @@
     <string name="exclude_applications">Applications exclues</string>
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic du réseau. Veuillez dépanner ou nous signaler le problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
+    <string name="failed_to_fetch_devices">Impossible de récupérer la liste des appareils</string>
+    <string name="failed_to_generate_key">Impossible de générer une clé</string>
+    <string name="failed_to_remove_device">Impossible de supprimer l\'appareil</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</string>
     <string name="faqs_and_guides">FAQ et guides</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">Numéro de compte non valide</string>
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
+    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment vous déconnecter de &lt;b&gt;%1$s&lt;/b&gt; ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
+    <string name="max_devices_warning_description">Vous avez trop d\'appareils actifs. Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le surnom correspondant dans les paramètres du compte de l\'appareil.</string>
     <string name="max_devices_warning_title">Trop d\'appareils</string>
     <string name="mullvad_account_number">Numéro de compte Mullvad</string>
     <string name="no_matching_bridge_relay">Aucun serveur de passerelle relais ne correspond à vos paramètres actuels</string>
     <string name="no_matching_relay">Aucun serveur de relais ne correspond à vos paramètres actuels</string>
+    <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
     <string name="out_address">Sortante</string>
     <string name="out_of_time">Plus de temps</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
+    <string name="public_key">Clé publique</string>
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">Préférences</string>
     <string name="show_account_number">Afficher le numéro de compte</string>
     <string name="show_system_apps">Afficher les applications système</string>
+    <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Le split tunneling permet de sélectionner quelles applications ne doivent pas passer par le tunnel VPN.</string>
     <string name="start_tunnel_error">Échec du démarrage de la connexion tunnel</string>
     <string name="switch_location">Changer de localisation</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">Erreur WireGuard</string>
+    <string name="wireguard_generate_key">Générer une clé</string>
     <string name="wireguard_key">Clé WireGuard</string>
+    <string name="wireguard_key_generated">Clé générée</string>
+    <string name="wireguard_key_invalid">La clé n\'est pas valide</string>
+    <string name="wireguard_key_reconnecting">Reconnexion avec la nouvelle clé WireGuard…</string>
+    <string name="wireguard_key_valid">La clé est valide</string>
+    <string name="wireguard_key_verification_failure">Échec de la vérification de la clé</string>
+    <string name="wireguard_manage_keys">Gérer les clés</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
+    <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
     <string name="wireguard_public_key">Clé WireGuard publique</string>
+    <string name="wireguard_replace_key">Regénérer la clé</string>
+    <string name="wireguard_verify_key">Vérifier la clé</string>
 </resources>

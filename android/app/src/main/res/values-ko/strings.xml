@@ -39,11 +39,12 @@
     <string name="creating_new_account">계정 생성 중...</string>
     <string name="creating_secure_connection">보안 연결 생성 중</string>
     <string name="critical_error">심각한 오류(주의가 필요함)</string>
-    <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가할 수 있습니다.</string>
+    <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
-    <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못했습니다.</string>
+    <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못함</string>
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
+    <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
     <string name="device_name">장치 이름</string>
     <string name="disconnect">연결 끊기</string>
     <string name="disconnecting">연결 해제 중</string>
@@ -58,6 +59,9 @@
     <string name="exclude_applications">제외된 애플리케이션</string>
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
+    <string name="failed_to_fetch_devices">장치 목록을 가져오지 못함</string>
+    <string name="failed_to_generate_key">키를 생성하지 못함</string>
+    <string name="failed_to_remove_device">장치를 제거하지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
     <string name="failed_to_send_details">양식을 종료한 후 나중에 다시 시도해도 이미 입력한 정보는 그대로 유지됩니다.</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
@@ -70,7 +74,7 @@
     <string name="in_address">인</string>
     <string name="invalid_dns_servers">사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다.</string>
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
-    <string name="ipv6_unavailable">IPv6을 구성할 수 없습니다.</string>
+    <string name="ipv6_unavailable">IPv6를 구성할 수 없음</string>
     <string name="is_offline">장치가 오프라인 상태이며, 터널을 설정할 수 없습니다</string>
     <string name="less_than_a_day_left">1일 이내</string>
     <string name="less_than_a_minute_ago">1분 이내</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">유효하지 않은 계정 번호</string>
     <string name="login_fail_title">로그인 실패</string>
     <string name="login_title">로그인</string>
+    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
+    <string name="max_devices_warning_description">활성 장치가 너무 많습니다. 아래 목록에서 하나 이상을 제거하여 로그아웃하십시오. 장치의 계정 설정에서 해당 닉네임을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="mullvad_account_number">Mullvad 계정 번호</string>
     <string name="no_matching_bridge_relay">현재 설정과 일치하는 브리지 릴레이 서버가 없습니다.</string>
     <string name="no_matching_relay">현재 설정과 일치하는 릴레이 서버가 없습니다.</string>
+    <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
     <string name="problem_report_description">효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
+    <string name="public_key">공개 키</string>
     <string name="reconnecting">다시 연결 중</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
@@ -111,7 +119,7 @@
     <string name="sent">전송 완료</string>
     <string name="sent_contact">필요한 경우 %1$s(으)로 연락드리겠습니다.</string>
     <string name="sent_thanks">감사합니다!</string>
-    <string name="set_dns_error">시스템 DNS 서버를 설정하지 못했습니다.</string>
+    <string name="set_dns_error">시스템 DNS 서버를 설정하지 못함</string>
     <string name="set_firewall_policy_error">방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다.</string>
     <string name="settings">설정</string>
     <string name="settings_account">계정</string>
@@ -119,8 +127,9 @@
     <string name="settings_preferences">환경 설정</string>
     <string name="show_account_number">계정 번호 표시</string>
     <string name="show_system_apps">시스템 앱 표시</string>
+    <string name="split_tunneling">분할 터널링</string>
     <string name="split_tunneling_description">분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다.</string>
-    <string name="start_tunnel_error">터널 연결을 시작하지 못했습니다.</string>
+    <string name="start_tunnel_error">터널 연결을 시작하지 못함</string>
     <string name="switch_location">위치 전환</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN 전환</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard 오류</string>
+    <string name="wireguard_generate_key">키 생성</string>
     <string name="wireguard_key">WireGuard 키</string>
+    <string name="wireguard_key_generated">키 생성됨</string>
+    <string name="wireguard_key_invalid">키가 유효하지 않습니다.</string>
+    <string name="wireguard_key_reconnecting">새 WireGuard 키로 다시 연결 중...</string>
+    <string name="wireguard_key_valid">키가 유효합니다.</string>
+    <string name="wireguard_key_verification_failure">키 확인 실패</string>
+    <string name="wireguard_manage_keys">키 관리</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_public_key">WireGuard 공개 키</string>
+    <string name="wireguard_replace_key">키 다시 생성</string>
+    <string name="wireguard_verify_key">키 확인</string>
 </resources>

@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o nome do anfitrião do servidor personalizado</string>
     <string name="device_inactive_description">Removeu este dispositivo. Para voltar a ligar o dispositivo, terá de voltar a iniciar a sessão.</string>
     <string name="device_inactive_title">O dispositivo está desativado</string>
+    <string name="device_inactive_unblock_warning">Ir para a ligação irá desbloquear a Internet neste dispositivo.</string>
     <string name="device_name">Nome do dispositivo</string>
     <string name="disconnect">Desligar</string>
     <string name="disconnecting">A desligar</string>
@@ -58,6 +59,9 @@
     <string name="exclude_applications">Aplicações excluídas</string>
     <string name="failed_to_block_internet">Não foi possível bloquear todo o tráfego de rede. Experimente a resolução de problemas ou comunique-nos o problema.</string>
     <string name="failed_to_create_account">Não foi possível criar a conta</string>
+    <string name="failed_to_fetch_devices">Erro ao obter a lista de dispositivos</string>
+    <string name="failed_to_generate_key">Erro ao gerar uma chave</string>
+    <string name="failed_to_remove_device">Erro ao remover dispositivo</string>
     <string name="failed_to_send">Erro no envio</string>
     <string name="failed_to_send_details">Se sair do formulário e tentar novamente mais tarde, a informação que já tiver introduzido continuará aqui.</string>
     <string name="faqs_and_guides">Perguntas frequentes e guias</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">Número de conta inválido</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>
     <string name="login_title">Iniciar sessão</string>
+    <string name="max_devices_confirm_removal_description">Tem a certeza de que deseja desligar-se de &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Agora pode continuar a ligação neste dispositivo.</string>
     <string name="max_devices_resolved_title">Excelente!</string>
+    <string name="max_devices_warning_description">Tem demasiados dispositivos ativos. Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar a alcunha correspondente nas definições de Conta do dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="mullvad_account_number">Número de conta Mullvad</string>
     <string name="no_matching_bridge_relay">Nenhum servidor bridge de retransmissão corresponde às configurações atuais</string>
     <string name="no_matching_relay">Nenhum servidor de retransmissão corresponde às configurações atuais</string>
+    <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_blocking_internet">PODERÁ ESTAR A PERDER TRÁFEGO DE REDE</string>
     <string name="out_address">Saída</string>
     <string name="out_of_time">Sem tempo</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="port_removal_notice">Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas.</string>
     <string name="problem_report_description">Para o ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
+    <string name="public_key">Chave pública</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">Preferências</string>
     <string name="show_account_number">Mostrar número de conta</string>
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
+    <string name="split_tunneling">Divisão do túnel</string>
     <string name="split_tunneling_description">A divisão do túnel permite selecionar quais as aplicações que devem ser direcionadas através do túnel VPN.</string>
     <string name="start_tunnel_error">Erro ao iniciar a ligação de túnel</string>
     <string name="switch_location">Alterar local</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">Erro WireGuard</string>
+    <string name="wireguard_generate_key">Gerar chave</string>
     <string name="wireguard_key">Chave WireGuard</string>
+    <string name="wireguard_key_generated">Chave gerada</string>
+    <string name="wireguard_key_invalid">A chave é inválida</string>
+    <string name="wireguard_key_reconnecting">A restabelecer ligação com nova chave WireGuard...</string>
+    <string name="wireguard_key_valid">A chave é válida</string>
+    <string name="wireguard_key_verification_failure">Erro ao verificar chave</string>
+    <string name="wireguard_manage_keys">Gerir chaves</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Definir o valor WireGuard MTU. Intervalo válido: %1$d - %2$d.</string>
     <string name="wireguard_public_key">Chave pública WireGuard</string>
+    <string name="wireguard_replace_key">Voltar a gerar chave</string>
+    <string name="wireguard_verify_key">Verificar chave</string>
 </resources>

@@ -15,7 +15,7 @@
     <string name="app_version">Sovelluksen versio</string>
     <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
-    <string name="auto_connect_footer">Yhdistä palvelimeen automaattisesti, kun sovellus avataan.</string>
+    <string name="auto_connect_footer">Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan.</string>
     <string name="back">Takaisin</string>
     <string name="blocked_connection">ESTETTY YHTEYS</string>
     <string name="blocking_all_connections">Kaikki yhteydet estetään</string>
@@ -23,7 +23,7 @@
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="buy_more_credit">Uudista tilaus</string>
     <string name="cancel">Peruuta</string>
-    <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön Asetuksissa.</string>
+    <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">Mukautetun palvelimen isäntänimen selvittäminen epäonnistui</string>
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
+    <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
     <string name="device_name">Laitteen nimi</string>
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>
@@ -56,11 +57,14 @@
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
-    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta.</string>
+    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai ilmoita meille ongelmasta.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
+    <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
+    <string name="failed_to_generate_key">Avaimen luominen epäonnistui</string>
+    <string name="failed_to_remove_device">Laitteen poistaminen epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
     <string name="failed_to_send_details">Jos poistut lomakkeelta ja yrität myöhemmin uudelleen, jo syöttämäsi tiedot säilyvät lomakkeella.</string>
-    <string name="faqs_and_guides">UKK:t ja oppaat</string>
+    <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">Virheellinen tilin numero</string>
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>
     <string name="login_title">Kirjaudu sisään</string>
+    <string name="max_devices_confirm_removal_description">Haluatko varmasti kirjautua ulos laitteelta &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Voit nyt jatkaa kirjautumista tällä laitteella.</string>
     <string name="max_devices_resolved_title">Mahtavaa!</string>
+    <string name="max_devices_warning_description">Laitteita on liikaa. Kirjaudu ulos vähintään yhdeltä laitteelta poistamalla se alla olevasta luettelosta. Löydät vastaavan laitteen nimikkeen laitteen tiliasetuksista.</string>
     <string name="max_devices_warning_title">Liikaa laitteita</string>
     <string name="mullvad_account_number">Mullvad-tilin numero</string>
     <string name="no_matching_bridge_relay">Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia</string>
     <string name="no_matching_relay">Mikään välityspalvelin ei vastaa nykyisiä asetuksia</string>
+    <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_blocking_internet">VERKKOLIIKENTEESI SAATTAA VUOTAA</string>
     <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
@@ -97,10 +104,11 @@
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="port_removal_notice">Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan.</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
+    <string name="public_key">Julkinen avain</string>
     <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
-    <string name="report_a_problem">Raportoi ongelmasta</string>
+    <string name="report_a_problem">Raportoi ongelma</string>
     <string name="secure_connection">SUOJATTU YHTEYS</string>
     <string name="secured">Suojattu</string>
     <string name="select_location">Valitse sijainti</string>
@@ -111,7 +119,7 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
-    <string name="set_dns_error">Järjestelmän DNS-palvelimen asetus epäonnistui</string>
+    <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen epäonnistui</string>
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu.</string>
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">Asetukset</string>
     <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
+    <string name="split_tunneling">Sovelluskohtainen yhdistäminen</string>
     <string name="split_tunneling_description">Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta.</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen epäonnistui</string>
     <string name="switch_location">Vaihda sijaintia</string>
@@ -133,7 +142,7 @@
     <string name="unsupported_version_description">Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %1$s.</string>
     <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>
     <string name="update_available">PÄIVITYS SAATAVILLA</string>
-    <string name="update_available_description">Päivitä asentamalla Mullvad VPN:n versio (%1$s)</string>
+    <string name="update_available_description">Asenna Mullvad VPN (%1$s) pysyäksesi ajan tasalla</string>
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi suojattuna.</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
     <string name="user_message_hint">Kuvaile ongelmaasi englanniksi tai ruotsiksi.</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-virhe</string>
+    <string name="wireguard_generate_key">Luo avain</string>
     <string name="wireguard_key">WireGuard-avain</string>
+    <string name="wireguard_key_generated">Avain luotu</string>
+    <string name="wireguard_key_invalid">Virheellinen avain</string>
+    <string name="wireguard_key_reconnecting">Yhdistetään uudelleen uudella WireGuard-avaimella...</string>
+    <string name="wireguard_key_valid">Käypä avain</string>
+    <string name="wireguard_key_verification_failure">Avaimen todentaminen epäonnistui</string>
+    <string name="wireguard_manage_keys">Hallitse avaimia</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_public_key">Julkinen WireGuard-avain</string>
+    <string name="wireguard_replace_key">Luo uusi avain</string>
+    <string name="wireguard_verify_key">Todenna avain</string>
 </resources>

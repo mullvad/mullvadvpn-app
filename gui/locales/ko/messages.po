@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -233,6 +233,10 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "계정 번호 숨기기"
 
+msgctxt "accessibility"
+msgid "info"
+msgstr "정보"
+
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
@@ -293,96 +297,6 @@ msgctxt "account-view"
 msgid "Paid until"
 msgstr "유효 기간"
 
-#. Title label in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Advanced"
-msgstr "고급"
-
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 설정"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 설정"
-
-msgctxt "vpn-settings-view"
-msgid "Add a server"
-msgstr "서버 추가"
-
-msgctxt "vpn-settings-view"
-msgid "Add anyway"
-msgstr "추가"
-
-msgctxt "advanced-settings-view"
-msgid "Advanced"
-msgstr "고급"
-
-msgctxt "advanced-settings-view"
-msgid "Always require VPN"
-msgstr "항상 VPN 필요"
-
-msgctxt "advanced-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "주의: 이 기능을 사용하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "IPv6 사용"
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "터널을 통한 IPv6 통신 사용"
-
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "멀티홉 사용"
-
-msgctxt "vpn-settings-view"
-msgid "Enable to add at least one DNS server."
-msgstr "하나 이상의 DNS 서버를 추가할 수 있습니다."
-
-msgctxt "vpn-settings-view"
-msgid "Enter IP"
-msgstr "IP 입력"
-
-msgctxt "advanced-settings-view"
-msgid "If you disconnect or quit the app, this setting will block your internet."
-msgstr "앱 연결을 끊거나 종료하면 이 설정으로 인해 인터넷이 차단됩니다."
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "트래픽을 하나의 %(wireguard)s 서버로 라우팅하고 다른 서버로 전달하여 익명성을 높이고 추적을 더 어렵게 만듭니다."
-
-msgctxt "advanced-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "앱에서 기본 제공되는 중단 스위치는 항상 켜져 있습니다. 연결 끊기 또는 종료를 클릭하면 이 설정으로 인해 인터넷이 추가로 차단됩니다."
-
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
-msgstr "추가할 DNS 서버가 비공개 IP입니다. 이 서버를 사용하도록 네트워크 인터페이스가 구성되어 있는지 확인해야 합니다."
-
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "추가하려는 DNS 서버는 공용이며 %(wireguard)s에서만 작동합니다. 항상 작동하는지 확인하려면 %(tunnelProtocol)s(고급 설정에서)을(를) %(wireguard)s(으)로 설정하세요."
-
-msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "터널 프로토콜"
-
-msgctxt "vpn-settings-view"
-msgid "Use custom DNS server"
-msgstr "사용자 지정 DNS 서버 사용"
-
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "인터넷 차단: 계정 시간 초과"
@@ -411,10 +325,6 @@ msgstr "이 버전의 변경 사항:"
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s(%(hostname)s)"
-
-msgctxt "connect-view"
-msgid "Always require VPN"
-msgstr "항상 VPN 필요"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -485,8 +395,8 @@ msgid "You have no more VPN time left on this account."
 msgstr "이 계정에 더 이상 VPN 시간이 없습니다."
 
 msgctxt "connect-view"
-msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
-msgstr "인터넷에 액세스하여 시간을 추가하려면, \"항상 VPN 필요\"를 비활성화해야 합니다."
+msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
+msgstr "시간을 추가하기 위해 인터넷에 액세스하려면 \"잠금 모드\"를 비활성화해야 합니다."
 
 msgctxt "connect-view"
 msgid "You're all set!"
@@ -521,8 +431,8 @@ msgstr "아웃"
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log out of **%(deviceName)s**?"
-msgstr "**%(deviceName)s**에서 로그아웃하시겠습니까?"
+msgid "Are you sure you want to log **%(deviceName)s** out?"
+msgstr "**%(deviceName)s**을(를) 로그아웃하시겠습니까?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -536,6 +446,10 @@ msgstr "장치가 비활성 상태입니다."
 msgctxt "device-management"
 msgid "Device name"
 msgstr "장치 이름"
+
+msgctxt "device-management"
+msgid "Failed to remove device"
+msgstr "장치를 제거하지 못함"
 
 msgctxt "device-management"
 msgid "Go to login"
@@ -630,8 +544,8 @@ msgid "Rented only"
 msgstr "대여만"
 
 msgctxt "in-app-notifications"
-msgid "\"Always require VPN\" is enabled."
-msgstr "\"항상 VPN 필요\"가 활성화되었습니다."
+msgid "\"%(lockdownModeSettingName)s\" is enabled."
+msgstr "\"%(lockdownModeSettingName)s\"이(가) 활성화되었습니다."
 
 msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
@@ -689,10 +603,10 @@ msgstr "Mullvad 시스템 서비스에 연결하는 중..."
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
-#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(alwaysRequireVpnSettingsName)s**이(가) 활성화되었습니다. 연결을 차단 해제하려면 이 옵션을 비활성화하세요."
+msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(lockdownModeSettingName)s**이(가) 활성화되었습니다. 연결을 차단 해제하려면 이 옵션을 비활성화하세요."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -901,8 +815,8 @@ msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr "유효한 %(wireguard)s 키가 없습니다. 고급 설정에서 키를 관리하세요."
 
 msgctxt "notifications"
-msgid "Your device is offline. Try connecting when it's back online."
-msgstr "장치가 오프라인 상태입니다. 다시 온라인 상태가 되면 연결을 시도하세요."
+msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
+msgstr "장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다."
 
 #. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
@@ -982,153 +896,6 @@ msgstr "UDP를 활성화하려면 **브릿지 모드**를 **자동* 또는 **끄
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "전송 프로토콜"
-
-#. Title label in navigation bar
-msgctxt "preferences-nav"
-msgid "Preferences"
-msgstr "환경 설정"
-
-msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다."
-
-msgctxt "vpn-settings-view"
-msgid "Auto-connect"
-msgstr "자동 연결"
-
-msgctxt "vpn-settings-view"
-msgid "Automatically connect to a server when the app launches."
-msgstr "앱이 시작되면 자동으로 서버에 연결합니다."
-
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "베타 프로그램"
-
-msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "광고 차단"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "성인 콘텐츠 차단"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "도박 차단"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "맬웨어 차단"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "블록 추적기"
-
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "이러한 설정을 활성화하려면 **%(customDnsFeatureName)s**(고급 설정 아래)을(를) 비활성화하세요."
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
-msgstr "이 설정을 활성화하려면 모든 콘텐츠 차단기(%(preferencesPageName)s에서)를 비활성화하세요."
-
-msgctxt "user-interface-settings-view"
-msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "시스템 알림을 활성화 또는 비활성화합니다. 중요한 알림은 항상 표시됩니다."
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받도록 설정합니다."
-
-msgctxt "user-interface-settings-view"
-msgid "Enable to move the app around as a free-standing window."
-msgstr "앱을 독립 실행 창으로 이동할 수 있습니다."
-
-msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "킬 스위치"
-
-msgctxt "vpn-settings-view"
-msgid "Launch app on start-up"
-msgstr "시작 시 앱 실행"
-
-msgctxt "vpn-settings-view"
-msgid "Local network sharing"
-msgstr "로컬 네트워크 공유"
-
-msgctxt "user-interface-settings-view"
-msgid "Monochromatic tray icon"
-msgstr "단색 트레이 아이콘"
-
-msgctxt "user-interface-settings-view"
-msgid "Notifications"
-msgstr "알림"
-
-msgctxt "preferences-view"
-msgid "Preferences"
-msgstr "환경 설정"
-
-msgctxt "user-interface-settings-view"
-msgid "Show only the tray icon when the app starts."
-msgstr "앱이 시작될 때 트레이 아이콘만 표시합니다."
-
-msgctxt "user-interface-settings-view"
-msgid "Start minimized"
-msgstr "최소화 상태로 시작"
-
-msgctxt "vpn-settings-view"
-msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
-msgstr "이 앱에는 기본적으로 활성화되어 비활성화할 수 없는 내장 킬 스위치가 있습니다. 이는 네트워크 작동이 갑자기 중지되거나 어떤 이유로든 터널이 실패할 경우 VPN 터널 외부로 트래픽이 유출되는 것을 방지하기 위한 것입니다. Mullvad는 연결이 다시 설정될 때까지 데이터를 자동으로 보호합니다."
-
-msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
-
-msgctxt "user-interface-settings-view"
-msgid "Unpin app from taskbar"
-msgstr "작업 표시줄에서 앱 고정 해제"
-
-msgctxt "user-interface-settings-view"
-msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "컬러 트레이 대신 단색 트레이 아이콘을 사용합니다."
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "경고: 이 기능은 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다."
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "경고: 이 기능을 사용하면 특정 웹 사이트, 서비스 및 프로그램에서 문제가 발생할 수 있습니다."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "이 기능을 활성화하면, 맬웨어를 호스팅하는 것으로 알려진 특정 도메인에 장치가 연결되지 않습니다."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "이 기능을 활성화하면, 사용자를 추적하는 것으로 알려진 특정 도메인에 장치가 연결되지 않습니다."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "이 기능을 활성화하면, 알려진 특정 광고 도메인에 장치가 연결되지 않습니다."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "이 기능을 활성화하면, 성인 콘텐츠를 호스팅하는 것으로 알려진 특정 웹 사이트 및 서비스에 장치가 연결되지 않습니다."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "이 기능을 활성화하면, 도박 콘텐츠를 호스팅하는 것으로 알려진 특정 웹 사이트 및 서비스에 장치가 연결되지 않습니다."
 
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
@@ -1223,11 +990,6 @@ msgctxt "settings-view"
 msgid "Account"
 msgstr "계정"
 
-#. Navigation button to the 'Advanced' settings view
-msgctxt "settings-view"
-msgid "Advanced"
-msgstr "고급"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세요."
@@ -1236,37 +998,36 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "앱 버전"
 
-#. Link to the webpage
-msgctxt "support-view"
-msgid "FAQs & Guides"
-msgstr "FAQ 및 가이드"
-
-#. Navigation button to the 'Language' settings view
-msgctxt "user-interface-settings-view"
-msgid "Language"
-msgstr "언어"
-
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "시간 초과"
-
-#. Navigation button to the 'Preferences' view
-msgctxt "settings-view"
-msgid "Preferences"
-msgstr "환경 설정"
 
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr "앱 종료"
 
-#. Navigation button to the 'Report a problem' help view
+#. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
-msgid "Report a problem"
-msgstr "문제 신고"
+msgid "Split tunneling"
+msgstr "분할 터널링"
+
+msgctxt "settings-view"
+msgid "Support"
+msgstr "지원"
 
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "업데이트를 사용할 수 있습니다. 최신 앱 버전을 설치하여 최신 상태를 유지하세요."
+
+#. Navigation button to the 'User interface settings' view
+msgctxt "settings-view"
+msgid "User interface settings"
+msgstr "사용자 인터페이스 설정"
+
+#. Navigation button to the 'VPN settings' view
+msgctxt "settings-view"
+msgid "VPN settings"
+msgstr "VPN 설정"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1335,6 +1096,10 @@ msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "선택 항목을 시작할 수 없습니다. %(detailedErrorMessage)s"
 
 msgctxt "support-view"
+msgid "Beta program"
+msgstr "베타 프로그램"
+
+msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "그래도 계속 사용"
 
@@ -1343,8 +1108,17 @@ msgid "Edit message"
 msgstr "메시지 편집"
 
 msgctxt "support-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받으려면 활성화합니다."
+
+msgctxt "support-view"
 msgid "Failed to send"
 msgstr "전송하지 못함"
+
+#. Link to the webpage
+msgctxt "support-view"
+msgid "FAQs & Guides"
+msgstr "FAQ 및 가이드"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
@@ -1362,6 +1136,7 @@ msgid "Please describe your problem in English or Swedish."
 msgstr "문제를 영어나 스웨덴어로 설명해 주세요."
 
 #. Title label in navigation bar
+#. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "문제 신고"
@@ -1382,9 +1157,18 @@ msgctxt "support-view"
 msgid "Sent"
 msgstr "전송 완료"
 
+#. Title label in navigation bar
+msgctxt "support-view"
+msgid "Support"
+msgstr "지원"
+
 msgctxt "support-view"
 msgid "Thanks!"
 msgstr "감사합니다!"
+
+msgctxt "support-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1446,6 +1230,236 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "위치 전환"
 
+msgctxt "user-interface-settings-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "시스템 알림을 활성화 또는 비활성화합니다. 중요한 알림은 항상 표시됩니다."
+
+msgctxt "user-interface-settings-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "앱을 독립 실행 창으로 이동하려면 활성화합니다."
+
+#. Navigation button to the 'Language' settings view
+msgctxt "user-interface-settings-view"
+msgid "Language"
+msgstr "언어"
+
+msgctxt "user-interface-settings-view"
+msgid "Monochromatic tray icon"
+msgstr "단색 트레이 아이콘"
+
+msgctxt "user-interface-settings-view"
+msgid "Notifications"
+msgstr "알림"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "앱이 시작될 때 트레이 아이콘만 표시합니다."
+
+msgctxt "user-interface-settings-view"
+msgid "Start minimized"
+msgstr "최소화 상태로 시작"
+
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from taskbar"
+msgstr "작업 표시줄에서 앱 고정 해제"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "컬러 트레이 아이콘 대신 단색 트레이 아이콘을 사용합니다."
+
+#. Title label in navigation bar
+msgctxt "user-interface-settings-view"
+msgid "User interface settings"
+msgstr "사용자 인터페이스 설정"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "vpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s 설정"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s 설정"
+
+msgctxt "vpn-settings-view"
+msgid "Add a server"
+msgstr "서버 추가"
+
+msgctxt "vpn-settings-view"
+msgid "Add anyway"
+msgstr "추가"
+
+msgctxt "vpn-settings-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "주의: 이 기능을 활성화하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
+
+msgctxt "vpn-settings-view"
+msgid "Auto-connect"
+msgstr "자동 연결"
+
+msgctxt "vpn-settings-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "앱이 시작되면 자동으로 서버에 연결합니다."
+
+msgctxt "vpn-settings-view"
+msgid "Block ads"
+msgstr "광고 차단"
+
+msgctxt "vpn-settings-view"
+msgid "Block adult content"
+msgstr "성인 콘텐츠 차단"
+
+msgctxt "vpn-settings-view"
+msgid "Block gambling"
+msgstr "도박 차단"
+
+msgctxt "vpn-settings-view"
+msgid "Block malware"
+msgstr "맬웨어 차단"
+
+msgctxt "vpn-settings-view"
+msgid "Block trackers"
+msgstr "블록 추적기"
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "vpn-settings-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "이러한 설정을 활성화하려면 **%(customDnsFeatureName)s**(고급 설정 아래)을(를) 비활성화하세요."
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "vpn-settings-view"
+msgid "Disable all content blockers to activate this setting."
+msgstr "이 설정을 활성화하려면 모든 콘텐츠 차단기를 비활성화하세요."
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6"
+msgstr "IPv6 사용"
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "터널을 통한 IPv6 통신 사용"
+
+#. The label next to the multihop settings toggle.
+msgctxt "vpn-settings-view"
+msgid "Enable multihop"
+msgstr "멀티홉 사용"
+
+msgctxt "vpn-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "하나 이상의 DNS 서버를 추가하려면 활성화합니다."
+
+msgctxt "vpn-settings-view"
+msgid "Enter IP"
+msgstr "IP 입력"
+
+#. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "트래픽을 하나의 %(wireguard)s 서버로 라우팅하고 다른 서버로 전달하여 익명성을 높이고 추적을 더 어렵게 만듭니다."
+
+msgctxt "vpn-settings-view"
+msgid "Kill switch"
+msgstr "킬 스위치"
+
+msgctxt "vpn-settings-view"
+msgid "Launch app on start-up"
+msgstr "시작 시 앱 실행"
+
+msgctxt "vpn-settings-view"
+msgid "Local network sharing"
+msgstr "로컬 네트워크 공유"
+
+msgctxt "vpn-settings-view"
+msgid "Lockdown mode"
+msgstr "잠금 모드"
+
+msgctxt "vpn-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "앱에서 기본 제공되는 중단 스위치는 항상 켜져 있습니다. 연결 끊기 또는 종료를 클릭하면 이 설정으로 인해 인터넷이 추가로 차단됩니다."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
+msgstr "킬 스위치와 잠금 모드의 차이점은 킬 스위치는 자동 터널 다시 연결, 소프트웨어 충돌 및 이와 유사한 상황에서 유출을 방지한다는 것입니다."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "킬 스위치와 잠금 모드의 차이점은 킬 스위치는 자동 터널 다시 연결, 소프트웨어 충돌 및 이와 유사한 상황에서 유출을 방지한다는 것입니다. 잠금 모드가 활성화된 상태에서 인터넷에 연결하려면 Mullvad VPN 서버에 연결해야 합니다. 앱을 수동으로 연결 해제하거나 종료하면 연결이 차단됩니다."
+
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "추가할 DNS 서버가 비공개 IP입니다. 이 서버를 사용하도록 네트워크 인터페이스가 구성되어 있는지 확인해야 합니다."
+
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "추가하려는 DNS 서버는 공용이며 %(wireguard)s에서만 작동합니다. 항상 작동하게 하려면 %(tunnelProtocol)s(고급 설정에서)을(를) %(wireguard)s(으)로 설정하세요."
+
+msgctxt "vpn-settings-view"
+msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
+msgstr "기본 제공되는 이 기능은 네트워크가 갑자기 작동을 멈추거나 터널에 장애가 발생하는 경우 연결이 다시 설정될 때까지 트래픽을 차단하여 VPN 터널 외부로 트래픽이 유출되는 것을 방지합니다."
+
+msgctxt "vpn-settings-view"
+msgid "Tunnel protocol"
+msgstr "터널 프로토콜"
+
+msgctxt "vpn-settings-view"
+msgid "Use custom DNS server"
+msgstr "사용자 지정 DNS 서버 사용"
+
+#. Title label in navigation bar
+msgctxt "vpn-settings-view"
+msgid "VPN settings"
+msgstr "VPN 설정"
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "경고: 이 기능은 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다."
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "경고: 이 기능을 사용하면 특정 웹 사이트, 서비스 및 프로그램에서 문제가 발생할 수 있습니다."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "이 기능을 활성화하면, 맬웨어를 호스팅하는 것으로 알려진 특정 도메인에 장치가 연결되지 않습니다."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "이 기능을 활성화하면, 사용자를 추적하는 것으로 알려진 특정 도메인에 장치가 연결되지 않습니다."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "이 기능을 활성화하면, 알려진 특정 광고 도메인에 장치가 연결되지 않습니다."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "이 기능을 활성화하면, 성인 콘텐츠를 호스팅하는 것으로 알려진 특정 웹 사이트 및 서비스에 장치가 연결되지 않습니다."
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "이 기능을 활성화하면, 도박 콘텐츠를 호스팅하는 것으로 알려진 특정 웹 사이트 및 서비스에 장치가 연결되지 않습니다."
+
+msgctxt "vpn-settings-view"
+msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "잠금 모드가 활성화된 상태에서 인터넷에 연결하려면 Mullvad VPN 서버에 연결해야 합니다. 앱을 수동으로 연결 해제하거나 종료하면 연결이 차단됩니다."
+
 #. Title label in navigation bar
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -1466,6 +1480,18 @@ msgstr "IP 버전"
 msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation"
+msgstr "난독 처리"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgstr "난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다."
+
+msgctxt "wireguard-settings-view"
+msgid "On (UDP-over-TCP)"
+msgstr "켜기(UDP-over-TCP)"
 
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -1493,12 +1519,12 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "이를 통해 IPv6만 지원하는 장치에서 %(wireguard)s에 액세스할 수 있습니다."
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard 키"
+msgid "UDP-over-TCP port"
+msgstr "UDP-over-TCP 포트"
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard 설정"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
 
 msgid "Account authentication failed."
 msgstr "계정 인증에 실패했습니다."
@@ -1512,14 +1538,17 @@ msgstr "계정 크레딧이 곧 만료됨"
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
 
+msgid "Advanced"
+msgstr "고급"
+
 msgid "All applications"
 msgstr "모든 애플리케이션"
 
+msgid "Are you sure you want to log out of <b>%s</b>?"
+msgstr "<b>%s</b>에서 로그아웃하시겠습니까?"
+
 msgid "Blocking all connections"
 msgstr "모든 연결 차단 중"
-
-msgid "Blocking internet"
-msgstr "인터넷 차단"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "클립보드에 Mullvad 계정 번호 복사됨"
@@ -1531,16 +1560,13 @@ msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"
 
 msgid "Could not configure IPv6"
-msgstr "IPv6을 구성할 수 없습니다."
+msgstr "IPv6를 구성할 수 없음"
 
 msgid "Critical error (your attention is required)"
 msgstr "심각한 오류(주의가 필요함)"
 
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
-
-msgid "Disconnecting"
-msgstr "연결 해제 중"
 
 msgid "Enable"
 msgstr "사용"
@@ -1554,20 +1580,44 @@ msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안�
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
 msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요."
 
+msgid "Failed to fetch list of devices"
+msgstr "장치 목록을 가져오지 못함"
+
+msgid "Failed to generate a key"
+msgstr "키를 생성하지 못함"
+
 msgid "Failed to resolve the hostname of custom server"
-msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못했습니다."
+msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못함"
 
 msgid "Failed to set system DNS server"
-msgstr "시스템 DNS 서버를 설정하지 못했습니다."
+msgstr "시스템 DNS 서버를 설정하지 못함"
 
 msgid "Failed to start tunnel connection"
-msgstr "터널 연결을 시작하지 못했습니다."
+msgstr "터널 연결을 시작하지 못함"
 
-msgid "If needed we will contact you on %s"
-msgstr "필요한 경우 %s(으)로 연락드리겠습니다."
+msgid "Generate key"
+msgstr "키 생성"
+
+msgid "Going to login will unblock the internet on this device."
+msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
+
+msgid "Key generated"
+msgstr "키 생성됨"
+
+msgid "Key is invalid"
+msgstr "키가 유효하지 않습니다."
+
+msgid "Key is valid"
+msgstr "키가 유효합니다."
+
+msgid "Key verification failed"
+msgstr "키 확인 실패"
+
+msgid "Manage keys"
+msgstr "키 관리"
 
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
@@ -1578,8 +1628,23 @@ msgstr "현재 설정과 일치하는 브리지 릴레이 서버가 없습니다
 msgid "No relay server matches the current settings"
 msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
 
+msgid "Preferences"
+msgstr "환경 설정"
+
+msgid "Public key"
+msgstr "공개 키"
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr "새 WireGuard 키로 다시 연결 중..."
+
+msgid "Regenerate key"
+msgstr "키 다시 생성"
+
 msgid "Secured"
 msgstr "안전함"
+
+msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
 
 msgid "Show system apps"
 msgstr "시스템 앱 표시"
@@ -1617,17 +1682,29 @@ msgstr "터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. �
 msgid "VPN tunnel status"
 msgstr "VPN 터널 상태"
 
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
+
+msgid "Verify key"
+msgstr "키 확인"
+
 msgid "Virtual adapter error"
 msgstr "가상 어댑터 오류"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전한 비공개 위치로 마스킹됩니다."
 
+msgid "WireGuard"
+msgstr "WireGuard"
+
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard 오류"
+
+msgid "WireGuard key"
+msgstr "WireGuard 키"
 
 msgid "WireGuard public key"
 msgstr "WireGuard 공개 키"
@@ -1641,8 +1718,8 @@ msgstr "지원되지 않는 앱 버전을 실행 중입니다."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
 
-msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다."
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
+msgstr "활성 장치가 너무 많습니다. 아래 목록에서 하나 이상을 제거하여 로그아웃하십시오. 장치의 계정 설정에서 해당 닉네임을 찾을 수 있습니다."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

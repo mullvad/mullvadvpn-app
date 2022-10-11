@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -62,7 +62,7 @@ msgstr "บอสตัน รัฐแมสซาชูเซตส์"
 
 #. SK BTS
 msgid "Bratislava"
-msgstr ""
+msgstr "บราติสลาวา"
 
 #. BR
 msgid "Brazil"
@@ -190,7 +190,7 @@ msgstr "โฮโนลูลู รัฐฮาวาย"
 
 #. US HOU
 msgid "Houston, TX"
-msgstr ""
+msgstr "ฮิวสตัน เท็กซัส"
 
 #. HU
 msgid "Hungary"
@@ -430,7 +430,7 @@ msgstr "สโกเปีย"
 
 #. SK
 msgid "Slovakia"
-msgstr ""
+msgstr "สโลวาเกีย"
 
 #. BG SOF
 msgid "Sofia"
@@ -454,7 +454,7 @@ msgstr "สแตมเฟิร์ด รัฐคอนเนตทิคั�
 
 #. NO SVG
 msgid "Stavanger"
-msgstr ""
+msgstr "สตาวังเงอร์"
 
 #. SE STO
 msgid "Stockholm"
@@ -531,3 +531,4 @@ msgstr "วีน"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
+
