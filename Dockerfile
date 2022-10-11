@@ -10,7 +10,8 @@ RUN apt update -y && apt install build-essential \
 	binutils \
 	curl \
 	p7zip-full \
-	git -y
+	git -y && \
+	rm -rf /var/lib/apt/lists/*
 
 
 # Install golang
@@ -21,8 +22,7 @@ RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && 
 	echo $(sha256sum go.tgz) && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
 	tar -C /usr/local -xzf go.tgz && \
-	rm go.tgz && \
-	rm -rf /var/lib/apt/lists/*
+	rm go.tgz
 
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
