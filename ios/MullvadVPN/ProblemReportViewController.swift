@@ -736,7 +736,8 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             return !emailTextField.isFirstResponder && !messageTextView.isFirstResponder
 
         case .backButton:
-            // Dismiss the keyboard to fix a visual glitch when moving back to the previous controller
+            // Dismiss the keyboard to fix a visual glitch when moving back to the previous
+            // controller
             view.endEditing(true)
             return true
         }

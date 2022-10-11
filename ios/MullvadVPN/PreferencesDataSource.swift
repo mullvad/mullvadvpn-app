@@ -103,7 +103,8 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
         updateSnapshot()
 
-        // Reconfigure cells for items with corresponding DNS entries that were changed during sanitization.
+        // Reconfigure cells for items with corresponding DNS entries that were changed during
+        // sanitization.
         let itemsToReload: [Item] = oldDNSDomains.filter { oldDNSEntry in
             guard let newDNSEntry = viewModel.dnsEntry(entryIdentifier: oldDNSEntry.identifier)
             else { return false }
