@@ -60,7 +60,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         let viewControllers = rootContainer.viewControllers +
             (splitViewController?.viewControllers ?? [])
 
-        return viewControllers.first { $0 is ConnectViewController } as? ConnectViewController
+        return viewControllers.compactMap { $0 as? ConnectViewController }.first
     }
 
     private var settingsNavController: SettingsNavigationController? {
@@ -173,7 +173,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         case .phone:
             setupPhoneUI()
         default:
-            fatalError()
+            break
         }
 
         NotificationManager.shared.delegate = self
@@ -181,7 +181,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         prevDeviceState = TunnelManager.shared.deviceState
         accountDataThrottling.requestUpdate(condition: .always)
         setUpOutOfTimeTimer()
-
     }
 
     private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
@@ -233,8 +232,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     private func setupPadUI() {
         let tunnelManager = TunnelManager.shared
-        let selectLocationController = makeSelectLocationController()
-        let connectController = makeConnectViewController()
 
         let splitViewController = CustomSplitViewController()
         splitViewController.delegate = self
@@ -243,7 +240,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             .maximumSplitViewSidebarWidthFraction
         splitViewController.primaryEdge = .trailing
         splitViewController.dividerColor = UIColor.MainSplitView.dividerColor
-        splitViewController.viewControllers = [selectLocationController, connectController]
+        splitViewController.viewControllers = [
+            makeSelectLocationController(),
+            makeConnectViewController()
+        ]
 
         self.splitViewController = splitViewController
 
@@ -294,9 +294,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         if UIDevice.current.userInterfaceIdiom == .pad {
             navController.preferredContentSize = CGSize(width: 480, height: 568)
             navController.modalPresentationStyle = .formSheet
+            navController.presentationController?.delegate = navController
         }
-
-        navController.presentationController?.delegate = navController
 
         if let route = route {
             navController.navigate(to: route, animated: false)
@@ -374,7 +373,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     private func showLoginViewAfterLogout(dismissController: UIViewController?) {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            rootContainer.setViewControllers([makeViewController(for: .login)], animated: true)
+            rootContainer.setViewControllers([makeLoginController()], animated: true)
             dismissController?.dismiss(animated: true)
 
         case .pad:
@@ -383,7 +382,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             }
 
             modalRootContainer.setViewControllers(
-                [makeViewController(for: .login)],
+                [makeLoginController()],
                 animated: isModalRootPresented
             )
             showSplitViewMaster(false, animated: true)
@@ -431,8 +430,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
                 if !isModalRootPresented {
                     presentModalRootContainerIfNeeded(animated: true)
                 }
-            } else if isModalRootPresented {
-                modalRootContainer.dismiss(animated: true)
+            } else {
+                if isModalRootPresented {
+                    modalRootContainer.dismiss(animated: true)
+                }
+
+                showSplitViewMaster(true, animated: true)
             }
 
         default:
@@ -493,9 +496,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     func loginViewControllerDidFinishLogin(_ controller: LoginViewController) {
         lastLoginAction = nil
-
-        // Move the settings button back into header bar
-        rootContainer.removeSettingsButtonFromPresentationContainer()
         setEnableSettingsButton(isEnabled: true, from: controller)
 
         let relayConstraints = TunnelManager.shared.settings.relayConstraints
@@ -505,26 +505,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             scrollPosition: .middle
         )
 
+        let route = evaluateRoute()
+
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            if let route = evaluateRoute() {
-                let vc = makeViewController(for: route)
-                rootContainer.pushViewController(vc, animated: true)
-            } else {
-                rootContainer.pushViewController(makeConnectViewController(), animated: true)
-            }
+            let vc = route.map { makeViewController(for: $0) } ?? makeConnectViewController()
+            rootContainer.pushViewController(vc, animated: true)
 
         case .pad:
-            if let route = evaluateRoute() {
+            showSplitViewMaster(true, animated: true)
+
+            if let route = route {
                 let vc = makeViewController(for: route)
                 modalRootContainer.pushViewController(vc, animated: true)
             } else {
-                showSplitViewMaster(true, animated: true)
-                controller.dismiss(animated: true)
+                modalRootContainer.dismiss(animated: true)
+
+                // Move settings button back into header bar
+                rootContainer.removeSettingsButtonFromPresentationContainer()
             }
 
         default:
-            fatalError()
+            break
         }
     }
 
@@ -847,9 +849,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
                 viewControllers.removeAll { $0 is OutOfTimeViewController }
                 viewControllers.append(makeOutOfTimeViewController())
 
-                modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
+                modalRootContainer.setViewControllers(
+                    viewControllers,
+                    animated: isModalRootPresented
+                )
                 presentModalRootContainerIfNeeded(animated: true)
-                showSplitViewMaster(false, animated: true)
             }
 
         default:
@@ -863,7 +867,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
             showRevokedDeviceController()
             clearOutOfTimeTimer()
 
-        case (.loggedIn(let prevAccountData, _), .loggedIn(let newAccountData, _))
+        case let (.loggedIn(prevAccountData, _), .loggedIn(newAccountData, _))
             where newAccountData.expiry > prevAccountData.expiry:
             setUpOutOfTimeTimer()
 
@@ -891,7 +895,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         -> UIViewController?
     {
         // Restore the select location controller as primary when expanding the split view
-        return selectLocationViewController
+        return selectLocationViewController ?? makeSelectLocationController()
     }
 
     func primaryViewController(forCollapsing splitViewController: UISplitViewController)
