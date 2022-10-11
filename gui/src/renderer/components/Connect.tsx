@@ -1,30 +1,26 @@
-import * as React from 'react';
+import { useCallback, useMemo } from 'react';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { hasExpired } from '../../shared/account-expiry';
-import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
-import NotificationArea from '../components/NotificationArea';
-import { LoginState } from '../redux/account/reducers';
-import { IConnectionReduxState } from '../redux/connection/reducers';
+import { messages, relayLocations } from '../../shared/gettext';
+import log from '../../shared/logging';
+import { useAppContext } from '../context';
+import { useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
+import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
+import { useSelector } from '../redux/store';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
+import NotificationArea from './NotificationArea';
 import TunnelControl from './TunnelControl';
 
-interface IProps {
-  connection: IConnectionReduxState;
-  loginState: LoginState;
-  accountExpiry?: string;
-  blockWhenDisconnected: boolean;
-  selectedRelayName: string;
-  onSelectLocation: () => void;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  onReconnect: () => void;
-}
-
 type MarkerOrSpinner = 'marker' | 'spinner' | 'none';
+
+const StyledContainer = styled(Container)({
+  position: 'relative',
+});
 
 const StyledMap = styled(Map)({
   position: 'absolute',
@@ -33,10 +29,6 @@ const StyledMap = styled(Map)({
   right: 0,
   bottom: 0,
   zIndex: 0,
-});
-
-const StyledContainer = styled(Container)({
-  position: 'relative',
 });
 
 const Content = styled.div({
@@ -66,143 +58,28 @@ const StyledMain = styled.main({
   flex: 1,
 });
 
-interface IState {
-  isAccountExpired: boolean;
-}
+export default function Connect() {
+  const history = useHistory();
+  const { connectTunnel, disconnectTunnel, reconnectTunnel } = useAppContext();
 
-export default class Connect extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
+  const connection = useSelector((state) => state.connection);
+  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const relayLocations = useSelector((state) => state.settings.relayLocations);
 
-    this.state = {
-      isAccountExpired: this.checkAccountExpired(false),
-    };
-  }
-
-  public componentDidUpdate() {
-    this.updateAccountExpired();
-  }
-
-  public render() {
-    return (
-      <Layout>
-        <DefaultHeaderBar barStyle={calculateHeaderBarStyle(this.props.connection.status)} />
-        <StyledContainer>{this.renderMap()}</StyledContainer>
-      </Layout>
-    );
-  }
-
-  private updateAccountExpired() {
-    const nextAccountExpired = this.checkAccountExpired(this.state.isAccountExpired);
-
-    if (nextAccountExpired !== this.state.isAccountExpired) {
-      this.setState({
-        isAccountExpired: nextAccountExpired,
-      });
-    }
-  }
-
-  private checkAccountExpired(prevAccountExpired: boolean): boolean {
-    const tunnelState = this.props.connection.status;
-
-    // Blocked with auth failure / expired account
-    if (
-      tunnelState.state === 'error' &&
-      tunnelState.details.cause.reason === 'auth_failed' &&
-      parseAuthFailure(tunnelState.details.cause.reason).kind === AuthFailureKind.expiredAccount
-    ) {
-      return true;
-    }
-
-    // Use the account expiry to deduce the account state
-    if (this.props.accountExpiry) {
-      return hasExpired(this.props.accountExpiry);
-    }
-
-    // Do not assume that the account hasn't expired if the expiry is not available at the moment
-    // instead return the last known state.
-    return prevAccountExpired;
-  }
-
-  private renderMap() {
-    return (
-      <>
-        <StyledMap {...this.getMapProps()} />
-        <Content>
-          <StyledNotificationArea />
-
-          <StyledMain>
-            {/* show spinner when connecting */}
-            {this.showMarkerOrSpinner() === 'spinner' ? (
-              <StatusIcon source="icon-spinner" height={60} width={60} />
-            ) : null}
-
-            <TunnelControl
-              tunnelState={this.props.connection.status}
-              blockWhenDisconnected={this.props.blockWhenDisconnected}
-              selectedRelayName={this.props.selectedRelayName}
-              city={this.props.connection.city}
-              country={this.props.connection.country}
-              onConnect={this.props.onConnect}
-              onDisconnect={this.props.onDisconnect}
-              onReconnect={this.props.onReconnect}
-              onSelectLocation={this.props.onSelectLocation}
-            />
-          </StyledMain>
-        </Content>
-      </>
-    );
-  }
-
-  private getMapProps(): Map['props'] {
-    const mapCenter = this.getMapCenter();
-
-    return {
-      center: mapCenter ?? [0, 0],
-      showMarker: this.showMarkerOrSpinner() === 'marker',
-      markerStyle: this.getMarkerStyle(),
-      zoomLevel: this.getZoomLevel(),
-      // a magic offset to align marker with spinner
-      offset: [0, mapCenter ? 123 : 0],
-    };
-  }
-
-  private getMapCenter(): [number, number] | undefined {
-    const { longitude, latitude } = this.props.connection;
-
+  const mapCenter = useMemo<[number, number] | undefined>(() => {
+    const { longitude, latitude } = connection;
     return typeof longitude === 'number' && typeof latitude === 'number'
       ? [longitude, latitude]
       : undefined;
-  }
+  }, [connection]);
 
-  private getMarkerStyle(): MarkerStyle {
-    const { status } = this.props.connection;
-
-    switch (status.state) {
-      case 'connecting':
-      case 'connected':
-        return MarkerStyle.secure;
-      case 'error':
-        return !status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
-      case 'disconnected':
-        return MarkerStyle.unsecure;
-      case 'disconnecting':
-        switch (status.details) {
-          case 'block':
-          case 'reconnect':
-            return MarkerStyle.secure;
-          case 'nothing':
-            return MarkerStyle.unsecure;
-        }
-    }
-  }
-
-  private showMarkerOrSpinner(): MarkerOrSpinner {
-    if (!this.getMapCenter()) {
+  const showMarkerOrSpinner = useMemo<MarkerOrSpinner>(() => {
+    if (!mapCenter) {
       return 'none';
     }
 
-    switch (this.props.connection.status.state) {
+    switch (connection.status.state) {
       case 'error':
         return 'none';
       case 'connecting':
@@ -212,15 +89,163 @@ export default class Connect extends React.Component<IProps, IState> {
       case 'disconnected':
         return 'marker';
     }
-  }
+  }, [mapCenter, connection.status.state]);
 
-  private getZoomLevel(): ZoomLevel {
-    const { longitude, latitude, status } = this.props.connection;
+  const markerStyle = useMemo<MarkerStyle>(() => {
+    switch (connection.status.state) {
+      case 'connecting':
+      case 'connected':
+        return MarkerStyle.secure;
+      case 'error':
+        return !connection.status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
+      case 'disconnected':
+        return MarkerStyle.unsecure;
+      case 'disconnecting':
+        switch (connection.status.details) {
+          case 'block':
+          case 'reconnect':
+            return MarkerStyle.secure;
+          case 'nothing':
+            return MarkerStyle.unsecure;
+        }
+    }
+  }, [connection.status]);
+
+  const zoomLevel = useMemo<ZoomLevel>(() => {
+    const { longitude, latitude } = connection;
 
     if (typeof longitude === 'number' && typeof latitude === 'number') {
-      return status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
+      return connection.status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
     } else {
       return ZoomLevel.low;
     }
+  }, [connection.latitude, connection.longitude, connection.status.state]);
+
+  const mapProps = useMemo<Map['props']>(() => {
+    return {
+      center: mapCenter ?? [0, 0],
+      showMarker: showMarkerOrSpinner === 'marker',
+      markerStyle,
+      zoomLevel,
+      // a magic offset to align marker with spinner
+      offset: [0, mapCenter ? 123 : 0],
+    };
+  }, [mapCenter, showMarkerOrSpinner, markerStyle, zoomLevel]);
+
+  const onSelectLocation = useCallback(() => {
+    history.show(RoutePath.selectLocation);
+  }, [history.show]);
+
+  const selectedRelayName = useMemo(() => getRelayName(relaySettings, relayLocations), [
+    relaySettings,
+    relayLocations,
+  ]);
+
+  const onConnect = useCallback(async () => {
+    try {
+      await connectTunnel();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to connect the tunnel: ${error.message}`);
+    }
+  }, []);
+
+  const onDisconnect = useCallback(async () => {
+    try {
+      await disconnectTunnel();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to disconnect the tunnel: ${error.message}`);
+    }
+  }, []);
+
+  const onReconnect = useCallback(async () => {
+    try {
+      await reconnectTunnel();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to reconnect the tunnel: ${error.message}`);
+    }
+  }, []);
+
+  return (
+    <Layout>
+      <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
+      <StyledContainer>
+        <StyledMap {...mapProps} />
+        <Content>
+          <StyledNotificationArea />
+
+          <StyledMain>
+            {/* show spinner when connecting */}
+            {showMarkerOrSpinner === 'spinner' ? (
+              <StatusIcon source="icon-spinner" height={60} width={60} />
+            ) : null}
+
+            <TunnelControl
+              tunnelState={connection.status}
+              blockWhenDisconnected={blockWhenDisconnected}
+              selectedRelayName={selectedRelayName}
+              city={connection.city}
+              country={connection.country}
+              onConnect={onConnect}
+              onDisconnect={onDisconnect}
+              onReconnect={onReconnect}
+              onSelectLocation={onSelectLocation}
+            />
+          </StyledMain>
+        </Content>
+      </StyledContainer>
+    </Layout>
+  );
+}
+
+function getRelayName(relaySettings: RelaySettingsRedux, locations: IRelayLocationRedux[]): string {
+  if ('normal' in relaySettings) {
+    const location = relaySettings.normal.location;
+
+    if (location === 'any') {
+      return 'Automatic';
+    } else if ('country' in location) {
+      const country = locations.find(({ code }) => code === location.country);
+      if (country) {
+        return relayLocations.gettext(country.name);
+      }
+    } else if ('city' in location) {
+      const [countryCode, cityCode] = location.city;
+      const country = locations.find(({ code }) => code === countryCode);
+      if (country) {
+        const city = country.cities.find(({ code }) => code === cityCode);
+        if (city) {
+          return relayLocations.gettext(city.name);
+        }
+      }
+    } else if ('hostname' in location) {
+      const [countryCode, cityCode, hostname] = location.hostname;
+      const country = locations.find(({ code }) => code === countryCode);
+      if (country) {
+        const city = country.cities.find(({ code }) => code === cityCode);
+        if (city) {
+          return sprintf(
+            // TRANSLATORS: The selected location label displayed on the main view, when a user selected a specific host to connect to.
+            // TRANSLATORS: Example: Malmö (se-mma-001)
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(city)s - a city name
+            // TRANSLATORS: %(hostname)s - a hostname
+            messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
+            {
+              city: relayLocations.gettext(city.name),
+              hostname,
+            },
+          );
+        }
+      }
+    }
+
+    return 'Unknown';
+  } else if (relaySettings.customTunnelEndpoint) {
+    return 'Custom';
+  } else {
+    throw new Error('Unsupported relay settings.');
   }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { hasExpired } from '../../shared/account-expiry';
-import ConnectPage from '../containers/ConnectPage';
+import Connect from '../components/Connect';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
@@ -39,6 +39,6 @@ export default function MainView() {
   if (showAccountExpired.show) {
     return <ExpiredAccountErrorViewContainer />;
   } else {
-    return <ConnectPage />;
+    return <Connect />;
   }
 }
