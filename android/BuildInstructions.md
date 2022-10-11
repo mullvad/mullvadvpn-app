@@ -9,14 +9,19 @@ on your platform please submit an issue or a pull request.
   [instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
 
 - Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros
-  via the package name `protobuf-compiler` (Fedora also requires `protobuf-devel`).
+  via the package name `protobuf-compiler`. An additional package might also be required depending
+  on Linux distro:
+  - `protobuf-devel` on Fedora.
+  - `libprotobuf-dev` on Debian/Ubuntu.
+
+- Install `gcc`
 
 ## Android toolchain
 
 - Install the JDK
 
     ```bash
-    sudo apt install zip default-jdk
+    sudo apt install zip openjdk-8-jdk-headless
     ```
 
 - Install the SDK
@@ -28,9 +33,9 @@ on your platform please submit an issue or a pull request.
     cd /opt/android     # Or some other directory to place the Android SDK
     export ANDROID_HOME=$PWD
 
-    wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+    wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
     unzip commandlinetools-linux-6609375_latest.zip
-    ./tools/bin/sdkmanager "platforms;android-29" "build-tools;29.0.3" "platform-tools"
+    ./tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools"
     ```
 
     If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
