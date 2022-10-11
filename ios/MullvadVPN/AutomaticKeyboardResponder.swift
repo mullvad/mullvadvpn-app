@@ -166,7 +166,8 @@ class AutomaticKeyboardResponder {
 }
 
 extension AutomaticKeyboardResponder {
-    /// A convenience initializer that automatically assigns the offset to the scroll view subclasses
+    /// A convenience initializer that automatically assigns the offset to the scroll view
+    /// subclasses
     convenience init<T: UIScrollView>(targetView: T) {
         self.init(targetView: targetView) { scrollView, offset in
             if scrollView.canBecomeFirstResponder {

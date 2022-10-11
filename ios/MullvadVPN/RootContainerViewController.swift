@@ -609,7 +609,8 @@ class RootContainerViewController: UIViewController {
     }
 
     private func updateAccessibilityElementsAndNotifyScreenChange() {
-        // Update accessibility elements to define the correct navigation order: header bar, content view.
+        // Update accessibility elements to define the correct navigation order: header bar, content
+        // view.
         view.accessibilityElements = [headerBarView, topViewController?.view].compactMap { $0 }
 
         // Tell accessibility that the significant part of screen was changed.

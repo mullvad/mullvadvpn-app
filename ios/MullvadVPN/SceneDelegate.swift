@@ -596,7 +596,8 @@ extension SceneDelegate: LoginViewControllerDelegate {
         TunnelManager.shared.setAccount(action: action.setAccountAction) { operationCompletion in
             switch operationCompletion {
             case .success:
-                // RootContainer's settings button will be re-enabled in `loginViewControllerDidFinishLogin`
+                // RootContainer's settings button will be re-enabled in
+                // `loginViewControllerDidFinishLogin`
                 completion(operationCompletion)
 
             case let .failure(error):
