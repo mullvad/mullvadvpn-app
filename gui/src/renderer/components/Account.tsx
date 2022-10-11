@@ -157,7 +157,7 @@ function LogoutDialog() {
     ) : (
       <ModalMessage>
         {
-          // TRANSLATORS: This is a further explanation of what happens when logging out.
+          // TRANSLATORS: This is is a further explanation of what happens when logging out.
           messages.pgettext(
             'device-management',
             'The ports forwarded to this device will be deleted if you log out.',
