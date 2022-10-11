@@ -38,42 +38,29 @@ impl TryFrom<GeoIpLocation> for mullvad_types::location::GeoIpLocation {
 
     fn try_from(geoip: GeoIpLocation) -> Result<Self, Self::Error> {
         Ok(mullvad_types::location::GeoIpLocation {
-            ipv4: match geoip.ipv4 {
-                addr if addr.is_empty() => None,
-                addr => Some(Ipv4Addr::from_str(&addr).map_err(|_err| {
-                    FromProtobufTypeError::InvalidArgument("invalid IPv4 address")
-                })?),
-            },
-            ipv6: match geoip.ipv6 {
-                addr if addr.is_empty() => None,
-                addr => Some(Ipv6Addr::from_str(&addr).map_err(|_err| {
-                    FromProtobufTypeError::InvalidArgument("invalid IPv6 address")
-                })?),
-            },
+            ipv4: option_from_proto_string(geoip.ipv4)
+                .map(|addr| {
+                    Ipv4Addr::from_str(&addr).map_err(|_err| {
+                        FromProtobufTypeError::InvalidArgument("invalid IPv4 address")
+                    })
+                })
+                .transpose()?,
+            ipv6: option_from_proto_string(geoip.ipv6)
+                .map(|addr| {
+                    Ipv6Addr::from_str(&addr).map_err(|_err| {
+                        FromProtobufTypeError::InvalidArgument("invalid IPv6 address")
+                    })
+                })
+                .transpose()?,
             country: geoip.country,
-            city: match geoip.city {
-                city if city.is_empty() => None,
-                city => Some(city),
-            },
+            city: option_from_proto_string(geoip.city),
             latitude: geoip.latitude,
             longitude: geoip.longitude,
             mullvad_exit_ip: geoip.mullvad_exit_ip,
-            hostname: match geoip.hostname {
-                host if host.is_empty() => None,
-                host => Some(host),
-            },
-            bridge_hostname: match geoip.bridge_hostname {
-                host if host.is_empty() => None,
-                host => Some(host),
-            },
-            entry_hostname: match geoip.entry_hostname {
-                host if host.is_empty() => None,
-                host => Some(host),
-            },
-            obfuscator_hostname: match geoip.obfuscator_hostname {
-                host if host.is_empty() => None,
-                host => Some(host),
-            },
+            hostname: option_from_proto_string(geoip.hostname),
+            bridge_hostname: option_from_proto_string(geoip.bridge_hostname),
+            entry_hostname: option_from_proto_string(geoip.entry_hostname),
+            obfuscator_hostname: option_from_proto_string(geoip.obfuscator_hostname),
         })
     }
 }
@@ -322,13 +309,9 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
             })) => {
                 let cause = match error_state::Cause::from_i32(cause) {
                     Some(error_state::Cause::AuthFailed) => {
-                        talpid_tunnel::ErrorStateCause::AuthFailed(
-                            if !auth_fail_reason.is_empty() {
-                                Some(auth_fail_reason)
-                            } else {
-                                None
-                            },
-                        )
+                        talpid_tunnel::ErrorStateCause::AuthFailed(option_from_proto_string(
+                            auth_fail_reason,
+                        ))
                     }
                     Some(error_state::Cause::Ipv6Unavailable) => {
                         talpid_tunnel::ErrorStateCause::Ipv6Unavailable
@@ -1135,13 +1118,13 @@ impl TryFrom<Relay> for mullvad_types::relay_list::Relay {
             }
         };
 
-        let ipv6_addr_in = if relay.ipv6_addr_in.is_empty() {
-            None
-        } else {
-            Some(relay.ipv4_addr_in.parse().map_err(|_err| {
-                FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
-            })?)
-        };
+        let ipv6_addr_in = option_from_proto_string(relay.ipv6_addr_in)
+            .map(|addr| {
+                addr.parse().map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+                })
+            })
+            .transpose()?;
 
         Ok(MullvadRelay {
             hostname: relay.hostname,
@@ -1501,36 +1484,20 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
 
                 let public_key = bytes_to_pubkey(&peer.public_key)?;
 
-                let ipv4_gateway = match config.ipv4_gateway.parse() {
-                    Ok(address) => address,
-                    Err(_) => {
-                        return Err(FromProtobufTypeError::InvalidArgument(
-                            "invalid IPv4 gateway",
-                        ))
-                    }
-                };
-                let ipv6_gateway = if !config.ipv6_gateway.is_empty() {
-                    let address = match config.ipv6_gateway.parse() {
-                        Ok(address) => address,
-                        Err(_) => {
-                            return Err(FromProtobufTypeError::InvalidArgument(
-                                "invalid IPv6 gateway",
-                            ))
-                        }
-                    };
-                    Some(address)
-                } else {
-                    None
-                };
+                let ipv4_gateway = config.ipv4_gateway.parse().map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid IPv4 gateway")
+                })?;
+                let ipv6_gateway = option_from_proto_string(config.ipv6_gateway)
+                    .map(|addr| {
+                        addr.parse().map_err(|_err| {
+                            FromProtobufTypeError::InvalidArgument("invalid IPv6 gateway")
+                        })
+                    })
+                    .transpose()?;
 
-                let endpoint = match peer.endpoint.parse() {
-                    Ok(address) => address,
-                    Err(_) => {
-                        return Err(FromProtobufTypeError::InvalidArgument(
-                            "invalid peer address",
-                        ))
-                    }
-                };
+                let endpoint = peer.endpoint.parse().map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("invalid peer address")
+                })?;
 
                 let mut tunnel_addresses = Vec::new();
                 for address in tunnel.addresses {
@@ -1583,16 +1550,16 @@ impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::Locati
     fn from(location: RelayLocation) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
 
-        if !location.hostname.is_empty() {
+        if let Some(hostname) = option_from_proto_string(location.hostname) {
             Constraint::Only(LocationConstraint::Hostname(
                 location.country,
                 location.city,
-                location.hostname,
+                hostname,
             ))
-        } else if !location.city.is_empty() {
-            Constraint::Only(LocationConstraint::City(location.country, location.city))
-        } else if !location.country.is_empty() {
-            Constraint::Only(LocationConstraint::Country(location.country))
+        } else if let Some(city) = option_from_proto_string(location.city) {
+            Constraint::Only(LocationConstraint::City(location.country, city))
+        } else if let Some(country) = option_from_proto_string(location.country) {
+            Constraint::Only(LocationConstraint::Country(country))
         } else {
             Constraint::Any
         }
@@ -1898,6 +1865,14 @@ fn try_tunnel_type_from_i32(
     }
 }
 
+/// Returns `Option<String>`, where an empty string represents `None`.
+fn option_from_proto_string(s: String) -> Option<String> {
+    match s {
+        s if s.is_empty() => None,
+        s => Some(s),
+    }
+}
+
 fn try_transport_protocol_from_i32(
     protocol: i32,
 ) -> Result<talpid_types::net::TransportProtocol, FromProtobufTypeError> {
@@ -1920,10 +1895,12 @@ fn try_firewall_policy_error_from_i32(
         }
         #[cfg(windows)]
         Some(error_state::firewall_policy_error::ErrorType::Locked) => {
-            let blocking_app = match (lock_pid, lock_name) {
-                (0, name) if name.is_empty() => None,
-                (pid, name) => Some(talpid_types::tunnel::BlockingApplication { pid, name }),
-            };
+            let blocking_app = option_from_proto_string(lock_name).map(|name| {
+                talpid_types::tunnel::BlockingApplication {
+                    pid: lock_pid,
+                    name,
+                }
+            });
             Ok(talpid_types::tunnel::FirewallPolicyError::Locked(
                 blocking_app,
             ))
