@@ -28,9 +28,12 @@ on your platform please submit an issue or a pull request.
   too.
 
 - Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros
-  via the package name `protobuf-compiler` (Fedora also requires `protobuf-devel`), `protobuf` on
-  macOS via Homebrew, and on Windows binaries are available on their GitHub
-  [page](https://github.com/protocolbuffers/protobuf/releases) and they have to be put in `%PATH`.
+  via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
+  binaries are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases)
+  and they have to be put in `%PATH`. An additional package might also be required depending on
+  Linux distro:
+  - `protobuf-devel` on Fedora.
+  - `libprotobuf-dev` on Debian/Ubuntu.
 
 ## Linux
 
