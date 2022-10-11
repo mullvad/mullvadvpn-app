@@ -33,7 +33,6 @@
     <string name="continue_login">Fortsätt med inloggning</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
     <string name="copied_to_clipboard">Kopierat till urklipp</string>
-    <string name="copied_wireguard_public_key">Kopierade offentlig nyckel för WireGuard till urklipp</string>
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create_account">Skapa konto</string>
     <string name="creating_new_account">Skapar konto...</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">Det gick inte att lösa värdnamnet för den anpassade servern</string>
     <string name="device_inactive_description">Du har tagit bort den här enheten. Du måste logga in igen för att återansluta.</string>
     <string name="device_inactive_title">Enheten är inaktiv</string>
+    <string name="device_inactive_unblock_warning">Om du loggar in tas blockering av internet bort på den här enheten.</string>
     <string name="device_name">Enhetens namn</string>
     <string name="disconnect">Koppla från</string>
     <string name="disconnecting">Kopplar från</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">Exkluderade applikationer</string>
     <string name="failed_to_block_internet">Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
+    <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
+    <string name="failed_to_remove_device">Det gick inte att ta bort enheten</string>
     <string name="failed_to_send">Det gick inte att skicka</string>
     <string name="failed_to_send_details">Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar.</string>
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">Ogiltigt kontonummer</string>
     <string name="login_fail_title">Inloggningen misslyckades</string>
     <string name="login_title">Logga in</string>
+    <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut från &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsätta med att logga in på den här enheten.</string>
     <string name="max_devices_resolved_title">Super!</string>
+    <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="no_matching_bridge_relay">Ingen bryggreläserver matchar de aktuella inställningarna</string>
     <string name="no_matching_relay">Ingen reläserver matchar de aktuella inställningarna</string>
+    <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>
     <string name="out_address">Ut</string>
     <string name="out_of_time">Ingen tid kvar</string>
@@ -124,7 +129,6 @@
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Växla VPN</string>
-    <string name="too_many_keys">För många WireGuard-nycklar registrerade på kontot</string>
     <string name="try_again">Försök igen</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Oskyddad</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
-    <string name="wireguard_error">WireGuard-fel</string>
-    <string name="wireguard_key">WireGuard-nyckel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_public_key">Offentlig nyckel för WireGuard</string>
+    <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
 </resources>

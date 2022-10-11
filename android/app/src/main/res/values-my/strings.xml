@@ -33,7 +33,6 @@
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
     <string name="copied_mullvad_account_number">Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
     <string name="copied_to_clipboard">ကလစ်ဘုတ်တွင် ကူးယူပြီး</string>
-    <string name="copied_wireguard_public_key">WireGuard အများသုံး ကီးကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="create_account">အကောင့် ဖန်တီးရန်</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
     <string name="device_inactive_description">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</string>
     <string name="device_inactive_title">စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ</string>
+    <string name="device_inactive_unblock_warning">ဝင်ရောက်ရန်သွားခြင်းဖြင့် ဤစက်တွင် အင်တာနက်ကို ပိတ်ဆို့ထားမှုမှ ဖယ်ရှားပါလိမ့်မည်။</string>
     <string name="device_name">စက်အမည်</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ထားပြီး</string>
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
+    <string name="failed_to_fetch_devices">စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ</string>
+    <string name="failed_to_remove_device">စက်ကို ဖယ်ရှားရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send_details">ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">အကောင့်နံပါတ် မှားယွင်းနေပါသည်</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
     <string name="login_title">ဝင်ရန်</string>
+    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
+    <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
     <string name="mullvad_account_number">Mullvad အကောင့်နံပါတ်</string>
     <string name="no_matching_bridge_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ပေါင်းကူး ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
     <string name="no_matching_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
+    <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_blocking_internet">ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်</string>
     <string name="out_address">အထွက်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
@@ -124,7 +129,6 @@
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
-    <string name="too_many_keys">အကောင့်တွင် စာရင်းသွင်းထားသည့် WireGuard ကီးများ များလွန်းနေပါသည်</string>
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="udp">UDP</string>
     <string name="unsecured">မလုံခြုံပါ</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
-    <string name="wireguard_error">WireGuard ချို့ယွင်းချက်</string>
-    <string name="wireguard_key">WireGuard ကီး</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_public_key">WireGuard အများသုံး ကီး</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d ။</string>
 </resources>

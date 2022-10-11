@@ -33,7 +33,6 @@
     <string name="continue_login">Continua con il login</string>
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
     <string name="copied_to_clipboard">Copiato negli appunti</string>
-    <string name="copied_wireguard_public_key">Chiave pubblica WireGuard copiata negli appunti</string>
     <string name="copy_account_number">Copia numero di account</string>
     <string name="create_account">Crea account</string>
     <string name="creating_new_account">Creazione account...</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere il nome host del server personalizzato</string>
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
+    <string name="device_inactive_unblock_warning">Andare al login sbloccherà Internet su questo dispositivo.</string>
     <string name="device_name">Nome dispositivo</string>
     <string name="disconnect">Disconnetti</string>
     <string name="disconnecting">Disconnessione</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">Applicazioni escluse</string>
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli.</string>
     <string name="failed_to_create_account">Impossibile creare l\'account</string>
+    <string name="failed_to_fetch_devices">Impossibile recuperare l\'elenco dei dispositivi</string>
+    <string name="failed_to_remove_device">Impossibile rimuovere il dispositivo</string>
     <string name="failed_to_send">Impossibile inviare</string>
     <string name="failed_to_send_details">Se esci dal modulo e riprovi più tardi, le informazioni già inserite saranno ancora qui.</string>
     <string name="faqs_and_guides">FAQ e guide</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">Numero di account non valido</string>
     <string name="login_fail_title">Accesso non riuscito</string>
     <string name="login_title">Accedi</string>
+    <string name="max_devices_confirm_removal_description">Vuoi davvero disconnetterti da &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Ora puoi continuare ad accedere su questo dispositivo.</string>
     <string name="max_devices_resolved_title">Fantastico!</string>
+    <string name="max_devices_warning_description">Disconnettiti da almeno un dispositivo rimuovendolo dall\'elenco seguente. Puoi trovare il nome del dispositivo corrispondente nelle impostazioni dell\'account del dispositivo.</string>
     <string name="max_devices_warning_title">Troppi dispositivi</string>
     <string name="mullvad_account_number">Numero di account Mullvad</string>
     <string name="no_matching_bridge_relay">Nessun bridge relay server corrispondente alle impostazioni correnti</string>
     <string name="no_matching_relay">Nessun relay server corrispondente alle impostazioni correnti</string>
+    <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
     <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
@@ -124,17 +129,16 @@
     <string name="switch_location">Cambia posizione</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Attiva/disattiva VPN</string>
-    <string name="too_many_keys">Troppe chiavi WireGuard registrate per l\'account</string>
     <string name="try_again">Riprova</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Non protetto</string>
     <string name="unsecured_connection">CONNESSIONE NON PROTETTA</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>
-    <string name="unsupported_version_description">Stai utilizzando una versione dell\'app non supportata. Aggiorna alla versione %1$s per continuare a essere protetto</string>
-    <string name="unsupported_version_without_upgrade">Stai eseguendo una versione non supportata dell\'app.</string>
+    <string name="unsupported_version_description">Stai eseguendo una versione dell\'app non supportata. Aggiorna ora alla versione %1$s per continuare a essere protetto</string>
+    <string name="unsupported_version_without_upgrade">Stai eseguendo una versione dell\'app non supportata.</string>
     <string name="update_available">AGGIORNAMENTO DISPONIBILE</string>
     <string name="update_available_description">Installa Mullvad VPN (%1$s) per rimanere aggiornato</string>
-    <string name="update_available_footer">Aggiornamento disponibile; scarica per rimanere protetto.</string>
+    <string name="update_available_footer">Aggiornamento disponibile; esegui il download per rimanere protetto.</string>
     <string name="user_email_hint">La tua e-mail (opzionale)</string>
     <string name="user_message_hint">Descrivi il tuo problema in inglese o svedese.</string>
     <string name="view_logs">Visualizza registri app</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
-    <string name="wireguard_error">Errore WireGuard</string>
-    <string name="wireguard_key">Chiave WireGuard</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
-    <string name="wireguard_public_key">Chiave pubblica WireGuard</string>
+    <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
 </resources>
