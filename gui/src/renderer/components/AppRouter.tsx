@@ -2,13 +2,13 @@ import { Action } from 'history';
 import * as React from 'react';
 import { Route, Switch } from 'react-router';
 
-import AccountPage from '../containers/AccountPage';
 import LoginPage from '../containers/LoginPage';
 import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
+import Account from './Account';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import {
   SetupFinished,
@@ -89,7 +89,7 @@ class AppRouter extends React.Component<IHistoryProps & IAppContext, IAppRoutesS
               <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
               <Route exact path={RoutePath.settings} component={Settings} />
               <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
-              <Route exact path={RoutePath.accountSettings} component={AccountPage} />
+              <Route exact path={RoutePath.accountSettings} component={Account} />
               <Route
                 exact
                 path={RoutePath.userInterfaceSettings}
