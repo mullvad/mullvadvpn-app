@@ -14,6 +14,8 @@ on your platform please submit an issue or a pull request.
   - `protobuf-devel` on Fedora.
   - `libprotobuf-dev` on Debian/Ubuntu.
 
+- Install `gcc`
+
 ## Android toolchain
 
 - Install the JDK
