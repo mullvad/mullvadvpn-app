@@ -179,9 +179,12 @@ class RootContainerViewController: UIViewController {
             updateInterfaceOrientation(attemptRotateToDeviceOrientation: false)
         }
 
+        let isUnwinding = viewControllers.count > newViewControllers.count &&
+            !viewControllers.isEmpty
+
         setViewControllersInternal(
             newViewControllers,
-            isUnwinding: false,
+            isUnwinding: isUnwinding,
             animated: animated,
             completion: completion
         )
