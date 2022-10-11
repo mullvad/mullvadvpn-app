@@ -162,31 +162,34 @@ interface IModalAlertProps {
   close?: () => void;
 }
 
+interface OpenState {
+  isClosing: boolean;
+  wasOpen: boolean;
+}
+
 export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
   const { isOpen, ...otherProps } = props;
   const activeModalContext = useContext(ActiveModalContext);
-  const [closing, setClosing] = useState(false);
-  const prevIsOpen = useRef(isOpen);
+  const [openState, setOpenState] = useState<OpenState>({ isClosing: false, wasOpen: isOpen });
 
   const willExit = useWillExit();
 
   // Modal shouldn't prepare for being opened again while view is disappearing.
   const onTransitionEnd = useCallback(() => {
     if (!willExit) {
-      setClosing(false);
+      setOpenState({ isClosing: false, wasOpen: isOpen });
     }
-  }, [willExit]);
+  }, [willExit, isOpen]);
 
   useEffect(() => {
-    setClosing((closing) => closing || (prevIsOpen.current && !isOpen));
-
-    // Unmounting the Modal during view transitions result in a visual glitch.
-    if (!willExit) {
-      prevIsOpen.current = isOpen;
-    }
+    setOpenState(({ isClosing, wasOpen }) => ({
+      isClosing: isClosing || (wasOpen && !isOpen),
+      // Unmounting the Modal during view transitions result in a visual glitch.
+      wasOpen: willExit ? wasOpen : isOpen,
+    }));
   }, [isOpen]);
 
-  if (!prevIsOpen.current && !isOpen && !closing) {
+  if (!openState.wasOpen && !isOpen && !openState.isClosing) {
     return null;
   }
 
@@ -194,7 +197,7 @@ export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
     <ModalAlertImpl
       {...activeModalContext}
       {...otherProps}
-      closing={closing}
+      closing={openState.isClosing}
       onTransitionEnd={onTransitionEnd}
     />
   );
