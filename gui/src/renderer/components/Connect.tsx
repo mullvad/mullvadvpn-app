@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { hasExpired } from '../../shared/account-expiry';
-import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
 import { messages, relayLocations } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
@@ -63,19 +61,11 @@ const StyledMain = styled.main({
 export default function Connect() {
   const history = useHistory();
   const { connectTunnel, disconnectTunnel, reconnectTunnel } = useAppContext();
-  const { isAccountExpired, setIsAccountExpired, checkAccountExpired } = useAccountExpiry();
 
   const connection = useSelector((state) => state.connection);
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relayLocations = useSelector((state) => state.settings.relayLocations);
-
-  useEffect(() => {
-    const nextAccountExpired = checkAccountExpired(isAccountExpired);
-    if (nextAccountExpired !== isAccountExpired) {
-      setIsAccountExpired(nextAccountExpired);
-    }
-  }, []);
 
   const mapCenter = useMemo<[number, number] | undefined>(() => {
     const { longitude, latitude } = connection;
@@ -208,35 +198,6 @@ export default function Connect() {
       </StyledContainer>
     </Layout>
   );
-}
-
-function useAccountExpiry() {
-  const accountExpiry = useSelector((state) => state.account.expiry);
-  const tunnelState = useSelector((state) => state.connection.status);
-
-  const checkAccountExpired = (prevAccountExpired: boolean): boolean => {
-    // Blocked with auth failure / expired account
-    if (
-      tunnelState.state === 'error' &&
-      tunnelState.details.cause.reason === 'auth_failed' &&
-      parseAuthFailure(tunnelState.details.cause.reason).kind === AuthFailureKind.expiredAccount
-    ) {
-      return true;
-    }
-
-    // Use the account expiry to deduce the account state
-    if (accountExpiry) {
-      return hasExpired(accountExpiry);
-    }
-
-    // Do not assume that the account hasn't expired if the expiry is not available at the moment
-    // instead return the last known state.
-    return prevAccountExpired;
-  };
-
-  const [isAccountExpired, setIsAccountExpired] = useState(checkAccountExpired(false));
-
-  return { isAccountExpired, setIsAccountExpired, checkAccountExpired };
 }
 
 function getRelayName(relaySettings: RelaySettingsRedux, locations: IRelayLocationRedux[]): string {
