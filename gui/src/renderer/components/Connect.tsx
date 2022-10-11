@@ -77,14 +77,14 @@ export default function Connect() {
     }
   }, []);
 
-  const mapCenter = useMemo((): [number, number] | undefined => {
+  const mapCenter = useMemo<[number, number] | undefined>(() => {
     const { longitude, latitude } = connection;
     return typeof longitude === 'number' && typeof latitude === 'number'
       ? [longitude, latitude]
       : undefined;
   }, [connection]);
 
-  const showMarkerOrSpinner = useMemo((): MarkerOrSpinner => {
+  const showMarkerOrSpinner = useMemo<MarkerOrSpinner>(() => {
     if (!mapCenter) {
       return 'none';
     }
@@ -101,7 +101,7 @@ export default function Connect() {
     }
   }, [mapCenter, connection.status.state]);
 
-  const markerStyle = useMemo((): MarkerStyle => {
+  const markerStyle = useMemo<MarkerStyle>(() => {
     switch (connection.status.state) {
       case 'connecting':
       case 'connected':
@@ -121,7 +121,7 @@ export default function Connect() {
     }
   }, [connection.status]);
 
-  const zoomLevel = useMemo((): ZoomLevel => {
+  const zoomLevel = useMemo<ZoomLevel>(() => {
     const { longitude, latitude } = connection;
 
     if (typeof longitude === 'number' && typeof latitude === 'number') {
@@ -131,7 +131,7 @@ export default function Connect() {
     }
   }, [connection.latitude, connection.longitude, connection.status.state]);
 
-  const mapProps = useMemo((): Map['props'] => {
+  const mapProps = useMemo<Map['props']>(() => {
     return {
       center: mapCenter ?? [0, 0],
       showMarker: showMarkerOrSpinner === 'marker',
