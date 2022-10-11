@@ -10,6 +10,15 @@ import MullvadLogging
 import Operations
 import UIKit
 
+enum SceneRoute {
+    case tos
+    case login
+    case deviceManagement(String)
+    case outOfTime
+    case revokedDevice
+    case main
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewControllerDelegate,
     OutOfTimeViewControllerDelegate, LoginViewControllerDelegate,
     DeviceManagementViewControllerDelegate, SettingsNavigationControllerDelegate,
@@ -23,6 +32,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     var window: UIWindow?
     private var privacyOverlayWindow: UIWindow?
     private var isSceneConfigured = false
+    private let operationQueue = AsyncOperationQueue()
 
     private let rootContainer = RootContainerViewController()
 
@@ -40,19 +50,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     deinit {
         clearOutOfTimeTimer()
-    }
-
-    var isShowingOutOfTimeView: Bool {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            return modalRootContainer.viewControllers
-                .contains(where: { $0 is OutOfTimeViewController })
-        case .phone:
-            return rootContainer.viewControllers
-                .contains(where: { $0 is OutOfTimeViewController })
-        default:
-            return false
-        }
     }
 
     func showUserAccount() {
@@ -159,6 +156,49 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         }
     }
 
+    private func evaluateRoute() -> SceneRoute {
+        guard TermsOfService.isAgreed else { return .tos }
+
+        let deviceState = TunnelManager.shared.deviceState
+
+        switch deviceState {
+        case .revoked:
+            return .revokedDevice
+
+        case let .loggedIn(accountData, _):
+            if accountData.expiry > Date() {
+                return .main
+            } else {
+                return .outOfTime
+            }
+
+        case .loggedOut:
+            return .login
+        }
+    }
+
+    private func makeViewController(for route: SceneRoute) -> UIViewController {
+        switch route {
+        case .tos:
+            return makeTermsOfServiceController()
+
+        case .login:
+            return makeLoginController()
+
+        case .outOfTime:
+            return makeOutOfTimeViewController()
+
+        case .revokedDevice:
+            return makeRevokedDeviceController()
+
+        case let .deviceManagement(accountNumber):
+            return makeDeviceManagementController(accountNumber: accountNumber)
+
+        case .main:
+            return makeConnectViewController()
+        }
+    }
+
     private func setupPadUI() {
         let tunnelManager = TunnelManager.shared
         let selectLocationController = makeSelectLocationController()
@@ -182,60 +222,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
         modalRootContainer.delegate = self
 
-        let showNextController = { [weak self] (animated: Bool) in
-            guard let self = self else { return }
+        let route = evaluateRoute()
+        let vc = makeViewController(for: route)
 
-            lazy var viewControllers: [UIViewController] = [self.makeLoginController()]
-
-            switch tunnelManager.deviceState {
-            case .loggedIn:
-                let didDismissModalRoot = {
-                    self.handleExpiredAccount()
-                }
-
-                self.modalRootContainer.setViewControllers(
-                    viewControllers,
-                    animated: self.isModalRootPresented && animated
-                )
-
-                // Dismiss modal root container if needed before proceeding.
-                if self.isModalRootPresented {
-                    self.modalRootContainer.dismiss(
-                        animated: animated,
-                        completion: didDismissModalRoot
-                    )
-                } else {
-                    didDismissModalRoot()
-                }
-                return
-
-            case .loggedOut:
-                break
-
-            case .revoked:
-                viewControllers.append(self.makeRevokedDeviceController())
-            }
-
-            // Configure modal container.
-            self.modalRootContainer.setViewControllers(
-                viewControllers,
-                animated: self.isModalRootPresented && animated
-            )
-
-            // Present modal container if not presented yet.
-            self.presentModalRootContainerIfNeeded(animated: animated)
-        }
-
-        if TermsOfService.isAgreed {
-            showNextController(false)
-        } else {
-            let termsOfServiceController = makeTermsOfServiceController { _ in
-                showNextController(true)
-            }
-
-            modalRootContainer.setViewControllers([termsOfServiceController], animated: false)
-            presentModalRootContainerIfNeeded(animated: false)
-        }
+        modalRootContainer.setViewControllers([vc], animated: false)
+        presentModalRootContainerIfNeeded(animated: false)
     }
 
     private func presentModalRootContainerIfNeeded(animated: Bool) {
@@ -254,37 +245,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     }
 
     private func setupPhoneUI() {
-        let showNextController = { [weak self] (animated: Bool) in
-            guard let self = self else { return }
+        let route = evaluateRoute()
+        let vc = makeViewController(for: route)
 
-            var viewControllers: [UIViewController] = [self.makeLoginController()]
-
-            switch TunnelManager.shared.deviceState {
-            case .loggedIn:
-                let connectController = self.makeConnectViewController()
-                self.connectController = connectController
-                viewControllers.append(connectController)
-
-            case .loggedOut:
-                break
-
-            case .revoked:
-                viewControllers.append(self.makeRevokedDeviceController())
-            }
-
-            self.rootContainer.setViewControllers(viewControllers, animated: animated) {
-                self.handleExpiredAccount()
-            }
-        }
-
-        if TermsOfService.isAgreed {
-            showNextController(false)
-        } else {
-            let termsOfServiceController = makeTermsOfServiceController { _ in
-                showNextController(true)
-            }
-            rootContainer.setViewControllers([termsOfServiceController], animated: false)
-        }
+        rootContainer.setViewControllers([vc], animated: false)
     }
 
     private func makeSettingsNavigationController(route: SettingsNavigationRoute?)
@@ -339,9 +303,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
         return selectLocationController
     }
 
-    private func makeTermsOfServiceController(
-        completion: @escaping (UIViewController) -> Void
-    ) -> TermsOfServiceViewController {
+    private func makeTermsOfServiceController() -> TermsOfServiceViewController {
         let controller = TermsOfServiceViewController()
         controller.delegate = self
 
@@ -407,21 +369,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     private func showLoginViewAfterLogout(dismissController: UIViewController?) {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            let loginController = rootContainer.viewControllers.first as? LoginViewController
-            loginController?.reset()
-
-            rootContainer.popToRootViewController(animated: false)
+            rootContainer.setViewControllers([makeViewController(for: .login)], animated: true)
             dismissController?.dismiss(animated: true)
 
         case .pad:
-            let loginController = modalRootContainer.viewControllers.first as? LoginViewController
-            loginController?.reset()
-
             let didDismissSourceController = {
                 self.presentModalRootContainerIfNeeded(animated: true)
             }
 
-            modalRootContainer.popToRootViewController(animated: false)
+            modalRootContainer.setViewControllers(
+                [makeViewController(for: .login)],
+                animated: isModalRootPresented
+            )
             showSplitViewMaster(false, animated: true)
 
             if let dismissController = dismissController {
@@ -432,68 +391,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
         default:
             return
-        }
-    }
-
-    private func dismissOutOfTimeController() {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
-            var viewControllers = rootContainer.viewControllers
-            viewControllers.removeAll(where: { $0 is OutOfTimeViewController })
-            rootContainer.setViewControllers(viewControllers, animated: true)
-        case .pad:
-            modalRootContainer.dismiss(animated: true)
-        default:
-            return
-        }
-    }
-
-    private func showRevokedDeviceView() {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
-            guard let loginController = rootContainer.viewControllers.first as? LoginViewController
-            else {
-                return
-            }
-
-            loginController.reset()
-
-            let viewControllers = [
-                loginController,
-                makeRevokedDeviceController(),
-            ]
-
-            rootContainer.setViewControllers(viewControllers, animated: true)
-
-        case .pad:
-            guard let loginController = modalRootContainer.viewControllers
-                .first as? LoginViewController
-            else {
-                return
-            }
-
-            loginController.reset()
-
-            let viewControllers = [
-                loginController,
-                makeRevokedDeviceController(),
-            ]
-
-            let didDismissSettings = {
-                self.showSplitViewMaster(false, animated: true)
-                self.presentModalRootContainerIfNeeded(animated: true)
-            }
-
-            modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
-
-            if let settingsNavController = settingsNavController {
-                settingsNavController.dismiss(animated: true, completion: didDismissSettings)
-            } else {
-                didDismissSettings()
-            }
-
-        default:
-            fatalError()
         }
     }
 
@@ -509,6 +406,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
 
     func termsOfServiceViewControllerDidFinish(_ controller: TermsOfServiceViewController) {
         TermsOfService.setAgreed()
+
+        let route = evaluateRoute()
+
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            let vc = makeViewController(for: route)
+            rootContainer.pushViewController(vc, animated: true)
+
+        case .pad:
+            switch route {
+            case .main:
+                if isModalRootPresented {
+                    modalRootContainer.dismiss(animated: true)
+                }
+
+            default:
+                let vc = makeViewController(for: route)
+                modalRootContainer.pushViewController(vc, animated: isModalRootPresented)
+
+                if !isModalRootPresented {
+                    presentModalRootContainerIfNeeded(animated: true)
+                }
+            }
+
+        default:
+            break
+        }
     }
 
     // MARK: - LoginViewControllerDelegate
@@ -535,9 +459,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
                 {
                     self.lastLoginAction = action
 
-                    let deviceController = self.makeDeviceManagementController(
-                        accountNumber: accountNumber
-                    )
+                    let deviceController = self.makeViewController(
+                        for: .deviceManagement(accountNumber)
+                    ) as! DeviceManagementViewController
 
                     deviceController
                         .fetchDevices(animateUpdates: false) { [weak self] operationCompletion in
@@ -871,21 +795,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, RootContainerViewContro
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        switch deviceState {
-        case let .loggedIn(accountData, _):
-            if accountData.expiry > Date(),
-               isShowingOutOfTimeView
-            {
-                dismissOutOfTimeController()
-                setUpOutOfTimeTimer()
-            }
+        let route = evaluateRoute()
 
-        case .loggedOut:
-            accountDataThrottling.reset()
+        if case .revokedDevice = route {
+            // TODO: show revoked if needed
+        }
 
-        case .revoked:
+        if case .outOfTime = route {
+            // TODO: show out of time if needed
+        }
+
+        setUpOutOfTimeTimer()
+
+        if deviceState == .loggedOut || deviceState == .revoked {
             accountDataThrottling.reset()
-            showRevokedDeviceView()
         }
     }
 
