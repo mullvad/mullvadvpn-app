@@ -66,7 +66,6 @@ export default function Connect() {
   const { isAccountExpired, setIsAccountExpired, checkAccountExpired } = useAccountExpiry();
 
   const connection = useSelector((state) => state.connection);
-  const status = useSelector((state) => state.connection.status);
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relayLocations = useSelector((state) => state.settings.relayLocations);
@@ -90,7 +89,7 @@ export default function Connect() {
       return 'none';
     }
 
-    switch (status.state) {
+    switch (connection.status.state) {
       case 'error':
         return 'none';
       case 'connecting':
@@ -100,19 +99,19 @@ export default function Connect() {
       case 'disconnected':
         return 'marker';
     }
-  }, [mapCenter, status.state]);
+  }, [mapCenter, connection.status.state]);
 
   const markerStyle = useMemo((): MarkerStyle => {
-    switch (status.state) {
+    switch (connection.status.state) {
       case 'connecting':
       case 'connected':
         return MarkerStyle.secure;
       case 'error':
-        return !status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
+        return !connection.status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
       case 'disconnected':
         return MarkerStyle.unsecure;
       case 'disconnecting':
-        switch (status.details) {
+        switch (connection.status.details) {
           case 'block':
           case 'reconnect':
             return MarkerStyle.secure;
@@ -120,17 +119,17 @@ export default function Connect() {
             return MarkerStyle.unsecure;
         }
     }
-  }, [status]);
+  }, [connection.status]);
 
   const zoomLevel = useMemo((): ZoomLevel => {
     const { longitude, latitude } = connection;
 
     if (typeof longitude === 'number' && typeof latitude === 'number') {
-      return status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
+      return connection.status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
     } else {
       return ZoomLevel.low;
     }
-  }, [connection.latitude, connection.longitude, status.state]);
+  }, [connection.latitude, connection.longitude, connection.status.state]);
 
   const mapProps = useMemo((): Map['props'] => {
     return {
@@ -181,7 +180,7 @@ export default function Connect() {
 
   return (
     <Layout>
-      <DefaultHeaderBar barStyle={calculateHeaderBarStyle(status)} />
+      <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
         <StyledMap {...mapProps} />
         <Content>
@@ -194,7 +193,7 @@ export default function Connect() {
             ) : null}
 
             <TunnelControl
-              tunnelState={status}
+              tunnelState={connection.status}
               blockWhenDisconnected={blockWhenDisconnected}
               selectedRelayName={selectedRelayName}
               city={connection.city}
