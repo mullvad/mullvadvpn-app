@@ -1,10 +1,9 @@
 use crate::{
-    routing::{CallbackHandle, EventType, RouteManagerHandle},
+    routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle},
     windows::{
         window::{PowerManagementEvent, PowerManagementListener},
         AddressFamily,
     },
-    winnet,
 };
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
@@ -81,7 +80,7 @@ impl BroadcastListener {
     }
 
     fn check_initial_connectivity() -> (bool, bool) {
-        let v4_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV4)
+        let v4_connectivity = get_best_default_route(AddressFamily::Ipv4)
             .map(|route| route.is_some())
             .unwrap_or_else(|error| {
                 log::error!(
@@ -90,7 +89,7 @@ impl BroadcastListener {
                 );
                 true
             });
-        let v6_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV6)
+        let v6_connectivity = get_best_default_route(AddressFamily::Ipv6)
             .map(|route| route.is_some())
             .unwrap_or_else(|error| {
                 log::error!(

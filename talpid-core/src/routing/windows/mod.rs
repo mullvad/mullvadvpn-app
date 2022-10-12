@@ -157,7 +157,6 @@ impl RouteManager {
         &self,
         callback: Callback,
     ) -> Result<CallbackHandle> {
-        //Ok(self.internal.lock().unwrap().register_default_route_changed_callback(callback)?)
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
@@ -176,7 +175,6 @@ impl RouteManager {
 
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle> {
-        //Ok(RouteManagerHandle { internal: Arc::downgrade(&self.internal) })
         if let Some(tx) = &self.manage_tx {
             Ok(RouteManagerHandle { tx: tx.clone() })
         } else {
@@ -218,7 +216,11 @@ impl RouteManager {
                     };
                     let _ = tx.send(res);
                 }
-                RouteManagerCommand::ClearRoutes => internal.delete_applied_routes(),
+                RouteManagerCommand::ClearRoutes => {
+                    if let Err(e) = internal.delete_applied_routes() {
+                        log::error!("Could not clear routes due to: {}", e);
+                    }
+                },
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }

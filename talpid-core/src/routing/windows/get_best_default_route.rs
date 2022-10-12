@@ -1,35 +1,15 @@
-// TODO:
-// Verify correctness:
-//  Go through the code and make sure that the semantics of everything is the same as C++ or that it is correct - done
-//  Do this once before doing all the other changes in the list and then once after
-// Restructure project:
-//  Go through all 3 modules and split the appropriate functions into their own modules - new module?
-//  Go through and rename things that should be renamed - done
-//  Go through the code and split things that we repeat >2 times into their own functions - done
-//  Go through code and remove unnecessary middle-layer types - done
-//  Upgrade RouteManager to be an actor - done
-// Correct error handling:
-//  Decide what Error type to use and replace everything with that - done
-//  Make sure all errors are the same
-//  Remove unwraps
-//  Log were it is appropriate - done
-// Document:
-//  Go through and document what should be documented, especially all unsafe code
-//  Remove the unnecessary comments - done
-// Test:
-//  Write down some tests that will be enough to convince you and others that the code is correct
-//  Run these tests or write a unit test for the easier ones
-
 use super::{Error, Result};
 use crate::windows::{get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily};
 use std::{convert::TryInto, io, net::SocketAddr};
 use widestring::{widecstr, WideCStr};
 use windows_sys::Win32::{
     Foundation::NO_ERROR,
-    NetworkManagement::IpHelper::{
+    NetworkManagement::{
+        Ndis::NET_LUID_LH,
+        IpHelper::{
         FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL,
-        MIB_IF_ROW2, MIB_IPFORWARD_ROW2, NET_LUID_LH,
-    },
+        MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
+    }},
 };
 
 // Interface description substrings found for virtual adapters.
@@ -81,18 +61,16 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
 
 /// General type for passing interface and gateway
 pub struct InterfaceAndGateway {
-    //pub iface: NET_LUID_LH,
     /// Interface
     pub iface: NET_LUID_LH,
-    //pub gateway: SOCKADDR_INET,
     /// Gateway
     pub gateway: SocketAddr,
 }
 
 impl PartialEq for InterfaceAndGateway {
     fn eq(&self, other: &InterfaceAndGateway) -> bool {
-        // TODO: Is this OK? We are not comparing the socket address but only comparing the LUID
-        unsafe { self.iface.Value == other.iface.Value }
+        // SAFETY: Accessing Value is always valid in this union as both fields are the same type
+        (unsafe { self.iface.Value == other.iface.Value } && self.gateway == other.gateway)
     }
 }
 

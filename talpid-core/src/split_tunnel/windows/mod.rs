@@ -5,7 +5,7 @@ mod volume_monitor;
 mod windows;
 
 use crate::{
-    routing::{CallbackHandle, EventType, InterfaceAndGateway, RouteManager, RouteManagerHandle},
+    routing::{self, get_best_default_route, CallbackHandle, EventType, RouteManagerHandle},
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
     windows::{
@@ -13,7 +13,6 @@ use crate::{
         window::{PowerManagementEvent, PowerManagementListener},
         AddressFamily,
     },
-    winnet::{self, get_best_default_route, WinNetAddrFamily},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -30,9 +29,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
-use windows_sys::Win32::{
-    Foundation::ERROR_OPERATION_ABORTED, NetworkManagement::Ndis::NET_LUID_LH,
-};
+use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
@@ -75,7 +72,7 @@ pub enum Error {
 
     /// Failed to obtain default route
     #[error(display = "Failed to obtain the default route")]
-    ObtainDefaultRoute(#[error(source)] winnet::Error),
+    ObtainDefaultRoute(#[error(source)] routing::Error),
 
     /// Failed to obtain an IP address given a network interface LUID
     #[error(display = "Failed to obtain IP address for interface LUID")]
@@ -814,14 +811,12 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
 
     pub fn initialize_internet_addresses(&mut self) -> Result<(), Error> {
         // Identify IP address that gives us Internet access
-        let internet_ipv4 = get_best_default_route(WinNetAddrFamily::IPV4)
+        let internet_ipv4 = get_best_default_route(AddressFamily::Ipv4)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
                 get_ip_address_for_interface(
                     AddressFamily::Ipv4,
-                    NET_LUID_LH {
-                        Value: route.interface_luid,
-                    },
+                    route.iface,
                 )
                 .map(|ip| match ip {
                     Some(IpAddr::V4(addr)) => Some(addr),
@@ -835,14 +830,12 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
             .transpose()
             .map_err(Error::LuidToIp)?
             .flatten();
-        let internet_ipv6 = get_best_default_route(WinNetAddrFamily::IPV6)
+        let internet_ipv6 = get_best_default_route(AddressFamily::Ipv6)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
                 get_ip_address_for_interface(
                     AddressFamily::Ipv6,
-                    NET_LUID_LH {
-                        Value: route.interface_luid,
-                    },
+                    route.iface,
                 )
                 .map(|ip| match ip {
                     Some(IpAddr::V6(addr)) => Some(addr),
