@@ -14,6 +14,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
+import { useBoolean } from '../lib/utilityHooks';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import {
@@ -142,7 +143,7 @@ function AccountComponent() {
 function LogoutDialog() {
   const {
     logoutDialogStage,
-    logoutDialogVisible,
+    dialogVisible,
     onConfirmLogout,
     onCancelLogout,
   } = useLogoutContext();
@@ -181,7 +182,7 @@ function LogoutDialog() {
           </AppButton.BlueButton>,
         ];
   return (
-    <ModalAlert isOpen={logoutDialogVisible} type={modalType} buttons={buttons}>
+    <ModalAlert isOpen={dialogVisible} type={modalType} buttons={buttons}>
       {message}
     </ModalAlert>
   );
@@ -223,7 +224,7 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
 
 type LogoutContextType = {
   logoutDialogStage: LogoutDialogStage;
-  logoutDialogVisible: boolean;
+  dialogVisible: boolean;
   onConfirmLogout: () => void;
   onCancelLogout: () => void;
   onTryLogout: () => Promise<void>;
@@ -232,12 +233,12 @@ type LogoutContextType = {
 const LogoutContext = createContext<LogoutContextType | undefined>(undefined);
 
 const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
-  const onHideLogoutConfirmationDialog = () => setLogoutDialogVisible(false);
+  const onHideLogoutConfirmationDialog = () => hideDialog();
   const { cancelLogout, prepareLogout } = useActions(account);
   const { logout, getDeviceState } = useAppContext();
 
   const [logoutDialogStage, setLogoutDialogStage] = useState<LogoutDialogStage>();
-  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+  const [dialogVisible, showDialog, hideDialog] = useBoolean(false);
 
   const onConfirmLogout = useCallback(async () => {
     onHideLogoutConfirmationDialog();
@@ -245,7 +246,7 @@ const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const onTryLogout = useCallback(async () => {
-    setLogoutDialogVisible(true);
+    showDialog();
     setLogoutDialogStage('checking-ports');
     prepareLogout();
 
@@ -270,12 +271,12 @@ const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
   const value: LogoutContextType = useMemo(
     () => ({
       logoutDialogStage,
-      logoutDialogVisible,
+      dialogVisible,
       onConfirmLogout,
       onCancelLogout,
       onTryLogout,
     }),
-    [logoutDialogVisible, logoutDialogStage, onConfirmLogout, onCancelLogout, onTryLogout],
+    [dialogVisible, logoutDialogStage, onConfirmLogout, onCancelLogout, onTryLogout],
   );
   return <LogoutContext.Provider value={value}>{children}</LogoutContext.Provider>;
 };
