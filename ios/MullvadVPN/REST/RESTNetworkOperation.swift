@@ -8,7 +8,6 @@
 
 import Foundation
 import Logging
-import NetworkExtension
 import Operations
 
 extension REST {
