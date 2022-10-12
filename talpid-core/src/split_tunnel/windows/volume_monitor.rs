@@ -1,7 +1,7 @@
 //! Used to monitor volume mounts and dismounts, and reapply the split
 //! tunnel config if any of the excluded paths are affected by them.
 use super::path_monitor::PathMonitorHandle;
-use crate::windows::window::{create_hidden_window, WindowCloseHandle};
+use crate::window::{create_hidden_window, WindowCloseHandle};
 use futures::{channel::mpsc, StreamExt};
 use std::{
     ffi::OsString,

@@ -9,27 +9,13 @@
 #[macro_use]
 mod ffi;
 
-/// Misc networking functions for Windows.
-#[cfg(windows)]
-mod winnet;
-
-/// Windows API wrappers and utilities
 #[cfg(target_os = "windows")]
-pub mod windows;
-
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-/// Working with IP interface devices
-pub mod network_interface;
-/// Abstraction over operating system routing table.
-pub mod routing;
+pub mod window;
 
 mod offline;
 
 /// Split tunneling
 pub mod split_tunnel;
-
-/// Working with processes.
-pub mod process;
 
 /// Abstracts over different VPN tunnel technologies
 pub mod tunnel;
@@ -52,19 +38,9 @@ pub mod tunnel_state_machine;
 /// Future utilities
 pub mod future_retry;
 
-#[cfg(not(target_os = "android"))]
-/// Internal code for managing bundled proxy software.
-mod proxy;
-
-#[cfg(not(target_os = "android"))]
-mod mktemp;
-
 /// Misc utilities for the Linux platform.
 #[cfg(target_os = "linux")]
 mod linux;
-
-/// A pair of functions to monitor and establish connectivity with ICMP
-pub mod ping_monitor;
 
 /// A resolver that's controlled by the tunnel state machine
 #[cfg(target_os = "macos")]

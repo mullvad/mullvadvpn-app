@@ -1303,6 +1303,8 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                             psk: None,
                         },
                         exit_peer: None,
+                        #[cfg(target_os = "linux")]
+                        fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                         ipv4_gateway,
                         ipv6_gateway,
                     },
@@ -1407,6 +1409,8 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                         peer,
                         password: proxy_settings.password,
                         cipher: proxy_settings.cipher,
+                        #[cfg(target_os = "linux")]
+                        fwmark: None,
                     },
                 );
                 Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))

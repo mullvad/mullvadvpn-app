@@ -2,7 +2,6 @@ use super::windows::{
     get_device_path, get_process_creation_time, get_process_device_path, open_process, Event,
     Overlapped, ProcessAccess, ProcessSnapshot,
 };
-use crate::windows::as_uninit_byte_slice;
 use bitflags::bitflags;
 use memoffset::offset_of;
 use std::{
@@ -23,6 +22,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
+use talpid_windows::driver::as_uninit_byte_slice;
 use windows_sys::Win32::{
     Foundation::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,

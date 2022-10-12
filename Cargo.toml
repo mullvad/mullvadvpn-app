@@ -16,9 +16,13 @@ members = [
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-dbus",
+    "talpid-openvpn",
     "talpid-platform-metadata",
     "talpid-time",
+    "talpid-tunnel",
     "talpid-tunnel-config-client",
+    "talpid-windows",
+    "talpid-wireguard",
     "mullvad-management-interface",
     "tunnel-obfuscation",
 ]

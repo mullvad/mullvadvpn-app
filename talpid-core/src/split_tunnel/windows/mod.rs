@@ -7,12 +7,7 @@ mod windows;
 use crate::{
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
-    windows::{
-        get_ip_address_for_interface,
-        window::{PowerManagementEvent, PowerManagementListener},
-        AddressFamily,
-    },
-    winnet::{self, get_best_default_route, WinNetAddrFamily, WinNetCallbackHandle},
+    window::{PowerManagementEvent, PowerManagementListener},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -28,7 +23,11 @@ use std::{
     },
     time::Duration,
 };
+use talpid_routing::winnet::{
+    self, get_best_default_route, WinNetAddrFamily, WinNetCallbackHandle,
+};
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
+use talpid_windows::net::{get_ip_address_for_interface, AddressFamily};
 use windows_sys::Win32::{
     Foundation::ERROR_OPERATION_ABORTED, NetworkManagement::Ndis::NET_LUID_LH,
 };
@@ -74,11 +73,11 @@ pub enum Error {
 
     /// Failed to obtain default route
     #[error(display = "Failed to obtain the default route")]
-    ObtainDefaultRoute(#[error(source)] winnet::Error),
+    ObtainDefaultRoute(#[error(source)] talpid_routing::winnet::Error),
 
     /// Failed to obtain an IP address given a network interface LUID
     #[error(display = "Failed to obtain IP address for interface LUID")]
-    LuidToIp(#[error(source)] crate::windows::Error),
+    LuidToIp(#[error(source)] talpid_windows::net::Error),
 
     /// Failed to set up callback for monitoring default route changes
     #[error(display = "Failed to register default route change callback")]

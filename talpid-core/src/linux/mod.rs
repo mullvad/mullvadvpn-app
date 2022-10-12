@@ -28,10 +28,6 @@ pub enum IfaceIndexLookupError {
     InterfaceLookupError(String, #[error(source)] io::Error),
 }
 
-// b"mole" is [ 0x6d, 0x6f 0x6c, 0x65 ]
-pub const TUNNEL_FW_MARK: u32 = 0x6d6f6c65;
-pub const TUNNEL_TABLE_ID: u32 = 0x6d6f6c65;
-
 pub fn set_src_valid_mark_sysctl() -> io::Result<()> {
     fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK, b"1")
 }

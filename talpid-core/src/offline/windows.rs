@@ -1,7 +1,4 @@
-use crate::{
-    windows::window::{PowerManagementEvent, PowerManagementListener},
-    winnet,
-};
+use crate::window::{PowerManagementEvent, PowerManagementListener};
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
@@ -10,6 +7,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+use talpid_routing::winnet;
 use talpid_types::ErrorExt;
 
 #[derive(err_derive::Error, Debug)]

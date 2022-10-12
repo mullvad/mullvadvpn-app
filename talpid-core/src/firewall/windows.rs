@@ -1,4 +1,4 @@
-use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
+use crate::tunnel::TunnelMetadata;
 
 use std::{net::IpAddr, path::Path, ptr};
 
@@ -8,6 +8,7 @@ use talpid_types::{
     net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint},
     tunnel::FirewallPolicyError,
 };
+use talpid_windows::logging::log_sink;
 use widestring::WideCString;
 
 /// Errors that can happen when configuring the Windows firewall.
@@ -297,9 +298,9 @@ fn widestring_ip(ip: IpAddr) -> WideCString {
 #[allow(non_snake_case)]
 mod winfw {
     use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
-    use crate::logging::windows::LogSink;
     use libc;
     use talpid_types::net::TransportProtocol;
+    use talpid_windows::logging::LogSink;
 
     pub struct WinFwAllowedEndpointContainer {
         _clients: Box<[WideCString]>,
