@@ -2,7 +2,7 @@ use crate::{format, new_rpc_client, Command, Error, Result};
 use mullvad_management_interface::{
     types::daemon_event::Event as EventType, ManagementServiceClient,
 };
-use mullvad_types::states::TunnelState;
+use mullvad_types::{location::GeoIpLocation, states::TunnelState};
 
 pub struct Status;
 
@@ -112,9 +112,8 @@ impl Command for Status {
 }
 
 async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
-    let location = rpc.get_current_location(()).await;
-    let location = match location {
-        Ok(response) => response.into_inner(),
+    let location = match rpc.get_current_location(()).await {
+        Ok(response) => GeoIpLocation::try_from(response.into_inner()).expect("invalid geoip data"),
         Err(status) => {
             if status.code() == mullvad_management_interface::Code::NotFound {
                 println!("Location data unavailable");
@@ -124,11 +123,11 @@ async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
             }
         }
     };
-    if !location.ipv4.is_empty() {
-        println!("IPv4: {}", location.ipv4);
+    if let Some(ipv4) = location.ipv4 {
+        println!("IPv4: {}", ipv4);
     }
-    if !location.ipv6.is_empty() {
-        println!("IPv6: {}", location.ipv6);
+    if let Some(ipv6) = location.ipv6 {
+        println!("IPv6: {}", ipv6);
     }
 
     println!(
