@@ -1138,7 +1138,11 @@ impl RelaySelector {
                     shadowsocks_endpoint.port,
                     shadowsocks_endpoint.protocol
                 );
-                shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
+                shadowsocks_endpoint.to_proxy_settings(
+                    relay.ipv4_addr_in.into(),
+                    #[cfg(target_os = "linux")]
+                    mullvad_types::TUNNEL_FWMARK,
+                )
             })
     }
 
