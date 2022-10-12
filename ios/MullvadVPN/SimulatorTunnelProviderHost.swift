@@ -137,6 +137,9 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                         completionHandler?(reply)
                     }
                 }
+
+            allRequests[proxyRequest.id] = task
+
             task.resume()
 
         case let .cancelURLRequest(id):
