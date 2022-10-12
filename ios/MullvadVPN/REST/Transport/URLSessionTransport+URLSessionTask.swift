@@ -10,7 +10,7 @@ import Foundation
 
 extension URLSessionTask: Cancellable {}
 
-class URLSessionTransport: RESTTransport {
+final class URLSessionTransport: RESTTransport {
     var name: String {
         return "urlsession"
     }
@@ -25,10 +25,7 @@ class URLSessionTransport: RESTTransport {
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable {
-        let dataTask = urlSession.dataTask(
-            with: request,
-            completionHandler: completion
-        )
+        let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
         dataTask.resume()
         return dataTask
     }
