@@ -513,22 +513,15 @@ final class TunnelManager {
         )
     }
 
-    /// Sending request via tunnel directly
-    /// - Warning: This function is being used mainly for packet tunnel Transport.
-    /// - Parameters:
-    ///   - message: Request message to be recreated inside tunnel.
-    ///   - completionHandler: Reply of tunnel request, This reply will be created by
-    ///   URLSession inside the completion block.
-    /// - Returns: Cancellable token.
+    /// Send URLRequest via packet tunnel process to bypass VPN.
+    /// This function is primarily used by `PacketTunnelTransport` to go outside of VPN when the
+    /// tunnel is broken.
     func sendRequest(
-        message: ProxyURLRequest,
+        _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) throws -> Cancellable {
         if let tunnel {
-            return tunnel.sendRequest(
-                message,
-                completionHandler: completionHandler
-            )
+            return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
         } else {
             throw UnsetTunnelError()
         }
