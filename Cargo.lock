@@ -1587,7 +1587,6 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-rustls",
- "tokio-stream",
  "uuid",
 ]
 
@@ -1626,7 +1625,6 @@ dependencies = [
  "ctrlc",
  "dirs-next",
  "duct",
- "either",
  "err-derive",
  "fern",
  "futures",
@@ -1690,6 +1688,7 @@ dependencies = [
  "nix 0.23.1",
  "rand 0.8.5",
  "talpid-core",
+ "talpid-tunnel",
  "talpid-types",
  "tokio",
 ]
@@ -3121,10 +3120,7 @@ dependencies = [
  "log",
  "memoffset",
  "mnl",
- "netlink-packet-core",
  "netlink-packet-route",
- "netlink-packet-utils",
- "netlink-proto",
  "netlink-sys",
  "nftnl",
  "nix 0.23.1",
@@ -3146,23 +3142,25 @@ dependencies = [
  "subslice",
  "system-configuration",
  "talpid-dbus",
+ "talpid-openvpn",
  "talpid-platform-metadata",
+ "talpid-routing",
  "talpid-time",
+ "talpid-tunnel",
  "talpid-tunnel-config-client",
  "talpid-types",
+ "talpid-windows-net",
+ "talpid-wireguard",
  "tempfile",
  "tokio",
- "tokio-stream",
  "tonic",
  "tonic-build",
  "triggered",
  "trust-dns-server",
  "tun",
- "tunnel-obfuscation",
  "uuid",
  "which",
  "widestring 1.0.2",
- "winapi",
  "windows",
  "windows-service",
  "windows-sys 0.42.0",
@@ -3180,6 +3178,43 @@ dependencies = [
  "libc",
  "log",
  "tokio",
+]
+
+[[package]]
+name = "talpid-openvpn"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "atty",
+ "bitflags",
+ "byteorder",
+ "cfg-if",
+ "duct",
+ "err-derive",
+ "futures",
+ "lazy_static",
+ "log",
+ "os_pipe",
+ "parity-tokio-ipc",
+ "parking_lot 0.11.2",
+ "prost",
+ "shadowsocks-service",
+ "shell-escape",
+ "socket2",
+ "talpid-routing",
+ "talpid-tunnel",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tonic",
+ "tonic-build",
+ "triggered",
+ "uuid",
+ "which",
+ "widestring 0.5.1",
+ "winapi",
+ "windows-sys 0.42.0",
+ "winreg",
 ]
 
 [[package]]
@@ -3212,11 +3247,55 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-routing"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "futures",
+ "ipnetwork",
+ "jnix",
+ "lazy_static",
+ "libc",
+ "log",
+ "netlink-packet-route",
+ "netlink-sys",
+ "rtnetlink",
+ "socket2",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tokio-stream",
+ "widestring 1.0.2",
+ "winapi",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
  "libc",
  "tokio",
+]
+
+[[package]]
+name = "talpid-tunnel"
+version = "0.0.0"
+dependencies = [
+ "cfg-if",
+ "duct",
+ "err-derive",
+ "futures",
+ "ipnetwork",
+ "jnix",
+ "log",
+ "nix 0.23.1",
+ "talpid-routing",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tun",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -3245,6 +3324,57 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "x25519-dalek",
+ "zeroize",
+]
+
+[[package]]
+name = "talpid-windows-net"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "futures",
+ "libc",
+ "socket2",
+ "winapi",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "talpid-wireguard"
+version = "0.0.0"
+dependencies = [
+ "bitflags",
+ "byteorder",
+ "chrono",
+ "duct",
+ "err-derive",
+ "futures",
+ "hex",
+ "internet-checksum",
+ "ipnetwork",
+ "lazy_static",
+ "libc",
+ "log",
+ "netlink-packet-core",
+ "netlink-packet-route",
+ "netlink-packet-utils",
+ "netlink-proto",
+ "nix 0.23.1",
+ "parking_lot 0.11.2",
+ "rand 0.8.5",
+ "rtnetlink",
+ "socket2",
+ "talpid-dbus",
+ "talpid-routing",
+ "talpid-tunnel",
+ "talpid-tunnel-config-client",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tokio-stream",
+ "tunnel-obfuscation",
+ "widestring 0.5.1",
+ "windows-sys 0.42.0",
  "zeroize",
 ]
 
