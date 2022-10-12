@@ -1,19 +1,12 @@
-pub use prost_types::{Duration, Timestamp};
-
+use super::proto;
 use mullvad_types::relay_constraints::Constraint;
+use prost_types::Timestamp;
 use std::{convert::TryFrom, net::SocketAddr, str::FromStr};
 use talpid_types::{net::wireguard, ErrorExt};
 
-#[allow(clippy::derive_partial_eq_without_eq)]
-mod proto {
-    tonic::include_proto!("mullvad_daemon.management_interface");
-}
-
-pub use proto::*;
-
-impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
-    fn from(geoip: mullvad_types::location::GeoIpLocation) -> GeoIpLocation {
-        GeoIpLocation {
+impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
+    fn from(geoip: mullvad_types::location::GeoIpLocation) -> proto::GeoIpLocation {
+        proto::GeoIpLocation {
             ipv4: geoip.ipv4.map(|ip| ip.to_string()).unwrap_or_default(),
             ipv6: geoip.ipv6.map(|ip| ip.to_string()).unwrap_or_default(),
             country: geoip.country,
@@ -29,10 +22,10 @@ impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
     }
 }
 
-impl TryFrom<GeoIpLocation> for mullvad_types::location::GeoIpLocation {
+impl TryFrom<proto::GeoIpLocation> for mullvad_types::location::GeoIpLocation {
     type Error = FromProtobufTypeError;
 
-    fn try_from(geoip: GeoIpLocation) -> Result<Self, Self::Error> {
+    fn try_from(geoip: proto::GeoIpLocation) -> Result<Self, Self::Error> {
         Ok(mullvad_types::location::GeoIpLocation {
             ipv4: option_from_proto_string(geoip.ipv4)
                 .map(|addr| arg_from_str(&addr, "invalid IPv4 address"))
@@ -53,53 +46,53 @@ impl TryFrom<GeoIpLocation> for mullvad_types::location::GeoIpLocation {
     }
 }
 
-impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
+impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
     fn from(endpoint: talpid_types::net::TunnelEndpoint) -> Self {
         use talpid_types::net;
 
-        TunnelEndpoint {
+        proto::TunnelEndpoint {
             address: endpoint.endpoint.address.to_string(),
-            protocol: i32::from(TransportProtocol::from(endpoint.endpoint.protocol)),
+            protocol: i32::from(proto::TransportProtocol::from(endpoint.endpoint.protocol)),
             tunnel_type: match endpoint.tunnel_type {
-                net::TunnelType::Wireguard => i32::from(TunnelType::Wireguard),
-                net::TunnelType::OpenVpn => i32::from(TunnelType::Openvpn),
+                net::TunnelType::Wireguard => i32::from(proto::TunnelType::Wireguard),
+                net::TunnelType::OpenVpn => i32::from(proto::TunnelType::Openvpn),
             },
             quantum_resistant: endpoint.quantum_resistant,
-            proxy: endpoint.proxy.map(|proxy_ep| ProxyEndpoint {
+            proxy: endpoint.proxy.map(|proxy_ep| proto::ProxyEndpoint {
                 address: proxy_ep.endpoint.address.to_string(),
-                protocol: i32::from(TransportProtocol::from(proxy_ep.endpoint.protocol)),
+                protocol: i32::from(proto::TransportProtocol::from(proxy_ep.endpoint.protocol)),
                 proxy_type: match proxy_ep.proxy_type {
-                    net::proxy::ProxyType::Shadowsocks => i32::from(ProxyType::Shadowsocks),
-                    net::proxy::ProxyType::Custom => i32::from(ProxyType::Custom),
+                    net::proxy::ProxyType::Shadowsocks => i32::from(proto::ProxyType::Shadowsocks),
+                    net::proxy::ProxyType::Custom => i32::from(proto::ProxyType::Custom),
                 },
             }),
-            obfuscation: endpoint
-                .obfuscation
-                .map(|obfuscation_endpoint| ObfuscationEndpoint {
+            obfuscation: endpoint.obfuscation.map(|obfuscation_endpoint| {
+                proto::ObfuscationEndpoint {
                     address: obfuscation_endpoint.endpoint.address.ip().to_string(),
                     port: u32::from(obfuscation_endpoint.endpoint.address.port()),
-                    protocol: i32::from(TransportProtocol::from(
+                    protocol: i32::from(proto::TransportProtocol::from(
                         obfuscation_endpoint.endpoint.protocol,
                     )),
                     obfuscation_type: match obfuscation_endpoint.obfuscation_type {
-                        net::ObfuscationType::Udp2Tcp => i32::from(ObfuscationType::Udp2tcp),
+                        net::ObfuscationType::Udp2Tcp => i32::from(proto::ObfuscationType::Udp2tcp),
                     },
-                }),
-            entry_endpoint: endpoint.entry_endpoint.map(|entry| Endpoint {
+                }
+            }),
+            entry_endpoint: endpoint.entry_endpoint.map(|entry| proto::Endpoint {
                 address: entry.address.to_string(),
-                protocol: i32::from(TransportProtocol::from(entry.protocol)),
+                protocol: i32::from(proto::TransportProtocol::from(entry.protocol)),
             }),
         }
     }
 }
 
-impl From<mullvad_types::states::TunnelState> for TunnelState {
+impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
-        use error_state::{
+        use mullvad_types::states::TunnelState as MullvadTunnelState;
+        use proto::error_state::{
             firewall_policy_error::ErrorType as PolicyErrorType, Cause, FirewallPolicyError,
             GenerationError,
         };
-        use mullvad_types::states::TunnelState as MullvadTunnelState;
 
         use talpid_types::tunnel as talpid_tunnel;
 
@@ -126,42 +119,42 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
 
         let state = match state {
             MullvadTunnelState::Disconnected => {
-                tunnel_state::State::Disconnected(tunnel_state::Disconnected {})
+                proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {})
             }
             MullvadTunnelState::Connecting { endpoint, location } => {
-                tunnel_state::State::Connecting(tunnel_state::Connecting {
-                    relay_info: Some(TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(TunnelEndpoint::from(endpoint)),
-                        location: location.map(GeoIpLocation::from),
+                proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
+                    relay_info: Some(proto::TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
+                        location: location.map(proto::GeoIpLocation::from),
                     }),
                 })
             }
             MullvadTunnelState::Connected { endpoint, location } => {
-                tunnel_state::State::Connected(tunnel_state::Connected {
-                    relay_info: Some(TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(TunnelEndpoint::from(endpoint)),
-                        location: location.map(GeoIpLocation::from),
+                proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
+                    relay_info: Some(proto::TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
+                        location: location.map(proto::GeoIpLocation::from),
                     }),
                 })
             }
             MullvadTunnelState::Disconnecting(after_disconnect) => {
-                tunnel_state::State::Disconnecting(tunnel_state::Disconnecting {
+                proto::tunnel_state::State::Disconnecting(proto::tunnel_state::Disconnecting {
                     after_disconnect: match after_disconnect {
                         talpid_tunnel::ActionAfterDisconnect::Nothing => {
-                            i32::from(AfterDisconnect::Nothing)
+                            i32::from(proto::AfterDisconnect::Nothing)
                         }
                         talpid_tunnel::ActionAfterDisconnect::Block => {
-                            i32::from(AfterDisconnect::Block)
+                            i32::from(proto::AfterDisconnect::Block)
                         }
                         talpid_tunnel::ActionAfterDisconnect::Reconnect => {
-                            i32::from(AfterDisconnect::Reconnect)
+                            i32::from(proto::AfterDisconnect::Reconnect)
                         }
                     },
                 })
             }
             MullvadTunnelState::Error(error_state) => {
-                tunnel_state::State::Error(tunnel_state::Error {
-                    error_state: Some(ErrorState {
+                proto::tunnel_state::State::Error(proto::tunnel_state::Error {
+                    error_state: Some(proto::ErrorState {
                         cause: match error_state.cause() {
                             talpid_tunnel::ErrorStateCause::AuthFailed(_) => {
                                 i32::from(Cause::AuthFailed)
@@ -236,22 +229,22 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
             }
         };
 
-        TunnelState { state: Some(state) }
+        proto::TunnelState { state: Some(state) }
     }
 }
 
-impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
+impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
     type Error = FromProtobufTypeError;
 
-    fn try_from(state: TunnelState) -> Result<Self, FromProtobufTypeError> {
+    fn try_from(state: proto::TunnelState) -> Result<Self, FromProtobufTypeError> {
         use mullvad_types::states::TunnelState as MullvadState;
         use talpid_types::{net as talpid_net, tunnel as talpid_tunnel};
 
         let state = match state.state {
-            Some(tunnel_state::State::Disconnected(_)) => MullvadState::Disconnected,
-            Some(tunnel_state::State::Connecting(tunnel_state::Connecting {
+            Some(proto::tunnel_state::State::Disconnected(_)) => MullvadState::Disconnected,
+            Some(proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
                 relay_info:
-                    Some(TunnelStateRelayInfo {
+                    Some(proto::TunnelStateRelayInfo {
                         tunnel_endpoint: Some(tunnel_endpoint),
                         location,
                     }),
@@ -261,9 +254,9 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
             },
-            Some(tunnel_state::State::Connected(tunnel_state::Connected {
+            Some(proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
                 relay_info:
-                    Some(TunnelStateRelayInfo {
+                    Some(proto::TunnelStateRelayInfo {
                         tunnel_endpoint: Some(tunnel_endpoint),
                         location,
                     }),
@@ -273,21 +266,29 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
             },
-            Some(tunnel_state::State::Disconnecting(tunnel_state::Disconnecting {
-                after_disconnect,
-            })) => MullvadState::Disconnecting(match AfterDisconnect::from_i32(after_disconnect) {
-                Some(AfterDisconnect::Nothing) => talpid_tunnel::ActionAfterDisconnect::Nothing,
-                Some(AfterDisconnect::Block) => talpid_tunnel::ActionAfterDisconnect::Block,
-                Some(AfterDisconnect::Reconnect) => talpid_tunnel::ActionAfterDisconnect::Reconnect,
-                _ => {
-                    return Err(FromProtobufTypeError::InvalidArgument(
-                        "invalid \"after_disconnect\" action",
-                    ))
-                }
-            }),
-            Some(tunnel_state::State::Error(tunnel_state::Error {
+            Some(proto::tunnel_state::State::Disconnecting(
+                proto::tunnel_state::Disconnecting { after_disconnect },
+            )) => MullvadState::Disconnecting(
+                match proto::AfterDisconnect::from_i32(after_disconnect) {
+                    Some(proto::AfterDisconnect::Nothing) => {
+                        talpid_tunnel::ActionAfterDisconnect::Nothing
+                    }
+                    Some(proto::AfterDisconnect::Block) => {
+                        talpid_tunnel::ActionAfterDisconnect::Block
+                    }
+                    Some(proto::AfterDisconnect::Reconnect) => {
+                        talpid_tunnel::ActionAfterDisconnect::Reconnect
+                    }
+                    _ => {
+                        return Err(FromProtobufTypeError::InvalidArgument(
+                            "invalid \"after_disconnect\" action",
+                        ))
+                    }
+                },
+            ),
+            Some(proto::tunnel_state::State::Error(proto::tunnel_state::Error {
                 error_state:
-                    Some(ErrorState {
+                    Some(proto::ErrorState {
                         cause,
                         blocking_error,
                         auth_fail_reason,
@@ -295,22 +296,22 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
                         policy_error,
                     }),
             })) => {
-                let cause = match error_state::Cause::from_i32(cause) {
-                    Some(error_state::Cause::AuthFailed) => {
+                let cause = match proto::error_state::Cause::from_i32(cause) {
+                    Some(proto::error_state::Cause::AuthFailed) => {
                         talpid_tunnel::ErrorStateCause::AuthFailed(option_from_proto_string(
                             auth_fail_reason,
                         ))
                     }
-                    Some(error_state::Cause::Ipv6Unavailable) => {
+                    Some(proto::error_state::Cause::Ipv6Unavailable) => {
                         talpid_tunnel::ErrorStateCause::Ipv6Unavailable
                     }
-                    Some(error_state::Cause::IsOffline) => {
+                    Some(proto::error_state::Cause::IsOffline) => {
                         talpid_tunnel::ErrorStateCause::IsOffline
                     }
-                    Some(error_state::Cause::SetDnsError) => {
+                    Some(proto::error_state::Cause::SetDnsError) => {
                         talpid_tunnel::ErrorStateCause::SetDnsError
                     }
-                    Some(error_state::Cause::SetFirewallPolicyError) => {
+                    Some(proto::error_state::Cause::SetFirewallPolicyError) => {
                         let policy_error = policy_error.ok_or(
                             FromProtobufTypeError::InvalidArgument("missing firewall policy error"),
                         )?;
@@ -321,15 +322,15 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
                         )?;
                         talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(policy_error)
                     }
-                    Some(error_state::Cause::StartTunnelError) => {
+                    Some(proto::error_state::Cause::StartTunnelError) => {
                         talpid_tunnel::ErrorStateCause::StartTunnelError
                     }
-                    Some(error_state::Cause::TunnelParameterError) => {
-                        let parameter_error = match error_state::GenerationError::from_i32(parameter_error) {
-                            Some(error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError,
-                            Some(error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
-                            Some(error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
-                            Some(error_state::GenerationError::NoWireguardKey) => talpid_tunnel::ParameterGenerationError::NoWireguardKey,
+                    Some(proto::error_state::Cause::TunnelParameterError) => {
+                        let parameter_error = match proto::error_state::GenerationError::from_i32(parameter_error) {
+                            Some(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError,
+                            Some(proto::error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
+                            Some(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
+                            Some(proto::error_state::GenerationError::NoWireguardKey) => talpid_tunnel::ParameterGenerationError::NoWireguardKey,
                             _ => return Err(FromProtobufTypeError::InvalidArgument(
                                 "invalid parameter error",
                             )),
@@ -337,11 +338,11 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
                         talpid_tunnel::ErrorStateCause::TunnelParameterError(parameter_error)
                     }
                     #[cfg(target_os = "android")]
-                    Some(error_state::Cause::VpnPermissionDenied) => {
+                    Some(proto::error_state::Cause::VpnPermissionDenied) => {
                         talpid_tunnel::ErrorStateCause::VpnPermissionDenied
                     }
                     #[cfg(target_os = "windows")]
-                    Some(error_state::Cause::SplitTunnelError) => {
+                    Some(proto::error_state::Cause::SplitTunnelError) => {
                         talpid_tunnel::ErrorStateCause::SplitTunnelError
                     }
                     _ => {
@@ -374,10 +375,10 @@ impl TryFrom<TunnelState> for mullvad_types::states::TunnelState {
     }
 }
 
-impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
+impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
     type Error = FromProtobufTypeError;
 
-    fn try_from(endpoint: TunnelEndpoint) -> Result<Self, Self::Error> {
+    fn try_from(endpoint: proto::TunnelEndpoint) -> Result<Self, Self::Error> {
         use talpid_types::net as talpid_net;
 
         Ok(talpid_net::TunnelEndpoint {
@@ -398,11 +399,11 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             )?,
                             protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
                         },
-                        proxy_type: match ProxyType::from_i32(proxy_ep.proxy_type) {
-                            Some(ProxyType::Shadowsocks) => {
+                        proxy_type: match proto::ProxyType::from_i32(proxy_ep.proxy_type) {
+                            Some(proto::ProxyType::Shadowsocks) => {
                                 talpid_net::proxy::ProxyType::Shadowsocks
                             }
-                            Some(ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
+                            Some(proto::ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
                             None => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown proxy type",
@@ -426,9 +427,12 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             ),
                             protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
                         },
-                        obfuscation_type: match ObfuscationType::from_i32(obfs_ep.obfuscation_type)
-                        {
-                            Some(ObfuscationType::Udp2tcp) => talpid_net::ObfuscationType::Udp2Tcp,
+                        obfuscation_type: match proto::ObfuscationType::from_i32(
+                            obfs_ep.obfuscation_type,
+                        ) {
+                            Some(proto::ObfuscationType::Udp2tcp) => {
+                                talpid_net::ObfuscationType::Udp2Tcp
+                            }
                             None => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown obfuscation type",
@@ -451,13 +455,17 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
     }
 }
 
-impl From<mullvad_types::device::Device> for Device {
+impl From<mullvad_types::device::Device> for proto::Device {
     fn from(device: mullvad_types::device::Device) -> Self {
-        Device {
+        proto::Device {
             id: device.id,
             name: device.name,
             pubkey: device.pubkey.as_bytes().to_vec(),
-            ports: device.ports.into_iter().map(DevicePort::from).collect(),
+            ports: device
+                .ports
+                .into_iter()
+                .map(proto::DevicePort::from)
+                .collect(),
             hijack_dns: device.hijack_dns,
             created: Some(Timestamp {
                 seconds: device.created.timestamp(),
@@ -467,86 +475,90 @@ impl From<mullvad_types::device::Device> for Device {
     }
 }
 
-impl From<mullvad_types::device::DevicePort> for DevicePort {
+impl From<mullvad_types::device::DevicePort> for proto::DevicePort {
     fn from(port: mullvad_types::device::DevicePort) -> Self {
-        DevicePort { id: port.id }
+        proto::DevicePort { id: port.id }
     }
 }
 
-impl From<mullvad_types::device::DeviceState> for DeviceState {
+impl From<mullvad_types::device::DeviceState> for proto::DeviceState {
     fn from(state: mullvad_types::device::DeviceState) -> Self {
-        DeviceState {
-            state: device_state::State::from(&state) as i32,
-            device: state.into_device().map(|device| AccountAndDevice {
+        proto::DeviceState {
+            state: proto::device_state::State::from(&state) as i32,
+            device: state.into_device().map(|device| proto::AccountAndDevice {
                 account_token: device.account_token,
-                device: Some(Device::from(device.device)),
+                device: Some(proto::Device::from(device.device)),
             }),
         }
     }
 }
 
-impl From<&mullvad_types::device::DeviceState> for device_state::State {
+impl From<&mullvad_types::device::DeviceState> for proto::device_state::State {
     fn from(state: &mullvad_types::device::DeviceState) -> Self {
         use mullvad_types::device::DeviceState as MullvadState;
         match state {
-            MullvadState::LoggedIn(_) => device_state::State::LoggedIn,
-            MullvadState::LoggedOut => device_state::State::LoggedOut,
-            MullvadState::Revoked => device_state::State::Revoked,
+            MullvadState::LoggedIn(_) => proto::device_state::State::LoggedIn,
+            MullvadState::LoggedOut => proto::device_state::State::LoggedOut,
+            MullvadState::Revoked => proto::device_state::State::Revoked,
         }
     }
 }
 
-impl From<mullvad_types::device::DeviceEvent> for DeviceEvent {
+impl From<mullvad_types::device::DeviceEvent> for proto::DeviceEvent {
     fn from(event: mullvad_types::device::DeviceEvent) -> Self {
-        DeviceEvent {
-            cause: device_event::Cause::from(event.cause) as i32,
-            new_state: Some(DeviceState::from(event.new_state)),
+        proto::DeviceEvent {
+            cause: proto::device_event::Cause::from(event.cause) as i32,
+            new_state: Some(proto::DeviceState::from(event.new_state)),
         }
     }
 }
 
-impl From<mullvad_types::device::DeviceEventCause> for device_event::Cause {
+impl From<mullvad_types::device::DeviceEventCause> for proto::device_event::Cause {
     fn from(cause: mullvad_types::device::DeviceEventCause) -> Self {
         use mullvad_types::device::DeviceEventCause as MullvadEvent;
         match cause {
-            MullvadEvent::LoggedIn => device_event::Cause::LoggedIn,
-            MullvadEvent::LoggedOut => device_event::Cause::LoggedOut,
-            MullvadEvent::Revoked => device_event::Cause::Revoked,
-            MullvadEvent::Updated => device_event::Cause::Updated,
-            MullvadEvent::RotatedKey => device_event::Cause::RotatedKey,
+            MullvadEvent::LoggedIn => proto::device_event::Cause::LoggedIn,
+            MullvadEvent::LoggedOut => proto::device_event::Cause::LoggedOut,
+            MullvadEvent::Revoked => proto::device_event::Cause::Revoked,
+            MullvadEvent::Updated => proto::device_event::Cause::Updated,
+            MullvadEvent::RotatedKey => proto::device_event::Cause::RotatedKey,
         }
     }
 }
 
-impl From<mullvad_types::device::RemoveDeviceEvent> for RemoveDeviceEvent {
+impl From<mullvad_types::device::RemoveDeviceEvent> for proto::RemoveDeviceEvent {
     fn from(event: mullvad_types::device::RemoveDeviceEvent) -> Self {
-        RemoveDeviceEvent {
+        proto::RemoveDeviceEvent {
             account_token: event.account_token,
-            new_device_list: event.new_devices.into_iter().map(Device::from).collect(),
+            new_device_list: event
+                .new_devices
+                .into_iter()
+                .map(proto::Device::from)
+                .collect(),
         }
     }
 }
 
-impl From<mullvad_types::device::AccountAndDevice> for AccountAndDevice {
+impl From<mullvad_types::device::AccountAndDevice> for proto::AccountAndDevice {
     fn from(device: mullvad_types::device::AccountAndDevice) -> Self {
-        AccountAndDevice {
+        proto::AccountAndDevice {
             account_token: device.account_token,
-            device: Some(Device::from(device.device)),
+            device: Some(proto::Device::from(device.device)),
         }
     }
 }
 
-impl From<Vec<mullvad_types::device::Device>> for DeviceList {
+impl From<Vec<mullvad_types::device::Device>> for proto::DeviceList {
     fn from(devices: Vec<mullvad_types::device::Device>) -> Self {
-        DeviceList {
-            devices: devices.into_iter().map(Device::from).collect(),
+        proto::DeviceList {
+            devices: devices.into_iter().map(proto::Device::from).collect(),
         }
     }
 }
 
-impl From<mullvad_types::wireguard::PublicKey> for PublicKey {
+impl From<mullvad_types::wireguard::PublicKey> for proto::PublicKey {
     fn from(public_key: mullvad_types::wireguard::PublicKey) -> Self {
-        PublicKey {
+        proto::PublicKey {
             key: public_key.key.as_bytes().to_vec(),
             created: Some(Timestamp {
                 seconds: public_key.created.timestamp(),
@@ -556,7 +568,7 @@ impl From<mullvad_types::wireguard::PublicKey> for PublicKey {
     }
 }
 
-impl From<mullvad_types::version::AppVersionInfo> for AppVersionInfo {
+impl From<mullvad_types::version::AppVersionInfo> for proto::AppVersionInfo {
     fn from(version_info: mullvad_types::version::AppVersionInfo) -> Self {
         Self {
             supported: version_info.supported,
@@ -567,14 +579,18 @@ impl From<mullvad_types::version::AppVersionInfo> for AppVersionInfo {
     }
 }
 
-impl From<mullvad_types::ConnectionConfig> for ConnectionConfig {
+impl From<mullvad_types::ConnectionConfig> for proto::ConnectionConfig {
     fn from(config: mullvad_types::ConnectionConfig) -> Self {
+        use proto::connection_config;
+
         Self {
             config: Some(match config {
                 mullvad_types::ConnectionConfig::OpenVpn(config) => {
                     connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
                         address: config.endpoint.address.to_string(),
-                        protocol: i32::from(TransportProtocol::from(config.endpoint.protocol)),
+                        protocol: i32::from(proto::TransportProtocol::from(
+                            config.endpoint.protocol,
+                        )),
                         username: config.username,
                         password: config.password,
                     })
@@ -613,36 +629,36 @@ impl From<mullvad_types::ConnectionConfig> for ConnectionConfig {
     }
 }
 
-impl From<talpid_types::net::TransportProtocol> for TransportProtocol {
+impl From<talpid_types::net::TransportProtocol> for proto::TransportProtocol {
     fn from(protocol: talpid_types::net::TransportProtocol) -> Self {
         match protocol {
-            talpid_types::net::TransportProtocol::Udp => TransportProtocol::Udp,
-            talpid_types::net::TransportProtocol::Tcp => TransportProtocol::Tcp,
+            talpid_types::net::TransportProtocol::Udp => proto::TransportProtocol::Udp,
+            talpid_types::net::TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
         }
     }
 }
 
-impl From<talpid_types::net::IpVersion> for IpVersion {
+impl From<talpid_types::net::IpVersion> for proto::IpVersion {
     fn from(version: talpid_types::net::IpVersion) -> Self {
         match version {
-            talpid_types::net::IpVersion::V4 => Self::V4,
-            talpid_types::net::IpVersion::V6 => Self::V6,
+            talpid_types::net::IpVersion::V4 => proto::IpVersion::V4,
+            talpid_types::net::IpVersion::V6 => proto::IpVersion::V6,
         }
     }
 }
 
-impl From<IpVersion> for IpVersionConstraint {
-    fn from(version: IpVersion) -> Self {
+impl From<proto::IpVersion> for proto::IpVersionConstraint {
+    fn from(version: proto::IpVersion) -> Self {
         Self {
             protocol: i32::from(version),
         }
     }
 }
 
-impl From<mullvad_types::relay_constraints::TransportPort> for TransportPort {
+impl From<mullvad_types::relay_constraints::TransportPort> for proto::TransportPort {
     fn from(port: mullvad_types::relay_constraints::TransportPort) -> Self {
-        TransportPort {
-            protocol: TransportProtocol::from(port.protocol) as i32,
+        proto::TransportPort {
+            protocol: proto::TransportProtocol::from(port.protocol) as i32,
             port: port.port.map(u32::from).unwrap_or(0),
         }
     }
@@ -653,7 +669,7 @@ impl
         mullvad_types::relay_constraints::Constraint<
             mullvad_types::relay_constraints::LocationConstraint,
         >,
-    > for RelayLocation
+    > for proto::RelayLocation
 {
     fn from(
         location: mullvad_types::relay_constraints::Constraint<
@@ -662,12 +678,12 @@ impl
     ) -> Self {
         location
             .option()
-            .map(RelayLocation::from)
+            .map(proto::RelayLocation::from)
             .unwrap_or_default()
     }
 }
 
-impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocation {
+impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::RelayLocation {
     fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
 
@@ -690,7 +706,7 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
     }
 }
 
-impl From<&mullvad_types::settings::Settings> for Settings {
+impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
         #[cfg(windows)]
         let split_tunnel = {
@@ -704,7 +720,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
                 }
             }
 
-            Some(SplitTunnelSettings {
+            Some(proto::SplitTunnelSettings {
                 enable_exclusions: settings.split_tunnel.enable_exclusions,
                 apps: converted_list,
             })
@@ -713,50 +729,56 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         let split_tunnel = None;
 
         Self {
-            relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
-            bridge_settings: Some(BridgeSettings::from(settings.bridge_settings.clone())),
-            bridge_state: Some(BridgeState::from(settings.get_bridge_state())),
+            relay_settings: Some(proto::RelaySettings::from(settings.get_relay_settings())),
+            bridge_settings: Some(proto::BridgeSettings::from(
+                settings.bridge_settings.clone(),
+            )),
+            bridge_state: Some(proto::BridgeState::from(settings.get_bridge_state())),
             allow_lan: settings.allow_lan,
             block_when_disconnected: settings.block_when_disconnected,
             auto_connect: settings.auto_connect,
-            tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
+            tunnel_options: Some(proto::TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
-            obfuscation_settings: Some(ObfuscationSettings::from(&settings.obfuscation_settings)),
+            obfuscation_settings: Some(proto::ObfuscationSettings::from(
+                &settings.obfuscation_settings,
+            )),
             split_tunnel,
         }
     }
 }
 
-impl From<mullvad_types::relay_constraints::BridgeState> for BridgeState {
+impl From<mullvad_types::relay_constraints::BridgeState> for proto::BridgeState {
     fn from(state: mullvad_types::relay_constraints::BridgeState) -> Self {
         use mullvad_types::relay_constraints::BridgeState;
         Self {
             state: i32::from(match state {
-                BridgeState::Auto => bridge_state::State::Auto,
-                BridgeState::On => bridge_state::State::On,
-                BridgeState::Off => bridge_state::State::Off,
+                BridgeState::Auto => proto::bridge_state::State::Auto,
+                BridgeState::On => proto::bridge_state::State::On,
+                BridgeState::Off => proto::bridge_state::State::Off,
             }),
         }
     }
 }
 
-impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for ObfuscationSettings {
+impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::ObfuscationSettings {
     fn from(settings: &mullvad_types::relay_constraints::ObfuscationSettings) -> Self {
         use mullvad_types::relay_constraints::SelectedObfuscation;
         let selected_obfuscation = i32::from(match settings.selected_obfuscation {
-            SelectedObfuscation::Auto => obfuscation_settings::SelectedObfuscation::Auto,
-            SelectedObfuscation::Off => obfuscation_settings::SelectedObfuscation::Off,
-            SelectedObfuscation::Udp2Tcp => obfuscation_settings::SelectedObfuscation::Udp2tcp,
+            SelectedObfuscation::Auto => proto::obfuscation_settings::SelectedObfuscation::Auto,
+            SelectedObfuscation::Off => proto::obfuscation_settings::SelectedObfuscation::Off,
+            SelectedObfuscation::Udp2Tcp => {
+                proto::obfuscation_settings::SelectedObfuscation::Udp2tcp
+            }
         });
         Self {
             selected_obfuscation,
-            udp2tcp: Some(Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
+            udp2tcp: Some(proto::Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
         }
     }
 }
 
 impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
-    for Udp2TcpObfuscationSettings
+    for proto::Udp2TcpObfuscationSettings
 {
     fn from(settings: &mullvad_types::relay_constraints::Udp2TcpObfuscationSettings) -> Self {
         Self {
@@ -765,9 +787,10 @@ impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
     }
 }
 
-impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
+impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSettings {
     fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
         use mullvad_types::relay_constraints::BridgeSettings as MullvadBridgeSettings;
+        use proto::bridge_settings;
         use talpid_types::net as talpid_net;
 
         let settings = match settings {
@@ -777,7 +800,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
                         .location
                         .clone()
                         .option()
-                        .map(RelayLocation::from),
+                        .map(proto::RelayLocation::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                 })
@@ -810,64 +833,68 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
             },
         };
 
-        BridgeSettings {
+        proto::BridgeSettings {
             r#type: Some(settings),
         }
     }
 }
 
-impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
+impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySettings {
     fn from(settings: mullvad_types::relay_constraints::RelaySettings) -> Self {
         use mullvad_types::relay_constraints::RelaySettings as MullvadRelaySettings;
+        use proto::relay_settings;
         use talpid_types::net as talpid_net;
 
         let endpoint = match settings {
             MullvadRelaySettings::CustomTunnelEndpoint(endpoint) => {
-                relay_settings::Endpoint::Custom(CustomRelaySettings {
+                relay_settings::Endpoint::Custom(proto::CustomRelaySettings {
                     host: endpoint.host,
-                    config: Some(ConnectionConfig::from(endpoint.config)),
+                    config: Some(proto::ConnectionConfig::from(endpoint.config)),
                 })
             }
             MullvadRelaySettings::Normal(constraints) => {
-                relay_settings::Endpoint::Normal(NormalRelaySettings {
-                    location: constraints.location.option().map(RelayLocation::from),
+                relay_settings::Endpoint::Normal(proto::NormalRelaySettings {
+                    location: constraints
+                        .location
+                        .option()
+                        .map(proto::RelayLocation::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                     tunnel_type: match constraints.tunnel_protocol {
                         Constraint::Any => None,
                         Constraint::Only(talpid_net::TunnelType::Wireguard) => {
-                            Some(TunnelType::Wireguard)
+                            Some(proto::TunnelType::Wireguard)
                         }
                         Constraint::Only(talpid_net::TunnelType::OpenVpn) => {
-                            Some(TunnelType::Openvpn)
+                            Some(proto::TunnelType::Openvpn)
                         }
                     }
-                    .map(|tunnel_type| TunnelTypeConstraint {
+                    .map(|tunnel_type| proto::TunnelTypeConstraint {
                         tunnel_type: i32::from(tunnel_type),
                     }),
 
-                    wireguard_constraints: Some(WireguardConstraints {
+                    wireguard_constraints: Some(proto::WireguardConstraints {
                         port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
                             .option()
-                            .map(IpVersion::from)
-                            .map(IpVersionConstraint::from),
+                            .map(proto::IpVersion::from)
+                            .map(proto::IpVersionConstraint::from),
                         use_multihop: constraints.wireguard_constraints.use_multihop,
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location
                             .option()
-                            .map(RelayLocation::from),
+                            .map(proto::RelayLocation::from),
                     }),
 
-                    openvpn_constraints: Some(OpenvpnConstraints {
+                    openvpn_constraints: Some(proto::OpenvpnConstraints {
                         port: constraints
                             .openvpn_constraints
                             .port
                             .option()
-                            .map(TransportPort::from),
+                            .map(proto::TransportPort::from),
                     }),
                 })
             }
@@ -879,21 +906,23 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
     }
 }
 
-impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
+impl From<&mullvad_types::settings::DnsOptions> for proto::DnsOptions {
     fn from(options: &mullvad_types::settings::DnsOptions) -> Self {
-        DnsOptions {
+        use proto::dns_options;
+
+        proto::DnsOptions {
             state: match options.state {
                 mullvad_types::settings::DnsState::Default => dns_options::DnsState::Default as i32,
                 mullvad_types::settings::DnsState::Custom => dns_options::DnsState::Custom as i32,
             },
-            default_options: Some(DefaultDnsOptions {
+            default_options: Some(proto::DefaultDnsOptions {
                 block_ads: options.default_options.block_ads,
                 block_trackers: options.default_options.block_trackers,
                 block_malware: options.default_options.block_malware,
                 block_adult_content: options.default_options.block_adult_content,
                 block_gambling: options.default_options.block_gambling,
             }),
-            custom_options: Some(CustomDnsOptions {
+            custom_options: Some(proto::CustomDnsOptions {
                 addresses: options
                     .custom_options
                     .addresses
@@ -905,13 +934,13 @@ impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
     }
 }
 
-impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
+impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
     fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
         Self {
-            openvpn: Some(tunnel_options::OpenvpnOptions {
+            openvpn: Some(proto::tunnel_options::OpenvpnOptions {
                 mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
             }),
-            wireguard: Some(tunnel_options::WireguardOptions {
+            wireguard: Some(proto::tunnel_options::WireguardOptions {
                 mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
                 rotation_interval: options.wireguard.rotation_interval.map(|ivl| {
                     prost_types::Duration::try_from(std::time::Duration::from(ivl))
@@ -923,73 +952,73 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                 use_wireguard_nt: false,
                 use_pq_safe_psk: options.wireguard.options.use_pq_safe_psk,
             }),
-            generic: Some(tunnel_options::GenericOptions {
+            generic: Some(proto::tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,
             }),
             #[cfg(not(target_os = "android"))]
-            dns_options: Some(DnsOptions::from(&options.dns_options)),
+            dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             #[cfg(target_os = "android")]
             dns_options: None,
         }
     }
 }
 
-impl From<mullvad_types::relay_list::RelayList> for RelayList {
+impl From<mullvad_types::relay_list::RelayList> for proto::RelayList {
     fn from(relay_list: mullvad_types::relay_list::RelayList) -> Self {
-        let mut proto_list = RelayList {
+        let mut proto_list = proto::RelayList {
             countries: vec![],
-            openvpn: Some(OpenVpnEndpointData::from(relay_list.openvpn)),
-            bridge: Some(BridgeEndpointData::from(relay_list.bridge)),
-            wireguard: Some(WireguardEndpointData::from(relay_list.wireguard)),
+            openvpn: Some(proto::OpenVpnEndpointData::from(relay_list.openvpn)),
+            bridge: Some(proto::BridgeEndpointData::from(relay_list.bridge)),
+            wireguard: Some(proto::WireguardEndpointData::from(relay_list.wireguard)),
         };
         proto_list.countries = relay_list
             .countries
             .into_iter()
-            .map(RelayListCountry::from)
+            .map(proto::RelayListCountry::from)
             .collect();
         proto_list
     }
 }
 
-impl From<mullvad_types::relay_list::OpenVpnEndpointData> for OpenVpnEndpointData {
+impl From<mullvad_types::relay_list::OpenVpnEndpointData> for proto::OpenVpnEndpointData {
     fn from(openvpn: mullvad_types::relay_list::OpenVpnEndpointData) -> Self {
-        OpenVpnEndpointData {
+        proto::OpenVpnEndpointData {
             endpoints: openvpn
                 .ports
                 .into_iter()
-                .map(|endpoint| OpenVpnEndpoint {
+                .map(|endpoint| proto::OpenVpnEndpoint {
                     port: u32::from(endpoint.port),
-                    protocol: TransportProtocol::from(endpoint.protocol) as i32,
+                    protocol: proto::TransportProtocol::from(endpoint.protocol) as i32,
                 })
                 .collect(),
         }
     }
 }
 
-impl From<mullvad_types::relay_list::BridgeEndpointData> for BridgeEndpointData {
+impl From<mullvad_types::relay_list::BridgeEndpointData> for proto::BridgeEndpointData {
     fn from(bridge: mullvad_types::relay_list::BridgeEndpointData) -> Self {
-        BridgeEndpointData {
+        proto::BridgeEndpointData {
             shadowsocks: bridge
                 .shadowsocks
                 .into_iter()
-                .map(|endpoint| ShadowsocksEndpointData {
+                .map(|endpoint| proto::ShadowsocksEndpointData {
                     port: u32::from(endpoint.port),
                     cipher: endpoint.cipher,
                     password: endpoint.password,
-                    protocol: TransportProtocol::from(endpoint.protocol) as i32,
+                    protocol: proto::TransportProtocol::from(endpoint.protocol) as i32,
                 })
                 .collect(),
         }
     }
 }
 
-impl From<mullvad_types::relay_list::WireguardEndpointData> for WireguardEndpointData {
+impl From<mullvad_types::relay_list::WireguardEndpointData> for proto::WireguardEndpointData {
     fn from(wireguard: mullvad_types::relay_list::WireguardEndpointData) -> Self {
-        WireguardEndpointData {
+        proto::WireguardEndpointData {
             port_ranges: wireguard
                 .port_ranges
                 .into_iter()
-                .map(|(first, last)| PortRange {
+                .map(|(first, last)| proto::PortRange {
                     first: u32::from(first),
                     last: u32::from(last),
                 })
@@ -1001,21 +1030,21 @@ impl From<mullvad_types::relay_list::WireguardEndpointData> for WireguardEndpoin
     }
 }
 
-impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
+impl From<mullvad_types::relay_list::RelayListCountry> for proto::RelayListCountry {
     fn from(country: mullvad_types::relay_list::RelayListCountry) -> Self {
-        let mut proto_country = RelayListCountry {
+        let mut proto_country = proto::RelayListCountry {
             name: country.name,
             code: country.code,
             cities: Vec::with_capacity(country.cities.len()),
         };
 
         for city in country.cities.into_iter() {
-            proto_country.cities.push(RelayListCity {
+            proto_country.cities.push(proto::RelayListCity {
                 name: city.name,
                 code: city.code,
                 latitude: city.latitude,
                 longitude: city.longitude,
-                relays: city.relays.into_iter().map(Relay::from).collect(),
+                relays: city.relays.into_iter().map(proto::Relay::from).collect(),
             });
         }
 
@@ -1023,7 +1052,7 @@ impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
     }
 }
 
-impl From<mullvad_types::relay_list::Relay> for Relay {
+impl From<mullvad_types::relay_list::Relay> for proto::Relay {
     fn from(relay: mullvad_types::relay_list::Relay) -> Self {
         use mullvad_types::relay_list::RelayEndpointData as MullvadEndpointData;
 
@@ -1040,20 +1069,20 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
             provider: relay.provider,
             weight: relay.weight,
             endpoint_type: match &relay.endpoint_data {
-                MullvadEndpointData::Openvpn => relay::RelayType::Openvpn as i32,
-                MullvadEndpointData::Bridge => relay::RelayType::Bridge as i32,
-                MullvadEndpointData::Wireguard(_) => relay::RelayType::Wireguard as i32,
+                MullvadEndpointData::Openvpn => proto::relay::RelayType::Openvpn as i32,
+                MullvadEndpointData::Bridge => proto::relay::RelayType::Bridge as i32,
+                MullvadEndpointData::Wireguard(_) => proto::relay::RelayType::Wireguard as i32,
             },
             endpoint_data: match relay.endpoint_data {
                 MullvadEndpointData::Wireguard(data) => Some(to_proto_any(
                     "mullvad_daemon.management_interface/WireguardRelayEndpointData",
-                    WireguardRelayEndpointData {
+                    proto::WireguardRelayEndpointData {
                         public_key: data.public_key.as_bytes().to_vec(),
                     },
                 )),
                 _ => None,
             },
-            location: relay.location.map(|location| Location {
+            location: relay.location.map(|location| proto::Location {
                 country: location.country,
                 country_code: location.country_code,
                 city: location.city,
@@ -1065,25 +1094,25 @@ impl From<mullvad_types::relay_list::Relay> for Relay {
     }
 }
 
-impl TryFrom<Relay> for mullvad_types::relay_list::Relay {
+impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
     type Error = FromProtobufTypeError;
 
-    fn try_from(relay: Relay) -> Result<Self, Self::Error> {
+    fn try_from(relay: proto::Relay) -> Result<Self, Self::Error> {
         use mullvad_types::{
             location::Location as MullvadLocation,
             relay_list::{Relay as MullvadRelay, RelayEndpointData as MullvadEndpointData},
         };
 
         let endpoint_data = match relay.endpoint_type {
-            i if i == relay::RelayType::Openvpn as i32 => MullvadEndpointData::Openvpn,
-            i if i == relay::RelayType::Bridge as i32 => MullvadEndpointData::Bridge,
-            i if i == relay::RelayType::Wireguard as i32 => {
+            i if i == proto::relay::RelayType::Openvpn as i32 => MullvadEndpointData::Openvpn,
+            i if i == proto::relay::RelayType::Bridge as i32 => MullvadEndpointData::Bridge,
+            i if i == proto::relay::RelayType::Wireguard as i32 => {
                 let data = relay
                     .endpoint_data
                     .ok_or(FromProtobufTypeError::InvalidArgument(
                         "missing endpoint wg data",
                     ))?;
-                let data: WireguardRelayEndpointData = try_from_proto_any(
+                let data: proto::WireguardRelayEndpointData = try_from_proto_any(
                     "mullvad_daemon.management_interface/WireguardRelayEndpointData",
                     data,
                 )
@@ -1135,11 +1164,11 @@ impl TryFrom<Relay> for mullvad_types::relay_list::Relay {
     }
 }
 
-impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
-    fn from(protocol: TransportProtocol) -> Self {
+impl From<proto::TransportProtocol> for talpid_types::net::TransportProtocol {
+    fn from(protocol: proto::TransportProtocol) -> Self {
         match protocol {
-            TransportProtocol::Udp => talpid_types::net::TransportProtocol::Udp,
-            TransportProtocol::Tcp => talpid_types::net::TransportProtocol::Tcp,
+            proto::TransportProtocol::Udp => talpid_types::net::TransportProtocol::Udp,
+            proto::TransportProtocol::Tcp => talpid_types::net::TransportProtocol::Tcp,
         }
     }
 }
@@ -1149,10 +1178,10 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
-impl TryFrom<Device> for mullvad_types::device::Device {
+impl TryFrom<proto::Device> for mullvad_types::device::Device {
     type Error = FromProtobufTypeError;
 
-    fn try_from(device: Device) -> Result<Self, Self::Error> {
+    fn try_from(device: proto::Device) -> Result<Self, Self::Error> {
         Ok(mullvad_types::device::Device {
             id: device.id,
             name: device.name,
@@ -1179,25 +1208,27 @@ impl TryFrom<Device> for mullvad_types::device::Device {
     }
 }
 
-impl From<DevicePort> for mullvad_types::device::DevicePort {
-    fn from(port: DevicePort) -> Self {
+impl From<proto::DevicePort> for mullvad_types::device::DevicePort {
+    fn from(port: proto::DevicePort) -> Self {
         mullvad_types::device::DevicePort { id: port.id }
     }
 }
 
-impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
+impl TryFrom<&proto::WireguardConstraints>
+    for mullvad_types::relay_constraints::WireguardConstraints
+{
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        constraints: &WireguardConstraints,
+        constraints: &proto::WireguardConstraints,
     ) -> Result<mullvad_types::relay_constraints::WireguardConstraints, Self::Error> {
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net;
 
         let ip_version = match &constraints.ip_version {
-            Some(constraint) => match IpVersion::from_i32(constraint.protocol) {
-                Some(IpVersion::V4) => Some(net::IpVersion::V4),
-                Some(IpVersion::V6) => Some(net::IpVersion::V6),
+            Some(constraint) => match proto::IpVersion::from_i32(constraint.protocol) {
+                Some(proto::IpVersion::V4) => Some(net::IpVersion::V4),
+                Some(proto::IpVersion::V6) => Some(net::IpVersion::V6),
                 None => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid ip protocol version",
@@ -1224,11 +1255,11 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
     }
 }
 
-impl TryFrom<&OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnConstraints {
+impl TryFrom<&proto::OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnConstraints {
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        constraints: &OpenvpnConstraints,
+        constraints: &proto::OpenvpnConstraints,
     ) -> Result<mullvad_types::relay_constraints::OpenVpnConstraints, Self::Error> {
         use mullvad_types::relay_constraints as mullvad_constraints;
 
@@ -1241,11 +1272,11 @@ impl TryFrom<&OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnC
     }
 }
 
-impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings {
+impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySettings {
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        settings: RelaySettings,
+        settings: proto::RelaySettings,
     ) -> Result<mullvad_types::relay_constraints::RelaySettings, Self::Error> {
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
         use talpid_types::net;
@@ -1257,7 +1288,7 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
             ))?;
 
         match update_value {
-            relay_settings::Endpoint::Custom(settings) => {
+            proto::relay_settings::Endpoint::Custom(settings) => {
                 let config = settings
                     .config
                     .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -1272,7 +1303,7 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
                 ))
             }
 
-            relay_settings::Endpoint::Normal(settings) => {
+            proto::relay_settings::Endpoint::Normal(settings) => {
                 let location = settings
                     .location
                     .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
@@ -1311,11 +1342,11 @@ impl TryFrom<RelaySettings> for mullvad_types::relay_constraints::RelaySettings 
     }
 }
 
-impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySettingsUpdate {
+impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySettingsUpdate {
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        settings: RelaySettingsUpdate,
+        settings: proto::RelaySettingsUpdate,
     ) -> Result<mullvad_types::relay_constraints::RelaySettingsUpdate, Self::Error> {
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
         use talpid_types::net;
@@ -1327,7 +1358,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
             ))?;
 
         match update_value {
-            relay_settings_update::Type::Custom(settings) => {
+            proto::relay_settings_update::Type::Custom(settings) => {
                 let config = settings
                     .config
                     .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -1344,7 +1375,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                 )
             }
 
-            relay_settings_update::Type::Normal(settings) => {
+            proto::relay_settings_update::Type::Normal(settings) => {
                 // If `location` isn't provided, no changes are made.
                 // If `location` is provided, but is an empty vector,
                 // then the constraint is set to `Constraint::Any`.
@@ -1407,28 +1438,30 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
     }
 }
 
-impl TryFrom<TunnelTypeConstraint> for Constraint<talpid_types::net::TunnelType> {
+impl TryFrom<proto::TunnelTypeConstraint> for Constraint<talpid_types::net::TunnelType> {
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        tunnel_type: TunnelTypeConstraint,
+        tunnel_type: proto::TunnelTypeConstraint,
     ) -> Result<Constraint<talpid_types::net::TunnelType>, Self::Error> {
         let tunnel_type = try_tunnel_type_from_i32(tunnel_type.tunnel_type)?;
         Ok(Constraint::Only(tunnel_type))
     }
 }
 
-impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
+impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
     type Error = FromProtobufTypeError;
 
-    fn try_from(config: ConnectionConfig) -> Result<mullvad_types::ConnectionConfig, Self::Error> {
+    fn try_from(
+        config: proto::ConnectionConfig,
+    ) -> Result<mullvad_types::ConnectionConfig, Self::Error> {
         use talpid_types::net::{self, openvpn};
 
         let config = config.config.ok_or(FromProtobufTypeError::InvalidArgument(
             "missing connection config",
         ))?;
         match config {
-            connection_config::Config::Openvpn(config) => {
+            proto::connection_config::Config::Openvpn(config) => {
                 let address = match config.address.parse() {
                     Ok(address) => address,
                     Err(_) => {
@@ -1447,7 +1480,7 @@ impl TryFrom<ConnectionConfig> for mullvad_types::ConnectionConfig {
                     },
                 ))
             }
-            connection_config::Config::Wireguard(config) => {
+            proto::connection_config::Config::Wireguard(config) => {
                 let tunnel = config.tunnel.ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing tunnel config",
                 ))?;
@@ -1531,8 +1564,10 @@ fn bytes_to_pubkey(bytes: &[u8]) -> Result<wireguard::PublicKey, FromProtobufTyp
     Ok(wireguard::PublicKey::from(public_key))
 }
 
-impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
-    fn from(location: RelayLocation) -> Self {
+impl From<proto::RelayLocation>
+    for Constraint<mullvad_types::relay_constraints::LocationConstraint>
+{
+    fn from(location: proto::RelayLocation) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
 
         if let Some(hostname) = option_from_proto_string(location.hostname) {
@@ -1551,10 +1586,10 @@ impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::Locati
     }
 }
 
-impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
+impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: BridgeSettings) -> Result<Self, Self::Error> {
+    fn try_from(settings: proto::BridgeSettings) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net as talpid_net;
 
@@ -1563,7 +1598,7 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "no settings provided",
             ))? {
-            bridge_settings::Type::Normal(constraints) => {
+            proto::bridge_settings::Type::Normal(constraints) => {
                 let location = match constraints.location {
                     None => Constraint::Any,
                     Some(location) => {
@@ -1581,7 +1616,7 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                     },
                 ))
             }
-            bridge_settings::Type::Local(proxy_settings) => {
+            proto::bridge_settings::Type::Local(proxy_settings) => {
                 let peer = proxy_settings.peer.parse().map_err(|_| {
                     FromProtobufTypeError::InvalidArgument("failed to parse peer address")
                 })?;
@@ -1593,7 +1628,7 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                 );
                 Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
             }
-            bridge_settings::Type::Remote(proxy_settings) => {
+            proto::bridge_settings::Type::Remote(proxy_settings) => {
                 let address = proxy_settings.address.parse().map_err(|_| {
                     FromProtobufTypeError::InvalidArgument("failed to parse IP address")
                 })?;
@@ -1608,7 +1643,7 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
                 );
                 Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
             }
-            bridge_settings::Type::Shadowsocks(proxy_settings) => {
+            proto::bridge_settings::Type::Shadowsocks(proxy_settings) => {
                 let peer = proxy_settings.peer.parse().map_err(|_| {
                     FromProtobufTypeError::InvalidArgument("failed to parse peer address")
                 })?;
@@ -1625,12 +1660,12 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
     }
 }
 
-impl TryFrom<ObfuscationSettings> for mullvad_types::relay_constraints::ObfuscationSettings {
+impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::ObfuscationSettings {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: ObfuscationSettings) -> Result<Self, Self::Error> {
+    fn try_from(settings: proto::ObfuscationSettings) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::SelectedObfuscation;
-        use obfuscation_settings::SelectedObfuscation as IpcSelectedObfuscation;
+        use proto::obfuscation_settings::SelectedObfuscation as IpcSelectedObfuscation;
         let selected_obfuscation =
             match IpcSelectedObfuscation::from_i32(settings.selected_obfuscation) {
                 Some(IpcSelectedObfuscation::Auto) => SelectedObfuscation::Auto,
@@ -1661,12 +1696,12 @@ impl TryFrom<ObfuscationSettings> for mullvad_types::relay_constraints::Obfuscat
     }
 }
 
-impl TryFrom<&Udp2TcpObfuscationSettings>
+impl TryFrom<&proto::Udp2TcpObfuscationSettings>
     for mullvad_types::relay_constraints::Udp2TcpObfuscationSettings
 {
     type Error = FromProtobufTypeError;
 
-    fn try_from(settings: &Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
+    fn try_from(settings: &proto::Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
         Ok(Self {
             port: if settings.port == 0 {
                 Constraint::Any
@@ -1677,16 +1712,18 @@ impl TryFrom<&Udp2TcpObfuscationSettings>
     }
 }
 
-impl TryFrom<BridgeState> for mullvad_types::relay_constraints::BridgeState {
+impl TryFrom<proto::BridgeState> for mullvad_types::relay_constraints::BridgeState {
     type Error = FromProtobufTypeError;
 
-    fn try_from(state: BridgeState) -> Result<Self, Self::Error> {
-        match bridge_state::State::from_i32(state.state) {
-            Some(bridge_state::State::Auto) => {
+    fn try_from(state: proto::BridgeState) -> Result<Self, Self::Error> {
+        match proto::bridge_state::State::from_i32(state.state) {
+            Some(proto::bridge_state::State::Auto) => {
                 Ok(mullvad_types::relay_constraints::BridgeState::Auto)
             }
-            Some(bridge_state::State::On) => Ok(mullvad_types::relay_constraints::BridgeState::On),
-            Some(bridge_state::State::Off) => {
+            Some(proto::bridge_state::State::On) => {
+                Ok(mullvad_types::relay_constraints::BridgeState::On)
+            }
+            Some(proto::bridge_state::State::Off) => {
                 Ok(mullvad_types::relay_constraints::BridgeState::Off)
             }
             None => Err(FromProtobufTypeError::InvalidArgument(
@@ -1696,10 +1733,10 @@ impl TryFrom<BridgeState> for mullvad_types::relay_constraints::BridgeState {
     }
 }
 
-impl TryFrom<TunnelOptions> for mullvad_types::settings::TunnelOptions {
+impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
     type Error = FromProtobufTypeError;
 
-    fn try_from(options: TunnelOptions) -> Result<Self, Self::Error> {
+    fn try_from(options: proto::TunnelOptions) -> Result<Self, Self::Error> {
         use talpid_types::net;
 
         let openvpn_options = options
@@ -1766,19 +1803,19 @@ impl TryFrom<TunnelOptions> for mullvad_types::settings::TunnelOptions {
     }
 }
 
-impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
+impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
     type Error = FromProtobufTypeError;
 
-    fn try_from(options: DnsOptions) -> Result<Self, Self::Error> {
+    fn try_from(options: proto::DnsOptions) -> Result<Self, Self::Error> {
         use mullvad_types::settings::{
             CustomDnsOptions as MullvadCustomDnsOptions,
             DefaultDnsOptions as MullvadDefaultDnsOptions, DnsOptions as MullvadDnsOptions,
             DnsState as MullvadDnsState,
         };
 
-        let state = match dns_options::DnsState::from_i32(options.state) {
-            Some(dns_options::DnsState::Default) => MullvadDnsState::Default,
-            Some(dns_options::DnsState::Custom) => MullvadDnsState::Custom,
+        let state = match proto::dns_options::DnsState::from_i32(options.state) {
+            Some(proto::dns_options::DnsState::Default) => MullvadDnsState::Default,
+            Some(proto::dns_options::DnsState::Custom) => MullvadDnsState::Custom,
             None => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid DNS options state",
@@ -1823,10 +1860,10 @@ impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
     }
 }
 
-impl TryFrom<TransportPort> for mullvad_types::relay_constraints::TransportPort {
+impl TryFrom<proto::TransportPort> for mullvad_types::relay_constraints::TransportPort {
     type Error = FromProtobufTypeError;
 
-    fn try_from(port: TransportPort) -> Result<Self, Self::Error> {
+    fn try_from(port: proto::TransportPort) -> Result<Self, Self::Error> {
         Ok(mullvad_types::relay_constraints::TransportPort {
             protocol: try_transport_protocol_from_i32(port.protocol)?,
             port: if port.port == 0 {
@@ -1841,9 +1878,9 @@ impl TryFrom<TransportPort> for mullvad_types::relay_constraints::TransportPort 
 fn try_tunnel_type_from_i32(
     tunnel_type: i32,
 ) -> Result<talpid_types::net::TunnelType, FromProtobufTypeError> {
-    match TunnelType::from_i32(tunnel_type) {
-        Some(TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
-        Some(TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
+    match proto::TunnelType::from_i32(tunnel_type) {
+        Some(proto::TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
+        Some(proto::TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
         None => Err(FromProtobufTypeError::InvalidArgument(
             "invalid tunnel protocol",
         )),
@@ -1868,7 +1905,7 @@ fn arg_from_str<T: FromStr<Err = E>, E>(
 fn try_transport_protocol_from_i32(
     protocol: i32,
 ) -> Result<talpid_types::net::TransportProtocol, FromProtobufTypeError> {
-    Ok(TransportProtocol::from_i32(protocol)
+    Ok(proto::TransportProtocol::from_i32(protocol)
         .ok_or(FromProtobufTypeError::InvalidArgument(
             "invalid transport protocol",
         ))?
@@ -1881,12 +1918,12 @@ fn try_firewall_policy_error_from_i32(
     lock_pid: u32,
     lock_name: String,
 ) -> Result<talpid_types::tunnel::FirewallPolicyError, FromProtobufTypeError> {
-    match error_state::firewall_policy_error::ErrorType::from_i32(policy_error) {
-        Some(error_state::firewall_policy_error::ErrorType::Generic) => {
+    match proto::error_state::firewall_policy_error::ErrorType::from_i32(policy_error) {
+        Some(proto::error_state::firewall_policy_error::ErrorType::Generic) => {
             Ok(talpid_types::tunnel::FirewallPolicyError::Generic)
         }
         #[cfg(windows)]
-        Some(error_state::firewall_policy_error::ErrorType::Locked) => {
+        Some(proto::error_state::firewall_policy_error::ErrorType::Locked) => {
             let blocking_app = option_from_proto_string(lock_name).map(|name| {
                 talpid_types::tunnel::BlockingApplication {
                     pid: lock_pid,
@@ -1920,7 +1957,7 @@ pub fn try_providers_constraint_from_proto(
 pub fn try_ownership_constraint_from_i32(
     ownership: i32,
 ) -> Result<Constraint<mullvad_types::relay_constraints::Ownership>, FromProtobufTypeError> {
-    Ownership::from_i32(ownership)
+    proto::Ownership::from_i32(ownership)
         .map(ownership_constraint_from_proto)
         .ok_or(FromProtobufTypeError::InvalidArgument(
             "invalid ownership argument",
@@ -1928,14 +1965,14 @@ pub fn try_ownership_constraint_from_i32(
 }
 
 pub fn ownership_constraint_from_proto(
-    ownership: Ownership,
+    ownership: proto::Ownership,
 ) -> Constraint<mullvad_types::relay_constraints::Ownership> {
     use mullvad_types::relay_constraints::Ownership as MullvadOwnership;
 
     match ownership {
-        Ownership::Any => Constraint::Any,
-        Ownership::MullvadOwned => Constraint::Only(MullvadOwnership::MullvadOwned),
-        Ownership::Rented => Constraint::Only(MullvadOwnership::Rented),
+        proto::Ownership::Any => Constraint::Any,
+        proto::Ownership::MullvadOwned => Constraint::Only(MullvadOwnership::MullvadOwned),
+        proto::Ownership::Rented => Constraint::Only(MullvadOwnership::Rented),
     }
 }
 
@@ -1950,14 +1987,14 @@ fn convert_providers_constraint(
 
 fn convert_ownership_constraint(
     ownership: &Constraint<mullvad_types::relay_constraints::Ownership>,
-) -> Ownership {
+) -> proto::Ownership {
     use mullvad_types::relay_constraints::Ownership as MullvadOwnership;
 
     match ownership.as_ref() {
-        Constraint::Any => Ownership::Any,
+        Constraint::Any => proto::Ownership::Any,
         Constraint::Only(ownership) => match ownership {
-            MullvadOwnership::MullvadOwned => Ownership::MullvadOwned,
-            MullvadOwnership::Rented => Ownership::Rented,
+            MullvadOwnership::MullvadOwned => proto::Ownership::MullvadOwned,
+            MullvadOwnership::Rented => proto::Ownership::Rented,
         },
     }
 }
