@@ -256,12 +256,12 @@ const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
     } else {
       await onConfirmLogout();
     }
-  }, [onConfirmLogout]);
+  }, [onConfirmLogout, prepareLogout]);
 
   const onCancelLogout = useCallback(() => {
     cancelLogout();
     onHideLogoutConfirmationDialog();
-  }, []);
+  }, [cancelLogout]);
 
   const value: LogoutContextType = useMemo(
     () => ({
