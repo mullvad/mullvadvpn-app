@@ -9,10 +9,6 @@
 #[macro_use]
 mod ffi;
 
-/// Misc networking functions for Windows.
-#[cfg(windows)]
-mod winnet;
-
 /// Windows API wrappers and utilities
 #[cfg(target_os = "windows")]
 pub mod windows;
