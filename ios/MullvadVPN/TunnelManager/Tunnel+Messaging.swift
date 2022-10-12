@@ -67,8 +67,6 @@ extension Tunnel {
             completionHandler: completionHandler
         )
 
-        operationQueue.addOperation(operation)
-
         operation.addBlockObserver(
             OperationBlockObserver(didCancel: { [operationQueue] _ in
                 let cancelOperation = SendTunnelProviderMessageOperation(
@@ -81,6 +79,8 @@ extension Tunnel {
                 operationQueue.addOperation(cancelOperation)
             })
         )
+
+        operationQueue.addOperation(operation)
 
         return operation
     }
