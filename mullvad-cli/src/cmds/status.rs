@@ -2,6 +2,7 @@ use crate::{format, new_rpc_client, Command, Error, Result};
 use mullvad_management_interface::{
     types::daemon_event::Event as EventType, ManagementServiceClient,
 };
+use mullvad_types::states::TunnelState;
 
 pub struct Status;
 
@@ -45,6 +46,7 @@ impl Command for Status {
         if debug {
             println!("Tunnel state: {:#?}", state);
         } else {
+            let state = TunnelState::try_from(state).expect("invalid tunnel state");
             format::print_state(&state, verbose);
         }
 
@@ -58,15 +60,17 @@ impl Command for Status {
             while let Some(event) = events.message().await? {
                 match event.event.unwrap() {
                     EventType::TunnelState(new_state) => {
+                        let new_state =
+                            TunnelState::try_from(new_state).expect("invalid tunnel state");
+
                         if debug {
                             println!("New tunnel state: {:#?}", new_state);
                         } else {
                             format::print_state(&new_state, verbose);
                         }
 
-                        use mullvad_management_interface::types::tunnel_state::State::*;
-                        match new_state.state.unwrap() {
-                            Connected(..) | Disconnected(..) => {
+                        match new_state {
+                            TunnelState::Connected { .. } | TunnelState::Disconnected => {
                                 if show_full_location {
                                     print_location(&mut rpc).await?;
                                 }

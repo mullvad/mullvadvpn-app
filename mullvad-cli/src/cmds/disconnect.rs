@@ -1,6 +1,5 @@
 use crate::{format, new_rpc_client, state, Command, Error, Result};
 use futures::StreamExt;
-use mullvad_management_interface::types::tunnel_state::State::Disconnected;
 
 pub struct Disconnect;
 
@@ -35,7 +34,7 @@ impl Command for Disconnect {
                 while let Some(state) = receiver.next().await {
                     let state = state?;
                     format::print_state(&state, false);
-                    if let Disconnected(_) = state.state.unwrap() {
+                    if state.is_disconnected() {
                         return Ok(());
                     }
                 }

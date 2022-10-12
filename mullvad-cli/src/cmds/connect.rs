@@ -1,6 +1,6 @@
 use crate::{format, new_rpc_client, state, Command, Error, Result};
 use futures::StreamExt;
-use mullvad_management_interface::types::tunnel_state::State;
+use mullvad_types::states::TunnelState;
 
 pub struct Connect;
 
@@ -35,9 +35,9 @@ impl Command for Connect {
                 while let Some(state) = receiver.next().await {
                     let state = state?;
                     format::print_state(&state, false);
-                    match state.state.unwrap() {
-                        State::Connected(_) => return Ok(()),
-                        State::Error(_) => return Err(Error::CommandFailed("connect")),
+                    match state {
+                        TunnelState::Connected { .. } => return Ok(()),
+                        TunnelState::Error(_) => return Err(Error::CommandFailed("connect")),
                         _ => {}
                     }
                 }
