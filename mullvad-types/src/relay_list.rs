@@ -164,11 +164,17 @@ pub struct ShadowsocksEndpointData {
 }
 
 impl ShadowsocksEndpointData {
-    pub fn to_proxy_settings(&self, addr: IpAddr) -> ProxySettings {
+    pub fn to_proxy_settings(
+        &self,
+        addr: IpAddr,
+        #[cfg(target_os = "linux")] fwmark: u32,
+    ) -> ProxySettings {
         ProxySettings::Shadowsocks(ShadowsocksProxySettings {
             peer: SocketAddr::new(addr, self.port),
             password: self.password.clone(),
             cipher: self.cipher.clone(),
+            #[cfg(target_os = "linux")]
+            fwmark: Some(fwmark),
         })
     }
 }

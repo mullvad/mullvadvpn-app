@@ -7,8 +7,8 @@ use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
     systemd_resolved::SystemdResolved,
 };
-use crate::routing::RouteManagerHandle;
 use std::{env, fmt, net::IpAddr};
+use talpid_routing::RouteManagerHandle;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

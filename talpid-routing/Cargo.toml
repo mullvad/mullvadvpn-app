@@ -1,0 +1,47 @@
+[package]
+name = "talpid-routing"
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+description = "Library for managing routing tables"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+
+[dependencies]
+err-derive = "0.3.1"
+futures = "0.3.15"
+ipnetwork = "0.16"
+log = "0.4"
+talpid-types = { path = "../talpid-types" }
+tokio = { version = "1.8", features = ["process", "rt-multi-thread"] }
+
+
+[target.'cfg(target_os = "android")'.dependencies]
+jnix = { version = "0.5", features = ["derive"] }
+
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+lazy_static = "1.0"
+rtnetlink = "0.11"
+netlink-packet-route = "0.13"
+netlink-sys = "0.8.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tokio-stream = { version = "0.1", features = ["io-util"] }
+
+
+[target.'cfg(windows)'.dependencies]
+libc = "0.2"
+socket2 = { version = "0.4.2", features = ["all"] }
+talpid-windows-net = { path = "../talpid-windows-net" }
+widestring = "1.0"
+winapi = { version = "0.3.6", features = ["ws2def"] }
+windows-sys = { version = "0.42.0", features = [
+     "Win32_NetworkManagement_Ndis",
+      "Win32_Globalization"
+]}
+
+[dev-dependencies]
+tokio = { version = "1", features = [ "test-util" ] }

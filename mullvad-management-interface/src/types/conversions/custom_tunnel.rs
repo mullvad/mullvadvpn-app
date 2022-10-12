@@ -94,6 +94,8 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                         exit_peer: None,
                         ipv4_gateway,
                         ipv6_gateway,
+                        #[cfg(target_os = "linux")]
+                        fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                     },
                 ))
             }

@@ -18,7 +18,7 @@ use std::{
     os::unix::io::RawFd,
     time::{Duration, Instant},
 };
-use talpid_core::tunnel::TunConfig;
+use talpid_tunnel::tun_provider::TunConfig;
 use talpid_types::ErrorExt;
 
 #[derive(Debug, err_derive::Error)]

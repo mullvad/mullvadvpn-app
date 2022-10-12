@@ -14,7 +14,7 @@ pub enum Error {
 }
 
 pub async fn initialize_firewall() -> Result<(), Error> {
-    let mut firewall = Firewall::new()?;
+    let mut firewall = Firewall::new(mullvad_types::TUNNEL_FWMARK)?;
     let allow_lan = get_allow_lan().await.unwrap_or_else(|err| {
         log::info!(
             "Not allowing LAN traffic due to failing to read settings: {}",

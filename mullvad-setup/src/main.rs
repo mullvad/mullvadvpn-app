@@ -154,10 +154,13 @@ async fn reset_firewall() -> Result<(), Error> {
         return Err(Error::DaemonIsRunning);
     }
 
-    Firewall::new()
-        .map_err(Error::FirewallError)?
-        .reset_policy()
-        .map_err(Error::FirewallError)
+    Firewall::new(
+        #[cfg(target_os = "linux")]
+        mullvad_types::TUNNEL_FWMARK,
+    )
+    .map_err(Error::FirewallError)?
+    .reset_policy()
+    .map_err(Error::FirewallError)
 }
 
 async fn remove_device() -> Result<(), Error> {

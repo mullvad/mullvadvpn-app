@@ -117,6 +117,8 @@ pub struct ShadowsocksProxySettings {
     /// Password on peer.
     pub password: String,
     pub cipher: String,
+    #[cfg(target_os = "linux")]
+    pub fwmark: Option<u32>,
 }
 
 impl ShadowsocksProxySettings {

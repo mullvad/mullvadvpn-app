@@ -1,9 +1,5 @@
 use std::{fs, io, path::Path};
 
-/// Types/implementations for logging through a callback.
-#[cfg(windows)]
-pub mod windows;
-
 /// Unable to create new log file
 #[derive(err_derive::Error, Debug)]
 #[error(display = "Unable to create new log file")]

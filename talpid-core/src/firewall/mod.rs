@@ -233,6 +233,10 @@ pub struct FirewallArguments {
     pub initial_state: InitialFirewallState,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
+    /// Specifies the firewall mark used to identify traffic that is allowed to be excluded from
+    /// the tunnel and _leaked_ during blocked states.
+    #[cfg(target_os = "linux")]
+    pub fwmark: u32,
 }
 
 /// State to enter during firewall init.
@@ -252,9 +256,12 @@ impl Firewall {
     }
 
     /// Createsa new firewall instance.
-    pub fn new() -> Result<Self, Error> {
+    pub fn new(#[cfg(target_os = "linux")] fwmark: u32) -> Result<Self, Error> {
         Ok(Firewall {
-            inner: imp::Firewall::new()?,
+            inner: imp::Firewall::new(
+                #[cfg(target_os = "linux")]
+                fwmark,
+            )?,
         })
     }
 

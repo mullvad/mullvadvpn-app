@@ -25,16 +25,17 @@ os_pipe = "0.9"
 parking_lot = "0.11"
 regex = "1.1.0"
 shell-escape = "0.1"
+talpid-routing = { path = "../talpid-routing" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
+talpid-tunnel = { path = "../talpid-tunnel" }
+talpid-wireguard = { path = "../talpid-wireguard" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4.21"
 tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
-tokio-stream = { version = "0.1", features = ["io-util"] }
 rand = "0.8.5"
-tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 shadowsocks-service = { version = "1.14.3", default-features = false, features = ["local", "stream-cipher"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
@@ -42,6 +43,7 @@ byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
+talpid-openvpn = { path = "../talpid-openvpn" }
 triggered = "0.1.1"
 tonic = "0.8"
 prost = "0.11"
@@ -58,10 +60,7 @@ jnix = { version = "0.5", features = ["derive"] }
 inotify = "0.10"
 resolv-conf = "0.7"
 rtnetlink = "0.11"
-netlink-packet-core = "0.4.2"
-netlink-packet-utils = "0.5.1"
 netlink-packet-route = "0.13"
-netlink-proto = "0.10"
 netlink-sys = "0.8.3"
 nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
@@ -81,10 +80,10 @@ subslice = "0.2"
 [target.'cfg(windows)'.dependencies]
 widestring = "1.0"
 winreg = { version = "0.7", features = ["transactions"] }
-winapi = { version = "0.3.6", features = ["ws2def"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 windows-service = "0.5.0"
+talpid-windows-net = { path = "../talpid-windows-net" }
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.42.0"
@@ -108,7 +107,6 @@ features = [
     "Win32_Globalization",
     "Win32_Security",
     "Win32_Storage_FileSystem",
-    "Win32_System_Com",
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_Ioctl",
     "Win32_System_IO",
