@@ -76,21 +76,25 @@ function get_solution_output_path {
 }
 
 function build_nsis_plugins {
-    local nsis_root_path=${CPP_ROOT_PATH:-"./windows/nsis-plugins"}
+    local nsis_root_path="./windows/nsis-plugins"
 
     clean_solution "$nsis_root_path"
     build_solution_config "$nsis_root_path/nsis-plugins.sln" "Release" "x86"
 }
 
+function clean_libraries {
+    clean_solution "./windows/libshared"
+    clean_solution "./windows/windows-libraries"
+    clean_solution "./windows/libwfp"
+}
+
 function main {
-    local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
-    local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
+    clean_libraries
 
-    build_solution "$winfw_root_path" "winfw.sln"
-    build_solution "$winnet_root_path" "winnet.sln"
+    build_solution "./windows/winfw" "winfw.sln"
+    build_solution "./windows/winnet" "winnet.sln"
 
-    local driverlogic_root_path=${CPP_ROOT_PATH:-"./windows/driverlogic"}
-    build_solution "$driverlogic_root_path" "driverlogic.sln"
+    build_solution "./windows/driverlogic" "driverlogic.sln"
 
     build_nsis_plugins
 }
