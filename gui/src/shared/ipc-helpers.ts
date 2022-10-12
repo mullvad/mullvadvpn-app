@@ -5,14 +5,12 @@ import { capitalize } from './string-helpers';
 
 type Handler<T, R> = (callback: (arg: T) => R) => void;
 type Sender<T, R> = (arg: T) => R;
-// Remove export after upgrading to Electron 21+ and removal of code to curry notifiers with
-// webContents in ../main/ipc-event-channel.ts.
-export type Notifier<T> = (webContents: WebContents | undefined, arg: T) => void;
+type Notifier<T> = ((arg: T) => void) | undefined;
 type Listener<T> = (callback: (arg: T) => void) => void;
 
 interface MainToRenderer<T> {
   direction: 'main-to-renderer';
-  send: (event: string, ipcMain: EIpcMain) => Notifier<T>;
+  send: (event: string, webContents: WebContents) => Notifier<T>;
   receive: (event: string, ipcRenderer: EIpcRenderer) => Listener<T>;
 }
 
@@ -64,15 +62,22 @@ export type IpcRenderer<S extends Schema> = {
 };
 
 // Preforms the transformation of the main event channel in accordance with the above types.
-export function createIpcMain<S extends Schema>(schema: S, ipcMain: EIpcMain): IpcMain<S> {
+export function createIpcMain<S extends Schema>(
+  schema: S,
+  ipcMain: EIpcMain,
+  webContents: WebContents | undefined,
+): IpcMain<S> {
   return createIpc(schema, (event, key, spec) => {
     const capitalizedKey = capitalize(key);
     const newKey =
       spec.direction === 'main-to-renderer' ? `notify${capitalizedKey}` : `handle${capitalizedKey}`;
-    const newValue =
-      spec.direction === 'main-to-renderer'
-        ? spec.send(event, ipcMain)
-        : spec.receive(event, ipcMain);
+
+    let newValue;
+    if (spec.direction === 'main-to-renderer') {
+      newValue = webContents ? spec.send(event, webContents) : undefined;
+    } else {
+      newValue = spec.receive(event, ipcMain);
+    }
 
     return [newKey, newValue];
   });
@@ -154,9 +159,9 @@ export function notifyRenderer<T>(): MainToRenderer<T> {
   };
 }
 
-function notifyRendererImpl<T>(event: string, _ipcMain: EIpcMain): Notifier<T> {
-  return (webContents, value) => {
-    if (webContents === undefined) {
+function notifyRendererImpl<T>(event: string, webContents: WebContents): Notifier<T> {
+  return (value) => {
+    if (webContents === undefined || webContents.isDestroyed() || webContents.isCrashed()) {
       log.error(`sender(${event}): webContents is already destroyed!`);
     } else {
       webContents.send(event, value);

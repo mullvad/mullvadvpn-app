@@ -48,7 +48,11 @@ export default class UserInterface implements WindowControllerDelegate {
     private navigationResetDisabled: boolean,
   ) {
     const window = this.createWindow();
+
     changeIpcWebContents(window.webContents);
+    window.webContents.on('destroyed', () => {
+      changeIpcWebContents(undefined);
+    });
 
     this.windowController = this.createWindowController(window);
     this.tray = this.createTray();
