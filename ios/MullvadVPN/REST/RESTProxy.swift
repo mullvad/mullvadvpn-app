@@ -82,7 +82,7 @@ extension REST {
             self.accessTokenManager = accessTokenManager
 
             super.init(
-                transportRegistry: RESTTransportRegistry.shared,
+                transportRegistry: proxyConfiguration.transportRegistry,
                 addressCacheStore: proxyConfiguration.addressCacheStore
             )
         }

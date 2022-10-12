@@ -10,7 +10,7 @@ import Foundation
 
 class TransportMonitor: TunnelObserver {
     private let packetTunnelTransport = PacketTunnelTransport()
-    private let urlSessionTunnelTransport = URLSessionTransport(urlSession: REST.sharedURLSession)
+    private let urlSessionTransport = URLSessionTransport(urlSession: REST.sharedURLSession)
 
     init() {
         TunnelManager.shared.addObserver(self)
@@ -57,10 +57,10 @@ class TransportMonitor: TunnelObserver {
             return packetTunnelTransport
 
         case (.pendingReconnect, _):
-            return urlSessionTunnelTransport
+            return urlSessionTransport
 
         case (.waitingForConnectivity, _):
-            return urlSessionTunnelTransport
+            return urlSessionTransport
 
         case (.connecting, _):
             return packetTunnelTransport
@@ -69,13 +69,13 @@ class TransportMonitor: TunnelObserver {
             return packetTunnelTransport
 
         case (.disconnecting, _):
-            return urlSessionTunnelTransport
+            return urlSessionTransport
 
         case (.disconnected, _):
-            return urlSessionTunnelTransport
+            return urlSessionTransport
 
         case (.connected, _):
-            return urlSessionTunnelTransport
+            return urlSessionTransport
         }
     }
 }

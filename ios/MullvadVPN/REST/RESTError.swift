@@ -47,7 +47,7 @@ extension REST {
             case let .decodeResponse(error):
                 return "Failure to decode URL response data: \(error.localizedDescription)."
             case let .transport(error):
-                return "Transport error \(error.localizedDescription)."
+                return "Transport error: \(error.localizedDescription)."
             }
         }
 

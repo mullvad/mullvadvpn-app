@@ -10,14 +10,14 @@ import Foundation
 
 class PacketTunnelTransport: RESTTransport {
     var name: String {
-        "packet-tunnel"
+        return "packet-tunnel"
     }
 
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable {
-        let message = try TransportMessage(
+        let message = try ProxyURLRequest(
             /// Create unique request UUID and store it along the URLSessionTask in a dictionary.
             id: UUID(),
             urlRequest: request

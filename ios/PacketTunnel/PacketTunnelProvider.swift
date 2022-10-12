@@ -240,7 +240,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 }
 
                 completionHandler?(response)
-            case let .transportHTTPRequest(message):
+            case let .sendURLRequest(message):
                 var urlRequest = URLRequest(url: message.url)
                 urlRequest.httpMethod = message.method
                 urlRequest.httpBody = message.httpBody
@@ -258,7 +258,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                         var reply: Data?
                         do {
                             reply = try TunnelProviderReply(
-                                TransportMessageReply(
+                                ProxyURLResponse(
                                     data: data,
                                     response: .init(response),
                                     error: .init(error)

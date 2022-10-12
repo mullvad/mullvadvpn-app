@@ -17,10 +17,10 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel status.
     case getTunnelStatus
 
-    /// Request the tunnel to transport a http request.
-    case transportHTTPRequest(TransportMessage)
+    /// Send HTTP request outside of VPN tunnel.
+    case sendURLRequest(ProxyURLRequest)
 
-    /// Request the tunnel to cancel transport for http request.
+    /// Cancel HTTP request sent outside of VPN tunnel.
     case cancelURLRequest(UUID)
 
     var description: String {
@@ -29,10 +29,10 @@ enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "reconnect-tunnel"
         case .getTunnelStatus:
             return "get-tunnel-status"
-        case .transportHTTPRequest:
-            return "transport-http-request"
+        case .sendURLRequest:
+            return "send-http-request"
         case .cancelURLRequest:
-            return "cancel-transport-http-request"
+            return "cancel-http-request"
         }
     }
 

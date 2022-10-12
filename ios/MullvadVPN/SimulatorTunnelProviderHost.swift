@@ -100,7 +100,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
             return nil
 
-        case .transportHTTPRequest:
+        case .sendURLRequest:
             return nil
         case .cancelURLRequest:
             return nil

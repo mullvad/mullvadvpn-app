@@ -56,13 +56,13 @@ extension Tunnel {
     ///   - completionHandler: Packet tunnel reply with OperationCompletion.
     /// - Returns: Cancellable.
     func sendRequest(
-        _ requestData: TransportMessage,
-        completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
+        _ requestData: ProxyURLRequest,
+        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             tunnel: self,
-            message: .transportHTTPRequest(requestData),
+            message: .sendURLRequest(requestData),
             timeout: 12,
             completionHandler: completionHandler
         )

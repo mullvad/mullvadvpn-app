@@ -521,8 +521,8 @@ final class TunnelManager {
     ///   URLSession inside the completion block.
     /// - Returns: Cancellable token.
     func sendRequest(
-        message: TransportMessage,
-        completionHandler: @escaping (OperationCompletion<TransportMessageReply, Error>) -> Void
+        message: ProxyURLRequest,
+        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) throws -> Cancellable {
         if let tunnel {
             return tunnel.sendRequest(

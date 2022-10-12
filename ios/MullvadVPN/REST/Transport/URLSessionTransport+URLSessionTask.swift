@@ -12,7 +12,7 @@ extension URLSessionTask: Cancellable {}
 
 class URLSessionTransport: RESTTransport {
     var name: String {
-        "urlsession"
+        return "urlsession"
     }
 
     let urlSession: URLSession
