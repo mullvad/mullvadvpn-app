@@ -33,7 +33,6 @@
     <string name="continue_login">Continuer avec la connexion</string>
     <string name="copied_mullvad_account_number">Numéro de compte Mullvad copié dans le presse-papiers</string>
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
-    <string name="copied_wireguard_public_key">Clé WireGuard publique copiée dans le presse-papiers</string>
     <string name="copy_account_number">Copier le numéro de compte</string>
     <string name="create_account">Créer un compte</string>
     <string name="creating_new_account">Création du compte…</string>
@@ -44,6 +43,7 @@
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
+    <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
     <string name="device_name">Nom de l\'appareil</string>
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
@@ -58,6 +58,8 @@
     <string name="exclude_applications">Applications exclues</string>
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic du réseau. Veuillez dépanner ou nous signaler le problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
+    <string name="failed_to_fetch_devices">Impossible de récupérer la liste des appareils</string>
+    <string name="failed_to_remove_device">Impossible de supprimer l\'appareil</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</string>
     <string name="faqs_and_guides">FAQ et guides</string>
@@ -84,12 +86,15 @@
     <string name="login_fail_description">Numéro de compte non valide</string>
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
+    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment vous déconnecter de &lt;b&gt;%1$s&lt;/b&gt; ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
+    <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
     <string name="max_devices_warning_title">Trop d\'appareils</string>
     <string name="mullvad_account_number">Numéro de compte Mullvad</string>
     <string name="no_matching_bridge_relay">Aucun serveur de passerelle relais ne correspond à vos paramètres actuels</string>
     <string name="no_matching_relay">Aucun serveur de relais ne correspond à vos paramètres actuels</string>
+    <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
     <string name="out_address">Sortante</string>
     <string name="out_of_time">Plus de temps</string>
@@ -124,7 +129,6 @@
     <string name="switch_location">Changer de localisation</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
-    <string name="too_many_keys">Trop de clés WireGuard enregistrées sur le compte</string>
     <string name="try_again">Réessayer</string>
     <string name="udp">UDP</string>
     <string name="unsecured">Non sécurisé</string>
@@ -142,8 +146,6 @@
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
-    <string name="wireguard_error">Erreur WireGuard</string>
-    <string name="wireguard_key">Clé WireGuard</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
-    <string name="wireguard_public_key">Clé WireGuard publique</string>
+    <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
 </resources>

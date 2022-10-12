@@ -103,7 +103,6 @@
     <string name="disconnect">Disconnect</string>
     <string name="dismiss">Dismiss</string>
     <string name="switch_location">Switch location</string>
-    <string name="wireguard">WireGuard</string>
     <string name="tcp">TCP</string>
     <string name="udp">UDP</string>
     <string name="in_address">In</string>
@@ -130,9 +129,6 @@
     server</string>
     <string name="is_offline">This device is offline, no tunnels can be established</string>
     <string name="virtual_adapter_problem">Virtual adapter error</string>
-    <string name="wireguard_error">WireGuard error</string>
-    <string name="too_many_keys">Too many WireGuard keys registered to account</string>
-    <string name="failed_to_generate_key">Failed to generate a key</string>
     <string name="update_available">UPDATE AVAILABLE</string>
     <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to
     date</string>
@@ -145,20 +141,6 @@
     <string name="select_location">Select location</string>
     <string name="select_location_description">While connected, your real location is masked with a
     private and secure location in the selected region.</string>
-    <string name="wireguard_key">WireGuard key</string>
-    <string name="public_key">Public key</string>
-    <string name="wireguard_key_generated">Key generated</string>
-    <string name="wireguard_verify_key">Verify key</string>
-    <string name="wireguard_generate_key">Generate key</string>
-    <string name="wireguard_replace_key">Regenerate key</string>
-    <string name="wireguard_manage_keys">Manage keys</string>
-    <string name="wireguard_key_reconnecting">Reconnecting with new WireGuard key...</string>
-    <string name="wireguard_key_valid">Key is valid</string>
-    <string name="wireguard_key_invalid">Key is invalid</string>
-    <string name="wireguard_key_verification_failure">Key verification failed</string>
-    <string name="wireguard_public_key">WireGuard public key</string>
-    <string name="copied_wireguard_public_key">Copied WireGuard public key to clipboard</string>
-    <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Split tunneling makes it possible to select which
     applications should not be routed through the VPN tunnel.</string>
     <string name="enable">Enable</string>
@@ -182,9 +164,9 @@
     device.</string>
     <string name="max_devices_warning_title">Too many devices</string>
     <string name="max_devices_resolved_title">Super!</string>
-    <string name="max_devices_warning_description">You have too many active devices. Please log out
-    of at least one by removing it from the list below. You can find the corresponding nickname
-    under the device’s Account settings.</string>
+    <string name="max_devices_warning_description">Please log out of at least one by removing it
+    from the list below. You can find the corresponding device name under the device’s Account
+    settings.</string>
     <string name="max_devices_resolved_description">You can now continue logging in on this
     device.</string>
     <string name="max_devices_confirm_removal_description">

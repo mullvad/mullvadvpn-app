@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -59,6 +59,10 @@ msgstr "베오그라드"
 #. US BOS
 msgid "Boston, MA"
 msgstr "보스톤, MA"
+
+#. SK BTS
+msgid "Bratislava"
+msgstr "브라티슬라바"
 
 #. BR
 msgid "Brazil"
@@ -183,6 +187,10 @@ msgstr "홍콩"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "호놀룰루, HI"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr "휴스턴, 텍사스"
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "수 폴스, SD"
 msgid "Skopje"
 msgstr "스코페"
 
+#. SK
+msgid "Slovakia"
+msgstr "슬로바키아"
+
 #. BG SOF
 msgid "Sofia"
 msgstr "소피아"
@@ -439,6 +451,10 @@ msgstr "세인트루이스, MO"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "스탬포드, CT"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr "스타방에르"
 
 #. SE STO
 msgid "Stockholm"
