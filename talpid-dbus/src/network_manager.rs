@@ -393,6 +393,12 @@ impl NetworkManager {
         }
     }
 
+    pub fn ensure_can_be_used_to_manage_dns(&self) -> Result<()> {
+        self.ensure_resolv_conf_is_managed()?;
+        self.ensure_network_manager_exists()?;
+        self.nm_version_dns_works()?;
+        Ok(())
+    }
     pub fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
         // check if NM is set to manage resolv.conf
         let management_mode: String = self

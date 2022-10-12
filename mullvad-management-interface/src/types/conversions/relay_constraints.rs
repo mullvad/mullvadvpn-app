@@ -520,6 +520,8 @@ impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::Bridge
                 })?;
                 let proxy_settings = talpid_net::openvpn::ProxySettings::Shadowsocks(
                     talpid_net::openvpn::ShadowsocksProxySettings {
+                        #[cfg(target_os = "linux")]
+                        fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                         peer,
                         password: proxy_settings.password,
                         cipher: proxy_settings.cipher,

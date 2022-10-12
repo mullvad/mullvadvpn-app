@@ -1,0 +1,24 @@
+[package]
+name = "talpid-windows-net"
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+description = "Work with Windows network interfaces and their configuration"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+[target.'cfg(windows)'.dependencies]
+err-derive = "0.3.1"
+libc = "0.2"
+socket2 = { version = "0.4.2", features = ["all"] }
+futures = "0.3.15"
+winapi = { version = "0.3.6", features = ["ws2def"] }
+windows-sys = { version = "0.42", features = [
+    "Win32_Foundation",
+    "Win32_Globalization",
+    "Win32_System_Com",
+    "Win32_System_IO",
+    "Win32_Networking_WinSock",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_NetworkManagement_Ndis",
+]}

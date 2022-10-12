@@ -14,3 +14,9 @@ pub mod wireguard;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;
+
+// b"mole" is [ 0x6d, 0x6f 0x6c, 0x65 ]
+#[cfg(target_os = "linux")]
+pub const TUNNEL_TABLE_ID: u32 = 0x6d6f6c65;
+#[cfg(target_os = "linux")]
+pub const TUNNEL_FWMARK: u32 = 0x6d6f6c65;

@@ -12,7 +12,6 @@ cfg-if = "1.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 clap = { version = "3.0", features = ["cargo"] }
 err-derive = "0.3.1"
-either = "1"
 fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
 ipnetwork = "0.16"
