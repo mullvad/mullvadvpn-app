@@ -242,7 +242,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 completionHandler?(response)
 
             case let .sendURLRequest(proxyRequest):
-                let task = URLSession.shared.dataTask(
+                let task = REST.sharedURLSession.dataTask(
                     with: proxyRequest.urlRequest
                 ) { [weak self] data, response, error in
                     guard let self = self else { return }

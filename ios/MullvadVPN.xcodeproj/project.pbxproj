@@ -192,6 +192,9 @@
 		589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
 		589A455E28E094BF00565204 /* OperationInputInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B772852178600E92647 /* OperationInputInjectionTests.swift */; };
 		589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
+		589E63D728F7161F005FAB05 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7C280D6FE000013055 /* RESTURLSession.swift */; };
+		589E63D828F71626005FAB05 /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		589E63D928F71649005FAB05 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* le_root_cert.cer */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A3BDB028A1821A00C8C2C6 /* WgStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */; };
 		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
@@ -1410,6 +1413,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58F3C0A724A50C02003E76BE /* relays.json in Resources */,
+				589E63D928F71649005FAB05 /* le_root_cert.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1695,6 +1699,7 @@
 				5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
+				589E63D728F7161F005FAB05 /* RESTURLSession.swift in Sources */,
 				580F8B872819795C002E0998 /* DNSSettings.swift in Sources */,
 				5815039E24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				585DA87826B024A900B8C587 /* CachedRelays.swift in Sources */,
@@ -1702,6 +1707,7 @@
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */,
 				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
+				589E63D828F71626005FAB05 /* SSLPinningURLSessionDelegate.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
 				58900D0328BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
