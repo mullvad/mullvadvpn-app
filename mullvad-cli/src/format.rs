@@ -48,7 +48,7 @@ fn format_relay_connection(
         };
 
         let exit = format_endpoint(
-            location.and_then(|l| l.hostname.as_ref().map(String::as_str)),
+            location.and_then(|l| l.hostname.as_deref()),
             exit_endpoint,
             verbose,
         );
@@ -84,7 +84,7 @@ fn format_relay_connection(
         };
 
         let endpoint = format_endpoint(
-            location.and_then(|l| l.entry_hostname.as_ref().map(String::as_str)),
+            location.and_then(|l| l.entry_hostname.as_deref()),
             entry_endpoint,
             verbose,
         );
@@ -94,7 +94,7 @@ fn format_relay_connection(
     let obfuscator = endpoint.obfuscation.as_ref().map(|obfuscator| {
         if !obfuscator_overlaps {
             let endpoint_str = format_endpoint(
-                location.and_then(|l| l.obfuscator_hostname.as_ref().map(String::as_str)),
+                location.and_then(|l| l.obfuscator_hostname.as_deref()),
                 &obfuscator.endpoint,
                 verbose,
             );
@@ -106,7 +106,7 @@ fn format_relay_connection(
 
     let bridge = endpoint.proxy.as_ref().map(|proxy| {
         let proxy_endpoint = format_endpoint(
-            location.and_then(|l| l.bridge_hostname.as_ref().map(String::as_str)),
+            location.and_then(|l| l.bridge_hostname.as_deref()),
             &proxy.endpoint,
             verbose,
         );

@@ -33,7 +33,7 @@ impl Command for Disconnect {
         if rpc.disconnect_tunnel(()).await?.into_inner() {
             if let Some(mut receiver) = receiver_option {
                 while let Some(state) = receiver.next().await {
-                    let state = TunnelState::try_from(state?).expect("invalid tunnel state");
+                    let state = state?;
                     format::print_state(&state, false);
                     if state.is_disconnected() {
                         return Ok(());
