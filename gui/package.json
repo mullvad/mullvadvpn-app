@@ -30,7 +30,7 @@
   },
   "optionalDependencies": {
     "grpc-tools": "^1.11.3",
-    "nseventmonitor": "^1.0.2"
+    "nseventmonitor": "^1.0.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.26.1",
