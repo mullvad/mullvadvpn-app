@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SdkUtils
+import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
@@ -69,8 +70,10 @@ class AccountExpiryNotification(
         val durationUntilExpiry = expiryDate?.remainingTime()
 
         if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
-            val notification = build(expiryDate, durationUntilExpiry)
-            channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            if (context.isNotificationPermissionGranted()) {
+                val notification = build(expiryDate, durationUntilExpiry)
+                channel.notificationManager.notify(NOTIFICATION_ID, notification)
+            }
             jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
         } else {
             channel.notificationManager.cancel(NOTIFICATION_ID)

@@ -41,33 +41,43 @@ class NotificationChannel(
     fun buildNotification(
         intent: PendingIntent,
         title: String,
-        deleteIntent: PendingIntent? = null
+        deleteIntent: PendingIntent? = null,
+        isOngoing: Boolean = false
     ): Notification {
-        return buildNotification(intent, title, emptyList(), deleteIntent)
+        return buildNotification(intent, title, emptyList(), deleteIntent, isOngoing)
     }
 
     fun buildNotification(
         intent: PendingIntent,
         title: Int,
-        deleteIntent: PendingIntent? = null
+        deleteIntent: PendingIntent? = null,
+        isOngoing: Boolean = false
     ): Notification {
-        return buildNotification(intent, title, emptyList(), deleteIntent)
+        return buildNotification(intent, title, emptyList(), deleteIntent, isOngoing)
     }
 
     fun buildNotification(
         pendingIntent: PendingIntent,
         title: Int,
         actions: List<NotificationCompat.Action>,
-        deleteIntent: PendingIntent? = null
+        deleteIntent: PendingIntent? = null,
+        isOngoing: Boolean = false
     ): Notification {
-        return buildNotification(pendingIntent, context.getString(title), actions, deleteIntent)
+        return buildNotification(
+            pendingIntent,
+            context.getString(title),
+            actions,
+            deleteIntent,
+            isOngoing
+        )
     }
 
     private fun buildNotification(
         pendingIntent: PendingIntent,
         title: String,
         actions: List<NotificationCompat.Action>,
-        deleteIntent: PendingIntent? = null
+        deleteIntent: PendingIntent? = null,
+        isOngoing: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, id)
             .setSmallIcon(R.drawable.small_logo_black)
@@ -75,7 +85,7 @@ class NotificationChannel(
             .setContentTitle(title)
             .setContentIntent(pendingIntent)
             .setVisibility(visibility)
-
+            .setOngoing(isOngoing)
         for (action in actions) {
             builder.addAction(action)
         }
