@@ -383,6 +383,8 @@ impl Bridge {
                 peer: SocketAddr::new(remote_ip, remote_port),
                 password,
                 cipher,
+                #[cfg(target_os = "linux")]
+                fwmark: None,
             };
             let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {

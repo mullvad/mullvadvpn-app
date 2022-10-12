@@ -1,9 +1,7 @@
-use crate::{
-    linux::{iface_index, IfaceIndexLookupError},
-    routing::RouteManagerHandle,
-};
+use crate::linux::{iface_index, IfaceIndexLookupError};
 use std::net::IpAddr;
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
+use talpid_routing::RouteManagerHandle;
 use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;

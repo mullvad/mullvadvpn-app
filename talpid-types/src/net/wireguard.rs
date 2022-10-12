@@ -30,6 +30,8 @@ pub struct ConnectionConfig {
     /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,
+    #[cfg(target_os = "linux")]
+    pub fwmark: Option<u32>,
 }
 
 impl ConnectionConfig {

@@ -13,9 +13,7 @@ pub struct NetworkManager {
 impl NetworkManager {
     pub fn new() -> Result<Self> {
         let connection = DBus::new()?;
-        connection.ensure_resolv_conf_is_managed()?;
-        connection.ensure_network_manager_exists()?;
-        connection.nm_version_dns_works()?;
+        connection.ensure_can_be_used_to_manage_dns()?;
         let manager = NetworkManager {
             connection,
             device: None,

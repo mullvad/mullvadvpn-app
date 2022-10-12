@@ -18,11 +18,11 @@ use crate::{
     firewall::{Firewall, FirewallArguments, InitialFirewallState},
     mpsc::Sender,
     offline,
-    routing::RouteManager,
-    tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
 #[cfg(windows)]
 use std::ffi::OsString;
+use talpid_routing::RouteManager;
+use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
 
 use futures::{
     channel::{mpsc, oneshot},
@@ -71,7 +71,7 @@ pub enum Error {
 
     /// Failed to initialize the route manager.
     #[error(display = "Failed to initialize the route manager")]
-    InitRouteManagerError(#[error(source)] crate::routing::Error),
+    InitRouteManagerError(#[error(source)] talpid_routing::Error),
 
     /// Failed to initialize filtering resolver
     #[cfg(target_os = "macos")]
@@ -116,6 +116,8 @@ pub async fn spawn(
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(target_os = "linux")] fwmark: u32,
+    #[cfg(target_os = "linux")] table_id: u32,
 ) -> Result<TunnelStateMachineHandle, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -127,6 +129,12 @@ pub async fn spawn(
         initial_settings.allow_lan,
         #[cfg(target_os = "android")]
         initial_settings.dns_servers.clone(),
+        #[cfg(target_os = "android")]
+        crate::firewall::ALLOWED_LAN_NETS
+            .iter()
+            .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
+            .cloned()
+            .collect(),
     );
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
@@ -148,6 +156,10 @@ pub async fn spawn(
         exclusion_gid,
         #[cfg(target_os = "android")]
         android_context,
+        #[cfg(target_os = "linux")]
+        fwmark,
+        #[cfg(target_os = "linux")]
+        table_id,
     };
 
     let state_machine = TunnelStateMachine::new(init_args).await?;
@@ -237,6 +249,10 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     exclusion_gid: u32,
     #[cfg(target_os = "android")]
     android_context: AndroidContext,
+    #[cfg(target_os = "linux")]
+    fwmark: u32,
+    #[cfg(target_os = "linux")]
+    table_id: u32,
 }
 
 impl TunnelStateMachine {
@@ -256,11 +272,17 @@ impl TunnelStateMachine {
         let filtering_resolver = crate::resolver::start_resolver().await?;
 
         #[cfg(target_os = "windows")]
-        let power_mgmt_rx = crate::windows::window::PowerManagementListener::new();
+        let power_mgmt_rx = crate::window::PowerManagementListener::new();
 
-        let route_manager = RouteManager::new(HashSet::new())
-            .await
-            .map_err(Error::InitRouteManagerError)?;
+        let route_manager = RouteManager::new(
+            HashSet::new(),
+            #[cfg(target_os = "linux")]
+            args.fwmark,
+            #[cfg(target_os = "linux")]
+            args.table_id,
+        )
+        .await
+        .map_err(Error::InitRouteManagerError)?;
 
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(
@@ -283,9 +305,12 @@ impl TunnelStateMachine {
                 InitialFirewallState::None
             },
             allow_lan: args.settings.allow_lan,
+            #[cfg(target_os = "linux")]
+            fwmark: args.fwmark,
         };
 
         let firewall = Firewall::from_args(fw_args).map_err(Error::InitFirewallError)?;
+
         let dns_monitor = DnsMonitor::new(
             #[cfg(target_os = "linux")]
             runtime.clone(),
@@ -316,6 +341,8 @@ impl TunnelStateMachine {
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
+            #[cfg(target_os = "linux")]
+            Some(args.fwmark),
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "windows")]

@@ -27,7 +27,7 @@ use talpid_types::ErrorExt;
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to initialize route monitor")]
-    StartMonitorError(#[error(source)] crate::routing::PlatformError),
+    StartMonitorError(#[error(source)] talpid_routing::PlatformError),
 }
 
 pub struct MonitorHandle {
@@ -43,7 +43,7 @@ impl MonitorHandle {
 }
 
 async fn exists_non_tunnel_default_route() -> bool {
-    match crate::routing::get_default_routes().await {
+    match talpid_routing::get_default_routes().await {
         Ok((Some(node), _)) | Ok((None, Some(node))) => {
             let route_exists = node
                 .get_device()
@@ -85,7 +85,7 @@ pub async fn spawn_monitor(notify_tx: UnboundedSender<bool>) -> Result<MonitorHa
 fn watch_route_monitor(
     mut context: OfflineStateContext,
 ) -> Result<impl Future<Output = ()>, Error> {
-    let mut monitor = crate::routing::listen_for_default_route_changes()?;
+    let mut monitor = talpid_routing::listen_for_default_route_changes()?;
 
     Ok(async move {
         while let Some(_route_change) = monitor.next().await {
