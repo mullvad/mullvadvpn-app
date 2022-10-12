@@ -513,7 +513,7 @@ final class TunnelManager {
         )
     }
 
-    /// Send URLRequest via packet tunnel process to bypass VPN.
+    /// Send `URLRequest` via packet tunnel process bypassing VPN.
     /// This function is primarily used by `PacketTunnelTransport` to go outside of VPN when the
     /// tunnel is broken.
     func sendRequest(
