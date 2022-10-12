@@ -143,10 +143,12 @@ extension REST {
                 return
             }
 
-            logger
-                .debug(
-                    "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
-                )
+            logger.debug(
+                """
+                Send request to \(restRequest.pathTemplate.templateString) via \(endpoint) \
+                using \(transport.name).
+                """
+            )
 
             do {
                 networkTask = try transport
