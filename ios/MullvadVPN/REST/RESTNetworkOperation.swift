@@ -156,8 +156,8 @@ extension REST {
                         self.dispatchQueue.async {
                             if let error = error {
                                 self.didReceiveError(
-                                    transport: transport,
                                     error,
+                                    transport: transport,
                                     endpoint: endpoint
                                 )
                             } else {
@@ -165,8 +165,8 @@ extension REST {
                                 let data = data ?? Data()
 
                                 self.didReceiveURLResponse(
-                                    transport: transport,
                                     httpResponse,
+                                    transport: transport,
                                     data: data,
                                     endpoint: endpoint
                                 )
@@ -174,7 +174,7 @@ extension REST {
                         }
                     }
             } catch {
-                didReceiveError(transport: transport, error, endpoint: endpoint)
+                didReceiveError(error, transport: transport, endpoint: endpoint)
             }
         }
 
@@ -190,8 +190,8 @@ extension REST {
         }
 
         private func didReceiveError(
-            transport: RESTTransport,
             _ error: Swift.Error,
+            transport: RESTTransport,
             endpoint: AnyIPEndpoint
         ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
@@ -219,8 +219,8 @@ extension REST {
         }
 
         private func didReceiveURLResponse(
-            transport: RESTTransport,
             _ response: HTTPURLResponse,
+            transport: RESTTransport,
             data: Data,
             endpoint: AnyIPEndpoint
         ) {

@@ -36,9 +36,9 @@ class TransportMonitor: TunnelObserver {
     ) {}
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
-}
 
-private extension TransportMonitor {
+    // MARK: - Private functions
+
     private func setTransports() {
         RESTTransportRegistry.shared.setTransport(
             stateUpdated(
