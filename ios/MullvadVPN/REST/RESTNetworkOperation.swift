@@ -269,11 +269,10 @@ extension REST {
                     logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
 
-                if let error = error as? URLError {
-                    finish(completion: OperationCompletion(result: .failure(.network(error))))
-                } else {
-                    finish(completion: OperationCompletion(result: .failure(.transport(error))))
-                }
+                let restError: REST.Error = (error as? URLError).map { .network($0) }
+                    ?? .transport(error)
+
+                finish(completion: .failure(restError))
                 return
             }
 
