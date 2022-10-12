@@ -240,30 +240,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 }
 
                 completionHandler?(response)
-            case let .sendURLRequest(message):
-                var urlRequest = URLRequest(url: message.url)
-                urlRequest.httpMethod = message.method
-                urlRequest.httpBody = message.httpBody
-                urlRequest.allHTTPHeaderFields = message.httpHeaders
 
-                let task = URLSession.shared
-                    .dataTask(with: urlRequest) { [weak self] data, response, error in
-                        guard let self = self else { return }
+            case let .sendURLRequest(proxyRequest):
+                let task = URLSession.shared.dataTask(
+                    with: proxyRequest.urlRequest
+                ) { [weak self] data, response, error in
+                    guard let self = self else { return }
 
-                        // Release URLSessionTask from dictionary
-                        self.dispatchQueue.async {
-                            self.allRequests.removeValue(forKey: message.id)
-                        }
+                    self.dispatchQueue.async {
+                        self.allRequests.removeValue(forKey: proxyRequest.id)
 
                         var reply: Data?
                         do {
-                            reply = try TunnelProviderReply(
-                                ProxyURLResponse(
-                                    data: data,
-                                    response: .init(response),
-                                    error: .init(error)
-                                )
-                            ).encode()
+                            let response = ProxyURLResponse(
+                                data: data,
+                                response: response,
+                                error: error
+                            )
+                            reply = try TunnelProviderReply(response).encode()
                         } catch {
                             self.providerLogger.error(
                                 error: error,
@@ -273,13 +267,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                         completionHandler?(reply)
                     }
+                }
 
-                self.allRequests[message.id] = task
+                self.allRequests[proxyRequest.id] = task
 
                 task.resume()
-            case let .cancelURLRequest(messageId):
-                self.allRequests[messageId]?.cancel()
-                self.allRequests[messageId] = nil
+
+            case let .cancelURLRequest(id):
+                let task = self.allRequests.removeValue(forKey: id)
+
+                task?.cancel()
             }
         }
     }
