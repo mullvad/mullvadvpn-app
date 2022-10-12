@@ -50,11 +50,7 @@ extension Tunnel {
         return operation
     }
 
-    /// Request packet tunnel to transport a http request.
-    /// - Parameters:
-    ///   - requestData: Serialized data to be regenerated for URLSession inside tunnel.
-    ///   - completionHandler: Packet tunnel reply with OperationCompletion.
-    /// - Returns: Cancellable.
+    /// Send HTTP request via packet tunnel process bypassing VPN.
     func sendRequest(
         _ requestData: ProxyURLRequest,
         completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
