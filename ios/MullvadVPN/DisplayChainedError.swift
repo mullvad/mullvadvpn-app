@@ -53,9 +53,9 @@ extension REST.Error: DisplayChainedError {
             )
         case let .transport(error):
             return NSLocalizedString(
-                "SERVER_RESPONSE_TRANSPORT_ERROR",
+                "TRANSPORT_ERROR",
                 tableName: "REST",
-                value: "Transport possible error, original error: \(error.localizedDescription)",
+                value: "Transport error: \(error.localizedDescription)",
                 comment: ""
             )
         }
