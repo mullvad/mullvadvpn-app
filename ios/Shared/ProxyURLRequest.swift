@@ -16,8 +16,18 @@ struct ProxyURLRequest: Codable {
     let httpBody: Data?
     let httpHeaders: [String: String]?
 
+    var urlRequest: URLRequest {
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = method
+        urlRequest.httpBody = httpBody
+        urlRequest.allHTTPHeaderFields = httpHeaders
+        return urlRequest
+    }
+
     init(id: UUID, urlRequest: URLRequest) throws {
-        guard let url = urlRequest.url else { throw URLError(.badURL) }
+        guard let url = urlRequest.url else {
+            throw InvalidURLRequestError()
+        }
 
         self.id = id
         self.url = url
@@ -33,48 +43,58 @@ struct ProxyURLResponse: Codable {
     let response: HTTPURLResponseWrapper?
     let error: URLErrorWrapper?
 
-    struct URLErrorWrapper: Codable {
-        let code: Int
-        let debugDescription: String
+    init(data: Data?, response: URLResponse?, error: Error?) {
+        self.data = data
+        self.response = response.flatMap { HTTPURLResponseWrapper($0) }
+        self.error = error.flatMap { URLErrorWrapper($0) }
+    }
+}
 
-        init?(_ error: Error?) throws {
-            debugDescription = error.debugDescription
+struct URLErrorWrapper: Codable {
+    let code: Int?
+    let localizedDescription: String
 
-            guard let error = error else { return nil }
-            if let error = error as? URLError { code = error.errorCode }
-            else { code = -1 }
-        }
-
-        func originalError() -> Error? {
-            URLError(URLError.Code(rawValue: code))
-        }
+    init?(_ error: Error) {
+        localizedDescription = error.localizedDescription
+        code = (error as? URLError)?.errorCode
     }
 
-    struct HTTPURLResponseWrapper: Codable {
-        let url: URL?
-        let statusCode: Int
-        let headerFields: [String: String]?
+    var originalError: Error? {
+        guard let code = code else { return nil }
 
-        init?(_ response: URLResponse?) throws {
-            guard let response = response as? HTTPURLResponse else { return nil }
+        return URLError(URLError.Code(rawValue: code))
+    }
+}
 
-            url = response.url
-            statusCode = response.statusCode
+struct HTTPURLResponseWrapper: Codable {
+    let url: URL?
+    let statusCode: Int
+    let headerFields: [String: String]?
 
-            headerFields = Dictionary(
-                uniqueKeysWithValues: response.allHeaderFields.map { ("\($0)", "\($1)") }
-            )
-        }
+    init?(_ response: URLResponse) {
+        guard let response = response as? HTTPURLResponse else { return nil }
 
-        func originalResponse() -> HTTPURLResponse? {
-            guard let url = url else { return nil }
+        url = response.url
+        statusCode = response.statusCode
+        headerFields = Dictionary(
+            uniqueKeysWithValues: response.allHeaderFields.map { ("\($0)", "\($1)") }
+        )
+    }
 
-            return HTTPURLResponse(
-                url: url,
-                statusCode: statusCode,
-                httpVersion: nil,
-                headerFields: headerFields
-            )
-        }
+    var originalResponse: HTTPURLResponse? {
+        guard let url = url else { return nil }
+
+        return HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: nil,
+            headerFields: headerFields
+        )
+    }
+}
+
+struct InvalidURLRequestError: LocalizedError {
+    var errorDescription: String? {
+        return "Invalid URLRequest URL."
     }
 }
