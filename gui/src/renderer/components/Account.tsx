@@ -14,6 +14,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
+import { useBoolean } from '../lib/utilityHooks';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import {
@@ -37,7 +38,7 @@ import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-type LogoutDialogStage = 'checking-ports' | 'confirm' | undefined;
+type DialogStage = 'checking-ports' | 'confirm' | undefined;
 
 export default function Account() {
   return (
@@ -140,17 +141,12 @@ function AccountComponent() {
 }
 
 function LogoutDialog() {
-  const {
-    logoutDialogStage,
-    logoutDialogVisible,
-    onConfirmLogout,
-    onCancelLogout,
-  } = useLogoutContext();
+  const { dialogStage, dialogVisible, onConfirmLogout, onCancelLogout } = useLogoutContext();
 
-  const modalType = logoutDialogStage === 'checking-ports' ? undefined : ModalAlertType.warning;
+  const modalType = dialogStage === 'checking-ports' ? undefined : ModalAlertType.warning;
 
   const message =
-    logoutDialogStage === 'checking-ports' ? (
+    dialogStage === 'checking-ports' ? (
       <StyledSpinnerContainer>
         <ImageView source="icon-spinner" width={60} height={60} />
       </StyledSpinnerContainer>
@@ -167,7 +163,7 @@ function LogoutDialog() {
     );
 
   const buttons =
-    logoutDialogStage === 'checking-ports'
+    dialogStage === 'checking-ports'
       ? []
       : [
           <AppButton.RedButton key="logout" onClick={onConfirmLogout}>
@@ -181,7 +177,7 @@ function LogoutDialog() {
           </AppButton.BlueButton>,
         ];
   return (
-    <ModalAlert isOpen={logoutDialogVisible} type={modalType} buttons={buttons}>
+    <ModalAlert isOpen={dialogVisible} type={modalType} buttons={buttons}>
       {message}
     </ModalAlert>
   );
@@ -222,8 +218,8 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
 }
 
 type LogoutContextType = {
-  logoutDialogStage: LogoutDialogStage;
-  logoutDialogVisible: boolean;
+  dialogStage: DialogStage;
+  dialogVisible: boolean;
   onConfirmLogout: () => void;
   onCancelLogout: () => void;
   onTryLogout: () => Promise<void>;
@@ -232,21 +228,20 @@ type LogoutContextType = {
 const LogoutContext = createContext<LogoutContextType | undefined>(undefined);
 
 const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
-  const onHideLogoutConfirmationDialog = () => setLogoutDialogVisible(false);
   const { cancelLogout, prepareLogout } = useActions(account);
   const { logout, getDeviceState } = useAppContext();
 
-  const [logoutDialogStage, setLogoutDialogStage] = useState<LogoutDialogStage>();
-  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+  const [dialogStage, setDialogStage] = useState<DialogStage>();
+  const [dialogVisible, showDialog, hideDialog] = useBoolean(false);
 
   const onConfirmLogout = useCallback(async () => {
-    onHideLogoutConfirmationDialog();
+    hideDialog();
     await logout();
   }, []);
 
   const onTryLogout = useCallback(async () => {
-    setLogoutDialogVisible(true);
-    setLogoutDialogStage('checking-ports');
+    showDialog();
+    setDialogStage('checking-ports');
     prepareLogout();
 
     const deviceState = await getDeviceState();
@@ -256,26 +251,26 @@ const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
       deviceState.accountAndDevice.device?.ports !== undefined &&
       deviceState.accountAndDevice.device.ports.length > 0
     ) {
-      setLogoutDialogStage('confirm');
+      setDialogStage('confirm');
     } else {
       await onConfirmLogout();
     }
-  }, [onConfirmLogout]);
+  }, [onConfirmLogout, prepareLogout]);
 
   const onCancelLogout = useCallback(() => {
     cancelLogout();
-    onHideLogoutConfirmationDialog();
-  }, []);
+    hideDialog();
+  }, [cancelLogout]);
 
   const value: LogoutContextType = useMemo(
     () => ({
-      logoutDialogStage,
-      logoutDialogVisible,
+      dialogStage,
+      dialogVisible,
       onConfirmLogout,
       onCancelLogout,
       onTryLogout,
     }),
-    [logoutDialogVisible, logoutDialogStage, onConfirmLogout, onCancelLogout, onTryLogout],
+    [dialogVisible, dialogStage, onConfirmLogout, onCancelLogout, onTryLogout],
   );
   return <LogoutContext.Provider value={value}>{children}</LogoutContext.Provider>;
 };
