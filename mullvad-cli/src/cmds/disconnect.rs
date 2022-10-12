@@ -1,6 +1,5 @@
 use crate::{format, new_rpc_client, state, Command, Error, Result};
 use futures::StreamExt;
-use mullvad_types::states::TunnelState;
 
 pub struct Disconnect;
 
