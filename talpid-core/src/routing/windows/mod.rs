@@ -220,7 +220,7 @@ impl RouteManager {
                     if let Err(e) = internal.delete_applied_routes() {
                         log::error!("Could not clear routes due to: {}", e);
                     }
-                },
+                }
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }

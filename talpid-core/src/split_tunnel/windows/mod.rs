@@ -814,11 +814,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         let internet_ipv4 = get_best_default_route(AddressFamily::Ipv4)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
-                get_ip_address_for_interface(
-                    AddressFamily::Ipv4,
-                    route.iface,
-                )
-                .map(|ip| match ip {
+                get_ip_address_for_interface(AddressFamily::Ipv4, route.iface).map(|ip| match ip {
                     Some(IpAddr::V4(addr)) => Some(addr),
                     Some(_) => unreachable!("wrong address family (expected IPv4)"),
                     None => {
@@ -833,11 +829,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         let internet_ipv6 = get_best_default_route(AddressFamily::Ipv6)
             .map_err(Error::ObtainDefaultRoute)?
             .map(|route| {
-                get_ip_address_for_interface(
-                    AddressFamily::Ipv6,
-                    route.iface,
-                )
-                .map(|ip| match ip {
+                get_ip_address_for_interface(AddressFamily::Ipv6, route.iface).map(|ip| match ip {
                     Some(IpAddr::V6(addr)) => Some(addr),
                     Some(_) => unreachable!("wrong address family (expected IPv6)"),
                     None => {

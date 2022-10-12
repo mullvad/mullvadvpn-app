@@ -1,5 +1,8 @@
 use self::tun_provider::TunProvider;
-use crate::{logging, routing::{self, RouteManagerHandle}};
+use crate::{
+    logging,
+    routing::{self, RouteManagerHandle},
+};
 use futures::{channel::oneshot, future::BoxFuture};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},

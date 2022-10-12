@@ -5,11 +5,12 @@ use widestring::{widecstr, WideCStr};
 use windows_sys::Win32::{
     Foundation::NO_ERROR,
     NetworkManagement::{
-        Ndis::NET_LUID_LH,
         IpHelper::{
-        FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL,
-        MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
-    }},
+            FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK,
+            IF_TYPE_TUNNEL, MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
+        },
+        Ndis::NET_LUID_LH,
+    },
 };
 
 // Interface description substrings found for virtual adapters.

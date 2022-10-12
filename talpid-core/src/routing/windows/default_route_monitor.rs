@@ -14,12 +14,13 @@ use std::{
 };
 use windows_sys::Win32::Foundation::{BOOLEAN, HANDLE, NO_ERROR};
 use windows_sys::Win32::NetworkManagement::{
-    Ndis::NET_LUID_LH,
     IpHelper::{
-    CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
-    NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPFORWARD_ROW2, MIB_IPINTERFACE_ROW,
-    MIB_NOTIFICATION_TYPE, MIB_UNICASTIPADDRESS_ROW,
-}};
+        CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
+        NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPFORWARD_ROW2, MIB_IPINTERFACE_ROW,
+        MIB_NOTIFICATION_TYPE, MIB_UNICASTIPADDRESS_ROW,
+    },
+    Ndis::NET_LUID_LH,
+};
 
 const WIN_FALSE: BOOLEAN = 0;
 
@@ -303,8 +304,7 @@ unsafe extern "system" fn route_change_callback(
     }
 
     // SAFETY: context must not be dropped or modified until this callback has been cancelled.
-    let context_and_burst: &ContextAndBurstGuard =
-        &*(context as *const ContextAndBurstGuard);
+    let context_and_burst: &ContextAndBurstGuard = &*(context as *const ContextAndBurstGuard);
     let mut context = context_and_burst.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
@@ -322,8 +322,7 @@ unsafe extern "system" fn interface_change_callback(
     let row = &*row;
 
     // SAFETY: context must not be dropped or modified until this callback has been cancelled.
-    let context_and_burst: &ContextAndBurstGuard =
-        &*(context as *const ContextAndBurstGuard);
+    let context_and_burst: &ContextAndBurstGuard = &*(context as *const ContextAndBurstGuard);
     let mut context = context_and_burst.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
@@ -341,8 +340,7 @@ unsafe extern "system" fn ip_address_change_callback(
     let row = &*row;
 
     // SAFETY: context must not be dropped or modified until this callback has been cancelled.
-    let context_and_burst: &ContextAndBurstGuard =
-        &*(context as *const ContextAndBurstGuard);
+    let context_and_burst: &ContextAndBurstGuard = &*(context as *const ContextAndBurstGuard);
     let mut context = context_and_burst.context.lock().unwrap();
 
     context.update_refresh_flag(&row.InterfaceLuid, row.InterfaceIndex);
