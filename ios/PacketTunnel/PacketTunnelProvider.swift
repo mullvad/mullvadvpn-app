@@ -261,7 +261,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                         } catch {
                             self.providerLogger.error(
                                 error: error,
-                                message: "Failed to encode tunnel status reply."
+                                message: "Failed to encode ProxyURLResponse."
                             )
                         }
 
