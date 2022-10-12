@@ -1,7 +1,7 @@
 pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
-use std::{convert::TryFrom, str::FromStr};
+use std::{convert::TryFrom, net::SocketAddr, str::FromStr};
 use talpid_types::{net::wireguard, ErrorExt};
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -417,10 +417,13 @@ impl TryFrom<TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                 .map(|obfs_ep| {
                     Ok(talpid_net::ObfuscationEndpoint {
                         endpoint: talpid_net::Endpoint {
-                            address: arg_from_str(
-                                &obfs_ep.address,
-                                "invalid obfuscation endpoint address",
-                            )?,
+                            address: SocketAddr::new(
+                                arg_from_str(
+                                    &obfs_ep.address,
+                                    "invalid obfuscation endpoint address",
+                                )?,
+                                obfs_ep.port as u16,
+                            ),
                             protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
                         },
                         obfuscation_type: match ObfuscationType::from_i32(obfs_ep.obfuscation_type)
