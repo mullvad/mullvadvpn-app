@@ -4,9 +4,9 @@ use futures::{
     SinkExt,
 };
 use mullvad_management_interface::{
-    types::{daemon_event::Event as EventType, TunnelState},
-    ManagementServiceClient,
+    types::daemon_event::Event as EventType, ManagementServiceClient,
 };
+use mullvad_types::states::TunnelState;
 
 // Spawns a new task that listens for tunnel state changes and forwards it through the returned
 // channel. Panics if called from outside of the Tokio runtime.
@@ -19,7 +19,9 @@ pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<Result<TunnelS
                 loop {
                     let forward = match events.message().await {
                         Ok(Some(event)) => match event.event.unwrap() {
-                            EventType::TunnelState(new_state) => Ok(new_state),
+                            EventType::TunnelState(new_state) => {
+                                Ok(TunnelState::try_from(new_state).expect("invalid tunnel state"))
+                            }
                             _ => continue,
                         },
                         Ok(None) => break,
