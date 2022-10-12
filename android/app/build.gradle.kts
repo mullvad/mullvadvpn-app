@@ -12,6 +12,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
+val changeLogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
 val keystorePropertiesFile = file("${rootProject.projectDir}/keystore.properties")
@@ -65,7 +66,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            assets.srcDirs(extraAssetsDirectory)
+            assets.srcDirs(extraAssetsDirectory, changeLogAssetsDirectory)
             jniLibs.srcDirs(extraJniDirectory)
             java.srcDirs("src/main/kotlin/")
         }

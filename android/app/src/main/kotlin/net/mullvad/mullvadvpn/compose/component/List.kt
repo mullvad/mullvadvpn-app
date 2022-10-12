@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.BulletSpan
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +22,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 
 @Composable
@@ -71,5 +75,38 @@ fun ListItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ChangeListItem(
+    text: String
+) {
+    ConstraintLayout {
+        val (bullet, changeLog) = createRefs()
+        val ttt = SpannableString(text)
+        ttt.setSpan(BulletSpan(), 0, text.length - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        Text(
+            text = "• ",
+            fontSize = 14.sp,
+            color = Color.White,
+            modifier = Modifier
+                .constrainAs(bullet) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+        )
+        Text(
+            text = text,
+            fontSize = 14.sp,
+            color = Color.White,
+            modifier = Modifier
+                .constrainAs(changeLog) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom, margin = 8.dp)
+                    start.linkTo(bullet.end)
+                    end.linkTo(parent.end)
+                }
+        )
     }
 }

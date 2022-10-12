@@ -1,7 +1,11 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import android.content.Context
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -20,7 +24,6 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
-import net.mullvad.mullvadvpn.util.toBulletList
 import net.mullvad.mullvadvpn.viewmodel.AppChangesViewModel
 
 @Composable
@@ -32,7 +35,6 @@ fun ShowChangesDialog(
 ) {
     var version: String? = serviceConnectionManager.appVersionInfoCache()?.version
     if (version.isNullOrEmpty()) version = BuildConfig.VERSION_NAME
-    var changesHeader = "<h4>${context.getString(R.string.changesHeader)}</h4>\n"
     AlertDialog(
         onDismissRequest = {
             changesViewModel.setDialogShowed()
@@ -54,11 +56,23 @@ fun ShowChangesDialog(
         },
 
         text = {
-            HtmlText(
-                htmlFormattedString = changesHeader +
-                        changesViewModel.getChangesList().toBulletList(),
-                textSize = 14.sp.value
-            )
+            Column {
+                Text(
+                    text = context.getString(R.string.changesHeader),
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .padding(
+                            vertical = 16.dp
+                        )
+                )
+
+                changesViewModel.getChangesList().forEach { changeItem ->
+                    ChangeListItem(
+                        text = changeItem
+                    )
+                }
+            }
         },
         buttons = {
             Column(
@@ -78,6 +92,7 @@ fun ShowChangesDialog(
                     ),
                     onClick = {
                         onBackPressed()
+                        changesViewModel.setDialogShowed()
                     }
                 ) {
                     Text(
@@ -85,7 +100,6 @@ fun ShowChangesDialog(
                         fontSize = 18.sp
                     )
                 }
-
             }
         },
         properties = DialogProperties(
