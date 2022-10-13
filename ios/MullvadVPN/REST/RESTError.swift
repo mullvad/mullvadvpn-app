@@ -112,5 +112,9 @@ extension REST {
         }
     }
 
-    struct NoTransportError: Swift.Error {}
+    struct NoTransportError: LocalizedError {
+        var errorDescription: String? {
+            return "Transport is not configured."
+        }
+    }
 }
