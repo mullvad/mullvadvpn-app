@@ -9,7 +9,7 @@
 import Foundation
 import MullvadLogging
 
-extension AddressCache {
+public extension AddressCache {
     struct CachedAddresses: Codable {
         /// Date when the cached addresses were last updated.
         var updatedAt: Date
@@ -25,7 +25,7 @@ extension AddressCache {
         /// Cache file originates from application bundle.
         case bundle
 
-        var description: String {
+        public var description: String {
             switch self {
             case .disk:
                 return "disk"
@@ -43,13 +43,13 @@ extension AddressCache {
     struct EmptyCacheError: LocalizedError {
         let source: CacheSource
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             return "Address cache file from \(source) does not contain any API addresses."
         }
     }
 
     class Store {
-        static let shared: Store = {
+        public static let shared: Store = {
             let cacheFilename = "api-ip-address.json"
             let cacheDirectoryURL = FileManager.default.urls(
                 for: .applicationSupportDirectory,
@@ -70,7 +70,7 @@ extension AddressCache {
             )
         }()
 
-        static var defaultCachedAddresses: CachedAddresses {
+        public static var defaultCachedAddresses: CachedAddresses {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: [
@@ -140,13 +140,13 @@ extension AddressCache {
             }
         }
 
-        func getCurrentEndpoint() -> AnyIPEndpoint {
+        public func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
             return cachedAddresses.endpoints.first!
         }
 
-        func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
+        public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -178,7 +178,7 @@ extension AddressCache {
             return currentEndpoint
         }
 
-        func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
+        public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -215,7 +215,7 @@ extension AddressCache {
             }
         }
 
-        func getLastUpdateDate() -> Date {
+        public func getLastUpdateDate() -> Date {
             nslock.lock()
             defer { nslock.unlock() }
 

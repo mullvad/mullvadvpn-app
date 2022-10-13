@@ -8,6 +8,7 @@
 
 import Foundation
 import Operations
+import MullvadREST
 
 extension REST {
     class Proxy<ConfigurationType: ProxyConfiguration> {
