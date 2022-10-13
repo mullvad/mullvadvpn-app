@@ -1,9 +1,21 @@
-import * as React from 'react';
+import {
+  ChangeEvent,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { links } from '../../config.json';
-import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { IProblemReportForm } from '../redux/support/actions';
+import { useAppContext } from '../context';
+import useActions from '../lib/actionsHook';
+import { useHistory } from '../lib/history';
+import { useSelector } from '../redux/store';
+import support from '../redux/support/actions';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
@@ -35,426 +47,439 @@ enum SendState {
   failed,
 }
 
-interface IProblemReportState {
-  email: string;
-  message: string;
-  savedReportId?: string;
-  sendState: SendState;
-  disableActions: boolean;
-  showOutdatedVersionWarning: boolean;
-}
+export default function ProblemReport() {
+  const history = useHistory();
+  const { collectProblemReport, sendProblemReport, viewLog } = useAppContext();
+  const { clearReportForm, saveReportForm } = useActions(support);
 
-interface IProblemReportProps {
-  defaultEmail: string;
-  defaultMessage: string;
-  accountHistory?: AccountToken;
-  isOffline: boolean;
-  onClose: () => void;
-  viewLog: (path: string) => void;
-  saveReportForm: (form: IProblemReportForm) => void;
-  clearReportForm: () => void;
-  collectProblemReport: (accountToRedact?: string) => Promise<string>;
-  sendProblemReport: (email: string, message: string, savedReportId: string) => Promise<void>;
-  outdatedVersion: boolean;
-  suggestedIsBeta: boolean;
-  onExternalLink: (url: string) => void;
-}
+  const { email: defaultEmail, message: defaultMessage } = useSelector((state) => state.support);
+  const accountHistory = useSelector((state) => state.account.accountHistory);
 
-export default class ProblemReport extends React.Component<
-  IProblemReportProps,
-  IProblemReportState
-> {
-  public state = {
-    email: '',
-    message: '',
-    savedReportId: undefined,
-    sendState: SendState.initial,
-    disableActions: false,
-    showOutdatedVersionWarning: false,
-  };
+  const [sendState, setSendState] = useState(SendState.initial);
+  const [email, setEmail] = useState(defaultEmail);
+  const [message, setMessage] = useState(defaultMessage);
+  const [disableActions, setDisableActions] = useState(false);
 
-  private collectLogPromise?: Promise<string>;
+  const sendReport = useCallback(async () => {
+    try {
+      const reportId = await collectLog();
+      await sendProblemReport(email, message, reportId);
+      clearReportForm();
+      setSendState(SendState.success);
+    } catch (error) {
+      setSendState(SendState.failed);
+    }
+  }, [email, message]);
 
-  constructor(props: IProblemReportProps) {
-    super(props);
+  /**
+   * Save the form whenever email or message gets updated
+   */
+  useEffect(() => {
+    saveReportForm({ email, message });
+  }, [email, message]);
 
-    // seed initial data from props
-    this.state.email = props.defaultEmail;
-    this.state.message = props.defaultMessage;
-    this.state.showOutdatedVersionWarning = props.outdatedVersion;
-  }
+  /**
+   * Listen for changes to sendState,
+   * when it is set to sending, send the report
+   */
+  useEffect(() => {
+    if (sendState === SendState.sending) {
+      void sendReport();
+    }
+  }, [sendState]);
 
-  public validate() {
-    return this.state.message.trim().length > 0;
-  }
+  /**
+   * A bit awkward, but when actions are disabled,
+   * we use that as a trigger to collect and view the log
+   */
+  useEffect(() => {
+    const collectAndViewLog = async () => {
+      const reportId = await collectLog();
+      await viewLog(reportId);
+    };
 
-  public onChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ email: event.target.value }, () => {
-      this.saveFormData();
-    });
-  };
-
-  public onChangeDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ message: event.target.value }, () => {
-      this.saveFormData();
-    });
-  };
-
-  public onViewLog = () => {
-    this.performWithActionsDisabled(async () => {
+    if (disableActions) {
       try {
-        const reportId = await this.collectLog();
-        this.props.viewLog(reportId);
+        void collectAndViewLog();
       } catch (error) {
         // TODO: handle error
+      } finally {
+        setDisableActions(false);
       }
-    });
+    }
+  }, [disableActions]);
+
+  const collectLogPromise = useRef<Promise<string>>();
+
+  const collectLog = async (): Promise<string> => {
+    if (collectLogPromise.current) {
+      return collectLogPromise.current;
+    } else {
+      const collectPromise = collectProblemReport(accountHistory);
+      // save promise to prevent subsequent requests
+      collectLogPromise.current = collectPromise;
+
+      try {
+        const reportId = await collectPromise;
+        return new Promise((resolve) => {
+          resolve(reportId);
+        });
+      } catch (error) {
+        collectLogPromise.current = undefined;
+        throw error;
+      }
+    }
   };
 
-  public onSend = async (): Promise<void> => {
-    const sendState = this.state.sendState;
-    if (sendState === SendState.initial && this.state.email.length === 0) {
-      this.setState({ sendState: SendState.confirm });
+  const onViewLog = useCallback(() => {
+    setDisableActions(true);
+  }, []);
+
+  const onSend = useCallback(() => {
+    if (sendState === SendState.initial && email.length === 0) {
+      setSendState(SendState.confirm);
     } else if (
       sendState === SendState.initial ||
       sendState === SendState.confirm ||
       sendState === SendState.failed
     ) {
       try {
-        await this.sendReport();
+        setSendState(SendState.sending);
       } catch (error) {
         // No-op
       }
     }
-  };
+  }, [email]);
 
-  public onCancelNoEmailDialog = () => {
-    this.setState({ sendState: SendState.initial });
-  };
-
-  public render() {
-    const { sendState } = this.state;
-    const header = (
-      <SettingsHeader>
-        <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
-        {(sendState === SendState.initial || sendState === SendState.confirm) && (
-          <HeaderSubTitle>
-            {messages.pgettext(
-              'support-view',
-              'To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.',
-            )}
-          </HeaderSubTitle>
-        )}
-      </SettingsHeader>
-    );
-
-    const content = this.renderContent();
-
-    return (
-      <BackAction action={this.props.onClose}>
-        <Layout>
-          <SettingsContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('support-view', 'Report a problem')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
-            <StyledContentContainer>
-              {header}
-              {content}
-            </StyledContentContainer>
-
-            {this.renderNoEmailDialog()}
-            {this.renderOutdateVersionWarningDialog()}
-          </SettingsContainer>
-        </Layout>
-      </BackAction>
-    );
-  }
-
-  private saveFormData() {
-    this.props.saveReportForm({
-      email: this.state.email,
-      message: this.state.message,
-    });
-  }
-
-  private async collectLog(): Promise<string> {
-    if (this.collectLogPromise) {
-      return this.collectLogPromise;
-    } else {
-      const collectPromise = this.props.collectProblemReport(this.props.accountHistory);
-
-      // save promise to prevent subsequent requests
-      this.collectLogPromise = collectPromise;
-
-      try {
-        const reportId = await collectPromise;
-        return new Promise((resolve) => {
-          this.setState({ savedReportId: reportId }, () => resolve(reportId));
-        });
-      } catch (error) {
-        this.collectLogPromise = undefined;
-
-        throw error;
-      }
-    }
-  }
-
-  private sendReport(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.setState({ sendState: SendState.sending }, async () => {
-        try {
-          const { email, message } = this.state;
-          const reportId = await this.collectLog();
-          await this.props.sendProblemReport(email, message, reportId);
-          this.props.clearReportForm();
-          this.setState({ sendState: SendState.success }, () => {
-            resolve();
-          });
-        } catch (error) {
-          this.setState({ sendState: SendState.failed }, () => {
-            reject(error);
-          });
-        }
-      });
-    });
-  }
-
-  private renderContent() {
-    switch (this.state.sendState) {
+  const renderContent = () => {
+    switch (sendState) {
       case SendState.initial:
       case SendState.confirm:
-        return this.renderForm();
+        return (
+          <Form
+            email={email}
+            setEmail={setEmail}
+            message={message}
+            setMessage={setMessage}
+            onSend={onSend}
+            disableActions={disableActions}
+            onViewLog={onViewLog}
+          />
+        );
       case SendState.sending:
-        return this.renderSending();
+        return <Sending />;
       case SendState.success:
-        return this.renderSent();
+        return <Sent email={email} />;
       case SendState.failed:
-        return this.renderFailed();
+        return <Failed setSendState={setSendState} onSend={onSend} />;
       default:
         return null;
     }
-  }
-
-  private renderNoEmailDialog() {
-    const message = messages.pgettext(
-      'support-view',
-      'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
-    );
-    return (
-      <ModalAlert
-        isOpen={this.state.sendState === SendState.confirm}
-        type={ModalAlertType.warning}
-        message={message}
-        buttons={[
-          <AppButton.RedButton key="proceed" onClick={this.onSend}>
-            {messages.pgettext('support-view', 'Send anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onClick={this.onCancelNoEmailDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
-        close={this.onCancelNoEmailDialog}
-      />
-    );
-  }
-
-  private acknowledgeOutdateVersion = () => {
-    this.setState({ showOutdatedVersionWarning: false });
   };
 
-  private openDownloadLink = () =>
-    this.props.onExternalLink(this.props.suggestedIsBeta ? links.betaDownload : links.download);
+  const content = renderContent();
 
-  private renderOutdateVersionWarningDialog() {
-    const message = messages.pgettext(
-      'support-view',
-      'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
-    );
-    return (
-      <ModalAlert
-        isOpen={this.state.showOutdatedVersionWarning}
-        type={ModalAlertType.warning}
-        message={message}
-        buttons={[
-          <AriaDescriptionGroup key="upgrade">
-            <AriaDescribed>
-              <AppButton.GreenButton
-                disabled={this.props.isOffline}
-                onClick={this.openDownloadLink}>
+  return (
+    <BackAction action={history.pop}>
+      <Layout>
+        <SettingsContainer>
+          <NavigationBar>
+            <NavigationItems>
+              <TitleBarItem>
+                {
+                  // TRANSLATORS: Title label in navigation bar
+                  messages.pgettext('support-view', 'Report a problem')
+                }
+              </TitleBarItem>
+            </NavigationItems>
+          </NavigationBar>
+          <StyledContentContainer>
+            <Header sendState={sendState} />
+            {content}
+          </StyledContentContainer>
+
+          <NoEmailDialog sendState={sendState} setSendState={setSendState} onSend={onSend} />
+          <OutdatedVersionWarningDialog />
+        </SettingsContainer>
+      </Layout>
+    </BackAction>
+  );
+}
+
+type HeaderProps = {
+  sendState: SendState;
+};
+
+function Header({ sendState }: HeaderProps) {
+  return (
+    <SettingsHeader>
+      <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
+      {(sendState === SendState.initial || sendState === SendState.confirm) && (
+        <HeaderSubTitle>
+          {messages.pgettext(
+            'support-view',
+            'To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.',
+          )}
+        </HeaderSubTitle>
+      )}
+    </SettingsHeader>
+  );
+}
+
+type FormProps = {
+  email: string;
+  setEmail: (email: string) => void;
+  disableActions: boolean;
+  message: string;
+  setMessage: (message: string) => void;
+  onSend: () => void;
+  onViewLog: () => void;
+};
+
+function Form({
+  email,
+  disableActions,
+  message,
+  onSend,
+  setEmail,
+  setMessage,
+  onViewLog,
+}: FormProps) {
+  const onChangeEmail = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  }, []);
+
+  const onChangeDescription = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(event.target.value);
+  }, []);
+
+  const validate = () => message.trim().length > 0;
+
+  return (
+    <StyledContent>
+      <StyledForm>
+        <StyledFormEmailRow>
+          <StyledEmailInput
+            placeholder={messages.pgettext('support-view', 'Your email (optional)')}
+            defaultValue={email}
+            onChange={onChangeEmail}
+          />
+        </StyledFormEmailRow>
+        <StyledFormMessageRow>
+          <StyledMessageInput
+            placeholder={messages.pgettext(
+              'support-view',
+              'Please describe your problem in English or Swedish.',
+            )}
+            defaultValue={message}
+            onChange={onChangeDescription}
+          />
+        </StyledFormMessageRow>
+      </StyledForm>
+      <Footer>
+        <AriaDescriptionGroup>
+          <AriaDescribed>
+            <AppButton.ButtonGroup>
+              <AppButton.BlueButton onClick={onViewLog} disabled={disableActions}>
                 <AppButton.Label>
-                  {messages.pgettext('support-view', 'Upgrade app')}
+                  {messages.pgettext('support-view', 'View app logs')}
                 </AppButton.Label>
                 <AriaDescription>
                   <AppButton.Icon
+                    source="icon-extLink"
                     height={16}
                     width={16}
-                    source="icon-extLink"
                     aria-label={messages.pgettext('accessibility', 'Opens externally')}
                   />
                 </AriaDescription>
-              </AppButton.GreenButton>
-            </AriaDescribed>
-          </AriaDescriptionGroup>,
-          <AppButton.RedButton key="proceed" onClick={this.acknowledgeOutdateVersion}>
-            {messages.pgettext('support-view', 'Continue anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="cancel" onClick={this.outdatedVersionCancel}>
-            {messages.gettext('Cancel')}
-          </AppButton.BlueButton>,
-        ]}
-        close={this.props.onClose}
-      />
-    );
-  }
+              </AppButton.BlueButton>
+            </AppButton.ButtonGroup>
+          </AriaDescribed>
+        </AriaDescriptionGroup>
+        <AppButton.GreenButton disabled={!validate() || disableActions} onClick={onSend}>
+          {messages.pgettext('support-view', 'Send')}
+        </AppButton.GreenButton>
+      </Footer>
+    </StyledContent>
+  );
+}
 
-  private outdatedVersionCancel = () => {
-    this.acknowledgeOutdateVersion();
-    this.props.onClose();
-  };
+function Sending() {
+  return (
+    <StyledContent>
+      <StyledForm>
+        <StyledStatusIcon>
+          <ImageView source="icon-spinner" height={60} width={60} />
+        </StyledStatusIcon>
+        <StyledSendStatus>{messages.pgettext('support-view', 'Sending...')}</StyledSendStatus>
+      </StyledForm>
+    </StyledContent>
+  );
+}
 
-  private renderForm() {
-    return (
-      <StyledContent>
-        <StyledForm>
-          <StyledFormEmailRow>
-            <StyledEmailInput
-              placeholder={messages.pgettext('support-view', 'Your email (optional)')}
-              defaultValue={this.state.email}
-              onChange={this.onChangeEmail}
-            />
-          </StyledFormEmailRow>
-          <StyledFormMessageRow>
-            <StyledMessageInput
-              placeholder={messages.pgettext(
-                'support-view',
-                'Please describe your problem in English or Swedish.',
-              )}
-              defaultValue={this.state.message}
-              onChange={this.onChangeDescription}
-            />
-          </StyledFormMessageRow>
-        </StyledForm>
-        <Footer>
-          <AriaDescriptionGroup>
-            <AriaDescribed>
-              <AppButton.ButtonGroup>
-                <AppButton.BlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
-                  <AppButton.Label>
-                    {messages.pgettext('support-view', 'View app logs')}
-                  </AppButton.Label>
-                  <AriaDescription>
-                    <AppButton.Icon
-                      source="icon-extLink"
-                      height={16}
-                      width={16}
-                      aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                    />
-                  </AriaDescription>
-                </AppButton.BlueButton>
-              </AppButton.ButtonGroup>
-            </AriaDescribed>
-          </AriaDescriptionGroup>
-          <AppButton.GreenButton
-            disabled={!this.validate() || this.state.disableActions}
-            onClick={this.onSend}>
-            {messages.pgettext('support-view', 'Send')}
+type SentProps = {
+  email: string;
+};
+
+function Sent({ email }: SentProps) {
+  const reachBackMessage: ReactNode[] =
+    // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+    // TRANSLATORS: Available placeholders:
+    // TRANSLATORS: %(email)s
+    messages
+      .pgettext('support-view', 'If needed we will contact you at %(email)s')
+      .split('%(email)s', 2);
+  reachBackMessage.splice(1, 0, <StyledEmail key="email">{email}</StyledEmail>);
+
+  return (
+    <StyledContent>
+      <StyledForm>
+        <StyledStatusIcon>
+          <ImageView source="icon-success" height={60} width={60} />
+        </StyledStatusIcon>
+        <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
+
+        <StyledSentMessage>
+          <StyledThanks>{messages.pgettext('support-view', 'Thanks!')} </StyledThanks>
+          {messages.pgettext('support-view', 'We will look into this.')}
+        </StyledSentMessage>
+        {email.trim().length > 0 ? <StyledSentMessage>{reachBackMessage}</StyledSentMessage> : null}
+      </StyledForm>
+    </StyledContent>
+  );
+}
+
+type FailedProps = {
+  setSendState: Dispatch<SetStateAction<SendState>>;
+  onSend: () => void;
+};
+
+function Failed({ setSendState, onSend }: FailedProps) {
+  const handleEditMessage = useCallback(() => {
+    setSendState(SendState.initial);
+  }, []);
+
+  return (
+    <StyledContent>
+      <StyledForm>
+        <StyledStatusIcon>
+          <ImageView source="icon-fail" height={60} width={60} />
+        </StyledStatusIcon>
+        <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
+        <StyledSentMessage>
+          {messages.pgettext(
+            'support-view',
+            'If you exit the form and try again later, the information you already entered will still be here.',
+          )}
+        </StyledSentMessage>
+      </StyledForm>
+      <Footer>
+        <AppButton.ButtonGroup>
+          <AppButton.BlueButton onClick={handleEditMessage}>
+            {messages.pgettext('support-view', 'Edit message')}
+          </AppButton.BlueButton>
+          <AppButton.GreenButton onClick={onSend}>
+            {messages.pgettext('support-view', 'Try again')}
           </AppButton.GreenButton>
-        </Footer>
-      </StyledContent>
-    );
-  }
+        </AppButton.ButtonGroup>
+      </Footer>
+    </StyledContent>
+  );
+}
 
-  private renderSending() {
-    return (
-      <StyledContent>
-        <StyledForm>
-          <StyledStatusIcon>
-            <ImageView source="icon-spinner" height={60} width={60} />
-          </StyledStatusIcon>
-          <StyledSendStatus>{messages.pgettext('support-view', 'Sending...')}</StyledSendStatus>
-        </StyledForm>
-      </StyledContent>
-    );
-  }
+type NoEmailDialogProps = {
+  sendState: SendState;
+  onSend: () => void;
+  setSendState: Dispatch<SetStateAction<SendState>>;
+};
 
-  private renderSent() {
-    const reachBackMessage: React.ReactNode[] =
-      // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(email)s
-      messages
-        .pgettext('support-view', 'If needed we will contact you at %(email)s')
-        .split('%(email)s', 2);
-    reachBackMessage.splice(1, 0, <StyledEmail key="email">{this.state.email}</StyledEmail>);
+function NoEmailDialog({ sendState, onSend, setSendState }: NoEmailDialogProps) {
+  const message = messages.pgettext(
+    'support-view',
+    'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
+  );
 
-    return (
-      <StyledContent>
-        <StyledForm>
-          <StyledStatusIcon>
-            <ImageView source="icon-success" height={60} width={60} />
-          </StyledStatusIcon>
-          <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
+  const onCancelNoEmailDialog = useCallback(() => {
+    setSendState(SendState.initial);
+  }, []);
 
-          <StyledSentMessage>
-            <StyledThanks>{messages.pgettext('support-view', 'Thanks!')} </StyledThanks>
-            {messages.pgettext('support-view', 'We will look into this.')}
-          </StyledSentMessage>
-          {this.state.email.trim().length > 0 ? (
-            <StyledSentMessage>{reachBackMessage}</StyledSentMessage>
-          ) : null}
-        </StyledForm>
-      </StyledContent>
-    );
-  }
+  return (
+    <ModalAlert
+      isOpen={sendState === SendState.confirm}
+      type={ModalAlertType.warning}
+      message={message}
+      buttons={[
+        <AppButton.RedButton key="proceed" onClick={onSend}>
+          {messages.pgettext('support-view', 'Send anyway')}
+        </AppButton.RedButton>,
+        <AppButton.BlueButton key="cancel" onClick={onCancelNoEmailDialog}>
+          {messages.gettext('Back')}
+        </AppButton.BlueButton>,
+      ]}
+      close={onCancelNoEmailDialog}
+    />
+  );
+}
 
-  private renderFailed() {
-    return (
-      <StyledContent>
-        <StyledForm>
-          <StyledStatusIcon>
-            <ImageView source="icon-fail" height={60} width={60} />
-          </StyledStatusIcon>
-          <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
-          <StyledSentMessage>
-            {messages.pgettext(
-              'support-view',
-              'If you exit the form and try again later, the information you already entered will still be here.',
-            )}
-          </StyledSentMessage>
-        </StyledForm>
-        <Footer>
-          <AppButton.ButtonGroup>
-            <AppButton.BlueButton onClick={this.handleEditMessage}>
-              {messages.pgettext('support-view', 'Edit message')}
-            </AppButton.BlueButton>
-            <AppButton.GreenButton onClick={this.onSend}>
-              {messages.pgettext('support-view', 'Try again')}
+function OutdatedVersionWarningDialog() {
+  const history = useHistory();
+  const { openUrl } = useAppContext();
+
+  const isOffline = useSelector((state) => state.connection.isBlocked);
+  const suggestedIsBeta = useSelector((state) => state.version.suggestedIsBeta ?? false);
+  const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
+
+  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
+
+  const acknowledgeOutdatedVersion = useCallback(() => {
+    setShowOutdatedVersionWarning(false);
+  }, []);
+
+  const openDownloadLink = useCallback(async () => {
+    await openUrl(suggestedIsBeta ? links.betaDownload : links.download);
+  }, []);
+
+  const onClose = useCallback(() => history.pop(), [history.pop]);
+
+  const outdatedVersionCancel = useCallback(() => {
+    acknowledgeOutdatedVersion();
+    onClose();
+  }, []);
+
+  const message = messages.pgettext(
+    'support-view',
+    'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
+  );
+
+  return (
+    <ModalAlert
+      isOpen={showOutdatedVersionWarning}
+      type={ModalAlertType.warning}
+      message={message}
+      buttons={[
+        <AriaDescriptionGroup key="upgrade">
+          <AriaDescribed>
+            <AppButton.GreenButton disabled={isOffline} onClick={openDownloadLink}>
+              <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
+              <AriaDescription>
+                <AppButton.Icon
+                  height={16}
+                  width={16}
+                  source="icon-extLink"
+                  aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                />
+              </AriaDescription>
             </AppButton.GreenButton>
-          </AppButton.ButtonGroup>
-        </Footer>
-      </StyledContent>
-    );
-  }
-
-  private handleEditMessage = () => {
-    this.setState({ sendState: SendState.initial });
-  };
-
-  private performWithActionsDisabled(work: () => Promise<void>) {
-    this.setState({ disableActions: true }, async () => {
-      try {
-        await work();
-      } catch {
-        // TODO: handle error
-      }
-      this.setState({ disableActions: false });
-    });
-  }
+          </AriaDescribed>
+        </AriaDescriptionGroup>,
+        <AppButton.RedButton key="proceed" onClick={acknowledgeOutdatedVersion}>
+          {messages.pgettext('support-view', 'Continue anyway')}
+        </AppButton.RedButton>,
+        <AppButton.BlueButton key="cancel" onClick={outdatedVersionCancel}>
+          {messages.gettext('Cancel')}
+        </AppButton.BlueButton>,
+      ]}
+      close={onClose}
+    />
+  );
 }
