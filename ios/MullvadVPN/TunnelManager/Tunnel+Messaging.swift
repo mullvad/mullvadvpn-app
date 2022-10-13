@@ -68,7 +68,9 @@ extension Tunnel {
         )
 
         operation.addBlockObserver(
-            OperationBlockObserver(didCancel: { _ in
+            OperationBlockObserver(didCancel: { [weak self] _ in
+                guard let self = self else { return }
+
                 let cancelOperation = SendTunnelProviderMessageOperation(
                     dispatchQueue: dispatchQueue,
                     tunnel: self,
