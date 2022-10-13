@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Fixed
+- When a country is selected, and the constraints only match relays that are not included on the
+  country level, select those relays anyway.
+
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
 

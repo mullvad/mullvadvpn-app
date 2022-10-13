@@ -32,7 +32,7 @@ use talpid_types::{
     ErrorExt,
 };
 
-use matcher::{OpenVpnMatcher, RelayMatcher, TunnelMatcher, WireguardMatcher};
+use matcher::{BridgeMatcher, EndpointMatcher, OpenVpnMatcher, RelayMatcher, WireguardMatcher};
 
 mod matcher;
 pub mod updater;
@@ -321,17 +321,12 @@ impl RelaySelector {
         };
 
         let matcher = RelayMatcher::new(relay_constraints.clone(), openvpn_data, wireguard_data);
-        let mut matching_locations: Vec<Location> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| {
-                matcher
-                    .filter_matching_relay(relay)
-                    .and_then(|relay| relay.location)
-            })
+
+        let parsed_relays = self.parsed_relays.lock();
+        let mut matching_locations: Vec<Location> = matcher
+            .filter_matching_relay_list(parsed_relays.relays())
+            .into_iter()
+            .filter_map(|relay| relay.location)
             .collect();
         matching_locations.dedup_by(|a, b| a.has_same_city(b));
 
@@ -356,14 +351,16 @@ impl RelaySelector {
             location: location.clone(),
             providers: providers.clone(),
             ownership: *ownership,
-            tunnel: OpenVpnMatcher::new(
+            endpoint_matcher: OpenVpnMatcher::new(
                 openvpn_constraints,
                 self.parsed_relays.lock().locations.openvpn.clone(),
             ),
         };
 
-        if relay_matcher.tunnel.constraints.port.is_any() && bridge_state == BridgeState::On {
-            relay_matcher.tunnel.constraints.port = Constraint::Only(TransportPort {
+        if relay_matcher.endpoint_matcher.constraints.port.is_any()
+            && bridge_state == BridgeState::On
+        {
+            relay_matcher.endpoint_matcher.constraints.port = Constraint::Only(TransportPort {
                 protocol: TransportProtocol::Tcp,
                 port: Constraint::Any,
             });
@@ -375,23 +372,24 @@ impl RelaySelector {
 
         let (preferred_port, preferred_protocol) =
             Self::preferred_openvpn_constraints(retry_attempt);
-        let should_try_preferred = match &mut preferred_relay_matcher.tunnel.constraints.port {
-            any @ Constraint::Any => {
-                *any = Constraint::Only(TransportPort {
-                    protocol: preferred_protocol,
-                    port: preferred_port,
-                });
-                true
-            }
-            Constraint::Only(ref mut port_constraints)
-                if port_constraints.protocol == preferred_protocol
-                    && port_constraints.port.is_any() =>
-            {
-                port_constraints.port = preferred_port;
-                true
-            }
-            _ => false,
-        };
+        let should_try_preferred =
+            match &mut preferred_relay_matcher.endpoint_matcher.constraints.port {
+                any @ Constraint::Any => {
+                    *any = Constraint::Only(TransportPort {
+                        protocol: preferred_protocol,
+                        port: preferred_port,
+                    });
+                    true
+                }
+                Constraint::Only(ref mut port_constraints)
+                    if port_constraints.protocol == preferred_protocol
+                        && port_constraints.port.is_any() =>
+                {
+                    port_constraints.port = preferred_port;
+                    true
+                }
+                _ => false,
+            };
 
         if should_try_preferred {
             self.get_tunnel_endpoint_internal(&preferred_relay_matcher)
@@ -408,7 +406,7 @@ impl RelaySelector {
     ) -> Result<NormalSelectedRelay, Error> {
         let mut exit_matcher = RelayMatcher {
             location: exit_location,
-            tunnel: self.wireguard_exit_matcher(),
+            endpoint_matcher: self.wireguard_exit_matcher(),
             ..entry_matcher.clone()
         };
 
@@ -467,15 +465,15 @@ impl RelaySelector {
             location: location.clone(),
             providers: providers.clone(),
             ownership: *ownership,
-            tunnel: WireguardMatcher::new(
+            endpoint_matcher: WireguardMatcher::new(
                 wireguard_constraints.clone(),
                 self.parsed_relays.lock().locations.wireguard.clone(),
             ),
         };
 
         let mut preferred_matcher: RelayMatcher<WireguardMatcher> = entry_relay_matcher.clone();
-        preferred_matcher.tunnel.port = preferred_matcher
-            .tunnel
+        preferred_matcher.endpoint_matcher.port = preferred_matcher
+            .endpoint_matcher
             .port
             .or(Self::preferred_wireguard_port(retry_attempt));
 
@@ -486,8 +484,8 @@ impl RelaySelector {
         }
 
         entry_relay_matcher.location = wireguard_constraints.entry_location.clone();
-        entry_relay_matcher.tunnel.port = entry_relay_matcher
-            .tunnel
+        entry_relay_matcher.endpoint_matcher.port = entry_relay_matcher
+            .endpoint_matcher
             .port
             .or(Self::preferred_wireguard_port(retry_attempt));
         self.get_wireguard_multi_hop_endpoint(entry_relay_matcher, location.clone())
@@ -521,14 +519,14 @@ impl RelaySelector {
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
         if relay_constraints.wireguard_constraints.use_multihop {
-            matcher.tunnel.wireguard = self.wireguard_exit_matcher();
+            matcher.endpoint_matcher.wireguard = self.wireguard_exit_matcher();
             if relay_constraints
                 .wireguard_constraints
                 .entry_location
                 .is_subset(&matcher.location)
             {
                 if let Ok((entry_relay, entry_endpoint)) = self.get_entry_endpoint(&entry_matcher) {
-                    matcher.tunnel.wireguard.peer = Some(entry_relay.clone());
+                    matcher.endpoint_matcher.wireguard.peer = Some(entry_relay.clone());
                     selected_entry_relay = Some(entry_relay);
                     selected_entry_endpoint = Some(entry_endpoint);
                 }
@@ -547,7 +545,7 @@ impl RelaySelector {
                 .entry_location
                 .is_subset(&matcher.location)
             {
-                entry_matcher.tunnel.peer = Some(selected_relay.exit_relay.clone());
+                entry_matcher.endpoint_matcher.peer = Some(selected_relay.exit_relay.clone());
                 if let Ok((entry_relay, entry_endpoint)) = self.get_entry_endpoint(&entry_matcher) {
                     selected_entry_relay = Some(entry_relay);
                     selected_entry_endpoint = Some(entry_endpoint);
@@ -697,13 +695,9 @@ impl RelaySelector {
         &self,
         matcher: &RelayMatcher<WireguardMatcher>,
     ) -> Result<(Relay, MullvadWireguardEndpoint), Error> {
-        let matching_relays: Vec<Relay> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| matcher.filter_matching_relay(relay))
+        let matching_relays: Vec<Relay> = matcher
+            .filter_matching_relay_list(self.parsed_relays.lock().relays())
+            .into_iter()
             .collect();
 
         let relay = self
@@ -813,14 +807,14 @@ impl RelaySelector {
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
     ) -> Option<(ProxySettings, Relay)> {
-        let matching_relays: Vec<Relay> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active && Self::matching_bridge_relay(relay, constraints))
-            .cloned()
-            .collect();
+        let matcher = RelayMatcher {
+            location: constraints.location.clone(),
+            providers: constraints.providers.clone(),
+            ownership: constraints.ownership,
+            endpoint_matcher: BridgeMatcher(()),
+        };
+        let matching_relays: Vec<Relay> =
+            matcher.filter_matching_relay_list(self.parsed_relays.lock().relays());
 
         if matching_relays.is_empty() {
             return None;
@@ -986,7 +980,7 @@ impl RelaySelector {
                     self.parsed_relays.lock().relays().iter().any(|relay| {
                         relay.active
                             && relay.endpoint_data == RelayEndpointData::Openvpn
-                            && location_constraint.matches(relay)
+                            && location_constraint.matches_with_opts(relay, true)
                             && providers_constraint.matches(relay)
                             && ownership_constraint.matches(relay)
                     });
@@ -1002,7 +996,7 @@ impl RelaySelector {
                     self.parsed_relays.lock().relays().iter().any(|relay| {
                         relay.active
                             && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                            && location_constraint.matches(relay)
+                            && location_constraint.matches_with_opts(relay, true)
                             && providers_constraint.matches(relay)
                             && ownership_constraint.matches(relay)
                     });
@@ -1068,17 +1062,13 @@ impl RelaySelector {
     }
 
     /// Returns a random relay endpoint if any is matching the given constraints.
-    fn get_tunnel_endpoint_internal<T: TunnelMatcher>(
+    fn get_tunnel_endpoint_internal<T: EndpointMatcher>(
         &self,
         matcher: &RelayMatcher<T>,
     ) -> Result<NormalSelectedRelay, Error> {
-        let matching_relays: Vec<Relay> = self
-            .parsed_relays
-            .lock()
-            .relays()
-            .iter()
-            .filter(|relay| relay.active)
-            .filter_map(|relay| matcher.filter_matching_relay(relay))
+        let matching_relays: Vec<Relay> = matcher
+            .filter_matching_relay_list(self.parsed_relays.lock().relays())
+            .into_iter()
             .collect();
 
         self.pick_random_relay(&matching_relays)
@@ -1092,13 +1082,6 @@ impl RelaySelector {
                 endpoint.map(|endpoint| NormalSelectedRelay::new(endpoint, selected_relay.clone()))
             })
             .ok_or(Error::NoRelay)
-    }
-
-    fn matching_bridge_relay(relay: &Relay, constraints: &InternalBridgeConstraints) -> bool {
-        constraints.location.matches(relay)
-            && constraints.providers.matches(relay)
-            && constraints.ownership.matches(relay)
-            && relay.endpoint_data == RelayEndpointData::Bridge
     }
 
     /// Picks a relay using [Self::pick_random_relay_fn], using the `weight` member of each relay
@@ -1347,10 +1330,10 @@ mod test {
         };
     }
 
-    fn new_relay_selector() -> RelaySelector {
+    fn new_relay_selector_with_relays(relay_list: RelayList) -> RelaySelector {
         RelaySelector {
             parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
-                RELAYS.clone(),
+                relay_list,
                 SystemTime::now(),
             ))),
             config: Arc::new(Mutex::new(SelectorConfig {
@@ -1367,6 +1350,10 @@ mod test {
                 default_tunnel_type: TunnelType::Wireguard,
             })),
         }
+    }
+
+    fn new_relay_selector() -> RelaySelector {
+        new_relay_selector_with_relays(RELAYS.clone())
     }
 
     #[test]
@@ -1896,5 +1883,116 @@ mod test {
                 }
             ));
         }
+    }
+
+    /// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
+    /// relay is returned). Also ensure that `include_in_country` is respected if some relays
+    /// have it set to true (i.e., that relay is never returned)
+    #[test]
+    fn test_include_in_country() {
+        let mut relay_list = RelayList {
+            etag: None,
+            countries: vec![RelayListCountry {
+                name: "Sweden".to_string(),
+                code: "se".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Gothenburg".to_string(),
+                    code: "got".to_string(),
+                    latitude: 57.70887,
+                    longitude: 11.97456,
+                    relays: vec![
+                        Relay {
+                            hostname: "se9-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                            include_in_country: false,
+                            active: true,
+                            owned: true,
+                            provider: "31173".to_string(),
+                            weight: 1,
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData {
+                                    public_key: PublicKey::from_base64(
+                                        "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                    )
+                                    .unwrap(),
+                                },
+                            ),
+                            location: None,
+                        },
+                        Relay {
+                            hostname: "se10-wireguard".to_string(),
+                            ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                            ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                            include_in_country: false,
+                            active: true,
+                            owned: false,
+                            provider: "31173".to_string(),
+                            weight: 1,
+                            endpoint_data: RelayEndpointData::Wireguard(
+                                WireguardRelayEndpointData {
+                                    public_key: PublicKey::from_base64(
+                                        "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                    )
+                                    .unwrap(),
+                                },
+                            ),
+                            location: None,
+                        },
+                    ],
+                }],
+            }],
+            openvpn: OpenVpnEndpointData {
+                ports: vec![
+                    OpenVpnEndpoint {
+                        port: 1194,
+                        protocol: TransportProtocol::Udp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 443,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                    OpenVpnEndpoint {
+                        port: 80,
+                        protocol: TransportProtocol::Tcp,
+                    },
+                ],
+            },
+            bridge: BridgeEndpointData {
+                shadowsocks: vec![],
+            },
+            wireguard: WireguardEndpointData {
+                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                udp2tcp_ports: vec![],
+            },
+        };
+
+        // If include_in_country is false for all relays, a relay must be selected anyway.
+        //
+
+        let relay_selector = new_relay_selector_with_relays(relay_list.clone());
+        assert!(relay_selector.get_relay(0).is_ok());
+
+        // If include_in_country is true for some relay, it must always be selected.
+        //
+
+        relay_list.countries[0].cities[0].relays[0].include_in_country = true;
+        let expected_relay = relay_list.countries[0].cities[0].relays[0].clone();
+
+        let relay_selector = new_relay_selector_with_relays(relay_list);
+        let (relay, ..) = relay_selector.get_relay(0).expect("expected match");
+
+        assert!(matches!(
+            relay,
+            SelectedRelay::Normal(NormalSelectedRelay {
+                exit_relay: Relay {
+                    hostname,
+                    ..
+                },
+                ..
+            }) if hostname == expected_relay.hostname
+        ))
     }
 }

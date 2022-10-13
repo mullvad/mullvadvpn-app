@@ -279,15 +279,15 @@ pub enum LocationConstraint {
     Hostname(CountryCode, CityCode, Hostname),
 }
 
-impl Match<Relay> for LocationConstraint {
-    fn matches(&self, relay: &Relay) -> bool {
+impl LocationConstraint {
+    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             LocationConstraint::Country(ref country) => {
                 relay
                     .location
                     .as_ref()
                     .map_or(false, |loc| loc.country_code == *country)
-                    && relay.include_in_country
+                    && (ignore_include_in_country || relay.include_in_country)
             }
             LocationConstraint::City(ref country, ref city) => {
                 relay.location.as_ref().map_or(false, |loc| {
@@ -302,6 +302,23 @@ impl Match<Relay> for LocationConstraint {
                 })
             }
         }
+    }
+}
+
+impl Constraint<LocationConstraint> {
+    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+        match self {
+            Constraint::Only(constraint) => {
+                constraint.matches_with_opts(relay, ignore_include_in_country)
+            }
+            Constraint::Any => true,
+        }
+    }
+}
+
+impl Match<Relay> for LocationConstraint {
+    fn matches(&self, relay: &Relay) -> bool {
+        self.matches_with_opts(relay, false)
     }
 }
 
