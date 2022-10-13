@@ -52,13 +52,13 @@ extension Tunnel {
 
     /// Send HTTP request via packet tunnel process bypassing VPN.
     func sendRequest(
-        _ requestData: ProxyURLRequest,
+        _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             tunnel: self,
-            message: .sendURLRequest(requestData),
+            message: .sendURLRequest(proxyRequest),
             timeout: 12,
             completionHandler: completionHandler
         )
@@ -68,7 +68,7 @@ extension Tunnel {
                 let cancelOperation = SendTunnelProviderMessageOperation(
                     dispatchQueue: dispatchQueue,
                     tunnel: self,
-                    message: .cancelURLRequest(requestData.id),
+                    message: .cancelURLRequest(proxyRequest.id),
                     completionHandler: nil
                 )
 
