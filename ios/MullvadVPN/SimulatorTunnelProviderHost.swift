@@ -14,6 +14,7 @@ import enum NetworkExtension.NEProviderStopReason
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
+    private var proxiedRequests = [UUID: URLSessionDataTask]()
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
@@ -67,13 +68,13 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
         dispatchQueue.async {
             do {
-                let response = try self.processMessage(messageData)
+                let message = try TunnelProviderMessage(messageData: messageData)
 
-                completionHandler?(response)
+                self.handleProviderMessage(message, completionHandler: completionHandler)
             } catch {
                 self.providerLogger.error(
                     error: error,
-                    message: "Failed to handle app message."
+                    message: "Failed to decode app message."
                 )
 
                 completionHandler?(nil)
@@ -81,15 +82,26 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func processMessage(_ messageData: Data) throws -> Data? {
-        let message = try TunnelProviderMessage(messageData: messageData)
-
+    private func handleProviderMessage(
+        _ message: TunnelProviderMessage,
+        completionHandler: ((Data?) -> Void)?
+    ) {
         switch message {
         case .getTunnelStatus:
             var tunnelStatus = PacketTunnelStatus()
             tunnelStatus.tunnelRelay = self.selectorResult?.packetTunnelRelay
 
-            return try TunnelProviderReply(tunnelStatus).encode()
+            var reply: Data?
+            do {
+                reply = try TunnelProviderReply(tunnelStatus).encode()
+            } catch {
+                self.providerLogger.error(
+                    error: error,
+                    message: "Failed to encode tunnel status."
+                )
+            }
+
+            completionHandler?(reply)
 
         case let .reconnectTunnel(aSelectorResult):
             reasserting = true
@@ -97,8 +109,45 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 selectorResult = aSelectorResult
             }
             reasserting = false
+            completionHandler?(nil)
 
-            return nil
+        case let .sendURLRequest(proxyRequest):
+            let task = REST.sharedURLSession
+                .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
+                    guard let self = self else { return }
+
+                    self.dispatchQueue.async {
+                        self.proxiedRequests.removeValue(forKey: proxyRequest.id)
+
+                        var reply: Data?
+                        do {
+                            let proxyResponse = ProxyURLResponse(
+                                data: data,
+                                response: response,
+                                error: error
+                            )
+                            reply = try TunnelProviderReply(proxyResponse).encode()
+                        } catch {
+                            self.providerLogger.error(
+                                error: error,
+                                message: "Failed to encode ProxyURLResponse."
+                            )
+                        }
+
+                        completionHandler?(reply)
+                    }
+                }
+
+            proxiedRequests[proxyRequest.id] = task
+
+            task.resume()
+
+        case let .cancelURLRequest(id):
+            let task = proxiedRequests.removeValue(forKey: id)
+
+            task?.cancel()
+
+            completionHandler?(nil)
         }
     }
 

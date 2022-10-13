@@ -15,6 +15,10 @@ private let operationQueue = AsyncOperationQueue()
 /// Shared queue used by IPC operations.
 private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
 
+/// Timeout for proxy requests.
+private let proxyRequestTimeout: TimeInterval = ApplicationConfiguration
+    .defaultAPINetworkTimeout + 2
+
 extension Tunnel {
     /// Request packet tunnel process to reconnect the tunnel with the given relay selector result.
     /// Packet tunnel will reconnect to the current relay if relay selector result is not provided.
@@ -43,6 +47,39 @@ extension Tunnel {
             tunnel: self,
             message: .getTunnelStatus,
             completionHandler: completionHandler
+        )
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
+
+    /// Send HTTP request via packet tunnel process bypassing VPN.
+    func sendRequest(
+        _ proxyRequest: ProxyURLRequest,
+        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
+    ) -> Cancellable {
+        let operation = SendTunnelProviderMessageOperation(
+            dispatchQueue: dispatchQueue,
+            tunnel: self,
+            message: .sendURLRequest(proxyRequest),
+            timeout: proxyRequestTimeout,
+            completionHandler: completionHandler
+        )
+
+        operation.addBlockObserver(
+            OperationBlockObserver(didCancel: { [weak self] _ in
+                guard let self = self else { return }
+
+                let cancelOperation = SendTunnelProviderMessageOperation(
+                    dispatchQueue: dispatchQueue,
+                    tunnel: self,
+                    message: .cancelURLRequest(proxyRequest.id),
+                    completionHandler: nil
+                )
+
+                operationQueue.addOperation(cancelOperation)
+            })
         )
 
         operationQueue.addOperation(operation)

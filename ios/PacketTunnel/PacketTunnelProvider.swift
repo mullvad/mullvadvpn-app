@@ -38,6 +38,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
 
+    /// List of all proxied network requests bypassing VPN.
+    private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
+
     /// A system completion handler passed from startTunnel and saved for later use once the
     /// connection is established.
     private var startTunnelCompletionHandler: (() -> Void)?
@@ -237,6 +240,43 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 }
 
                 completionHandler?(response)
+
+            case let .sendURLRequest(proxyRequest):
+                let task = REST.sharedURLSession.dataTask(
+                    with: proxyRequest.urlRequest
+                ) { [weak self] data, response, error in
+                    guard let self = self else { return }
+
+                    self.dispatchQueue.async {
+                        self.proxiedRequests.removeValue(forKey: proxyRequest.id)
+
+                        var reply: Data?
+                        do {
+                            let response = ProxyURLResponse(
+                                data: data,
+                                response: response,
+                                error: error
+                            )
+                            reply = try TunnelProviderReply(response).encode()
+                        } catch {
+                            self.providerLogger.error(
+                                error: error,
+                                message: "Failed to encode ProxyURLResponse."
+                            )
+                        }
+
+                        completionHandler?(reply)
+                    }
+                }
+
+                self.proxiedRequests[proxyRequest.id] = task
+
+                task.resume()
+
+            case let .cancelURLRequest(id):
+                let task = self.proxiedRequests.removeValue(forKey: id)
+
+                task?.cancel()
             }
         }
     }

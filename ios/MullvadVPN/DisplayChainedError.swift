@@ -51,6 +51,13 @@ extension REST.Error: DisplayChainedError {
                 value: "Server response decoding error",
                 comment: ""
             )
+        case let .transport(error):
+            return NSLocalizedString(
+                "TRANSPORT_ERROR",
+                tableName: "REST",
+                value: "Transport error: \(error.localizedDescription)",
+                comment: ""
+            )
         }
     }
 }

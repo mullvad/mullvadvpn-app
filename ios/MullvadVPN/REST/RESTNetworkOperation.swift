@@ -16,10 +16,10 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let urlSession: URLSession
+        private let transportRegistry: RESTTransportRegistry
         private let addressCacheStore: AddressCache.Store
 
-        private var networkTask: URLSessionTask?
+        private var networkTask: Cancellable?
         private var authorizationTask: Cancellable?
 
         private var requiresAuthorization = false
@@ -38,8 +38,8 @@ extension REST {
             responseHandler: AnyResponseHandler<Success>,
             completionHandler: @escaping CompletionHandler
         ) {
-            urlSession = configuration.session
             addressCacheStore = configuration.addressCacheStore
+            transportRegistry = configuration.transportRegistry
             self.retryStrategy = retryStrategy
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
@@ -136,30 +136,47 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger
-                .debug(
-                    "Send request to \(restRequest.pathTemplate.templateString) via \(endpoint)."
-                )
+            guard let transport = transportRegistry.getTransport() else {
+                logger.error("Failed to obtain transport.")
+                finish(completion: .failure(.transport(NoTransportError())))
+                return
+            }
 
-            networkTask = urlSession
-                .dataTask(with: restRequest.urlRequest) { [weak self] data, response, error in
-                    guard let self = self else { return }
+            logger.debug(
+                """
+                Send request to \(restRequest.pathTemplate.templateString) via \(endpoint) \
+                using \(transport.name).
+                """
+            )
 
-                    self.dispatchQueue.async {
-                        if let error = error {
-                            let urlError = error as! URLError
+            do {
+                networkTask = try transport
+                    .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
+                        guard let self = self else { return }
 
-                            self.didReceiveURLError(urlError, endpoint: endpoint)
-                        } else {
-                            let httpResponse = response as! HTTPURLResponse
-                            let data = data ?? Data()
+                        self.dispatchQueue.async {
+                            if let error = error {
+                                self.didReceiveError(
+                                    error,
+                                    transport: transport,
+                                    endpoint: endpoint
+                                )
+                            } else {
+                                let httpResponse = response as! HTTPURLResponse
+                                let data = data ?? Data()
 
-                            self.didReceiveURLResponse(httpResponse, data: data, endpoint: endpoint)
+                                self.didReceiveURLResponse(
+                                    httpResponse,
+                                    transport: transport,
+                                    data: data,
+                                    endpoint: endpoint
+                                )
+                            }
                         }
                     }
-                }
-
-            networkTask?.resume()
+            } catch {
+                didReceiveError(error, transport: transport, endpoint: endpoint)
+            }
         }
 
         private func didFailToCreateURLRequest(_ error: REST.Error) {
@@ -173,64 +190,38 @@ extension REST {
             finish(completion: .failure(error))
         }
 
-        private func didReceiveURLError(_ urlError: URLError, endpoint: AnyIPEndpoint) {
+        private func didReceiveError(
+            _ error: Swift.Error,
+            transport: RESTTransport,
+            endpoint: AnyIPEndpoint
+        ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            switch urlError.code {
-            case .cancelled:
-                finish(completion: .cancelled)
-                return
+            if let urlError = error as? URLError {
+                switch urlError.code {
+                case .cancelled:
+                    finish(completion: .cancelled)
+                    return
 
-            case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
-                break
+                case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
+                    break
 
-            default:
-                _ = addressCacheStore.selectNextEndpoint(endpoint)
+                default:
+                    _ = addressCacheStore.selectNextEndpoint(endpoint)
+                }
             }
 
             logger.error(
-                error: urlError,
-                message: "Failed to perform request to \(endpoint)."
+                error: error,
+                message: "Failed to perform request to \(endpoint) using \(transport.name)."
             )
 
-            // Check if retry count is not exceeded.
-            guard retryCount < retryStrategy.maxRetryCount else {
-                if retryStrategy.maxRetryCount > 0 {
-                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
-                }
-
-                finish(completion: OperationCompletion(result: .failure(.network(urlError))))
-                return
-            }
-
-            // Increment retry count.
-            retryCount += 1
-
-            // Retry immediatly if retry delay is set to never.
-            guard retryStrategy.retryDelay != .never else {
-                startRequest()
-                return
-            }
-
-            // Create timer to delay retry.
-            let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
-
-            timer.setEventHandler { [weak self] in
-                self?.startRequest()
-            }
-
-            timer.setCancelHandler { [weak self] in
-                self?.finish(completion: .cancelled)
-            }
-
-            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
-            timer.activate()
-
-            retryTimer = timer
+            retryRequest(with: error)
         }
 
         private func didReceiveURLResponse(
             _ response: HTTPURLResponse,
+            transport: RESTTransport,
             data: Data,
             endpoint: AnyIPEndpoint
         ) {
@@ -270,6 +261,46 @@ extension REST {
                     )
                 }
             }
+        }
+
+        private func retryRequest(with error: Swift.Error) {
+            // Check if retry count is not exceeded.
+            guard retryCount < retryStrategy.maxRetryCount else {
+                if retryStrategy.maxRetryCount > 0 {
+                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
+                }
+
+                let restError: REST.Error = (error as? URLError).map { .network($0) }
+                    ?? .transport(error)
+
+                finish(completion: .failure(restError))
+                return
+            }
+
+            // Increment retry count.
+            retryCount += 1
+
+            // Retry immediatly if retry delay is set to never.
+            guard retryStrategy.retryDelay != .never else {
+                startRequest()
+                return
+            }
+
+            // Create timer to delay retry.
+            let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
+
+            timer.setEventHandler { [weak self] in
+                self?.startRequest()
+            }
+
+            timer.setCancelHandler { [weak self] in
+                self?.finish(completion: .cancelled)
+            }
+
+            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
+            timer.activate()
+
+            retryTimer = timer
         }
     }
 }
