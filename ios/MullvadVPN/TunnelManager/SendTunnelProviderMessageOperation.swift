@@ -10,15 +10,13 @@ import Foundation
 import NetworkExtension
 import Operations
 
-private enum DefaultTimings {
-    /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
-    /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
-    /// to freeze.
-    static let connectingStateWaitDelay: TimeInterval = 5
+/// Delay for sending tunnel provider messages to the tunnel when in connecting state.
+/// Used to workaround a bug when talking to the tunnel too early during startup may cause it
+/// to freeze.
+private let connectingStateWaitDelay: TimeInterval = 5
 
-    /// Timeout interval in seconds.
-    static let defaultTimeout: TimeInterval = 5
-}
+/// Default timeout in seconds.
+private let defaultTimeout: TimeInterval = 5
 
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, Error> {
     typealias DecoderHandler = (Data?) throws -> Output
@@ -45,7 +43,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
     ) {
         self.tunnel = tunnel
         self.message = message
-        self.timeout = timeout ?? DefaultTimings.defaultTimeout
+        self.timeout = timeout ?? defaultTimeout
 
         self.decoderHandler = decoderHandler
 
@@ -145,12 +143,12 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         waitForConnectingStateWork = nil
 
         // Execute right away if enough time passed since the tunnel was launched.
-        guard timeElapsed < DefaultTimings.connectingStateWaitDelay else {
+        guard timeElapsed < connectingStateWaitDelay else {
             block()
             return
         }
 
-        let waitDelay = DefaultTimings.connectingStateWaitDelay - timeElapsed
+        let waitDelay = connectingStateWaitDelay - timeElapsed
         let workItem = DispatchWorkItem(block: block)
 
         // Assign new work.
