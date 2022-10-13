@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
+    <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>
     <string name="device_name">设备名称</string>
     <string name="disconnect">断开连接</string>
     <string name="disconnecting">正在断开连接</string>
@@ -58,8 +59,11 @@
     <string name="exclude_applications">排除的应用程序</string>
     <string name="failed_to_block_internet">无法阻止所有网络流量。请排除故障或向我们报告问题。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
+    <string name="failed_to_fetch_devices">无法获取设备列表</string>
+    <string name="failed_to_generate_key">无法生成密钥</string>
+    <string name="failed_to_remove_device">无法移除设备</string>
     <string name="failed_to_send">无法发送</string>
-    <string name="failed_to_send_details">在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。</string>
+    <string name="failed_to_send_details">如果您退出窗体并稍后再试，您输入的信息仍会在这里。</string>
     <string name="faqs_and_guides">常见问题解答与指南</string>
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">帐号无效</string>
     <string name="login_fail_title">登录失败</string>
     <string name="login_title">登录</string>
+    <string name="max_devices_confirm_removal_description">确定要退出&lt;b&gt;%1$s&lt;/b&gt;吗？</string>
     <string name="max_devices_resolved_description">您现在可以继续在此设备上登录。</string>
     <string name="max_devices_resolved_title">太棒了！</string>
+    <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
     <string name="max_devices_warning_title">设备过多</string>
     <string name="mullvad_account_number">Mullvad 帐号</string>
     <string name="no_matching_bridge_relay">没有与当前设置匹配的桥接中继服务器</string>
     <string name="no_matching_relay">没有与当前设置匹配的中继服务器</string>
+    <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>
     <string name="not_blocking_internet">您的网络流量可能在泄露</string>
     <string name="out_address">外部</string>
     <string name="out_of_time">已没有时间</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="port_removal_notice">这将删除所有转发的端口。将保存本地设置。</string>
     <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
+    <string name="public_key">公钥</string>
     <string name="reconnecting">正在重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
@@ -104,7 +112,7 @@
     <string name="secure_connection">安全连接</string>
     <string name="secured">已受保护</string>
     <string name="select_location">选择位置</string>
-    <string name="select_location_description">连接时，将使用选定区域中一个私密且安全的位置隐藏您的真实位置。</string>
+    <string name="select_location_description">连接时，将使用所选区域中一个私密且安全的位置隐藏您的真实位置。</string>
     <string name="send">发送</string>
     <string name="send_anyway">仍然发送</string>
     <string name="sending">正在发送…</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">偏好设置</string>
     <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
+    <string name="split_tunneling">拆分隧道</string>
     <string name="split_tunneling_description">利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。</string>
     <string name="start_tunnel_error">无法启动隧道连接</string>
     <string name="switch_location">切换位置</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">该优惠券码已被使用。</string>
     <string name="vpn_permission_denied_error">创建隧道时，VPN 权限被拒绝。请尝试重新连接。</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard 错误</string>
+    <string name="wireguard_generate_key">生成密钥</string>
     <string name="wireguard_key">WireGuard 密钥</string>
+    <string name="wireguard_key_generated">已生成密钥</string>
+    <string name="wireguard_key_invalid">密钥无效</string>
+    <string name="wireguard_key_reconnecting">正在使用新 WireGuard 密钥重新连接…</string>
+    <string name="wireguard_key_valid">密钥有效</string>
+    <string name="wireguard_key_verification_failure">密钥验证失败</string>
+    <string name="wireguard_manage_keys">管理密钥</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>
     <string name="wireguard_public_key">WireGuard 公钥</string>
+    <string name="wireguard_replace_key">重新生成密钥</string>
+    <string name="wireguard_verify_key">验证密钥</string>
 </resources>

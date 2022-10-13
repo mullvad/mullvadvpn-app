@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_created">已建立帳戶</string>
-    <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在幾分鐘後到期</string>
+    <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在數分鐘後到期</string>
     <string name="account_credit_expires_soon">帳戶點數即將到期</string>
     <string name="account_credit_has_expired">您這個帳戶已經沒有剩餘的 VPN 時間了。</string>
     <string name="account_number">帳戶編號</string>
@@ -44,6 +44,7 @@
     <string name="custom_tunnel_host_resolution_error">無法解析自訂伺服器的主機名稱</string>
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
+    <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
     <string name="device_name">裝置名稱</string>
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
@@ -58,8 +59,11 @@
     <string name="exclude_applications">已排除的應用程式</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
+    <string name="failed_to_fetch_devices">無法取得裝置清單</string>
+    <string name="failed_to_generate_key">無法產生金鑰</string>
+    <string name="failed_to_remove_device">無法移除裝置</string>
     <string name="failed_to_send">無法傳送</string>
-    <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
+    <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
@@ -84,12 +88,15 @@
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
+    <string name="max_devices_confirm_removal_description">確定要登出&lt;b&gt;%1$s&lt;/b&gt;嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
+    <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="mullvad_account_number">Mullvad 帳號</string>
     <string name="no_matching_bridge_relay">沒有與目前設定相符的橋接中繼伺服器</string>
     <string name="no_matching_relay">沒有與目前設定相符的中繼伺服器</string>
+    <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
     <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
@@ -97,6 +104,7 @@
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="port_removal_notice">這將刪除所有轉送的連接埠。將儲存本機設定。</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
+    <string name="public_key">公開金鑰</string>
     <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
@@ -109,7 +117,7 @@
     <string name="send_anyway">仍要傳送</string>
     <string name="sending">傳送中...</string>
     <string name="sent">已傳送</string>
-    <string name="sent_contact">如有需要，我們將以 %1$s 與您聯絡</string>
+    <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
     <string name="set_dns_error">無法設定系統 DNS 伺服器</string>
     <string name="set_firewall_policy_error">無法套用防火牆規則。裝置目前可能不安全</string>
@@ -119,6 +127,7 @@
     <string name="settings_preferences">喜好設定</string>
     <string name="show_account_number">顯示帳號</string>
     <string name="show_system_apps">顯示系統應用程式</string>
+    <string name="split_tunneling">拆分通道</string>
     <string name="split_tunneling_description">利用拆分通道，您可以選擇哪些應用程式不應透過 VPN 通道進行路由。</string>
     <string name="start_tunnel_error">無法啟動通道連線</string>
     <string name="switch_location">切換位置</string>
@@ -142,8 +151,19 @@
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
+    <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard 錯誤</string>
+    <string name="wireguard_generate_key">產生金鑰</string>
     <string name="wireguard_key">WireGuard 金鑰</string>
+    <string name="wireguard_key_generated">已產生金鑰</string>
+    <string name="wireguard_key_invalid">金鑰無效</string>
+    <string name="wireguard_key_reconnecting">正在使用新 WireGuard 金鑰重新連線...</string>
+    <string name="wireguard_key_valid">金鑰有效</string>
+    <string name="wireguard_key_verification_failure">金鑰驗證失敗</string>
+    <string name="wireguard_manage_keys">管理金鑰</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_public_key">WireGuard 公開金鑰</string>
+    <string name="wireguard_replace_key">重新產生金鑰</string>
+    <string name="wireguard_verify_key">驗證金鑰</string>
 </resources>

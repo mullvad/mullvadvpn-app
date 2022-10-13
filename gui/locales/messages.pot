@@ -114,9 +114,6 @@ msgstr ""
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
-msgid "Custom"
-msgstr ""
-
 msgid "Default"
 msgstr ""
 
@@ -237,10 +234,6 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr ""
 
-msgctxt "accessibility"
-msgid "info"
-msgstr ""
-
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
@@ -331,6 +324,10 @@ msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
 msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr ""
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr ""
 
@@ -399,11 +396,11 @@ msgid "You have no more VPN time left on this account."
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr ""
 
 msgctxt "connect-view"
-msgid "You’re all set!"
+msgid "You're all set!"
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -435,7 +432,7 @@ msgstr ""
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
+msgid "Are you sure you want to log out of **%(deviceName)s**?"
 msgstr ""
 
 #. Button for continuing login process.
@@ -548,7 +545,7 @@ msgid "Rented only"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "\"%(lockdownModeSettingName)s\" is enabled."
+msgid "\"Always require VPN\" is enabled."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -600,6 +597,48 @@ msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr ""
 
+msgctxt "interface-settings-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "interface-settings-view"
+msgid "Interface settings"
+msgstr ""
+
+#. Navigation button to the 'Language' settings view
+msgctxt "interface-settings-view"
+msgid "Language"
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Monochromatic tray icon"
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Notifications"
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Show only the tray icon when the app starts."
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Start minimized"
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Unpin app from taskbar"
+msgstr ""
+
+msgctxt "interface-settings-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr ""
+
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr ""
@@ -607,9 +646,9 @@ msgstr ""
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
+#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
+msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
 msgstr ""
 
 msgctxt "login-view"
@@ -629,7 +668,7 @@ msgid "Creating account..."
 msgstr ""
 
 msgctxt "login-view"
-msgid "Don’t have an account number?"
+msgid "Don't have an account number?"
 msgstr ""
 
 msgctxt "login-view"
@@ -819,7 +858,7 @@ msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
+msgid "Your device is offline. Try connecting when it's back online."
 msgstr ""
 
 #. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
@@ -1002,6 +1041,11 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
+#. Navigation button to the 'Interface settings' view
+msgctxt "settings-view"
+msgid "Interface settings"
+msgstr ""
+
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr ""
@@ -1021,11 +1065,6 @@ msgstr ""
 
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
-msgstr ""
-
-#. Navigation button to the 'User interface settings' view
-msgctxt "settings-view"
-msgid "User interface settings"
 msgstr ""
 
 #. Navigation button to the 'VPN settings' view
@@ -1175,7 +1214,7 @@ msgid "This option is unavailable while using a beta version."
 msgstr ""
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
 msgctxt "support-view"
@@ -1232,48 +1271,6 @@ msgstr ""
 
 msgctxt "tunnel-control"
 msgid "Switch location"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Enable to move the app around as a free-standing window."
-msgstr ""
-
-#. Navigation button to the 'Language' settings view
-msgctxt "user-interface-settings-view"
-msgid "Language"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Monochromatic tray icon"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Notifications"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Show only the tray icon when the app starts."
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Start minimized"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Unpin app from taskbar"
-msgstr ""
-
-msgctxt "user-interface-settings-view"
-msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr ""
-
-#. Title label in navigation bar
-msgctxt "user-interface-settings-view"
-msgid "User interface settings"
 msgstr ""
 
 #. %(openvpn)s will be replaced with the string "OpenVPN"
@@ -1510,12 +1507,9 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
+#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from the valid port ranges shown below."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
 #. The hint displayed below the WireGuard IP version selector.
@@ -1560,6 +1554,9 @@ msgstr ""
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
+msgid "Copied WireGuard public key to clipboard"
+msgstr ""
+
 msgid "Copied to clipboard"
 msgstr ""
 
@@ -1587,6 +1584,9 @@ msgstr ""
 msgid "Failed to fetch list of devices"
 msgstr ""
 
+msgid "Failed to generate a key"
+msgstr ""
+
 msgid "Failed to resolve the hostname of custom server"
 msgstr ""
 
@@ -1596,10 +1596,28 @@ msgstr ""
 msgid "Failed to start tunnel connection"
 msgstr ""
 
+msgid "Generate key"
+msgstr ""
+
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Key generated"
+msgstr ""
+
+msgid "Key is invalid"
+msgstr ""
+
+msgid "Key is valid"
+msgstr ""
+
+msgid "Key verification failed"
+msgstr ""
+
+msgid "Manage keys"
 msgstr ""
 
 msgid "Mullvad account number"
@@ -1612,6 +1630,15 @@ msgid "No relay server matches the current settings"
 msgstr ""
 
 msgid "Preferences"
+msgstr ""
+
+msgid "Public key"
+msgstr ""
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr ""
+
+msgid "Regenerate key"
 msgstr ""
 
 msgid "Secured"
@@ -1641,6 +1668,9 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
+msgid "Too many WireGuard keys registered to account"
+msgstr ""
+
 msgid "Unsecured"
 msgstr ""
 
@@ -1656,13 +1686,28 @@ msgstr ""
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
+msgid "Verify key"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr ""
 
+msgid "WireGuard"
+msgstr ""
+
 msgid "WireGuard MTU"
+msgstr ""
+
+msgid "WireGuard error"
+msgstr ""
+
+msgid "WireGuard key"
+msgstr ""
+
+msgid "WireGuard public key"
 msgstr ""
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
