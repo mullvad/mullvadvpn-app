@@ -12,4 +12,4 @@
 --wrapternary before-operators
 --redundanttype inferred
 --ifdef no-indent
---disable initCoderUnavailable, redundantReturn, unusedArguments, redundantRawValues, preferKeyPath
+--disable initCoderUnavailable, redundantReturn, unusedArguments, redundantRawValues, preferKeyPath, extensionAccessControl
