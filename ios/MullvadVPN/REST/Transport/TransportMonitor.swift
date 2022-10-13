@@ -18,6 +18,8 @@ class TransportMonitor: TunnelObserver {
         setTransports()
     }
 
+    // MARK: - TunnelObserver
+
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
         setTransports()
     }
@@ -37,7 +39,7 @@ class TransportMonitor: TunnelObserver {
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
 
-    // MARK: - Private functions
+    // MARK: - Private
 
     private func setTransports() {
         RESTTransportRegistry.shared.setTransport(
