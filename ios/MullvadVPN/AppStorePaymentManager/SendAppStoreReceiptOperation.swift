@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import Operations
+import MullvadREST
 
 class SendAppStoreReceiptOperation: ResultOperation<
     REST.CreateApplePaymentResponse,

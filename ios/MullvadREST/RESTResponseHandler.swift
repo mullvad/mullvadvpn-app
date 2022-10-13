@@ -8,14 +8,14 @@
 
 import Foundation
 
-protocol RESTResponseHandler {
+public protocol RESTResponseHandler {
     associatedtype Success
 
     func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
         .ResponseHandlerResult<Success>
 }
 
-extension REST {
+public extension REST {
     /// Responser handler result type.
     enum ResponseHandlerResult<Success> {
         /// Response handler succeeded and produced a value.
@@ -30,15 +30,15 @@ extension REST {
     }
 
     final class AnyResponseHandler<Success>: RESTResponseHandler {
-        typealias HandlerBlock = (HTTPURLResponse, Data) -> REST.ResponseHandlerResult<Success>
+        public typealias HandlerBlock = (HTTPURLResponse, Data) -> REST.ResponseHandlerResult<Success>
 
         private let handlerBlock: HandlerBlock
 
-        init(_ block: @escaping HandlerBlock) {
+        public init(_ block: @escaping HandlerBlock) {
             handlerBlock = block
         }
 
-        func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
+        public func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
             .ResponseHandlerResult<Success>
         {
             return handlerBlock(response, data)

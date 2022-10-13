@@ -9,26 +9,26 @@
 import Foundation
 import Operations
 
-extension REST {
+public extension REST {
     class Proxy<ConfigurationType: ProxyConfiguration> {
-        typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>) -> Void
+        public typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>) -> Void
 
         /// Synchronization queue used by network operations.
-        let dispatchQueue: DispatchQueue
+        public let dispatchQueue: DispatchQueue
 
         /// Operation queue used for running network operations.
-        let operationQueue = AsyncOperationQueue()
+        public let operationQueue = AsyncOperationQueue()
 
         /// Proxy configuration.
-        let configuration: ConfigurationType
+        public let configuration: ConfigurationType
 
         /// URL request factory.
-        let requestFactory: REST.RequestFactory
+        public let requestFactory: REST.RequestFactory
 
         /// URL response decoder.
-        let responseDecoder: JSONDecoder
+        public let responseDecoder: JSONDecoder
 
-        init(
+        public init(
             name: String,
             configuration: ConfigurationType,
             requestFactory: REST.RequestFactory,
@@ -42,7 +42,7 @@ extension REST {
             self.responseDecoder = responseDecoder
         }
 
-        func addOperation<Success>(
+        public func addOperation<Success>(
             name: String,
             retryStrategy: REST.RetryStrategy,
             requestHandler: REST.AnyRequestHandler,
@@ -66,19 +66,19 @@ extension REST {
     }
 
     class ProxyConfiguration {
-        let transportRegistry: RESTTransportRegistry
-        let addressCacheStore: AddressCache.Store
+        public let transportRegistry: RESTTransportRegistry
+        public let addressCacheStore: AddressCache.Store
 
-        init(transportRegistry: RESTTransportRegistry, addressCacheStore: AddressCache.Store) {
+        public init(transportRegistry: RESTTransportRegistry, addressCacheStore: AddressCache.Store) {
             self.transportRegistry = transportRegistry
             self.addressCacheStore = addressCacheStore
         }
     }
 
     class AuthProxyConfiguration: ProxyConfiguration {
-        let accessTokenManager: AccessTokenManager
+        public let accessTokenManager: AccessTokenManager
 
-        init(proxyConfiguration: ProxyConfiguration, accessTokenManager: AccessTokenManager) {
+        public init(proxyConfiguration: ProxyConfiguration, accessTokenManager: AccessTokenManager) {
             self.accessTokenManager = accessTokenManager
 
             super.init(

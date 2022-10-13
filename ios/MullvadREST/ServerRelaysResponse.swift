@@ -11,35 +11,35 @@ import struct Network.IPv4Address
 import struct Network.IPv6Address
 
 extension REST {
-    struct ServerLocation: Codable {
-        let country: String
-        let city: String
-        let latitude: Double
-        let longitude: Double
+    public struct ServerLocation: Codable {
+        public let country: String
+        public let city: String
+        public let latitude: Double
+        public let longitude: Double
     }
 
-    struct ServerRelay: Codable {
-        let hostname: String
-        let active: Bool
-        let owned: Bool
-        let location: String
-        let provider: String
-        let weight: UInt64
-        let ipv4AddrIn: IPv4Address
-        let ipv6AddrIn: IPv6Address
-        let publicKey: Data
-        let includeInCountry: Bool
+    public struct ServerRelay: Codable {
+        public let hostname: String
+        public let active: Bool
+        public let owned: Bool
+        public let location: String
+        public let provider: String
+        public let weight: UInt64
+        public let ipv4AddrIn: IPv4Address
+        public let ipv6AddrIn: IPv6Address
+        public let publicKey: Data
+        public let includeInCountry: Bool
     }
 
-    struct ServerWireguardTunnels: Codable {
-        let ipv4Gateway: IPv4Address
-        let ipv6Gateway: IPv6Address
-        let portRanges: [[UInt16]]
-        let relays: [ServerRelay]
+    public struct ServerWireguardTunnels: Codable {
+        public let ipv4Gateway: IPv4Address
+        public let ipv6Gateway: IPv6Address
+        public let portRanges: [[UInt16]]
+        public let relays: [ServerRelay]
     }
 
-    struct ServerRelaysResponse: Codable {
-        let locations: [String: ServerLocation]
-        let wireguard: ServerWireguardTunnels
+    public struct ServerRelaysResponse: Codable {
+        public let locations: [String: ServerLocation]
+        public let wireguard: ServerWireguardTunnels
     }
 }

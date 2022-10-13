@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension REST.CreateApplePaymentResponse {
+public extension REST.CreateApplePaymentResponse {
     enum Context {
         case purchase
         case restoration

@@ -8,13 +8,14 @@
 
 import Foundation
 import StoreKit
+import MullvadREST
 
-protocol DisplayChainedError {
+public protocol DisplayChainedError {
     var errorChainDescription: String? { get }
 }
 
 extension REST.Error: DisplayChainedError {
-    var errorChainDescription: String? {
+    public var errorChainDescription: String? {
         switch self {
         case let .network(urlError):
             return String(
@@ -107,7 +108,7 @@ extension SKError: LocalizedError {
 }
 
 extension AppStorePaymentManager.Error: DisplayChainedError {
-    var errorChainDescription: String? {
+    public var errorChainDescription: String? {
         switch self {
         case .noAccountSet:
             return NSLocalizedString(

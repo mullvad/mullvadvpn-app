@@ -9,9 +9,9 @@
 import Foundation
 import MullvadTypes
 
-extension REST {
+public extension REST {
     class AccountsProxy: Proxy<AuthProxyConfiguration> {
-        init(configuration: AuthProxyConfiguration) {
+        public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",
                 configuration: configuration,
@@ -23,7 +23,7 @@ extension REST {
             )
         }
 
-        func createAccount(
+        public func createAccount(
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<NewAccountData>
         ) -> Cancellable {
@@ -49,7 +49,7 @@ extension REST {
             )
         }
 
-        func getAccountData(
+        public func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<AccountData>
@@ -88,21 +88,21 @@ extension REST {
     }
 
     struct AccountData: Decodable {
-        let id: String
-        let expiry: Date
-        let maxPorts: Int
-        let canAddPorts: Bool
-        let maxDevices: Int
-        let canAddDevices: Bool
+        public let id: String
+        public let expiry: Date
+        public let maxPorts: Int
+        public let canAddPorts: Bool
+        public let maxDevices: Int
+        public let canAddDevices: Bool
     }
 
     struct NewAccountData: Decodable {
-        let id: String
-        let expiry: Date
-        let maxPorts: Int
-        let canAddPorts: Bool
-        let maxDevices: Int
-        let canAddDevices: Bool
-        let number: String
+        public let id: String
+        public let expiry: Date
+        public let maxPorts: Int
+        public let canAddPorts: Bool
+        public let maxDevices: Int
+        public let canAddDevices: Bool
+        public let number: String
     }
 }
