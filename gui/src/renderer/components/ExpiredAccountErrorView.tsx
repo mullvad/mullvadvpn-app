@@ -7,8 +7,6 @@ import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IAccountReduxState } from '../redux/account/reducers';
-import { IConnectionReduxState } from '../redux/connection/reducers';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
@@ -46,10 +44,14 @@ export default function ExpiredAccountErrorView() {
 }
 
 function ExpiredAccountErrorViewComponent() {
-  const { account, connection, getRecoveryAction, isNewAccount } = useExpiredAccountContext();
-
   const history = useHistory();
   const { disconnectTunnel } = useAppContext();
+
+  const account = useSelector((state) => state.account);
+  const connection = useSelector((state) => state.connection);
+
+  const { getRecoveryAction } = useRecoveryAction();
+  const isNewAccount = useIsNewAccount();
 
   const headerBarStyle = useMemo(() => {
     return isNewAccount ? HeaderBarStyle.default : calculateHeaderBarStyle(connection.status);
@@ -101,7 +103,8 @@ function ExpiredAccountErrorViewComponent() {
 }
 
 function WelcomeView() {
-  const { account, getRecoveryActionMessage } = useExpiredAccountContext();
+  const account = useSelector((state) => state.account);
+  const { getRecoveryActionMessage } = useRecoveryAction();
 
   return (
     <>
@@ -127,7 +130,7 @@ function WelcomeView() {
 }
 
 function Content() {
-  const { getRecoveryActionMessage } = useExpiredAccountContext();
+  const { getRecoveryActionMessage } = useRecoveryAction();
 
   return (
     <>
@@ -149,11 +152,22 @@ function Content() {
 }
 
 function ExternalPaymentButton() {
-  const { getRecoveryAction, isNewAccount, onOpenExternalPayment } = useExpiredAccountContext();
+  const { setShowBlockWhenDisconnectedAlert } = useExpiredAccountContext();
+  const { getRecoveryAction } = useRecoveryAction();
+  const { openLinkWithAuth } = useAppContext();
+  const isNewAccount = useIsNewAccount();
 
   const buttonText = isNewAccount
     ? messages.gettext('Buy credit')
     : messages.gettext('Buy more credit');
+
+  const onOpenExternalPayment = useCallback(async () => {
+    if (getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
+      setShowBlockWhenDisconnectedAlert(true);
+    } else {
+      await openLinkWithAuth(links.purchase);
+    }
+  }, []);
 
   return (
     <AppButton.BlockingButton
@@ -180,11 +194,11 @@ function ExternalPaymentButton() {
 
 function BlockWhenDisconnectedAlert() {
   const {
-    blockWhenDisconnected,
-    setBlockWhenDisconnected,
     showBlockWhenDisconnectedAlert,
     setShowBlockWhenDisconnectedAlert,
   } = useExpiredAccountContext();
+  const { setBlockWhenDisconnected } = useAppContext();
+  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
 
   const onCloseBlockWhenDisconnectedInstructions = useCallback(() => {
     setShowBlockWhenDisconnectedAlert(false);
@@ -230,14 +244,6 @@ function BlockWhenDisconnectedAlert() {
 }
 
 type ExpiredAccountContextType = {
-  account: IAccountReduxState;
-  blockWhenDisconnected: boolean;
-  connection: IConnectionReduxState;
-  getRecoveryAction: () => RecoveryAction;
-  getRecoveryActionMessage: () => string;
-  isNewAccount: boolean;
-  onOpenExternalPayment: () => Promise<void>;
-  setBlockWhenDisconnected: (val: boolean) => Promise<void>;
   setShowBlockWhenDisconnectedAlert: (val: boolean) => void;
   showBlockWhenDisconnectedAlert: boolean;
 };
@@ -245,26 +251,32 @@ type ExpiredAccountContextType = {
 const ExpiredAccountContext = createContext<ExpiredAccountContextType | undefined>(undefined);
 
 const ExpiredAccountContextProvider = ({ children }: { children: ReactNode }) => {
-  const account = useSelector((state) => state.account);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
-  const connection = useSelector((state) => state.connection);
-  const { setBlockWhenDisconnected, openLinkWithAuth } = useAppContext();
-
-  const isBlocked = connection.isBlocked;
   const [showBlockWhenDisconnectedAlert, setShowBlockWhenDisconnectedAlert] = useState(false);
 
-  const isNewAccount = useMemo(
-    () => account.status.type === 'ok' && account.status.method === 'new_account',
-    [account.status],
+  const value: ExpiredAccountContextType = useMemo(
+    () => ({
+      setShowBlockWhenDisconnectedAlert,
+      showBlockWhenDisconnectedAlert,
+    }),
+    [setShowBlockWhenDisconnectedAlert, showBlockWhenDisconnectedAlert],
   );
+  return <ExpiredAccountContext.Provider value={value}>{children}</ExpiredAccountContext.Provider>;
+};
 
-  const onOpenExternalPayment = async () => {
-    if (getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
-      setShowBlockWhenDisconnectedAlert(true);
-    } else {
-      await openLinkWithAuth(links.purchase);
-    }
-  };
+const useExpiredAccountContext = () => {
+  const context = useContext(ExpiredAccountContext);
+  if (!context) {
+    throw new Error(
+      'useExpiredAccountContext must be used within an ExpiredAccountContextProvider',
+    );
+  }
+
+  return context;
+};
+
+const useRecoveryAction = () => {
+  const isBlocked = useSelector((state) => state.connection.isBlocked);
+  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
 
   const getRecoveryAction = () => {
     if (blockWhenDisconnected && isBlocked) {
@@ -292,42 +304,12 @@ const ExpiredAccountContextProvider = ({ children }: { children: ReactNode }) =>
     }
   };
 
-  const value: ExpiredAccountContextType = useMemo(
-    () => ({
-      account,
-      blockWhenDisconnected,
-      connection,
-      getRecoveryAction,
-      getRecoveryActionMessage,
-      isNewAccount,
-      onOpenExternalPayment,
-      setBlockWhenDisconnected,
-      setShowBlockWhenDisconnectedAlert,
-      showBlockWhenDisconnectedAlert,
-    }),
-    [
-      account,
-      blockWhenDisconnected,
-      connection,
-      getRecoveryAction,
-      getRecoveryActionMessage,
-      isNewAccount,
-      onOpenExternalPayment,
-      setBlockWhenDisconnected,
-      setShowBlockWhenDisconnectedAlert,
-      showBlockWhenDisconnectedAlert,
-    ],
-  );
-  return <ExpiredAccountContext.Provider value={value}>{children}</ExpiredAccountContext.Provider>;
+  return { getRecoveryAction, getRecoveryActionMessage };
 };
 
-const useExpiredAccountContext = () => {
-  const context = useContext(ExpiredAccountContext);
-  if (!context) {
-    throw new Error(
-      'useExpiredAccountContext must be used within an ExpiredAccountContextProvider',
-    );
-  }
-
-  return context;
+const useIsNewAccount = () => {
+  const account = useSelector((state) => state.account);
+  return useMemo(() => account.status.type === 'ok' && account.status.method === 'new_account', [
+    account.status,
+  ]);
 };
