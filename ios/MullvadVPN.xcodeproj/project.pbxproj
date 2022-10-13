@@ -14,8 +14,47 @@
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		063687BC28EEC00800BE7161 /* RESTTransportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
+		06AC113728F83FD70037AF9A /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
+		06AC113928F840820037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
+		06AC113A28F840D80037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
+		06AC113B28F840D90037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
+		06AC113C28F840DC0037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
+		06AC113D28F840EA0037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
+		06AC114328F8413A0037AF9A /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
+		06AC114428F8413A0037AF9A /* AddressCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCacheStore.swift */; };
+		06AC114528F8413A0037AF9A /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114228F8413A0037AF9A /* AddressCache.swift */; };
+		06AC114728F841BE0037AF9A /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114628F841BD0037AF9A /* IPAddress+Codable.swift */; };
+		06AC114D28F844450037AF9A /* api-ip-address.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06AC114A28F842C80037AF9A /* api-ip-address.json */; };
+		06AC114E28F844450037AF9A /* le_root_cert.cer in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06AC114C28F842C80037AF9A /* le_root_cert.cer */; };
+		06AC114F28F844450037AF9A /* relays.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06AC114B28F842C80037AF9A /* relays.json */; };
+		06FAE67E28F83CA50033DD93 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66528F83CA30033DD93 /* RESTURLSession.swift */; };
+		06FAE67F28F83CA50033DD93 /* RESTResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */; };
+		06FAE68028F83CA50033DD93 /* RESTProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */; };
+		06FAE68128F83CA50033DD93 /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */; };
+		06FAE68228F83CA50033DD93 /* RESTError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66928F83CA30033DD93 /* RESTError.swift */; };
+		06FAE68328F83CA50033DD93 /* RESTRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */; };
+		06FAE68428F83CA50033DD93 /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */; };
+		06FAE68528F83CA50033DD93 /* RESTCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66C28F83CA40033DD93 /* RESTCoding.swift */; };
+		06FAE68628F83CA50033DD93 /* RESTTransportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */; };
+		06FAE68728F83CA50033DD93 /* RESTProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66E28F83CA40033DD93 /* RESTProxy.swift */; };
+		06FAE68828F83CA50033DD93 /* RESTNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */; };
+		06FAE68928F83CA50033DD93 /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */; };
+		06FAE68A28F83CA50033DD93 /* HTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67128F83CA40033DD93 /* HTTP.swift */; };
+		06FAE68B28F83CA50033DD93 /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */; };
+		06FAE68C28F83CA50033DD93 /* RESTAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */; };
+		06FAE68D28F83CA50033DD93 /* RESTRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */; };
+		06FAE68E28F83CA50033DD93 /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */; };
+		06FAE68F28F83CA50033DD93 /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */; };
+		06FAE69028F83CA50033DD93 /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */; };
+		06FAE69128F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
+		06FAE69228F83CA50033DD93 /* RESTAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */; };
+		06FAE69328F83CA50033DD93 /* RESTDevicesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */; };
+		06FAE69428F83CA50033DD93 /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
+		06FAE69528F83CA50033DD93 /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */; };
+		06FAE69628F83CA50033DD93 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
+		06FAE69E28F83D6D0033DD93 /* libMullvadREST.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06FAE65D28F83A940033DD93 /* libMullvadREST.a */; };
+		06FAE6B028F83ED80033DD93 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 06FAE6AF28F83ED80033DD93 /* WireGuardKitTypes */; };
 		5804BEBD28F811F600B49CA5 /* PacketTunnelStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */; };
-		5804BEBE28F8121300B49CA5 /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -111,7 +150,6 @@
 		58554F7B280B125F00013055 /* RESTAccountsProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7A280B125F00013055 /* RESTAccountsProxy.swift */; };
 		58554F7D280D6FE000013055 /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58554F7C280D6FE000013055 /* RESTURLSession.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
-		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
 		5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */; };
 		585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */; };
@@ -312,6 +350,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		06FAE69F28F83D6D0033DD93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06FAE65C28F83A940033DD93;
+			remoteInfo = MullvadREST;
+		};
+		06FAE6A528F83E330033DD93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 581943D528F800C900B0CB5E;
+			remoteInfo = MullvadLogging;
+		};
+		06FAE6A728F83E330033DD93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 581943F028F8014500B0CB5E;
+			remoteInfo = MullvadTypes;
+		};
+		06FAE6A928F83E330033DD93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58E5126428DDF04200B0BCDE;
+			remoteInfo = Operations;
+		};
 		5841E04225D53BCC00D989F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -364,6 +430,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		06FAE65B28F83A940033DD93 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				06AC114D28F844450037AF9A /* api-ip-address.json in CopyFiles */,
+				06AC114E28F844450037AF9A /* le_root_cert.cer in CopyFiles */,
+				06AC114F28F844450037AF9A /* relays.json in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		581943D428F800C900B0CB5E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -411,6 +489,40 @@
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
 		063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportRegistry.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
+		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
+		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
+		06AC114128F8413A0037AF9A /* AddressCacheStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheStore.swift; sourceTree = "<group>"; };
+		06AC114228F8413A0037AF9A /* AddressCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
+		06AC114628F841BD0037AF9A /* IPAddress+Codable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
+		06AC114A28F842C80037AF9A /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
+		06AC114B28F842C80037AF9A /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
+		06AC114C28F842C80037AF9A /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
+		06FAE65D28F83A940033DD93 /* libMullvadREST.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMullvadREST.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		06FAE66528F83CA30033DD93 /* RESTURLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTURLSession.swift; sourceTree = "<group>"; };
+		06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTResponseHandler.swift; sourceTree = "<group>"; };
+		06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxyFactory.swift; sourceTree = "<group>"; };
+		06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAccountsProxy.swift; sourceTree = "<group>"; };
+		06FAE66928F83CA30033DD93 /* RESTError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTError.swift; sourceTree = "<group>"; };
+		06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestFactory.swift; sourceTree = "<group>"; };
+		06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
+		06FAE66C28F83CA40033DD93 /* RESTCoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTCoding.swift; sourceTree = "<group>"; };
+		06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransportRegistry.swift; sourceTree = "<group>"; };
+		06FAE66E28F83CA40033DD93 /* RESTProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxy.swift; sourceTree = "<group>"; };
+		06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
+		06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
+		06FAE67128F83CA40033DD93 /* HTTP.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTP.swift; sourceTree = "<group>"; };
+		06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAccessTokenManager.swift; sourceTree = "<group>"; };
+		06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAPIProxy.swift; sourceTree = "<group>"; };
+		06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestHandler.swift; sourceTree = "<group>"; };
+		06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
+		06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRetryStrategy.swift; sourceTree = "<group>"; };
+		06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRelaysResponse.swift; sourceTree = "<group>"; };
+		06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
+		06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthorization.swift; sourceTree = "<group>"; };
+		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
+		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
+		06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
+		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
 		58059DDB28465E8F002B1049 /* TransformOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformOperation.swift; sourceTree = "<group>"; };
 		58059DDD28468158002B1049 /* OutputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputOperation.swift; sourceTree = "<group>"; };
 		58059DDF2846823E002B1049 /* ResultOperation+Output.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Output.swift"; sourceTree = "<group>"; };
@@ -673,6 +785,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		06FAE65A28F83A940033DD93 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				06FAE6B028F83ED80033DD93 /* WireGuardKitTypes in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		581943D328F800C900B0CB5E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -711,6 +831,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58AC829428F803A200181C40 /* libMullvadLogging.a in Frameworks */,
+				06FAE69E28F83D6D0033DD93 /* libMullvadREST.a in Frameworks */,
 				58AC829528F803A200181C40 /* libMullvadTypes.a in Frameworks */,
 				5818139F28E09BD8002817DE /* libOperations.a in Frameworks */,
 				5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */,
@@ -744,6 +865,62 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		06AC113F28F841310037AF9A /* AddressCache */ = {
+			isa = PBXGroup;
+			children = (
+				06AC114228F8413A0037AF9A /* AddressCache.swift */,
+				06AC114128F8413A0037AF9A /* AddressCacheStore.swift */,
+				06AC114028F841390037AF9A /* AddressCacheTracker.swift */,
+			);
+			path = AddressCache;
+			sourceTree = "<group>";
+		};
+		06AC114828F842980037AF9A /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				06AC114A28F842C80037AF9A /* api-ip-address.json */,
+				06AC114C28F842C80037AF9A /* le_root_cert.cer */,
+				06AC114B28F842C80037AF9A /* relays.json */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		06FAE65E28F83A940033DD93 /* MullvadREST */ = {
+			isa = PBXGroup;
+			children = (
+				06AC114828F842980037AF9A /* Assets */,
+				06AC114628F841BD0037AF9A /* IPAddress+Codable.swift */,
+				06AC113F28F841310037AF9A /* AddressCache */,
+				06AC113628F83FD70037AF9A /* Cancellable.swift */,
+				06FAE67128F83CA40033DD93 /* HTTP.swift */,
+				06FAE67B28F83CA50033DD93 /* REST.swift */,
+				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
+				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
+				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
+				06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */,
+				06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */,
+				06FAE66C28F83CA40033DD93 /* RESTCoding.swift */,
+				06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */,
+				06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */,
+				06FAE66928F83CA30033DD93 /* RESTError.swift */,
+				06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */,
+				06FAE66E28F83CA40033DD93 /* RESTProxy.swift */,
+				06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */,
+				06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */,
+				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
+				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
+				06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */,
+				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
+				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
+				06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */,
+				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
+				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
+				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
+				06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */,
+			);
+			path = MullvadREST;
+			sourceTree = "<group>";
+		};
 		0E15C74FDCF763609B367486 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -948,6 +1125,7 @@
 			children = (
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
+				06FAE65E28F83A940033DD93 /* MullvadREST */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
 				582CFEE1269448160072883A /* Localizations */,
 				589A454A28DDF59B00565204 /* Shared */,
@@ -974,6 +1152,7 @@
 				589A455228E094B300565204 /* OperationsTests.xctest */,
 				581943D628F800C900B0CB5E /* libMullvadLogging.a */,
 				581943F128F8014500B0CB5E /* libMullvadTypes.a */,
+				06FAE65D28F83A940033DD93 /* libMullvadREST.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1220,6 +1399,29 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
+		06FAE65C28F83A940033DD93 /* MullvadREST */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 06FAE66328F83A940033DD93 /* Build configuration list for PBXNativeTarget "MullvadREST" */;
+			buildPhases = (
+				06FAE65928F83A940033DD93 /* Sources */,
+				06FAE65A28F83A940033DD93 /* Frameworks */,
+				06FAE65B28F83A940033DD93 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				06FAE6A628F83E330033DD93 /* PBXTargetDependency */,
+				06FAE6A828F83E330033DD93 /* PBXTargetDependency */,
+				06FAE6AA28F83E330033DD93 /* PBXTargetDependency */,
+			);
+			name = MullvadREST;
+			packageProductDependencies = (
+				06FAE6AF28F83ED80033DD93 /* WireGuardKitTypes */,
+			);
+			productName = MullvadREST;
+			productReference = 06FAE65D28F83A940033DD93 /* libMullvadREST.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		581943D528F800C900B0CB5E /* MullvadLogging */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 581943DC28F800C900B0CB5E /* Build configuration list for PBXNativeTarget "MullvadLogging" */;
@@ -1311,6 +1513,7 @@
 			dependencies = (
 				58CE5E80224146470008646E /* PBXTargetDependency */,
 				58E5126E28DDF09F00B0BCDE /* PBXTargetDependency */,
+				06FAE6A028F83D6D0033DD93 /* PBXTargetDependency */,
 			);
 			name = MullvadVPN;
 			packageProductDependencies = (
@@ -1386,6 +1589,9 @@
 				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
+					06FAE65C28F83A940033DD93 = {
+						CreatedOnToolsVersion = 14.0.1;
+					};
 					581943D528F800C900B0CB5E = {
 						CreatedOnToolsVersion = 14.0.1;
 						LastSwiftMigration = 1400;
@@ -1458,6 +1664,7 @@
 				589A455128E094B300565204 /* OperationsTests */,
 				581943D528F800C900B0CB5E /* MullvadLogging */,
 				581943F028F8014500B0CB5E /* MullvadTypes */,
+				06FAE65C28F83A940033DD93 /* MullvadREST */,
 			);
 		};
 /* End PBXProject section */
@@ -1510,6 +1717,45 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		06FAE65928F83A940033DD93 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				06FAE68728F83CA50033DD93 /* RESTProxy.swift in Sources */,
+				06FAE68628F83CA50033DD93 /* RESTTransportRegistry.swift in Sources */,
+				06FAE68228F83CA50033DD93 /* RESTError.swift in Sources */,
+				06AC113C28F840DC0037AF9A /* IPEndpoint.swift in Sources */,
+				06FAE69028F83CA50033DD93 /* ServerRelaysResponse.swift in Sources */,
+				06AC114428F8413A0037AF9A /* AddressCacheStore.swift in Sources */,
+				06AC114728F841BE0037AF9A /* IPAddress+Codable.swift in Sources */,
+				06FAE67E28F83CA50033DD93 /* RESTURLSession.swift in Sources */,
+				06FAE69228F83CA50033DD93 /* RESTAuthorization.swift in Sources */,
+				06FAE68028F83CA50033DD93 /* RESTProxyFactory.swift in Sources */,
+				06FAE69128F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
+				06AC113D28F840EA0037AF9A /* ApplicationConfiguration.swift in Sources */,
+				06FAE68B28F83CA50033DD93 /* RESTAccessTokenManager.swift in Sources */,
+				06FAE68C28F83CA50033DD93 /* RESTAPIProxy.swift in Sources */,
+				06FAE68828F83CA50033DD93 /* RESTNetworkOperation.swift in Sources */,
+				06FAE68E28F83CA50033DD93 /* RESTTaskIdentifier.swift in Sources */,
+				06FAE68F28F83CA50033DD93 /* RESTRetryStrategy.swift in Sources */,
+				06FAE68428F83CA50033DD93 /* SSLPinningURLSessionDelegate.swift in Sources */,
+				06AC113728F83FD70037AF9A /* Cancellable.swift in Sources */,
+				06FAE68D28F83CA50033DD93 /* RESTRequestHandler.swift in Sources */,
+				06FAE69328F83CA50033DD93 /* RESTDevicesProxy.swift in Sources */,
+				06AC114328F8413A0037AF9A /* AddressCacheTracker.swift in Sources */,
+				06FAE68928F83CA50033DD93 /* RESTAuthenticationProxy.swift in Sources */,
+				06FAE68A28F83CA50033DD93 /* HTTP.swift in Sources */,
+				06FAE69428F83CA50033DD93 /* REST.swift in Sources */,
+				06FAE69528F83CA50033DD93 /* URLSessionTransport.swift in Sources */,
+				06AC114528F8413A0037AF9A /* AddressCache.swift in Sources */,
+				06FAE68128F83CA50033DD93 /* RESTAccountsProxy.swift in Sources */,
+				06FAE68528F83CA50033DD93 /* RESTCoding.swift in Sources */,
+				06FAE69628F83CA50033DD93 /* RESTTransport.swift in Sources */,
+				06FAE68328F83CA50033DD93 /* RESTRequestFactory.swift in Sources */,
+				06FAE67F28F83CA50033DD93 /* RESTResponseHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		581943D228F800C900B0CB5E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1556,6 +1802,7 @@
 				5819C2142726CC8D00D6EC38 /* DataSourceSnapshotTests.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
+				06AC113B28F840D90037AF9A /* IPEndpoint.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
@@ -1570,7 +1817,6 @@
 				5820676226E75D8500655B05 /* REST.swift in Sources */,
 				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
 				5804BEBD28F811F600B49CA5 /* PacketTunnelStatus.swift in Sources */,
-				5804BEBE28F8121300B49CA5 /* IPEndpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1795,8 +2041,8 @@
 				063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */,
 				589E63D828F71626005FAB05 /* SSLPinningURLSessionDelegate.swift in Sources */,
 				5820675626E6528A00655B05 /* RESTError.swift in Sources */,
+				06AC113A28F840D80037AF9A /* IPEndpoint.swift in Sources */,
 				58900D0328BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift in Sources */,
-				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58A3BDB028A1821A00C8C2C6 /* WgStats.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
 				58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */,
@@ -1841,6 +2087,7 @@
 				58D889BC28DDF53500583FA8 /* OperationCondition.swift in Sources */,
 				58D889C728DDF53500583FA8 /* AsyncOperation.swift in Sources */,
 				58D889C928DDF53500583FA8 /* InputOperation.swift in Sources */,
+				06AC113928F840820037AF9A /* IPEndpoint.swift in Sources */,
 				58D889C028DDF53500583FA8 /* AlertPresenter.swift in Sources */,
 				581813A128E09DBB002817DE /* NoCancelledDependenciesCondition.swift in Sources */,
 			);
@@ -1849,6 +2096,26 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		06FAE6A028F83D6D0033DD93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06FAE65C28F83A940033DD93 /* MullvadREST */;
+			targetProxy = 06FAE69F28F83D6D0033DD93 /* PBXContainerItemProxy */;
+		};
+		06FAE6A628F83E330033DD93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 581943D528F800C900B0CB5E /* MullvadLogging */;
+			targetProxy = 06FAE6A528F83E330033DD93 /* PBXContainerItemProxy */;
+		};
+		06FAE6A828F83E330033DD93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 581943F028F8014500B0CB5E /* MullvadTypes */;
+			targetProxy = 06FAE6A728F83E330033DD93 /* PBXContainerItemProxy */;
+		};
+		06FAE6AA28F83E330033DD93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58E5126428DDF04200B0BCDE /* Operations */;
+			targetProxy = 06FAE6A928F83E330033DD93 /* PBXContainerItemProxy */;
+		};
 		5841E04325D53BCC00D989F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
@@ -1898,6 +2165,38 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		06FAE66128F83A940033DD93 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		06FAE66228F83A940033DD93 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		581943DA28F800C900B0CB5E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2343,6 +2642,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		06FAE66328F83A940033DD93 /* Build configuration list for PBXNativeTarget "MullvadREST" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				06FAE66128F83A940033DD93 /* Debug */,
+				06FAE66228F83A940033DD93 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		581943DC28F800C900B0CB5E /* Build configuration list for PBXNativeTarget "MullvadLogging" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2455,6 +2763,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		06FAE6AF28F83ED80033DD93 /* WireGuardKitTypes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
+			productName = WireGuardKitTypes;
+		};
 		5807483A27DB8A980020ECBF /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
