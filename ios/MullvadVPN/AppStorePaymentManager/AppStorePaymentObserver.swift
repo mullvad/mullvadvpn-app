@@ -8,8 +8,9 @@
 
 import Foundation
 import StoreKit
+import MullvadREST
 
-protocol AppStorePaymentObserver: AnyObject {
+public protocol AppStorePaymentObserver: AnyObject {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction?,

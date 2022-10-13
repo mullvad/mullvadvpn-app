@@ -10,18 +10,18 @@ import Foundation
 
 extension URLSessionTask: Cancellable {}
 
-final class URLSessionTransport: RESTTransport {
-    var name: String {
+public final class URLSessionTransport: RESTTransport {
+    public var name: String {
         return "url-session"
     }
 
-    let urlSession: URLSession
+    public let urlSession: URLSession
 
-    init(urlSession: URLSession) {
+    public init(urlSession: URLSession) {
         self.urlSession = urlSession
     }
 
-    func sendRequest(
+    public func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable {

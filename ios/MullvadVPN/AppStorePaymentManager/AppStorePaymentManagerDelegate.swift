@@ -9,7 +9,7 @@
 import Foundation
 import StoreKit
 
-protocol AppStorePaymentManagerDelegate: AnyObject {
+public protocol AppStorePaymentManagerDelegate: AnyObject {
     /// Return the account token associated with the payment.
     /// Usually called for unfinished transactions coming back after the app was restarted.
     func appStorePaymentManager(

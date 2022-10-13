@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension REST {
+public extension REST {
     static let sharedURLSession: URLSession = {
         let certificatePath = Bundle.main.path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!

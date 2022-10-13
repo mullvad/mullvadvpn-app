@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import Operations
 import class WireGuardKitTypes.PublicKey
+import MullvadREST
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
     private let interactor: TunnelInteractor

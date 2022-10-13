@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol RESTTransport: AnyObject {
+public protocol RESTTransport: AnyObject {
     var name: String { get }
 
     func sendRequest(

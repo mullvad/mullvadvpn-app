@@ -8,18 +8,18 @@
 
 import Foundation
 
-extension REST {
+public extension REST {
     struct RetryStrategy {
-        var maxRetryCount: Int
-        var retryDelay: DispatchTimeInterval
+        public var maxRetryCount: Int
+        public var retryDelay: DispatchTimeInterval
 
         /// Strategy configured to never retry.
-        static var noRetry = RetryStrategy(maxRetryCount: 0, retryDelay: .never)
+        public static var noRetry = RetryStrategy(maxRetryCount: 0, retryDelay: .never)
 
         /// Startegy configured with 3 retry attempts with 2 seconds delay between.
-        static var `default` = RetryStrategy(maxRetryCount: 3, retryDelay: .seconds(2))
+        public static var `default` = RetryStrategy(maxRetryCount: 3, retryDelay: .seconds(2))
 
         /// Strategy configured with 10 retry attempts with 2 seconds delay between.
-        static var aggressive = RetryStrategy(maxRetryCount: 10, retryDelay: .seconds(2))
+        public static var aggressive = RetryStrategy(maxRetryCount: 10, retryDelay: .seconds(2))
     }
 }

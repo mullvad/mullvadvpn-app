@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 class TransportMonitor: TunnelObserver {
     private let packetTunnelTransport = PacketTunnelTransport()
