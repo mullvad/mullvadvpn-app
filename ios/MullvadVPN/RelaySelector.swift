@@ -122,7 +122,7 @@ extension RelaySelector {
             return i == 0
         }
 
-        precondition(randomRelay != nil, "At least one relay must've had a weight above 0")
+        assert(randomRelay != nil, "At least one relay must've had a weight above 0")
 
         return randomRelay
     }
