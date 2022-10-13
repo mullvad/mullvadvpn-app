@@ -206,7 +206,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        timeout: TimeInterval = 5,
+        timeout: TimeInterval? = nil,
         completionHandler: @escaping CompletionHandler
     ) {
         self.init(
@@ -231,12 +231,14 @@ extension SendTunnelProviderMessageOperation where Output == Void {
         dispatchQueue: DispatchQueue,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
+        timeout: TimeInterval? = nil,
         completionHandler: CompletionHandler?
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
             tunnel: tunnel,
             message: message,
+            timeout: timeout,
             decoderHandler: { _ in () },
             completionHandler: completionHandler
         )
