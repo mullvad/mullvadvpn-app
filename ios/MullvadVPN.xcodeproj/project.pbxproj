@@ -10,7 +10,7 @@
 		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B528EB22E000BE7161 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B428EB22E000BE7161 /* RESTTransport.swift */; };
-		063687B828EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B728EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift */; };
+		063687B828EB231900BE7161 /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B728EB231900BE7161 /* URLSessionTransport.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		063687BC28EEC00800BE7161 /* RESTTransportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
@@ -398,7 +398,7 @@
 /* Begin PBXFileReference section */
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
 		063687B428EB22E000BE7161 /* RESTTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
-		063687B728EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionTransport+URLSessionTask.swift"; sourceTree = "<group>"; };
+		063687B728EB231900BE7161 /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
 		063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportRegistry.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
@@ -715,18 +715,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		063687B628EB22FA00BE7161 /* Transport */ = {
-			isa = PBXGroup;
-			children = (
-				063687B428EB22E000BE7161 /* RESTTransport.swift */,
-				063687B728EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift */,
-				063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */,
-				063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */,
-				0697D6E628F01513007A9E99 /* TransportMonitor.swift */,
-			);
-			path = Transport;
-			sourceTree = "<group>";
-		};
 		0E15C74FDCF763609B367486 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -854,10 +842,12 @@
 				588BCF272816D664009ADCEC /* RESTResponseHandler.swift */,
 				58095C582762155700890776 /* RESTRetryStrategy.swift */,
 				58554F76280AFD5C00013055 /* RESTTaskIdentifier.swift */,
+				063687B428EB22E000BE7161 /* RESTTransport.swift */,
+				063687BB28EEC00800BE7161 /* RESTTransportRegistry.swift */,
 				58554F7C280D6FE000013055 /* RESTURLSession.swift */,
 				585DA88326B0270700B8C587 /* ServerRelaysResponse.swift */,
 				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
-				063687B628EB22FA00BE7161 /* Transport */,
+				063687B728EB231900BE7161 /* URLSessionTransport.swift */,
 			);
 			path = REST;
 			sourceTree = "<group>";
@@ -888,6 +878,15 @@
 				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
 			);
 			path = OperationsTests;
+			sourceTree = "<group>";
+		};
+		589E63DA28F7E9E7005FAB05 /* TransportMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */,
+				0697D6E628F01513007A9E99 /* TransportMonitor.swift */,
+			);
+			path = TransportMonitor;
 			sourceTree = "<group>";
 		};
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
@@ -1022,6 +1021,7 @@
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
+				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
 				585DA87F26B0268500B8C587 /* REST */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				580909D22876D09A0078138D /* RevokedDeviceViewController.swift */,
@@ -1639,7 +1639,7 @@
 				58B5A895280AACC4009FDE99 /* RESTRequestFactory.swift in Sources */,
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
-				063687B828EB231900BE7161 /* URLSessionTransport+URLSessionTask.swift in Sources */,
+				063687B828EB231900BE7161 /* URLSessionTransport.swift in Sources */,
 				58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */,
 				585DA88726B0277200B8C587 /* RESTError.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
