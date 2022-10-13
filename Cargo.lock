@@ -3185,6 +3185,7 @@ dependencies = [
  "byteorder",
  "cfg-if",
  "chrono",
+ "duct",
  "err-derive",
  "futures",
  "hex",
