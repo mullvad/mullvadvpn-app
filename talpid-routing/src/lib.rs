@@ -1,5 +1,8 @@
-#![cfg_attr(target_os = "android", allow(dead_code))]
-#![cfg_attr(target_os = "windows", allow(dead_code))]
+//! Manage routing tables on various platforms.
+
+
+#![deny(missing_docs)]
+#![deny(rust_2018_idioms)]
 
 use ipnetwork::IpNetwork;
 use std::{fmt, net::IpAddr};

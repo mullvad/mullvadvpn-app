@@ -1,3 +1,8 @@
+//! Manage WireGuard tunnels.
+
+#![deny(missing_docs)]
+#![deny(rust_2018_idioms)]
+
 use self::config::Config;
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]

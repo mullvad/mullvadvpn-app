@@ -1,3 +1,8 @@
+//! Manage OpenVPN tunnels.
+
+#![deny(missing_docs)]
+#![deny(rust_2018_idioms)]
+
 use crate::proxy::{ProxyMonitor, ProxyResourceData};
 use futures::channel::oneshot;
 #[cfg(windows)]
