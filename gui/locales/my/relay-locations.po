@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -59,6 +59,10 @@ msgstr "ဘဲလ်ဂရိတ်"
 #. US BOS
 msgid "Boston, MA"
 msgstr "ဘော်စတွန်၊ မက်ဆာချူးဆက်"
+
+#. SK BTS
+msgid "Bratislava"
+msgstr "Bratislava"
 
 #. BR
 msgid "Brazil"
@@ -183,6 +187,10 @@ msgstr "ဟောင်ကောင်"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "ဟိုနိုလူလူ၊ ဟာဝိုင်ယီ"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr "Houston, TX"
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "ဆူးဖော၊ တောင်ဒါကိုတာ"
 msgid "Skopje"
 msgstr "စကော့ပ်ရာ"
 
+#. SK
+msgid "Slovakia"
+msgstr "Slovakia"
+
 #. BG SOF
 msgid "Sofia"
 msgstr "ဆိုဖီယာ"
@@ -439,6 +451,10 @@ msgstr "စိန့်လူးဝစ်၊ မစ်ဆူရီ"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "စတမ်းဖို့၊ ကော်နက်တီကပ်"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr "Stavanger"
 
 #. SE STO
 msgid "Stockholm"
