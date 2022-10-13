@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Logging
+import MullvadLogging
 import WireGuardKit
 
 extension WireGuardLogLevel {

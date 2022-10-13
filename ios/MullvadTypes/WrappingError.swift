@@ -9,6 +9,6 @@
 import Foundation
 
 /// Protocol describing errors that may contain underlying errors.
-protocol WrappingError: Error {
+public protocol WrappingError: Error {
     var underlyingError: Error? { get }
 }

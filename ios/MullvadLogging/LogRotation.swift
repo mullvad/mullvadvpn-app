@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import MullvadTypes
 
-enum LogRotation {
-    enum Error: LocalizedError, WrappingError {
+public enum LogRotation {
+    public enum Error: LocalizedError, WrappingError {
         case noSourceLogFile
         case moveSourceLogFile(Swift.Error)
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .noSourceLogFile:
                 return "Source log file does not exist."
@@ -22,7 +23,7 @@ enum LogRotation {
             }
         }
 
-        var underlyingError: Swift.Error? {
+        public var underlyingError: Swift.Error? {
             switch self {
             case .noSourceLogFile:
                 return nil
@@ -32,7 +33,7 @@ enum LogRotation {
         }
     }
 
-    static func rotateLog(logsDirectory: URL, logFileName: String) throws {
+    public static func rotateLog(logsDirectory: URL, logFileName: String) throws {
         let source = logsDirectory.appendingPathComponent(logFileName)
         let backup = source.deletingPathExtension().appendingPathExtension("old.log")
 

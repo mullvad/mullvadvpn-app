@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 extension REST {
     /// An error type returned by REST API classes.

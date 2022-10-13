@@ -8,7 +8,7 @@
 
 import BackgroundTasks
 import Intents
-import Logging
+import MullvadLogging
 import Operations
 import StoreKit
 import UIKit
@@ -36,7 +36,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
+        initLoggingSystem(
+            bundleIdentifier: Bundle.main.bundleIdentifier!,
+            applicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
+        )
 
         logger = Logger(label: "AppDelegate")
 

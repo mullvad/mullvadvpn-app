@@ -9,7 +9,7 @@
 #if targetEnvironment(simulator)
 
 import Foundation
-import Logging
+import MullvadLogging
 import enum NetworkExtension.NEProviderStopReason
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {

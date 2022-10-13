@@ -8,9 +8,10 @@
 
 import Foundation
 import Logging
+import MullvadTypes
 
 extension Logger {
-    func error<T: Error>(
+    public func error<T: Error>(
         error: T,
         message: @autoclosure () -> String? = nil,
         metadata: @autoclosure () -> Logger.Metadata? = nil,

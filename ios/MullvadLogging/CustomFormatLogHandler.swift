@@ -9,27 +9,27 @@
 import Foundation
 import Logging
 
-struct CustomFormatLogHandler: LogHandler {
-    var metadata: Logger.Metadata = [:]
-    var logLevel: Logger.Level = .debug
+public struct CustomFormatLogHandler: LogHandler {
+    public var metadata: Logger.Metadata = [:]
+    public var logLevel: Logger.Level = .debug
 
     private let label: String
     private let streams: [TextOutputStream]
 
     private let dateFormatter = Self.makeDateFormatter()
 
-    static func makeDateFormatter() -> DateFormatter {
+    public static func makeDateFormatter() -> DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "YYYY-MM-dd HH:mm:ss.SSS"
         return dateFormatter
     }
 
-    init(label: String, streams: [TextOutputStream]) {
+    public init(label: String, streams: [TextOutputStream]) {
         self.label = label
         self.streams = streams
     }
 
-    subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
+    public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
             return metadata[metadataKey]
         }
@@ -38,7 +38,7 @@ struct CustomFormatLogHandler: LogHandler {
         }
     }
 
-    func log(
+    public func log(
         level: Logger.Level,
         message: Logger.Message,
         metadata: Logger.Metadata?,

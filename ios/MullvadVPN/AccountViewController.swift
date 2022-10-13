@@ -6,7 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Logging
+import MullvadLogging
 import Operations
 import StoreKit
 import UIKit

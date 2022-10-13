@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import MullvadTypes
 
 extension DecodingError: CustomErrorDescriptionProtocol {
-    var customErrorDescription: String? {
+    public var customErrorDescription: String? {
         switch self {
         case let .typeMismatch(type, context):
             return "Type mismatch, expected \(type) for key at \"\(context.codingPath.codingPathString)\"."
@@ -30,7 +31,7 @@ extension DecodingError: CustomErrorDescriptionProtocol {
 }
 
 extension EncodingError: CustomErrorDescriptionProtocol {
-    var customErrorDescription: String? {
+    public var customErrorDescription: String? {
         switch self {
         case let .invalidValue(_, context):
             return "Invalid value at \"\(context.codingPath.codingPathString)\""

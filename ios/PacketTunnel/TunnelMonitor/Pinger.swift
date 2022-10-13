@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Logging
+import MullvadLogging
 import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
