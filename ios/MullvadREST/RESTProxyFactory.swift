@@ -8,11 +8,11 @@
 
 import Foundation
 
-extension REST {
+public extension REST {
     class ProxyFactory {
-        let configuration: AuthProxyConfiguration
+        public let configuration: AuthProxyConfiguration
 
-        static let shared: ProxyFactory = {
+        public static let shared: ProxyFactory = {
             let basicConfiguration = ProxyConfiguration(
                 transportRegistry: RESTTransportRegistry.shared,
                 addressCacheStore: AddressCache.Store.shared
@@ -32,19 +32,19 @@ extension REST {
             return ProxyFactory(configuration: authConfiguration)
         }()
 
-        init(configuration: AuthProxyConfiguration) {
+        public init(configuration: AuthProxyConfiguration) {
             self.configuration = configuration
         }
 
-        func createAPIProxy() -> REST.APIProxy {
+        public func createAPIProxy() -> REST.APIProxy {
             return REST.APIProxy(configuration: configuration)
         }
 
-        func createAccountsProxy() -> REST.AccountsProxy {
+        public func createAccountsProxy() -> REST.AccountsProxy {
             return REST.AccountsProxy(configuration: configuration)
         }
 
-        func createDevicesProxy() -> REST.DevicesProxy {
+        public func createDevicesProxy() -> REST.DevicesProxy {
             return REST.DevicesProxy(configuration: configuration)
         }
     }

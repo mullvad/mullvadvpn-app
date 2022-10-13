@@ -8,11 +8,11 @@
 
 import Foundation
 
-extension REST {
+public extension REST {
     enum Coding {}
 }
 
-extension REST.Coding {
+public extension REST.Coding {
     /// Returns a JSON encoder used by REST API.
     static func makeJSONEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()

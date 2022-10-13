@@ -11,6 +11,7 @@ import MullvadLogging
 import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
+import enum MullvadREST.REST
 
 enum SetAccountAction {
     /// Set new account.

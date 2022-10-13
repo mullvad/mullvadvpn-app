@@ -8,8 +8,8 @@
 
 import Foundation
 
-protocol Cancellable {
-    func cancel()
-}
-
-extension Operation: Cancellable {}
+//protocol Cancellable {
+//    func cancel()
+//}
+//
+//extension Operation: Cancellable {}

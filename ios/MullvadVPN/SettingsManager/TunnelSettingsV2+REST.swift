@@ -8,6 +8,7 @@
 
 import Foundation
 import class WireGuardKitTypes.PrivateKey
+import enum MullvadREST.REST
 
 extension StoredDeviceData {
     mutating func update(from device: REST.Device) {

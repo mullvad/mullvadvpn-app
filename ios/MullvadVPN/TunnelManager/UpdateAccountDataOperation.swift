@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import Operations
+import MullvadREST
 
 class UpdateAccountDataOperation: ResultOperation<Void, Error> {
     private let logger = Logger(label: "UpdateAccountDataOperation")

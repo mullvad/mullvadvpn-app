@@ -9,13 +9,13 @@
 import Foundation
 import Operations
 
-protocol RESTAuthorizationProvider {
+public protocol RESTAuthorizationProvider {
     typealias Completion = OperationCompletion<REST.Authorization, REST.Error>
 
     func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable
 }
 
-extension REST {
+public extension REST {
     enum Authorization {
         case accountNumber(String)
         case accessToken(String)
@@ -26,7 +26,7 @@ extension REST {
         private let accountNumber: String
         private let retryStrategy: REST.RetryStrategy
 
-        init(
+        public init(
             accessTokenManager: AccessTokenManager,
             accountNumber: String,
             retryStrategy: REST.RetryStrategy
@@ -36,7 +36,7 @@ extension REST {
             self.retryStrategy = retryStrategy
         }
 
-        func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable {
+        public func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable {
             return accessTokenManager.getAccessToken(
                 accountNumber: accountNumber,
                 retryStrategy: retryStrategy

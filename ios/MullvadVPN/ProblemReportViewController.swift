@@ -8,6 +8,7 @@
 
 import Operations
 import UIKit
+import enum MullvadREST.REST
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()

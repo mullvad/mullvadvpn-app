@@ -8,6 +8,7 @@
 
 import Foundation
 import Operations
+import MullvadREST
 
 class DeviceManagementInteractor {
     private let devicesProxy = REST.ProxyFactory.shared.createDevicesProxy()

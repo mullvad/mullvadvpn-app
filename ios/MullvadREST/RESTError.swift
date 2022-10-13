@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-extension REST {
+public extension REST {
     /// An error type returned by REST API classes.
     enum Error: LocalizedError, WrappingError {
         /// Failure to create URL request.
@@ -27,7 +27,7 @@ extension REST {
         /// Failure to transit URL request via selected transport implementation.
         case transport(Swift.Error)
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case let .createURLRequest(error):
                 return "Failure to create URL request: \(error.localizedDescription)."
@@ -56,7 +56,7 @@ extension REST {
             }
         }
 
-        var underlyingError: Swift.Error? {
+        public var underlyingError: Swift.Error? {
             switch self {
             case let .network(error):
                 return error
@@ -71,7 +71,7 @@ extension REST {
             }
         }
 
-        func compareErrorCode(_ code: ServerResponseCode) -> Bool {
+        public func compareErrorCode(_ code: ServerResponseCode) -> Bool {
             if case let .unhandledResponse(_, serverResponse) = self {
                 return serverResponse?.code == code
             } else {
@@ -81,14 +81,14 @@ extension REST {
     }
 
     struct ServerErrorResponse: Decodable {
-        let code: ServerResponseCode
-        let detail: String?
+        public let code: ServerResponseCode
+        public let detail: String?
 
         private enum CodingKeys: String, CodingKey {
             case code, detail, error
         }
 
-        init(from decoder: Decoder) throws {
+        public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             let rawValue = try container.decode(String.self, forKey: .code)
 
@@ -99,22 +99,22 @@ extension REST {
     }
 
     struct ServerResponseCode: RawRepresentable, Equatable {
-        static let invalidAccount = ServerResponseCode(rawValue: "INVALID_ACCOUNT")
-        static let keyLimitReached = ServerResponseCode(rawValue: "KEY_LIMIT_REACHED")
-        static let publicKeyNotFound = ServerResponseCode(rawValue: "PUBKEY_NOT_FOUND")
-        static let publicKeyInUse = ServerResponseCode(rawValue: "PUBKEY_IN_USE")
-        static let maxDevicesReached = ServerResponseCode(rawValue: "MAX_DEVICES_REACHED")
-        static let invalidAccessToken = ServerResponseCode(rawValue: "INVALID_ACCESS_TOKEN")
-        static let deviceNotFound = ServerResponseCode(rawValue: "DEVICE_NOT_FOUND")
+        public static let invalidAccount = ServerResponseCode(rawValue: "INVALID_ACCOUNT")
+        public static let keyLimitReached = ServerResponseCode(rawValue: "KEY_LIMIT_REACHED")
+        public static let publicKeyNotFound = ServerResponseCode(rawValue: "PUBKEY_NOT_FOUND")
+        public static let publicKeyInUse = ServerResponseCode(rawValue: "PUBKEY_IN_USE")
+        public static let maxDevicesReached = ServerResponseCode(rawValue: "MAX_DEVICES_REACHED")
+        public static let invalidAccessToken = ServerResponseCode(rawValue: "INVALID_ACCESS_TOKEN")
+        public static let deviceNotFound = ServerResponseCode(rawValue: "DEVICE_NOT_FOUND")
 
-        let rawValue: String
-        init(rawValue: String) {
+        public let rawValue: String
+        public init(rawValue: String) {
             self.rawValue = rawValue
         }
     }
 
     struct NoTransportError: LocalizedError {
-        var errorDescription: String? {
+        public var errorDescription: String? {
             return "Transport is not configured."
         }
     }

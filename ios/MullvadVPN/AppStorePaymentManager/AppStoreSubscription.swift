@@ -9,11 +9,11 @@
 import Foundation
 import StoreKit
 
-enum AppStoreSubscription: String {
+public enum AppStoreSubscription: String {
     /// Thirty days non-renewable subscription
     case thirtyDays = "net.mullvad.MullvadVPN.subscription.30days"
 
-    var localizedTitle: String {
+    public var localizedTitle: String {
         switch self {
         case .thirtyDays:
             return NSLocalizedString(
@@ -26,13 +26,13 @@ enum AppStoreSubscription: String {
     }
 }
 
-extension SKProduct {
+public extension SKProduct {
     var customLocalizedTitle: String? {
         return AppStoreSubscription(rawValue: productIdentifier)?.localizedTitle
     }
 }
 
-extension Set where Element == AppStoreSubscription {
+public extension Set where Element == AppStoreSubscription {
     var productIdentifiersSet: Set<String> {
         Set<String>(map { $0.rawValue })
     }

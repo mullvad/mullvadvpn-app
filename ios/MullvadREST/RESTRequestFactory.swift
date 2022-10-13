@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension REST {
+public extension REST {
     class RequestFactory {
         let hostname: String
         let pathPrefix: String
@@ -156,7 +156,7 @@ extension REST {
         private var components: [Component]
         private var replacements = [String: String]()
 
-        init(stringLiteral value: StringLiteralType) {
+        public init(stringLiteral value: StringLiteralType) {
             let slashCharset = CharacterSet(charactersIn: "/")
 
             components = value.split(separator: "/").map { subpath -> Component in

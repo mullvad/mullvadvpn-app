@@ -9,4 +9,4 @@
 import Foundation
 
 /// REST namespace
-enum REST {}
+public enum REST {}

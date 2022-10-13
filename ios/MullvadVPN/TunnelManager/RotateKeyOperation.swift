@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import Operations
 import class WireGuardKitTypes.PrivateKey
+import MullvadREST
 
 class RotateKeyOperation: ResultOperation<Bool, Error> {
     private let interactor: TunnelInteractor

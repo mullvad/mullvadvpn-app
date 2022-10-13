@@ -10,15 +10,16 @@ import Foundation
 import MullvadLogging
 import Operations
 import StoreKit
+import MullvadREST
 
-class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
+public class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private enum OperationCategory {
         static let sendAppStoreReceipt = "AppStorePaymentManager.sendAppStoreReceipt"
         static let productsRequest = "AppStorePaymentManager.productsRequest"
     }
 
     /// A shared instance of `AppStorePaymentManager`
-    static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
+    public static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
 
     private let logger = Logger(label: "AppStorePaymentManager")
 
@@ -35,7 +36,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private var observerList = ObserverList<AppStorePaymentObserver>()
 
     private weak var classDelegate: AppStorePaymentManagerDelegate?
-    weak var delegate: AppStorePaymentManagerDelegate? {
+    public weak var delegate: AppStorePaymentManagerDelegate? {
         get {
             if Thread.isMainThread {
                 return classDelegate
@@ -60,22 +61,22 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private var paymentToAccountToken = [SKPayment: String]()
 
     /// Returns true if the device is able to make payments.
-    class var canMakePayments: Bool {
+    public class var canMakePayments: Bool {
         return SKPaymentQueue.canMakePayments()
     }
 
-    init(queue: SKPaymentQueue) {
+    public init(queue: SKPaymentQueue) {
         paymentQueue = queue
     }
 
-    func startPaymentQueueMonitoring() {
+    public func startPaymentQueueMonitoring() {
         logger.debug("Start payment queue monitoring")
         paymentQueue.add(self)
     }
 
     // MARK: - SKPaymentTransactionObserver
 
-    func paymentQueue(
+    public func paymentQueue(
         _ queue: SKPaymentQueue,
         updatedTransactions transactions: [SKPaymentTransaction]
     ) {
@@ -91,17 +92,17 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Payment observation
 
-    func addPaymentObserver(_ observer: AppStorePaymentObserver) {
+    public func addPaymentObserver(_ observer: AppStorePaymentObserver) {
         observerList.append(observer)
     }
 
-    func removePaymentObserver(_ observer: AppStorePaymentObserver) {
+    public func removePaymentObserver(_ observer: AppStorePaymentObserver) {
         observerList.remove(observer)
     }
 
     // MARK: - Products and payments
 
-    func requestProducts(
+    public func requestProducts(
         with productIdentifiers: Set<AppStoreSubscription>,
         completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void
     ) -> Cancellable {
@@ -117,7 +118,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return operation
     }
 
-    func addPayment(_ payment: SKPayment, for accountToken: String) {
+    public func addPayment(_ payment: SKPayment, for accountToken: String) {
         var task: Cancellable?
         let backgroundTaskIdentifier = UIApplication.shared
             .beginBackgroundTask(withName: "Validate account token") {
@@ -163,7 +164,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
-    func restorePurchases(
+    public func restorePurchases(
         for accountToken: String,
         completionHandler: @escaping (OperationCompletion<
             REST.CreateApplePaymentResponse,

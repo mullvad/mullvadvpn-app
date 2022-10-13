@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import MullvadREST
 
 class ProblemReportSubmissionOverlayView: UIView {
     var editButtonAction: (() -> Void)?

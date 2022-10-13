@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MullvadREST
 
 protocol LocationDataSourceItemProtocol {
     var location: RelayLocation { get }

@@ -11,9 +11,9 @@ import Network
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
-extension REST {
+public extension REST {
     class APIProxy: Proxy<ProxyConfiguration> {
-        init(configuration: ProxyConfiguration) {
+        public init(configuration: ProxyConfiguration) {
             super.init(
                 name: "APIProxy",
                 configuration: configuration,
@@ -25,7 +25,7 @@ extension REST {
             )
         }
 
-        func getAddressList(
+        public func getAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
@@ -51,7 +51,7 @@ extension REST {
             )
         }
 
-        func getRelays(
+        public func getRelays(
             etag: String?,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<ServerRelaysCacheResponse>
@@ -108,7 +108,7 @@ extension REST {
             )
         }
 
-        func createApplePayment(
+        public func createApplePayment(
             accountNumber: String,
             receiptString: Data,
             retryStrategy: REST.RetryStrategy,
@@ -167,7 +167,7 @@ extension REST {
             )
         }
 
-        func sendProblemReport(
+        public func sendProblemReport(
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<Void>
@@ -223,14 +223,14 @@ extension REST {
         case noTimeAdded(_ expiry: Date)
         case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
 
-        var newExpiry: Date {
+        public var newExpiry: Date {
             switch self {
             case let .noTimeAdded(expiry), let .timeAdded(_, expiry):
                 return expiry
             }
         }
 
-        var timeAdded: TimeInterval {
+        public var timeAdded: TimeInterval {
             switch self {
             case .noTimeAdded:
                 return 0
@@ -240,7 +240,7 @@ extension REST {
         }
 
         /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
-        var formattedTimeAdded: String? {
+        public var formattedTimeAdded: String? {
             let formatter = DateComponentsFormatter()
             formatter.allowedUnits = [.day, .hour]
             formatter.unitsStyle = .full
@@ -259,5 +259,12 @@ extension REST {
         let message: String
         let log: String
         let metadata: [String: String]
+
+        public init(address: String, message: String, log: String, metadata: [String : String]) {
+            self.address = address
+            self.message = message
+            self.log = log
+            self.metadata = metadata
+        }
     }
 }

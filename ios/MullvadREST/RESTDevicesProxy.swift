@@ -10,9 +10,9 @@ import Foundation
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
-extension REST {
+public extension REST {
     class DevicesProxy: Proxy<AuthProxyConfiguration> {
-        init(configuration: AuthProxyConfiguration) {
+        public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "DevicesProxy",
                 configuration: configuration,
@@ -26,7 +26,7 @@ extension REST {
 
         /// Fetch device by identifier.
         /// The completion handler receives `nil` if device is not found.
-        func getDevice(
+        public func getDevice(
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy,
@@ -86,7 +86,7 @@ extension REST {
         }
 
         /// Fetch a list of created devices.
-        func getDevices(
+        public func getDevices(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<[Device]>
@@ -126,7 +126,7 @@ extension REST {
         /// Create new device.
         /// The completion handler will receive a `CreateDeviceResponse.created(Device)` on success.
         /// Other `CreateDeviceResponse` variants describe errors.
-        func createDevice(
+        public func createDevice(
             accountNumber: String,
             request: CreateDeviceRequest,
             retryStrategy: REST.RetryStrategy,
@@ -168,7 +168,7 @@ extension REST {
         /// Delete device by identifier.
         /// The completion handler will receive `true` if device is successfully removed,
         /// otherwise `false` if device is not found or already removed.
-        func deleteDevice(
+        public func deleteDevice(
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy,
@@ -232,7 +232,7 @@ extension REST {
         }
 
         /// Rotate device key
-        func rotateDeviceKey(
+        public func rotateDeviceKey(
             accountNumber: String,
             identifier: String,
             publicKey: PublicKey,
@@ -292,12 +292,17 @@ extension REST {
         let publicKey: PublicKey
         let hijackDNS: Bool
 
+        public init(publicKey: PublicKey, hijackDNS: Bool) {
+            self.publicKey = publicKey
+            self.hijackDNS = hijackDNS
+        }
+
         private enum CodingKeys: String, CodingKey {
             case hijackDNS = "hijackDns"
             case publicKey = "pubkey"
         }
 
-        func encode(to encoder: Encoder) throws {
+        public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
             try container.encode(publicKey.base64Key, forKey: .publicKey)
@@ -320,14 +325,14 @@ extension REST {
     }
 
     struct Device: Decodable {
-        let id: String
-        let name: String
-        let pubkey: PublicKey
-        let hijackDNS: Bool
-        let created: Date
-        let ipv4Address: IPAddressRange
-        let ipv6Address: IPAddressRange
-        let ports: [Port]
+        public let id: String
+        public let name: String
+        public let pubkey: PublicKey
+        public let hijackDNS: Bool
+        public let created: Date
+        public let ipv4Address: IPAddressRange
+        public let ipv6Address: IPAddressRange
+        public let ports: [Port]
 
         private enum CodingKeys: String, CodingKey {
             case hijackDNS = "hijackDns"
@@ -336,6 +341,6 @@ extension REST {
     }
 
     struct Port: Decodable {
-        let id: String
+        public let id: String
     }
 }

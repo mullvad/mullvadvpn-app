@@ -8,8 +8,9 @@
 
 import Foundation
 import MullvadTypes
+import enum MullvadREST.REST
 
-extension AppStorePaymentManager {
+public extension AppStorePaymentManager {
     /// An error type emitted by `AppStorePaymentManager`.
     enum Error: LocalizedError, WrappingError {
         /// Failure to find the account token associated with the transaction.
@@ -27,7 +28,7 @@ extension AppStorePaymentManager {
         /// Failure to send the AppStore receipt to backend.
         case sendReceipt(REST.Error)
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .noAccountSet:
                 return "Account is not set."
@@ -42,7 +43,7 @@ extension AppStorePaymentManager {
             }
         }
 
-        var underlyingError: Swift.Error? {
+        public var underlyingError: Swift.Error? {
             switch self {
             case .noAccountSet:
                 return nil

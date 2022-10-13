@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 import Operations
 
-extension REST {
+public extension REST {
     class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
         private let requestHandler: AnyRequestHandler
         private let responseHandler: AnyResponseHandler<Success>
@@ -29,7 +29,7 @@ extension REST {
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
-        init(
+        public init(
             name: String,
             dispatchQueue: DispatchQueue,
             configuration: ProxyConfiguration,
@@ -55,7 +55,7 @@ extension REST {
             )
         }
 
-        override func operationDidCancel() {
+        public override func operationDidCancel() {
             retryTimer?.cancel()
             networkTask?.cancel()
             authorizationTask?.cancel()
@@ -65,7 +65,7 @@ extension REST {
             authorizationTask = nil
         }
 
-        override func main() {
+        public override func main() {
             startRequest()
         }
 
