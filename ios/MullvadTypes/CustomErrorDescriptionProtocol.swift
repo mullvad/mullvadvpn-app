@@ -9,7 +9,7 @@
 import Foundation
 
 /// A protocol providing error a way to override error description when printing error chain.
-protocol CustomErrorDescriptionProtocol {
+public protocol CustomErrorDescriptionProtocol {
     /// A custom error description that overrides `localizedDescription` when printing error chain.
     var customErrorDescription: String? { get }
 }

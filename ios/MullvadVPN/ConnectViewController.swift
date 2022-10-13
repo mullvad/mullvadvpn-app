@@ -6,8 +6,8 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Logging
 import MapKit
+import MullvadLogging
 import UIKit
 
 class CustomOverlayRenderer: MKOverlayRenderer {

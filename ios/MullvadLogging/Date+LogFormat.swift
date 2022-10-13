@@ -1,5 +1,5 @@
 //
-//  LogFormatting.swift
+//  Date+LogFormat.swift
 //  LogFormatting
 //
 //  Created by pronebird on 09/09/2021.
@@ -9,7 +9,7 @@
 import Foundation
 
 extension Date {
-    func logFormatDate() -> String {
+    public func logFormatDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyyy @ HH:mm:ss"
 

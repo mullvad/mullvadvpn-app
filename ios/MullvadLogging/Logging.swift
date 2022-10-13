@@ -7,14 +7,16 @@
 //
 
 import Foundation
-import Logging
+@_exported import Logging
 
-func initLoggingSystem(bundleIdentifier: String, metadata: Logger.Metadata? = nil) {
-    let containerURL = FileManager.default
-        .containerURL(
-            forSecurityApplicationGroupIdentifier: ApplicationConfiguration
-                .securityGroupIdentifier
-        )!
+public func initLoggingSystem(
+    bundleIdentifier: String,
+    applicationGroupIdentifier: String,
+    metadata: Logger.Metadata? = nil
+) {
+    let containerURL = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: applicationGroupIdentifier
+    )!
     let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
     let logFileName = "\(bundleIdentifier).log"
     let logFileURL = logsDirectoryURL.appendingPathComponent(logFileName)

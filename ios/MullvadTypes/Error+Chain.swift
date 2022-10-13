@@ -10,7 +10,7 @@ import Foundation
 
 extension Error {
     /// Returns a flat list of errors by unrolling the underlying error chain.
-    var underlyingErrorChain: [Error] {
+    public var underlyingErrorChain: [Error] {
         var errors: [Error] = []
         var currentError: Error? = self as Error
 
@@ -22,7 +22,7 @@ extension Error {
         return errors
     }
 
-    func logFormatError() -> String {
+    public func logFormatError() -> String {
         let nsError = self as NSError
         var message = ""
 

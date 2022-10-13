@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Logging
+import MullvadLogging
 import Operations
 import class WireGuardKitTypes.PrivateKey
 

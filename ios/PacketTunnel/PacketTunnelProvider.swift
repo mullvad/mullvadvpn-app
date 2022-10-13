@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Logging
+import MullvadLogging
 import Network
 import NetworkExtension
 import WireGuardKit
@@ -67,7 +67,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         var metadata = Logger.Metadata()
         metadata["pid"] = .string("\(pid)")
 
-        initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!, metadata: metadata)
+        initLoggingSystem(
+            bundleIdentifier: Bundle.main.bundleIdentifier!,
+            applicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
+            metadata: metadata
+        )
 
         providerLogger = Logger(label: "PacketTunnelProvider")
         tunnelLogger = Logger(label: "WireGuard")

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Logging
+import MullvadLogging
 import Network
 
 struct RelaySelectorResult: Codable {

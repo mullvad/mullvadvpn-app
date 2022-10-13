@@ -7,7 +7,7 @@
 //
 
 import IntentsUI
-import Logging
+import MullvadLogging
 
 protocol ShortcutsManagerDelegate: AnyObject {
     func shortcutsManager(

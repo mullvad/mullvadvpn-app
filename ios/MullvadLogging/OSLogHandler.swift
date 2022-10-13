@@ -10,9 +10,9 @@ import Foundation
 import Logging
 import os
 
-struct OSLogHandler: LogHandler {
-    var metadata: Logging.Logger.Metadata = [:]
-    var logLevel: Logging.Logger.Level = .debug
+public struct OSLogHandler: LogHandler {
+    public var metadata: Logging.Logger.Metadata = [:]
+    public var logLevel: Logging.Logger.Level = .debug
 
     private let label: String
     private let osLog: OSLog
@@ -39,12 +39,12 @@ struct OSLogHandler: LogHandler {
         }
     }
 
-    init(subsystem: String, category: String) {
+    public init(subsystem: String, category: String) {
         label = category
         osLog = OSLogHandler.getOSLog(subsystem: subsystem, category: category)
     }
 
-    subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {
+    public subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {
         get {
             return metadata[metadataKey]
         }
@@ -53,7 +53,7 @@ struct OSLogHandler: LogHandler {
         }
     }
 
-    func log(
+    public func log(
         level: Logging.Logger.Level,
         message: Logging.Logger.Message,
         metadata: Logging.Logger.Metadata?,
@@ -77,7 +77,7 @@ struct OSLogHandler: LogHandler {
     }
 }
 
-extension Logging.Logger.Level {
+private extension Logging.Logger.Level {
     var osLogType: OSLogType {
         switch self {
         case .trace, .debug:
