@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import MullvadREST
 
 /// Container type that holds either `IPv4Address` or `IPv6Address`.
 enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {

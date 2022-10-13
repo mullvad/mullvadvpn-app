@@ -11,16 +11,16 @@ import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
 
-struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
-    let ip: IPv4Address
-    let port: UInt16
+public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
+    public let ip: IPv4Address
+    public let port: UInt16
 
-    init(ip: IPv4Address, port: UInt16) {
+    public init(ip: IPv4Address, port: UInt16) {
         self.ip = ip
         self.port = port
     }
 
-    init?<S>(string: S) where S: StringProtocol {
+    public init?<S>(string: S) where S: StringProtocol {
         let components = string.split(
             separator: ":",
             maxSplits: 2,
@@ -37,7 +37,7 @@ struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
 
@@ -51,31 +51,31 @@ struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         try container.encode("\(self)")
     }
 
-    var description: String {
+    public var description: String {
         return "\(ip):\(port)"
     }
 
-    static func == (lhs: IPv4Endpoint, rhs: IPv4Endpoint) -> Bool {
+    public static func == (lhs: IPv4Endpoint, rhs: IPv4Endpoint) -> Bool {
         return lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
     }
 }
 
-struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
-    let ip: IPv6Address
-    let port: UInt16
+public struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
+    public let ip: IPv6Address
+    public let port: UInt16
 
-    init(ip: IPv6Address, port: UInt16) {
+    public init(ip: IPv6Address, port: UInt16) {
         self.ip = ip
         self.port = port
     }
 
-    init?<S>(string: S) where S: StringProtocol {
+    public init?<S>(string: S) where S: StringProtocol {
         guard let lastColon = string.lastIndex(of: ":"), lastColon != string.endIndex else {
             return nil
         }
@@ -98,7 +98,7 @@ struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
 
@@ -112,26 +112,26 @@ struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         try container.encode("\(self)")
     }
 
-    var description: String {
+    public var description: String {
         return "[\(ip)]:\(port)"
     }
 
-    static func == (lhs: IPv6Endpoint, rhs: IPv6Endpoint) -> Bool {
+    public static func == (lhs: IPv6Endpoint, rhs: IPv6Endpoint) -> Bool {
         return lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
     }
 }
 
-enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
+public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
     case ipv4(IPv4Endpoint)
     case ipv6(IPv6Endpoint)
 
-    var ip: IPAddress {
+    public var ip: IPAddress {
         switch self {
         case let .ipv4(ipv4Endpoint):
             return ipv4Endpoint.ip
@@ -140,7 +140,7 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    var port: UInt16 {
+    public var port: UInt16 {
         switch self {
         case let .ipv4(ipv4Endpoint):
             return ipv4Endpoint.port
@@ -149,7 +149,7 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    init?<S>(string: S) where S: StringProtocol {
+    public init?<S>(string: S) where S: StringProtocol {
         if let ipv4Endpoint = IPv4Endpoint(string: string) {
             self = .ipv4(ipv4Endpoint)
         } else if let ipv6Endpoint = IPv6Endpoint(string: string) {
@@ -159,7 +159,7 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
 
@@ -175,13 +175,13 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         try container.encode("\(self)")
     }
 
-    var description: String {
+    public var description: String {
         switch self {
         case let .ipv4(ipv4Endpoint):
             return "\(ipv4Endpoint)"
@@ -190,7 +190,7 @@ enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
         }
     }
 
-    static func == (lhs: AnyIPEndpoint, rhs: AnyIPEndpoint) -> Bool {
+    public static func == (lhs: AnyIPEndpoint, rhs: AnyIPEndpoint) -> Bool {
         switch (lhs, rhs) {
         case let (.ipv4(lhsEndpoint), .ipv4(rhsEndpoint)):
             return lhsEndpoint == rhsEndpoint

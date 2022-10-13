@@ -10,10 +10,10 @@ import MullvadLogging
 import Operations
 import UIKit
 
-extension AddressCache {
+public extension AddressCache {
     class Tracker {
         /// Shared instance.
-        static let shared = AddressCache.Tracker(
+        public static let shared = AddressCache.Tracker(
             apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
             store: AddressCache.Store.shared
         )
@@ -58,7 +58,7 @@ extension AddressCache {
             self.store = store
         }
 
-        func startPeriodicUpdates() {
+        public func startPeriodicUpdates() {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -77,7 +77,7 @@ extension AddressCache {
             scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
         }
 
-        func stopPeriodicUpdates() {
+        public func stopPeriodicUpdates() {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -91,7 +91,7 @@ extension AddressCache {
             timer = nil
         }
 
-        func updateEndpoints(
+        public func updateEndpoints(
             completionHandler: ((OperationCompletion<Bool, Error>) -> Void)? = nil
         ) -> Cancellable {
             let operation = ResultBlockOperation<Bool, Error> { operation in
@@ -126,7 +126,7 @@ extension AddressCache {
             return operation
         }
 
-        func nextScheduleDate() -> Date {
+        public func nextScheduleDate() -> Date {
             nslock.lock()
             defer { nslock.unlock() }
 

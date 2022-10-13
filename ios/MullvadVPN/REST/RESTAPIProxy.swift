@@ -10,6 +10,7 @@ import Foundation
 import Network
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
+import enum MullvadREST.AnyIPEndpoint
 
 extension REST {
     class APIProxy: Proxy<ProxyConfiguration> {

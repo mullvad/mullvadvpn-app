@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct MullvadREST.IPv4Endpoint
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
