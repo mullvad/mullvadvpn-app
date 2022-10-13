@@ -367,7 +367,7 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public async logout(transition = transitions.dismiss) {
+  public logout = async (transition = transitions.dismiss) => {
     try {
       this.history.reset(RoutePath.login, transition);
       await IpcRendererEventChannel.account.logout();
@@ -375,7 +375,7 @@ export default class AppRenderer {
       const error = e as Error;
       log.info('Failed to logout: ', error.message);
     }
-  }
+  };
 
   public leaveRevokedDevice = async () => {
     await this.logout(transitions.pop);
