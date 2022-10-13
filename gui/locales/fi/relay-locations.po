@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -59,6 +59,10 @@ msgstr "Belgrad"
 #. US BOS
 msgid "Boston, MA"
 msgstr "Boston, MA"
+
+#. SK BTS
+msgid "Bratislava"
+msgstr "Bratislava"
 
 #. BR
 msgid "Brazil"
@@ -183,6 +187,10 @@ msgstr "Hongkong"
 #. US HNL
 msgid "Honolulu, HI"
 msgstr "Honolulu, HI"
+
+#. US HOU
+msgid "Houston, TX"
+msgstr "Houston, TX"
 
 #. HU
 msgid "Hungary"
@@ -420,6 +428,10 @@ msgstr "Sioux Falls, SD"
 msgid "Skopje"
 msgstr "Skopje"
 
+#. SK
+msgid "Slovakia"
+msgstr "Slovakia"
+
 #. BG SOF
 msgid "Sofia"
 msgstr "Sofia"
@@ -439,6 +451,10 @@ msgstr "St. Louis, MO"
 #. US XLX
 msgid "Stamford, CT"
 msgstr "Stamford, CT"
+
+#. NO SVG
+msgid "Stavanger"
+msgstr "Stavanger"
 
 #. SE STO
 msgid "Stockholm"

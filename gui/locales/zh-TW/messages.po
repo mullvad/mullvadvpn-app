@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2022-07-12 06:30\n"
+"PO-Revision-Date: 2022-10-11 11:10\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -233,6 +233,10 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "隱藏帳號"
 
+msgctxt "accessibility"
+msgid "info"
+msgstr "資訊"
+
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
@@ -293,96 +297,6 @@ msgctxt "account-view"
 msgid "Paid until"
 msgstr "支付至"
 
-#. Title label in navigation bar
-msgctxt "advanced-settings-nav"
-msgid "Advanced"
-msgstr "進階"
-
-#. %(openvpn)s will be replaced with the string "OpenVPN"
-msgctxt "vpn-settings-view"
-msgid "%(openvpn)s settings"
-msgstr "%(openvpn)s 設定"
-
-#. %(wireguard)s will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "%(wireguard)s settings"
-msgstr "%(wireguard)s 設定"
-
-msgctxt "vpn-settings-view"
-msgid "Add a server"
-msgstr "新增伺服器"
-
-msgctxt "vpn-settings-view"
-msgid "Add anyway"
-msgstr "仍要新增"
-
-msgctxt "advanced-settings-view"
-msgid "Advanced"
-msgstr "進階"
-
-msgctxt "advanced-settings-view"
-msgid "Always require VPN"
-msgstr "始終需要 VPN"
-
-msgctxt "advanced-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6"
-msgstr "啟用 IPv6"
-
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "透過通道啟用 IPv6 通訊。"
-
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "啟用多點跳躍"
-
-msgctxt "vpn-settings-view"
-msgid "Enable to add at least one DNS server."
-msgstr "啟用以新增至少一個 DNS 伺服器。"
-
-msgctxt "vpn-settings-view"
-msgid "Enter IP"
-msgstr "輸入 IP"
-
-msgctxt "advanced-settings-view"
-msgid "If you disconnect or quit the app, this setting will block your internet."
-msgstr "如果您中斷連線或退出應用程式，此設定將會封鎖您的網路。"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "藉由將您的流量路由到某個 %(wireguard)s 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
-
-msgctxt "advanced-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "應用程式內建緊停開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
-
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
-msgstr "您要新增的 DNS 伺服器是私人 IP。您的網路介面必須經過設定，才能使用這個 IP。"
-
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 %(wireguard)s 搭配使用。為了確保它始終有效，請為 %(wireguard)s 設定「%(tunnelProtocol)s」(在「進階」設定中)。"
-
-msgctxt "vpn-settings-view"
-msgid "Tunnel protocol"
-msgstr "通道通訊協定"
-
-msgctxt "vpn-settings-view"
-msgid "Use custom DNS server"
-msgstr "使用自訂 DNS 伺服器"
-
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "正在封鎖網路：帳戶已逾時"
@@ -411,10 +325,6 @@ msgstr "此版本中的變更："
 msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
-
-msgctxt "connect-view"
-msgid "Always require VPN"
-msgstr "始終需要 VPN"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -485,11 +395,11 @@ msgid "You have no more VPN time left on this account."
 msgstr "您這個帳戶已經沒有剩餘的 VPN 時間了。"
 
 msgctxt "connect-view"
-msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
-msgstr "您需要停用「始終需要 VPN」，才能上網加時。"
+msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
+msgstr "您需要停用「鎖定模式」，才能上網加時。"
 
 msgctxt "connect-view"
-msgid "You're all set!"
+msgid "You’re all set!"
 msgstr "您已設定完畢！"
 
 #. The hostname line displayed below the country on the main screen
@@ -521,8 +431,8 @@ msgstr "出境"
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log out of **%(deviceName)s**?"
-msgstr "確定要登出 **%(deviceName)s** 嗎？"
+msgid "Are you sure you want to log **%(deviceName)s** out?"
+msgstr "確定要將 **%(deviceName)s** 登出嗎？"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -536,6 +446,10 @@ msgstr "裝置處於非活動狀態"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "裝置名稱"
+
+msgctxt "device-management"
+msgid "Failed to remove device"
+msgstr "無法移除裝置"
 
 msgctxt "device-management"
 msgid "Go to login"
@@ -630,8 +544,8 @@ msgid "Rented only"
 msgstr "僅租用"
 
 msgctxt "in-app-notifications"
-msgid "\"Always require VPN\" is enabled."
-msgstr "「始終需要 VPN」已啟用。"
+msgid "\"%(lockdownModeSettingName)s\" is enabled."
+msgstr "「%(lockdownModeSettingName)s」已啟用。"
 
 msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
@@ -689,10 +603,10 @@ msgstr "連線 Mullvad 系統服務中..."
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
-#. %(alwaysRequireVpnSettingsName)s - The translation of "Always require VPN"
+#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(alwaysRequireVpnSettingsName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(alwaysRequireVpnSettingsName)s** 已啟用。需先將其停用，才能為您的連線解除封鎖。"
+msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
+msgstr "**%(lockdownModeSettingName)s** 已啟用。需先將其停用，才能為您的連線解除封鎖。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -711,7 +625,7 @@ msgid "Creating account..."
 msgstr "正在建立帳戶…"
 
 msgctxt "login-view"
-msgid "Don't have an account number?"
+msgid "Don’t have an account number?"
 msgstr "沒有帳號？"
 
 msgctxt "login-view"
@@ -901,8 +815,8 @@ msgid "Valid %(wireguard)s key is missing. Manage keys under Advanced settings."
 msgstr "缺少有效的 %(wireguard)s 金鑰。在「進階」設定下管理金鑰。"
 
 msgctxt "notifications"
-msgid "Your device is offline. Try connecting when it's back online."
-msgstr "您的裝置已離線。在裝置重新上線後嘗試連線。"
+msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
+msgstr "您的裝置已離線。在您的裝置重新上線後，通道將自動連線。"
 
 #. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
@@ -982,153 +896,6 @@ msgstr "若要啟動 UDP，請將**橋接模式**變更為**自動**或**關**�
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "傳輸通訊協定"
-
-#. Title label in navigation bar
-msgctxt "preferences-nav"
-msgid "Preferences"
-msgstr "喜好設定"
-
-msgctxt "vpn-vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "允許存取同一網路上的其他裝置，以進行共用、列印等。"
-
-msgctxt "vpn-settings-view"
-msgid "Auto-connect"
-msgstr "自動連線"
-
-msgctxt "vpn-settings-view"
-msgid "Automatically connect to a server when the app launches."
-msgstr "啟動應用程式時，自動連線伺服器。"
-
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "測試計劃"
-
-msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "封鎖廣告"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "封鎖成人內容"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "封鎖賭博"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "封鎖惡意軟體"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "封鎖追蹤者"
-
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "停用 **%(customDnsFeatureName)s** (在「進階」設定中)，以啟用這些設定。"
-
-#. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
-#. Available placeholders:
-#. %(preferencesPageName)s - The page title showed on top in the preferences page.
-msgctxt "preferences-view"
-msgid "Disable all content blockers (under %(preferencesPageName)s) to activate this setting."
-msgstr "停用所有內容封鎖程式 (在 %(preferencesPageName)s 下)，以便啟動此設定。"
-
-msgctxt "interface-settings-view"
-msgid "Enable or disable system notifications. The critical notifications will always be displayed."
-msgstr "啟用或停用系統通知。重要通知一律會顯示。"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "啟用後，即可在新測試版應用程式發佈時獲得通知"
-
-msgctxt "interface-settings-view"
-msgid "Enable to move the app around as a free-standing window."
-msgstr "啟用以將應用程式作為獨立視窗自由移動。"
-
-msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "終止開關"
-
-msgctxt "vpn-settings-view"
-msgid "Launch app on start-up"
-msgstr "啟動時啟動應用程式"
-
-msgctxt "vpn-settings-view"
-msgid "Local network sharing"
-msgstr "本機網路分享"
-
-msgctxt "interface-settings-view"
-msgid "Monochromatic tray icon"
-msgstr "單色系統匣圖示"
-
-msgctxt "interface-settings-view"
-msgid "Notifications"
-msgstr "通知"
-
-msgctxt "preferences-view"
-msgid "Preferences"
-msgstr "喜好設定"
-
-msgctxt "interface-settings-view"
-msgid "Show only the tray icon when the app starts."
-msgstr "啟動應用程式時，僅顯示系統匣圖示。"
-
-msgctxt "interface-settings-view"
-msgid "Start minimized"
-msgstr "啟動時永遠最小化"
-
-msgctxt "vpn-settings-view"
-msgid "The app has a built in kill switch that is enabled by default and cannot be disabled. This is to prevent your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails for any reason. Mullvad automatically protects your data until your connection is reestablished."
-msgstr "該應用程式有一個內建終止開關，預設情況下處於啟用狀態且無法停用。這是為了在網路突然停止運作或通道因任何原因而出現故障時，防止您的流量洩漏到 VPN 通道之外。Mullvad 會自動保護您的資料，直到您重新建立連線。"
-
-msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "測試版無法使用此選項。"
-
-msgctxt "interface-settings-view"
-msgid "Unpin app from taskbar"
-msgstr "將應用程式從工作列中取消釘選"
-
-msgctxt "interface-settings-view"
-msgid "Use a monochromatic tray icon instead of a colored one."
-msgstr "使用單色系統匣圖示，而不是彩色的圖示。"
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "警告：這並不是且不應被視為防病毒軟體，它只是提供了一層額外保護。"
-
-msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "警告：這可能會導致某些網站、服務和程式出現問題。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含惡意軟體的網域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "啟用後，此功能會禁止裝置聯繫某些已知會追蹤使用者的網域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "啟用後，此功能會禁止裝置聯繫某些已知的廣告網域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含成人內容的網站和服務。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "啟用後，此功能會進止裝置聯繫某些已知包含賭博內容的網站和服務。"
 
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
@@ -1223,11 +990,6 @@ msgctxt "settings-view"
 msgid "Account"
 msgstr "帳戶"
 
-#. Navigation button to the 'Advanced' settings view
-msgctxt "settings-view"
-msgid "Advanced"
-msgstr "進階"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "應用程式未同步。請退出並重新啟動。"
@@ -1236,37 +998,36 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr "應用程式版本"
 
-#. Link to the webpage
-msgctxt "support-view"
-msgid "FAQs & Guides"
-msgstr "常見問題集與指南"
-
-#. Navigation button to the 'Language' settings view
-msgctxt "interface-settings-view"
-msgid "Language"
-msgstr "語言"
-
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "逾時"
-
-#. Navigation button to the 'Preferences' view
-msgctxt "settings-view"
-msgid "Preferences"
-msgstr "喜好設定"
 
 msgctxt "settings-view"
 msgid "Quit app"
 msgstr "退出應用程式"
 
-#. Navigation button to the 'Report a problem' help view
+#. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
-msgid "Report a problem"
-msgstr "回報問題"
+msgid "Split tunneling"
+msgstr "拆分通道"
+
+msgctxt "settings-view"
+msgid "Support"
+msgstr "支援"
 
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "有可用更新。請安裝最新版本的應用程式以維持最新狀態。"
+
+#. Navigation button to the 'User interface settings' view
+msgctxt "settings-view"
+msgid "User interface settings"
+msgstr "使用者介面設定"
+
+#. Navigation button to the 'VPN settings' view
+msgctxt "settings-view"
+msgid "VPN settings"
+msgstr "VPN 設定"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1335,6 +1096,10 @@ msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "無法啟動所選項目。%(detailedErrorMessage)s"
 
 msgctxt "support-view"
+msgid "Beta program"
+msgstr "測試計劃"
+
+msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "仍然繼續"
 
@@ -1343,8 +1108,17 @@ msgid "Edit message"
 msgstr "編輯訊息"
 
 msgctxt "support-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "啟用後，即可在新測試版應用程式發佈時獲得通知"
+
+msgctxt "support-view"
 msgid "Failed to send"
 msgstr "無法傳送"
+
+#. Link to the webpage
+msgctxt "support-view"
+msgid "FAQs & Guides"
+msgstr "常見問題集與指南"
 
 #. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
 #. Available placeholders:
@@ -1362,6 +1136,7 @@ msgid "Please describe your problem in English or Swedish."
 msgstr "請用英語或瑞典語來說明您的問題。"
 
 #. Title label in navigation bar
+#. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "回報問題"
@@ -1382,12 +1157,21 @@ msgctxt "support-view"
 msgid "Sent"
 msgstr "已傳送"
 
+#. Title label in navigation bar
+msgctxt "support-view"
+msgid "Support"
+msgstr "支援"
+
 msgctxt "support-view"
 msgid "Thanks!"
 msgstr "謝謝！"
 
 msgctxt "support-view"
-msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgid "This option is unavailable while using a beta version."
+msgstr "測試版無法使用此選項。"
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。"
 
 msgctxt "support-view"
@@ -1446,6 +1230,236 @@ msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "切換位置"
 
+msgctxt "user-interface-settings-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "啟用或停用系統通知。重要通知一律會顯示。"
+
+msgctxt "user-interface-settings-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "啟用以將應用程式作為獨立視窗自由移動。"
+
+#. Navigation button to the 'Language' settings view
+msgctxt "user-interface-settings-view"
+msgid "Language"
+msgstr "語言"
+
+msgctxt "user-interface-settings-view"
+msgid "Monochromatic tray icon"
+msgstr "單色系統匣圖示"
+
+msgctxt "user-interface-settings-view"
+msgid "Notifications"
+msgstr "通知"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "啟動應用程式時，僅顯示系統匣圖示。"
+
+msgctxt "user-interface-settings-view"
+msgid "Start minimized"
+msgstr "啟動時最小化"
+
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from taskbar"
+msgstr "將應用程式從工作列中取消釘選"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "使用單色系統匣圖示，而不是彩色圖示。"
+
+#. Title label in navigation bar
+msgctxt "user-interface-settings-view"
+msgid "User interface settings"
+msgstr "使用者介面設定"
+
+#. %(openvpn)s will be replaced with the string "OpenVPN"
+msgctxt "vpn-settings-view"
+msgid "%(openvpn)s settings"
+msgstr "%(openvpn)s 設定"
+
+#. %(wireguard)s will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "%(wireguard)s settings"
+msgstr "%(wireguard)s 設定"
+
+msgctxt "vpn-settings-view"
+msgid "Add a server"
+msgstr "新增伺服器"
+
+msgctxt "vpn-settings-view"
+msgid "Add anyway"
+msgstr "仍要新增"
+
+msgctxt "vpn-settings-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "允許存取同一網路上的其他裝置，以進行共用、列印等。"
+
+msgctxt "vpn-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
+
+msgctxt "vpn-settings-view"
+msgid "Auto-connect"
+msgstr "自動連線"
+
+msgctxt "vpn-settings-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "啟動應用程式時，自動連線伺服器。"
+
+msgctxt "vpn-settings-view"
+msgid "Block ads"
+msgstr "封鎖廣告"
+
+msgctxt "vpn-settings-view"
+msgid "Block adult content"
+msgstr "封鎖成人內容"
+
+msgctxt "vpn-settings-view"
+msgid "Block gambling"
+msgstr "封鎖賭博"
+
+msgctxt "vpn-settings-view"
+msgid "Block malware"
+msgstr "封鎖惡意軟體"
+
+msgctxt "vpn-settings-view"
+msgid "Block trackers"
+msgstr "封鎖追蹤者"
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "vpn-settings-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "停用 **%(customDnsFeatureName)s** (在「進階」設定中)，以啟用這些設定。"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "vpn-settings-view"
+msgid "Disable all content blockers to activate this setting."
+msgstr "停用所有內容封鎖程式，以便啟動此設定。"
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6"
+msgstr "啟用 IPv6"
+
+msgctxt "vpn-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "透過通道啟用 IPv6 通訊。"
+
+#. The label next to the multihop settings toggle.
+msgctxt "vpn-settings-view"
+msgid "Enable multihop"
+msgstr "啟用多點跳躍"
+
+msgctxt "vpn-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "啟用以新增至少一個 DNS 伺服器。"
+
+msgctxt "vpn-settings-view"
+msgid "Enter IP"
+msgstr "輸入 IP"
+
+#. Description for multihop settings toggle.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr "藉由將您的流量路由到某個 %(wireguard)s 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
+
+msgctxt "vpn-settings-view"
+msgid "Kill switch"
+msgstr "終止開關"
+
+msgctxt "vpn-settings-view"
+msgid "Launch app on start-up"
+msgstr "啟動時啟動應用程式"
+
+msgctxt "vpn-settings-view"
+msgid "Local network sharing"
+msgstr "本機網路分享"
+
+msgctxt "vpn-settings-view"
+msgid "Lockdown mode"
+msgstr "鎖定模式"
+
+msgctxt "vpn-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "應用程式內建終止開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
+msgstr "終止開關與鎖定模式之間的區別在於，終止開關能在自動通道重新連線、軟體當機和類似事故期間防止發生任何洩漏。"
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "終止開關與鎖定模式之間區別在於，終止開關能在自動通道重新連線、軟體當機和類似事故期間防止發生任何洩漏。啟用鎖定模式後，您必須連線到 Mullvad VPN 伺服器才能存取網路。手動中斷連線或結束應用程式，都將封鎖您的連線。"
+
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "您要新增的 DNS 伺服器是私人 IP。您的網路介面必須經過設定，才能使用這個 IP。"
+
+#. Available placeholders:
+#. %(tunnelProtocol)s - the name of the tunnel protocol setting
+#. %(wireguard)s - will be replaced with "WireGuard"
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
+msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 %(wireguard)s 搭配使用。為了確保它始終有效，請為 %(wireguard)s 設定「%(tunnelProtocol)s」(在「進階」設定中)。"
+
+msgctxt "vpn-settings-view"
+msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
+msgstr "如果您的網路突然停止運作或通道發生故障，此內建功能可避免您的流量洩漏到 VPN 通道之外。這會封鎖您的流量，直到重新建立連線為止。"
+
+msgctxt "vpn-settings-view"
+msgid "Tunnel protocol"
+msgstr "通道通訊協定"
+
+msgctxt "vpn-settings-view"
+msgid "Use custom DNS server"
+msgstr "使用自訂 DNS 伺服器"
+
+#. Title label in navigation bar
+msgctxt "vpn-settings-view"
+msgid "VPN settings"
+msgstr "VPN 設定"
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "警告：這並不是且不應被視為防病毒軟體，它只是提供了一層額外保護。"
+
+msgctxt "vpn-settings-view"
+msgid "Warning: This might cause issues on certain websites, services, and programs."
+msgstr "警告：這可能會導致某些網站、服務和程式出現問題。"
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含惡意軟體的網域。"
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知會追蹤使用者的網域。"
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain known ad domains."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知的廣告網域。"
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
+msgstr "啟用後，此功能會禁止裝置聯繫某些已知包含成人內容的網站和服務。"
+
+msgctxt "vpn-settings-view"
+msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgstr "啟用後，此功能會進止裝置聯繫某些已知包含賭博內容的網站和服務。"
+
+msgctxt "vpn-settings-view"
+msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "啟用鎖定模式後，您必須連線到 Mullvad VPN 伺服器才能存取網路。手動中斷連線或結束應用程式，都將封鎖您的連線。"
+
 #. Title label in navigation bar
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -1466,6 +1480,18 @@ msgstr "IP 版本"
 msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation"
+msgstr "混淆"
+
+msgctxt "wireguard-settings-view"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgstr "藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。"
+
+msgctxt "wireguard-settings-view"
+msgid "On (UDP-over-TCP)"
+msgstr "開 (UDP-over-TCP)"
 
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -1493,18 +1519,18 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard 金鑰"
+msgid "UDP-over-TCP port"
+msgstr "UDP-over-TCP 連接埠"
 
 msgctxt "wireguard-settings-view"
-msgid "WireGuard settings"
-msgstr "WireGuard 設定"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr "UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。"
 
 msgid "Account authentication failed."
 msgstr "帳戶驗證失敗。"
 
 msgid "Account credit expires in a few minutes"
-msgstr "帳戶點數將在幾分鐘後到期"
+msgstr "帳戶點數將在數分鐘後到期"
 
 msgid "Account credit expires soon"
 msgstr "帳戶點數即將到期"
@@ -1512,14 +1538,17 @@ msgstr "帳戶點數即將到期"
 msgid "Account time reminders"
 msgstr "帳戶時間提醒"
 
+msgid "Advanced"
+msgstr "進階"
+
 msgid "All applications"
 msgstr "所有應用程式"
 
+msgid "Are you sure you want to log out of <b>%s</b>?"
+msgstr "確定要登出<b>%s</b>嗎？"
+
 msgid "Blocking all connections"
 msgstr "正在封鎖所有連線"
-
-msgid "Blocking internet"
-msgstr "正在封鎖網路"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已將 Mullvad 帳號複製到剪貼簿"
@@ -1539,9 +1568,6 @@ msgstr "嚴重錯誤 (需注意)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "自訂 DNS 伺服器位址 %s 無效"
 
-msgid "Disconnecting"
-msgstr "正在中斷連線"
-
 msgid "Enable"
 msgstr "啟用"
 
@@ -1554,6 +1580,12 @@ msgstr "無法套用防火牆規則。裝置目前可能不安全"
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
 msgstr "無法封鎖所有網路流量。請排除故障或向我們回報問題。"
 
+msgid "Failed to fetch list of devices"
+msgstr "無法取得裝置清單"
+
+msgid "Failed to generate a key"
+msgstr "無法產生金鑰"
+
 msgid "Failed to resolve the hostname of custom server"
 msgstr "無法解析自訂伺服器的主機名稱"
 
@@ -1563,11 +1595,29 @@ msgstr "無法設定系統 DNS 伺服器"
 msgid "Failed to start tunnel connection"
 msgstr "無法啟動通道連線"
 
-msgid "If needed we will contact you on %s"
-msgstr "如有需要，我們將以 %s 與您聯絡"
+msgid "Generate key"
+msgstr "產生金鑰"
+
+msgid "Going to login will unblock the internet on this device."
+msgstr "若前往登入，則會在此裝置上解除對網際網路的封鎖。"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安裝 Mullvad VPN (%s) 以維持最新狀態"
+
+msgid "Key generated"
+msgstr "已產生金鑰"
+
+msgid "Key is invalid"
+msgstr "金鑰無效"
+
+msgid "Key is valid"
+msgstr "金鑰有效"
+
+msgid "Key verification failed"
+msgstr "金鑰驗證失敗"
+
+msgid "Manage keys"
+msgstr "管理金鑰"
 
 msgid "Mullvad account number"
 msgstr "Mullvad 帳號"
@@ -1578,8 +1628,23 @@ msgstr "沒有與目前設定相符的橋接中繼伺服器"
 msgid "No relay server matches the current settings"
 msgstr "沒有與目前設定相符的中繼伺服器"
 
+msgid "Preferences"
+msgstr "喜好設定"
+
+msgid "Public key"
+msgstr "公開金鑰"
+
+msgid "Reconnecting with new WireGuard key..."
+msgstr "正在使用新 WireGuard 金鑰重新連線..."
+
+msgid "Regenerate key"
+msgstr "重新產生金鑰"
+
 msgid "Secured"
 msgstr "安全"
+
+msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"
 
 msgid "Show system apps"
 msgstr "顯示系統應用程式"
@@ -1617,17 +1682,29 @@ msgstr "建立通道時，VPN 權限被拒絕。請嘗試重新連線。"
 msgid "VPN tunnel status"
 msgstr "VPN 通道狀態"
 
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
+
+msgid "Verify key"
+msgstr "驗證金鑰"
+
 msgid "Virtual adapter error"
 msgstr "虛擬配接器錯誤"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。"
 
+msgid "WireGuard"
+msgstr "WireGuard"
+
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard 錯誤"
+
+msgid "WireGuard key"
+msgstr "WireGuard 金鑰"
 
 msgid "WireGuard public key"
 msgstr "WireGuard 公開金鑰"
@@ -1641,8 +1718,8 @@ msgstr "您所執行的應用程式版本不受支援。"
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %s，以確保您的安全"
 
-msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。"
+msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
+msgstr "您的有效裝置太多。請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應的裝置暱稱。"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
