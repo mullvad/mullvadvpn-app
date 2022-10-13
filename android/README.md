@@ -10,7 +10,8 @@ See the [build instructions](BuildInstructions.md) for help building the app.
 
 ### How to update translations
 
-See [/gui/locales/README.md][gui-locales-readme] for how to easily update translations.
+See [/gui/locales/README.md][gui-locales-readme] for how to easily update translations. It also
+includes documentation for which phrases and terms shouldn't be translated (Do Not Translate).
 
 ### Detailed structure and script documentation
 
