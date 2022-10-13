@@ -38,6 +38,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
 
+    /// List of all proxied network requests bypassing VPN.
+    private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
+
     /// A system completion handler passed from startTunnel and saved for later use once the
     /// connection is established.
     private var startTunnelCompletionHandler: (() -> Void)?
@@ -57,9 +60,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             tunnelRelay: selectorResult?.packetTunnelRelay
         )
     }
-
-    /// List of all transported http requests.
-    private var allRequests: [UUID: URLSessionDataTask] = [:]
 
     override init() {
         let pid = ProcessInfo.processInfo.processIdentifier
@@ -248,7 +248,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     guard let self = self else { return }
 
                     self.dispatchQueue.async {
-                        self.allRequests.removeValue(forKey: proxyRequest.id)
+                        self.proxiedRequests.removeValue(forKey: proxyRequest.id)
 
                         var reply: Data?
                         do {
@@ -269,12 +269,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     }
                 }
 
-                self.allRequests[proxyRequest.id] = task
+                self.proxiedRequests[proxyRequest.id] = task
 
                 task.resume()
 
             case let .cancelURLRequest(id):
-                let task = self.allRequests.removeValue(forKey: id)
+                let task = self.proxiedRequests.removeValue(forKey: id)
 
                 task?.cancel()
             }

@@ -14,7 +14,7 @@ import enum NetworkExtension.NEProviderStopReason
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
-    private var allRequests = [UUID: URLSessionDataTask]()
+    private var proxiedRequests = [UUID: URLSessionDataTask]()
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
@@ -117,7 +117,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     guard let self = self else { return }
 
                     self.dispatchQueue.async {
-                        self.allRequests.removeValue(forKey: proxyRequest.id)
+                        self.proxiedRequests.removeValue(forKey: proxyRequest.id)
 
                         var reply: Data?
                         do {
@@ -138,12 +138,12 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     }
                 }
 
-            allRequests[proxyRequest.id] = task
+            proxiedRequests[proxyRequest.id] = task
 
             task.resume()
 
         case let .cancelURLRequest(id):
-            let task = allRequests.removeValue(forKey: id)
+            let task = proxiedRequests.removeValue(forKey: id)
 
             task?.cancel()
 
