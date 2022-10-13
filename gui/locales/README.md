@@ -86,3 +86,13 @@ from getting out of sync with the strings in the source code, always run both
 `npm run update-translations` and the `translations-converter` tool in that order. If the first one
 is run on it's own it will remove the strings specific to Android. The easiest way to accomplish
 this is to just run `./scripts/localization prepare` as described above.
+
+## Do Not Translate
+
+All user facing phrases and terms should be translated except for the following trademarks and
+names of technologies:
+* Mullvad VPN
+* WireGuard
+* OpenVPN
+* Split Tunneling
+* System Transparency
