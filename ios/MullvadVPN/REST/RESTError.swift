@@ -14,7 +14,7 @@ extension REST {
         /// Failure to create URL request.
         case createURLRequest(Swift.Error)
 
-        /// Networking failure.
+        /// Network failure.
         case network(URLError)
 
         /// Failure to handle response.
