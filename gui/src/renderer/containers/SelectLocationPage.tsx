@@ -1,104 +1,114 @@
-import { connect } from 'react-redux';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
-import withAppContext, { IAppContext } from '../context';
+import { useAppContext } from '../context';
 import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import filterLocations from '../lib/filter-locations';
-import { IHistoryProps, withHistory } from '../lib/history';
+import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IReduxState, ReduxDispatch } from '../redux/store';
+import { RelaySettingsRedux } from '../redux/settings/reducers';
+import { useSelector } from '../redux/store';
 
-const mapStateToProps = (state: IReduxState, props: IHistoryProps & IAppContext) => {
-  let selectedExitLocation: RelayLocation | undefined;
-  let selectedEntryLocation: RelayLocation | undefined;
-  let selectedBridgeLocation: LiftedConstraint<RelayLocation> | undefined;
-  let multihopEnabled = false;
-
-  if ('normal' in state.settings.relaySettings) {
-    const exitLocation = state.settings.relaySettings.normal.location;
+const getExitLocation = (relaySettings: RelaySettingsRedux): RelayLocation | undefined => {
+  if ('normal' in relaySettings) {
+    const exitLocation = relaySettings.normal.location;
     if (exitLocation !== 'any') {
-      selectedExitLocation = exitLocation;
+      return exitLocation;
     }
   }
-
-  const relaySettings = state.settings.relaySettings;
-  const tunnelProtocol = 'normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any';
-
-  if (tunnelProtocol === 'openvpn' && 'normal' in state.settings.bridgeSettings) {
-    selectedBridgeLocation = state.settings.bridgeSettings.normal.location;
-  } else if ('normal' in relaySettings) {
-    multihopEnabled = relaySettings.normal.wireguard.useMultihop;
-
-    const entryLocation = relaySettings.normal.wireguard.entryLocation;
-    if (multihopEnabled && entryLocation !== 'any') {
-      selectedEntryLocation = entryLocation;
-    }
-  }
-
-  const allowEntrySelection =
-    (tunnelProtocol === 'openvpn' && state.settings.bridgeState === 'on') ||
-    ((tunnelProtocol === 'any' || tunnelProtocol === 'wireguard') && multihopEnabled);
-
-  const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
-  const ownership = 'normal' in relaySettings ? relaySettings.normal.ownership : Ownership.any;
-
-  return {
-    locale: state.userInterface.locale,
-    selectedExitLocation,
-    selectedEntryLocation,
-    selectedBridgeLocation,
-    relayLocations: filterLocations(state.settings.relayLocations, providers, ownership),
-    bridgeLocations: filterLocations(state.settings.bridgeLocations, providers, ownership),
-    allowEntrySelection,
-    tunnelProtocol,
-    providers,
-    ownership,
-
-    onSelectEntryLocation: async (entryLocation: RelayLocation) => {
-      // dismiss the view first
-      props.history.dismiss();
-
-      const relayUpdate = createWireguardRelayUpdater(state.settings.relaySettings)
-        .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation))
-        .build();
-
-      try {
-        await props.app.updateRelaySettings(relayUpdate);
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to select the entry location', error.message);
-      }
-    },
-  };
+  return undefined;
 };
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
-  return {
-    onClose: () => props.history.dismiss(),
-    onViewFilter: () => props.history.push(RoutePath.filter),
-    onSelectExitLocation: async (relayLocation: RelayLocation) => {
-      // dismiss the view first
-      props.history.dismiss();
 
+export default function SelectLocationPage() {
+  const history = useHistory();
+
+  const { updateRelaySettings, connectTunnel, updateBridgeSettings } = useAppContext();
+
+  const locale = useSelector((state) => state.userInterface.locale);
+  const settings = useSelector((state) => state.settings);
+  const { relaySettings, bridgeSettings, bridgeState } = settings;
+
+  const [multihopEnabled, setMultihopEnabled] = useState(false);
+  const [selectedExitLocation, setSelectedExitLocation] = useState<RelayLocation | undefined>(() =>
+    getExitLocation(relaySettings),
+  );
+  const [selectedEntryLocation, setSelectedEntryLocation] = useState<RelayLocation>();
+  const [selectedBridgeLocation, setSelectedBridgeLocation] = useState<
+    LiftedConstraint<RelayLocation>
+  >();
+
+  const providers = useMemo(
+    () => ('normal' in relaySettings ? relaySettings.normal.providers : []),
+    [relaySettings],
+  );
+
+  const ownership = useMemo(
+    () => ('normal' in relaySettings ? relaySettings.normal.ownership : Ownership.any),
+    [relaySettings],
+  );
+
+  const tunnelProtocol = useMemo(
+    () => ('normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any'),
+    [relaySettings],
+  );
+
+  const allowEntrySelection = useMemo(() => {
+    return (
+      (tunnelProtocol === 'openvpn' && bridgeState === 'on') ||
+      ((tunnelProtocol === 'any' || tunnelProtocol === 'wireguard') && multihopEnabled)
+    );
+  }, [tunnelProtocol, bridgeState, multihopEnabled]);
+
+  const relayLocations = filterLocations(settings.relayLocations, providers, ownership);
+  const bridgeLocations = filterLocations(settings.bridgeLocations, providers, ownership);
+
+  const onClose = useCallback(() => history.dismiss(), [history]);
+  const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
+  const onSelectExitLocation = useCallback(
+    async (relayLocation: RelayLocation) => {
+      // dismiss the view first
+      history.dismiss();
       try {
         const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
 
-        await props.app.updateRelaySettings(relayUpdate);
-        await props.app.connectTunnel();
+        await updateRelaySettings(relayUpdate);
+        await connectTunnel();
       } catch (e) {
         const error = e as Error;
         log.error(`Failed to select the exit location: ${error.message}`);
       }
     },
-    onSelectBridgeLocation: async (bridgeLocation: RelayLocation) => {
+    [connectTunnel, updateRelaySettings, history],
+  );
+  const onSelectEntryLocation = useCallback(
+    async (entryLocation: RelayLocation) => {
       // dismiss the view first
-      props.history.dismiss();
+      history.dismiss();
+
+      const relayUpdate = createWireguardRelayUpdater(relaySettings)
+        .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation))
+        .build();
 
       try {
-        await props.app.updateBridgeSettings(
+        await updateRelaySettings(relayUpdate);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to select the entry location', error.message);
+      }
+    },
+    [history, relaySettings, updateRelaySettings],
+  );
+  const onSelectBridgeLocation = useCallback(
+    async (bridgeLocation: RelayLocation) => {
+      // dismiss the view first
+      history.dismiss();
+
+      try {
+        await updateBridgeSettings(
           new BridgeSettingsBuilder().location.fromRaw(bridgeLocation).build(),
         );
       } catch (e) {
@@ -106,26 +116,67 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
         log.error(`Failed to select the bridge location: ${error.message}`);
       }
     },
-    onSelectClosestToExit: async () => {
-      // dismiss the view first
-      props.history.dismiss();
+    [history, updateBridgeSettings],
+  );
+  const onSelectClosestToExit = useCallback(async () => {
+    history.dismiss();
 
-      try {
-        await props.app.updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to set the bridge location to closest to exit: ${error.message}`);
+    try {
+      await updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to set the bridge location to closest to exit: ${error.message}`);
+    }
+  }, [updateBridgeSettings, history]);
+
+  const onClearProviders = useCallback(async () => {
+    await updateRelaySettings({ normal: { providers: [] } });
+  }, [updateRelaySettings]);
+
+  const onClearOwnership = useCallback(async () => {
+    await updateRelaySettings({ normal: { ownership: Ownership.any } });
+  }, [updateRelaySettings]);
+
+  useEffect(() => {
+    if (tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings) {
+      setSelectedBridgeLocation(bridgeSettings.normal.location);
+    } else if ('normal' in relaySettings) {
+      setMultihopEnabled(relaySettings.normal.wireguard.useMultihop);
+
+      const entryLocation = relaySettings.normal.wireguard.entryLocation;
+      if (multihopEnabled && entryLocation !== 'any') {
+        setSelectedEntryLocation(entryLocation);
       }
-    },
-    onClearProviders: async () => {
-      await props.app.updateRelaySettings({ normal: { providers: [] } });
-    },
-    onClearOwnership: async () => {
-      await props.app.updateRelaySettings({ normal: { ownership: Ownership.any } });
-    },
-  };
-};
+    }
+  }, [multihopEnabled, tunnelProtocol, bridgeSettings, relaySettings]);
 
-export default withAppContext(
-  withHistory(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),
-);
+  useEffect(() => {
+    const exitLocation = getExitLocation(relaySettings);
+    if (exitLocation) {
+      setSelectedExitLocation(exitLocation);
+    }
+  }, [relaySettings]);
+
+  return (
+    <SelectLocation
+      locale={locale}
+      selectedExitLocation={selectedExitLocation}
+      selectedEntryLocation={selectedEntryLocation}
+      selectedBridgeLocation={selectedBridgeLocation}
+      relayLocations={relayLocations}
+      bridgeLocations={bridgeLocations}
+      allowEntrySelection={allowEntrySelection}
+      tunnelProtocol={tunnelProtocol}
+      providers={providers}
+      ownership={ownership}
+      onClose={onClose}
+      onViewFilter={onViewFilter}
+      onSelectExitLocation={onSelectExitLocation}
+      onSelectEntryLocation={onSelectEntryLocation}
+      onSelectBridgeLocation={onSelectBridgeLocation}
+      onSelectClosestToExit={onSelectClosestToExit}
+      onClearProviders={onClearProviders}
+      onClearOwnership={onClearOwnership}
+    />
+  );
+}
