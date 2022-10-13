@@ -8,4 +8,4 @@
 
 import Foundation
 
-enum AddressCache {}
+public enum AddressCache {}

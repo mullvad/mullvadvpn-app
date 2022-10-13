@@ -9,6 +9,7 @@
 import Foundation
 import protocol Network.IPAddress
 import WireGuardKit
+import MullvadREST
 
 struct PacketTunnelConfiguration {
     var deviceState: DeviceState

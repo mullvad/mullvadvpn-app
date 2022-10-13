@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import enum MullvadREST.AnyIPEndpoint
 
 protocol RESTRequestHandler {
     func createURLRequest(

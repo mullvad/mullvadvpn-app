@@ -8,6 +8,7 @@
 
 import Foundation
 import WireGuardKit
+//import MullvadREST
 
 extension MullvadEndpoint {
     var ipv4RelayEndpoint: Endpoint {

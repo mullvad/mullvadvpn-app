@@ -6,7 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Network
+@_exported import Network
 
 extension IPv4Address: Codable {
     public init(from decoder: Decoder) throws {
