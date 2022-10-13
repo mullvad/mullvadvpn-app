@@ -11,27 +11,29 @@ import Foundation
 extension REST {
     /// An error type returned by REST API classes.
     enum Error: LocalizedError, WrappingError {
-        /// A failure to create URL request.
+        /// Failure to create URL request.
         case createURLRequest(Swift.Error)
 
-        /// A failure during networking.
+        /// Networking failure.
         case network(URLError)
 
-        /// A failure to handle response.
+        /// Failure to handle response.
         case unhandledResponse(_ statusCode: Int, _ serverResponse: ServerErrorResponse?)
 
-        /// A failure to decode server response.
+        /// Failure to decode server response.
         case decodeResponse(Swift.Error)
 
-        /// A failure to get the url error from server response, treating error like any Error.
+        /// Failure to transit URL request via selected transport implementation.
         case transport(Swift.Error)
 
         var errorDescription: String? {
             switch self {
             case let .createURLRequest(error):
                 return "Failure to create URL request: \(error.localizedDescription)."
+
             case let .network(error):
                 return "Network error: \(error.localizedDescription)."
+
             case let .unhandledResponse(statusCode, serverResponse):
                 var str = "Failure to handle server response: HTTP/\(statusCode)."
 
@@ -44,8 +46,10 @@ extension REST {
                 }
 
                 return str
+
             case let .decodeResponse(error):
                 return "Failure to decode URL response data: \(error.localizedDescription)."
+
             case let .transport(error):
                 return "Transport error: \(error.localizedDescription)."
             }
