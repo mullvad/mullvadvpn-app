@@ -24,6 +24,9 @@ tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 
+[target.'cfg(target_os="android")'.dependencies]
+duct = "0.13"
+
 [target.'cfg(not(target_os="android"))'.dependencies]
 byteorder = "1"
 internet-checksum = "0.2"

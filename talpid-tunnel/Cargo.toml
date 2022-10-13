@@ -20,6 +20,7 @@ nix = "0.23"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5", features = ["derive"] }
+log = "0.4"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 tun = "0.5.1"
@@ -28,7 +29,7 @@ tun = "0.5.1"
 tun = "0.5.1"
 
 [target.'cfg(windows)'.dependencies]
-talpid-windows = { path = "../talpid-windows" } 
+talpid-windows = { path = "../talpid-windows" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.42.0"

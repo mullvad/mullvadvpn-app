@@ -1,4 +1,4 @@
-use crate::routing::{imp::RouteManagerCommand, RequiredRoute};
+use crate::{imp::RouteManagerCommand, RequiredRoute};
 use futures::{channel::mpsc, stream::StreamExt};
 use std::collections::HashSet;
 

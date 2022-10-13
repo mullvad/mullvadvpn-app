@@ -65,6 +65,7 @@ pub struct AndroidTunProvider {
     last_tun_config: TunConfig,
     allow_lan: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
+    allowed_lan_networks: Vec<IpNetwork>,
 }
 
 impl AndroidTunProvider {
@@ -73,6 +74,7 @@ impl AndroidTunProvider {
         context: AndroidContext,
         allow_lan: bool,
         custom_dns_servers: Option<Vec<IpAddr>>,
+        allowed_lan_networks: Vec<IpNetwork>,
     ) -> Self {
         let env = JnixEnv::from(
             context
@@ -89,6 +91,7 @@ impl AndroidTunProvider {
             last_tun_config: TunConfig::default(),
             allow_lan,
             custom_dns_servers,
+            allowed_lan_networks,
         }
     }
 
@@ -234,12 +237,11 @@ impl AndroidTunProvider {
                 .cloned()
                 .partition::<Vec<_>, _>(|route| route.is_ipv4());
 
-            let (original_lan_ipv4_networks, original_lan_ipv6_networks) =
-                crate::firewall::ALLOWED_LAN_NETS
-                    .iter()
-                    .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
-                    .cloned()
-                    .partition::<Vec<_>, _>(|network| network.is_ipv4());
+            let (original_lan_ipv4_networks, original_lan_ipv6_networks) = self
+                .allowed_lan_networks
+                .iter()
+                .cloned()
+                .partition::<Vec<_>, _>(|network| network.is_ipv4());
 
             let lan_ipv4_networks = original_lan_ipv4_networks
                 .into_iter()

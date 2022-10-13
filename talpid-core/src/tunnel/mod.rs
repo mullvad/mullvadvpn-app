@@ -1,6 +1,7 @@
 use crate::logging;
+#[cfg(not(target_os = "android"))]
 use futures::channel::oneshot;
-use std::path::{Path, PathBuf};
+use std::path;
 #[cfg(not(target_os = "android"))]
 use talpid_openvpn;
 #[cfg(any(target_os = "linux", target_os = "windows"))]
@@ -9,9 +10,6 @@ pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
-
-#[cfg(target_os = "android")]
-pub use self::tun_provider::TunConfig;
 
 #[cfg(target_os = "windows")]
 mod windows;
@@ -75,7 +73,7 @@ impl TunnelMonitor {
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
         tunnel_parameters: &mut TunnelParameters,
-        log_dir: &Option<PathBuf>,
+        log_dir: &Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
@@ -110,7 +108,7 @@ impl TunnelMonitor {
 
     /// Returns a path to an executable that communicates with relay servers.
     #[cfg(windows)]
-    pub fn get_relay_client(resource_dir: &Path, params: &TunnelParameters) -> PathBuf {
+    pub fn get_relay_client(resource_dir: &path::Path, params: &TunnelParameters) -> path::PathBuf {
         let resource_dir = resource_dir.to_path_buf();
         let process_string = match params {
             TunnelParameters::OpenVpn(params) => {
@@ -132,7 +130,7 @@ impl TunnelMonitor {
 
     fn start_wireguard_tunnel<L>(
         params: &mut wireguard_types::TunnelParameters,
-        log: Option<PathBuf>,
+        log: Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
@@ -225,8 +223,8 @@ impl TunnelMonitor {
     #[cfg(not(target_os = "android"))]
     async fn start_openvpn_tunnel<L>(
         config: &openvpn_types::TunnelParameters,
-        log: Option<PathBuf>,
-        resource_dir: &Path,
+        log: Option<path::PathBuf>,
+        resource_dir: &path::Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
         #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
@@ -268,8 +266,8 @@ impl TunnelMonitor {
     #[cfg(not(target_os = "windows"))]
     fn prepare_tunnel_log_file(
         parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-    ) -> Result<Option<PathBuf>> {
+        log_dir: &Option<path::PathBuf>,
+    ) -> Result<Option<path::PathBuf>> {
         if let Some(ref log_dir) = log_dir {
             match parameters {
                 TunnelParameters::OpenVpn(_) => {
@@ -287,8 +285,8 @@ impl TunnelMonitor {
     #[cfg(target_os = "windows")]
     fn prepare_tunnel_log_file(
         parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-    ) -> Result<Option<PathBuf>> {
+        log_dir: &Option<path::PathBuf>,
+    ) -> Result<Option<path::PathBuf>> {
         if let Some(ref log_dir) = log_dir {
             let filename = match parameters {
                 TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,

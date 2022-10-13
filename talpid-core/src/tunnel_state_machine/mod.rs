@@ -131,6 +131,12 @@ pub async fn spawn(
         initial_settings.allow_lan,
         #[cfg(target_os = "android")]
         initial_settings.dns_servers.clone(),
+        #[cfg(target_os = "android")]
+        crate::firewall::ALLOWED_LAN_NETS
+            .iter()
+            .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
+            .cloned()
+            .collect(),
     );
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
