@@ -12,7 +12,6 @@ class RESTTransportRegistry {
     static let shared = RESTTransportRegistry()
 
     private var transport: RESTTransport?
-
     private let nslock = NSLock()
 
     private init() {}
