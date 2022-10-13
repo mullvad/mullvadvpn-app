@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import MullvadLogging
-import Network
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
@@ -147,8 +145,7 @@ extension RelaySelector {
             }
         }
 
-        let logger = Logger(label: "RelaySelector")
-        logger.error("Port selection algorithm is broken!")
+        assertionFailure("Port selection algorithm is broken!")
 
         return nil
     }
