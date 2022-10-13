@@ -15,6 +15,10 @@ private let operationQueue = AsyncOperationQueue()
 /// Shared queue used by IPC operations.
 private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
 
+/// Timeout for proxy requests.
+private let proxyRequestTimeout: TimeInterval = ApplicationConfiguration
+    .defaultAPINetworkTimeout + 2
+
 extension Tunnel {
     /// Request packet tunnel process to reconnect the tunnel with the given relay selector result.
     /// Packet tunnel will reconnect to the current relay if relay selector result is not provided.
@@ -59,7 +63,7 @@ extension Tunnel {
             dispatchQueue: dispatchQueue,
             tunnel: self,
             message: .sendURLRequest(proxyRequest),
-            timeout: 12,
+            timeout: proxyRequestTimeout,
             completionHandler: completionHandler
         )
 
