@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import Network
 
 /// Contains server data needed to connect to a single mullvad endpoint

@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadREST
 import Operations
 import UIKit
 
@@ -114,7 +115,7 @@ class SceneDelegate: UIResponder {
 
         RelayCache.Tracker.shared.startPeriodicUpdates()
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
-        AddressCache.Tracker.shared.startPeriodicUpdates()
+        AddressCacheTracker.shared.startPeriodicUpdates()
         ShortcutsManager.shared.updateVoiceShortcuts()
 
         setShowsPrivacyOverlay(false)
@@ -123,7 +124,7 @@ class SceneDelegate: UIResponder {
     @objc private func sceneWillResignActive() {
         RelayCache.Tracker.shared.stopPeriodicUpdates()
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
-        AddressCache.Tracker.shared.stopPeriodicUpdates()
+        AddressCacheTracker.shared.stopPeriodicUpdates()
 
         setShowsPrivacyOverlay(true)
     }

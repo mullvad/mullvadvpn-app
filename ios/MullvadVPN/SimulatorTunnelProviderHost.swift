@@ -10,10 +10,12 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
 import enum NetworkExtension.NEProviderStopReason
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
+    private let urlSession = REST.makeURLSession()
     private var proxiedRequests = [UUID: URLSessionDataTask]()
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
@@ -112,7 +114,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             completionHandler?(nil)
 
         case let .sendURLRequest(proxyRequest):
-            let task = REST.sharedURLSession
+            let task = urlSession
                 .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
                     guard let self = self else { return }
 

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import class WireGuardKitTypes.PrivateKey
 
 extension StoredDeviceData {

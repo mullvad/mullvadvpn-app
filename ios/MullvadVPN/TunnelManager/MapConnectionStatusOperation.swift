@@ -8,6 +8,8 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
+import MullvadTypes
 import NetworkExtension
 import Operations
 
