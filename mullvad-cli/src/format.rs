@@ -56,7 +56,7 @@ fn format_relay_connection(relay_info: &TunnelStateRelayInfo, verbose: bool) -> 
         let exit = format_endpoint(
             location.map(|l| l.hostname.as_str()),
             protocol,
-            &*address,
+            &address,
             verbose,
         );
         if let Some(location) = location {
