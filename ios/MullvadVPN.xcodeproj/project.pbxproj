@@ -790,6 +790,7 @@
 				5820676326E771DB00655B05 /* TunnelManagerErrors.swift */,
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */,
+				063687AF28EB083800BE7161 /* ProxyURLRequest.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
@@ -874,7 +875,6 @@
 			isa = PBXGroup;
 			children = (
 				589A454B28DDF5E100565204 /* Swizzle.swift */,
-				063687AF28EB083800BE7161 /* ProxyURLRequest.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
