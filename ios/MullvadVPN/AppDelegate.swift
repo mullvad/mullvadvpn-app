@@ -13,7 +13,7 @@ import Operations
 import StoreKit
 import UIKit
 import UserNotifications
-import MullvadNetworking
+import enum MullvadNetworking.AddressCache
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

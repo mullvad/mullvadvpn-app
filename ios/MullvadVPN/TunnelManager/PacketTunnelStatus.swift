@@ -6,7 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadNetworking
+import Foundation
 
 /// Struct describing packet tunnel process status.
 struct PacketTunnelStatus: Codable, Equatable {
