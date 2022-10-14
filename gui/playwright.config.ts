@@ -4,6 +4,7 @@ import path from 'path';
 const config: PlaywrightTestConfig = {
   testDir: './test/e2e',
   maxFailures: 2,
+  retries: 3,
   timeout: 60000,
   snapshotDir: path.join(__dirname, '..', 'ci', 'screenshots', 'desktop'),
   expect: {
