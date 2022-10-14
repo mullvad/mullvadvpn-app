@@ -1,5 +1,5 @@
 use crate::types::{
-    conversions::{bytes_to_pubkey, option_from_proto_string},
+    conversions::{bytes_to_privkey, bytes_to_pubkey, option_from_proto_string},
     proto, FromProtobufTypeError,
 };
 use talpid_types::net::wireguard;
@@ -40,16 +40,7 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                     "missing tunnel config",
                 ))?;
 
-                // Copy the private key to an array
-                if tunnel.private_key.len() != 32 {
-                    return Err(FromProtobufTypeError::InvalidArgument(
-                        "invalid private key",
-                    ));
-                }
-
-                let mut private_key = [0; 32];
-                let buffer = &tunnel.private_key[..private_key.len()];
-                private_key.copy_from_slice(buffer);
+                let private_key = bytes_to_privkey(&tunnel.private_key)?;
 
                 let peer = config.peer.ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing peer config",
@@ -91,7 +82,7 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                 Ok(mullvad_types::ConnectionConfig::Wireguard(
                     wireguard::ConnectionConfig {
                         tunnel: wireguard::TunnelConfig {
-                            private_key: wireguard::PrivateKey::from(private_key),
+                            private_key,
                             addresses: tunnel_addresses,
                         },
                         peer: wireguard::PeerConfig {

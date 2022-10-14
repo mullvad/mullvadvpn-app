@@ -19,12 +19,24 @@ pub enum FromProtobufTypeError {
 fn bytes_to_pubkey(
     bytes: &[u8],
 ) -> Result<talpid_types::net::wireguard::PublicKey, FromProtobufTypeError> {
-    if bytes.len() != 32 {
-        return Err(FromProtobufTypeError::InvalidArgument("invalid public key"));
-    }
-    let mut public_key = [0; 32];
-    public_key.copy_from_slice(&bytes[..32]);
-    Ok(talpid_types::net::wireguard::PublicKey::from(public_key))
+    Ok(talpid_types::net::wireguard::PublicKey::from(
+        *bytes_to_wg_key(bytes, "invalid public key")?,
+    ))
+}
+
+fn bytes_to_privkey(
+    bytes: &[u8],
+) -> Result<talpid_types::net::wireguard::PrivateKey, FromProtobufTypeError> {
+    Ok(talpid_types::net::wireguard::PrivateKey::from(
+        *bytes_to_wg_key(bytes, "invalid private key")?,
+    ))
+}
+
+fn bytes_to_wg_key<'a>(
+    bytes: &'a [u8],
+    error_msg: &'static str,
+) -> Result<&'a [u8; 32], FromProtobufTypeError> {
+    <&[u8; 32]>::try_from(bytes).map_err(|_| FromProtobufTypeError::InvalidArgument(error_msg))
 }
 
 /// Returns `Option<String>`, where an empty string represents `None`.
