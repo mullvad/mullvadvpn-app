@@ -872,10 +872,13 @@ pub fn iface_index(name: &str) -> std::result::Result<libc::c_uint, IfaceIndexLo
     }
 }
 
+/// Failure to lookup an interfaces index by its name.
 #[derive(Debug, err_derive::Error)]
 pub enum IfaceIndexLookupError {
+    /// The interface name is invalid -  contains null bytes or is too long.
     #[error(display = "Invalid network interface name: {}", _0)]
     InvalidInterfaceName(String, #[error(source)] std::ffi::NulError),
+    /// Interface wasn't found by its name.
     #[error(display = "Failed to get index for interface {}", _0)]
     InterfaceLookupError(String, #[error(source)] std::io::Error),
 }

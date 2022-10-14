@@ -1,6 +1,5 @@
 //! Manage routing tables on various platforms.
 
-
 #![deny(missing_docs)]
 #![deny(rust_2018_idioms)]
 

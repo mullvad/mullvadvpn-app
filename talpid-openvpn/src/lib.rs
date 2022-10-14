@@ -33,7 +33,6 @@ use talpid_tunnel::TunnelEvent;
 use talpid_types::{net::openvpn, ErrorExt};
 use tokio::task;
 #[cfg(target_os = "linux")]
-
 #[cfg(windows)]
 use widestring::U16CString;
 #[cfg(windows)]
