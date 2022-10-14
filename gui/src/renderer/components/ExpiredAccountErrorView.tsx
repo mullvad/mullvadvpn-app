@@ -49,7 +49,7 @@ function ExpiredAccountErrorViewComponent() {
 
   const connection = useSelector((state) => state.connection);
 
-  const { getRecoveryAction } = useRecoveryAction();
+  const { recoveryAction } = useRecoveryAction();
   const isNewAccount = useIsNewAccount();
 
   const headerBarStyle = isNewAccount
@@ -78,7 +78,7 @@ function ExpiredAccountErrorViewComponent() {
 
           <Footer>
             <AppButton.ButtonGroup>
-              {getRecoveryAction() === RecoveryAction.disconnect && (
+              {recoveryAction === RecoveryAction.disconnect && (
                 <AppButton.BlockingButton onClick={onDisconnect}>
                   <AppButton.RedButton>
                     {messages.pgettext('connect-view', 'Disconnect')}
@@ -103,7 +103,7 @@ function ExpiredAccountErrorViewComponent() {
 
 function WelcomeView() {
   const account = useSelector((state) => state.account);
-  const { getRecoveryActionMessage } = useRecoveryAction();
+  const { recoveryMessage } = useRecoveryAction();
 
   return (
     <>
@@ -121,7 +121,7 @@ function WelcomeView() {
             'connect-view',
             'To start using the app, you first need to add time to your account.',
           ),
-          recoveryMessage: getRecoveryActionMessage(),
+          recoveryMessage,
         })}
       </StyledMessage>
     </>
@@ -129,7 +129,7 @@ function WelcomeView() {
 }
 
 function Content() {
-  const { getRecoveryActionMessage } = useRecoveryAction();
+  const { recoveryMessage } = useRecoveryAction();
 
   return (
     <>
@@ -143,7 +143,7 @@ function Content() {
             'connect-view',
             'You have no more VPN time left on this account.',
           ),
-          recoveryMessage: getRecoveryActionMessage(),
+          recoveryMessage,
         })}
       </StyledMessage>
     </>
@@ -152,7 +152,7 @@ function Content() {
 
 function ExternalPaymentButton() {
   const { setShowBlockWhenDisconnectedAlert } = useExpiredAccountContext();
-  const { getRecoveryAction } = useRecoveryAction();
+  const { recoveryAction } = useRecoveryAction();
   const { openLinkWithAuth } = useAppContext();
   const isNewAccount = useIsNewAccount();
 
@@ -161,7 +161,7 @@ function ExternalPaymentButton() {
     : messages.gettext('Buy more credit');
 
   const onOpenExternalPayment = useCallback(async () => {
-    if (getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
+    if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
       setShowBlockWhenDisconnectedAlert(true);
     } else {
       await openLinkWithAuth(links.purchase);
@@ -170,7 +170,7 @@ function ExternalPaymentButton() {
 
   return (
     <AppButton.BlockingButton
-      disabled={getRecoveryAction() === RecoveryAction.disconnect}
+      disabled={recoveryAction === RecoveryAction.disconnect}
       onClick={onOpenExternalPayment}>
       <AriaDescriptionGroup>
         <AriaDescribed>
@@ -277,33 +277,35 @@ const useRecoveryAction = () => {
   const isBlocked = useSelector((state) => state.connection.isBlocked);
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
 
-  const getRecoveryAction = () => {
-    if (blockWhenDisconnected && isBlocked) {
-      return RecoveryAction.disableBlockedWhenDisconnected;
-    } else if (!blockWhenDisconnected && isBlocked) {
-      return RecoveryAction.disconnect;
-    } else {
-      return RecoveryAction.openBrowser;
-    }
-  };
+  let recoveryAction: RecoveryAction;
 
-  const getRecoveryActionMessage = () => {
-    switch (getRecoveryAction()) {
-      case RecoveryAction.openBrowser:
-      case RecoveryAction.disableBlockedWhenDisconnected:
-        return messages.pgettext(
-          'connect-view',
-          'Either buy credit on our website or redeem a voucher.',
-        );
-      case RecoveryAction.disconnect:
-        return messages.pgettext(
-          'connect-view',
-          'To add more, you will need to disconnect and access the Internet with an unsecure connection.',
-        );
-    }
-  };
+  if (blockWhenDisconnected && isBlocked) {
+    recoveryAction = RecoveryAction.disableBlockedWhenDisconnected;
+  } else if (!blockWhenDisconnected && isBlocked) {
+    recoveryAction = RecoveryAction.disconnect;
+  } else {
+    recoveryAction = RecoveryAction.openBrowser;
+  }
 
-  return { getRecoveryAction, getRecoveryActionMessage };
+  let recoveryMessage: string;
+
+  switch (recoveryAction) {
+    case RecoveryAction.openBrowser:
+    case RecoveryAction.disableBlockedWhenDisconnected:
+      recoveryMessage = messages.pgettext(
+        'connect-view',
+        'Either buy credit on our website or redeem a voucher.',
+      );
+      break;
+    case RecoveryAction.disconnect:
+      recoveryMessage = messages.pgettext(
+        'connect-view',
+        'To add more, you will need to disconnect and access the Internet with an unsecure connection.',
+      );
+      break;
+  }
+
+  return { recoveryAction, recoveryMessage };
 };
 
 const useIsNewAccount = () => {
