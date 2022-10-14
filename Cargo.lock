@@ -3325,7 +3325,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-routing"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
@@ -3358,7 +3358,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-tunnel"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "cfg-if",
  "duct",
@@ -3421,7 +3421,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-wireguard"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "bitflags",
  "byteorder",
