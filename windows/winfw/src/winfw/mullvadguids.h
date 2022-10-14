@@ -94,6 +94,8 @@ public:
 	static const GUID &Filter_Dns_PermitNonTunnel_Outbound_Ipv6();
 	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv4();
 	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv6();
+	static const GUID &Filter_Dns_PermitLoopback_Outbound_Ipv4();
+	static const GUID &Filter_Dns_PermitLoopback_Outbound_Ipv6();
 
 	//
 	// Persistent and boot-time filters

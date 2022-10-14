@@ -145,6 +145,8 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDns_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_BlockAll_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_BlockAll_Outbound_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitLoopback_Outbound_Ipv4()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitLoopback_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitNonTunnel_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitNonTunnel_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitTunnel_Outbound_Ipv4()));
@@ -921,6 +923,34 @@ const GUID &MullvadGuids::Filter_Dns_PermitTunnel_Outbound_Ipv6()
 		0x6f2c,
 		0x4bf5,
 		{ 0x8f, 0xdc, 0xfd, 0xd, 0x4a, 0x64, 0x42, 0x9d }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Dns_PermitLoopback_Outbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x4e2bdc82,
+		0x292c,
+		0x4545,
+		{ 0xa5, 0xc4, 0x50, 0x25, 0x1c, 0x70, 0x2f, 0xcd }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Dns_PermitLoopback_Outbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x7811263c,
+		0x3916,
+		0x428d,
+		{ 0xa5, 0x14, 0x2e, 0x43, 0x2, 0x1a, 0x73, 0x8a }
 	};
 
 	return g;
