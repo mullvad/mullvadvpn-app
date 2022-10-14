@@ -30,8 +30,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
 
-#### Linux
-- Don't prevent early boot service from running if logging to a file fails.
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
@@ -40,6 +38,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - DNS loopback traffic is no longer blocked. Note that local resolvers are still unable to forward
   queries to servers that would normally be blocked.
+
+
+## [2022.5] - 2022-10-14
+### Fixed
+#### Linux
+- Don't prevent early boot service from running if logging to a file fails.
 
 
 ## [2022.5-beta2] - 2022-10-05
