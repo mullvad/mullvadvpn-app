@@ -17,7 +17,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Setup volta
               uses: volta-cli/action@v4
@@ -48,7 +48,7 @@ jobs:
               run: npm run build
 
             - name: Run headless test
-              uses: GabrielBB/xvfb-action@v1
+              uses: GabrielBB/xvfb-action@v1.6
               with:
                   working-directory: gui
                   run: npm test
