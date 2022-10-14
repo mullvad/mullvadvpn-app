@@ -9,7 +9,8 @@
 import Foundation
 import MullvadLogging
 import Operations
-import MullvadNetworking
+import enum MullvadNetworking.REST
+import protocol MullvadNetworking.Cancellable
 
 class UpdateAccountDataOperation: ResultOperation<Void, Error> {
     private let logger = Logger(label: "UpdateAccountDataOperation")

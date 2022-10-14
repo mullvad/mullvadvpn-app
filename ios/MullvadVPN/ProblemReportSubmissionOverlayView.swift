@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import MullvadNetworking
+import enum MullvadNetworking.REST
 
 class ProblemReportSubmissionOverlayView: UIView {
     var editButtonAction: (() -> Void)?

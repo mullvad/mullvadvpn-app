@@ -13,7 +13,8 @@ import Operations
 import StoreKit
 import UIKit
 import class WireGuardKitTypes.PublicKey
-import MullvadNetworking
+import enum MullvadNetworking.REST
+import protocol MullvadNetworking.Cancellable
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
