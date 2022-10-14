@@ -33,6 +33,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Don't prevent early boot service from running if logging to a file fails.
 
+### Security
+#### Windows
+- DNS loopback traffic is no longer blocked. Note that local resolvers are still unable to forward
+  queries to servers that would normally be blocked.
+
 
 ## [2022.5-beta2] - 2022-10-05
 ### Added
