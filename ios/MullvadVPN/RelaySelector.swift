@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import struct MullvadREST.IPv4Endpoint
-import enum MullvadREST.REST
+import struct MullvadNetworking.IPv4Endpoint
+import enum MullvadNetworking.REST
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint

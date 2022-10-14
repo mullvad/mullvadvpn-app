@@ -11,7 +11,7 @@ import MullvadLogging
 import Network
 import NetworkExtension
 import WireGuardKit
-import MullvadREST
+import MullvadNetworking
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Tunnel provider logger.

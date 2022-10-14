@@ -8,7 +8,7 @@
 
 import Foundation
 import Operations
-import protocol MullvadREST.Cancellable
+import protocol MullvadNetworking.Cancellable
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor

@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import enum MullvadREST.REST
+import enum MullvadNetworking.REST
 
 public extension AppStorePaymentManager {
     /// An error type emitted by `AppStorePaymentManager`.

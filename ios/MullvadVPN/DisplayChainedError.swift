@@ -8,7 +8,7 @@
 
 import Foundation
 import StoreKit
-import MullvadREST
+import MullvadNetworking
 
 public protocol DisplayChainedError {
     var errorChainDescription: String? { get }

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MullvadREST
+import MullvadNetworking
 
 final class PacketTunnelTransport: RESTTransport {
     var name: String {
