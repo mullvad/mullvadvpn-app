@@ -9,7 +9,7 @@
 import MullvadLogging
 import Operations
 import UIKit
-import enum MullvadREST.REST
+import enum MullvadNetworking.REST
 
 protocol DeviceManagementViewControllerDelegate: AnyObject {
     func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController)

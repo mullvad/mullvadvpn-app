@@ -10,7 +10,7 @@ import Foundation
 import Operations
 import StoreKit
 import UIKit
-import MullvadREST
+import MullvadNetworking
 
 class OutOfTimeViewController: UIViewController {
     weak var delegate: SettingsButtonInteractionDelegate?

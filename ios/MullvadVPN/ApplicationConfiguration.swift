@@ -8,7 +8,7 @@
 
 import Foundation
 import struct Network.IPv4Address
-import enum MullvadREST.AnyIPEndpoint
+import enum MullvadNetworking.AnyIPEndpoint
 
 class ApplicationConfiguration {
     /// Shared container security group identifier.
