@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import MullvadNetworking
+import enum MullvadNetworking.REST
 
 protocol LocationDataSourceItemProtocol {
     var location: RelayLocation { get }

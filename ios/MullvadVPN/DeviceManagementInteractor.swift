@@ -8,7 +8,8 @@
 
 import Foundation
 import Operations
-import MullvadNetworking
+import enum MullvadNetworking.REST
+import protocol MullvadNetworking.Cancellable
 
 class DeviceManagementInteractor {
     private let devicesProxy = REST.ProxyFactory.shared.createDevicesProxy()

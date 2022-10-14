@@ -10,7 +10,8 @@ import Foundation
 import MullvadLogging
 import Operations
 import StoreKit
-import MullvadNetworking
+import enum MullvadNetworking.REST
+import protocol MullvadNetworking.Cancellable
 
 public class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private enum OperationCategory {

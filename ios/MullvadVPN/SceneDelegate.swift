@@ -9,7 +9,8 @@
 import MullvadLogging
 import Operations
 import UIKit
-import MullvadNetworking
+import enum MullvadNetworking.REST
+import enum MullvadNetworking.AddressCache
 
 class SceneDelegate: UIResponder {
     private let logger = Logger(label: "SceneDelegate")

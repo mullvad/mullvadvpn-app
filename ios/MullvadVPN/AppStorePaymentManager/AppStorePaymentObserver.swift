@@ -8,7 +8,7 @@
 
 import Foundation
 import StoreKit
-import MullvadNetworking
+import enum MullvadNetworking.REST
 
 public protocol AppStorePaymentObserver: AnyObject {
     func appStorePaymentManager(
