@@ -35,6 +35,7 @@
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp" />
     <ClCompile Include="rules\dns\blockall.cpp" />
+    <ClCompile Include="rules\dns\permitloopback.cpp" />
     <ClCompile Include="rules\dns\permitnontunnel.cpp" />
     <ClCompile Include="rules\dns\permittunnel.cpp" />
     <ClCompile Include="rules\multi\permitvpnrelay.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="rules\baseline\permitvpntunnel.h" />
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h" />
     <ClInclude Include="rules\dns\blockall.h" />
+    <ClInclude Include="rules\dns\permitloopback.h" />
     <ClInclude Include="rules\dns\permitnontunnel.h" />
     <ClInclude Include="rules\dns\permittunnel.h" />
     <ClInclude Include="rules\multi\permitvpnrelay.h" />

@@ -16,6 +16,7 @@
 #include "rules/baseline/permitdns.h"
 #include "rules/baseline/permitendpoint.h"
 #include "rules/dns/blockall.h"
+#include "rules/dns/permitloopback.h"
 #include "rules/dns/permittunnel.h"
 #include "rules/dns/permitnontunnel.h"
 #include "rules/multi/permitvpnrelay.h"
@@ -69,6 +70,7 @@ void AppendSettingsRules
 	//
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
+	ruleset.emplace_back(std::make_unique<dns::PermitLoopback>());
 	ruleset.emplace_back(std::make_unique<dns::BlockAll>());
 }
 
