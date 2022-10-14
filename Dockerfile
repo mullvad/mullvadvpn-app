@@ -12,7 +12,7 @@
 #     -it mullvadvpn-app-build
 
 # Debian 10 is the oldest supported distro. It has the oldest glibc that we support
-FROM debian:10@sha256:604db908f7ce93379b1289c0c7ba73b252002087a3fa64fe904b430083ba5f69
+FROM debian:10.13-slim@sha256:557ee531b81ce380d012d83b7bb56211572e5d6088d3e21a3caef7d7ed7f718b
 
 # === Define toolchain versions and paths ===
 
