@@ -437,14 +437,14 @@ function OutdatedVersionWarningDialog() {
 
   const openDownloadLink = useCallback(async () => {
     await openUrl(suggestedIsBeta ? links.betaDownload : links.download);
-  }, []);
+  }, [suggestedIsBeta]);
 
   const onClose = useCallback(() => history.pop(), [history.pop]);
 
   const outdatedVersionCancel = useCallback(() => {
     acknowledgeOutdatedVersion();
     onClose();
-  }, []);
+  }, [onClose]);
 
   const message = messages.pgettext(
     'support-view',
