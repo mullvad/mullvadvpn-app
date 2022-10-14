@@ -47,15 +47,14 @@ function ExpiredAccountErrorViewComponent() {
   const history = useHistory();
   const { disconnectTunnel } = useAppContext();
 
-  const account = useSelector((state) => state.account);
   const connection = useSelector((state) => state.connection);
 
   const { getRecoveryAction } = useRecoveryAction();
   const isNewAccount = useIsNewAccount();
 
-  const headerBarStyle = useMemo(() => {
-    return isNewAccount ? HeaderBarStyle.default : calculateHeaderBarStyle(connection.status);
-  }, [account.status, connection.status]);
+  const headerBarStyle = isNewAccount
+    ? HeaderBarStyle.default
+    : calculateHeaderBarStyle(connection.status);
 
   const onDisconnect = useCallback(async () => {
     try {
@@ -309,7 +308,5 @@ const useRecoveryAction = () => {
 
 const useIsNewAccount = () => {
   const account = useSelector((state) => state.account);
-  return useMemo(() => account.status.type === 'ok' && account.status.method === 'new_account', [
-    account.status,
-  ]);
+  return account.status.type === 'ok' && account.status.method === 'new_account';
 };
