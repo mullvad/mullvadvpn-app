@@ -8,7 +8,7 @@
 
 import Foundation
 import Operations
-import protocol MullvadREST.Cancellable
+import protocol MullvadNetworking.Cancellable
 
 /// Shared operation queue used for IPC requests.
 private let operationQueue = AsyncOperationQueue()

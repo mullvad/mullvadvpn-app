@@ -13,7 +13,7 @@ import Operations
 import StoreKit
 import UIKit
 import UserNotifications
-import MullvadREST
+import MullvadNetworking
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

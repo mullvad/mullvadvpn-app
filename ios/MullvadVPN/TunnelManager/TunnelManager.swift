@@ -13,7 +13,7 @@ import Operations
 import StoreKit
 import UIKit
 import class WireGuardKitTypes.PublicKey
-import MullvadREST
+import MullvadNetworking
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.

@@ -9,7 +9,7 @@
 import MullvadLogging
 import Operations
 import UIKit
-import MullvadREST
+import MullvadNetworking
 
 class SceneDelegate: UIResponder {
     private let logger = Logger(label: "SceneDelegate")

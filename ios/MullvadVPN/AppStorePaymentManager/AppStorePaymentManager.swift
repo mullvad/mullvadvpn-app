@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 import Operations
 import StoreKit
-import MullvadREST
+import MullvadNetworking
 
 public class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private enum OperationCategory {

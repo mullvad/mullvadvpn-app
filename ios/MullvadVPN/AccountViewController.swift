@@ -10,7 +10,7 @@ import MullvadLogging
 import Operations
 import StoreKit
 import UIKit
-import MullvadREST
+import MullvadNetworking
 
 protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
