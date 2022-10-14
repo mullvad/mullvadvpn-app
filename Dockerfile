@@ -10,6 +10,8 @@
 #     -v ~/.cargo:/root/.cargo:Z \
 #     -v .:/build:Z \
 #     mullvadvpn-app-build ./build.sh
+#
+# And add -e TARGETS="aarch64-unknown-linux-gnu" to build for ARM64
 
 # Debian 10 is the oldest supported distro. It has the oldest glibc that we support
 FROM debian:10.13-slim@sha256:557ee531b81ce380d012d83b7bb56211572e5d6088d3e21a3caef7d7ed7f718b
@@ -24,19 +26,19 @@ ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
 # === Install/set up the image ===
 
-RUN apt-get update -y && apt-get install -y \
+RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     git \
     curl \
-    gcc \
-    libdbus-1-dev \
+    gcc gcc-aarch64-linux-gnu \
+    libdbus-1-dev libdbus-1-dev:arm64 \
     rpm \
     protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
-# Install latest stable Rust toolchain
+# Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu
 ENV PATH "/root/.cargo/bin:$PATH"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
-    sh -s -- --default-toolchain stable --profile minimal -y
+    sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
 
 ENV PATH /root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
