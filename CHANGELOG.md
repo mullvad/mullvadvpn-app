@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2022.5] - 2022-10-14
+### Fixed
 #### Linux
 - Don't prevent early boot service from running if logging to a file fails.
 
