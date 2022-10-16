@@ -1,5 +1,6 @@
 use crate::{routing::RequiredRoute, windows::AddressFamily};
 use futures::channel::oneshot;
+use talpid_types::ErrorExt;
 use std::{collections::HashSet, io, net::IpAddr};
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
@@ -30,17 +31,23 @@ pub enum Error {
     #[error(display = "Failed to delete applied routes")]
     DeleteFromRouteTable(io::Error),
     /// GetIpForwardTable2 windows API call failed
-    #[error(display = "Window could not fetch IpForwardTable")]
+    #[error(display = "Failed to retrieve the routing table")]
     GetIpForwardTableFailed(io::Error),
     /// GetIfEntry2 windows API call failed
-    #[error(display = "Window could not fetch IfEntry")]
+    #[error(display = "Failed to retrieve network interface entry")]
     GetIfEntryFailed(io::Error),
-    /// Low level error caused by registering default route callback
-    #[error(display = "Attempt to register default route change callback failed")]
-    RegisterRouteCallback(io::Error),
+    /// Low level error caused by failing to register the route callback
+    #[error(display = "Attempt to register notify route change callback failed")]
+    RegisterNotifyRouteCallback(io::Error),
+    /// Low level error caused by failing to register the ip interface callback
+    #[error(display = "Attempt to register notify ip interface change callback failed")]
+    RegisterNotifyIpInterfaceCallback(io::Error),
+    /// Low level error caused by failing to register the unicast ip address callback
+    #[error(display = "Attempt to register notify unicast ip address change callback failed")]
+    RegisterNotifyUnicastIpAddressCallback(io::Error),
     /// Low level error caused by windows Adapters API
     #[error(display = "Windows adapter error")]
-    Adapter,
+    Adapter(io::Error),
     /// High level error caused by a failure to clear the routes in the route manager.
     /// Contains the lower error
     #[error(display = "Failed to clear applied routes")]
@@ -218,7 +225,7 @@ impl RouteManager {
                 }
                 RouteManagerCommand::ClearRoutes => {
                     if let Err(e) = internal.delete_applied_routes() {
-                        log::error!("Could not clear routes due to: {}", e);
+                        log::error!("{}", e.display_chain_with_msg("Could not clear routes"));
                     }
                 }
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
@@ -261,11 +268,7 @@ impl RouteManager {
     /// [`RouteManager::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
-            if tx.send(RouteManagerCommand::ClearRoutes).is_err() {
-                Err(Error::RouteManagerDown)
-            } else {
-                Ok(())
-            }
+            tx.send(RouteManagerCommand::ClearRoutes).map_err(|_| Error::RouteManagerDown)
         } else {
             Err(Error::RouteManagerDown)
         }

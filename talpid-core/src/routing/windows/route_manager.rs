@@ -332,10 +332,7 @@ impl RouteManagerInternal {
                         .expect("Internal state inconsistency in route manager, route record index pointing at nothing");
 
                     if let Err(e) = Self::delete_from_routing_table(&record.registered_route) {
-                        log::error!("Could not delete from routing table");
-                        if result.is_ok() {
-                            result = Err(e);
-                        }
+                        result = result.and(Err(e));
                         continue;
                     }
                     records.remove(record_idx);
@@ -343,10 +340,7 @@ impl RouteManagerInternal {
                 RecordEventType::DeleteRoute => {
                     if let Err(e) = Self::restore_into_routing_table(&event.record.registered_route)
                     {
-                        log::error!("Could not restore route into routing table");
-                        if result.is_ok() {
-                            result = Err(e);
-                        }
+                        result = result.and(Err(e));
                         continue;
                     }
                     records.push(event.record.clone());
@@ -376,7 +370,7 @@ impl RouteManagerInternal {
             }
             Ok(NO_ERROR) => (),
             _ => {
-                log::error!("Failed to delete route in routing table");
+                log::error!("Failed to delete route in routing table. Route: {}, Status: {}", route, status);
                 return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(
                     status,
                 )));
@@ -407,7 +401,7 @@ impl RouteManagerInternal {
         let status = unsafe { CreateIpForwardEntry2(&spec) };
 
         if NO_ERROR as i32 != status {
-            log::error!("Could not register route in routing table");
+            log::error!("Could not register route in routing table. Route: {}, Status: {}", route, status);
             return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
         }
         Ok(())
@@ -587,7 +581,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
 
     // SAFETY: The si_family field is always valid to access.
     let family: u32 = u32::from(unsafe { gateway.si_family });
-    let mut adapters = Adapters::new(family, ADAPTER_FLAGS)?;
+    let adapters = Adapters::new(family, ADAPTER_FLAGS)?;
 
     //
     // Process adapters to find matching ones.
@@ -596,17 +590,21 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     let mut matches: Vec<_> = adapters
         // SAFETY: We are not allowed to dereference adapter.Head if it has been aquired in a previous iteration of the iterator
         // we ensure this is upheld by not saving any references to adapter.Head between iterations.
-        .iter_mut()
+        .iter()
         .filter(|adapter| {
             if !adapter_interface_enabled(adapter, family).unwrap_or(false) {
                 return false;
             }
+            
+            let gateways = if adapter.FirstGatewayAddress.is_null() {
+                vec![]
+            } else {
+                // SAFETY: adapter.FirstGatewayAddress is not null and all elements in the linked list live
+                // in the same buffer and as such have the same lifetime.
+                unsafe { isolate_gateway_address(get_first_gateway_address_reference(adapter), family) }
+            };
 
-            // SAFETY: adapters outlives gateways and we are not mutating anything in adapters until gateways is dropped.
-            let gateways = unsafe { isolate_gateway_address(adapter.FirstGatewayAddress, family) };
-
-            // SAFETY: All pointers returned by isolate_gateway_address are allowed to be dereferenced.
-            unsafe { address_present(gateways, &gateway) }.unwrap_or(false)
+            address_present(gateways, &gateway).unwrap_or(false)
         })
         .collect();
 
@@ -636,6 +634,11 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     Ok(matches[0].Luid)
 }
 
+/// SAFETY: adapter.FirstGatewayAddress must be dereferencable and must live as long as adapter
+unsafe fn get_first_gateway_address_reference(adapter: &IP_ADAPTER_ADDRESSES_LH) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
+    &*adapter.FirstGatewayAddress
+}
+
 fn adapter_interface_enabled(
     adapter: &IP_ADAPTER_ADDRESSES_LH,
     family: ADDRESS_FAMILY,
@@ -645,43 +648,38 @@ fn adapter_interface_enabled(
         // them is safe
         AF_INET => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED),
         AF_INET6 => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED),
-        _ => unreachable!(),
+        _ => Err(Error::InvalidSiFamily),
     }
 }
 
-/// SAFETY: All elements in the linked list pointed to by `head` must outlive the raw pointers returned by this function
-/// Furthermore no element the linked list pointed to by `head` may be mutated until all raw pointers returned by
-/// this function have been dropped.
-/// All elements in the linked list pointed to by `head` must be dereferencable if they are non-null.
-/// All non-null elements in the linked list must have a dereferencable Address.lpSockaddr.
-/// All pointers returned by this function are valid to dereference assuming above criteria are met.
-unsafe fn isolate_gateway_address(
-    head: *mut IP_ADAPTER_GATEWAY_ADDRESS_LH,
+/// SAFETY: `head` must be a linked list where each `head.Next` is either null or
+/// the it and all of its fields has lifetime 'a and are dereferencable.
+unsafe fn isolate_gateway_address<'a>(
+    head: &'a IP_ADAPTER_GATEWAY_ADDRESS_LH,
     family: ADDRESS_FAMILY,
-) -> Vec<*const SOCKET_ADDRESS> {
+) -> Vec<&'a SOCKET_ADDRESS> {
     let mut matches = vec![];
 
-    let mut gateway_ptr = head;
+    let mut gateway = head;
     loop {
-        if gateway_ptr.is_null() {
+        // SAFETY: The contract states that Address.lpSockaddr is dereferencable if the element is non-null
+        if family == u32::from((*gateway.Address.lpSockaddr).sa_family) {
+            // SAFETY: The contract states that this field must have lifetime 'a
+            matches.push(&gateway.Address);
+        }
+
+        if gateway.Next.is_null() {
             break;
         }
 
-        // SAFETY: The contract states that gateway_ptr is dereferencable if non-null
-        let gateway = *gateway_ptr;
-        // SAFETY: The contract states that Address.lpSockaddr is dereferencable if gateway_ptr is non-null
-        if family == u32::from((*gateway.Address.lpSockaddr).sa_family) {
-            matches.push(&gateway.Address as *const _);
-        }
-
-        gateway_ptr = gateway.Next;
+        // SAFETY: Gateway.Next is not null here and the contract states it must be dereferencable if non-null
+        gateway = &*gateway.Next;
     }
 
-    return matches;
+    matches
 }
 
-// SAFETY: All raw pointers in `hay` must be dereferencable
-unsafe fn address_present(hay: Vec<*const SOCKET_ADDRESS>, needle: &SOCKADDR_INET) -> Result<bool> {
+fn address_present(hay: Vec<&'_ SOCKET_ADDRESS>, needle: &'_ SOCKADDR_INET) -> Result<bool> {
     for candidate in hay {
         // SAFETY: Contract states that needle is dereferencable
         if equal_address(needle, candidate)? {
@@ -692,24 +690,23 @@ unsafe fn address_present(hay: Vec<*const SOCKET_ADDRESS>, needle: &SOCKADDR_INE
     Ok(false)
 }
 
-// SAFETY: rhs must be dereferencable
-unsafe fn equal_address(lhs: &SOCKADDR_INET, rhs: *const SOCKET_ADDRESS) -> Result<bool> {
+fn equal_address(lhs: &'_ SOCKADDR_INET, rhs: &'_ SOCKET_ADDRESS) -> Result<bool> {
     let rhs = &*rhs;
-    // SAFETY: The si_family field is always valid and the contract states rhs is dereferencable
-    if lhs.si_family != (*rhs.lpSockaddr).sa_family {
+    // SAFETY: The si_family field is always valid
+    if unsafe { lhs.si_family != (*rhs.lpSockaddr).sa_family } {
         return Ok(false);
     }
 
-    match lhs.si_family as u32 {
+    match unsafe { lhs.si_family } as u32 {
         AF_INET => {
             let typed_rhs = rhs.lpSockaddr as *mut SOCKADDR_IN;
             // SAFETY: If rhs.lpSockaddr.sa_family is IPv4 then lpSockaddr is a SOCKADDR_IN
-            Ok(lhs.Ipv4.sin_addr.S_un.S_addr == (*typed_rhs).sin_addr.S_un.S_addr)
+            Ok(unsafe { lhs.Ipv4.sin_addr.S_un.S_addr == (*typed_rhs).sin_addr.S_un.S_addr })
         }
         AF_INET6 => {
             let typed_rhs = rhs.lpSockaddr as *mut SOCKADDR_IN6;
             // SAFETY: If rhs.lpSockaddr.sa_family is IPv6 then lpSockaddr is a SOCKADDR_IN6
-            Ok(lhs.Ipv6.sin6_addr.u.Byte == (*typed_rhs).sin6_addr.u.Byte)
+            Ok(unsafe { lhs.Ipv6.sin6_addr.u.Byte == (*typed_rhs).sin6_addr.u.Byte })
         }
         _ => {
             log::error!("Missing case handler in match");
@@ -721,22 +718,18 @@ unsafe fn equal_address(lhs: &SOCKADDR_INET, rhs: *const SOCKET_ADDRESS) -> Resu
 /// Linked list containing `IP_ADAPTER_ADDRESSES_LH` queried from the windows API.
 /// Consume by using the iterator produced by `iter_mut()`
 struct Adapters {
-    buffer: Vec<IP_ADAPTER_ADDRESSES_LH>,
+    // SAFETY: This vector is not allowed to be resized since all of the data inside of it would be dangling
+    buffer: Vec<u8>,
 }
 
 impl Adapters {
     /// Create a new linked list of adapters from the windows API
     fn new(family: ADDRESS_FAMILY, flags: GET_ADAPTERS_ADDRESSES_FLAGS) -> Result<Self> {
         const MSDN_RECOMMENDED_STARTING_BUFFER_SIZE: usize = 1024 * 15;
-        let mut buffer = Vec::with_capacity(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE);
-        // SAFETY: IP_ADAPTER_ADDRESSES_LH is valid to zero as long as none of the raw pointers that it contains
-        // are dereferenced. This should not happen as we pass it to GetAdaptersAddresses which just replaces
-        // some elements. We then truncate away all of the objects that were not replaced.
-        buffer.resize(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE, unsafe {
-            std::mem::zeroed()
-        });
+        let mut buffer: Vec<u8> = Vec::with_capacity(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE);
+        buffer.resize(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE, 0);
 
-        let buffer_size = &mut u32::try_from(buffer.len()).unwrap();
+        let mut buffer_size = u32::try_from(buffer.len()).unwrap();
         let mut buffer_pointer = buffer.as_mut_ptr();
 
         //
@@ -744,7 +737,7 @@ impl Adapters {
         //
 
         loop {
-            // SAFETY: buffer_size must point to the correct amount of elements in the buffer which it does.
+            // SAFETY: buffer_size must point to the correct amount of bytes in the buffer which it does.
             // buffer_pointer must point to the start of a mutable buffer which it does.
             // After this call buffer_size might have changed and as such the buffer must be resized
             // to reflect this if this function is going to be called again.
@@ -753,14 +746,16 @@ impl Adapters {
                     family,
                     flags,
                     std::ptr::null_mut() as *mut _,
-                    buffer_pointer,
-                    buffer_size,
+                    buffer_pointer as *mut IP_ADAPTER_ADDRESSES_LH,
+                    &mut buffer_size,
                 )
             };
 
             if ERROR_SUCCESS == status {
                 // SAFETY: We truncate the buffer to avoid having a bunch of zero:ed objects at the end of it
-                buffer.truncate(usize::try_from(*buffer_size).unwrap());
+                // truncate will not change capacity and will therefore never reallocate the vector
+                // which means it can not cause the pointers in the buffer to dangle.
+                buffer.truncate(usize::try_from(buffer_size).unwrap());
                 break;
             }
 
@@ -770,14 +765,13 @@ impl Adapters {
 
             if ERROR_BUFFER_OVERFLOW != status {
                 log::error!("Probe required buffer size for GetAdaptersAddresses");
-                return Err(Error::Adapter);
+                return Err(Error::Adapter(io::Error::from_raw_os_error(
+                    i32::try_from(status).unwrap(),
+                )));
             }
 
             // The needed length is returned in the buffer_size pointer
-            // SAFETY: The buffer must be resized to reflect the new size if we call GetAdapterAddresses again.
-            buffer.resize(usize::try_from(*buffer_size).unwrap(), unsafe {
-                std::mem::zeroed()
-            });
+            buffer.resize(usize::try_from(buffer_size).unwrap(), 0);
             buffer_pointer = buffer.as_mut_ptr();
         }
 
@@ -787,13 +781,16 @@ impl Adapters {
         //
 
         // Unwrapping is fine because we previously would return if we got a ERROR_NO_DATA status. As such the buffer is not empty.
+        // SAFETY: Casting the buffers first element to an IP_ADAPTER_ADDRESSES_LH is safe as that is the underlying data structure.
         // SAFETY: This union field is always valid to read from
-        let system_size = unsafe { buffer.get(0).unwrap().Anonymous1.Anonymous.Length };
+        let system_size = unsafe { (*(buffer.get(0).unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
+            .Anonymous1.Anonymous.Length };
         let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
 
         if system_size < code_size {
             log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
-            return Err(Error::Adapter);
+            return Err(Error::Adapter(io::Error::new(io::ErrorKind::Other,
+                format!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."))));
         }
 
         //
@@ -803,13 +800,13 @@ impl Adapters {
         Ok(Self { buffer })
     }
 
-    /// Produces a mutable iterator for the linked list in `Adapters` see [AdaptersIterator](struct.AdaptersIterator.html)
+    /// Produces a iterator for the linked list in `Adapters` see [AdaptersIterator](struct.AdaptersIterator.html)
     /// SAFETY: See the documentation on `AdaptersIterator`
-    fn iter_mut<'a>(&'a mut self) -> AdaptersIterator<'a> {
+    fn iter<'a>(&'a self) -> AdaptersIterator<'a> {
         let cur = if self.buffer.is_empty() {
-            std::ptr::null_mut()
+            std::ptr::null()
         } else {
-            &mut self.buffer[0] as *mut _
+            &self.buffer[0] as *const u8 as *const IP_ADAPTER_ADDRESSES_LH
         };
         AdaptersIterator {
             _adapters: self,
@@ -822,26 +819,26 @@ impl Adapters {
 /// if they were produced by the latest call to `next()`. Any raw pointers that were aquired before the call to `next()` are not
 /// valid to dereference.
 struct AdaptersIterator<'a> {
-    _adapters: &'a mut Adapters,
-    cur: *mut IP_ADAPTER_ADDRESSES_LH,
+    _adapters: &'a Adapters,
+    cur: *const IP_ADAPTER_ADDRESSES_LH,
 }
 
 impl<'a> Iterator for AdaptersIterator<'a> {
-    type Item = &'a mut IP_ADAPTER_ADDRESSES_LH;
+    type Item = &'a IP_ADAPTER_ADDRESSES_LH;
     fn next(&mut self) -> Option<Self::Item> {
         if self.cur.is_null() {
             None
         } else {
             let ret = self.cur;
-            // SAFETY: self.cur is guaranteed to not be null, we are also holding a &mut Adapters which guarantees no other reference
-            // of self could be held right now which has dereferenced the same address that self.cur is pointing to.
+            // SAFETY: self.cur is guaranteed to not be null, we are also holding a &Adapters which guarantees no other reference
+            // of self could be held right now which has mutably dereferenced the same address that self.cur is pointing to.
             //
             // It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
             // address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
             // `Next` on a reference returned by this function after that reference has been dropped.
             self.cur = unsafe { (*self.cur).Next };
             // SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
-            Some(unsafe { &mut *ret })
+            Some(unsafe { &*ret })
         }
     }
 }

@@ -524,12 +524,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 #[cfg(windows)]
 fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
     match error {
-        routing::Error::AddRoutesFailed(route_error) => match **route_error {
-            routing::Error::GetDefaultRoute
-            | routing::Error::GetDeviceByName
-            | routing::Error::GetDeviceByGateway => true,
-            _ => false,
-        },
+        routing::Error::AddRoutesFailed(_) => true,
         _ => false,
     }
 }

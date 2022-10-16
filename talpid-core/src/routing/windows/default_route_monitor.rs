@@ -101,14 +101,14 @@ impl DefaultRouteMonitorContext {
 
 pub struct DefaultRouteMonitor {
     // SAFETY: These handles must be dropped before the context. This will happen automatically if it is handled by DefaultRouteMonitors drop implementation
-    notify_change_handles: Option<(Handle, Handle, Handle)>,
+    notify_change_handles: Option<(NotifyChangeHandle, NotifyChangeHandle, NotifyChangeHandle)>,
     // SAFETY: Context must be dropped after all of the notifier handles have been dropped in order to guarantee none of them use its pointer.
     // This will be dropped by DefaultRouteMonitors drop implementation.
     // SAFETY: The content of this pointer is not allowed to be mutated at any point except for in the drop implementation
     context: *const ContextAndBurstGuard,
 }
 
-/// SAFETY: DefaultRouteMonitor is `Send` since `Handle` is `Send` and `ContextAndBurstGuard` is `Sync` as
+/// SAFETY: DefaultRouteMonitor is `Send` since `NotifyChangeHandle` is `Send` and `ContextAndBurstGuard` is `Sync` as
 /// it holds Mutex<T> and Arc<Mutex<T>> fields.
 unsafe impl Send for DefaultRouteMonitor {}
 
@@ -127,12 +127,12 @@ impl Drop for DefaultRouteMonitor {
     }
 }
 
-struct Handle(HANDLE);
+struct NotifyChangeHandle(HANDLE);
 
-/// SAFETY: Handle is `Send` since it holds sole ownership of a pointer provided by C
-unsafe impl Send for Handle {}
+/// SAFETY: NotifyChangeHandle is `Send` since it holds sole ownership of a pointer provided by C
+unsafe impl Send for NotifyChangeHandle {}
 
-impl Drop for Handle {
+impl Drop for NotifyChangeHandle {
     fn drop(&mut self) {
         // SAFETY: There is no clear safety specification on this function. However self.0 should point to a handle that has
         // been allocated by windows and should be non-null. Even if it would be null that would cause a panic rather than UB.
@@ -218,7 +218,7 @@ impl DefaultRouteMonitor {
     fn register_callbacks(
         family: AddressFamily,
         context_and_burst: *const ContextAndBurstGuard,
-    ) -> Result<(Handle, Handle, Handle)> {
+    ) -> Result<(NotifyChangeHandle, NotifyChangeHandle, NotifyChangeHandle)> {
         let family = family.to_af_family();
 
         // We must provide a raw pointer that points to the context that will be used in the callbacks.
@@ -239,11 +239,11 @@ impl DefaultRouteMonitor {
         };
 
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+            return Err(Error::RegisterNotifyRouteCallback(io::Error::from_raw_os_error(
                 status,
             )));
         }
-        let notify_route_change_handle = Handle(handle_ptr);
+        let notify_route_change_handle = NotifyChangeHandle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
@@ -257,11 +257,11 @@ impl DefaultRouteMonitor {
             )
         };
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+            return Err(Error::RegisterNotifyIpInterfaceCallback(io::Error::from_raw_os_error(
                 status,
             )));
         }
-        let notify_interface_change_handle = Handle(handle_ptr);
+        let notify_interface_change_handle = NotifyChangeHandle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle has not been dropped.
@@ -275,11 +275,11 @@ impl DefaultRouteMonitor {
             )
         };
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterRouteCallback(io::Error::from_raw_os_error(
+            return Err(Error::RegisterNotifyUnicastIpAddressCallback(io::Error::from_raw_os_error(
                 status,
             )));
         }
-        let notify_address_change_handle = Handle(handle_ptr);
+        let notify_address_change_handle = NotifyChangeHandle(handle_ptr);
 
         Ok((
             notify_route_change_handle,
