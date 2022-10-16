@@ -2,9 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
-const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
-const { version } = require('../package.json');
 const { execFileSync } = require('child_process');
 
 const noCompression = process.argv.includes('--no-compression');
@@ -415,12 +413,14 @@ function getMacArch() {
 // Replace '-' between components with a tilde to make the version comparison understand that
 // YYYY.NN-dev-HHHHHH > YYYY.NN > YYYY.NN-betaN-dev-HHHHHH > YYYY.NN-betaN.
 function getDebVersion() {
-  const { major, minor, prerelease } = parseSemver(version);
-  if (prerelease[0]) {
-    if (prerelease[0].toLowerCase().startsWith('beta')) {
-      return `${major}.${minor}~${prerelease[0]}`;
+  const [version, ...prereleaseParts] = productVersion([]).split('-');
+  const [major, minor] = version.split('.');
+  const prerelease = prereleaseParts.join('-');
+  if (prerelease) {
+    if (prerelease.toLowerCase().startsWith('beta')) {
+      return `${major}.${minor}~${prerelease}`;
     }
-    return `${major}.${minor}-${prerelease[0]}`;
+    return `${major}.${minor}-${prerelease}`;
   }
   return `${major}.${minor}`;
 }
