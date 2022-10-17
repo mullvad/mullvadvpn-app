@@ -105,16 +105,23 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
     // MARK: - Navigation
 
-    func navigate(to route: SettingsNavigationRoute, animated: Bool) {
+    func navigate(
+        to route: SettingsNavigationRoute,
+        animated: Bool,
+        completion: (() -> Void)? = nil
+    ) {
         let blockOperation = AsyncBlockOperation(dispatchQueue: .main) { [weak self] op in
-            guard let self = self else {
+            let onCompletion = {
+                completion?()
                 op.finish()
+            }
+
+            guard let self = self else {
+                onCompletion()
                 return
             }
 
-            self.navigateInner(to: route, animated: animated) {
-                op.finish()
-            }
+            self.navigateInner(to: route, animated: animated, completion: onCompletion)
         }
         operationQueue.addOperation(blockOperation)
     }
