@@ -14,7 +14,7 @@ public extension REST {
 
         public static let shared: ProxyFactory = {
             let basicConfiguration = ProxyConfiguration(
-                transportRegistry: RESTTransportRegistry.shared,
+                transportRegistry: REST.TransportRegistry.shared,
                 addressCacheStore: AddressCache.Store.shared
             )
 

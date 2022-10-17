@@ -8,25 +8,27 @@
 
 import Foundation
 
-public class RESTTransportRegistry {
-    public static let shared = RESTTransportRegistry()
+extension REST {
+    public class TransportRegistry {
+        public static let shared = TransportRegistry()
 
-    private var transport: RESTTransport?
-    private let nslock = NSLock()
+        private var transport: RESTTransport?
+        private let nslock = NSLock()
 
-    private init() {}
+        private init() {}
 
-    public func setTransport(_ transport: RESTTransport) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        public func setTransport(_ transport: RESTTransport) {
+            nslock.lock()
+            defer { nslock.unlock() }
 
-        self.transport = transport
-    }
+            self.transport = transport
+        }
 
-    public func getTransport() -> RESTTransport? {
-        nslock.lock()
-        defer { nslock.unlock() }
+        public func getTransport() -> RESTTransport? {
+            nslock.lock()
+            defer { nslock.unlock() }
 
-        return transport
+            return transport
+        }
     }
 }
