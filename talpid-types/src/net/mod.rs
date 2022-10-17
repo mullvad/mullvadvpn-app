@@ -179,10 +179,9 @@ pub enum ObfuscationType {
 
 impl fmt::Display for ObfuscationType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        let obfuscation = match self {
-            ObfuscationType::Udp2Tcp => "Udp2Tcp",
-        };
-        write!(f, "{}", obfuscation)
+        match self {
+            ObfuscationType::Udp2Tcp => "Udp2Tcp".fmt(f),
+        }
     }
 }
 
@@ -214,8 +213,7 @@ impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
 
 impl fmt::Display for ObfuscationEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{} {}", self.obfuscation_type, self.endpoint)?;
-        Ok(())
+        write!(f, "{} {}", self.obfuscation_type, self.endpoint)
     }
 }
 
