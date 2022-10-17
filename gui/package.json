@@ -30,7 +30,7 @@
   },
   "optionalDependencies": {
     "grpc-tools": "^1.11.3",
-    "nseventmonitor": "^1.0.2"
+    "nseventmonitor": "^1.0.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.26.1",
@@ -42,7 +42,7 @@
     "@types/google-protobuf": "^3.15.6",
     "@types/history": "^4.7.11",
     "@types/mocha": "^10.0.0",
-    "@types/node": "^16.11.26",
+    "@types/node": "^16.11.65",
     "@types/node-gettext": "^3.0.3",
     "@types/rbush": "^3.0.0",
     "@types/react": "^18.0.21",
@@ -60,7 +60,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^19.0.13",
+    "electron": "^21.1.1",
     "electron-builder": "^23.3.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^11.0.2",
@@ -109,7 +109,7 @@
     "npm": ">=8.3"
   },
   "volta": {
-    "node": "16.13.2",
-    "npm": "8.7.0"
+    "node": "16.16.0",
+    "npm": "8.19.2"
   }
 }
