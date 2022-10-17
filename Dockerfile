@@ -37,9 +37,10 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu
-ENV PATH "/root/.cargo/bin:$PATH"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
+ENV PATH "/root/.cargo/bin:$PATH"
+ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER "aarch64-linux-gnu-gcc"
 
 ENV PATH /root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
