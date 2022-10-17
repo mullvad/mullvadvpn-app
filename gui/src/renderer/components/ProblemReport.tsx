@@ -1,10 +1,13 @@
 import {
   ChangeEvent,
+  createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
   useCallback,
+  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -48,94 +51,15 @@ enum SendState {
 }
 
 export default function ProblemReport() {
+  return (
+    <ProblemReportContextProvider>
+      <ProblemReportComponent />
+    </ProblemReportContextProvider>
+  );
+}
+
+function ProblemReportComponent() {
   const history = useHistory();
-  const { sendProblemReport, viewLog } = useAppContext();
-  const { clearReportForm, saveReportForm } = useActions(support);
-
-  const { email: defaultEmail, message: defaultMessage } = useSelector((state) => state.support);
-
-  const { collectLog } = useCollectLog();
-
-  const [sendState, setSendState] = useState(SendState.initial);
-  const [email, setEmail] = useState(defaultEmail);
-  const [message, setMessage] = useState(defaultMessage);
-  const [disableActions, setDisableActions] = useState(false);
-
-  /**
-   * Save the form whenever email or message gets updated
-   */
-  useEffect(() => {
-    saveReportForm({ email, message });
-  }, [email, message]);
-
-  const sendReport = useCallback(async () => {
-    try {
-      const reportId = await collectLog();
-      await sendProblemReport(email, message, reportId);
-      clearReportForm();
-      setSendState(SendState.success);
-    } catch (error) {
-      setSendState(SendState.failed);
-    }
-  }, [email, message]);
-
-  const onViewLog = useCallback(async () => {
-    setDisableActions(true);
-
-    try {
-      const reportId = await collectLog();
-      await viewLog(reportId);
-    } catch (error) {
-      // TODO: handle error
-    } finally {
-      setDisableActions(false);
-    }
-  }, []);
-
-  const onSend = useCallback(async () => {
-    if (sendState === SendState.initial && email.length === 0) {
-      setSendState(SendState.confirm);
-    } else if (
-      sendState === SendState.initial ||
-      sendState === SendState.confirm ||
-      sendState === SendState.failed
-    ) {
-      try {
-        setSendState(SendState.sending);
-        await sendReport();
-      } catch (error) {
-        // No-op
-      }
-    }
-  }, [email]);
-
-  const renderContent = () => {
-    switch (sendState) {
-      case SendState.initial:
-      case SendState.confirm:
-        return (
-          <Form
-            email={email}
-            setEmail={setEmail}
-            message={message}
-            setMessage={setMessage}
-            onSend={onSend}
-            disableActions={disableActions}
-            onViewLog={onViewLog}
-          />
-        );
-      case SendState.sending:
-        return <Sending />;
-      case SendState.success:
-        return <Sent email={email} />;
-      case SendState.failed:
-        return <Failed setSendState={setSendState} onSend={onSend} />;
-      default:
-        return null;
-    }
-  };
-
-  const content = renderContent();
 
   return (
     <BackAction action={history.pop}>
@@ -152,11 +76,11 @@ export default function ProblemReport() {
             </NavigationItems>
           </NavigationBar>
           <StyledContentContainer>
-            <Header sendState={sendState} />
-            {content}
+            <Header />
+            <Content />
           </StyledContentContainer>
 
-          <NoEmailDialog sendState={sendState} setSendState={setSendState} onSend={onSend} />
+          <NoEmailDialog />
           <OutdatedVersionWarningDialog />
         </SettingsContainer>
       </Layout>
@@ -164,11 +88,9 @@ export default function ProblemReport() {
   );
 }
 
-type HeaderProps = {
-  sendState: SendState;
-};
+function Header() {
+  const { sendState } = useProblemReportContext();
 
-function Header({ sendState }: HeaderProps) {
   return (
     <SettingsHeader>
       <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
@@ -184,25 +106,44 @@ function Header({ sendState }: HeaderProps) {
   );
 }
 
-type FormProps = {
-  email: string;
-  setEmail: (email: string) => void;
-  disableActions: boolean;
-  message: string;
-  setMessage: (message: string) => void;
-  onSend: () => void;
-  onViewLog: () => void;
-};
+function Content() {
+  const { sendState } = useProblemReportContext();
 
-function Form({
-  email,
-  disableActions,
-  message,
-  onSend,
-  setEmail,
-  setMessage,
-  onViewLog,
-}: FormProps) {
+  switch (sendState) {
+    case SendState.initial:
+    case SendState.confirm:
+      return <Form />;
+    case SendState.sending:
+      return <Sending />;
+    case SendState.success:
+      return <Sent />;
+    case SendState.failed:
+      return <Failed />;
+    default:
+      return null;
+  }
+}
+
+function Form() {
+  const { viewLog } = useAppContext();
+  const { email, setEmail, message, setMessage, onSend } = useProblemReportContext();
+  const { collectLog } = useCollectLog();
+
+  const [disableActions, setDisableActions] = useState(false);
+
+  const onViewLog = useCallback(async () => {
+    setDisableActions(true);
+
+    try {
+      const reportId = await collectLog();
+      await viewLog(reportId);
+    } catch (error) {
+      // TODO: handle error
+    } finally {
+      setDisableActions(false);
+    }
+  }, []);
+
   const onChangeEmail = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   }, []);
@@ -275,11 +216,9 @@ function Sending() {
   );
 }
 
-type SentProps = {
-  email: string;
-};
+function Sent() {
+  const { email } = useProblemReportContext();
 
-function Sent({ email }: SentProps) {
   const reachBackMessage: ReactNode[] =
     // TRANSLATORS: The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
     // TRANSLATORS: Available placeholders:
@@ -307,12 +246,9 @@ function Sent({ email }: SentProps) {
   );
 }
 
-type FailedProps = {
-  setSendState: Dispatch<SetStateAction<SendState>>;
-  onSend: () => void;
-};
+function Failed() {
+  const { setSendState, onSend } = useProblemReportContext();
 
-function Failed({ setSendState, onSend }: FailedProps) {
   const handleEditMessage = useCallback(() => {
     setSendState(SendState.initial);
   }, []);
@@ -345,13 +281,9 @@ function Failed({ setSendState, onSend }: FailedProps) {
   );
 }
 
-type NoEmailDialogProps = {
-  sendState: SendState;
-  onSend: () => void;
-  setSendState: Dispatch<SetStateAction<SendState>>;
-};
+function NoEmailDialog() {
+  const { sendState, setSendState, onSend } = useProblemReportContext();
 
-function NoEmailDialog({ sendState, onSend, setSendState }: NoEmailDialogProps) {
   const message = messages.pgettext(
     'support-view',
     'You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.',
@@ -469,4 +401,78 @@ const useCollectLog = () => {
   }, [collectLogPromise]);
 
   return { collectLog };
+};
+
+type ProblemReportContextType = {
+  sendState: SendState;
+  setSendState: Dispatch<SetStateAction<SendState>>;
+  email: string;
+  setEmail: Dispatch<SetStateAction<string>>;
+  message: string;
+  setMessage: Dispatch<SetStateAction<string>>;
+  onSend: () => Promise<void>;
+};
+
+const ProblemReportContext = createContext<ProblemReportContextType | undefined>(undefined);
+
+const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => {
+  const { sendProblemReport } = useAppContext();
+  const { clearReportForm, saveReportForm } = useActions(support);
+
+  const { email: defaultEmail, message: defaultMessage } = useSelector((state) => state.support);
+
+  const { collectLog } = useCollectLog();
+
+  const [sendState, setSendState] = useState(SendState.initial);
+  const [email, setEmail] = useState(defaultEmail);
+  const [message, setMessage] = useState(defaultMessage);
+
+  const sendReport = useCallback(async () => {
+    try {
+      const reportId = await collectLog();
+      await sendProblemReport(email, message, reportId);
+      clearReportForm();
+      setSendState(SendState.success);
+    } catch (error) {
+      setSendState(SendState.failed);
+    }
+  }, [email, message]);
+
+  const onSend = useCallback(async () => {
+    if (sendState === SendState.initial && email.length === 0) {
+      setSendState(SendState.confirm);
+    } else if (
+      sendState === SendState.initial ||
+      sendState === SendState.confirm ||
+      sendState === SendState.failed
+    ) {
+      try {
+        setSendState(SendState.sending);
+        await sendReport();
+      } catch (error) {
+        // No-op
+      }
+    }
+  }, [email]);
+
+  /**
+   * Save the form whenever email or message gets updated
+   */
+  useEffect(() => {
+    saveReportForm({ email, message });
+  }, [email, message]);
+
+  const value: ProblemReportContextType = useMemo(
+    () => ({ sendState, setSendState, email, setEmail, message, setMessage, onSend }),
+    [sendState, setSendState, email, setEmail, message, setMessage, onSend],
+  );
+  return <ProblemReportContext.Provider value={value}>{children}</ProblemReportContext.Provider>;
+};
+
+const useProblemReportContext = () => {
+  const context = useContext(ProblemReportContext);
+  if (!context) {
+    throw new Error('useProblemReportContext must be used within a ProblemReportContextProvider');
+  }
+  return context;
 };
