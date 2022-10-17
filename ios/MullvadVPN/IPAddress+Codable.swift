@@ -6,9 +6,9 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-//import Network
+// import Network
 
-//extension IPv4Address: Codable {
+// extension IPv4Address: Codable {
 //    public init(from decoder: Decoder) throws {
 //        let container = try decoder.singleValueContainer()
 //        let ipString = try container.decode(String.self)
@@ -28,9 +28,9 @@
 //
 //        try container.encode(String(reflecting: self))
 //    }
-//}
+// }
 //
-//extension IPv6Address: Codable {
+// extension IPv6Address: Codable {
 //    public init(from decoder: Decoder) throws {
 //        let container = try decoder.singleValueContainer()
 //        let ipString = try container.decode(String.self)
@@ -50,4 +50,4 @@
 //
 //        try container.encode(String(reflecting: self))
 //    }
-//}
+// }

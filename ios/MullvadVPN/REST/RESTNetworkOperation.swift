@@ -8,8 +8,8 @@
 
 import Foundation
 import MullvadLogging
-import Operations
 import MullvadREST
+import Operations
 
 extension REST {
     class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {

@@ -260,7 +260,7 @@ public extension REST {
         let log: String
         let metadata: [String: String]
 
-        public init(address: String, message: String, log: String, metadata: [String : String]) {
+        public init(address: String, message: String, log: String, metadata: [String: String]) {
             self.address = address
             self.message = message
             self.log = log

@@ -11,7 +11,8 @@ import Operations
 
 public extension REST {
     class Proxy<ConfigurationType: ProxyConfiguration> {
-        public typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>) -> Void
+        public typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>)
+            -> Void
 
         /// Synchronization queue used by network operations.
         public let dispatchQueue: DispatchQueue
@@ -69,7 +70,10 @@ public extension REST {
         public let transportRegistry: RESTTransportRegistry
         public let addressCacheStore: AddressCache.Store
 
-        public init(transportRegistry: RESTTransportRegistry, addressCacheStore: AddressCache.Store) {
+        public init(
+            transportRegistry: RESTTransportRegistry,
+            addressCacheStore: AddressCache.Store
+        ) {
             self.transportRegistry = transportRegistry
             self.addressCacheStore = addressCacheStore
         }
@@ -78,7 +82,10 @@ public extension REST {
     class AuthProxyConfiguration: ProxyConfiguration {
         public let accessTokenManager: AccessTokenManager
 
-        public init(proxyConfiguration: ProxyConfiguration, accessTokenManager: AccessTokenManager) {
+        public init(
+            proxyConfiguration: ProxyConfiguration,
+            accessTokenManager: AccessTokenManager
+        ) {
             self.accessTokenManager = accessTokenManager
 
             super.init(

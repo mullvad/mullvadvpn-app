@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
+import protocol MullvadNetworking.Cancellable
+import enum MullvadNetworking.REST
 import Operations
 import class WireGuardKitTypes.PublicKey
-import enum MullvadNetworking.REST
-import protocol MullvadNetworking.Cancellable
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
     private let interactor: TunnelInteractor

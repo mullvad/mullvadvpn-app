@@ -8,9 +8,9 @@
 
 import Foundation
 import MullvadLogging
+import protocol MullvadNetworking.Cancellable
 import NetworkExtension
 import Operations
-import protocol MullvadNetworking.Cancellable
 
 class MapConnectionStatusOperation: AsyncOperation {
     private let interactor: TunnelInteractor

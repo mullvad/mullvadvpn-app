@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import protocol MullvadNetworking.RESTTransport
 import protocol MullvadNetworking.Cancellable
+import protocol MullvadNetworking.RESTTransport
 
 final class PacketTunnelTransport: RESTTransport {
     var name: String {

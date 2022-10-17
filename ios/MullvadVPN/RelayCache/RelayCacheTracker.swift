@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
+import protocol MullvadNetworking.Cancellable
+import enum MullvadNetworking.REST
 import Operations
 import UIKit
-import enum MullvadNetworking.REST
-import protocol MullvadNetworking.Cancellable
 
 extension RelayCache {
     /// Type describing the result of an attempt to fetch the new relay list from server.

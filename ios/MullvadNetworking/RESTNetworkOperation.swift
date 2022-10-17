@@ -55,7 +55,7 @@ public extension REST {
             )
         }
 
-        public override func operationDidCancel() {
+        override public func operationDidCancel() {
             retryTimer?.cancel()
             networkTask?.cancel()
             authorizationTask?.cancel()
@@ -65,7 +65,7 @@ public extension REST {
             authorizationTask = nil
         }
 
-        public override func main() {
+        override public func main() {
             startRequest()
         }
 
