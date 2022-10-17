@@ -51,6 +51,10 @@ Line wrap the file at 100 chars.                                              Th
   it was successful.
 
 
+## [android/2022.2] - 2022-10-17
+Identical to android/2022.2-beta2 except for updated translations.
+
+
 ## [android/2022.2-beta2] - 2022-09-09
 ### Changed
 #### Android
