@@ -61,10 +61,7 @@ export default function SelectLocationPage() {
   }, [tunnelProtocol, relaySettings]);
 
   const selectedEntryLocation = useMemo<RelayLocation | undefined>(() => {
-    if (
-      !(tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings) &&
-      'normal' in relaySettings
-    ) {
+    if (multihopEnabled && 'normal' in relaySettings) {
       const entryLocation = relaySettings.normal.wireguard.entryLocation;
       if (multihopEnabled && entryLocation !== 'any') {
         return entryLocation;
