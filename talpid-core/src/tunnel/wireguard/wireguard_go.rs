@@ -4,11 +4,8 @@ use super::{
 };
 #[cfg(not(windows))]
 use crate::tunnel::tun_provider::TunProvider;
-use crate::tunnel::{
-    wireguard::logging::{
-        clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
-    },
-    RouteManagerHandle,
+use crate::tunnel::wireguard::logging::{
+    clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
 };
 #[cfg(windows)]
 use futures::SinkExt;
@@ -117,7 +114,7 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        route_manager_handle: RouteManagerHandle,
+        route_manager_handle: crate::tunnel::RouteManagerHandle,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
         runtime: &tokio::runtime::Handle,
     ) -> Result<Self> {

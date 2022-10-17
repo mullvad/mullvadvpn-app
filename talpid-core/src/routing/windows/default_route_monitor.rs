@@ -239,9 +239,9 @@ impl DefaultRouteMonitor {
         };
 
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyRouteCallback(io::Error::from_raw_os_error(
-                status,
-            )));
+            return Err(Error::RegisterNotifyRouteCallback(
+                io::Error::from_raw_os_error(status),
+            ));
         }
         let notify_route_change_handle = NotifyChangeHandle(handle_ptr);
 
@@ -257,9 +257,9 @@ impl DefaultRouteMonitor {
             )
         };
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyIpInterfaceCallback(io::Error::from_raw_os_error(
-                status,
-            )));
+            return Err(Error::RegisterNotifyIpInterfaceCallback(
+                io::Error::from_raw_os_error(status),
+            ));
         }
         let notify_interface_change_handle = NotifyChangeHandle(handle_ptr);
 
@@ -275,9 +275,9 @@ impl DefaultRouteMonitor {
             )
         };
         if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyUnicastIpAddressCallback(io::Error::from_raw_os_error(
-                status,
-            )));
+            return Err(Error::RegisterNotifyUnicastIpAddressCallback(
+                io::Error::from_raw_os_error(status),
+            ));
         }
         let notify_address_change_handle = NotifyChangeHandle(handle_ptr);
 

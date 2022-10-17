@@ -1,7 +1,7 @@
 use crate::{routing::RequiredRoute, windows::AddressFamily};
 use futures::channel::oneshot;
-use talpid_types::ErrorExt;
 use std::{collections::HashSet, io, net::IpAddr};
+use talpid_types::ErrorExt;
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
 pub use default_route_monitor::EventType;
@@ -268,7 +268,8 @@ impl RouteManager {
     /// [`RouteManager::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
-            tx.send(RouteManagerCommand::ClearRoutes).map_err(|_| Error::RouteManagerDown)
+            tx.send(RouteManagerCommand::ClearRoutes)
+                .map_err(|_| Error::RouteManagerDown)
         } else {
             Err(Error::RouteManagerDown)
         }

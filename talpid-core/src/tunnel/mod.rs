@@ -1,8 +1,5 @@
 use self::tun_provider::TunProvider;
-use crate::{
-    logging,
-    routing::{self, RouteManagerHandle},
-};
+use crate::{logging, routing::RouteManagerHandle};
 use futures::{channel::oneshot, future::BoxFuture};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -45,7 +42,7 @@ pub enum Error {
     /// Failure in Windows syscall.
     #[cfg(windows)]
     #[error(display = "Failure in Windows syscall")]
-    WinnetError(#[error(source)] routing::Error),
+    WinnetError(#[error(source)] crate::routing::Error),
 
     /// Running on an operating system which is not supported yet.
     #[error(display = "Tunnel type not supported on this operating system")]

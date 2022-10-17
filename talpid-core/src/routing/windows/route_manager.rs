@@ -370,7 +370,11 @@ impl RouteManagerInternal {
             }
             Ok(NO_ERROR) => (),
             _ => {
-                log::error!("Failed to delete route in routing table. Route: {}, Status: {}", route, status);
+                log::error!(
+                    "Failed to delete route in routing table. Route: {}, Status: {}",
+                    route,
+                    status
+                );
                 return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(
                     status,
                 )));
@@ -401,7 +405,11 @@ impl RouteManagerInternal {
         let status = unsafe { CreateIpForwardEntry2(&spec) };
 
         if NO_ERROR as i32 != status {
-            log::error!("Could not register route in routing table. Route: {}, Status: {}", route, status);
+            log::error!(
+                "Could not register route in routing table. Route: {}, Status: {}",
+                route,
+                status
+            );
             return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
         }
         Ok(())
@@ -635,7 +643,9 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
 }
 
 /// SAFETY: adapter.FirstGatewayAddress must be dereferencable and must live as long as adapter
-unsafe fn get_first_gateway_address_reference(adapter: &IP_ADAPTER_ADDRESSES_LH) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
+unsafe fn get_first_gateway_address_reference(
+    adapter: &IP_ADAPTER_ADDRESSES_LH,
+) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
     &*adapter.FirstGatewayAddress
 }
 
@@ -783,8 +793,12 @@ impl Adapters {
         // Unwrapping is fine because we previously would return if we got a ERROR_NO_DATA status. As such the buffer is not empty.
         // SAFETY: Casting the buffers first element to an IP_ADAPTER_ADDRESSES_LH is safe as that is the underlying data structure.
         // SAFETY: This union field is always valid to read from
-        let system_size = unsafe { (*(buffer.get(0).unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
-            .Anonymous1.Anonymous.Length };
+        let system_size = unsafe {
+            (*(buffer.get(0).unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
+                .Anonymous1
+                .Anonymous
+                .Length
+        };
         let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
 
         if system_size < code_size {
