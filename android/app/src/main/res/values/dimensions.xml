@@ -48,6 +48,9 @@
     <dimen name="expanded_toolbar_height">104dp</dimen>
     <dimen name="information_icon_size">28dp</dimen>
     <dimen name="information_action_margin">20dp</dimen>
+    <dimen name="medium_padding">16dp</dimen>
+    <dimen name="small_padding">8dp</dimen>
+    <dimen name="zero_size">0px</dimen>
     <!-- Switch Dimens-->
     <dimen name="switch_width">46dp</dimen>
     <dimen name="switch_height">30dp</dimen>
