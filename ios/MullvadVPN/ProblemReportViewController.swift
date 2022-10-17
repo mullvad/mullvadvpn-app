@@ -6,9 +6,9 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
+import enum MullvadNetworking.REST
 import Operations
 import UIKit
-import enum MullvadNetworking.REST
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()

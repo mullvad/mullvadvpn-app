@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
+import enum MullvadNetworking.REST
 import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
-import enum MullvadNetworking.REST
 
 enum SetAccountAction {
     /// Set new account.

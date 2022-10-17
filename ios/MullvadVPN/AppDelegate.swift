@@ -9,11 +9,11 @@
 import BackgroundTasks
 import Intents
 import MullvadLogging
+import enum MullvadNetworking.AddressCache
 import Operations
 import StoreKit
 import UIKit
 import UserNotifications
-import enum MullvadNetworking.AddressCache
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

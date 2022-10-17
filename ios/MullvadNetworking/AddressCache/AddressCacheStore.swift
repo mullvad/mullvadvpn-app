@@ -59,7 +59,7 @@ public extension AddressCache {
                 cacheFilename,
                 isDirectory: false
             )
-            let prebundledCacheFileURL = Bundle.main.url(
+            let prebundledCacheFileURL = Bundle(identifier: "net.mullvad.MullvadNetworking")!.url(
                 forResource: cacheFilename,
                 withExtension: nil
             )!

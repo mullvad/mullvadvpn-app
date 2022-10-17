@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadLogging
+import protocol MullvadNetworking.Cancellable
+import enum MullvadNetworking.REST
 import Operations
 import class WireGuardKitTypes.PrivateKey
-import enum MullvadNetworking.REST
-import protocol MullvadNetworking.Cancellable
 
 class MigrateSettingsOperation: AsyncOperation {
     private let accountTokenKey = "accountToken"

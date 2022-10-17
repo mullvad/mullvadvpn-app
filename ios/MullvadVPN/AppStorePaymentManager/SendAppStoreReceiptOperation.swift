@@ -8,9 +8,9 @@
 
 import Foundation
 import MullvadLogging
-import Operations
-import enum MullvadNetworking.REST
 import protocol MullvadNetworking.Cancellable
+import enum MullvadNetworking.REST
+import Operations
 
 class SendAppStoreReceiptOperation: ResultOperation<
     REST.CreateApplePaymentResponse,

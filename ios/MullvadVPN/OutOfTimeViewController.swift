@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import enum MullvadNetworking.REST
 import Operations
 import StoreKit
 import UIKit
-import enum MullvadNetworking.REST
 
 class OutOfTimeViewController: UIViewController {
     weak var delegate: SettingsButtonInteractionDelegate?

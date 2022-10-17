@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import protocol MullvadNetworking.Cancellable
 import Operations
 import StoreKit
-import protocol MullvadNetworking.Cancellable
 
 struct AppStoreReceiptNotFound: LocalizedError {
     var errorDescription: String? {

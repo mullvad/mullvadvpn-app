@@ -10,7 +10,8 @@ import Foundation
 
 public extension REST {
     static let sharedURLSession: URLSession = {
-        let certificatePath = Bundle.main.path(forResource: "le_root_cert", ofType: "cer")!
+        let certificatePath = Bundle(identifier: "net.mullvad.MullvadNetworking")!
+            .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!
         let secCertificate = SecCertificateCreateWithData(nil, data as CFData)!
 
