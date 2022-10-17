@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 
 @Composable
@@ -70,6 +72,50 @@ fun ListItem(
                         .clickable { onClick() }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ChangeListItem(
+    text: String
+) {
+    ConstraintLayout {
+        val (bullet, changeLog) = createRefs()
+        Box(
+            modifier = Modifier
+                .padding(vertical = 1.dp)
+                .width(16.dp)
+                .constrainAs(bullet) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+        ) {
+            Text(
+                text = "•",
+                fontSize = 14.sp,
+                color = Color.White,
+                modifier = Modifier
+                    .width(16.dp)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .absolutePadding(left = 16.dp, right = 16.dp)
+                .constrainAs(changeLog) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom, margin = 8.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        ) {
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                color = Color.White,
+                modifier = Modifier
+
+            )
         }
     }
 }

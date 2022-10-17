@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import android.content.Context
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -12,30 +15,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
-import net.mullvad.mullvadvpn.util.toBulletList
-import net.mullvad.mullvadvpn.viewmodel.AppChangesViewModel
 
 @Composable
 fun ShowChangesDialog(
-    context: Context,
-    changesViewModel: AppChangesViewModel,
-    serviceConnectionManager: ServiceConnectionManager,
-    onBackPressed: () -> Unit
+    changesList: List<String>,
+    version: String,
+    onDismiss: () -> Unit
 ) {
-    var version: String? = serviceConnectionManager.appVersionInfoCache()?.version
-    if (version.isNullOrEmpty()) version = BuildConfig.VERSION_NAME
-    var changesHeader = "<h4>${context.getString(R.string.changesHeader)}</h4>\n"
     AlertDialog(
         onDismissRequest = {
-            changesViewModel.setDialogShowed()
+            onDismiss()
         },
         title = {
             Column(
@@ -54,11 +49,23 @@ fun ShowChangesDialog(
         },
 
         text = {
-            HtmlText(
-                htmlFormattedString = changesHeader +
-                        changesViewModel.getChangesList().toBulletList(),
-                textSize = 14.sp.value
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.changesHeader),
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .padding(
+                            vertical = 16.dp
+                        )
+                )
+
+                changesList.forEach { changeItem ->
+                    ChangeListItem(
+                        text = changeItem
+                    )
+                }
+            }
         },
         buttons = {
             Column(
@@ -77,15 +84,14 @@ fun ShowChangesDialog(
                         contentColor = Color.White
                     ),
                     onClick = {
-                        onBackPressed()
+                        onDismiss()
                     }
                 ) {
                     Text(
-                        text = context.getString(R.string.gotIt),
+                        text = stringResource(R.string.gotIt),
                         fontSize = 18.sp
                     )
                 }
-
             }
         },
         properties = DialogProperties(

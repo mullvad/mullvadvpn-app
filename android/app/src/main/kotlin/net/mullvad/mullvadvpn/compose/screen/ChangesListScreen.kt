@@ -1,25 +1,39 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ShowChangesDialog
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.repository.ChangeLogState
 import net.mullvad.mullvadvpn.viewmodel.AppChangesViewModel
 
 @Composable
 fun ChangesListScreen(
-    context: Context,
     viewModel: AppChangesViewModel,
-    serviceConnectionManager: ServiceConnectionManager,
     onBackPressed: () -> Unit
 ) {
+    val state = viewModel.changeLogState.collectAsState().value
+    if (state == ChangeLogState.ShouldShow) {
+
+        ShowChangesDialog(
+            changesList = viewModel.getChangesList(),
+            version = BuildConfig.VERSION_NAME,
+            onDismiss = {
+                onBackPressed()
+            }
+        )
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -28,7 +42,6 @@ fun ChangesListScreen(
             .background(colorResource(id = R.color.colorPrimary))
     ) {
         val (title, changes, back) = createRefs()
-
 
         Column(
             Modifier
@@ -40,12 +53,6 @@ fun ChangesListScreen(
                     bottom.linkTo(parent.bottom, margin = 12.dp)
                 }
         ) {
-            ShowChangesDialog(
-                context = context,
-                changesViewModel = viewModel,
-                serviceConnectionManager = serviceConnectionManager,
-                onBackPressed = onBackPressed
-            )
         }
     }
 }
