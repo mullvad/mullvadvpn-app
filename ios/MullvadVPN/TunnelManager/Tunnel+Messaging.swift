@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import protocol MullvadNetworking.Cancellable
+import MullvadREST
 import Operations
 
 /// Shared operation queue used for IPC requests.
@@ -17,7 +17,7 @@ private let operationQueue = AsyncOperationQueue()
 private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
 
 /// Timeout for proxy requests.
-private let proxyRequestTimeout: TimeInterval = ApplicationConfiguration
+private let proxyRequestTimeout: TimeInterval = REST
     .defaultAPINetworkTimeout + 2
 
 extension Tunnel {

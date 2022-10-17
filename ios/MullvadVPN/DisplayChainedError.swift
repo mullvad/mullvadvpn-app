@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import enum MullvadNetworking.REST
+import MullvadREST
 import StoreKit
 
 public protocol DisplayChainedError {
