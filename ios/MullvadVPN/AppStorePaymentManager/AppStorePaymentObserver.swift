@@ -36,7 +36,7 @@ enum CreateApplePaymentResponse {
         formatter.allowedUnits = [.day, .hour]
         formatter.unitsStyle = .full
 
-        return formatter.string(from: self.timeAdded)
+        return formatter.string(from: timeAdded)
     }
 }
 
