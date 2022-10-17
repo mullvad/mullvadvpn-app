@@ -79,16 +79,6 @@ export default function ProblemReport() {
   }, [email, message]);
 
   /**
-   * Listen for changes to sendState,
-   * when it is set to sending, send the report
-   */
-  useEffect(() => {
-    if (sendState === SendState.sending) {
-      void sendReport();
-    }
-  }, [sendState]);
-
-  /**
    * A bit awkward, but when actions are disabled,
    * we use that as a trigger to collect and view the log
    */
@@ -135,7 +125,7 @@ export default function ProblemReport() {
     setDisableActions(true);
   }, []);
 
-  const onSend = useCallback(() => {
+  const onSend = useCallback(async () => {
     if (sendState === SendState.initial && email.length === 0) {
       setSendState(SendState.confirm);
     } else if (
@@ -145,6 +135,7 @@ export default function ProblemReport() {
     ) {
       try {
         setSendState(SendState.sending);
+        await sendReport();
       } catch (error) {
         // No-op
       }
