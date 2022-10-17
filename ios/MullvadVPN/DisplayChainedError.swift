@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import StoreKit
 import enum MullvadNetworking.REST
+import StoreKit
 
 public protocol DisplayChainedError {
     var errorChainDescription: String? { get }

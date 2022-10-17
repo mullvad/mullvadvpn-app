@@ -6,8 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import UIKit
 import enum MullvadNetworking.REST
+import UIKit
 
 protocol LocationDataSourceItemProtocol {
     var location: RelayLocation { get }

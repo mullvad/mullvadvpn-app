@@ -7,10 +7,10 @@
 //
 
 import MullvadLogging
+import enum MullvadNetworking.REST
 import Operations
 import StoreKit
 import UIKit
-import enum MullvadNetworking.REST
 
 protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
