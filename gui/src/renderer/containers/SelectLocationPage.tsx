@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -10,18 +10,7 @@ import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import filterLocations from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
-
-const getExitLocation = (relaySettings: RelaySettingsRedux): RelayLocation | undefined => {
-  if ('normal' in relaySettings) {
-    const exitLocation = relaySettings.normal.location;
-    if (exitLocation !== 'any') {
-      return exitLocation;
-    }
-  }
-  return undefined;
-};
 
 export default function SelectLocationPage() {
   const history = useHistory();
@@ -31,15 +20,6 @@ export default function SelectLocationPage() {
   const locale = useSelector((state) => state.userInterface.locale);
   const settings = useSelector((state) => state.settings);
   const { relaySettings, bridgeSettings, bridgeState } = settings;
-
-  const [multihopEnabled, setMultihopEnabled] = useState(false);
-  const [selectedExitLocation, setSelectedExitLocation] = useState<RelayLocation | undefined>(() =>
-    getExitLocation(relaySettings),
-  );
-  const [selectedEntryLocation, setSelectedEntryLocation] = useState<RelayLocation>();
-  const [selectedBridgeLocation, setSelectedBridgeLocation] = useState<
-    LiftedConstraint<RelayLocation>
-  >();
 
   const providers = useMemo(
     () => ('normal' in relaySettings ? relaySettings.normal.providers : []),
@@ -55,6 +35,45 @@ export default function SelectLocationPage() {
     () => ('normal' in relaySettings ? relaySettings.normal.tunnelProtocol : 'any'),
     [relaySettings],
   );
+
+  const selectedExitLocation = useMemo<RelayLocation | undefined>(() => {
+    if ('normal' in relaySettings) {
+      const exitLocation = relaySettings.normal.location;
+      if (exitLocation !== 'any') {
+        return exitLocation;
+      }
+    }
+    return undefined;
+  }, [relaySettings]);
+
+  const selectedBridgeLocation = useMemo<LiftedConstraint<RelayLocation> | undefined>(() => {
+    return tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings
+      ? bridgeSettings.normal.location
+      : undefined;
+  }, [tunnelProtocol, bridgeSettings]);
+
+  const multihopEnabled = useMemo(() => {
+    if (
+      !(tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings) &&
+      'normal' in relaySettings
+    ) {
+      return relaySettings.normal.wireguard.useMultihop;
+    }
+    return false;
+  }, [tunnelProtocol, relaySettings]);
+
+  const selectedEntryLocation = useMemo<RelayLocation | undefined>(() => {
+    if (
+      !(tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings) &&
+      'normal' in relaySettings
+    ) {
+      const entryLocation = relaySettings.normal.wireguard.entryLocation;
+      if (multihopEnabled && entryLocation !== 'any') {
+        return entryLocation;
+      }
+    }
+    return undefined;
+  }, [relaySettings, multihopEnabled]);
 
   const allowEntrySelection = useMemo(() => {
     return (
@@ -136,26 +155,6 @@ export default function SelectLocationPage() {
   const onClearOwnership = useCallback(async () => {
     await updateRelaySettings({ normal: { ownership: Ownership.any } });
   }, [updateRelaySettings]);
-
-  useEffect(() => {
-    if (tunnelProtocol === 'openvpn' && 'normal' in bridgeSettings) {
-      setSelectedBridgeLocation(bridgeSettings.normal.location);
-    } else if ('normal' in relaySettings) {
-      setMultihopEnabled(relaySettings.normal.wireguard.useMultihop);
-
-      const entryLocation = relaySettings.normal.wireguard.entryLocation;
-      if (multihopEnabled && entryLocation !== 'any') {
-        setSelectedEntryLocation(entryLocation);
-      }
-    }
-  }, [multihopEnabled, tunnelProtocol, bridgeSettings, relaySettings]);
-
-  useEffect(() => {
-    const exitLocation = getExitLocation(relaySettings);
-    if (exitLocation) {
-      setSelectedExitLocation(exitLocation);
-    }
-  }, [relaySettings]);
 
   return (
     <SelectLocation
