@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
+		062B45A428FD4F0E00746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB128F98C2200ACD94E /* api-ip-address.json */; };
 		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
@@ -850,6 +851,7 @@
 		062B45A228FD4C0F00746E77 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				06799AB128F98C2200ACD94E /* api-ip-address.json */,
 				06799AB428F98CE700ACD94E /* le_root_cert.cer */,
 			);
 			path = Assets;
@@ -1319,7 +1321,6 @@
 		58F3C0A824A50C0E003E76BE /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				06799AB128F98C2200ACD94E /* api-ip-address.json */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
@@ -1663,6 +1664,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
+				062B45A428FD4F0E00746E77 /* api-ip-address.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
