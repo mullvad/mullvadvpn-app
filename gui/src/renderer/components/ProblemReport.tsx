@@ -49,16 +49,24 @@ enum SendState {
 
 export default function ProblemReport() {
   const history = useHistory();
-  const { collectProblemReport, sendProblemReport, viewLog } = useAppContext();
+  const { sendProblemReport, viewLog } = useAppContext();
   const { clearReportForm, saveReportForm } = useActions(support);
 
   const { email: defaultEmail, message: defaultMessage } = useSelector((state) => state.support);
-  const accountHistory = useSelector((state) => state.account.accountHistory);
+
+  const { collectLog } = useCollectLog();
 
   const [sendState, setSendState] = useState(SendState.initial);
   const [email, setEmail] = useState(defaultEmail);
   const [message, setMessage] = useState(defaultMessage);
   const [disableActions, setDisableActions] = useState(false);
+
+  /**
+   * Save the form whenever email or message gets updated
+   */
+  useEffect(() => {
+    saveReportForm({ email, message });
+  }, [email, message]);
 
   const sendReport = useCallback(async () => {
     try {
@@ -71,58 +79,17 @@ export default function ProblemReport() {
     }
   }, [email, message]);
 
-  /**
-   * Save the form whenever email or message gets updated
-   */
-  useEffect(() => {
-    saveReportForm({ email, message });
-  }, [email, message]);
+  const onViewLog = useCallback(async () => {
+    setDisableActions(true);
 
-  /**
-   * A bit awkward, but when actions are disabled,
-   * we use that as a trigger to collect and view the log
-   */
-  useEffect(() => {
-    const collectAndViewLog = async () => {
+    try {
       const reportId = await collectLog();
       await viewLog(reportId);
-    };
-
-    if (disableActions) {
-      try {
-        void collectAndViewLog();
-      } catch (error) {
-        // TODO: handle error
-      } finally {
-        setDisableActions(false);
-      }
+    } catch (error) {
+      // TODO: handle error
+    } finally {
+      setDisableActions(false);
     }
-  }, [disableActions]);
-
-  const collectLogPromise = useRef<Promise<string>>();
-
-  const collectLog = async (): Promise<string> => {
-    if (collectLogPromise.current) {
-      return collectLogPromise.current;
-    } else {
-      const collectPromise = collectProblemReport(accountHistory);
-      // save promise to prevent subsequent requests
-      collectLogPromise.current = collectPromise;
-
-      try {
-        const reportId = await collectPromise;
-        return new Promise((resolve) => {
-          resolve(reportId);
-        });
-      } catch (error) {
-        collectLogPromise.current = undefined;
-        throw error;
-      }
-    }
-  };
-
-  const onViewLog = useCallback(() => {
-    setDisableActions(true);
   }, []);
 
   const onSend = useCallback(async () => {
@@ -474,3 +441,32 @@ function OutdatedVersionWarningDialog() {
     />
   );
 }
+
+const useCollectLog = () => {
+  const { collectProblemReport } = useAppContext();
+  const accountHistory = useSelector((state) => state.account.accountHistory);
+
+  const collectLogPromise = useRef<Promise<string>>();
+
+  const collectLog = useCallback(async (): Promise<string> => {
+    if (collectLogPromise.current) {
+      return collectLogPromise.current;
+    } else {
+      const collectPromise = collectProblemReport(accountHistory);
+      // save promise to prevent subsequent requests
+      collectLogPromise.current = collectPromise;
+
+      try {
+        const reportId = await collectPromise;
+        return new Promise((resolve) => {
+          resolve(reportId);
+        });
+      } catch (error) {
+        collectLogPromise.current = undefined;
+        throw error;
+      }
+    }
+  }, [collectLogPromise]);
+
+  return { collectLog };
+};
