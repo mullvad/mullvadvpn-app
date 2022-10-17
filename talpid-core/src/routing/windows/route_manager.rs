@@ -1,5 +1,7 @@
-use super::default_route_monitor::{DefaultRouteMonitor, EventType as RouteMonitorEventType};
-use super::{get_best_default_route, Error, InterfaceAndGateway, Result};
+use super::{
+    default_route_monitor::{DefaultRouteMonitor, EventType as RouteMonitorEventType},
+    get_best_default_route, Error, InterfaceAndGateway, Result,
+};
 use crate::{
     routing::NetNode,
     windows::{inet_sockaddr_from_socketaddr, try_socketaddr_from_inet_sockaddr, AddressFamily},
@@ -114,8 +116,8 @@ pub struct RouteManagerInternal {
     route_monitor_v4: Option<DefaultRouteMonitor>,
     route_monitor_v6: Option<DefaultRouteMonitor>,
     routes: Arc<Mutex<Vec<RouteRecord>>>,
-    /// Lock for a nonce and a HashMap of callbacks and their id which is used as a handle to unregister them.
-    /// The nonce is used to create new ids and then incrementing.
+    /// Lock for a nonce and a HashMap of callbacks and their id which is used as a handle to
+    /// unregister them. The nonce is used to create new ids and then incrementing.
     callbacks: Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
 }
 
@@ -185,12 +187,12 @@ impl RouteManagerInternal {
     fn add_into_routing_table(route: &Route) -> Result<RegisteredRoute> {
         let node = Self::resolve_node(ipnetwork_to_address_family(route.network), &route.node)?;
 
-        // SAFETY: MIB_IPFORWARD_ROW2 contains no references or pointers only number primitives and as such it is safe
-        // to zero it.
+        // SAFETY: MIB_IPFORWARD_ROW2 contains no references or pointers only number primitives and
+        // as such it is safe to zero it.
         let mut spec: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
 
-        // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to be
-        // used later by CreateIpForwardEntry2.
+        // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to
+        // be used later by CreateIpForwardEntry2.
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = node.iface;
@@ -201,10 +203,10 @@ impl RouteManagerInternal {
         spec.Origin = NlroManual;
 
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have a
-        // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set to the interface.
+        // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set
+        // to the interface.
         let mut status = unsafe { CreateIpForwardEntry2(&spec) };
 
-        //
         // The return code ERROR_OBJECT_ALREADY_EXISTS means there is already an existing route
         // on the same interface, with the same DestinationPrefix and NextHop.
         //
@@ -217,7 +219,8 @@ impl RouteManagerInternal {
 
         if ERROR_OBJECT_ALREADY_EXISTS as i32 == status {
             // SAFETY: DestinationPrefix must be initialzed to a valid prefix. NextHop must have
-            // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set to the interface.
+            // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must
+            // be set to the interface.
             status = unsafe { SetIpForwardEntry2(&spec) };
         }
 
@@ -234,7 +237,6 @@ impl RouteManagerInternal {
     }
 
     fn resolve_node(family: AddressFamily, optional_node: &NetNode) -> Result<InterfaceAndGateway> {
-        //
         // There are four cases:
         //
         // Unspecified node (use interface and gateway of default route).
@@ -295,11 +297,11 @@ impl RouteManagerInternal {
                     });
                 }
 
-                //
                 // The node is specified only by gateway.
                 //
 
-                // Unwrapping is fine because the node must have an address since no device name was found.
+                // Unwrapping is fine because the node must have an address since no device name was
+                // found.
                 let gateway = node.get_address().map(inet_sockaddr_from_ipaddr).unwrap();
                 Ok(InterfaceAndGateway {
                     iface: interface_luid_from_gateway(&gateway)?,
@@ -317,7 +319,6 @@ impl RouteManagerInternal {
     }
 
     fn undo_events(event_log: &Vec<EventEntry>, records: &mut Vec<RouteRecord>) -> Result<()> {
-        //
         // Rewind state by processing events in the reverse order.
         //
 
@@ -352,8 +353,8 @@ impl RouteManagerInternal {
     }
 
     fn delete_from_routing_table(route: &RegisteredRoute) -> Result<()> {
-        // SAFETY: There are no pointers or references inside of MIB_IPFORWARD_ROW2, only primitive numbers
-        // as such it is safe to zero it.
+        // SAFETY: There are no pointers or references inside of MIB_IPFORWARD_ROW2, only primitive
+        // numbers as such it is safe to zero it.
         let mut r: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
 
         r.InterfaceLuid = route.luid;
@@ -361,7 +362,8 @@ impl RouteManagerInternal {
         r.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
 
         // SAFETY: DestinationPrefix must be initialzed to a valid prefix. NextHop must have
-        // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set to the interface.
+        // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be
+        // set to the interface.
         let status = unsafe { DeleteIpForwardEntry2(&r) };
 
         match u32::try_from(status) {
@@ -385,12 +387,12 @@ impl RouteManagerInternal {
     }
 
     fn restore_into_routing_table(route: &RegisteredRoute) -> Result<()> {
-        // SAFETY: There are no pointers or references inside of MIB_IPFORWARD_ROW2, only primitive numbers
-        // as such it is safe to zero it.
+        // SAFETY: There are no pointers or references inside of MIB_IPFORWARD_ROW2, only primitive
+        // numbers as such it is safe to zero it.
         let mut spec: MIB_IPFORWARD_ROW2 = unsafe { std::mem::zeroed() };
 
-        // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to be
-        // used later by CreateIpForwardEntry2.
+        // SAFETY: This function must be used to initialize MIB_IPFORWARD_ROW2 structs if it is to
+        // be used later by CreateIpForwardEntry2.
         unsafe { InitializeIpForwardEntry(&mut spec) };
 
         spec.InterfaceLuid = route.luid;
@@ -401,7 +403,8 @@ impl RouteManagerInternal {
         spec.Origin = NlroManual;
 
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have a
-        // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set to the interface.
+        // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set
+        // to the interface.
         let status = unsafe { CreateIpForwardEntry2(&spec) };
 
         if NO_ERROR as i32 != status {
@@ -416,7 +419,6 @@ impl RouteManagerInternal {
     }
 
     fn parse_string_encoded_luid(encoded_luid: &WideCStr) -> Result<Option<NET_LUID_LH>> {
-        //
         // The `#` is a valid character in adapter names so we use `?` instead.
         // The LUID is thus prefixed with `?` and hex encoded and left-padded with zeroes.
         // E.g. `?deadbeefcafebabe` or `?000dbeefcafebabe`.
@@ -449,7 +451,6 @@ impl RouteManagerInternal {
 
     pub fn delete_applied_routes(&mut self) -> Result<()> {
         let mut routes = self.routes.lock().unwrap();
-        //
         // Delete all routes owned by us.
         //
 
@@ -486,7 +487,6 @@ impl RouteManagerInternal {
         family: ADDRESS_FAMILY,
         event_type: RouteMonitorEventType<'a>,
     ) {
-        //
         // Forward event to all registered listeners.
         //
 
@@ -499,7 +499,6 @@ impl RouteManagerInternal {
             }
         }
 
-        //
         // Examine event to determine if best default route has changed.
         //
 
@@ -509,7 +508,6 @@ impl RouteManagerInternal {
             return;
         };
 
-        //
         // Examine our routes to see if any of them are policy bound to the best default route.
         //
 
@@ -529,16 +527,14 @@ impl RouteManagerInternal {
             return;
         }
 
-        //
         // Update all affected routes.
         //
 
         log::info!("Best default route has changed. Refreshing dependent routes");
 
         for affected_route in affected_routes {
-            //
-            // We can't update the existing route because defining characteristics are being changed.
-            // So removing and adding again is the only option.
+            // We can't update the existing route because defining characteristics are being
+            // changed. So removing and adding again is the only option.
             //
 
             match Self::delete_from_routing_table(&affected_route.registered_route) {
@@ -591,7 +587,6 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     let family: u32 = u32::from(unsafe { gateway.si_family });
     let adapters = Adapters::new(family, ADAPTER_FLAGS)?;
 
-    //
     // Process adapters to find matching ones.
     //
 
@@ -603,7 +598,6 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
             if !adapter_interface_enabled(adapter, family).unwrap_or(false) {
                 return false;
             }
-            
             let gateways = if adapter.FirstGatewayAddress.is_null() {
                 vec![]
             } else {
@@ -621,7 +615,6 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         return Err(Error::DeviceGatewayNotFound);
     }
 
-    //
     // Sort matching interfaces ascending by metric.
     //
 
@@ -635,7 +628,6 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         }
     });
 
-    //
     // Select the interface with the best (lowest) metric.
     //
 
@@ -672,7 +664,8 @@ unsafe fn isolate_gateway_address<'a>(
 
     let mut gateway = head;
     loop {
-        // SAFETY: The contract states that Address.lpSockaddr is dereferencable if the element is non-null
+        // SAFETY: The contract states that Address.lpSockaddr is dereferencable if the element is
+        // non-null
         if family == u32::from((*gateway.Address.lpSockaddr).sa_family) {
             // SAFETY: The contract states that this field must have lifetime 'a
             matches.push(&gateway.Address);
@@ -682,7 +675,8 @@ unsafe fn isolate_gateway_address<'a>(
             break;
         }
 
-        // SAFETY: Gateway.Next is not null here and the contract states it must be dereferencable if non-null
+        // SAFETY: Gateway.Next is not null here and the contract states it must be dereferencable
+        // if non-null
         gateway = &*gateway.Next;
     }
 
@@ -728,7 +722,8 @@ fn equal_address(lhs: &'_ SOCKADDR_INET, rhs: &'_ SOCKET_ADDRESS) -> Result<bool
 /// Linked list containing `IP_ADAPTER_ADDRESSES_LH` queried from the windows API.
 /// Consume by using the iterator produced by `iter_mut()`
 struct Adapters {
-    // SAFETY: This vector is not allowed to be resized since all of the data inside of it would be dangling
+    // SAFETY: This vector is not allowed to be resized since all of the data inside of it would be
+    // dangling
     buffer: Vec<u8>,
 }
 
@@ -742,15 +737,15 @@ impl Adapters {
         let mut buffer_size = u32::try_from(buffer.len()).unwrap();
         let mut buffer_pointer = buffer.as_mut_ptr();
 
-        //
         // Acquire interfaces.
         //
 
         loop {
-            // SAFETY: buffer_size must point to the correct amount of bytes in the buffer which it does.
-            // buffer_pointer must point to the start of a mutable buffer which it does.
-            // After this call buffer_size might have changed and as such the buffer must be resized
-            // to reflect this if this function is going to be called again.
+            // SAFETY: buffer_size must point to the correct amount of bytes in the buffer which it
+            // does. buffer_pointer must point to the start of a mutable buffer which it
+            // does. After this call buffer_size might have changed and as such the
+            // buffer must be resized to reflect this if this function is going to be
+            // called again.
             let status = unsafe {
                 GetAdaptersAddresses(
                     family,
@@ -762,9 +757,10 @@ impl Adapters {
             };
 
             if ERROR_SUCCESS == status {
-                // SAFETY: We truncate the buffer to avoid having a bunch of zero:ed objects at the end of it
-                // truncate will not change capacity and will therefore never reallocate the vector
-                // which means it can not cause the pointers in the buffer to dangle.
+                // SAFETY: We truncate the buffer to avoid having a bunch of zero:ed objects at the
+                // end of it truncate will not change capacity and will therefore
+                // never reallocate the vector which means it can not cause the
+                // pointers in the buffer to dangle.
                 buffer.truncate(usize::try_from(buffer_size).unwrap());
                 break;
             }
@@ -785,14 +781,14 @@ impl Adapters {
             buffer_pointer = buffer.as_mut_ptr();
         }
 
-        //
         // Verify structure compatibility.
         // The structure has been extended many times.
         //
 
-        // Unwrapping is fine because we previously would return if we got a ERROR_NO_DATA status. As such the buffer is not empty.
-        // SAFETY: Casting the buffers first element to an IP_ADAPTER_ADDRESSES_LH is safe as that is the underlying data structure.
-        // SAFETY: This union field is always valid to read from
+        // Unwrapping is fine because we previously would return if we got a ERROR_NO_DATA status.
+        // As such the buffer is not empty. SAFETY: Casting the buffers first element to an
+        // IP_ADAPTER_ADDRESSES_LH is safe as that is the underlying data structure. SAFETY:
+        // This union field is always valid to read from
         let system_size = unsafe {
             (*(buffer.get(0).unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
                 .Anonymous1
@@ -807,15 +803,15 @@ impl Adapters {
                 format!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."))));
         }
 
-        //
         // Initialize members.
         //
 
         Ok(Self { buffer })
     }
 
-    /// Produces a iterator for the linked list in `Adapters` see [AdaptersIterator](struct.AdaptersIterator.html)
-    /// SAFETY: See the documentation on `AdaptersIterator`
+    /// Produces a iterator for the linked list in `Adapters` see
+    /// [AdaptersIterator](struct.AdaptersIterator.html) SAFETY: See the documentation on
+    /// `AdaptersIterator`
     fn iter<'a>(&'a self) -> AdaptersIterator<'a> {
         let cur = if self.buffer.is_empty() {
             std::ptr::null()
@@ -829,9 +825,9 @@ impl Adapters {
     }
 }
 
-/// SAFETY: You are only allowed to dereference `IP_ADAPTER_ADDRESSES_LH.Next` or any following `Next` items in the linked list
-/// if they were produced by the latest call to `next()`. Any raw pointers that were aquired before the call to `next()` are not
-/// valid to dereference.
+/// SAFETY: You are only allowed to dereference `IP_ADAPTER_ADDRESSES_LH.Next` or any following
+/// `Next` items in the linked list if they were produced by the latest call to `next()`. Any raw
+/// pointers that were aquired before the call to `next()` are not valid to dereference.
 struct AdaptersIterator<'a> {
     _adapters: &'a Adapters,
     cur: *const IP_ADAPTER_ADDRESSES_LH,
@@ -844,20 +840,25 @@ impl<'a> Iterator for AdaptersIterator<'a> {
             None
         } else {
             let ret = self.cur;
-            // SAFETY: self.cur is guaranteed to not be null, we are also holding a &Adapters which guarantees no other reference
-            // of self could be held right now which has mutably dereferenced the same address that self.cur is pointing to.
+            // SAFETY: self.cur is guaranteed to not be null, we are also holding a &Adapters which
+            // guarantees no other reference of self could be held right now which has
+            // mutably dereferenced the same address that self.cur is pointing to.
             //
-            // It is possible that someone has copied the previous returned items `Next` pointer which points to the same as
-            // address as self.cur, however dereferencing that is unsafe and that code is responsible for not dereferencing
-            // `Next` on a reference returned by this function after that reference has been dropped.
+            // It is possible that someone has copied the previous returned items `Next` pointer
+            // which points to the same as address as self.cur, however dereferencing
+            // that is unsafe and that code is responsible for not dereferencing
+            // `Next` on a reference returned by this function after that reference has been
+            // dropped.
             self.cur = unsafe { (*self.cur).Next };
-            // SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the memory.
+            // SAFETY: ret is guaranteed to be non-null and valid since self.adapters owns the
+            // memory.
             Some(unsafe { &*ret })
         }
     }
 }
 
-/// Convert to a windows defined `IP_ADDRESS_PREFIX` from a `ipnetwork::IpNetwork` but set the port to 0
+/// Convert to a windows defined `IP_ADDRESS_PREFIX` from a `ipnetwork::IpNetwork` but set the port
+/// to 0
 pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADDRESS_PREFIX {
     // Port should not matter so we set it to 0
     let prefix =

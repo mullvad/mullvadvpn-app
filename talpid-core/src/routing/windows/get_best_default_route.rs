@@ -43,19 +43,21 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
                 < usize::try_from(isize::MAX).unwrap()
         );
 
-        // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error nor have we or will we modify the table
+        // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error nor have we
+        // or will we modify the table
         let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*table_ptr).Table.as_ptr() };
 
-        // SAFETY: The assert guarantees that the amount of bytes we are jumping is not larger than isize::MAX.
-        // Win32 guarantees that the resulting pointer is aligned, non-null, init.
+        // SAFETY: The assert guarantees that the amount of bytes we are jumping is not larger than
+        // isize::MAX. Win32 guarantees that the resulting pointer is aligned, non-null,
+        // init.
         let row: &MIB_IPFORWARD_ROW2 =
             unsafe { ptr.offset(i.try_into().unwrap()).as_ref() }.unwrap();
         vec.push(row.clone());
     }
-    // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the MIB_IPFORWARD_TABLE2
-    // This pointer is ONLY deallocated here so it is guaranteed to not have been already deallocated.
-    // We have cloned all MIB_IPFORWARD_ROW2s and the rows do not contain pointers to the table so they
-    // will not be dangling after this free.
+    // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the
+    // MIB_IPFORWARD_TABLE2 This pointer is ONLY deallocated here so it is guaranteed to not
+    // have been already deallocated. We have cloned all MIB_IPFORWARD_ROW2s and the rows do not
+    // contain pointers to the table so they will not be dangling after this free.
     unsafe { FreeMibTable(table_ptr as *const _) }
     Ok(vec)
 }
@@ -95,7 +97,8 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceA
         return Ok(None);
     }
 
-    // We previously filtered out all inactive routes so we only need to sort by acending effective_metric
+    // We previously filtered out all inactive routes so we only need to sort by acending
+    // effective_metric
     annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
 
     Ok(Some(InterfaceAndGateway {
@@ -112,12 +115,13 @@ pub fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
     }
 }
 
-// TODO(Jon): It would be more correct to filter for devices that match the known LUID of the tunnel interface
+// TODO(Jon): It would be more correct to filter for devices that match the known LUID of the tunnel
+// interface
 fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
-    // The last 16 bits of _bitfield represent the interface type. For that reason we mask it with 0xFFFF.
-    // SAFETY: route.InterfaceLuid is a union. Both variants of this union are always valid since one is a u64
-    // and the other is a wrapped u64. Access to the _bitfield as such is safe since it does not reinterpret the
-    // u64 as anything it is not.
+    // The last 16 bits of _bitfield represent the interface type. For that reason we mask it with
+    // 0xFFFF. SAFETY: route.InterfaceLuid is a union. Both variants of this union are always
+    // valid since one is a u64 and the other is a wrapped u64. Access to the _bitfield as such
+    // is safe since it does not reinterpret the u64 as anything it is not.
     let if_type = u32::try_from(unsafe { route.InterfaceLuid.Info._bitfield } & 0xFFFF).unwrap();
     if if_type == IF_TYPE_SOFTWARE_LOOPBACK || if_type == IF_TYPE_TUNNEL {
         return Ok(false);
@@ -127,14 +131,15 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
     // but tethering etc. may rely on virtual adapters too,
     // so we have to filter out the TAP adapter specifically.
 
-    // SAFETY: We are allowed to initialize MIB_IF_ROW2 with zeroed because it is made up entirely of types for which the
-    // zero pattern (all zeros) is valid.
+    // SAFETY: We are allowed to initialize MIB_IF_ROW2 with zeroed because it is made up entirely
+    // of types for which the zero pattern (all zeros) is valid.
     let mut row: MIB_IF_ROW2 = unsafe { std::mem::zeroed() };
     row.InterfaceLuid = route.InterfaceLuid;
     row.InterfaceIndex = route.InterfaceIndex;
 
-    // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the row.InterfaceLuid or row.InterfaceIndex and use
-    // that information to populate the struct. We guarantee here that these fields are valid since they are set.
+    // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the
+    // row.InterfaceLuid or row.InterfaceIndex and use that information to populate the struct.
+    // We guarantee here that these fields are valid since they are set.
     let status = unsafe { GetIfEntry2(&mut row) };
     if NO_ERROR as i32 != status {
         return Err(Error::GetIfEntryFailed(io::Error::from_raw_os_error(
