@@ -1,76 +1,42 @@
 package net.mullvad.mullvadvpn.repository
 
 import android.content.SharedPreferences
-import android.content.res.AssetManager
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.BuildConfig
-import java.io.IOException
-import java.io.InputStream
 
-private const val SHOWED_CHANGES_KEY = BuildConfig.VERSION_NAME
-private const val CHANGES_FILE = "changes.txt"
+private const val KEY_CHANGES_SHOWED = BuildConfig.VERSION_NAME
 
-interface IAppChangesRepository{
-    fun resetShouldShowLastChanges()
-    fun shouldShowLastChanges(): Boolean
-    fun setShowedLastChanges()
-    fun getLastVersionChanges(): List<String>
+enum class ChangeLogState {
+    ShouldShow,
+    AlreadyShowed
+}
+
+interface IChangeLogDataProvider {
+    fun getChangeLog(): String
 }
 
 class AppChangesRepository(
     private val preferences: SharedPreferences,
-    private val assets: AssetManager
-): IAppChangesRepository {
+    private val dataProvider: IChangeLogDataProvider,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
 
-    override fun resetShouldShowLastChanges() {
-        preferences.edit().putBoolean(SHOWED_CHANGES_KEY, false).apply()
+    fun resetShouldShowLastChanges() {
+        preferences.edit().putBoolean(KEY_CHANGES_SHOWED, false).apply()
     }
 
-    override fun shouldShowLastChanges(): Boolean {
-        return preferences.getBoolean(SHOWED_CHANGES_KEY, false)
+    fun shouldShowLastChanges(): Boolean {
+        return preferences.getBoolean(KEY_CHANGES_SHOWED, false)
+            .not() || BuildConfig.ALWAYS_SHOW_CHANGELOG
     }
 
-    override fun setShowedLastChanges() {
-        preferences.edit().putBoolean(SHOWED_CHANGES_KEY, true).apply()
-    }
+    fun setShowedLastChanges() =
+        preferences.edit().putBoolean(KEY_CHANGES_SHOWED, true).apply()
 
-    override fun getLastVersionChanges(): List<String> {
-        return try {
-            val inputStream: InputStream = assets.open(CHANGES_FILE)
-            val size: Int = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            String(buffer).split('\n')
-                .filter { !it.isNullOrEmpty() }
-                .map { "- $it" }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            ArrayList()
-        }
-    }
-}
-
-
-class AppChangesMockRepository(): IAppChangesRepository {
-    override fun resetShouldShowLastChanges() {
-        return
-    }
-
-    override fun shouldShowLastChanges(): Boolean {
-        return true
-    }
-
-    override fun setShowedLastChanges() {
-
-    }
-
-    override fun getLastVersionChanges(): List<String> {
-
-        var changes = ArrayList<String>()
-        changes.add("Change no 1")
-        changes.add("Change no 2")
-        changes.add("Change no 3")
-        changes.add("Change no 4")
-        changes.add("Change no 5")
-        return changes
+    fun getLastVersionChanges(): List<String> {
+        return dataProvider.getChangeLog().split('\n')
+            .filter { !it.isNullOrEmpty() }
+            .map { "$it" }
     }
 }
