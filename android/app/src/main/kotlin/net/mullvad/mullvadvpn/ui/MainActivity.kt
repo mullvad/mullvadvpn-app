@@ -12,6 +12,9 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -28,6 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.model.AccountExpiry
@@ -39,6 +43,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
+import net.mullvad.mullvadvpn.viewmodel.ChangelogDialogUiState
+import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
@@ -63,6 +69,7 @@ open class MainActivity : FragmentActivity() {
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
+    private lateinit var changelogViewModel: ChangelogViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
@@ -71,6 +78,7 @@ open class MainActivity : FragmentActivity() {
             accountRepository = get()
             deviceRepository = get()
             serviceConnectionManager = get()
+            changelogViewModel = get()
         }
 
         requestedOrientation = if (deviceIsTv) {
@@ -185,6 +193,31 @@ open class MainActivity : FragmentActivity() {
                         currentState = newState
                     }
                 }
+        }
+        lifecycleScope.launch {
+            deviceRepository.deviceState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+                .filter { it is DeviceState.LoggedIn || it is DeviceState.LoggedOut }
+                .collect { loadChangelogComponent() }
+        }
+    }
+
+    private fun loadChangelogComponent() {
+        findViewById<ComposeView>(R.id.compose_view).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setContent {
+                val state = changelogViewModel.changelogDialogUiState.collectAsState().value
+                if (state is ChangelogDialogUiState.Show) {
+                    ChangelogDialog(
+                        changesList = state.changes,
+                        version = BuildConfig.VERSION_NAME,
+                        onDismiss = {
+                            changelogViewModel.dismissChangelogDialog()
+                        }
+                    )
+                }
+            }
+            changelogViewModel.refreshChangelogDialogUiState()
         }
     }
 
