@@ -8,8 +8,7 @@
 
 import Foundation
 import MullvadLogging
-import protocol MullvadNetworking.Cancellable
-import enum MullvadNetworking.REST
+import MullvadREST
 import NetworkExtension
 import Operations
 import StoreKit

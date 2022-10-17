@@ -10,13 +10,13 @@ import Foundation
 
 public extension REST {
     static let sharedURLSession: URLSession = {
-        let certificatePath = Bundle(identifier: "net.mullvad.MullvadNetworking")!
+        let certificatePath = Bundle(for: SSLPinningURLSessionDelegate.self)
             .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!
         let secCertificate = SecCertificateCreateWithData(nil, data as CFData)!
 
         let sessionDelegate = SSLPinningURLSessionDelegate(
-            sslHostname: ApplicationConfiguration.defaultAPIHostname,
+            sslHostname: defaultAPIHostname,
             trustedRootCertificates: [secCertificate]
         )
 

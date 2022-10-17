@@ -4,7 +4,7 @@
 
 ## Generated assets
 Assets/relays.json
-Assets/api-ip-address.json
+MullvadREST/Assets/api-ip-address.json
 
 ## Build generated
 build/

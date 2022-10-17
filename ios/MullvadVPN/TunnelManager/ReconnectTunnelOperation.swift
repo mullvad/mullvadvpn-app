@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import protocol MullvadNetworking.Cancellable
+import MullvadREST
 import Operations
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {

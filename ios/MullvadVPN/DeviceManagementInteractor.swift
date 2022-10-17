@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import protocol MullvadNetworking.Cancellable
-import enum MullvadNetworking.REST
+import MullvadREST
 import Operations
 
 class DeviceManagementInteractor {

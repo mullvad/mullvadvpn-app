@@ -9,7 +9,7 @@
 import BackgroundTasks
 import Intents
 import MullvadLogging
-import enum MullvadNetworking.AddressCache
+import MullvadREST
 import Operations
 import StoreKit
 import UIKit

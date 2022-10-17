@@ -59,7 +59,7 @@ public extension AddressCache {
                 cacheFilename,
                 isDirectory: false
             )
-            let prebundledCacheFileURL = Bundle(identifier: "net.mullvad.MullvadNetworking")!.url(
+            let prebundledCacheFileURL = Bundle(for: SSLPinningURLSessionDelegate.self).url(
                 forResource: cacheFilename,
                 withExtension: nil
             )!
@@ -74,7 +74,7 @@ public extension AddressCache {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: [
-                    ApplicationConfiguration.defaultAPIEndpoint,
+                    REST.defaultAPIEndpoint,
                 ]
             )
         }

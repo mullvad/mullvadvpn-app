@@ -6,7 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import enum MullvadNetworking.REST
+import MullvadREST
 import UIKit
 
 protocol LocationDataSourceItemProtocol {

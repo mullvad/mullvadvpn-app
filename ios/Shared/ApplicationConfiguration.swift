@@ -57,15 +57,6 @@ class ApplicationConfiguration {
     /// FAQ & Guides URL.
     static let faqAndGuidesURL = URL(string: "https://mullvad.net/help/tag/mullvad-app/")!
 
-    /// Default API hostname.
-    static let defaultAPIHostname = "api.mullvad.net"
-
-    /// Default API endpoint.
-    static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.222.100:443")!
-
-    /// Default network timeout for API requests.
-    static let defaultAPINetworkTimeout: TimeInterval = 10
-
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
 

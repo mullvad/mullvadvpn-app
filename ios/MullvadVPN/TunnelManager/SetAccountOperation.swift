@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadLogging
-import enum MullvadNetworking.REST
+import MullvadREST
 import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey

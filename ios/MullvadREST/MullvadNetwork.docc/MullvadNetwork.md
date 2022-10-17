@@ -1,4 +1,4 @@
-# ``MullvadNetworking``
+# ``MullvadREST``
 
 Summary
 

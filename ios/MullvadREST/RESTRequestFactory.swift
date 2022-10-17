@@ -20,9 +20,9 @@ public extension REST {
             bodyEncoder: JSONEncoder
         ) -> RequestFactory {
             return RequestFactory(
-                hostname: ApplicationConfiguration.defaultAPIHostname,
+                hostname: defaultAPIHostname,
                 pathPrefix: pathPrefix,
-                networkTimeout: ApplicationConfiguration.defaultAPINetworkTimeout,
+                networkTimeout: defaultAPINetworkTimeout,
                 bodyEncoder: bodyEncoder
             )
         }

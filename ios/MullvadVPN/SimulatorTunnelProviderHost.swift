@@ -10,7 +10,7 @@
 
 import Foundation
 import MullvadLogging
-import enum MullvadNetworking.REST
+import MullvadREST
 import enum NetworkExtension.NEProviderStopReason
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {

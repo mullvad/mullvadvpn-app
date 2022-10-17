@@ -7,7 +7,7 @@
 //
 
 import MullvadLogging
-import enum MullvadNetworking.REST
+import MullvadREST
 import Operations
 import UIKit
 

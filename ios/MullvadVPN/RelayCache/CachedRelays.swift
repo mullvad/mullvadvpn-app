@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import enum MullvadNetworking.REST
+import MullvadREST
 
 extension RelayCache {
     /// A struct that represents the relay cache on disk

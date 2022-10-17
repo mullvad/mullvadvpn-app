@@ -7,8 +7,38 @@
 //
 
 import Foundation
-import enum MullvadNetworking.REST
+import MullvadREST
 import StoreKit
+
+enum CreateApplePaymentResponse {
+    case noTimeAdded(_ expiry: Date)
+    case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
+
+    public var newExpiry: Date {
+        switch self {
+        case let .noTimeAdded(expiry), let .timeAdded(_, expiry):
+            return expiry
+        }
+    }
+
+    public var timeAdded: TimeInterval {
+        switch self {
+        case .noTimeAdded:
+            return 0
+        case let .timeAdded(timeAdded, _):
+            return TimeInterval(timeAdded)
+        }
+    }
+
+    /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
+    public var formattedTimeAdded: String? {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour]
+        formatter.unitsStyle = .full
+
+        return formatter.string(from: self.timeAdded)
+    }
+}
 
 public protocol AppStorePaymentObserver: AnyObject {
     func appStorePaymentManager(
