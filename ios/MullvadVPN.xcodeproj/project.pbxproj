@@ -12,6 +12,7 @@
 		062B45B428FD508C00746E77 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45B328FD508C00746E77 /* Logging */; };
 		062B45BA28FD83FF00746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45B928FD83FF00746E77 /* api-ip-address.json */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
+		062B45BD28FDA71E00746E77 /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
@@ -321,6 +322,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
 			remoteInfo = MullvadNetworking;
+		};
+		062B45BE28FDA85D00746E77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
+			remoteInfo = MullvadREST;
 		};
 		06799AC728F98E1D00ACD94E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1455,6 +1463,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				062B45BF28FDA85D00746E77 /* PBXTargetDependency */,
 				58D889B528DDF4DD00583FA8 /* PBXTargetDependency */,
 				5841E04325D53BCC00D989F7 /* PBXTargetDependency */,
 			);
@@ -1798,6 +1807,7 @@
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				582A8A3A28BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
+				062B45BD28FDA71E00746E77 /* IPEndpoint.swift in Sources */,
 				5819C2142726CC8D00D6EC38 /* DataSourceSnapshotTests.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
@@ -2058,6 +2068,11 @@
 			isa = PBXTargetDependency;
 			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
 			targetProxy = 062B45A528FD4FD500746E77 /* PBXContainerItemProxy */;
+		};
+		062B45BF28FDA85D00746E77 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
+			targetProxy = 062B45BE28FDA85D00746E77 /* PBXContainerItemProxy */;
 		};
 		06799AC828F98E1D00ACD94E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
