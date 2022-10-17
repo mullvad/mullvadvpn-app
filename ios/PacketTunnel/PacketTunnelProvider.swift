@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadLogging
-import enum MullvadNetworking.REST
+import MullvadREST
 import Network
 import NetworkExtension
 import WireGuardKit
