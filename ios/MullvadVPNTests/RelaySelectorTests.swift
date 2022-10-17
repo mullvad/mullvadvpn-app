@@ -6,6 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import Network
 import XCTest
 
