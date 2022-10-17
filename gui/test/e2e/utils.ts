@@ -15,6 +15,12 @@ export const startApp = async (mainPath: string): Promise<StartAppResponse> => {
     args: [mainPath],
   });
 
+  await app.evaluate(({ webContents }) => {
+    return new Promise((resolve) => {
+      webContents.getAllWebContents()[0].on('did-finish-load', resolve);
+    });
+  });
+
   const page = await app.firstWindow();
 
   page.on('pageerror', (error) => {
