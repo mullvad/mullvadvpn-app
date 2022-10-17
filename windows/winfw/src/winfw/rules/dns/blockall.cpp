@@ -30,7 +30,6 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 		.block();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-
 	conditionBuilder.add_condition(ConditionPort::Remote(DNS_SERVER_PORT));
 
 	if (false == objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -48,7 +47,6 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 	conditionBuilder.reset(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
 	conditionBuilder.add_condition(ConditionPort::Remote(DNS_SERVER_PORT));
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
