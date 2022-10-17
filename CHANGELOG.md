@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Don't prevent early boot service from running if logging to a file fails.
 
+### Changed
+- Update Electron from 19.0.13 to 21.1.1.
+
 ### Security
 #### Windows
 - DNS loopback traffic is no longer blocked. Note that local resolvers are still unable to forward
