@@ -43,7 +43,7 @@ class TransportMonitor: TunnelObserver {
     // MARK: - Private
 
     private func setTransports() {
-        RESTTransportRegistry.shared.setTransport(
+        REST.TransportRegistry.shared.setTransport(
             stateUpdated(
                 tunnelState: TunnelManager.shared.tunnelStatus.state,
                 deviceState: TunnelManager.shared.deviceState
