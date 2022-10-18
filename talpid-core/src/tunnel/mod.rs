@@ -42,7 +42,7 @@ pub enum Error {
     /// Failure in Windows syscall.
     #[cfg(windows)]
     #[error(display = "Failure in Windows syscall")]
-    WinnetError(#[error(source)] crate::winnet::Error),
+    WinnetError(#[error(source)] crate::routing::Error),
 
     /// Running on an operating system which is not supported yet.
     #[error(display = "Tunnel type not supported on this operating system")]

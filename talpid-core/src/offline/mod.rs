@@ -1,4 +1,4 @@
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 use crate::routing::RouteManagerHandle;
 #[cfg(target_os = "windows")]
 use crate::windows::window::PowerManagementListener;
@@ -46,6 +46,7 @@ pub async fn spawn_monitor(
     sender: UnboundedSender<bool>,
     #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(target_os = "windows")] route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")] power_mgmt_rx: PowerManagementListener,
 ) -> Result<MonitorHandle, Error> {
     let monitor = if !*FORCE_DISABLE_OFFLINE_MONITOR {
@@ -56,6 +57,8 @@ pub async fn spawn_monitor(
                 route_manager,
                 #[cfg(target_os = "android")]
                 android_context,
+                #[cfg(target_os = "windows")]
+                route_manager,
                 #[cfg(target_os = "windows")]
                 power_mgmt_rx,
             )

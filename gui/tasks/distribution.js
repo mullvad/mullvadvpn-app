@@ -141,12 +141,6 @@ const config = {
         from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')),
         to: '.',
       },
-      {
-        from: root(
-          path.join('windows', 'winnet', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winnet.dll'),
-        ),
-        to: '.',
-      },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },

@@ -258,6 +258,10 @@ impl TunnelStateMachine {
         #[cfg(target_os = "windows")]
         let power_mgmt_rx = crate::windows::window::PowerManagementListener::new();
 
+        let route_manager = RouteManager::new(HashSet::new())
+            .await
+            .map_err(Error::InitRouteManagerError)?;
+
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(
             runtime.clone(),
@@ -265,6 +269,9 @@ impl TunnelStateMachine {
             args.command_tx.clone(),
             volume_update_rx,
             power_mgmt_rx.clone(),
+            route_manager
+                .handle()
+                .map_err(Error::InitRouteManagerError)?,
         )
         .map_err(Error::InitSplitTunneling)?;
 
@@ -279,9 +286,6 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::from_args(fw_args).map_err(Error::InitFirewallError)?;
-        let route_manager = RouteManager::new(HashSet::new())
-            .await
-            .map_err(Error::InitRouteManagerError)?;
         let dns_monitor = DnsMonitor::new(
             #[cfg(target_os = "linux")]
             runtime.clone(),
@@ -314,6 +318,8 @@ impl TunnelStateMachine {
                 .map_err(Error::InitRouteManagerError)?,
             #[cfg(target_os = "android")]
             android_context,
+            #[cfg(target_os = "windows")]
+            route_manager.handle()?,
             #[cfg(target_os = "windows")]
             power_mgmt_rx,
         )

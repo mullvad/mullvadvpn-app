@@ -109,12 +109,21 @@ impl fmt::Display for AddressFamily {
 }
 
 impl AddressFamily {
-    /// Convert an [`AddressFamily`] to one of the `AF_*` constants.
+    /// Convert one of the `AF_*` constants to an [`AddressFamily`].
     pub fn try_from_af_family(family: u16) -> Result<AddressFamily> {
         match u32::from(family) {
             AF_INET => Ok(AddressFamily::Ipv4),
             AF_INET6 => Ok(AddressFamily::Ipv6),
             family => Err(Error::UnknownAddressFamily(family)),
+        }
+    }
+
+    /// Convert an [`AddressFamily`] to one of the `AF_*` constants.
+    pub fn to_af_family(&self) -> u16 {
+        match self {
+            // These values are both small enough to fit in a u16
+            Self::Ipv4 => u16::try_from(AF_INET).unwrap(),
+            Self::Ipv6 => u16::try_from(AF_INET6).unwrap(),
         }
     }
 }

@@ -226,6 +226,8 @@ impl WireguardMonitor {
             args.resource_dir,
             args.tun_provider,
             #[cfg(target_os = "windows")]
+            args.route_manager.clone(),
+            #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
         let iface_name = tunnel.get_interface_name();
@@ -507,6 +509,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(windows)] route_manager_handle: crate::routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
@@ -576,7 +579,11 @@ impl WireguardMonitor {
                 #[cfg(not(windows))]
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes),
                 #[cfg(windows)]
+                route_manager_handle,
+                #[cfg(windows)]
                 setup_done_tx,
+                #[cfg(windows)]
+                &runtime,
             )
             .map_err(Error::TunnelError)?,
         ))

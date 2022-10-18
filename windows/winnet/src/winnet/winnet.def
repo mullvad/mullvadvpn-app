@@ -1,5 +1,0 @@
-LIBRARY winnet
-EXPORTS
-	WinNet_ActivateRouteManager
-	WinNet_DeactivateRouteManager
-	WinNet_GetBestDefaultRoute

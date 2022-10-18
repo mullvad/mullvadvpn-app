@@ -92,7 +92,6 @@ function main {
     clean_libraries
 
     build_solution "./windows/winfw" "winfw.sln"
-    build_solution "./windows/winnet" "winnet.sln"
 
     build_solution "./windows/driverlogic" "driverlogic.sln"
 

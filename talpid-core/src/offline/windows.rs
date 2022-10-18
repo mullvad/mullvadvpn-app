@@ -1,11 +1,13 @@
 use crate::{
-    windows::window::{PowerManagementEvent, PowerManagementListener},
-    winnet,
+    routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle},
+    windows::{
+        window::{PowerManagementEvent, PowerManagementListener},
+        AddressFamily,
+    },
 };
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
-    ffi::c_void,
     io,
     sync::{Arc, Weak},
     time::Duration,
@@ -17,20 +19,21 @@ pub enum Error {
     #[error(display = "Unable to create listener thread")]
     ThreadCreationError(#[error(source)] io::Error),
     #[error(display = "Failed to start connectivity monitor")]
-    ConnectivityMonitorError(#[error(source)] winnet::DefaultRouteCallbackError),
+    ConnectivityMonitorError(#[error(source)] crate::routing::Error),
 }
 
 pub struct BroadcastListener {
     system_state: Arc<Mutex<SystemState>>,
-    _callback_handle: winnet::WinNetCallbackHandle,
+    _callback_handle: CallbackHandle,
     _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
-    pub fn start(
+    pub async fn start(
         notify_tx: UnboundedSender<bool>,
+        route_manager_handle: RouteManagerHandle,
         mut power_mgmt_rx: PowerManagementListener,
     ) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
@@ -66,7 +69,8 @@ impl BroadcastListener {
         });
 
         let callback_handle =
-            unsafe { Self::setup_network_connectivity_listener(system_state.clone())? };
+            Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle)
+                .await?;
 
         Ok(BroadcastListener {
             system_state,
@@ -76,7 +80,7 @@ impl BroadcastListener {
     }
 
     fn check_initial_connectivity() -> (bool, bool) {
-        let v4_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV4)
+        let v4_connectivity = get_best_default_route(AddressFamily::Ipv4)
             .map(|route| route.is_some())
             .unwrap_or_else(|error| {
                 log::error!(
@@ -85,7 +89,7 @@ impl BroadcastListener {
                 );
                 true
             });
-        let v6_connectivity = winnet::get_best_default_route(winnet::WinNetAddrFamily::IPV6)
+        let v6_connectivity = get_best_default_route(AddressFamily::Ipv6)
             .map(|route| route.is_some())
             .unwrap_or_else(|error| {
                 log::error!(
@@ -103,34 +107,35 @@ impl BroadcastListener {
 
     /// The caller must make sure the `system_state` reference is valid
     /// until after `WinNet_DeactivateConnectivityMonitor` has been called.
-    unsafe fn setup_network_connectivity_listener(
+    async fn setup_network_connectivity_listener(
         system_state: Arc<Mutex<SystemState>>,
-    ) -> Result<winnet::WinNetCallbackHandle, Error> {
-        let change_handle = winnet::add_default_route_change_callback(
-            Some(Self::connectivity_callback),
-            system_state,
-        )?;
+        route_manager_handle: RouteManagerHandle,
+    ) -> Result<CallbackHandle, Error> {
+        let change_handle = route_manager_handle
+            .add_default_route_change_callback(Box::new(move |event, addr_family| {
+                Self::connectivity_callback(event, addr_family, &system_state)
+            }))
+            .await
+            .map_err(|e| Error::ConnectivityMonitorError(e))?;
         Ok(change_handle)
     }
 
-    unsafe extern "system" fn connectivity_callback(
-        event_type: winnet::WinNetDefaultRouteChangeEventType,
-        family: winnet::WinNetAddrFamily,
-        _default_route: winnet::WinNetDefaultRoute,
-        ctx: *mut c_void,
+    fn connectivity_callback<'a>(
+        event_type: EventType<'a>,
+        family: AddressFamily,
+        state_lock: &Arc<Mutex<SystemState>>,
     ) {
-        use winnet::WinNetDefaultRouteChangeEventType::*;
+        use crate::routing::EventType::*;
 
-        if event_type == DefaultRouteUpdatedDetails {
+        if matches!(event_type, UpdatedDetails(_)) {
             // ignore changes that don't affect the route
             return;
         }
 
-        let state_lock: &mut Arc<Mutex<SystemState>> = &mut *(ctx as *mut _);
-        let connectivity = event_type != DefaultRouteRemoved;
+        let connectivity = event_type != Removed;
         let change = match family {
-            winnet::WinNetAddrFamily::IPV4 => StateChange::NetworkV4Connectivity(connectivity),
-            winnet::WinNetAddrFamily::IPV6 => StateChange::NetworkV6Connectivity(connectivity),
+            AddressFamily::Ipv4 => StateChange::NetworkV4Connectivity(connectivity),
+            AddressFamily::Ipv6 => StateChange::NetworkV6Connectivity(connectivity),
         };
         let mut state = state_lock.lock();
         state.apply_change(change);
@@ -202,9 +207,10 @@ pub type MonitorHandle = BroadcastListener;
 
 pub async fn spawn_monitor(
     sender: UnboundedSender<bool>,
+    route_manager_handle: RouteManagerHandle,
     power_mgmt_rx: PowerManagementListener,
 ) -> Result<MonitorHandle, Error> {
-    BroadcastListener::start(sender, power_mgmt_rx)
+    BroadcastListener::start(sender, route_manager_handle, power_mgmt_rx).await
 }
 
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {
