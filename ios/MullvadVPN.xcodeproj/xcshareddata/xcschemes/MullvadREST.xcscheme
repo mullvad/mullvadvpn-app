@@ -5,24 +5,6 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
-      <PreActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Run Script"
-               scriptText = "exec &gt; $PROJECT_DIR/rest-prebuild.log 2&gt;&amp;1&#10;&#10;$PROJECT_DIR/rest-prebuild.sh&#10;">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "06799ABB28F98E1D00ACD94E"
-                     BuildableName = "MullvadREST.framework"
-                     BlueprintName = "MullvadREST"
-                     ReferencedContainer = "container:MullvadVPN.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
-      </PreActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
