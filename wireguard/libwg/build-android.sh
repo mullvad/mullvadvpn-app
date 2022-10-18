@@ -54,6 +54,7 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     mkdir -m 777 -p "$(dirname "$STRIPPED_LIB_PATH")"
 
     $ANDROID_STRIP_TOOL --strip-unneeded --strip-debug -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+    cp $UNSTRIPPED_LIB_PATH $STRIPPED_LIB_PATH
 
     # Set permissions so that the build server can clean the outputs afterwards
     chmod 777 "$STRIPPED_LIB_PATH"
