@@ -427,12 +427,12 @@ msgid "Out"
 msgstr "外部"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "确定要退出**%(deviceName)s**吗？"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "确定要退出<b>%(deviceName)s</b>吗？"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -605,8 +605,8 @@ msgstr "正在连接到 Mullvad 系统服务…"
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s**已启用。将其禁用以解除阻止您的连接。"
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b>已启用。将其禁用以解除阻止您的连接。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -875,8 +875,8 @@ msgstr "设置 %(openvpn)s MSS 值。值范围：%(min)d - %(max)d。"
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "要激活桥接模式，请将**%(transportProtocol)s**更改为**%(automatic)s**或 **%(tcp)s**。"
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "要激活桥接模式，请将<b>%(transportProtocol)s</b>更改为<b>%(automatic)s</b>或 <b>%(tcp)s</b>。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -884,14 +884,14 @@ msgstr "要激活桥接模式，请将**%(transportProtocol)s**更改为**%(auto
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "要激活桥接模式，请返回并将**%(tunnelProtocol)s**更改为 **%(openvpn)s**。"
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "要激活桥接模式，请返回并将<b>%(tunnelProtocol)s</b>更改为 <b>%(openvpn)s</b>。"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "要激活 UDP，请将**桥接模式**更改为**自动**或**关**。"
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "要激活 UDP，请将<b>桥接模式</b>更改为<b>自动</b>或<b>关</b>。"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1070,8 +1070,8 @@ msgid "Launch"
 msgstr "启动"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "**%(searchTerm)s**没有任何结果。"
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "<b>%(searchTerm)s</b>没有任何结果。"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1326,18 +1326,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "屏蔽跟踪广告代码"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "禁用**%(customDnsFeatureName)s**（在“高级”设置下）以激活这些设置。"
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
