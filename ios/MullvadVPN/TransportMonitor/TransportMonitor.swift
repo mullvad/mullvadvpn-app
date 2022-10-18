@@ -11,7 +11,7 @@ import MullvadREST
 
 class TransportMonitor: TunnelObserver {
     private let packetTunnelTransport = PacketTunnelTransport()
-    private let urlSessionTransport = URLSessionTransport(urlSession: REST.sharedURLSession)
+    private let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
 
     init() {
         TunnelManager.shared.addObserver(self)
