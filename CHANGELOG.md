@@ -40,6 +40,10 @@ Line wrap the file at 100 chars.                                              Th
   queries to servers that would normally be blocked.
 
 
+## [android/2022.2] - 2022-10-17
+Identical to android/2022.2-beta2 except for updated translations.
+
+
 ## [2022.5] - 2022-10-14
 ### Fixed
 #### Linux
