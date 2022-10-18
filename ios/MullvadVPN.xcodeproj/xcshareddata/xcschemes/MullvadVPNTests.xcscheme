@@ -5,22 +5,6 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
-      <PreActions>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "Run Script"
-               scriptText = "exec &gt; $PROJECT_DIR/prebuild.log 2&gt;&amp;1&#10;&#10;$PROJECT_DIR/prebuild.sh&#10;">
-            </ActionContent>
-         </ExecutionAction>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "MullvadREST Pre-action run script"
-               scriptText = "exec &gt; $PROJECT_DIR/rest-prebuild.log 2&gt;&amp;1&#10;&#10;$PROJECT_DIR/rest-prebuild.sh&#10;">
-            </ActionContent>
-         </ExecutionAction>
-      </PreActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
