@@ -21,7 +21,7 @@
 //! [`SCNetworkReachability`]: https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
 //! [`NWPathMonitor`]: https://developer.apple.com/documentation/network/nwpathmonitor
 use futures::{channel::mpsc::UnboundedSender, Future, StreamExt};
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, Mutex, Weak};
 use talpid_types::ErrorExt;
 
 #[derive(err_derive::Error, Debug)]
@@ -31,6 +31,7 @@ pub enum Error {
 }
 
 pub struct MonitorHandle {
+    excluded_interface: Arc<Mutex<Option<String>>>,
     _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
@@ -38,58 +39,81 @@ impl MonitorHandle {
     /// Host is considered to be offline if the IPv4 internet is considered to be unreachable by the
     /// given reachability flags *or* there are no active physical interfaces.
     pub async fn host_is_offline(&self) -> bool {
-        !exists_non_tunnel_default_route().await
+        let excluded_interface: Option<String> = self
+            .excluded_interface
+            .lock()
+            .expect("excluded_interface lock poisoned")
+            .clone();
+        !exists_non_tunnel_default_route(excluded_interface).await
+    }
+
+    /// Sets excluded interface - excluded interfaces will be assuemd to not provide any
+    /// connectivity.
+    pub fn set_excluded_interface(&self, excluded_interface: Option<String>) {
+        *self
+            .excluded_interface
+            .lock()
+            .expect("excluded interface lock poisoned") = excluded_interface;
     }
 }
 
-async fn exists_non_tunnel_default_route() -> bool {
-    match talpid_routing::get_default_routes().await {
-        Ok((Some(node), _)) | Ok((None, Some(node))) => {
-            let route_exists = node
-                .get_device()
-                .map(|iface_name| !iface_name.contains("tun"))
-                .unwrap_or(true);
-            log::debug!("Assuming non-tunnel default route exists due to {:?}", node);
-            route_exists
-        }
-        Ok((None, None)) => {
-            log::debug!("No default routes exist, assuming machine is offline");
-            false
-        }
-        Err(err) => {
-            log::error!(
-                "{}",
-                err.display_chain_with_msg(
-                    "Failed to obtain default routes, assuming machine is online."
-                )
-            );
-            true
-        }
-    }
+async fn exists_non_tunnel_default_route(excluded_interface: Option<String>) -> bool {
+    true
+    // match talpid_routing::get_default_routes(excluded_interface).await {
+    //     Ok((Some(node), _)) | Ok((None, Some(node))) => {
+    //         let route_exists = node
+    //             .get_device()
+    //             .map(|iface_name| !iface_name.contains("tun"))
+    //             .unwrap_or(true);
+    //         log::debug!("Assuming non-tunnel default route exists due to {:?}", node);
+    //         route_exists
+    //     }
+    //     Ok((None, None)) => {
+    //         log::debug!("No default routes exist, assuming machine is offline");
+    //         false
+    //     }
+    //     Err(err) => {
+    //         log::error!(
+    //             "{}",
+    //             err.display_chain_with_msg(
+    //                 "Failed to obtain default routes, assuming machine is online."
+    //             )
+    //         );
+    //         true
+    //     }
+    // }
 }
 pub async fn spawn_monitor(notify_tx: UnboundedSender<bool>) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
+    let excluded_interface = Arc::new(Mutex::new(None));
 
     let context = OfflineStateContext {
         sender: Arc::downgrade(&notify_tx),
-        is_offline: !exists_non_tunnel_default_route().await,
+        is_offline: !exists_non_tunnel_default_route(None).await,
     };
 
-    let route_monitor = watch_route_monitor(context)?;
+    let route_monitor = watch_route_monitor(context, excluded_interface.clone())?;
     tokio::spawn(route_monitor);
     Ok(MonitorHandle {
+        excluded_interface,
         _notify_tx: notify_tx,
     })
 }
 
 fn watch_route_monitor(
     mut context: OfflineStateContext,
+    excluded_interface: Arc<Mutex<Option<String>>>,
 ) -> Result<impl Future<Output = ()>, Error> {
     let mut monitor = talpid_routing::listen_for_default_route_changes()?;
 
     Ok(async move {
         while let Some(_route_change) = monitor.next().await {
-            context.new_state(!exists_non_tunnel_default_route().await);
+            let interface = excluded_interface
+                .lock()
+                .expect("excluded_interface lock poisoned")
+                .clone();
+
+            context.new_state(!exists_non_tunnel_default_route(interface).await);
             if context.should_shut_down() {
                 break;
             }

@@ -56,6 +56,14 @@ pub enum Error {
 }
 
 impl Config {
+    /// get the first IPv4 address
+    pub fn get_private_ipv4(&self) -> Option<Ipv4Addr> {
+        self.tunnel.addresses.iter().find_map(|addr| match addr {
+            std::net::IpAddr::V4(addr) => Some(*addr),
+            _ => None,
+        })
+    }
+
     /// Constructs a Config from parameters
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
         let tunnel = params.connection.tunnel.clone();

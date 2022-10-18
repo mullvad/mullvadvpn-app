@@ -103,6 +103,11 @@ pub enum Error {
     #[error(display = "Failed to set up IP interfaces")]
     IpInterfacesError,
 
+    /// Configuration has no tunnel IPv4 address
+    #[cfg(target_os = "macos")]
+    #[error(display = "No IPv4 tunnel interface address")]
+    NoIpv4Address,
+
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
@@ -243,6 +248,19 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let on_event = args.on_event.clone();
 
+        #[cfg(target_os = "macos")]
+        let tunnel_ipv4 = config
+            .tunnel
+            .addresses
+            .iter()
+            .cloned()
+            .find(|ip| ip.is_ipv4())
+            .and_then(|addr| match addr {
+                IpAddr::V4(addr) => Some(addr),
+                _ => None,
+            })
+            .ok_or(Error::NoIpv4Address)?;
+
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
 
@@ -355,6 +373,8 @@ impl WireguardMonitor {
             let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
                 .chain(Self::get_endpoint_routes(&endpoint_addrs))
                 .collect();
+
+            log::error!("Routes being added {routes:?}");
             args.route_manager
                 .add_routes(routes)
                 .await
@@ -395,13 +415,29 @@ impl WireguardMonitor {
             .unwrap()?;
 
             // Add any default route(s) that may exist.
+            #[cfg(not(target_os = "macos"))]
             args.route_manager
                 .add_routes(Self::get_post_tunnel_routes(&iface_name, &config).collect())
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            let relay_addr = config.peers[0].endpoint.ip();
+            #[cfg(target_os = "macos")]
+            args.route_manager
+                .setup_tunnel_routes(
+                    iface_name.to_string(),
+                    relay_addr,
+                    talpid_routing::TunnelRoutesV4 {
+                        tunnel_gateway: config.ipv4_gateway,
+                        tunnel_ip: tunnel_ipv4,
+                    },
+                    None,
+                )
+                .await
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
+
             (on_event)(TunnelEvent::Up(metadata)).await;
 
             tokio::task::spawn_blocking(move || {
@@ -860,7 +896,7 @@ impl WireguardMonitor {
             gateway_node.clone(),
         ))
         .chain(config.ipv6_gateway.map(|gateway| {
-            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
+            return RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node);
         }));
 
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
