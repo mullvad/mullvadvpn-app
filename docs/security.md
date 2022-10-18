@@ -314,6 +314,17 @@ started early enough to prevent leaks. To prevent this, another system unit is
 started during early boot that applies a blocking policy that persists until the
 `mullvad-daemon` is started.
 
+
+### macOS
+
+Due to the inability to specify dependencies of system services in `launchd` there is no way to
+ensure that our daemon is started before any other service is started - services can only depend on
+one another via socket activation. Thus, during bootup, there almost certainly is a window of leaks
+where traffic will be leaking until our daemon is started and the firewall rules are applied.
+
+Since on modern machines, user installed launch daemons get started after the user has logged in,
+traffic leaks can also occur after bootup before the user has logged in.
+
 ## Desktop Electron GUI
 
 The graphical frontend for the app on desktop is an Electron app. This app only ever loads
