@@ -9,14 +9,14 @@
 import Foundation
 
 public extension REST {
-    static let sharedURLSession: URLSession = {
+    static func makeURLSession(with hostname: String = defaultAPIHostname) -> URLSession {
         let certificatePath = Bundle(for: SSLPinningURLSessionDelegate.self)
             .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!
         let secCertificate = SecCertificateCreateWithData(nil, data as CFData)!
 
         let sessionDelegate = SSLPinningURLSessionDelegate(
-            sslHostname: defaultAPIHostname,
+            sslHostname: hostname,
             trustedRootCertificates: [secCertificate]
         )
 
@@ -27,5 +27,5 @@ public extension REST {
         )
 
         return session
-    }()
+    }
 }
