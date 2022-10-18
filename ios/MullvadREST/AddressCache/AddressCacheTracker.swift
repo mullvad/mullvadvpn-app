@@ -8,7 +8,7 @@
 
 import MullvadLogging
 import Operations
-import UIKit
+import Foundation
 
 public extension AddressCache {
     class Tracker {
