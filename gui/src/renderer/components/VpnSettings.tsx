@@ -9,9 +9,9 @@ import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
+import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
-import { formatMarkdown } from '../markdown-formatter';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -407,20 +407,19 @@ function CustomDnsEnabledFooter() {
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
   // TRANSLATORS: This is displayed when the custom DNS setting is turned on which makes the block
-  // TRANSLATORS: ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-  // TRANSLATORS: Advanced settings refer to the name of the page with the title "Advanced".
+  // TRANSLATORS: ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
   // TRANSLATORS: Available placeholders:
   // TRANSLATORS: %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
   const blockingDisabledText = messages.pgettext(
     'vpn-settings-view',
-    'Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings.',
+    'Disable <b>%(customDnsFeatureName)s</b> below to activate these settings.',
   );
 
   return (
     <Cell.CellFooter>
       <AriaDescription>
         <Cell.CellFooterText>
-          {formatMarkdown(sprintf(blockingDisabledText, { customDnsFeatureName }))}
+          {formatHtml(sprintf(blockingDisabledText, { customDnsFeatureName }))}
         </Cell.CellFooterText>
       </AriaDescription>
     </Cell.CellFooter>

@@ -6,7 +6,7 @@ import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountToken } from '../lib/account';
-import { formatMarkdown } from '../markdown-formatter';
+import { formatHtml } from '../lib/html-formatter';
 import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
@@ -442,7 +442,7 @@ function BlockMessage() {
   }, [blockWhenDisconnected, tunnelState, setBlockWhenDisconnected, disconnectTunnel]);
 
   const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
-  const message = formatMarkdown(
+  const message = formatHtml(
     blockWhenDisconnected
       ? sprintf(
           // TRANSLATORS: This is a warning message shown when the app is blocking the users
@@ -451,7 +451,7 @@ function BlockMessage() {
           // TRANSLATORS: %(lockdownModeSettingName)s - The translation of "Lockdown mode"
           messages.pgettext(
             'login-view',
-            '**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection.',
+            '<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection.',
           ),
           { lockdownModeSettingName },
         )

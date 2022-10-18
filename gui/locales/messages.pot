@@ -431,11 +431,11 @@ msgid "Out"
 msgstr ""
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
 msgstr ""
 
 #. Button for continuing login process.
@@ -609,7 +609,7 @@ msgstr ""
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
 msgstr ""
 
 msgctxt "login-view"
@@ -879,7 +879,7 @@ msgstr ""
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr ""
 
 #. This is used to instruct users how to make the bridge mode setting
@@ -888,13 +888,13 @@ msgstr ""
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
 msgstr ""
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr ""
 
 msgctxt "openvpn-settings-view"
@@ -1074,7 +1074,7 @@ msgid "Launch"
 msgstr ""
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
+msgid "No result for <b>%(searchTerm)s</b>."
 msgstr ""
 
 #. This error message is shown if the user tries to launch a Linux desktop
@@ -1331,17 +1331,15 @@ msgid "Block trackers"
 msgstr ""
 
 #. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
 msgstr ""
 
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

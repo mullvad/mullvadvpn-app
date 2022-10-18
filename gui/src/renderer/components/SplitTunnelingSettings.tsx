@@ -11,8 +11,8 @@ import {
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
+import { formatHtml } from '../lib/html-formatter';
 import { useAsyncEffect } from '../lib/utilityHooks';
-import { formatMarkdown } from '../markdown-formatter';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -454,9 +454,9 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
       {splitTunnelingEnabled && searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
         <StyledNoResult>
           <StyledNoResultText>
-            {formatMarkdown(
+            {formatHtml(
               sprintf(
-                messages.pgettext('split-tunneling-view', 'No result for **%(searchTerm)s**.'),
+                messages.pgettext('split-tunneling-view', 'No result for <b>%(searchTerm)s</b>.'),
                 { searchTerm },
               ),
             )}

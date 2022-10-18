@@ -288,8 +288,7 @@ export default function CustomDnsSettings() {
             ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
             : // This line makes sure that the next one isn't prefixed by the color.
               // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
-              // TRANSLATORS: turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-              // TRANSLATORS: will appear bold.
+              // TRANSLATORS: turned on which makes the custom DNS setting disabled.
               // TRANSLATORS: Available placeholders:
               // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
               messages.pgettext(
