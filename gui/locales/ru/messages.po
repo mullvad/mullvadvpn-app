@@ -460,12 +460,12 @@ msgid "Out"
 msgstr "Выход"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "Действительно выйти из профиля на устройстве **%(deviceName)s**?"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "Действительно выйти из профиля на устройстве <b>%(deviceName)s</b>?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -638,8 +638,8 @@ msgstr "Подключение к системному сервису Mullvad...
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "Включена опция **%(lockdownModeSettingName)s**. Отключите ее, чтобы разблокировать соединение."
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "Включена опция <b>%(lockdownModeSettingName)s</b>. Отключите ее, чтобы разблокировать соединение."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -908,8 +908,8 @@ msgstr "Установите значение MSS для %(openvpn)s. Диапа
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "Чтобы активировать режим моста, измените **%(transportProtocol)s** на **%(automatic)s** или **%(tcp)s**."
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "Чтобы активировать режим моста, измените <b>%(transportProtocol)s</b> на <b>%(automatic)s</b> или <b>%(tcp)s</b>."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -917,14 +917,14 @@ msgstr "Чтобы активировать режим моста, измени�
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "Чтобы активировать режим моста, вернитесь и измените **%(tunnelProtocol)s** на **%(openvpn)s**."
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "Чтобы активировать режим моста, вернитесь и измените <b>%(tunnelProtocol)s</b> на <b>%(openvpn)s</b>."
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "Чтобы активировать UDP, измените **Режим моста** на **Автоматически** или **Выключен**."
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "Чтобы активировать UDP, измените <b>Режим моста</b> на <b>Автоматически</b> или <b>Выключен</b>."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1103,8 +1103,8 @@ msgid "Launch"
 msgstr "Запустить"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "По запросу **%(searchTerm)s** ничего не найдено."
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "По запросу <b>%(searchTerm)s</b> ничего не найдено."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1359,18 +1359,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "Блокировать трекеры"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "Чтобы активировать эти параметры, отключите опцию **%(customDnsFeatureName)s** (в дополнительных настройках)."
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

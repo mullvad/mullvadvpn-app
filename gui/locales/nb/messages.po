@@ -438,12 +438,12 @@ msgid "Out"
 msgstr "Utgående"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "Vil du virkelig logge av **%(deviceName)s**?"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "Vil du virkelig logge av <b>%(deviceName)s</b>?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -616,8 +616,8 @@ msgstr "Kobler til Mullvads systemtjeneste ..."
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s** er aktivert. Deaktiver den for å fjerne blokkeringen av tilkoblingen."
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b> er aktivert. Deaktiver den for å fjerne blokkeringen av tilkoblingen."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -886,8 +886,8 @@ msgstr "Angi %(openvpn)s MSS-verdi. Verdiområde: %(min)d-%(max)d."
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "For å aktivere bromodus, endre **%(transportProtocol)s** til **%(automatic)s** eller **%(tcp)s**."
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "For å aktivere bromodus, endre <b>%(transportProtocol)s</b> til <b>%(automatic)s</b> eller <b>%(tcp)s</b>."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -895,14 +895,14 @@ msgstr "For å aktivere bromodus, endre **%(transportProtocol)s** til **%(automa
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "For å aktivere bromodus, gå tilbake og endre **%(tunnelProtocol)s** til **%(openvpn)s**."
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "For å aktivere bromodus, gå tilbake og endre <b>%(tunnelProtocol)s</b> til <b>%(openvpn)s</b>."
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "For å aktivere UDP, endre **Bromodus** til **Automatisk** eller **Av**."
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "For å aktivere UDP, endre <b>Bromodus</b> til <b>Automatisk</b> eller <b>Av</b>."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1081,8 +1081,8 @@ msgid "Launch"
 msgstr "Start"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "Ingen resultater for **%(searchTerm)s**."
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "Ingen resultater for <b>%(searchTerm)s</b>."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1337,18 +1337,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "Blokker sporere"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "Deaktiver **%(customDnsFeatureName)s** (under Avanserte innstillinger) for å aktivere disse innstillingene."
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

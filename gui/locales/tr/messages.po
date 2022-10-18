@@ -438,12 +438,12 @@ msgid "Out"
 msgstr "Çıkış"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "**%(deviceName)s** adlı cihazın oturumunu kapatmak istediğinizden emin misiniz?"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "<b>%(deviceName)s</b> adlı cihazın oturumunu kapatmak istediğinizden emin misiniz?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -616,8 +616,8 @@ msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s** etkinleştirildi. Bağlantınızın engelini kaldırmak için bu seçeneği devre dışı bırakın."
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b> etkinleştirildi. Bağlantınızın engelini kaldırmak için bu seçeneği devre dışı bırakın."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -886,8 +886,8 @@ msgstr "%(openvpn)s MSS değerini ayarlayın. Geçerli aralık: %(min)d - %(max)
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "Köprü modunu etkinleştirmek için **%(transportProtocol)s** seçeneğini **%(automatic)s** veya **%(tcp)s** olarak değiştirin."
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "Köprü modunu etkinleştirmek için <b>%(transportProtocol)s</b> seçeneğini <b>%(automatic)s</b> veya <b>%(tcp)s</b> olarak değiştirin."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -895,14 +895,14 @@ msgstr "Köprü modunu etkinleştirmek için **%(transportProtocol)s** seçeneğ
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "Köprü modunu etkinleştirmek için geri dönün ve **%(tunnelProtocol)s** seçeneğini **%(openvpn)s** olarak değiştirin."
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "Köprü modunu etkinleştirmek için geri dönün ve <b>%(tunnelProtocol)s</b> seçeneğini <b>%(openvpn)s</b> olarak değiştirin."
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "UDP'yi etkinleştirmek için **Köprü modu**'nu **Otomatik** veya **Kapalı** olarak değiştirin."
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "UDP'yi etkinleştirmek için <b>Köprü modu</b>'nu <b>Otomatik</b> veya <b>Kapalı</b> olarak değiştirin."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1081,8 +1081,8 @@ msgid "Launch"
 msgstr "Başlat"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "**%(searchTerm)s** için sonuç yok."
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "<b>%(searchTerm)s</b> için sonuç yok."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1337,18 +1337,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "İzleyicileri engelle"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "Bu ayarları etkinleştirmek için **%(customDnsFeatureName)s** seçeneğini (Gelişmiş Ayarlar altından) devre dışı bırakın."
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

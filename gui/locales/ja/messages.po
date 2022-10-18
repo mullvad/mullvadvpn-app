@@ -427,12 +427,12 @@ msgid "Out"
 msgstr "外側"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "本当に**%(deviceName)s**をログアウトしますか？"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "本当に<b>%(deviceName)s</b>をログアウトしますか？"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -605,8 +605,8 @@ msgstr "Mullvad システムサービスに接続中..."
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s**が有効になっています。接続のブロックを解除するには無効にしてください。"
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b>が有効になっています。接続のブロックを解除するには無効にしてください。"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -875,8 +875,8 @@ msgstr "%(openvpn)s MSSの値を設定します。有効範囲: %(min)d ～ %(ma
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "ブリッジモードを有効にするには、**%(transportProtocol)s**を**%(automatic)s**または**%(tcp)s**に変更してください。"
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "ブリッジモードを有効にするには、<b>%(transportProtocol)s</b>を<b>%(automatic)s</b>または<b>%(tcp)s</b>に変更してください。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -884,14 +884,14 @@ msgstr "ブリッジモードを有効にするには、**%(transportProtocol)s*
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "ブリッジモードを有効にするには、戻ってから**%(tunnelProtocol)s**を**%(openvpn)s**に変更してください。"
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "ブリッジモードを有効にするには、戻ってから<b>%(tunnelProtocol)s</b>を<b>%(openvpn)s</b>に変更してください。"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "UDPを有効にするには、**ブリッジモード**を**自動**または**オフ**に変更してください。"
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "UDPを有効にするには、<b>ブリッジモード</b>を<b>自動</b>または<b>オフ</b>に変更してください。"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1070,8 +1070,8 @@ msgid "Launch"
 msgstr "起動する"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "**%(searchTerm)s**に該当する検索結果はありません。"
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "<b>%(searchTerm)s</b>に該当する検索結果はありません。"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1326,18 +1326,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "トラッカーのブロック"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "これらの設定を有効にするには、(詳細設定で) **%(customDnsFeatureName)s** を無効にしてください。"
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

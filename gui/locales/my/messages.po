@@ -426,14 +426,6 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "အထွက်"
 
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "**%(deviceName)s** အား စနစ်မှ တကယ် ထွက်စေချင်ပါသလား။"
-
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -599,14 +591,6 @@ msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s** ကို ဖွင့်ထားပါသည်။ သင်၏ ချိတ်ဆို့မှုကို ပိတ်ဆို့ထားသည်မှ ပြန်ဖွင့်ရန် ၎င်းကို ပိတ်ပါ။"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -868,31 +852,6 @@ msgctxt "openvpn-settings-view"
 msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
 msgstr "%(openvpn)s MSS တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d။"
 
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "ပေါင်းကူးမုဒ်ကို သက်ဝင်လုပ်ဆောင်ရန် **%(transportProtocol)s** ကို **%(automatic)s** သို့မဟုတ် **%(tcp)s** သို့ ပြောင်းပါ။"
-
-#. This is used to instruct users how to make the bridge mode setting
-#. available.
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(openvpn)s - will be replaced with OpenVPN
-msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "ပေါင်းကူးမုဒ်ကို သက်ဝင်လုပ်ဆောင်ရန် နောက်သို့ ပြန်သွားပြီး **%(tunnelProtocol)s** ကို **%(openvpn)s** သို့ ပြောင်းပါ။"
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "UDP ကို သက်ဝင်အောင်လုပ်ဆောင်ရန် **ပေါင်းကူး မုဒ်** ကို *အော်တိုမက်တစ်** သို့မဟုတ် **ပိတ်** သို့ ပြောင်းပါ။"
-
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "ပို့ဆောင်မှု ပရိုတိုကော"
@@ -1068,10 +1027,6 @@ msgstr "၎င်းသည် လုပ်ဆောင်နေပြီး ဖ�
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "စတင်ဆောင်ရွက်ရန်"
-
-msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "**%(searchTerm)s** အတွက် ရလဒ်မရှိပါ။"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1326,18 +1281,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "ခြေရာခံမှုများကို ပိတ်ဆို့ရန်"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "ဤဆက်တင်များကို သက်ဝင်အောင် လုပ်ဆောင်ရန် **%(customDnsFeatureName)s** ကို (အဆင့်မြင့် ဆက်တင်အောက်တွင်) ပိတ်ပါ။"
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

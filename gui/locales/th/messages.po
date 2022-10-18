@@ -427,12 +427,12 @@ msgid "Out"
 msgstr "ออก"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน **%(deviceName)s**"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน <b>%(deviceName)s</b>"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -605,8 +605,8 @@ msgstr "กำลังเชื่อมต่อบริการของร
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s** ได้เปิดใช้งานแล้ว ปิดใช้งานเพื่อปลดบล็อกการเชื่อมต่อของคุณ"
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b> ได้เปิดใช้งานแล้ว ปิดใช้งานเพื่อปลดบล็อกการเชื่อมต่อของคุณ"
 
 msgctxt "login-view"
 msgid "Account created"
@@ -875,8 +875,8 @@ msgstr "ตั้งค่า %(openvpn)s MSS ช่วงที่ใช้ไ�
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "ในการเปิดใช้โหมด บริดจ์ ให้เปลี่ยน **%(transportProtocol)s** เป็น **%(automatic)s** หรือ **%(tcp)s**"
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "ในการเปิดใช้โหมด บริดจ์ ให้เปลี่ยน <b>%(transportProtocol)s</b> เป็น <b>%(automatic)s</b> หรือ <b>%(tcp)s</b>"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -884,14 +884,14 @@ msgstr "ในการเปิดใช้โหมด บริดจ์ ใ�
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "ในการเปิดใช้โหมด บริดจ์ ให้กลับไปและเปลี่ยน **%(tunnelProtocol)s** เป็น **%(openvpn)s**"
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "ในการเปิดใช้โหมด บริดจ์ ให้กลับไปและเปลี่ยน <b>%(tunnelProtocol)s</b> เป็น <b>%(openvpn)s</b>"
 
 #. This is used to instruct users how to make UDP mode
 #. available.
 msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน **โหมด Bridge** เป็น **อัตโนมัติ** หรือ **ปิด**"
+msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน <b>โหมด Bridge</b> เป็น <b>อัตโนมัติ</b> หรือ <b>ปิด</b>"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1070,8 +1070,8 @@ msgid "Launch"
 msgstr "เปิด"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "ไม่มีผลลัพธ์สำหรับ **%(searchTerm)s**"
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "ไม่มีผลลัพธ์สำหรับ <b>%(searchTerm)s</b>"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1326,18 +1326,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "บล็อกตัวติดตาม"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "ปิดใช้งาน **%(customDnsFeatureName)s** (ภายใต้การตั้งค่าขั้นสูง) เพื่อเปิดใช้งานการตั้งค่าเหล่านี้"
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"

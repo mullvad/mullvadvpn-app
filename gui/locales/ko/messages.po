@@ -427,12 +427,12 @@ msgid "Out"
 msgstr "아웃"
 
 #. Text displayed above button which logs out another device.
-#. The text enclosed in "**" will appear bold.
+#. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
-msgid "Are you sure you want to log **%(deviceName)s** out?"
-msgstr "**%(deviceName)s**을(를) 로그아웃하시겠습니까?"
+msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
+msgstr "<b>%(deviceName)s</b>을(를) 로그아웃하시겠습니까?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -605,8 +605,8 @@ msgstr "Mullvad 시스템 서비스에 연결하는 중..."
 #. Available placeholder:
 #. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
 msgctxt "login-view"
-msgid "**%(lockdownModeSettingName)s** is enabled. Disable it to unblock your connection."
-msgstr "**%(lockdownModeSettingName)s**이(가) 활성화되었습니다. 연결을 차단 해제하려면 이 옵션을 비활성화하세요."
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "<b>%(lockdownModeSettingName)s</b>이(가) 활성화되었습니다. 연결을 차단 해제하려면 이 옵션을 비활성화하세요."
 
 msgctxt "login-view"
 msgid "Account created"
@@ -875,8 +875,8 @@ msgstr "%(openvpn)s MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d
 #. %(automat)s - the translation of "Automatic"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**."
-msgstr "브리지 모드를 활성화하려면 **%(transportProtocol)s**을(를) **%(automatic)s** 또는 **%(tcp)s**(으)로 변경합니다."
+msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
+msgstr "브리지 모드를 활성화하려면 <b>%(transportProtocol)s</b>을(를) <b>%(automatic)s</b> 또는 <b>%(tcp)s</b>(으)로 변경합니다."
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -884,14 +884,8 @@ msgstr "브리지 모드를 활성화하려면 **%(transportProtocol)s**을(를)
 #. %(tunnelProtocol)s - the name of the tunnel protocol setting
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
-msgid "To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**."
-msgstr "브리지 모드를 활성화하려면 되돌아가서 **%(tunnelProtocol)s**을(를) **%(openvpn)s**(으)로 변경합니다."
-
-#. This is used to instruct users how to make UDP mode
-#. available.
-msgctxt "openvpn-settings-view"
-msgid "To activate UDP, change **Bridge mode** to **Automatic** or **Off**."
-msgstr "UDP를 활성화하려면 **브릿지 모드**를 **자동* 또는 **끄기**로 변경합니다."
+msgid "To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>."
+msgstr "브리지 모드를 활성화하려면 되돌아가서 <b>%(tunnelProtocol)s</b>을(를) <b>%(openvpn)s</b>(으)로 변경합니다."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1070,8 +1064,8 @@ msgid "Launch"
 msgstr "실행"
 
 msgctxt "split-tunneling-view"
-msgid "No result for **%(searchTerm)s**."
-msgstr "**%(searchTerm)s**에 대한 결과가 없습니다."
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "<b>%(searchTerm)s</b>에 대한 결과가 없습니다."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -1326,18 +1320,8 @@ msgctxt "vpn-settings-view"
 msgid "Block trackers"
 msgstr "블록 추적기"
 
-#. This is displayed when the custom DNS setting is turned on which makes the block
-#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
-#. Advanced settings refer to the name of the page with the title "Advanced".
-#. Available placeholders:
-#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-msgctxt "vpn-settings-view"
-msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
-msgstr "이러한 설정을 활성화하려면 **%(customDnsFeatureName)s**(고급 설정 아래)을(를) 비활성화하세요."
-
 #. This is displayed when either or both of the block ads/trackers settings are
-#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-#. will appear bold.
+#. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
