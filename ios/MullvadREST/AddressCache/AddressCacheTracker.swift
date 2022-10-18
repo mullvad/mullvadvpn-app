@@ -6,9 +6,9 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import Foundation
 import MullvadLogging
 import Operations
-import Foundation
 
 public extension AddressCache {
     class Tracker {
