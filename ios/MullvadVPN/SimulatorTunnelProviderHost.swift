@@ -113,7 +113,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             completionHandler?(nil)
 
         case let .sendURLRequest(proxyRequest):
-            let task = REST.sharedURLSession
+            let task = REST.makeURLSession()
                 .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
                     guard let self = self else { return }
 
