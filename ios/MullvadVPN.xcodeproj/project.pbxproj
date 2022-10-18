@@ -17,7 +17,7 @@
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		06799AC028F98E1D00ACD94E /* MullvadNetwork.docc in Sources */ = {isa = PBXBuildFile; fileRef = 06799ABF28F98E1D00ACD94E /* MullvadNetwork.docc */; };
-		06799ACE28F98E1D00ACD94E /* MullvadNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadNetwork.h */; };
+		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */; };
@@ -467,7 +467,7 @@
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
 		06799AB428F98CE700ACD94E /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		06799ABE28F98E1D00ACD94E /* MullvadNetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadNetwork.h; sourceTree = "<group>"; };
+		06799ABE28F98E1D00ACD94E /* MullvadREST.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadREST.h; sourceTree = "<group>"; };
 		06799ABF28F98E1D00ACD94E /* MullvadNetwork.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MullvadNetwork.docc; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
@@ -833,7 +833,7 @@
 			isa = PBXGroup;
 			children = (
 				062B45A228FD4C0F00746E77 /* Assets */,
-				06799ABE28F98E1D00ACD94E /* MullvadNetwork.h */,
+				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
 				06AC115628F848D00037AF9A /* IPAddress+Codable.swift */,
 				06AC113F28F841310037AF9A /* AddressCache */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -1296,7 +1296,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				06799ACE28F98E1D00ACD94E /* MullvadNetwork.h in Headers */,
+				06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
