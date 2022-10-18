@@ -9,7 +9,11 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, io};
+use std::{
+    collections::HashSet,
+    io,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+};
 #[cfg(target_os = "macos")]
 use talpid_types::net::IpVersion;
 
@@ -22,7 +26,7 @@ use std::net::IpAddr;
 #[allow(clippy::module_inception)]
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
-mod imp;
+pub mod imp;
 #[cfg(target_os = "macos")]
 pub use imp::listen_for_default_route_changes;
 
@@ -56,6 +60,10 @@ pub enum Error {
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
+    /// Failed to obtain a default route
+    // TODO: elaborate on this variant, possibly add more data
+    #[error(display = "Failed to obtain default routes")]
+    DefaultRoute,
 }
 
 /// Handle to a route manager.
@@ -71,6 +79,31 @@ impl RouteManagerHandle {
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
+        response_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Setup tunnel routes
+    #[cfg(target_os = "macos")]
+    pub async fn setup_tunnel_routes(
+        &self,
+        tunnel_interface: String,
+        relay_address: IpAddr,
+        tunnel_routes_v4: TunnelRoutesV4,
+        tunnel_routes_v6: Option<TunnelRoutesV6>,
+    ) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::SetupTunnelRoutes {
+                tunnel_interface,
+                relay_address,
+                tunnel_routes_v4,
+                tunnel_routes_v6,
+                response_tx,
+            })
+            .map_err(|_| Error::ManagerChannelDown)?;
         response_rx
             .await
             .map_err(|_| Error::ManagerChannelDown)?
@@ -155,13 +188,42 @@ impl RouteManagerHandle {
 #[cfg(target_os = "linux")]
 type Fwmark = u32;
 
+/// IPv6 addresess for tunnel interface
+#[cfg(target_os = "macos")]
+#[derive(Clone, Copy, Debug)]
+pub struct TunnelRoutesV4 {
+    /// IPv4 gateway of the tunnel
+    pub tunnel_gateway: Ipv4Addr,
+    /// IPv4 interface address
+    pub tunnel_ip: Ipv4Addr,
+}
+
+/// IPv6 addresess for tunnel interface
+#[cfg(target_os = "macos")]
+#[derive(Copy, Clone, Debug)]
+pub struct TunnelRoutesV6 {
+    /// IPv6 gateway of the tunnel
+    pub tunnel_gateway: Ipv6Addr,
+    /// IPv6 interface address
+    pub tunnel_ip: Ipv6Addr,
+}
+
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
+    #[cfg(target_os = "macos")]
+    SetupTunnelRoutes {
+        tunnel_interface: String,
+        relay_address: IpAddr,
+        tunnel_routes_v4: TunnelRoutesV4,
+        tunnel_routes_v6: Option<TunnelRoutesV6>,
+        response_tx: oneshot::Sender<Result<(), PlatformError>>,
+    },
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
     ),
+
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
     #[cfg(target_os = "linux")]
@@ -304,10 +366,17 @@ impl Drop for RouteManager {
 
 /// Returns a tuple containing a IPv4 and IPv6 default route nodes.
 #[cfg(target_os = "macos")]
-pub async fn get_default_routes() -> Result<(Option<super::Node>, Option<super::Node>), Error> {
-    use futures::TryFutureExt;
-    futures::try_join!(
-        imp::RouteManagerImpl::get_default_node(IpVersion::V4).map_err(Into::into),
-        imp::RouteManagerImpl::get_default_node(IpVersion::V6).map_err(Into::into)
-    )
+pub async fn get_default_routes(
+    _excluded_interface: Option<String>,
+) -> Result<(Option<super::Node>, Option<super::Node>), Error> {
+    // TODO: Fix this
+    Ok((None, None))
+    // return get_default_routes().await;
+    // use futures::TryFutureExt;
+    // futures::try_join!(
+    //     imp::RouteManagerImpl::get_default_node(IpVersion::V4, excluded_interface.clone())
+    //         .map_err(Into::into),
+    //     imp::RouteManagerImpl::get_default_node(IpVersion::V6, excluded_interface)
+    //         .map_err(Into::into)
+    //)
 }
