@@ -1324,6 +1324,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 06799AD328F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadREST" */;
 			buildPhases = (
+				588E4EB028FEF1CA008046E3 /* Run prebuild script */,
 				06799AB728F98E1D00ACD94E /* Headers */,
 				06799AB828F98E1D00ACD94E /* Sources */,
 				06799AB928F98E1D00ACD94E /* Frameworks */,
@@ -1435,9 +1436,9 @@
 			buildRules = (
 			);
 			dependencies = (
-				58CE5E80224146470008646E /* PBXTargetDependency */,
-				58E5126E28DDF09F00B0BCDE /* PBXTargetDependency */,
 				06799AD028F98E1D00ACD94E /* PBXTargetDependency */,
+				58E5126E28DDF09F00B0BCDE /* PBXTargetDependency */,
+				58CE5E80224146470008646E /* PBXTargetDependency */,
 			);
 			name = MullvadVPN;
 			packageProductDependencies = (
@@ -1649,6 +1650,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		588E4EB028FEF1CA008046E3 /* Run prebuild script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run prebuild script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec > $PROJECT_DIR/rest-prebuild.log 2>&1\n\n$PROJECT_DIR/rest-prebuild.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		06799AB828F98E1D00ACD94E /* Sources */ = {
