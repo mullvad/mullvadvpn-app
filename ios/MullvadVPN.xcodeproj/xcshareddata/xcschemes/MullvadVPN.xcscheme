@@ -22,22 +22,6 @@
                </EnvironmentBuildable>
             </ActionContent>
          </ExecutionAction>
-         <ExecutionAction
-            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
-            <ActionContent
-               title = "MullvadREST Pre-action run script"
-               scriptText = "$PROJECT_DIR/rest-prebuild.sh&#10;">
-               <EnvironmentBuildable>
-                  <BuildableReference
-                     BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "06799ABB28F98E1D00ACD94E"
-                     BuildableName = "MullvadREST.framework"
-                     BlueprintName = "MullvadREST"
-                     ReferencedContainer = "container:MullvadVPN.xcodeproj">
-                  </BuildableReference>
-               </EnvironmentBuildable>
-            </ActionContent>
-         </ExecutionAction>
       </PreActions>
       <BuildActionEntries>
          <BuildActionEntry
