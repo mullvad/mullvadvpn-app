@@ -17,8 +17,6 @@
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		06799AC028F98E1D00ACD94E /* MullvadNetwork.docc in Sources */ = {isa = PBXBuildFile; fileRef = 06799ABF28F98E1D00ACD94E /* MullvadNetwork.docc */; };
-		06799AC628F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
-		06799ACD28F98E1D00ACD94E /* MullvadNetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06799ACC28F98E1D00ACD94E /* MullvadNetworkTests.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadNetwork.h */; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -330,20 +328,6 @@
 			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
 			remoteInfo = MullvadREST;
 		};
-		06799AC728F98E1D00ACD94E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadNetwork;
-		};
-		06799AC928F98E1D00ACD94E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 58CE5E5F224146200008646E;
-			remoteInfo = MullvadVPN;
-		};
 		06799ACF28F98E1D00ACD94E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -484,8 +468,6 @@
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		06799ABE28F98E1D00ACD94E /* MullvadNetwork.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadNetwork.h; sourceTree = "<group>"; };
 		06799ABF28F98E1D00ACD94E /* MullvadNetwork.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MullvadNetwork.docc; sourceTree = "<group>"; };
-		06799AC528F98E1D00ACD94E /* MullvadNetworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadNetworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		06799ACC28F98E1D00ACD94E /* MullvadNetworkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadNetworkTests.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
@@ -763,14 +745,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		06799AC228F98E1D00ACD94E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				06799AC628F98E1D00ACD94E /* MullvadREST.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		581943D328F800C900B0CB5E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -890,14 +864,6 @@
 				06799ABF28F98E1D00ACD94E /* MullvadNetwork.docc */,
 			);
 			path = MullvadREST;
-			sourceTree = "<group>";
-		};
-		06799ACB28F98E1D00ACD94E /* MullvadRESTTests */ = {
-			isa = PBXGroup;
-			children = (
-				06799ACC28F98E1D00ACD94E /* MullvadNetworkTests.swift */,
-			);
-			path = MullvadRESTTests;
 			sourceTree = "<group>";
 		};
 		06AC113F28F841310037AF9A /* AddressCache */ = {
@@ -1076,7 +1042,6 @@
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				06799ABD28F98E1D00ACD94E /* MullvadREST */,
-				06799ACB28F98E1D00ACD94E /* MullvadRESTTests */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
 				582CFEE1269448160072883A /* Localizations */,
 				589A454A28DDF59B00565204 /* Shared */,
@@ -1104,7 +1069,6 @@
 				581943D628F800C900B0CB5E /* libMullvadLogging.a */,
 				581943F128F8014500B0CB5E /* libMullvadTypes.a */,
 				06799ABC28F98E1D00ACD94E /* MullvadREST.framework */,
-				06799AC528F98E1D00ACD94E /* MullvadNetworkTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1378,25 +1342,6 @@
 			productReference = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		06799AC428F98E1D00ACD94E /* MullvadNetworkTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 06799AD728F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadNetworkTests" */;
-			buildPhases = (
-				06799AC128F98E1D00ACD94E /* Sources */,
-				06799AC228F98E1D00ACD94E /* Frameworks */,
-				06799AC328F98E1D00ACD94E /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				06799AC828F98E1D00ACD94E /* PBXTargetDependency */,
-				06799ACA28F98E1D00ACD94E /* PBXTargetDependency */,
-			);
-			name = MullvadNetworkTests;
-			productName = MullvadNetworkTests;
-			productReference = 06799AC528F98E1D00ACD94E /* MullvadNetworkTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		581943D528F800C900B0CB5E /* MullvadLogging */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 581943DC28F800C900B0CB5E /* Build configuration list for PBXNativeTarget "MullvadLogging" */;
@@ -1573,10 +1518,6 @@
 					06799ABB28F98E1D00ACD94E = {
 						CreatedOnToolsVersion = 14.0.1;
 					};
-					06799AC428F98E1D00ACD94E = {
-						CreatedOnToolsVersion = 14.0.1;
-						TestTargetID = 58CE5E5F224146200008646E;
-					};
 					581943D528F800C900B0CB5E = {
 						CreatedOnToolsVersion = 14.0.1;
 						LastSwiftMigration = 1400;
@@ -1650,7 +1591,6 @@
 				581943D528F800C900B0CB5E /* MullvadLogging */,
 				581943F028F8014500B0CB5E /* MullvadTypes */,
 				06799ABB28F98E1D00ACD94E /* MullvadREST */,
-				06799AC428F98E1D00ACD94E /* MullvadNetworkTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1662,13 +1602,6 @@
 			files = (
 				062B45C228FE980000746E77 /* api-ip-address.json in Resources */,
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		06799AC328F98E1D00ACD94E /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1753,14 +1686,6 @@
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		06799AC128F98E1D00ACD94E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				06799ACD28F98E1D00ACD94E /* MullvadNetworkTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2074,16 +1999,6 @@
 			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
 			targetProxy = 062B45BE28FDA85D00746E77 /* PBXContainerItemProxy */;
 		};
-		06799AC828F98E1D00ACD94E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
-			targetProxy = 06799AC728F98E1D00ACD94E /* PBXContainerItemProxy */;
-		};
-		06799ACA28F98E1D00ACD94E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 58CE5E5F224146200008646E /* MullvadVPN */;
-			targetProxy = 06799AC928F98E1D00ACD94E /* PBXContainerItemProxy */;
-		};
 		06799AD028F98E1D00ACD94E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
@@ -2220,48 +2135,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
-		06799AD828F98E1D00ACD94E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadNetworkTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MullvadVPN.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MullvadVPN";
-			};
-			name = Debug;
-		};
-		06799AD928F98E1D00ACD94E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CKG9MXH72F;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadNetworkTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MullvadVPN.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MullvadVPN";
 			};
 			name = Release;
 		};
@@ -2721,15 +2594,6 @@
 			buildConfigurations = (
 				06799AD428F98E1D00ACD94E /* Debug */,
 				06799AD528F98E1D00ACD94E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		06799AD728F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadNetworkTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				06799AD828F98E1D00ACD94E /* Debug */,
-				06799AD928F98E1D00ACD94E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
