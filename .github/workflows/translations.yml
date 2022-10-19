@@ -56,4 +56,4 @@ jobs:
 
             - name: Check if format specifiers are correct
               working-directory: gui/scripts
-              run: npm exec ts-node verify-format-specifiers.ts
+              run: npm exec ts-node verify-translations-format.ts
