@@ -86,7 +86,7 @@
     <string name="login_fail_description">Ungültige Kontonummer</string>
     <string name="login_fail_title">Anmeldung fehlgeschlagen</string>
     <string name="login_title">Anmelden</string>
-    <string name="max_devices_confirm_removal_description">Möchten Sie sich wirklich von &lt;b&gt;%1$s&lt;/b&gt; abmelden?</string>
+    <string name="max_devices_confirm_removal_description">Möchten Sie &lt;b&gt;%1$s&lt;/b&gt; wirklich abmelden?</string>
     <string name="max_devices_resolved_description">Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>

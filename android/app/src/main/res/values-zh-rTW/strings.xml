@@ -86,7 +86,7 @@
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
-    <string name="max_devices_confirm_removal_description">確定要登出&lt;b&gt;%1$s&lt;/b&gt;嗎？</string>
+    <string name="max_devices_confirm_removal_description">確定要將 &lt;b&gt;%1$s&lt;/b&gt; 登出嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
     <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>

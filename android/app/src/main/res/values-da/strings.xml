@@ -86,7 +86,7 @@
     <string name="login_fail_description">Ugyldigt kontonummer</string>
     <string name="login_fail_title">Login mislykkedes</string>
     <string name="login_title">Log ind</string>
-    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge ud af &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; ud?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>

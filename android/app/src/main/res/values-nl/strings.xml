@@ -86,7 +86,7 @@
     <string name="login_fail_description">Ongeldig accountnummer</string>
     <string name="login_fail_title">Aanmelden mislukt</string>
     <string name="login_title">Aanmelden</string>
-    <string name="max_devices_confirm_removal_description">Weet u zeker dat u zich wilt afmelden van &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Weet u zeker dat u &lt;b&gt;%1$s&lt;/b&gt; wilt afmelden?</string>
     <string name="max_devices_resolved_description">U kunt nu doorgaan met het aanmelden bij dit apparaat.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>

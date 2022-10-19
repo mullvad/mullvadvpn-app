@@ -86,7 +86,6 @@
     <string name="login_fail_description">အကောင့်နံပါတ် မှားယွင်းနေပါသည်</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
     <string name="login_title">ဝင်ရန်</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>

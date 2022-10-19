@@ -86,7 +86,7 @@
     <string name="login_fail_description">Ogiltigt kontonummer</string>
     <string name="login_fail_title">Inloggningen misslyckades</string>
     <string name="login_title">Logga in</string>
-    <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut från &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Vill du verkligen logga ut &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsätta med att logga in på den här enheten.</string>
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>

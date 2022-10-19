@@ -86,7 +86,7 @@
     <string name="login_fail_description">アカウント番号が正しくありません</string>
     <string name="login_fail_title">ログインに失敗しました</string>
     <string name="login_title">ログイン</string>
-    <string name="max_devices_confirm_removal_description">本当に&lt;b&gt;%1$s&lt;/b&gt;からログアウトしますか？</string>
+    <string name="max_devices_confirm_removal_description">本当に&lt;b&gt;%1$s&lt;/b&gt;をログアウトしますか？</string>
     <string name="max_devices_resolved_description">このデバイスでログインを続けられるようになりました。</string>
     <string name="max_devices_resolved_title">素晴らしい！</string>
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>

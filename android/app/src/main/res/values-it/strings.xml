@@ -86,7 +86,7 @@
     <string name="login_fail_description">Numero di account non valido</string>
     <string name="login_fail_title">Accesso non riuscito</string>
     <string name="login_title">Accedi</string>
-    <string name="max_devices_confirm_removal_description">Vuoi davvero disconnetterti da &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Vuoi davvero disconnettere &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Ora puoi continuare ad accedere su questo dispositivo.</string>
     <string name="max_devices_resolved_title">Fantastico!</string>
     <string name="max_devices_warning_description">Disconnettiti da almeno un dispositivo rimuovendolo dall\'elenco seguente. Puoi trovare il nome del dispositivo corrispondente nelle impostazioni dell\'account del dispositivo.</string>
