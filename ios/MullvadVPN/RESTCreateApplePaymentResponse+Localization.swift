@@ -8,7 +8,7 @@
 
 import MullvadREST
 
-public extension REST.CreateApplePaymentResponse {
+extension REST.CreateApplePaymentResponse {
     enum Context {
         case purchase
         case restoration

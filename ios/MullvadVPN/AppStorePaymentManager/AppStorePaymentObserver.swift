@@ -40,7 +40,7 @@ enum CreateApplePaymentResponse {
     }
 }
 
-public protocol AppStorePaymentObserver: AnyObject {
+protocol AppStorePaymentObserver: AnyObject {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction?,

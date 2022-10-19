@@ -8,8 +8,8 @@
 
 import Foundation
 
-public extension REST {
-    struct RetryStrategy {
+extension REST {
+    public struct RetryStrategy {
         public var maxRetryCount: Int
         public var retryDelay: DispatchTimeInterval
 

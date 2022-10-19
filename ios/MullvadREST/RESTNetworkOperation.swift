@@ -10,9 +10,9 @@ import Foundation
 import MullvadLogging
 import Operations
 
-public extension REST {
-    class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
-        private let requestHandler: AnyRequestHandler
+extension REST {
+    public class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
+        private let requestHandler: RESTRequestHandler
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
@@ -29,12 +29,12 @@ public extension REST {
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
-        public init(
+        internal init(
             name: String,
             dispatchQueue: DispatchQueue,
             configuration: ProxyConfiguration,
             retryStrategy: RetryStrategy,
-            requestHandler: AnyRequestHandler,
+            requestHandler: RESTRequestHandler,
             responseHandler: AnyResponseHandler<Success>,
             completionHandler: @escaping CompletionHandler
         ) {

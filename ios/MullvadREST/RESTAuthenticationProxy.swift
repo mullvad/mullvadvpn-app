@@ -9,8 +9,8 @@
 import Foundation
 
 extension REST {
-    class AuthenticationProxy: Proxy<ProxyConfiguration> {
-        init(configuration: ProxyConfiguration) {
+    public class AuthenticationProxy: Proxy<ProxyConfiguration> {
+        public init(configuration: ProxyConfiguration) {
             super.init(
                 name: "AuthenticationProxy",
                 configuration: configuration,
@@ -22,7 +22,7 @@ extension REST {
             )
         }
 
-        func getAccessToken(
+        internal func getAccessToken(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<AccessTokenData>
@@ -56,7 +56,7 @@ extension REST {
         }
     }
 
-    struct AccessTokenData: Decodable {
+    public struct AccessTokenData: Decodable {
         let accessToken: String
         let expiry: Date
     }

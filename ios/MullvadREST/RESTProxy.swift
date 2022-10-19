@@ -9,8 +9,8 @@
 import Foundation
 import Operations
 
-public extension REST {
-    class Proxy<ConfigurationType: ProxyConfiguration> {
+extension REST {
+    public class Proxy<ConfigurationType: ProxyConfiguration> {
         public typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>)
             -> Void
 
@@ -46,7 +46,7 @@ public extension REST {
         public func addOperation<Success>(
             name: String,
             retryStrategy: REST.RetryStrategy,
-            requestHandler: REST.AnyRequestHandler,
+            requestHandler: RESTRequestHandler,
             responseHandler: REST.AnyResponseHandler<Success>,
             completionHandler: @escaping NetworkOperation<Success>.CompletionHandler
         ) -> Cancellable {
@@ -66,7 +66,7 @@ public extension REST {
         }
     }
 
-    class ProxyConfiguration {
+    public class ProxyConfiguration {
         public let transportRegistry: REST.TransportRegistry
         public let addressCacheStore: AddressCache.Store
 
@@ -79,7 +79,7 @@ public extension REST {
         }
     }
 
-    class AuthProxyConfiguration: ProxyConfiguration {
+    public class AuthProxyConfiguration: ProxyConfiguration {
         public let accessTokenManager: AccessTokenManager
 
         public init(

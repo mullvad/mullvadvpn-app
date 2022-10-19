@@ -8,8 +8,8 @@
 
 import Foundation
 
-public extension REST {
-    class ProxyFactory {
+extension REST {
+    public class ProxyFactory {
         public let configuration: AuthProxyConfiguration
 
         public static let shared: ProxyFactory = {

@@ -8,13 +8,13 @@
 
 import Foundation
 
-public extension REST {
-    enum Coding {}
+extension REST {
+    public enum Coding {}
 }
 
-public extension REST.Coding {
+extension REST.Coding {
     /// Returns a JSON encoder used by REST API.
-    static func makeJSONEncoder() -> JSONEncoder {
+    internal static func makeJSONEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.dataEncodingStrategy = .base64
@@ -23,7 +23,7 @@ public extension REST.Coding {
     }
 
     /// Returns a JSON decoder used by REST API.
-    static func makeJSONDecoder() -> JSONDecoder {
+    public static func makeJSONDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dataDecodingStrategy = .base64

@@ -17,25 +17,25 @@ public protocol RESTRequestHandler {
     var authorizationProvider: RESTAuthorizationProvider? { get }
 }
 
-public extension REST {
-    struct Request {
+extension REST {
+    public struct Request {
         var urlRequest: URLRequest
         var pathTemplate: URLPathTemplate
     }
 
-    final class AnyRequestHandler: RESTRequestHandler {
+    internal final class AnyRequestHandler: RESTRequestHandler {
         private let _createURLRequest: (AnyIPEndpoint, REST.Authorization?) throws -> REST.Request
 
-        public let authorizationProvider: RESTAuthorizationProvider?
+        internal let authorizationProvider: RESTAuthorizationProvider?
 
-        init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
+        internal init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
             _createURLRequest = { endpoint, authorization in
                 return try createURLRequest(endpoint)
             }
             authorizationProvider = nil
         }
 
-        init(
+        internal init(
             createURLRequest: @escaping (AnyIPEndpoint, REST.Authorization) throws -> REST.Request,
             authorizationProvider: RESTAuthorizationProvider
         ) {
@@ -45,7 +45,7 @@ public extension REST {
             self.authorizationProvider = authorizationProvider
         }
 
-        public func createURLRequest(
+        internal func createURLRequest(
             endpoint: AnyIPEndpoint,
             authorization: REST.Authorization?
         ) throws -> REST.Request {

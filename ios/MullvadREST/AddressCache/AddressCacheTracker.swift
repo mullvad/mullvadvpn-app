@@ -10,8 +10,8 @@ import Foundation
 import MullvadLogging
 import Operations
 
-public extension AddressCache {
-    class Tracker {
+extension AddressCache {
+    public class Tracker {
         /// Shared instance.
         public static let shared = AddressCache.Tracker(
             apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
