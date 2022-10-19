@@ -1549,9 +1549,6 @@ msgstr ""
 msgid "All applications"
 msgstr ""
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr ""
-
 msgid "Blocking all connections"
 msgstr ""
 
