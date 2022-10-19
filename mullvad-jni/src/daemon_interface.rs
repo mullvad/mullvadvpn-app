@@ -4,7 +4,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     device::{Device, DeviceState},
     location::GeoIpLocation,
-    relay_constraints::RelaySettingsUpdate,
+    relay_constraints::{ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
@@ -310,6 +310,16 @@ impl DaemonInterface {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::UpdateRelaySettings(tx, update))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
+    }
+
+    pub fn set_obfuscation_settings(&self, settings: ObfuscationSettings) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetObfuscationSettings(tx, settings))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?

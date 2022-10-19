@@ -513,6 +513,8 @@ pub enum BridgeSettings {
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 pub enum SelectedObfuscation {
     Auto,
@@ -532,8 +534,16 @@ impl fmt::Display for SelectedObfuscation {
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 pub struct Udp2TcpObfuscationSettings {
+    // TODO: don't ignore port set by JNI
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|constraint| constraint.map(|v| v as i32)")
+    )]
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub port: Constraint<u16>,
 }
 
@@ -548,6 +558,8 @@ impl fmt::Display for Udp2TcpObfuscationSettings {
 
 /// Contains obfuscation settings
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 #[serde(default)]
 pub struct ObfuscationSettings {
