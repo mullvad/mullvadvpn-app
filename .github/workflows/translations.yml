@@ -41,19 +41,5 @@ jobs:
                 toolchain: stable
                 default: true
 
-            - name: Extract messages from desktop GUI
-              working-directory: gui/locales
-              run: npm run update-translations
-
-            - name: Convert translations into Android resources
-              working-directory: android/translations-converter
-              run: cargo run
-
-            - name: Check if repository is up to date
-              run: |
-                git diff
-                ! git status -s | grep .
-
-            - name: Check if format specifiers are correct
-              working-directory: gui/scripts
-              run: npm exec ts-node verify-translations-format.ts
+            - name: Verify translations
+              run: scripts/localization verify
