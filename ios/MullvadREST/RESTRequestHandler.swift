@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 protocol RESTRequestHandler {
     func createURLRequest(

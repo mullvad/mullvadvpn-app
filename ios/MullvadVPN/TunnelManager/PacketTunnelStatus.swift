@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /// Struct describing packet tunnel process status.
 struct PacketTunnelStatus: Codable, Equatable {
