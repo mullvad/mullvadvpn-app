@@ -13,8 +13,9 @@ function main {
         upload) upload_to_crowdin;;
         download) download_from_crowdin;;
         sync-local-files) sync_localizations;;
+        verify) verify;;
         "")
-            echo "Available subcommands: prepare, upload, download and sync-local-files"
+            echo "Available subcommands: prepare, upload, download, sync-local-files and verify"
             ;;
         *)
             echo "Unknown parameter: $1"
@@ -100,6 +101,22 @@ function download_from_crowdin {
     log_header "Updating Android xml-files with new translations"
     sync_localizations
     commit_changes "Update translations"
+}
+
+function verify {
+    sync_localizations
+    git diff
+    ! git status -s | grep .
+    local out_of_sync=$?
+
+    pushd ../gui/scripts
+    npm exec ts-node verify-translations-format.ts
+    local incorrect_format=$?
+    popd
+
+    if [ "$out_of_sync" -ne 0 ] || [ "$incorrect_format" -ne 0 ]; then
+        exit 1
+    fi
 }
 
 main "$@"
