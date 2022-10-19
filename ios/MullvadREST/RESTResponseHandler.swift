@@ -17,7 +17,7 @@ protocol RESTResponseHandler {
 
 extension REST {
     /// Responser handler result type.
-    public enum ResponseHandlerResult<Success> {
+    enum ResponseHandlerResult<Success> {
         /// Response handler succeeded and produced a value.
         case success(Success)
 
@@ -29,17 +29,17 @@ extension REST {
         case unhandledResponse(ServerErrorResponse?)
     }
 
-    public final class AnyResponseHandler<Success>: RESTResponseHandler {
-        public typealias HandlerBlock = (HTTPURLResponse, Data) -> REST
+    final class AnyResponseHandler<Success>: RESTResponseHandler {
+        typealias HandlerBlock = (HTTPURLResponse, Data) -> REST
             .ResponseHandlerResult<Success>
 
         private let handlerBlock: HandlerBlock
 
-        public init(_ block: @escaping HandlerBlock) {
+        init(_ block: @escaping HandlerBlock) {
             handlerBlock = block
         }
 
-        public func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
+        func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
             .ResponseHandlerResult<Success>
         {
             return handlerBlock(response, data)

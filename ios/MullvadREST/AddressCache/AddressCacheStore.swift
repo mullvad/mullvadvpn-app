@@ -12,10 +12,10 @@ import MullvadLogging
 extension AddressCache {
     struct CachedAddresses: Codable {
         /// Date when the cached addresses were last updated.
-        public var updatedAt: Date
+        var updatedAt: Date
 
         /// API endpoints.
-        public var endpoints: [AnyIPEndpoint]
+        var endpoints: [AnyIPEndpoint]
     }
 
     enum CacheSource: CustomStringConvertible {
@@ -25,7 +25,7 @@ extension AddressCache {
         /// Cache file originates from application bundle.
         case bundle
 
-        public var description: String {
+        var description: String {
             switch self {
             case .disk:
                 return "disk"
@@ -36,14 +36,14 @@ extension AddressCache {
     }
 
     struct ReadResult {
-        public var cachedAddresses: CachedAddresses
-        public var source: CacheSource
+        var cachedAddresses: CachedAddresses
+        var source: CacheSource
     }
 
     struct EmptyCacheError: LocalizedError {
-        public let source: CacheSource
+        let source: CacheSource
 
-        public var errorDescription: String? {
+        var errorDescription: String? {
             return "Address cache file from \(source) does not contain any API addresses."
         }
     }
@@ -59,7 +59,7 @@ extension AddressCache {
                 cacheFilename,
                 isDirectory: false
             )
-            let prebundledCacheFileURL = Bundle(for: SSLPinningURLSessionDelegate.self).url(
+            let prebundledCacheFileURL = Bundle(for: Store.self).url(
                 forResource: cacheFilename,
                 withExtension: nil
             )!
@@ -95,7 +95,7 @@ extension AddressCache {
         private let nslock = NSLock()
 
         /// Designated initializer
-        init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
+        public init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
 

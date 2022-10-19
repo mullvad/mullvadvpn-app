@@ -13,7 +13,7 @@ import class WireGuardKitTypes.PublicKey
 
 extension REST {
     public class APIProxy: Proxy<ProxyConfiguration> {
-        public init(configuration: ProxyConfiguration) {
+        init(configuration: ProxyConfiguration) {
             super.init(
                 name: "APIProxy",
                 configuration: configuration,
@@ -25,7 +25,7 @@ extension REST {
             )
         }
 
-        func getAddressList(
+        public func getAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
