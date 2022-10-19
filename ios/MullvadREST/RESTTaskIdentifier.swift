@@ -12,7 +12,7 @@ extension REST {
     private static let nslock = NSLock()
     private static var taskCount: UInt32 = 0
 
-    internal static func getTaskIdentifier(name: String) -> String {
+    static func getTaskIdentifier(name: String) -> String {
         nslock.lock()
         defer { nslock.unlock() }
 

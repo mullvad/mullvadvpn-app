@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 
 extension AddressCache {
-    public struct CachedAddresses: Codable {
+    struct CachedAddresses: Codable {
         /// Date when the cached addresses were last updated.
         public var updatedAt: Date
 
@@ -18,7 +18,7 @@ extension AddressCache {
         public var endpoints: [AnyIPEndpoint]
     }
 
-    internal enum CacheSource: CustomStringConvertible {
+    enum CacheSource: CustomStringConvertible {
         /// Cache file originates from disk location.
         case disk
 
@@ -35,12 +35,12 @@ extension AddressCache {
         }
     }
 
-    internal struct ReadResult {
+    struct ReadResult {
         public var cachedAddresses: CachedAddresses
         public var source: CacheSource
     }
 
-    internal struct EmptyCacheError: LocalizedError {
+    struct EmptyCacheError: LocalizedError {
         public let source: CacheSource
 
         public var errorDescription: String? {
@@ -70,7 +70,7 @@ extension AddressCache {
             )
         }()
 
-        internal static var defaultCachedAddresses: CachedAddresses {
+        static var defaultCachedAddresses: CachedAddresses {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: [
@@ -95,7 +95,7 @@ extension AddressCache {
         private let nslock = NSLock()
 
         /// Designated initializer
-        internal init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
+        init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
 
@@ -140,13 +140,13 @@ extension AddressCache {
             }
         }
 
-        internal func getCurrentEndpoint() -> AnyIPEndpoint {
+        func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
             return cachedAddresses.endpoints.first!
         }
 
-        internal func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
+        func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -178,7 +178,7 @@ extension AddressCache {
             return currentEndpoint
         }
 
-        internal func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
+        func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -215,7 +215,7 @@ extension AddressCache {
             }
         }
 
-        internal func getLastUpdateDate() -> Date {
+        func getLastUpdateDate() -> Date {
             nslock.lock()
             defer { nslock.unlock() }
 

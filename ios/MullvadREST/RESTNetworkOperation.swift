@@ -29,7 +29,7 @@ extension REST {
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
-        internal init(
+        init(
             name: String,
             dispatchQueue: DispatchQueue,
             configuration: ProxyConfiguration,

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol RESTResponseHandler {
+protocol RESTResponseHandler {
     associatedtype Success
 
     func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
@@ -49,7 +49,7 @@ extension REST {
     /// Returns default response handler that parses JSON response into the
     /// given `Decodable` type when it encounters HTTP `2xx` code, otherwise
     /// attempts to decode the server error.
-    internal static func defaultResponseHandler<T: Decodable>(
+    static func defaultResponseHandler<T: Decodable>(
         decoding type: T.Type,
         with decoder: JSONDecoder
     ) -> AnyResponseHandler<T> {
