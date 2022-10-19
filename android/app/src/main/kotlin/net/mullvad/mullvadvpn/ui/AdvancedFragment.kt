@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.customDns
 import net.mullvad.mullvadvpn.ui.serviceconnection.settingsListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.obfuscationSettingsListener
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.MtuCell
@@ -50,6 +52,8 @@ class AdvancedFragment : BaseFragment() {
     // which sets up custom dns subscriptions, is called before onSafelyCreateView.
     private var customDnsAdapter: CustomDnsAdapter? = null
     private var customDnsToggle: ToggleCell? = null
+
+    private var autoObfuscationToggle: ToggleCell? = null
 
     private lateinit var wireguardMtuInput: MtuCell
     private lateinit var titleController: CollapsibleTitleController
@@ -220,11 +224,36 @@ class AdvancedFragment : BaseFragment() {
                 }
             }
         }
+
+        autoObfuscationToggle = view.findViewById<ToggleCell>(R.id.enable_auto_obfuscation).apply {
+            listener = { state ->
+                jobTracker.newBackgroundJob("toggleAutoObfuscation") {
+                    if (state == CellSwitch.State.ON) {
+                        serviceConnectionManager.obfuscationSettingsListener()
+                            ?.select(SelectedObfuscation.Auto)
+                    } else {
+                        serviceConnectionManager.obfuscationSettingsListener()
+                            ?.select(SelectedObfuscation.Off)
+                    }
+                }
+            }
+        }
+
+        // Trigger UI update since header is initialized lazily
+        serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent?.also {
+            updateUi(it)
+        }
     }
 
     private fun updateUi(settings: Settings) {
         if (this::wireguardMtuInput.isInitialized && wireguardMtuInput.hasFocus == false) {
             wireguardMtuInput.value = settings.tunnelOptions.wireguard.options.mtu
+        }
+
+        val selectedObfuscation = settings.obfuscationSettings.selectedObfuscation
+        autoObfuscationToggle?.state = when (selectedObfuscation) {
+            SelectedObfuscation.Off -> CellSwitch.State.OFF
+            else -> CellSwitch.State.ON
         }
     }
 

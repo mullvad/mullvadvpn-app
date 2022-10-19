@@ -21,5 +21,8 @@ fun ServiceConnectionManager.customDns() =
 fun ServiceConnectionManager.relayListListener() =
     this.connectionState.value.readyContainer()?.relayListListener
 
+fun ServiceConnectionManager.obfuscationSettingsListener() =
+    this.connectionState.value.readyContainer()?.obfuscationSettingsListener
+
 fun ServiceConnectionManager.settingsListener() =
     this.connectionState.value.readyContainer()?.settingsListener

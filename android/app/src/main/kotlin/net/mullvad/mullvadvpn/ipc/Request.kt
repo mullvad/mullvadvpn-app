@@ -5,6 +5,8 @@ import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
 // Requests that the service can handle
 sealed class Request : Message.RequestMessage() {
@@ -102,6 +104,9 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     data class VpnPermissionResponse(val isGranted: Boolean) : Request()
+
+    @Parcelize
+    data class SetObfuscationSettings(val settings: ObfuscationSettings) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"

@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
@@ -12,6 +13,7 @@ import net.mullvad.talpid.util.EventNotifier
 class SettingsListener(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)
+    val obfuscationSettingsNotifier = EventNotifier<ObfuscationSettings?>(null)
     val settingsNotifier = EventNotifier<Settings?>(null)
 
     private var settings by settingsNotifier.notifiable()
@@ -41,6 +43,7 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
     fun onDestroy() {
         dnsOptionsNotifier.unsubscribeAll()
         relaySettingsNotifier.unsubscribeAll()
+        obfuscationSettingsNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
     }
 
@@ -55,6 +58,10 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
 
         if (settings?.relaySettings != newSettings.relaySettings) {
             relaySettingsNotifier.notify(newSettings.relaySettings)
+        }
+
+        if (settings?.obfuscationSettings != newSettings.obfuscationSettings) {
+            obfuscationSettingsNotifier.notify(newSettings.obfuscationSettings)
         }
 
         settings = newSettings

@@ -48,6 +48,7 @@ class ServiceConnectionContainer(
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(connection, settingsListener)
     var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
+    var obfuscationSettingsListener = ObfuscationSettingsListener(connection, settingsListener)
 
     private var listenerId: Int? = null
 
@@ -77,6 +78,7 @@ class ServiceConnectionContainer(
         appVersionInfoCache.onDestroy()
         customDns.onDestroy()
         relayListListener.onDestroy()
+        obfuscationSettingsListener.onDestroy()
     }
 
     private fun registerListener(connection: Messenger) {

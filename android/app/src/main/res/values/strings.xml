@@ -144,6 +144,7 @@
     <string name="split_tunneling_description">Split tunneling makes it possible to select which
     applications should not be routed through the VPN tunnel.</string>
     <string name="enable">Enable</string>
+    <string name="enable_auto_obfuscation">Automatic obfuscation</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
     <string name="custom_dns_hint">Enter IP</string>
