@@ -5,8 +5,12 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-
+echo "Computing build version..."
+echo ""
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
+echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
+echo ""
+
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASK="assembleRelease"
@@ -56,7 +60,6 @@ if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     CARGO_ARGS+=" --locked"
 fi
 
-echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
 pushd "$SCRIPT_DIR/android"
 
 # Fallback to the system-wide gradle command if the gradlew script is removed.
