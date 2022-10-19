@@ -7,7 +7,7 @@ use crate::{
     CustomTunnelEndpoint,
 };
 #[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
+use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
@@ -513,6 +513,8 @@ pub enum BridgeSettings {
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 pub enum SelectedObfuscation {
     Auto,
@@ -532,9 +534,42 @@ impl fmt::Display for SelectedObfuscation {
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 pub struct Udp2TcpObfuscationSettings {
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|constraint| constraint.map(|v| v as i32)")
+    )]
     pub port: Constraint<u16>,
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for Udp2TcpObfuscationSettings
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/Udp2TcpObfuscationSettings;";
+
+    fn from_java(env: &JnixEnv<'env>, object: JObject<'sub_env>) -> Self {
+        let object = env
+            .call_method(
+                object,
+                "component1",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing Udp2TcpObfuscationSettings.port")
+            .l()
+            .expect("Udp2TcpObfuscationSettings.port did not return an object");
+
+        let port: Constraint<i32> = Constraint::from_java(env, object);
+
+        Udp2TcpObfuscationSettings {
+            port: port.map(|port| port as u16),
+        }
+    }
 }
 
 impl fmt::Display for Udp2TcpObfuscationSettings {
@@ -548,6 +583,8 @@ impl fmt::Display for Udp2TcpObfuscationSettings {
 
 /// Contains obfuscation settings
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
 #[serde(default)]
 pub struct ObfuscationSettings {
