@@ -15,7 +15,7 @@ extension REST {
         let networkTimeout: TimeInterval
         let bodyEncoder: JSONEncoder
 
-        public class func withDefaultAPICredentials(
+        class func withDefaultAPICredentials(
             pathPrefix: String,
             bodyEncoder: JSONEncoder
         ) -> RequestFactory {
@@ -156,7 +156,7 @@ extension REST {
         private var components: [Component]
         private var replacements = [String: String]()
 
-        public init(stringLiteral value: StringLiteralType) {
+        init(stringLiteral value: StringLiteralType) {
             let slashCharset = CharacterSet(charactersIn: "/")
 
             components = value.split(separator: "/").map { subpath -> Component in

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol RESTRequestHandler {
+protocol RESTRequestHandler {
     func createURLRequest(
         endpoint: AnyIPEndpoint,
         authorization: REST.Authorization?
@@ -18,7 +18,7 @@ public protocol RESTRequestHandler {
 }
 
 extension REST {
-    public struct Request {
+    struct Request {
         var urlRequest: URLRequest
         var pathTemplate: URLPathTemplate
     }

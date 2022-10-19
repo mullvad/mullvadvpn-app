@@ -43,7 +43,7 @@ extension REST {
             self.responseDecoder = responseDecoder
         }
 
-        public func addOperation<Success>(
+        func addOperation<Success>(
             name: String,
             retryStrategy: REST.RetryStrategy,
             requestHandler: RESTRequestHandler,

@@ -11,7 +11,7 @@ import MullvadLogging
 import Operations
 
 extension REST {
-    public class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
+    class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
         private let requestHandler: RESTRequestHandler
         private let responseHandler: AnyResponseHandler<Success>
 
