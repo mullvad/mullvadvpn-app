@@ -7,7 +7,8 @@
 # dependencies and building everything.
 #
 # podman run --rm \
-#     -v ~/.cargo:/root/.cargo:Z \
+#     -v /path/to/container_cache/target:/root/.cargo/target:Z \
+#     -v /path/to/container_cache/registry:/root/.cargo/registry:Z \
 #     -v .:/build:Z \
 #     mullvadvpn-app-build ./build.sh
 #
@@ -19,7 +20,6 @@ FROM debian@sha256:557ee531b81ce380d012d83b7bb56211572e5d6088d3e21a3caef7d7ed7f7
 
 # === Define toolchain versions and paths ===
 
-ENV CARGO_HOME=/root/.cargo
 ENV CARGO_TARGET_DIR=/root/.cargo/target
 
 ENV GOLANG_VERSION 1.18.5
@@ -36,17 +36,30 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
+# === Rust ===
+
 # Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
+
 ENV PATH "/root/.cargo/bin:$PATH"
-ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER "aarch64-linux-gnu-gcc"
+
+RUN echo '[target.aarch64-unknown-linux-gnu]\n\
+linker = "aarch64-linux-gnu-gcc"\n\
+\n\
+[target.aarch64-unknown-linux-gnu.dbus]\n\
+rustc-link-search = ["/usr/aarch64-linux-gnu/lib"]\n\
+rustc-link-lib = ["dbus-1"]' > /root/.cargo/config.toml
+
+# === Volta for npm + node ===
 
 ENV PATH /root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
 # versions from package.json, but `node --version` triggers an install
 COPY gui/package.json .
 RUN curl https://get.volta.sh | bash && node --version && rm package.json
+
+# === Golang ===
 
 # Install golang
 # Checksum from: https://go.dev/dl/
@@ -55,5 +68,6 @@ RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && 
     tar -C /usr/local -xzf go.tgz && \
     rm go.tgz
 ENV PATH /usr/local/go/bin:$PATH
+
 
 WORKDIR /build
