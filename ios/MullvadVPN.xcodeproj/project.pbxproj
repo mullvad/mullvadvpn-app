@@ -11,13 +11,13 @@
 		062B45AE28FD503000746E77 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45AD28FD503000746E77 /* WireGuardKit */; };
 		062B45B428FD508C00746E77 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45B328FD508C00746E77 /* Logging */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
-		062B45BD28FDA71E00746E77 /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		062B45C228FE980000746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45C128FE97FF00746E77 /* api-ip-address.json */; };
 		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		063F026729002768001FA09F /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
+		063F026A29002E44001FA09F /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -46,15 +46,11 @@
 		06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */; };
 		06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */; };
 		06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */; };
-		06799AFA28F98ECA00ACD94E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		06799AFB28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114228F8413A0037AF9A /* AddressCache.swift */; };
 		06799AFC28F98EE300ACD94E /* AddressCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCacheStore.swift */; };
 		06799AFD28F98EE300ACD94E /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
-		06AC116328F9517B0037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
-		06AC116628F952660037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
-		06AC116828F952990037AF9A /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		06D47B7B28F98F53008E762C /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
 		06D47B7E28F98F53008E762C /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
 		06D9844C28F990AB003AABE9 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 06D9844B28F990AB003AABE9 /* WireGuardKitTypes */; };
@@ -918,6 +914,7 @@
 			isa = PBXGroup;
 			children = (
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
+				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 				58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
@@ -1001,7 +998,6 @@
 			isa = PBXGroup;
 			children = (
 				589A454B28DDF5E100565204 /* Swizzle.swift */,
-				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
 			);
 			path = Shared;
@@ -1685,7 +1681,6 @@
 			files = (
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
-				06799AFA28F98ECA00ACD94E /* IPEndpoint.swift in Sources */,
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				06799ADC28F98E4800ACD94E /* RESTTransport.swift in Sources */,
@@ -1738,6 +1733,7 @@
 				581943FC28F8020500B0CB5E /* Error+Chain.swift in Sources */,
 				581943FB28F801D500B0CB5E /* CustomErrorDescriptionProtocol.swift in Sources */,
 				063F026729002768001FA09F /* Cancellable.swift in Sources */,
+				063F026A29002E44001FA09F /* IPEndpoint.swift in Sources */,
 				581943FA28F801B500B0CB5E /* WrappingError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1760,7 +1756,6 @@
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				582A8A3A28BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
-				062B45BD28FDA71E00746E77 /* IPEndpoint.swift in Sources */,
 				5819C2142726CC8D00D6EC38 /* DataSourceSnapshotTests.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
@@ -1810,7 +1805,6 @@
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
 				5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */,
-				06AC116328F9517B0037AF9A /* IPEndpoint.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
@@ -1942,7 +1936,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
-				06AC116828F952990037AF9A /* IPEndpoint.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
 				584D26C0270C550E004EA533 /* AnyIPAddress.swift in Sources */,
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
@@ -2009,7 +2002,6 @@
 				58D889BC28DDF53500583FA8 /* OperationCondition.swift in Sources */,
 				58D889C728DDF53500583FA8 /* AsyncOperation.swift in Sources */,
 				58D889C928DDF53500583FA8 /* InputOperation.swift in Sources */,
-				06AC116628F952660037AF9A /* IPEndpoint.swift in Sources */,
 				58D889C028DDF53500583FA8 /* AlertPresenter.swift in Sources */,
 				581813A128E09DBB002817DE /* NoCancelledDependenciesCondition.swift in Sources */,
 			);

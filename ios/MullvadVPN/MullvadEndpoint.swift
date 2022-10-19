@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import MullvadTypes
 
 /// Contains server data needed to connect to a single mullvad endpoint
 struct MullvadEndpoint: Equatable, Codable {

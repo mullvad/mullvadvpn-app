@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadTypes
 
 struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
