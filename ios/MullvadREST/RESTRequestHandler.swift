@@ -23,19 +23,19 @@ extension REST {
         var pathTemplate: URLPathTemplate
     }
 
-    internal final class AnyRequestHandler: RESTRequestHandler {
+    final class AnyRequestHandler: RESTRequestHandler {
         private let _createURLRequest: (AnyIPEndpoint, REST.Authorization?) throws -> REST.Request
 
-        internal let authorizationProvider: RESTAuthorizationProvider?
+        let authorizationProvider: RESTAuthorizationProvider?
 
-        internal init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
+        init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
             _createURLRequest = { endpoint, authorization in
                 return try createURLRequest(endpoint)
             }
             authorizationProvider = nil
         }
 
-        internal init(
+        init(
             createURLRequest: @escaping (AnyIPEndpoint, REST.Authorization) throws -> REST.Request,
             authorizationProvider: RESTAuthorizationProvider
         ) {
@@ -45,7 +45,7 @@ extension REST {
             self.authorizationProvider = authorizationProvider
         }
 
-        internal func createURLRequest(
+        func createURLRequest(
             endpoint: AnyIPEndpoint,
             authorization: REST.Authorization?
         ) throws -> REST.Request {

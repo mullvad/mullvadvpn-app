@@ -22,7 +22,7 @@ extension REST {
             )
         }
 
-        internal func getAccessToken(
+        func getAccessToken(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<AccessTokenData>
