@@ -21,8 +21,8 @@ FROM debian:10.13-slim@sha256:557ee531b81ce380d012d83b7bb56211572e5d6088d3e21a3c
 
 ENV CARGO_TARGET_DIR=/root/.cargo/target
 
-ENV GOLANG_VERSION 1.18.5
-ENV GOLANG_HASH 9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+ENV GOLANG_VERSION=1.18.5 \
+    GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
 # === Install/set up the image ===
 
@@ -41,7 +41,7 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
 
-ENV PATH "/root/.cargo/bin:$PATH"
+ENV PATH=/root/.cargo/bin:$PATH
 
 RUN echo '[target.aarch64-unknown-linux-gnu]\n\
 linker = "aarch64-linux-gnu-gcc"\n\
@@ -52,7 +52,7 @@ rustc-link-lib = ["dbus-1"]' > /root/.cargo/config.toml
 
 # === Volta for npm + node ===
 
-ENV PATH /root/.volta/bin:$PATH
+ENV PATH=/root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
 # versions from package.json, but `node --version` triggers an install
 COPY gui/package.json .
@@ -66,7 +66,7 @@ RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && 
     echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
     tar -C /usr/local -xzf go.tgz && \
     rm go.tgz
-ENV PATH /usr/local/go/bin:$PATH
+ENV PATH=/usr/local/go/bin:$PATH
 
 
 WORKDIR /build
