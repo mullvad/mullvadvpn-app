@@ -8,8 +8,8 @@
 
 import Foundation
 
-public extension REST {
-    static func makeURLSession(with hostname: String = defaultAPIHostname) -> URLSession {
+extension REST {
+    public static func makeURLSession(with hostname: String = defaultAPIHostname) -> URLSession {
         let certificatePath = Bundle(for: SSLPinningURLSessionDelegate.self)
             .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!

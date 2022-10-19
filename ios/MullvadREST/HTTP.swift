@@ -9,7 +9,7 @@
 import Foundation
 
 /// HTTP method
-public struct HTTPMethod: RawRepresentable {
+struct HTTPMethod: RawRepresentable {
     public static let get = HTTPMethod(rawValue: "GET")
     public static let post = HTTPMethod(rawValue: "POST")
     public static let delete = HTTPMethod(rawValue: "DELETE")
@@ -21,7 +21,7 @@ public struct HTTPMethod: RawRepresentable {
     }
 }
 
-public struct HTTPStatus: RawRepresentable, Equatable {
+struct HTTPStatus: RawRepresentable, Equatable {
     public static let notModified = HTTPStatus(rawValue: 304)
     public static let badRequest = HTTPStatus(rawValue: 400)
     public static let notFound = HTTPStatus(rawValue: 404)
@@ -41,7 +41,7 @@ public struct HTTPStatus: RawRepresentable, Equatable {
 }
 
 /// HTTP headers
-public enum HTTPHeader {
+enum HTTPHeader {
     static let host = "Host"
     static let authorization = "Authorization"
     static let contentType = "Content-Type"

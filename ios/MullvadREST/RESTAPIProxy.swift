@@ -11,8 +11,8 @@ import Network
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
-public extension REST {
-    class APIProxy: Proxy<ProxyConfiguration> {
+extension REST {
+    public class APIProxy: Proxy<ProxyConfiguration> {
         public init(configuration: ProxyConfiguration) {
             super.init(
                 name: "APIProxy",
@@ -25,7 +25,7 @@ public extension REST {
             )
         }
 
-        public func getAddressList(
+        internal func getAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
@@ -210,7 +210,7 @@ public extension REST {
 
     // MARK: - Response types
 
-    enum ServerRelaysCacheResponse {
+    public enum ServerRelaysCacheResponse {
         case notModified
         case newContent(_ etag: String?, _ value: ServerRelaysResponse)
     }
@@ -219,7 +219,7 @@ public extension REST {
         let receiptString: Data
     }
 
-    enum CreateApplePaymentResponse {
+    public enum CreateApplePaymentResponse {
         case noTimeAdded(_ expiry: Date)
         case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
 
@@ -254,7 +254,7 @@ public extension REST {
         let newExpiry: Date
     }
 
-    struct ProblemReportRequest: Encodable {
+    public struct ProblemReportRequest: Encodable {
         let address: String
         let message: String
         let log: String

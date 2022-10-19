@@ -9,16 +9,16 @@
 import Foundation
 import MullvadLogging
 
-public extension AddressCache {
-    struct CachedAddresses: Codable {
+extension AddressCache {
+    public struct CachedAddresses: Codable {
         /// Date when the cached addresses were last updated.
-        var updatedAt: Date
+        public var updatedAt: Date
 
         /// API endpoints.
-        var endpoints: [AnyIPEndpoint]
+        public var endpoints: [AnyIPEndpoint]
     }
 
-    enum CacheSource: CustomStringConvertible {
+    internal enum CacheSource: CustomStringConvertible {
         /// Cache file originates from disk location.
         case disk
 
@@ -35,20 +35,20 @@ public extension AddressCache {
         }
     }
 
-    struct ReadResult {
-        var cachedAddresses: CachedAddresses
-        var source: CacheSource
+    internal struct ReadResult {
+        public var cachedAddresses: CachedAddresses
+        public var source: CacheSource
     }
 
-    struct EmptyCacheError: LocalizedError {
-        let source: CacheSource
+    internal struct EmptyCacheError: LocalizedError {
+        public let source: CacheSource
 
         public var errorDescription: String? {
             return "Address cache file from \(source) does not contain any API addresses."
         }
     }
 
-    class Store {
+    public class Store {
         public static let shared: Store = {
             let cacheFilename = "api-ip-address.json"
             let cacheDirectoryURL = FileManager.default.urls(
@@ -70,7 +70,7 @@ public extension AddressCache {
             )
         }()
 
-        public static var defaultCachedAddresses: CachedAddresses {
+        internal static var defaultCachedAddresses: CachedAddresses {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: [
@@ -95,7 +95,7 @@ public extension AddressCache {
         private let nslock = NSLock()
 
         /// Designated initializer
-        init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
+        internal init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
 
@@ -140,13 +140,13 @@ public extension AddressCache {
             }
         }
 
-        public func getCurrentEndpoint() -> AnyIPEndpoint {
+        internal func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
             return cachedAddresses.endpoints.first!
         }
 
-        public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
+        internal func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -178,7 +178,7 @@ public extension AddressCache {
             return currentEndpoint
         }
 
-        public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
+        internal func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -215,7 +215,7 @@ public extension AddressCache {
             }
         }
 
-        public func getLastUpdateDate() -> Date {
+        internal func getLastUpdateDate() -> Date {
             nslock.lock()
             defer { nslock.unlock() }
 

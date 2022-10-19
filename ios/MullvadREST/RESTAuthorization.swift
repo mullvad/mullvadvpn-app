@@ -15,13 +15,13 @@ public protocol RESTAuthorizationProvider {
     func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable
 }
 
-public extension REST {
-    enum Authorization {
+extension REST {
+    public enum Authorization {
         case accountNumber(String)
         case accessToken(String)
     }
 
-    struct AccessTokenProvider: RESTAuthorizationProvider {
+    public struct AccessTokenProvider: RESTAuthorizationProvider {
         private let accessTokenManager: AccessTokenManager
         private let accountNumber: String
         private let retryStrategy: REST.RetryStrategy

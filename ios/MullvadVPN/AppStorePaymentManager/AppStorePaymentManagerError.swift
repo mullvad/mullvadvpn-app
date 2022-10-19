@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-public extension AppStorePaymentManager {
+extension AppStorePaymentManager {
     /// An error type emitted by `AppStorePaymentManager`.
     enum Error: LocalizedError, WrappingError {
         /// Failure to find the account token associated with the transaction.

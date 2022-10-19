@@ -8,14 +8,14 @@
 
 import Foundation
 
-public extension REST {
-    class RequestFactory {
-        let hostname: String
-        let pathPrefix: String
-        let networkTimeout: TimeInterval
-        let bodyEncoder: JSONEncoder
+extension REST {
+    public class RequestFactory {
+        public let hostname: String
+        public let pathPrefix: String
+        public let networkTimeout: TimeInterval
+        public let bodyEncoder: JSONEncoder
 
-        class func withDefaultAPICredentials(
+        public class func withDefaultAPICredentials(
             pathPrefix: String,
             bodyEncoder: JSONEncoder
         ) -> RequestFactory {
@@ -27,7 +27,7 @@ public extension REST {
             )
         }
 
-        init(
+        public init(
             hostname: String,
             pathPrefix: String,
             networkTimeout: TimeInterval,
@@ -39,7 +39,7 @@ public extension REST {
             self.bodyEncoder = bodyEncoder
         }
 
-        func createRequest(
+        internal func createRequest(
             endpoint: AnyIPEndpoint,
             method: HTTPMethod,
             pathTemplate: URLPathTemplate
@@ -71,7 +71,7 @@ public extension REST {
             )
         }
 
-        func createRequestBuilder(
+        internal func createRequestBuilder(
             endpoint: AnyIPEndpoint,
             method: HTTPMethod,
             pathTemplate: URLPathTemplate
@@ -89,7 +89,7 @@ public extension REST {
         }
     }
 
-    struct RequestBuilder {
+    internal struct RequestBuilder {
         private var restRequest: REST.Request
         private let bodyEncoder: JSONEncoder
 
@@ -129,7 +129,7 @@ public extension REST {
         }
     }
 
-    struct URLPathTemplate: ExpressibleByStringLiteral {
+    internal struct URLPathTemplate: ExpressibleByStringLiteral {
         enum Component {
             case literal(String)
             case placeholder(String)

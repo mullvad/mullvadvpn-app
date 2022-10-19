@@ -9,9 +9,9 @@
 import Foundation
 import MullvadTypes
 
-public extension REST {
-    class AccountsProxy: Proxy<AuthProxyConfiguration> {
-        public init(configuration: AuthProxyConfiguration) {
+extension REST {
+    public class AccountsProxy: Proxy<AuthProxyConfiguration> {
+        internal init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",
                 configuration: configuration,
@@ -87,7 +87,7 @@ public extension REST {
         }
     }
 
-    struct AccountData: Decodable {
+    public struct AccountData: Decodable {
         public let id: String
         public let expiry: Date
         public let maxPorts: Int
@@ -96,7 +96,7 @@ public extension REST {
         public let canAddDevices: Bool
     }
 
-    struct NewAccountData: Decodable {
+    public struct NewAccountData: Decodable {
         public let id: String
         public let expiry: Date
         public let maxPorts: Int
