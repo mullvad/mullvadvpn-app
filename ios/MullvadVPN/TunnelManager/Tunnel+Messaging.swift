@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadTypes
 import Operations
 
 /// Shared operation queue used for IPC requests.

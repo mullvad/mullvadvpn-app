@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadTypes
 import Operations
 
 class DeviceManagementInteractor {
