@@ -156,7 +156,6 @@ pub struct TunnelEndpoint {
     pub quantum_resistant: bool,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub obfuscation: Option<ObfuscationEndpoint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_endpoint: Option<Endpoint>,
@@ -190,6 +189,8 @@ impl fmt::Display for TunnelEndpoint {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_type")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub enum ObfuscationType {
     #[serde(rename = "udp2tcp")]
     Udp2Tcp,
@@ -205,6 +206,8 @@ impl fmt::Display for ObfuscationType {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_endpoint")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct ObfuscationEndpoint {
     pub endpoint: Endpoint,
     pub obfuscation_type: ObfuscationType,

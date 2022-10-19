@@ -68,7 +68,6 @@ pub struct Settings {
     pub relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub obfuscation_settings: ObfuscationSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
