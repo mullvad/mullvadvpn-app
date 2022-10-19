@@ -15,21 +15,21 @@ extension REST {
             -> Void
 
         /// Synchronization queue used by network operations.
-        public let dispatchQueue: DispatchQueue
+        let dispatchQueue: DispatchQueue
 
         /// Operation queue used for running network operations.
-        public let operationQueue = AsyncOperationQueue()
+        let operationQueue = AsyncOperationQueue()
 
         /// Proxy configuration.
-        public let configuration: ConfigurationType
+        let configuration: ConfigurationType
 
         /// URL request factory.
-        public let requestFactory: REST.RequestFactory
+        let requestFactory: REST.RequestFactory
 
         /// URL response decoder.
-        public let responseDecoder: JSONDecoder
+        let responseDecoder: JSONDecoder
 
-        public init(
+        init(
             name: String,
             configuration: ConfigurationType,
             requestFactory: REST.RequestFactory,

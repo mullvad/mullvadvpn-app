@@ -18,7 +18,7 @@ extension REST {
         private let proxy: AuthenticationProxy
         private var tokens = [String: AccessTokenData]()
 
-        init(authenticationProxy: AuthenticationProxy) {
+        public init(authenticationProxy: AuthenticationProxy) {
             operationQueue.name = "REST.AccessTokenManager.operationQueue"
             operationQueue.maxConcurrentOperationCount = 1
             operationQueue.underlyingQueue = dispatchQueue

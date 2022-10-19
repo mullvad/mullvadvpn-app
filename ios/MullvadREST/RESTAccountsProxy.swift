@@ -11,7 +11,7 @@ import MullvadTypes
 
 extension REST {
     public class AccountsProxy: Proxy<AuthProxyConfiguration> {
-        internal init(configuration: AuthProxyConfiguration) {
+        init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",
                 configuration: configuration,

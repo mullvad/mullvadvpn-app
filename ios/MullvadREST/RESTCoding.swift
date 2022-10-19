@@ -14,7 +14,7 @@ extension REST {
 
 extension REST.Coding {
     /// Returns a JSON encoder used by REST API.
-    internal static func makeJSONEncoder() -> JSONEncoder {
+    static func makeJSONEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.dataEncodingStrategy = .base64

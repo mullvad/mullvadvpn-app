@@ -25,7 +25,7 @@ extension REST {
             )
         }
 
-        internal func getAddressList(
+        func getAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
