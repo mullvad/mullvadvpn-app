@@ -6,7 +6,7 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import MullvadREST
 
 public extension REST.CreateApplePaymentResponse {
     enum Context {
