@@ -15,9 +15,9 @@ public protocol RESTResponseHandler {
         .ResponseHandlerResult<Success>
 }
 
-public extension REST {
+extension REST {
     /// Responser handler result type.
-    enum ResponseHandlerResult<Success> {
+    public enum ResponseHandlerResult<Success> {
         /// Response handler succeeded and produced a value.
         case success(Success)
 
@@ -29,7 +29,7 @@ public extension REST {
         case unhandledResponse(ServerErrorResponse?)
     }
 
-    final class AnyResponseHandler<Success>: RESTResponseHandler {
+    public final class AnyResponseHandler<Success>: RESTResponseHandler {
         public typealias HandlerBlock = (HTTPURLResponse, Data) -> REST
             .ResponseHandlerResult<Success>
 
@@ -49,7 +49,7 @@ public extension REST {
     /// Returns default response handler that parses JSON response into the
     /// given `Decodable` type when it encounters HTTP `2xx` code, otherwise
     /// attempts to decode the server error.
-    static func defaultResponseHandler<T: Decodable>(
+    internal static func defaultResponseHandler<T: Decodable>(
         decoding type: T.Type,
         with decoder: JSONDecoder
     ) -> AnyResponseHandler<T> {

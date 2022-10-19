@@ -10,8 +10,8 @@ import Foundation
 import MullvadLogging
 import Operations
 
-public extension REST {
-    final class AccessTokenManager {
+extension REST {
+    public final class AccessTokenManager {
         private let logger = Logger(label: "REST.AccessTokenManager")
         private let operationQueue = AsyncOperationQueue()
         private let dispatchQueue = DispatchQueue(label: "REST.AccessTokenManager.dispatchQueue")

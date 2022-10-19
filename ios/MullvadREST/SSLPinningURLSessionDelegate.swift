@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 import Security
 
-class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
+internal class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
 
@@ -23,7 +23,7 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
     // MARK: - URLSessionDelegate
 
-    func urlSession(
+    internal func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void

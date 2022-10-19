@@ -8,13 +8,13 @@
 
 import Foundation
 
-public extension REST {
+extension REST {
     /// Default API hostname.
-    static let defaultAPIHostname = "api.mullvad.net"
+    public static let defaultAPIHostname = "api.mullvad.net"
 
     /// Default API endpoint.
-    static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.222.100:443")!
+    public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.222.100:443")!
 
     /// Default network timeout for API requests.
-    static let defaultAPINetworkTimeout: TimeInterval = 10
+    public static let defaultAPINetworkTimeout: TimeInterval = 10
 }

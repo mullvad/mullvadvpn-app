@@ -9,9 +9,9 @@
 import Foundation
 import MullvadTypes
 
-public extension REST {
+extension REST {
     /// An error type returned by REST API classes.
-    enum Error: LocalizedError, WrappingError {
+    public enum Error: LocalizedError, WrappingError {
         /// Failure to create URL request.
         case createURLRequest(Swift.Error)
 
@@ -80,7 +80,7 @@ public extension REST {
         }
     }
 
-    struct ServerErrorResponse: Decodable {
+    public struct ServerErrorResponse: Decodable {
         public let code: ServerResponseCode
         public let detail: String?
 
@@ -98,7 +98,7 @@ public extension REST {
         }
     }
 
-    struct ServerResponseCode: RawRepresentable, Equatable {
+    public struct ServerResponseCode: RawRepresentable, Equatable {
         public static let invalidAccount = ServerResponseCode(rawValue: "INVALID_ACCOUNT")
         public static let keyLimitReached = ServerResponseCode(rawValue: "KEY_LIMIT_REACHED")
         public static let publicKeyNotFound = ServerResponseCode(rawValue: "PUBKEY_NOT_FOUND")
@@ -113,7 +113,7 @@ public extension REST {
         }
     }
 
-    struct NoTransportError: LocalizedError {
+    public struct NoTransportError: LocalizedError {
         public var errorDescription: String? {
             return "Transport is not configured."
         }

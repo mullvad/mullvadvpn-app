@@ -12,7 +12,7 @@ import MullvadREST
 import Operations
 import StoreKit
 
-public class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
+class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private enum OperationCategory {
         static let sendAppStoreReceipt = "AppStorePaymentManager.sendAppStoreReceipt"
         static let productsRequest = "AppStorePaymentManager.productsRequest"

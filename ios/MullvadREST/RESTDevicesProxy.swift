@@ -10,8 +10,8 @@ import Foundation
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
-public extension REST {
-    class DevicesProxy: Proxy<AuthProxyConfiguration> {
+extension REST {
+    public class DevicesProxy: Proxy<AuthProxyConfiguration> {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "DevicesProxy",
@@ -288,7 +288,7 @@ public extension REST {
         }
     }
 
-    struct CreateDeviceRequest: Encodable {
+    public struct CreateDeviceRequest: Encodable {
         let publicKey: PublicKey
         let hijackDNS: Bool
 
@@ -324,7 +324,7 @@ public extension REST {
         }
     }
 
-    struct Device: Decodable {
+    public struct Device: Decodable {
         public let id: String
         public let name: String
         public let pubkey: PublicKey
@@ -340,7 +340,7 @@ public extension REST {
         }
     }
 
-    struct Port: Decodable {
+    public struct Port: Decodable {
         public let id: String
     }
 }
