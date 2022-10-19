@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import MullvadTypes
 import MullvadLogging
+import MullvadTypes
 
 extension AddressCache {
     struct CachedAddresses: Codable {
