@@ -1182,6 +1182,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateR
     }
 }
 
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setObfuscationSettings(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    obfuscationSettings: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let settings = FromJava::from_java(&env, obfuscationSettings);
+
+        if let Err(error) = daemon_interface.set_obfuscation_settings(settings) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update obfuscation settings")
+            );
+        }
+    }
+}
+
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
         daemon_interface::Error::RpcError(RestError::Aborted) => {

@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
@@ -173,6 +174,10 @@ class MullvadDaemon(
         updateRelaySettings(daemonInterfaceAddress, update)
     }
 
+    fun setObfuscationSettings(settings: ObfuscationSettings) {
+        setObfuscationSettings(daemonInterfaceAddress, settings)
+    }
+
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
         onTunnelStateChange.unsubscribeAll()
@@ -243,6 +248,11 @@ class MullvadDaemon(
     private external fun updateRelaySettings(
         daemonInterfaceAddress: Long,
         update: RelaySettingsUpdate
+    )
+
+    private external fun setObfuscationSettings(
+        daemonInterfaceAddress: Long,
+        settings: ObfuscationSettings
     )
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
