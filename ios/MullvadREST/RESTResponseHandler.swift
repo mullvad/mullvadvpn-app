@@ -30,8 +30,7 @@ extension REST {
     }
 
     final class AnyResponseHandler<Success>: RESTResponseHandler {
-        typealias HandlerBlock = (HTTPURLResponse, Data) -> REST
-            .ResponseHandlerResult<Success>
+        typealias HandlerBlock = (HTTPURLResponse, Data) -> REST.ResponseHandlerResult<Success>
 
         private let handlerBlock: HandlerBlock
 
