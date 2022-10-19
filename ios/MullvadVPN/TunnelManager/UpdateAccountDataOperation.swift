@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 import Operations
 
 class UpdateAccountDataOperation: ResultOperation<Void, Error> {
