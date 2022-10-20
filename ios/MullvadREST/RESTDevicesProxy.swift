@@ -311,7 +311,7 @@ extension REST {
         }
     }
 
-    fileprivate struct RotateDeviceKeyRequest: Encodable {
+    private struct RotateDeviceKeyRequest: Encodable {
         let publicKey: PublicKey
 
         private enum CodingKeys: String, CodingKey {
