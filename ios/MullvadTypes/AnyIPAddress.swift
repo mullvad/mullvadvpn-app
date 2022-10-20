@@ -10,7 +10,7 @@ import Foundation
 import Network
 
 /// Container type that holds either `IPv4Address` or `IPv6Address`.
-enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
+public enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
     case ipv4(IPv4Address)
     case ipv6(IPv6Address)
 
@@ -27,11 +27,11 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         }
     }
 
-    var rawValue: Data {
+    public var rawValue: Data {
         return innerAddress.rawValue
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         if container.contains(.ipv4) {
@@ -47,7 +47,7 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         switch self {
@@ -58,7 +58,7 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         }
     }
 
-    init?(_ rawValue: Data, _ interface: NWInterface?) {
+    public init?(_ rawValue: Data, _ interface: NWInterface?) {
         if let ipv4Address = IPv4Address(rawValue, interface) {
             self = .ipv4(ipv4Address)
         } else if let ipv6Address = IPv6Address(rawValue, interface) {
@@ -68,7 +68,7 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         }
     }
 
-    init?(_ string: String) {
+    public init?(_ string: String) {
         if let ipv4Address = IPv4Address(string) {
             self = .ipv4(ipv4Address)
         } else if let ipv6Address = IPv6Address(string) {
@@ -78,23 +78,23 @@ enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
         }
     }
 
-    var interface: NWInterface? {
+    public var interface: NWInterface? {
         return innerAddress.interface
     }
 
-    var isLoopback: Bool {
+    public var isLoopback: Bool {
         return innerAddress.isLoopback
     }
 
-    var isLinkLocal: Bool {
+    public var isLinkLocal: Bool {
         return innerAddress.isLinkLocal
     }
 
-    var isMulticast: Bool {
+    public var isMulticast: Bool {
         return innerAddress.isMulticast
     }
 
-    var debugDescription: String {
+    public var debugDescription: String {
         switch self {
         case let .ipv4(ipv4Address):
             return "\(ipv4Address)"

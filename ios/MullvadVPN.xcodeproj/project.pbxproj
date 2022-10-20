@@ -121,8 +121,6 @@
 		5846227326E22A160035F7C2 /* AppStorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* AppStorePaymentObserver.swift */; };
 		5846227726E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227626E22A7C0035F7C2 /* AppStorePaymentManagerDelegate.swift */; };
 		584B17AB27637DE40057F3B8 /* ReconnectTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584B17AA27637DE40057F3B8 /* ReconnectTunnelOperation.swift */; };
-		584D26BF270C550B004EA533 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
-		584D26C0270C550E004EA533 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		584D26C2270C8542004EA533 /* SettingsStaticTextFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */; };
 		584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C3270C855A004EA533 /* PreferencesDataSource.swift */; };
 		584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */; };
@@ -152,7 +150,8 @@
 		586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
 		586A95122901321B007BAF2B /* IPv6Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586A95112901321B007BAF2B /* IPv6Endpoint.swift */; };
 		586A951429013235007BAF2B /* AnyIPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586A951329013235007BAF2B /* AnyIPEndpoint.swift */; };
-		586A95152901333E007BAF2B /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC115628F848D00037AF9A /* IPAddress+Codable.swift */; };
+		586A9516290133ED007BAF2B /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
+		586A95172901344A007BAF2B /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC115628F848D00037AF9A /* IPAddress+Codable.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -211,7 +210,6 @@
 		589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A3BDB028A1821A00C8C2C6 /* WgStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */; };
-		58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A99ED2240014A0006599E9 /* TermsOfServiceViewController.swift */; };
 		58AC829428F803A200181C40 /* libMullvadLogging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943D628F800C900B0CB5E /* libMullvadLogging.a */; };
 		58AC829528F803A200181C40 /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
@@ -829,7 +827,6 @@
 			children = (
 				062B45A228FD4C0F00746E77 /* Assets */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
-				06AC115628F848D00037AF9A /* IPAddress+Codable.swift */,
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
 				06FAE67B28F83CA50033DD93 /* REST.swift */,
@@ -900,6 +897,8 @@
 				58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */,
 				586A95112901321B007BAF2B /* IPv6Endpoint.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
+				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
+				06AC115628F848D00037AF9A /* IPAddress+Codable.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 				58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */,
@@ -1079,7 +1078,6 @@
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
 				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
-				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				5868585424054096000B8131 /* AppButton.swift */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
 				5846226F26E229CD0035F7C2 /* AppStorePaymentManager */,
@@ -1685,7 +1683,6 @@
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
-				586A95152901333E007BAF2B /* IPAddress+Codable.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
@@ -1725,7 +1722,9 @@
 				586A951429013235007BAF2B /* AnyIPEndpoint.swift in Sources */,
 				581943FC28F8020500B0CB5E /* Error+Chain.swift in Sources */,
 				581943FB28F801D500B0CB5E /* CustomErrorDescriptionProtocol.swift in Sources */,
+				586A95172901344A007BAF2B /* IPAddress+Codable.swift in Sources */,
 				063F026729002768001FA09F /* Cancellable.swift in Sources */,
+				586A9516290133ED007BAF2B /* AnyIPAddress.swift in Sources */,
 				063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */,
 				586A95122901321B007BAF2B /* IPv6Endpoint.swift in Sources */,
 				581943FA28F801B500B0CB5E /* WrappingError.swift in Sources */,
@@ -1762,7 +1761,6 @@
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
 				5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
-				58A8055E2716EA6700681642 /* AnyIPAddress.swift in Sources */,
 				5804BEBD28F811F600B49CA5 /* PacketTunnelStatus.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1865,7 +1863,6 @@
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
-				584D26BF270C550B004EA533 /* AnyIPAddress.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
@@ -1935,7 +1932,6 @@
 			files = (
 				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
-				584D26C0270C550E004EA533 /* AnyIPAddress.swift in Sources */,
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				585DA89426B0323E00B8C587 /* TunnelProviderMessage.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
