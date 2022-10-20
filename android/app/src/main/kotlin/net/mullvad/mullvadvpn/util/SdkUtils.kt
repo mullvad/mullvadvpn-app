@@ -6,8 +6,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
+import android.provider.Settings
 import android.service.quicksettings.Tile
+import android.util.Log
 
+private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 object SdkUtils {
     fun getSupportedPendingIntentFlags(): Int {
         return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
@@ -23,6 +26,28 @@ object SdkUtils {
                 PackageManager.PERMISSION_GRANTED
     }
 
+    fun Context.getAlwaysOnVpnAppName(): String? {
+        var currentAlwaysOn: String? = null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S_V2 || isAccessToHiddenSettingAllowed()) {
+            try {
+                Settings.Secure.getString(
+                    contentResolver,
+                    ALWAYS_ON_VPN_APP
+                )?.let { currentAlwaysOnVpn ->
+                    var appName = packageManager.getInstalledPackages(0)
+                        .filter { it.packageName == currentAlwaysOnVpn }
+                    if (appName.size == 1 && appName[0].packageName != packageName) {
+                        appName[0].applicationInfo.loadLabel(packageManager).toString()
+                            .also { currentAlwaysOn = it }
+                    }
+                }
+            } catch (ex: SecurityException) {
+                Log.e("mullvad", ex.toString())
+            }
+        }
+        return currentAlwaysOn
+    }
+
     fun VpnService.Builder.setMeteredIfSupported(isMetered: Boolean) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             this.setMetered(isMetered)
@@ -33,5 +58,18 @@ object SdkUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             this.subtitle = subtitleText
         }
+    }
+
+    private fun Context.isAccessToHiddenSettingAllowed(): Boolean {
+        return if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.S_V2)) true else
+            try {
+                Settings.Secure.getString(
+                    contentResolver,
+                    ALWAYS_ON_VPN_APP
+                )
+                true
+            } catch (ex: SecurityException) {
+                false
+            }
     }
 }
