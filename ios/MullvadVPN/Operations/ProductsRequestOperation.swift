@@ -1,13 +1,12 @@
 //
 //  ProductsRequestOperation.swift
-//  ProductsRequestOperation
+//  MullvadVPN
 //
 //  Created by pronebird on 02/09/2021.
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-#if canImport(StoreKit)
-
+import Operations
 import StoreKit
 
 public final class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
@@ -22,7 +21,7 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse,
     private var retryTimer: DispatchSourceTimer?
     private var request: SKProductsRequest?
 
-    public init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
+    init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
         self.productIdentifiers = productIdentifiers
 
         super.init(
@@ -88,5 +87,3 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse,
         retryTimer?.activate()
     }
 }
-
-#endif

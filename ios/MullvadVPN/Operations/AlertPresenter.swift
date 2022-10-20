@@ -6,8 +6,7 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-#if canImport(UIKit)
-
+import Operations
 import UIKit
 
 public final class AlertPresenter {
@@ -69,5 +68,3 @@ private extension UIAlertController {
         }
     }
 }
-
-#endif

@@ -149,6 +149,9 @@
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
 		5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */; };
+		586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
+		586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675D26E6839900655B05 /* PresentAlertOperation.swift */; };
+		586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -200,7 +203,6 @@
 		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */; };
 		589A454C28DDF5E100565204 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589A454B28DDF5E100565204 /* Swizzle.swift */; };
-		589A454D28DDF5E500565204 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589A454B28DDF5E100565204 /* Swizzle.swift */; };
 		589A455628E094B300565204 /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
 		589A455C28E094BF00565204 /* OperationSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */; };
 		589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
@@ -251,13 +253,10 @@
 		58D889BA28DDF53500583FA8 /* OutputOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDD28468158002B1049 /* OutputOperation.swift */; };
 		58D889BB28DDF53500583FA8 /* AsyncOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */; };
 		58D889BC28DDF53500583FA8 /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28772846250500F9A7B3 /* OperationCondition.swift */; };
-		58D889BD28DDF53500583FA8 /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
 		58D889BE28DDF53500583FA8 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
 		58D889BF28DDF53500583FA8 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28792846250500F9A7B3 /* OperationObserver.swift */; };
-		58D889C028DDF53500583FA8 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		58D889C128DDF53500583FA8 /* InputInjectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B752852108E00E92647 /* InputInjectionBuilder.swift */; };
 		58D889C228DDF53500583FA8 /* OperationCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840BE34279EDB16002836BA /* OperationCompletion.swift */; };
-		58D889C328DDF53500583FA8 /* PresentAlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675D26E6839900655B05 /* PresentAlertOperation.swift */; };
 		58D889C428DDF53500583FA8 /* ResultBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */; };
 		58D889C528DDF53500583FA8 /* TransformOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58059DDB28465E8F002B1049 /* TransformOperation.swift */; };
 		58D889C628DDF53500583FA8 /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589D28812846306C00F9A7B3 /* GroupOperation.swift */; };
@@ -978,6 +977,16 @@
 			path = RelayCache;
 			sourceTree = "<group>";
 		};
+		586A950B2901250A007BAF2B /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				58B9EB122488ED2100095626 /* AlertPresenter.swift */,
+				5820675D26E6839900655B05 /* PresentAlertOperation.swift */,
+				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
 		587B75422669034500DEF7E9 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -990,7 +999,6 @@
 		589A454A28DDF59B00565204 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				589A454B28DDF5E100565204 /* Swizzle.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
 			);
 			path = Shared;
@@ -1035,7 +1043,6 @@
 			children = (
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
-				06799ABD28F98E1D00ACD94E /* MullvadREST */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
 				582CFEE1269448160072883A /* Localizations */,
 				589A454A28DDF59B00565204 /* Shared */,
@@ -1044,6 +1051,7 @@
 				58B0A2A1238EE67E00BC001D /* MullvadVPNTests */,
 				581943D728F800C900B0CB5E /* MullvadLogging */,
 				581943F228F8014500B0CB5E /* MullvadTypes */,
+				06799ABD28F98E1D00ACD94E /* MullvadREST */,
 				58E5126628DDF04200B0BCDE /* Operations */,
 				589A455328E094B300565204 /* OperationsTests */,
 				58CE5E7A224146470008646E /* PacketTunnel */,
@@ -1134,6 +1142,7 @@
 				587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
+				586A950B2901250A007BAF2B /* Operations */,
 				E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */,
 				E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */,
 				584D26C3270C855A004EA533 /* PreferencesDataSource.swift */,
@@ -1146,7 +1155,6 @@
 				585DA87526B0249A00B8C587 /* RelayCache */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
-				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
 				06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				580909D22876D09A0078138D /* RevokedDeviceViewController.swift */,
@@ -1179,10 +1187,12 @@
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				E158B35F285381C60002F069 /* StringFormatter.swift */,
+				589A454B28DDF5E100565204 /* Swizzle.swift */,
 				5872D6E7286304DE00DB5F4E /* TermsOfService.swift */,
 				584592602639B4A200EF967F /* TermsOfServiceContentView.swift */,
 				58A99ED2240014A0006599E9 /* TermsOfServiceViewController.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
+				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
 				5823FA5726CE4A4100283BF8 /* TunnelManager */,
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
@@ -1236,7 +1246,6 @@
 		58E5126628DDF04200B0BCDE /* Operations */ = {
 			isa = PBXGroup;
 			children = (
-				58B9EB122488ED2100095626 /* AlertPresenter.swift */,
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
 				589D28782846250500F9A7B3 /* AsyncOperationQueue.swift */,
@@ -1252,8 +1261,6 @@
 				589D28772846250500F9A7B3 /* OperationCondition.swift */,
 				589D28792846250500F9A7B3 /* OperationObserver.swift */,
 				58059DDD28468158002B1049 /* OutputOperation.swift */,
-				5820675D26E6839900655B05 /* PresentAlertOperation.swift */,
-				5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */,
 				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
 				58F7D26427EB50A300E4D821 /* ResultOperation.swift */,
 				58059DDF2846823E002B1049 /* ResultOperation+Output.swift */,
@@ -1784,6 +1791,7 @@
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
+				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
 				585DA87D26B0254000B8C587 /* RelayCacheIO.swift in Sources */,
 				58F2E148276A307400A79513 /* MapConnectionStatusOperation.swift in Sources */,
@@ -1831,6 +1839,7 @@
 				5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */,
 				5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */,
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
+				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
@@ -1874,6 +1883,7 @@
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
+				586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */,
@@ -1976,14 +1986,11 @@
 				58D889C828DDF53500583FA8 /* ResultOperation.swift in Sources */,
 				58D889BB28DDF53500583FA8 /* AsyncOperationQueue.swift in Sources */,
 				58D889C128DDF53500583FA8 /* InputInjectionBuilder.swift in Sources */,
-				58D889BD28DDF53500583FA8 /* ProductsRequestOperation.swift in Sources */,
 				58D889C228DDF53500583FA8 /* OperationCompletion.swift in Sources */,
 				58D889CA28DDF53500583FA8 /* ResultOperation+Output.swift in Sources */,
 				58D889C428DDF53500583FA8 /* ResultBlockOperation.swift in Sources */,
-				589A454D28DDF5E500565204 /* Swizzle.swift in Sources */,
 				58D889BF28DDF53500583FA8 /* OperationObserver.swift in Sources */,
 				581813A328E09DCD002817DE /* NoFailedDependenciesCondition.swift in Sources */,
-				58D889C328DDF53500583FA8 /* PresentAlertOperation.swift in Sources */,
 				58D889C528DDF53500583FA8 /* TransformOperation.swift in Sources */,
 				58D889BA28DDF53500583FA8 /* OutputOperation.swift in Sources */,
 				581813A528E09DE2002817DE /* BlockCondition.swift in Sources */,
@@ -1994,7 +2001,6 @@
 				58D889BC28DDF53500583FA8 /* OperationCondition.swift in Sources */,
 				58D889C728DDF53500583FA8 /* AsyncOperation.swift in Sources */,
 				58D889C928DDF53500583FA8 /* InputOperation.swift in Sources */,
-				58D889C028DDF53500583FA8 /* AlertPresenter.swift in Sources */,
 				581813A128E09DBB002817DE /* NoCancelledDependenciesCondition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
