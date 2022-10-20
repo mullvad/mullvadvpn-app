@@ -1,6 +1,6 @@
 //
 //  RESTAuthorization.swift
-//  MullvadVPN
+//  MullvadREST
 //
 //  Created by pronebird on 16/04/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.

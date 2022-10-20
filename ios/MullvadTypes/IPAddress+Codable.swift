@@ -1,6 +1,6 @@
 //
 //  IPAddress+Codable.swift
-//  MullvadVPN
+//  MullvadTypes
 //
 //  Created by pronebird on 12/06/2019.
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.

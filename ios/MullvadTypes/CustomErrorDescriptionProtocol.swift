@@ -1,6 +1,6 @@
 //
 //  CustomErrorDescription.swift
-//  MullvadVPN
+//  MullvadTypes
 //
 //  Created by pronebird on 23/09/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
