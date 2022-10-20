@@ -284,12 +284,11 @@ final class TunnelManager {
             }
         )
 
-        operation
-            .addObserver(BackgroundObserver(
-                application: .shared,
-                name: "Start tunnel",
-                cancelUponExpiration: true
-            ))
+        operation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: "Start tunnel",
+            cancelUponExpiration: true
+        ))
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
@@ -320,12 +319,11 @@ final class TunnelManager {
             }
         }
 
-        operation
-            .addObserver(BackgroundObserver(
-                application: .shared,
-                name: "Stop tunnel",
-                cancelUponExpiration: true
-            ))
+        operation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: "Stop tunnel",
+            cancelUponExpiration: true
+        ))
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
@@ -381,12 +379,11 @@ final class TunnelManager {
             completionHandler(completion)
         }
 
-        operation
-            .addObserver(BackgroundObserver(
-                application: .shared,
-                name: action.taskName,
-                cancelUponExpiration: true
-            ))
+        operation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: action.taskName,
+            cancelUponExpiration: true
+        ))
 
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.manageTunnel.category)
@@ -882,12 +879,11 @@ final class TunnelManager {
             }
         }
 
-        operation
-            .addObserver(BackgroundObserver(
-                application: .shared,
-                name: taskName,
-                cancelUponExpiration: false
-            ))
+        operation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: taskName,
+            cancelUponExpiration: false
+        ))
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
@@ -915,12 +911,11 @@ final class TunnelManager {
             }
         }
 
-        operation
-            .addObserver(BackgroundObserver(
-                application: .shared,
-                name: taskName,
-                cancelUponExpiration: false
-            ))
+        operation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: taskName,
+            cancelUponExpiration: false
+        ))
         operation.addCondition(
             MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
         )
