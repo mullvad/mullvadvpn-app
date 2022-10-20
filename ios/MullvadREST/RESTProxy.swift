@@ -68,12 +68,12 @@ extension REST {
     }
 
     public class ProxyConfiguration {
-        public let transportRegistry: REST.TransportRegistry
-        public let addressCacheStore: AddressCache.Store
+        public let transportRegistry: TransportRegistry
+        public let addressCacheStore: AddressCache
 
         public init(
-            transportRegistry: REST.TransportRegistry,
-            addressCacheStore: AddressCache.Store
+            transportRegistry: TransportRegistry,
+            addressCacheStore: AddressCache
         ) {
             self.transportRegistry = transportRegistry
             self.addressCacheStore = addressCacheStore
