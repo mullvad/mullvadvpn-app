@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.util
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
@@ -34,4 +35,12 @@ object SdkUtils {
             this.subtitle = subtitleText
         }
     }
+
+    fun PackageManager.getInstalledPackagesList(flags: Int = 0): List<PackageInfo> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
+        } else {
+            @Suppress("DEPRECATION")
+            getInstalledPackages(flags)
+        }
 }
