@@ -54,20 +54,18 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
         // Set trusted root certificates
         secResult = SecTrustSetAnchorCertificates(serverTrust, trustedRootCertificates as CFArray)
         guard secResult == errSecSuccess else {
-            logger
-                .error(
-                    "SecTrustSetAnchorCertificates failure: \(formatErrorMessage(code: secResult))"
-                )
+            logger.error(
+                "SecTrustSetAnchorCertificates failure: \(formatErrorMessage(code: secResult))"
+            )
             return false
         }
 
         // Tell security framework to only trust the provided root certificates
         secResult = SecTrustSetAnchorCertificatesOnly(serverTrust, true)
         guard secResult == errSecSuccess else {
-            logger
-                .error(
-                    "SecTrustSetAnchorCertificatesOnly failure: \(formatErrorMessage(code: secResult))"
-                )
+            logger.error(
+                "SecTrustSetAnchorCertificatesOnly failure: \(formatErrorMessage(code: secResult))"
+            )
             return false
         }
 
@@ -75,10 +73,9 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
         if SecTrustEvaluateWithError(serverTrust, &error) {
             return true
         } else {
-            logger
-                .error(
-                    "SecTrustEvaluateWithError failure: \(error?.localizedDescription ?? "<nil>")"
-                )
+            logger.error(
+                "SecTrustEvaluateWithError failure: \(error?.localizedDescription ?? "<nil>")"
+            )
             return false
         }
     }
