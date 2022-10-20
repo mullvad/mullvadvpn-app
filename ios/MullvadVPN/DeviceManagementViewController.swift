@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadREST
 import Operations
 import UIKit
 

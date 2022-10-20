@@ -38,6 +38,20 @@
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "06799ABB28F98E1D00ACD94E"
+               BuildableName = "MullvadREST.framework"
+               BlueprintName = "MullvadREST"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

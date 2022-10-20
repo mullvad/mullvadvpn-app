@@ -9,6 +9,7 @@
 import BackgroundTasks
 import Intents
 import MullvadLogging
+import MullvadREST
 import Operations
 import StoreKit
 import UIKit
@@ -174,7 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
             using: nil
         ) { task in
-            let handle = AddressCache.Tracker.shared.updateEndpoints { completion in
+            let handle = AddressCacheTracker.shared.updateEndpoints { completion in
                 self.scheduleAddressCacheUpdateTask()
 
                 task.setTaskCompleted(success: completion.isSuccess)
@@ -243,7 +244,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func scheduleAddressCacheUpdateTask() {
         do {
-            let date = AddressCache.Tracker.shared.nextScheduleDate()
+            let date = AddressCacheTracker.shared.nextScheduleDate()
 
             let request = BGProcessingTaskRequest(
                 identifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier

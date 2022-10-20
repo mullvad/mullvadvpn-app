@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 extension RelayCache {
     enum IO {}

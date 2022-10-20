@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import struct Network.IPv4Address
 
 /// A struct describing Mullvad DNS blocking options.
