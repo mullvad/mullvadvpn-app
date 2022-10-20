@@ -390,9 +390,7 @@ const useCollectLog = () => {
 
       try {
         const reportId = await collectPromise;
-        return new Promise((resolve) => {
-          resolve(reportId);
-        });
+        return reportId;
       } catch (error) {
         collectLogPromise.current = undefined;
         throw error;
