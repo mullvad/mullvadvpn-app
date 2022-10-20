@@ -93,7 +93,7 @@ class AccountTokenInputTests: XCTestCase {
 }
 
 private extension String {
-    func range(withOffset offset: String.IndexDistance, length: Int) -> Range<String.Index> {
+    func range(withOffset offset: Int, length: Int) -> Range<String.Index> {
         let start = index(startIndex, offsetBy: offset)
         let end = index(start, offsetBy: length)
 
