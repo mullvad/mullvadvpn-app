@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-public protocol RESTTransport: AnyObject {
+public protocol RESTTransport {
     var name: String { get }
 
     func sendRequest(
