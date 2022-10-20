@@ -17,7 +17,9 @@ source scripts/utils/log
 RUSTC_VERSION=$(rustc --version)
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
+echo "Computing build version..."
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
+log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
@@ -150,8 +152,6 @@ fi
 ################################################################################
 # Compile and build
 ################################################################################
-
-log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
 # Sign all binaries passed as arguments to this function
 function sign_win {
