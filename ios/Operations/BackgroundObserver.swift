@@ -10,6 +10,7 @@
 
 import UIKit
 
+@available(iOSApplicationExtension, unavailable)
 public final class BackgroundObserver: OperationObserver {
     public let name: String
     public let application: UIApplication
@@ -18,7 +19,7 @@ public final class BackgroundObserver: OperationObserver {
     private var taskIdentifier: UIBackgroundTaskIdentifier?
 
     public init(
-        application: UIApplication = .shared,
+        application: UIApplication,
         name: String,
         cancelUponExpiration: Bool
     ) {
