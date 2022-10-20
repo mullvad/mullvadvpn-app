@@ -2,7 +2,6 @@ import { createRef, useCallback, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router';
 
 import LoginPage from '../containers/LoginPage';
-import ProblemReportPage from '../containers/ProblemReportPage';
 import SelectLocationPage from '../containers/SelectLocationPage';
 import { useAppContext } from '../context';
 import { ITransitionSpecification, transitions, useHistory } from '../lib/history';
@@ -20,6 +19,7 @@ import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
 import MainView from './MainView';
 import OpenVpnSettings from './OpenVpnSettings';
+import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
 import Settings from './Settings';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
@@ -78,7 +78,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
             <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
             <Route exact path={RoutePath.support} component={Support} />
-            <Route exact path={RoutePath.problemReport} component={ProblemReportPage} />
+            <Route exact path={RoutePath.problemReport} component={ProblemReport} />
             <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
             <Route exact path={RoutePath.filter} component={Filter} />
           </Switch>
