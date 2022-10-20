@@ -60,9 +60,6 @@ class ApplicationConfiguration {
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
 
-    /// Background fetch minimum interval
-    static let minimumBackgroundFetchInterval: TimeInterval = 3600
-
     /// App refresh background task identifier
     static let appRefreshTaskIdentifier = "net.mullvad.MullvadVPN.AppRefresh"
 
