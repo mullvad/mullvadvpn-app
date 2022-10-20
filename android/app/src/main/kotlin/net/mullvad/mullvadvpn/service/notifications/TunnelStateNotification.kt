@@ -10,8 +10,10 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.ui.extension.getAlwaysOnVpnAppName
 import net.mullvad.mullvadvpn.util.SdkUtils
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorStateCause
 
 class TunnelStateNotification(val context: Context) {
     companion object {
@@ -50,7 +52,15 @@ class TunnelStateNotification(val context: Context) {
                 if (state.errorState.isBlocking) {
                     R.string.blocking_all_connections
                 } else {
-                    R.string.critical_error
+                    context.getAlwaysOnVpnAppName()?.let {
+                        R.string.always_on_vpn_error_notification_title
+                    } ?: run {
+                        if (state.errorState.cause == ErrorStateCause.VpnPermissionDenied) {
+                            R.string.vpn_permission_error_notification_title
+                        } else {
+                            R.string.critical_error
+                        }
+                    }
                 }
             }
         }
