@@ -141,13 +141,13 @@ extension AddressCache {
             }
         }
 
-        func getCurrentEndpoint() -> AnyIPEndpoint {
+        public func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
             return cachedAddresses.endpoints.first!
         }
 
-        func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
+        public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -179,7 +179,7 @@ extension AddressCache {
             return currentEndpoint
         }
 
-        func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
+        public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -216,12 +216,14 @@ extension AddressCache {
             }
         }
 
-        func getLastUpdateDate() -> Date {
+        public func getLastUpdateDate() -> Date {
             nslock.lock()
             defer { nslock.unlock() }
 
             return cachedAddresses.updatedAt
         }
+
+        // MARK: - Private
 
         private static func readFromCacheLocationWithFallback(
             cacheFileURL: URL,
