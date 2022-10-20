@@ -28,7 +28,7 @@ extension AppStorePaymentManager {
         /// Failure to send the AppStore receipt to backend.
         case sendReceipt(REST.Error)
 
-        public var errorDescription: String? {
+        var errorDescription: String? {
             switch self {
             case .noAccountSet:
                 return "Account is not set."
@@ -43,7 +43,7 @@ extension AppStorePaymentManager {
             }
         }
 
-        public var underlyingError: Swift.Error? {
+        var underlyingError: Swift.Error? {
             switch self {
             case .noAccountSet:
                 return nil
