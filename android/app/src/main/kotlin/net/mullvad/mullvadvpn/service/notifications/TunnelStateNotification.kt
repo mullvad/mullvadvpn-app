@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.SdkUtils
+import net.mullvad.mullvadvpn.util.getErrorNotificationResources
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class TunnelStateNotification(val context: Context) {
@@ -47,11 +48,7 @@ class TunnelStateNotification(val context: Context) {
                 }
             }
             is TunnelState.Error -> {
-                if (state.errorState.isBlocking) {
-                    R.string.blocking_all_connections
-                } else {
-                    R.string.critical_error
-                }
+                state.errorState.getErrorNotificationResources(context).titleResourceId
             }
         }
 
