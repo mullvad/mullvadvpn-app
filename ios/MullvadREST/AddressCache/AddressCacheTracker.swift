@@ -120,7 +120,11 @@ extension AddressCache {
             operation.completionHandler = completionHandler
 
             operation.addObserver(
-                BackgroundObserver(application: .shared, name: "Update endpoints", cancelUponExpiration: true)
+                BackgroundObserver(
+                    application: .shared,
+                    name: "Update endpoints",
+                    cancelUponExpiration: true
+                )
             )
 
             operationQueue.addOperation(operation)
