@@ -12,6 +12,7 @@ import MullvadTypes
 import Operations
 
 extension AddressCache {
+    @available(iOSApplicationExtension, unavailable)
     public final class Tracker {
         /// Shared instance.
         public static let shared = AddressCache.Tracker(
@@ -119,7 +120,7 @@ extension AddressCache {
             operation.completionHandler = completionHandler
 
             operation.addObserver(
-                BackgroundObserver(name: "Update endpoints", cancelUponExpiration: true)
+                BackgroundObserver(application: .shared, name: "Update endpoints", cancelUponExpiration: true)
             )
 
             operationQueue.addOperation(operation)
