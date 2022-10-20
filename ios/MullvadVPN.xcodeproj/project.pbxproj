@@ -359,13 +359,6 @@
 			remoteGlobalIDString = 581943D528F800C900B0CB5E;
 			remoteInfo = MullvadLogging;
 		};
-		5841E04225D53BCC00D989F7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 58FBDA9722A519BC00EB69A3;
-			remoteInfo = WireGuardGoBridge;
-		};
 		589A455728E094B300565204 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -1414,7 +1407,6 @@
 			dependencies = (
 				062B45BF28FDA85D00746E77 /* PBXTargetDependency */,
 				58D889B528DDF4DD00583FA8 /* PBXTargetDependency */,
-				5841E04325D53BCC00D989F7 /* PBXTargetDependency */,
 			);
 			name = MullvadVPNTests;
 			packageProductDependencies = (
@@ -2044,11 +2036,6 @@
 			isa = PBXTargetDependency;
 			target = 581943D528F800C900B0CB5E /* MullvadLogging */;
 			targetProxy = 06D9846428F9A049003AABE9 /* PBXContainerItemProxy */;
-		};
-		5841E04325D53BCC00D989F7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
-			targetProxy = 5841E04225D53BCC00D989F7 /* PBXContainerItemProxy */;
 		};
 		589A455828E094B300565204 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
