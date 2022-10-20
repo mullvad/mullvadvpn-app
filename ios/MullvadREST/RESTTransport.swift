@@ -1,6 +1,6 @@
 //
 //  RESTTransport.swift
-//  MullvadVPN
+//  MullvadREST
 //
 //  Created by Sajad Vishkai on 2022-10-03.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
