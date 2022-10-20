@@ -213,7 +213,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         )
 
         operation.addObserver(
-            BackgroundObserver(name: "Send AppStore receipt", cancelUponExpiration: true)
+            BackgroundObserver(application: .shared, name: "Send AppStore receipt", cancelUponExpiration: true)
         )
 
         operation.addCondition(

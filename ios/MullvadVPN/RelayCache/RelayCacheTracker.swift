@@ -174,7 +174,7 @@ extension RelayCache {
             }
 
             operation.addObserver(
-                BackgroundObserver(name: "Update relays", cancelUponExpiration: true)
+                BackgroundObserver(application: .shared, name: "Update relays", cancelUponExpiration: true)
             )
 
             operation.completionQueue = .main

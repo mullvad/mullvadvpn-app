@@ -41,7 +41,7 @@ enum AppStoreReceipt {
         )
 
         operation.addObserver(
-            BackgroundObserver(name: "Fetch AppStore receipt", cancelUponExpiration: true)
+            BackgroundObserver(application: .shared, name: "Fetch AppStore receipt", cancelUponExpiration: true)
         )
 
         operationQueue.addOperation(operation)
