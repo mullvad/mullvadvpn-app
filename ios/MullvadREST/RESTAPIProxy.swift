@@ -14,7 +14,7 @@ import class WireGuardKitTypes.PublicKey
 
 extension REST {
     public class APIProxy: Proxy<ProxyConfiguration> {
-        init(configuration: ProxyConfiguration) {
+        public init(configuration: ProxyConfiguration) {
             super.init(
                 name: "APIProxy",
                 configuration: configuration,
