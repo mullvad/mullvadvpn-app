@@ -17,8 +17,8 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportRegistry: REST.TransportRegistry
-        private let addressCacheStore: AddressCache.Store
+        private let transportRegistry: TransportRegistry
+        private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
         private var authorizationTask: Cancellable?

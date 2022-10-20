@@ -1,5 +1,5 @@
 //
-//  AddressCacheStore.swift
+//  AddressCache.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 08/12/2021.
@@ -10,47 +10,9 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 
-extension AddressCache {
-    struct CachedAddresses: Codable {
-        /// Date when the cached addresses were last updated.
-        var updatedAt: Date
-
-        /// API endpoints.
-        var endpoints: [AnyIPEndpoint]
-    }
-
-    enum CacheSource: CustomStringConvertible {
-        /// Cache file originates from disk location.
-        case disk
-
-        /// Cache file originates from application bundle.
-        case bundle
-
-        var description: String {
-            switch self {
-            case .disk:
-                return "disk"
-            case .bundle:
-                return "bundle"
-            }
-        }
-    }
-
-    struct ReadResult {
-        var cachedAddresses: CachedAddresses
-        var source: CacheSource
-    }
-
-    struct EmptyCacheError: LocalizedError {
-        let source: CacheSource
-
-        var errorDescription: String? {
-            return "Address cache file from \(source) does not contain any API addresses."
-        }
-    }
-
-    public final class Store {
-        public static let shared: Store = {
+extension REST {
+    public final class AddressCache {
+        public static let shared: AddressCache = {
             let cacheFilename = "api-ip-address.json"
             let cacheDirectoryURL = FileManager.default.urls(
                 for: .applicationSupportDirectory,
@@ -60,12 +22,12 @@ extension AddressCache {
                 cacheFilename,
                 isDirectory: false
             )
-            let prebundledCacheFileURL = Bundle(for: Store.self).url(
+            let prebundledCacheFileURL = Bundle(for: AddressCache.self).url(
                 forResource: cacheFilename,
                 withExtension: nil
             )!
 
-            return Store(
+            return AddressCache(
                 cacheFileURL: cacheFileURL,
                 prebundledCacheFileURL: prebundledCacheFileURL
             )
@@ -300,6 +262,44 @@ extension AddressCache {
 
             let data = try JSONEncoder().encode(cachedAddresses)
             try data.write(to: cacheFileURL, options: .atomic)
+        }
+    }
+
+    struct CachedAddresses: Codable {
+        /// Date when the cached addresses were last updated.
+        var updatedAt: Date
+
+        /// API endpoints.
+        var endpoints: [AnyIPEndpoint]
+    }
+
+    enum CacheSource: CustomStringConvertible {
+        /// Cache file originates from disk location.
+        case disk
+
+        /// Cache file originates from application bundle.
+        case bundle
+
+        var description: String {
+            switch self {
+            case .disk:
+                return "disk"
+            case .bundle:
+                return "bundle"
+            }
+        }
+    }
+
+    struct ReadResult {
+        var cachedAddresses: CachedAddresses
+        var source: CacheSource
+    }
+
+    struct EmptyCacheError: LocalizedError {
+        let source: CacheSource
+
+        var errorDescription: String? {
+            return "Address cache file from \(source) does not contain any API addresses."
         }
     }
 }
