@@ -5,9 +5,7 @@ if [ -z "$PROJECT_DIR" ]; then
   exit 1
 fi
 
-ASSETS_DIR_PATH="$PROJECT_DIR/MullvadREST/Assets"
-
-API_IP_ADDRESS_LIST_FILE="$ASSETS_DIR_PATH/api-ip-address.json"
+API_IP_ADDRESS_LIST_FILE="$PROJECT_DIR/MullvadREST/Assets/api-ip-address.json"
 
 if [ $CONFIGURATION == "Release" ]; then
   echo "Remove API address list file"
