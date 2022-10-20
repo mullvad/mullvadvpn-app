@@ -2589,7 +2589,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2601,7 +2600,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
