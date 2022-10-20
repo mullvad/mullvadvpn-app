@@ -5,7 +5,7 @@ pub struct BlockWhenDisconnected;
 #[mullvad_management_interface::async_trait]
 impl Command for BlockWhenDisconnected {
     fn name(&self) -> &'static str {
-        "always-require-vpn"
+        "lockdown-mode"
     }
 
     fn clap_subcommand(&self) -> clap::App<'static> {
@@ -14,7 +14,7 @@ impl Command for BlockWhenDisconnected {
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 clap::App::new("set")
-                    .about("Change the always require VPN setting")
+                    .about("Change the lockdown mode setting")
                     .arg(
                         clap::Arg::new("policy")
                             .required(true)
@@ -23,7 +23,7 @@ impl Command for BlockWhenDisconnected {
             )
             .subcommand(
                 clap::App::new("get")
-                    .about("Display the current always require VPN setting"),
+                    .about("Display the current lockdown mode setting"),
             )
     }
 
@@ -44,7 +44,7 @@ impl BlockWhenDisconnected {
         let mut rpc = new_rpc_client().await?;
         rpc.set_block_when_disconnected(block_when_disconnected)
             .await?;
-        println!("Changed always require VPN setting");
+        println!("Changed lockdown mode setting");
         Ok(())
     }
 
