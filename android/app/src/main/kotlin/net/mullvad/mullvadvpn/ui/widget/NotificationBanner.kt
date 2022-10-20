@@ -4,12 +4,14 @@ import android.animation.Animator
 import android.animation.Animator.AnimatorListener
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.text.Html
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.notification.InAppNotification
@@ -132,7 +134,7 @@ class NotificationBanner : FrameLayout {
         title.text = notification.title
 
         if (notificationMessage != null) {
-            message.text = notificationMessage
+            message.text = Html.fromHtml(notificationMessage, HtmlCompat.FROM_HTML_MODE_LEGACY)
             message.visibility = View.VISIBLE
         } else {
             message.visibility = View.GONE
