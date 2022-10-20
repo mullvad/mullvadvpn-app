@@ -9,7 +9,7 @@
 import Foundation
 
 extension REST {
-    public class TransportRegistry {
+    public final class TransportRegistry {
         public static let shared = TransportRegistry()
 
         private var transport: RESTTransport?

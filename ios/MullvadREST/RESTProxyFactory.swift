@@ -9,7 +9,7 @@
 import Foundation
 
 extension REST {
-    public class ProxyFactory {
+    public final class ProxyFactory {
         public let configuration: AuthProxyConfiguration
 
         public static let shared: ProxyFactory = {
