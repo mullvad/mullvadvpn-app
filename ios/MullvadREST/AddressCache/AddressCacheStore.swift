@@ -49,7 +49,7 @@ extension AddressCache {
         }
     }
 
-    public class Store {
+    public final class Store {
         public static let shared: Store = {
             let cacheFilename = "api-ip-address.json"
             let cacheDirectoryURL = FileManager.default.urls(
