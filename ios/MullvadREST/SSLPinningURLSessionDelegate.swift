@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 import Security
 
-class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
+final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
 

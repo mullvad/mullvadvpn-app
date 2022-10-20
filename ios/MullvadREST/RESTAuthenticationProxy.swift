@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 extension REST {
-    public class AuthenticationProxy: Proxy<ProxyConfiguration> {
+    public final class AuthenticationProxy: Proxy<ProxyConfiguration> {
         public init(configuration: ProxyConfiguration) {
             super.init(
                 name: "AuthenticationProxy",

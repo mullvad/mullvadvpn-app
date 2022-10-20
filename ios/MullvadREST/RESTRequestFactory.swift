@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 extension REST {
-    class RequestFactory {
+    final class RequestFactory {
         let hostname: String
         let pathPrefix: String
         let networkTimeout: TimeInterval

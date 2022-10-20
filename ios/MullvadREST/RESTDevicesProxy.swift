@@ -12,7 +12,7 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
 extension REST {
-    public class DevicesProxy: Proxy<AuthProxyConfiguration> {
+    public final class DevicesProxy: Proxy<AuthProxyConfiguration> {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "DevicesProxy",
