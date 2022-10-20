@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.extension.getAlwaysOnVpnAppName
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
@@ -45,8 +46,13 @@ class TunnelStateNotification(
             title = blockingTitle
             message = error?.cause?.let { cause -> blockingErrorMessage(cause) }
         } else {
-            title = notBlockingTitle
-            message = notBlockingErrorMessage(error?.cause)
+            context.getAlwaysOnVpnAppName()?.let {
+                title = context.getString(R.string.always_on_vpn_error_notification_title)
+                message = context.getString(R.string.always_on_vpn_error_notification_content, it)
+            } ?: run {
+                title = notBlockingTitle
+                message = notBlockingErrorMessage(error?.cause)
+            }
         }
 
         shouldShow = true
