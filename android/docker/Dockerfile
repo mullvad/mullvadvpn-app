@@ -9,10 +9,17 @@
 #     -v .:/build:Z \
 #     mullvadvpn-app-build-android ./build-apk.sh --dev-build --no-docker
 #
-# See the base image Dockerfile in the repository root for more information.
+# See the base image Dockerfile in the repository root (../../Dockerfile)
+# for more information.
 
+# === Base image (built from: ../../Dockerfile) ===
 # TODO: Change image once a proper one has been built and published
 FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:TODO
+
+# === Metadata ===
+LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
+LABEL org.opencontainers.image.description="Mullvad VPN app Android build container"
+LABEL org.opencontainers.image.licenses=GPL-3.0
 
 # === Define toolchain versions and paths ===
 
