@@ -9,6 +9,7 @@
 import MullvadLogging
 import MullvadREST
 import Operations
+import RelayCache
 import UIKit
 
 class SceneDelegate: UIResponder {

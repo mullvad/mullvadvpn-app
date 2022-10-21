@@ -10,12 +10,12 @@ import Foundation
 import MullvadREST
 
 extension RelayCache {
-    enum IO {}
+    public enum IO {}
 }
 
 extension RelayCache.IO {
     /// The default cache file location bound by app group container.
-    static func defaultCacheFileURL(
+    public static func defaultCacheFileURL(
         forSecurityApplicationGroupIdentifier appGroupIdentifier: String
     ) -> URL? {
         let containerURL = FileManager.default.containerURL(
@@ -26,12 +26,12 @@ extension RelayCache.IO {
     }
 
     /// The path to pre-bundled `relays.json` file.
-    static var preBundledRelaysFileURL: URL? {
+    public static var preBundledRelaysFileURL: URL? {
         return Bundle.main.url(forResource: "relays", withExtension: "json")
     }
 
     /// Safely read the cache file from disk using file coordinator.
-    static func read(cacheFileURL: URL) throws -> RelayCache.CachedRelays {
+    public static func read(cacheFileURL: URL) throws -> RelayCache.CachedRelays {
         var result: Result<RelayCache.CachedRelays, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
@@ -59,7 +59,7 @@ extension RelayCache.IO {
 
     /// Safely read the cache file from disk using file coordinator and fallback to prebundled
     /// relays in case if the relay cache file is missing.
-    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
+    public static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
         throws -> RelayCache.CachedRelays
     {
         do {
@@ -74,7 +74,7 @@ extension RelayCache.IO {
     }
 
     /// Read pre-bundled relays file from disk.
-    static func readPrebundledRelays(fileURL: URL) throws -> RelayCache.CachedRelays {
+    public static func readPrebundledRelays(fileURL: URL) throws -> RelayCache.CachedRelays {
         let data = try Data(contentsOf: fileURL)
         let relays = try REST.Coding.makeJSONDecoder()
             .decode(REST.ServerRelaysResponse.self, from: data)
@@ -86,7 +86,7 @@ extension RelayCache.IO {
     }
 
     /// Safely write the cache file on disk using file coordinator.
-    static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) throws {
+    public static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) throws {
         var result: Result<Void, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 

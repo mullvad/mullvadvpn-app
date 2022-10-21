@@ -11,6 +11,7 @@ import Intents
 import MullvadLogging
 import MullvadREST
 import Operations
+import RelayCache
 import StoreKit
 import UIKit
 import UserNotifications

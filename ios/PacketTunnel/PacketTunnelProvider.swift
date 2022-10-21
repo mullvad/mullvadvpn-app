@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadREST
 import Network
 import NetworkExtension
+import RelayCache
 import WireGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {

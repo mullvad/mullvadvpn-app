@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import RelayCache
 import UIKit
 
 protocol SelectLocationViewControllerDelegate: AnyObject {
