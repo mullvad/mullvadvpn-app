@@ -11,8 +11,7 @@
 #
 # See the base image Dockerfile in the repository root for more information.
 
-# TODO: Change image once a proper one has been built and published
-FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:TODO
+FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:13d44aa7aad7cbb4724149cabe12c9355631cac8c53e37cf4327b2f247543f0b
 
 # === Define toolchain versions and paths ===
 
