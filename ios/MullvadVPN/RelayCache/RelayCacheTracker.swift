@@ -117,10 +117,10 @@ class RelayCacheTracker {
 
     func updateRelays(
         completionHandler: (
-            (OperationCompletion<CachedRelaysFetchResult, Error>) -> Void
+            (OperationCompletion<RelaysFetchResult, Error>) -> Void
         )? = nil
     ) -> Cancellable {
-        let operation = ResultBlockOperation<CachedRelaysFetchResult, Error>(
+        let operation = ResultBlockOperation<RelaysFetchResult, Error>(
             dispatchQueue: nil
         ) { operation in
             let cachedRelays = try? self.getCachedRelays()
@@ -204,8 +204,8 @@ class RelayCacheTracker {
 
     private func handleResponse(
         completion: OperationCompletion<REST.ServerRelaysCacheResponse, REST.Error>
-    ) -> OperationCompletion<CachedRelaysFetchResult, Error> {
-        let mappedCompletion = completion.tryMap { response -> CachedRelaysFetchResult in
+    ) -> OperationCompletion<RelaysFetchResult, Error> {
+        let mappedCompletion = completion.tryMap { response -> RelaysFetchResult in
             switch response {
             case let .newContent(etag, relays):
                 try self.storeResponse(etag: etag, relays: relays)
@@ -271,7 +271,7 @@ class RelayCacheTracker {
 }
 
 /// Type describing the result of an attempt to fetch the new relay list from server.
-public enum CachedRelaysFetchResult: CustomStringConvertible {
+public enum RelaysFetchResult: CustomStringConvertible {
     /// Request to update relays was throttled.
     case throttled
 
