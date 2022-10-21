@@ -57,12 +57,12 @@ extension REST {
         }
     }
 
-    public struct AccessTokenData: Decodable {
+    struct AccessTokenData: Decodable {
         let accessToken: String
         let expiry: Date
     }
 
-    fileprivate struct AccessTokenRequest: Encodable {
+    private struct AccessTokenRequest: Encodable {
         let accountNumber: String
     }
 }
