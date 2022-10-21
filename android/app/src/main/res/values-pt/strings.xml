@@ -86,7 +86,7 @@
     <string name="login_fail_description">Número de conta inválido</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>
     <string name="login_title">Iniciar sessão</string>
-    <string name="max_devices_confirm_removal_description">Tem a certeza de que deseja desligar-se de &lt;b&gt;%1$s&lt;/b&gt;?</string>
+    <string name="max_devices_confirm_removal_description">Tem a certeza de que quer terminar a sessão de &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Agora pode continuar a ligação neste dispositivo.</string>
     <string name="max_devices_resolved_title">Excelente!</string>
     <string name="max_devices_warning_description">Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo.</string>

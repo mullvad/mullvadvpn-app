@@ -86,7 +86,7 @@
     <string name="login_fail_description">Numéro de compte non valide</string>
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
-    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment vous déconnecter de &lt;b&gt;%1$s&lt;/b&gt; ?</string>
+    <string name="max_devices_confirm_removal_description">Voulez-vous vraiment déconnecter &lt;b&gt;%1$s&lt;/b&gt; ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
     <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
