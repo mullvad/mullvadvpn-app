@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadREST
 import Network
 import NetworkExtension
+import RelayCache
 import WireGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
@@ -435,11 +436,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private class func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
         -> RelaySelectorResult
     {
-        let cacheFileURL = RelayCache.IO.defaultCacheFileURL(
+        let cacheFileURL = RelayCache.defaultCacheFileURL(
             forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
         )!
-        let prebundledRelaysURL = RelayCache.IO.preBundledRelaysFileURL!
-        let cachedRelayList = try RelayCache.IO.readWithFallback(
+        let prebundledRelaysURL = RelayCache.preBundledRelaysFileURL!
+        let cachedRelayList = try RelayCache.readWithFallback(
             cacheFileURL: cacheFileURL,
             preBundledRelaysFileURL: prebundledRelaysURL
         )

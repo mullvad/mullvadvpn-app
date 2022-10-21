@@ -5,9 +5,7 @@ if [ -z "$PROJECT_DIR" ]; then
   exit 1
 fi
 
-ASSETS_DIR_PATH="$PROJECT_DIR/Assets"
-
-RELAYS_FILE="$ASSETS_DIR_PATH/relays.json"
+RELAYS_FILE="$PROJECT_DIR/RelayCache/Assets/relays.json"
 
 if [ $CONFIGURATION == "Release" ]; then
   echo "Remove relays file"

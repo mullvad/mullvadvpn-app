@@ -1,21 +1,17 @@
 //
-//  RelayCacheIO.swift
-//  RelayCacheIO
+//  RelayCache.swift
+//  RelayCache
 //
-//  Created by pronebird on 27/07/2021.
+//  Created by pronebird on 06/09/2021.
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadREST
 
-extension RelayCache {
-    enum IO {}
-}
-
-extension RelayCache.IO {
+public class RelayCache {
     /// The default cache file location bound by app group container.
-    static func defaultCacheFileURL(
+    public static func defaultCacheFileURL(
         forSecurityApplicationGroupIdentifier appGroupIdentifier: String
     ) -> URL? {
         let containerURL = FileManager.default.containerURL(
@@ -26,19 +22,19 @@ extension RelayCache.IO {
     }
 
     /// The path to pre-bundled `relays.json` file.
-    static var preBundledRelaysFileURL: URL? {
-        return Bundle.main.url(forResource: "relays", withExtension: "json")
+    public static var preBundledRelaysFileURL: URL? {
+        return Bundle(for: Self.self).url(forResource: "relays", withExtension: "json")
     }
 
     /// Safely read the cache file from disk using file coordinator.
-    static func read(cacheFileURL: URL) throws -> RelayCache.CachedRelays {
-        var result: Result<RelayCache.CachedRelays, Error>?
+    public static func read(cacheFileURL: URL) throws -> CachedRelays {
+        var result: Result<CachedRelays, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForReading: URL) in
             result = Result {
                 let data = try Data(contentsOf: fileURLForReading)
-                return try JSONDecoder().decode(RelayCache.CachedRelays.self, from: data)
+                return try JSONDecoder().decode(CachedRelays.self, from: data)
             }
         }
 
@@ -59,8 +55,8 @@ extension RelayCache.IO {
 
     /// Safely read the cache file from disk using file coordinator and fallback to prebundled
     /// relays in case if the relay cache file is missing.
-    static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
-        throws -> RelayCache.CachedRelays
+    public static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
+        throws -> CachedRelays
     {
         do {
             return try Self.read(cacheFileURL: cacheFileURL)
@@ -74,19 +70,19 @@ extension RelayCache.IO {
     }
 
     /// Read pre-bundled relays file from disk.
-    static func readPrebundledRelays(fileURL: URL) throws -> RelayCache.CachedRelays {
+    public static func readPrebundledRelays(fileURL: URL) throws -> CachedRelays {
         let data = try Data(contentsOf: fileURL)
         let relays = try REST.Coding.makeJSONDecoder()
             .decode(REST.ServerRelaysResponse.self, from: data)
 
-        return RelayCache.CachedRelays(
+        return CachedRelays(
             relays: relays,
             updatedAt: Date(timeIntervalSince1970: 0)
         )
     }
 
     /// Safely write the cache file on disk using file coordinator.
-    static func write(cacheFileURL: URL, record: RelayCache.CachedRelays) throws {
+    public static func write(cacheFileURL: URL, record: CachedRelays) throws {
         var result: Result<Void, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 

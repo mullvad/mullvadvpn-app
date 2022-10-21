@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import NetworkExtension
 import Operations
+import RelayCache
 
 class StartTunnelOperation: ResultOperation<Void, Error> {
     typealias EncodeErrorHandler = (Error) -> Void
@@ -48,7 +49,7 @@ class StartTunnelOperation: ResultOperation<Void, Error> {
 
         case .disconnected, .pendingReconnect:
             do {
-                let cachedRelays = try RelayCache.Tracker.shared.getCachedRelays()
+                let cachedRelays = try RelayCacheTracker.shared.getCachedRelays()
                 let selectorResult = try RelaySelector.evaluate(
                     relays: cachedRelays.relays,
                     constraints: interactor.settings.relayConstraints
