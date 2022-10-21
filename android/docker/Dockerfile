@@ -11,6 +11,10 @@
 #
 # See the base image Dockerfile in the repository root for more information.
 
+LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
+LABEL org.opencontainers.image.description="Mullvad VPN app Android build container"
+LABEL org.opencontainers.image.licenses=GPL-3.0
+
 FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:13d44aa7aad7cbb4724149cabe12c9355631cac8c53e37cf4327b2f247543f0b
 
 # === Define toolchain versions and paths ===
