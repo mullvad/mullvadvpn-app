@@ -216,7 +216,7 @@ extension REST {
         case newContent(_ etag: String?, _ value: ServerRelaysResponse)
     }
 
-    fileprivate struct CreateApplePaymentRequest: Encodable {
+    private struct CreateApplePaymentRequest: Encodable {
         let receiptString: Data
     }
 
@@ -250,16 +250,16 @@ extension REST {
         }
     }
 
-    fileprivate struct CreateApplePaymentRawResponse: Decodable {
+    private struct CreateApplePaymentRawResponse: Decodable {
         let timeAdded: Int
         let newExpiry: Date
     }
 
     public struct ProblemReportRequest: Encodable {
-        let address: String
-        let message: String
-        let log: String
-        let metadata: [String: String]
+        public let address: String
+        public let message: String
+        public let log: String
+        public let metadata: [String: String]
 
         public init(address: String, message: String, log: String, metadata: [String: String]) {
             self.address = address
