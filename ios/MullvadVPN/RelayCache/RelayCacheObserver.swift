@@ -11,7 +11,7 @@ import RelayCache
 
 protocol RelayCacheObserver: AnyObject {
     func relayCache(
-        _ relayCache: RelayCache.Tracker,
+        _ relayCache: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     )
 }
