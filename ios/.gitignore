@@ -3,7 +3,7 @@
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
 ## Generated assets
-Assets/relays.json
+RelayCache/Assets/relays.json
 MullvadREST/Assets/api-ip-address.json
 
 ## Build generated

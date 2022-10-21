@@ -11,6 +11,7 @@ import Intents
 import MullvadLogging
 import MullvadREST
 import Operations
+import RelayCache
 import StoreKit
 import UIKit
 import UserNotifications
@@ -129,7 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
             using: nil
         ) { task in
-            let handle = RelayCache.Tracker.shared.updateRelays { completion in
+            let handle = RelayCacheTracker.shared.updateRelays { completion in
                 task.setTaskCompleted(success: completion.isSuccess)
             }
 
@@ -201,7 +202,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func scheduleAppRefreshTask() {
         do {
-            let date = RelayCache.Tracker.shared.getNextUpdateDate()
+            let date = RelayCacheTracker.shared.getNextUpdateDate()
 
             let request = BGAppRefreshTaskRequest(
                 identifier: ApplicationConfiguration.appRefreshTaskIdentifier

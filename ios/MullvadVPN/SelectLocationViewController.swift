@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import RelayCache
 import UIKit
 
 protocol SelectLocationViewControllerDelegate: AnyObject {
@@ -26,7 +27,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var tableHeaderFooterViewBottomConstraints: [NSLayoutConstraint] = []
 
     private var dataSource: LocationDataSource?
-    private var setCachedRelaysOnViewDidLoad: RelayCache.CachedRelays?
+    private var setCachedRelaysOnViewDidLoad: CachedRelays?
     private var setRelayLocationOnViewDidLoad: RelayLocation?
     private var setScrollPositionOnViewDidLoad: UITableView.ScrollPosition = .none
     private var isViewAppeared = false
@@ -229,7 +230,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Public
 
-    func setCachedRelays(_ cachedRelays: RelayCache.CachedRelays) {
+    func setCachedRelays(_ cachedRelays: CachedRelays) {
         guard isViewLoaded else {
             setCachedRelaysOnViewDidLoad = cachedRelays
             return

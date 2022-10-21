@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import RelayCache
 
 protocol RelayCacheObserver: AnyObject {
     func relayCache(
-        _ relayCache: RelayCache.Tracker,
-        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+        _ relayCache: RelayCacheTracker,
+        didUpdateCachedRelays cachedRelays: CachedRelays
     )
 }
