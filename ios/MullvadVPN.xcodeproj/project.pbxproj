@@ -124,6 +124,8 @@
 		584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C3270C855A004EA533 /* PreferencesDataSource.swift */; };
 		584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */; };
 		584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */; };
+		584F99202902CBDD001F858D /* libRelaySelector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5898D29829017DAC00EB5EBA /* libRelaySelector.a */; };
+		584F99212902CF35001F858D /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
 		5856AD582902BE1A008E5127 /* PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */; };
 		5856AD592902BE1A008E5127 /* PacketTunnelStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
@@ -834,6 +836,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				584F99212902CF35001F858D /* libMullvadTypes.a in Frameworks */,
+				584F99202902CBDD001F858D /* libRelaySelector.a in Frameworks */,
 				588E4EAE28FEEDD8008046E3 /* MullvadREST.framework in Frameworks */,
 				58D889B328DDF4B400583FA8 /* libOperations.a in Frameworks */,
 				583E1E2C2848E1A1004838B3 /* WireGuardKitTypes in Frameworks */,
@@ -1045,6 +1049,13 @@
 			path = AppStorePaymentManager;
 			sourceTree = "<group>";
 		};
+		584F991F2902CBDD001F858D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		585DA87526B0249A00B8C587 /* RelayCache */ = {
 			isa = PBXGroup;
 			children = (
@@ -1155,6 +1166,7 @@
 				589A455328E094B300565204 /* OperationsTests */,
 				58CE5E7A224146470008646E /* PacketTunnel */,
 				58CE5E61224146200008646E /* Products */,
+				584F991F2902CBDD001F858D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
