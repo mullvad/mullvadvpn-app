@@ -73,7 +73,7 @@ extension RelayCache {
         private var isPeriodicUpdatesEnabled = false
 
         /// API proxy.
-        private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+        private let apiProxy = REST.ProxyFactory(addressCacheStoreAccessLevel: .readWrite).createAPIProxy()
 
         /// Observers.
         private let observerList = ObserverList<RelayCacheObserver>()

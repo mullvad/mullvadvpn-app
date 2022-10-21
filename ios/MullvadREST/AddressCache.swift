@@ -12,27 +12,6 @@ import MullvadTypes
 
 extension REST {
     public final class AddressCache {
-        public static let shared: AddressCache = {
-            let cacheFilename = "api-ip-address.json"
-            let cacheDirectoryURL = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first!
-            let cacheFileURL = cacheDirectoryURL.appendingPathComponent(
-                cacheFilename,
-                isDirectory: false
-            )
-            let prebundledCacheFileURL = Bundle(for: AddressCache.self).url(
-                forResource: cacheFilename,
-                withExtension: nil
-            )!
-
-            return AddressCache(
-                cacheFileURL: cacheFileURL,
-                prebundledCacheFileURL: prebundledCacheFileURL
-            )
-        }()
-
         static var defaultCachedAddresses: CachedAddresses {
             return CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
@@ -57,10 +36,17 @@ extension REST {
         /// Lock used for synchronizing access to instance members.
         private let nslock = NSLock()
 
+        private let accessLevel: AccessPermission
+
         /// Designated initializer
-        public init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
+        public init(
+            cacheFileURL: URL,
+            prebundledCacheFileURL: URL,
+            accessLevel: AccessPermission
+        ) {
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
+            self.accessLevel = accessLevel
 
             do {
                 let readResult = try Self.readFromCacheLocationWithFallback(
@@ -103,6 +89,37 @@ extension REST {
             }
         }
 
+        public convenience init(accessLevel: AccessPermission) {
+            let cacheFilename = "api-ip-address.json"
+            let cacheDirectoryURL = Self.defaultCacheFileURL(forSecurityApplicationGroupIdentifier: "group.net.mullvad.MullvadVPN")!
+            
+            let cacheFileURL = cacheDirectoryURL.appendingPathComponent(
+                cacheFilename,
+                isDirectory: false
+            )
+
+            let prebundledCacheFileURL = Bundle.main.url(
+                forResource: cacheFilename,
+                withExtension: nil
+            )!
+
+            self.init(
+                cacheFileURL: cacheFileURL,
+                prebundledCacheFileURL: prebundledCacheFileURL,
+                accessLevel: accessLevel
+            )
+        }
+
+        static func defaultCacheFileURL(
+            forSecurityApplicationGroupIdentifier appGroupIdentifier: String
+        ) -> URL? {
+            let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: appGroupIdentifier
+            )
+
+            return containerURL
+        }
+
         public func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
@@ -117,6 +134,18 @@ extension REST {
 
             guard failedEndpoint == currentEndpoint else {
                 return currentEndpoint
+            }
+
+            guard accessLevel.canWrite else {
+                logger
+                    .debug(
+                        "Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)"
+                    )
+
+                var endpoints = cachedAddresses.endpoints
+                endpoints.removeFirst()
+                endpoints.append(failedEndpoint)
+                return endpoints.first.unsafelyUnwrapped
             }
 
             cachedAddresses.endpoints.removeFirst()
@@ -141,7 +170,9 @@ extension REST {
             return currentEndpoint
         }
 
-        public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
+        public func setEndpoints(_ endpoints: [AnyIPEndpoint]) throws {
+            guard accessLevel.canWrite else { throw NotAllowedToWriteError() }
+
             nslock.lock()
             defer { nslock.unlock() }
 
@@ -234,9 +265,29 @@ extension REST {
         }
 
         private static func readFromCacheLocation(_ cacheFileURL: URL) throws -> CachedAddresses {
-            let data = try Data(contentsOf: cacheFileURL)
+            var result: Result<CachedAddresses, Swift.Error>?
+            let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
-            return try JSONDecoder().decode(CachedAddresses.self, from: data)
+            let accessor = { (fileURLForReading: URL) in
+                result = Result {
+                    let data = try Data(contentsOf: fileURLForReading)
+                    return try JSONDecoder().decode(CachedAddresses.self, from: data)
+                }
+            }
+
+            var error: NSError?
+            fileCoordinator.coordinate(
+                readingItemAt: cacheFileURL,
+                options: [.withoutChanges],
+                error: &error,
+                byAccessor: accessor
+            )
+
+            if let error = error {
+                result = .failure(error)
+            }
+
+            return try result!.get()
         }
 
         private static func readFromBundle(_ prebundledCacheFileURL: URL) throws
@@ -253,15 +304,44 @@ extension REST {
 
         private func writeToDisk() throws {
             let cacheDirectoryURL = cacheFileURL.deletingLastPathComponent()
-
             try? FileManager.default.createDirectory(
                 at: cacheDirectoryURL,
                 withIntermediateDirectories: true,
                 attributes: nil
             )
 
-            let data = try JSONEncoder().encode(cachedAddresses)
-            try data.write(to: cacheFileURL, options: .atomic)
+            var result: Result<Void, Swift.Error>?
+            let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+
+            let accessor = {  [cachedAddresses] (fileURLForWriting: URL) in
+                result = Result {
+                    let data = try JSONEncoder().encode(cachedAddresses)
+                    try data.write(to: fileURLForWriting)
+                }
+            }
+
+            var error: NSError?
+            fileCoordinator.coordinate(
+                writingItemAt: cacheFileURL,
+                options: [.forReplacing],
+                error: &error,
+                byAccessor: accessor
+            )
+
+            if let error = error {
+                result = .failure(error)
+            }
+
+            try result?.get()
+        }
+    }
+
+    public enum AccessPermission {
+        case readOnly
+        case readWrite
+
+        var canWrite: Bool {
+            self == .readWrite
         }
     }
 
@@ -300,6 +380,12 @@ extension REST {
 
         var errorDescription: String? {
             return "Address cache file from \(source) does not contain any API addresses."
+        }
+    }
+
+    public struct NotAllowedToWriteError: LocalizedError {
+        public var errorDescription: String? {
+            return "Writing access level is required to be able to change"
         }
     }
 }

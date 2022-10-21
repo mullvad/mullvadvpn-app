@@ -14,10 +14,15 @@ import Operations
 
 final class AddressCacheTracker {
     /// Shared instance.
-    static let shared = AddressCacheTracker(
-        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
-        store: REST.AddressCache.shared
-    )
+    static let shared: AddressCacheTracker = {
+        let cacheAddress = REST.AddressCache(accessLevel: .readWrite)
+        
+        return AddressCacheTracker(
+            apiProxy: REST.ProxyFactory(transportRegistry: .shared,
+                                        addressCacheStore: cacheAddress).createAPIProxy(),
+            store: cacheAddress
+        )
+    }()
 
     /// Update interval (in seconds).
     private static let updateInterval: TimeInterval = 60 * 60 * 24
@@ -54,7 +59,7 @@ final class AddressCacheTracker {
     private let nslock = NSLock()
 
     /// Designated initializer
-    private init(apiProxy: REST.APIProxy, store: REST.AddressCache) {
+    public init(apiProxy: REST.APIProxy, store: REST.AddressCache) {
         self.apiProxy = apiProxy
         self.store = store
     }
@@ -144,7 +149,14 @@ final class AddressCacheTracker {
 
         switch completion {
         case let .success(endpoints):
-            store.setEndpoints(endpoints)
+            do {
+                try store.setEndpoints(endpoints)
+            } catch {
+                logger.error(
+                    error: error,
+                    message: "Failed to update address cache."
+                )
+            }
 
         case let .failure(error):
             logger.error(

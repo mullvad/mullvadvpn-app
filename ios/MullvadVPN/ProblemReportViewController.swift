@@ -11,7 +11,7 @@ import Operations
 import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+    private let apiProxy = REST.ProxyFactory(addressCacheStoreAccessLevel: .readWrite).createAPIProxy()
 
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
     private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?

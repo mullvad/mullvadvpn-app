@@ -11,13 +11,13 @@
 		062B45AE28FD503000746E77 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45AD28FD503000746E77 /* WireGuardKit */; };
 		062B45B428FD508C00746E77 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45B328FD508C00746E77 /* Logging */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
-		062B45C228FE980000746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45C128FE97FF00746E77 /* api-ip-address.json */; };
 		063687B028EB083800BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687B228EB083F00BE7161 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		063F026729002768001FA09F /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
 		063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */; };
+		063F026D29029077001FA09F /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45C128FE97FF00746E77 /* api-ip-address.json */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -816,7 +816,6 @@
 		062B45A228FD4C0F00746E77 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				062B45C128FE97FF00746E77 /* api-ip-address.json */,
 				06799AB428F98CE700ACD94E /* le_root_cert.cer */,
 			);
 			path = Assets;
@@ -1276,6 +1275,7 @@
 		58F3C0A824A50C0E003E76BE /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				062B45C128FE97FF00746E77 /* api-ip-address.json */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
@@ -1596,7 +1596,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				062B45C228FE980000746E77 /* api-ip-address.json in Resources */,
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1619,6 +1618,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				063F026D29029077001FA09F /* api-ip-address.json in Resources */,
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
@@ -2580,6 +2580,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2591,6 +2592,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
+				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

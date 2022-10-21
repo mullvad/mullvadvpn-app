@@ -44,9 +44,11 @@ final class TunnelManager {
         }
     }
 
+    private static let proxyFactory = REST.ProxyFactory(addressCacheStoreAccessLevel: .readOnly)
+
     static let shared = TunnelManager(
-        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
-        devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
+        accountsProxy: proxyFactory.createAccountsProxy(),
+        devicesProxy: proxyFactory.createDevicesProxy()
     )
 
     // MARK: - Internal variables

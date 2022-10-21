@@ -12,10 +12,13 @@ extension REST {
     public final class ProxyFactory {
         public let configuration: AuthProxyConfiguration
 
-        public static let shared: ProxyFactory = {
+        public init(
+            transportRegistry: TransportRegistry,
+            addressCacheStore: AddressCache
+        ) {
             let basicConfiguration = ProxyConfiguration(
-                transportRegistry: TransportRegistry.shared,
-                addressCacheStore: AddressCache.shared
+                transportRegistry: transportRegistry,
+                addressCacheStore: addressCacheStore
             )
 
             let authenticationProxy = REST.AuthenticationProxy(
@@ -29,11 +32,20 @@ extension REST {
                 proxyConfiguration: basicConfiguration,
                 accessTokenManager: accessTokenManager
             )
-            return ProxyFactory(configuration: authConfiguration)
-        }()
+
+            configuration = authConfiguration
+        }
 
         public init(configuration: AuthProxyConfiguration) {
             self.configuration = configuration
+        }
+
+        public convenience init(
+            transportRegistry: TransportRegistry = .shared,
+            addressCacheStoreAccessLevel: AccessPermission
+        ) {
+            self.init(transportRegistry: transportRegistry,
+                      addressCacheStore: AddressCache(accessLevel: addressCacheStoreAccessLevel))
         }
 
         public func createAPIProxy() -> REST.APIProxy {

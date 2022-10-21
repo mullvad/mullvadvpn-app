@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 
 class DeviceManagementInteractor {
-    private let devicesProxy = REST.ProxyFactory.shared.createDevicesProxy()
+    private let devicesProxy = REST.ProxyFactory(addressCacheStoreAccessLevel: .readWrite).createDevicesProxy()
     private let accountNumber: String
 
     init(accountNumber: String) {

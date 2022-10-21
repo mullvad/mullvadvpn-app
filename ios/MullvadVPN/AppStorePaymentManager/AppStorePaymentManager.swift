@@ -29,9 +29,9 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         queue.name = "AppStorePaymentManagerQueue"
         return queue
     }()
-
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
-    private let accountsProxy = REST.ProxyFactory.shared.createAccountsProxy()
+    private static let proxyFactory = REST.ProxyFactory(addressCacheStoreAccessLevel: .readWrite)
+    private let apiProxy = proxyFactory.createAPIProxy()
+    private let accountsProxy = proxyFactory.createAccountsProxy()
 
     private let paymentQueue: SKPaymentQueue
     private var observerList = ObserverList<AppStorePaymentObserver>()
