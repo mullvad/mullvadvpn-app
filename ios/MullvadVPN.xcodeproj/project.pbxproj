@@ -1779,8 +1779,8 @@
 				581943F028F8014500B0CB5E /* MullvadTypes */,
 				06799ABB28F98E1D00ACD94E /* MullvadREST */,
 				063F02722902B63F001FA09F /* RelayCache */,
-				5898D28829017BD300EB5EBA /* TunnelProviderMessaging */,
 				5898D29729017DAC00EB5EBA /* RelaySelector */,
+				5898D28829017BD300EB5EBA /* TunnelProviderMessaging */,
 			);
 		};
 /* End PBXProject section */
