@@ -14,6 +14,10 @@
 #
 # And add -e TARGETS="aarch64-unknown-linux-gnu" to build for ARM64
 
+LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
+LABEL org.opencontainers.image.description="Mullvad VPN app Linux build container"
+LABEL org.opencontainers.image.licenses=GPL-3.0
+
 # Debian 10 is the oldest supported distro. It has the oldest glibc that we support
 # This checksum points to a 10.13-slim image.
 FROM debian@sha256:557ee531b81ce380d012d83b7bb56211572e5d6088d3e21a3caef7d7ed7f718b
