@@ -25,6 +25,7 @@
 		063F027F2902B6EB001FA09F /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
 		063F028A2902B7B2001FA09F /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 063F02892902B7B2001FA09F /* WireGuardKitTypes */; };
 		063F028F2902BD8C001FA09F /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
+		063F02912902C3FD001FA09F /* FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063F02902902C3FD001FA09F /* FetchResult.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -481,6 +482,7 @@
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
 		063F02732902B63F001FA09F /* RelayCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RelayCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		063F02752902B63F001FA09F /* RelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RelayCache.h; sourceTree = "<group>"; };
+		063F02902902C3FD001FA09F /* FetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchResult.swift; sourceTree = "<group>"; };
 		06799AB428F98CE700ACD94E /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		06799ABE28F98E1D00ACD94E /* MullvadREST.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadREST.h; sourceTree = "<group>"; };
@@ -857,9 +859,10 @@
 			isa = PBXGroup;
 			children = (
 				063F028E2902BD0F001FA09F /* Assets */,
+				063F02752902B63F001FA09F /* RelayCache.h */,
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
-				063F02752902B63F001FA09F /* RelayCache.h */,
+				063F02902902C3FD001FA09F /* FetchResult.swift */,
 			);
 			path = RelayCache;
 			sourceTree = "<group>";
@@ -1783,6 +1786,7 @@
 			files = (
 				063F027E2902B6EB001FA09F /* RelayCache.swift in Sources */,
 				063F027F2902B6EB001FA09F /* CachedRelays.swift in Sources */,
+				063F02912902C3FD001FA09F /* FetchResult.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
