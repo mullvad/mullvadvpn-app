@@ -294,9 +294,7 @@ enum RelaysFetchResult: CustomStringConvertible {
 }
 
 struct NoCachedRelaysError: LocalizedError {
-    public var errorDescription: String? {
+    var errorDescription: String? {
         return "Relay cache is empty."
     }
-
-    public init() {}
 }
