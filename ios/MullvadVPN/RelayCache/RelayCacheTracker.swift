@@ -271,7 +271,7 @@ class RelayCacheTracker {
 }
 
 /// Type describing the result of an attempt to fetch the new relay list from server.
-public enum RelaysFetchResult: CustomStringConvertible {
+enum RelaysFetchResult: CustomStringConvertible {
     /// Request to update relays was throttled.
     case throttled
 
@@ -281,7 +281,7 @@ public enum RelaysFetchResult: CustomStringConvertible {
     /// Refreshed relays with new content.
     case newContent
 
-    public var description: String {
+    var description: String {
         switch self {
         case .throttled:
             return "throttled"
@@ -293,7 +293,7 @@ public enum RelaysFetchResult: CustomStringConvertible {
     }
 }
 
-public struct NoCachedRelaysError: LocalizedError {
+struct NoCachedRelaysError: LocalizedError {
     public var errorDescription: String? {
         return "Relay cache is empty."
     }
