@@ -1,6 +1,5 @@
 import { Action, History as OriginalHistory, Location, LocationDescriptorObject } from 'history';
-import React from 'react';
-import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
+import { useHistory as useReactRouterHistory } from 'react-router';
 
 import { IHistoryObject } from '../../shared/ipc-types';
 import { GeneratedRoutePath, RoutePath } from './routes';
@@ -219,16 +218,4 @@ export default class History {
 
 export function useHistory(): History {
   return useReactRouterHistory() as History;
-}
-
-export interface IHistoryProps {
-  history: History;
-}
-
-export function withHistory<P>(BaseComponent: React.ComponentType<P & IHistoryProps>) {
-  return withRouter((props: P & RouteComponentProps) => {
-    const history = props.history as History;
-    const mergedProps = ({ ...props, history } as unknown) as P & IHistoryProps;
-    return <BaseComponent {...mergedProps} />;
-  });
 }
