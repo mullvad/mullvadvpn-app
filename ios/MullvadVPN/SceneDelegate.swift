@@ -935,7 +935,7 @@ extension SceneDelegate: TunnelObserver {
 extension SceneDelegate: RelayCacheObserver {
     func relayCache(
         _ relayCache: RelayCache.Tracker,
-        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+        didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
         selectLocationViewController?.setCachedRelays(cachedRelays)
     }

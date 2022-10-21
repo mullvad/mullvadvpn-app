@@ -84,12 +84,12 @@ extension RelayCache {
 
         /// A shared instance of `RelayCache`
         static let shared: RelayCache.Tracker = {
-            let cacheFileURL = RelayCache.IO
+            let cacheFileURL = RelayCache
                 .defaultCacheFileURL(
                     forSecurityApplicationGroupIdentifier: ApplicationConfiguration
                         .securityGroupIdentifier
                 )!
-            let prebundledRelaysFileURL = RelayCache.IO.preBundledRelaysFileURL!
+            let prebundledRelaysFileURL = RelayCache.preBundledRelaysFileURL!
 
             return Tracker(
                 cacheFileURL: cacheFileURL,
@@ -102,7 +102,7 @@ extension RelayCache {
             self.prebundledRelaysFileURL = prebundledRelaysFileURL
 
             do {
-                cachedRelays = try RelayCache.IO.readWithFallback(
+                cachedRelays = try RelayCache.readWithFallback(
                     cacheFileURL: cacheFileURL,
                     preBundledRelaysFileURL: prebundledRelaysFileURL
                 )
@@ -262,7 +262,7 @@ extension RelayCache {
 
             logger.info("Downloaded \(numRelays) relays.")
 
-            let newCachedRelays = RelayCache.CachedRelays(
+            let newCachedRelays = CachedRelays(
                 etag: etag,
                 relays: relays,
                 updatedAt: Date()
@@ -272,7 +272,7 @@ extension RelayCache {
             cachedRelays = newCachedRelays
             nslock.unlock()
 
-            try RelayCache.IO.write(
+            try RelayCache.write(
                 cacheFileURL: cacheFileURL,
                 record: newCachedRelays
             )

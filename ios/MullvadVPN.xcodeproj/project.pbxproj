@@ -23,8 +23,8 @@
 		063F027A2902B63F001FA09F /* RelayCache.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 063F02732902B63F001FA09F /* RelayCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		063F027E2902B6EB001FA09F /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		063F027F2902B6EB001FA09F /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
-		063F02802902B6EB001FA09F /* RelayCacheIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87C26B0254000B8C587 /* RelayCacheIO.swift */; };
 		063F028A2902B7B2001FA09F /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 063F02892902B7B2001FA09F /* WireGuardKitTypes */; };
+		063F028F2902BD8C001FA09F /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -285,8 +285,6 @@
 		58F2E148276A307400A79513 /* MapConnectionStatusOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */; };
 		58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
-		58F3C0A624A50157003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
-		58F3C0A724A50C02003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* AppStorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* AppStorePaymentManagerError.swift */; };
@@ -594,7 +592,6 @@
 		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
 		585CA70E25F8C44600B47C62 /* UIMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMetrics.swift; sourceTree = "<group>"; };
 		585DA87626B024A600B8C587 /* CachedRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedRelays.swift; sourceTree = "<group>"; };
-		585DA87C26B0254000B8C587 /* RelayCacheIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheIO.swift; sourceTree = "<group>"; };
 		585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderMessage.swift; sourceTree = "<group>"; };
 		585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelStatus.swift; sourceTree = "<group>"; };
 		585E820227F3285E00939F0E /* SendAppStoreReceiptOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAppStoreReceiptOperation.swift; sourceTree = "<group>"; };
@@ -859,12 +856,20 @@
 		063F02742902B63F001FA09F /* RelayCache */ = {
 			isa = PBXGroup;
 			children = (
+				063F028E2902BD0F001FA09F /* Assets */,
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
-				585DA87C26B0254000B8C587 /* RelayCacheIO.swift */,
 				063F02752902B63F001FA09F /* RelayCache.h */,
 			);
 			path = RelayCache;
+			sourceTree = "<group>";
+		};
+		063F028E2902BD0F001FA09F /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				58F3C0A524A50155003E76BE /* relays.json */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		06799ABD28F98E1D00ACD94E /* MullvadREST */ = {
@@ -1321,7 +1326,6 @@
 			isa = PBXGroup;
 			children = (
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
-				58F3C0A524A50155003E76BE /* relays.json */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -1677,6 +1681,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				063F028F2902BD8C001FA09F /* relays.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1707,7 +1712,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
@@ -1719,7 +1723,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58F3C0A724A50C02003E76BE /* relays.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1750,7 +1753,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exec > $PROJECT_DIR/prebuild.log 2>&1\n\n$PROJECT_DIR/prebuild.sh\n";
+			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.sh\n";
 		};
 		588E4EB028FEF1CA008046E3 /* Run prebuild script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1778,7 +1781,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				063F02802902B6EB001FA09F /* RelayCacheIO.swift in Sources */,
 				063F027E2902B6EB001FA09F /* RelayCache.swift in Sources */,
 				063F027F2902B6EB001FA09F /* CachedRelays.swift in Sources */,
 			);
