@@ -417,12 +417,6 @@ public extension Operation {
     }
 }
 
-public extension Operation {
-    var operationName: String {
-        return name ?? "\(self)"
-    }
-}
-
 public protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}
 
