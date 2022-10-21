@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RelayCache
 
 protocol RelayCacheObserver: AnyObject {
     func relayCache(

@@ -8,4 +8,4 @@
 
 import Foundation
 
-enum RelayCache {}
+public enum RelayCache {}

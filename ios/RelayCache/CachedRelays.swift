@@ -11,14 +11,20 @@ import MullvadREST
 
 extension RelayCache {
     /// A struct that represents the relay cache on disk
-    struct CachedRelays: Codable {
+    public struct CachedRelays: Codable {
         /// E-tag returned by server
-        var etag: String?
+        public var etag: String?
 
         /// The relay list stored within the cache entry
-        var relays: REST.ServerRelaysResponse
+        public var relays: REST.ServerRelaysResponse
 
         /// The date when this cache was last updated
-        var updatedAt: Date
+        public var updatedAt: Date
+
+        public init(etag: String? = nil, relays: REST.ServerRelaysResponse, updatedAt: Date) {
+            self.etag = etag
+            self.relays = relays
+            self.updatedAt = updatedAt
+        }
     }
 }

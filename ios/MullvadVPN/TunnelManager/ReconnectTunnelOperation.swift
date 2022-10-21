@@ -10,6 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 import Operations
+import RelayCache
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor
