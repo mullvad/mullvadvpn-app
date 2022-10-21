@@ -1,6 +1,6 @@
 //
 //  AsyncOperation.swift
-//  MullvadVPN
+//  Operations
 //
 //  Created by pronebird on 01/06/2020.
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
