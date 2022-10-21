@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TunnelProviderMessaging
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {

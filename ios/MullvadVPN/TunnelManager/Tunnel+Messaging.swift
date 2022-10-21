@@ -10,6 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 import Operations
+import RelaySelector
+import TunnelProviderMessaging
 
 /// Shared operation queue used for IPC requests.
 private let operationQueue = AsyncOperationQueue()

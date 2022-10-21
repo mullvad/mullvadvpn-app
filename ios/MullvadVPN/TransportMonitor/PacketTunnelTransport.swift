@@ -9,6 +9,7 @@
 import Foundation
 import protocol MullvadREST.RESTTransport
 import MullvadTypes
+import TunnelProviderMessaging
 
 final class PacketTunnelTransport: RESTTransport {
     var name: String {

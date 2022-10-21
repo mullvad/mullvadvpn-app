@@ -7,6 +7,7 @@
 //
 
 import MullvadREST
+import MullvadTypes
 import UIKit
 
 protocol LocationDataSourceItemProtocol {

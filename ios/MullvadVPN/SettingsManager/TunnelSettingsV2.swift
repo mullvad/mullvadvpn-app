@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import struct Network.IPv4Address
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey

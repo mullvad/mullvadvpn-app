@@ -12,7 +12,9 @@ import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import Operations
+import RelaySelector
 import StoreKit
+import TunnelProviderMessaging
 import UIKit
 import class WireGuardKitTypes.PublicKey
 

@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import Operations
+import TunnelProviderMessaging
 
 class MapConnectionStatusOperation: AsyncOperation {
     private let interactor: TunnelInteractor

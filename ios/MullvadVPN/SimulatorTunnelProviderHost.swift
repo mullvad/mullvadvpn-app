@@ -13,6 +13,8 @@ import MullvadLogging
 import MullvadREST
 import enum NetworkExtension.NEProviderStopReason
 import RelayCache
+import RelaySelector
+import TunnelProviderMessaging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?

@@ -8,6 +8,7 @@
 
 import MapKit
 import MullvadLogging
+import TunnelProviderMessaging
 import UIKit
 
 class CustomOverlayRenderer: MKOverlayRenderer {

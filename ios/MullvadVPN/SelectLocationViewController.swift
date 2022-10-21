@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadTypes
 import RelayCache
 import UIKit
 

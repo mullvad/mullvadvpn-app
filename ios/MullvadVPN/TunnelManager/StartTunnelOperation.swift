@@ -11,6 +11,8 @@ import MullvadLogging
 import NetworkExtension
 import Operations
 import RelayCache
+import RelaySelector
+import TunnelProviderMessaging
 
 class StartTunnelOperation: ResultOperation<Void, Error> {
     typealias EncodeErrorHandler = (Error) -> Void
