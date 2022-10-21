@@ -1,5 +1,5 @@
 # To build the image:
-# podman build . -t mullvad-android-app-build
+# podman build . -t mullvadvpn-app-build-android
 #
 # To build using the image:
 # podman run --rm \
@@ -7,7 +7,7 @@
 #     -v /path/to/container_cache/registry:/root/.cargo/registry:Z \
 #     -v /path/to/container_cache/gradle:/root/.gradle:Z \
 #     -v .:/build:Z \
-#     mullvad-android-app-build ./build-apk.sh --dev-build --no-docker
+#     mullvadvpn-app-build-android ./build-apk.sh --dev-build --no-docker
 #
 # See the base image Dockerfile in the repository root for more information.
 
