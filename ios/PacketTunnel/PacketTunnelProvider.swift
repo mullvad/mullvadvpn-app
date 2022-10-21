@@ -436,11 +436,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private class func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
         -> RelaySelectorResult
     {
-        let cacheFileURL = RelayCache.IO.defaultCacheFileURL(
+        let cacheFileURL = RelayCache.defaultCacheFileURL(
             forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
         )!
-        let prebundledRelaysURL = RelayCache.IO.preBundledRelaysFileURL!
-        let cachedRelayList = try RelayCache.IO.readWithFallback(
+        let prebundledRelaysURL = RelayCache.preBundledRelaysFileURL!
+        let cachedRelayList = try RelayCache.readWithFallback(
             cacheFileURL: cacheFileURL,
             preBundledRelaysFileURL: prebundledRelaysURL
         )
