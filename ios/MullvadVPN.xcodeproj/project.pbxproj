@@ -1369,6 +1369,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 063F027D2902B63F001FA09F /* Build configuration list for PBXNativeTarget "RelayCache" */;
 			buildPhases = (
+				063F028D2902BC8E001FA09F /* Run prebuild script */,
 				063F026E2902B63F001FA09F /* Headers */,
 				063F026F2902B63F001FA09F /* Sources */,
 				063F02702902B63F001FA09F /* Frameworks */,
@@ -1732,6 +1733,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		063F028D2902BC8E001FA09F /* Run prebuild script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run prebuild script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec > $PROJECT_DIR/prebuild.log 2>&1\n\n$PROJECT_DIR/prebuild.sh\n";
+		};
 		588E4EB028FEF1CA008046E3 /* Run prebuild script */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
