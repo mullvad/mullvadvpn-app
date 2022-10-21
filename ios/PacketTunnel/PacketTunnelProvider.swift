@@ -9,9 +9,12 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 import Network
 import NetworkExtension
 import RelayCache
+import RelaySelector
+import TunnelProviderMessaging
 import WireGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {

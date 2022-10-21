@@ -1,14 +1,15 @@
 //
 //  PacketTunnelOptions.swift
-//  PacketTunnelOptions
+//  TunnelProviderMessaging
 //
 //  Created by pronebird on 22/08/2021.
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
+import RelaySelector
 
-struct PacketTunnelOptions {
+public struct PacketTunnelOptions {
     /// Keys for options dictionary
     private enum Keys: String {
         /// Option key that holds the `NSData` value with `RelaySelectorResult`
@@ -24,29 +25,29 @@ struct PacketTunnelOptions {
 
     private var _rawOptions: [String: NSObject]
 
-    func rawOptions() -> [String: NSObject] {
+    public func rawOptions() -> [String: NSObject] {
         return _rawOptions
     }
 
-    init() {
+    public init() {
         _rawOptions = [:]
     }
 
-    init(rawOptions: [String: NSObject]) {
+    public init(rawOptions: [String: NSObject]) {
         _rawOptions = rawOptions
     }
 
-    func getSelectorResult() throws -> RelaySelectorResult? {
+    public func getSelectorResult() throws -> RelaySelectorResult? {
         guard let data = _rawOptions[Keys.relaySelectorResult.rawValue] as? Data else { return nil }
 
         return try Self.decode(RelaySelectorResult.self, data)
     }
 
-    mutating func setSelectorResult(_ value: RelaySelectorResult) throws {
+    public mutating func setSelectorResult(_ value: RelaySelectorResult) throws {
         _rawOptions[Keys.relaySelectorResult.rawValue] = try Self.encode(value) as NSData
     }
 
-    func isOnDemand() -> Bool {
+    public func isOnDemand() -> Bool {
         return _rawOptions[Keys.isOnDemand.rawValue] as? Int == .some(1)
     }
 

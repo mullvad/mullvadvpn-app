@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import WireGuardKit
 
 extension MullvadEndpoint {

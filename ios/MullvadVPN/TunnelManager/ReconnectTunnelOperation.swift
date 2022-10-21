@@ -11,6 +11,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 import RelayCache
+import RelaySelector
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor

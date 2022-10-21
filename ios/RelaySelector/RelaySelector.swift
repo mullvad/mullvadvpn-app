@@ -1,6 +1,6 @@
 //
 //  RelaySelector.swift
-//  PacketTunnel
+//  RelaySelector
 //
 //  Created by pronebird on 11/06/2019.
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
@@ -10,38 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-struct RelaySelectorResult: Codable {
-    var endpoint: MullvadEndpoint
-    var relay: REST.ServerRelay
-    var location: Location
-}
-
-private struct RelayWithLocation {
-    var relay: REST.ServerRelay
-    var location: Location
-}
-
-extension RelaySelectorResult {
-    var packetTunnelRelay: PacketTunnelRelay {
-        return PacketTunnelRelay(
-            ipv4Relay: endpoint.ipv4Relay,
-            ipv6Relay: endpoint.ipv6Relay,
-            hostname: relay.hostname,
-            location: location
-        )
-    }
-}
-
-struct NoRelaysSatisfyingConstraintsError: LocalizedError {
-    var errorDescription: String? {
-        return "No relays satisfying constraints."
-    }
-}
-
-enum RelaySelector {}
-
-extension RelaySelector {
-    static func evaluate(
+public enum RelaySelector {
+    public static func evaluate(
         relays: REST.ServerRelaysResponse,
         constraints: RelayConstraints
     ) throws -> RelaySelectorResult {
@@ -189,4 +159,30 @@ extension RelaySelector {
             return RelayWithLocation(relay: serverRelay, location: location)
         }
     }
+}
+
+public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
+    public var errorDescription: String? {
+        return "No relays satisfying constraints."
+    }
+}
+
+public struct RelaySelectorResult: Codable {
+    public var endpoint: MullvadEndpoint
+    public var relay: REST.ServerRelay
+    public var location: Location
+
+    public var packetTunnelRelay: PacketTunnelRelay {
+        return PacketTunnelRelay(
+            ipv4Relay: endpoint.ipv4Relay,
+            ipv6Relay: endpoint.ipv6Relay,
+            hostname: relay.hostname,
+            location: location
+        )
+    }
+}
+
+private struct RelayWithLocation {
+    var relay: REST.ServerRelay
+    var location: Location
 }

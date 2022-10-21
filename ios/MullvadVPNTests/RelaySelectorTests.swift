@@ -7,7 +7,9 @@
 //
 
 import MullvadREST
+import MullvadTypes
 import Network
+import RelaySelector
 import XCTest
 
 class RelaySelectorTests: XCTestCase {
