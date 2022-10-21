@@ -171,6 +171,15 @@ public struct RelaySelectorResult: Codable {
     public var endpoint: MullvadEndpoint
     public var relay: REST.ServerRelay
     public var location: Location
+
+    public var packetTunnelRelay: PacketTunnelRelay {
+        return PacketTunnelRelay(
+            ipv4Relay: endpoint.ipv4Relay,
+            ipv6Relay: endpoint.ipv6Relay,
+            hostname: relay.hostname,
+            location: location
+        )
+    }
 }
 
 private struct RelayWithLocation {

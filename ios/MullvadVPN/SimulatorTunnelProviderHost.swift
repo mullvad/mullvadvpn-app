@@ -11,6 +11,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 import enum NetworkExtension.NEProviderStopReason
 import RelayCache
 import RelaySelector
