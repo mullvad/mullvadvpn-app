@@ -6,7 +6,7 @@
 #     -v /path/to/container_cache/target:/root/.cargo/target:Z \
 #     -v /path/to/container_cache/registry:/root/.cargo/registry:Z \
 #     -v /path/to/container_cache/gradle:/root/.gradle:Z \
-#     -v .:/build:Z \
+#     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build-android ./build-apk.sh --dev-build --no-docker
 #
 # See the base image Dockerfile in the repository root (../../Dockerfile)
