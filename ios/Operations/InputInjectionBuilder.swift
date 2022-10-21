@@ -84,11 +84,11 @@ public final class InputInjectionBuilder<OperationType, Context>
     }
 }
 
-public extension InputInjectionBuilder
+extension InputInjectionBuilder
     where Context: OperationInputContext,
     Context.Input == OperationType.Input
 {
-    func reduce() {
+    public func reduce() {
         reduce { context in
             return context.reduce()
         }

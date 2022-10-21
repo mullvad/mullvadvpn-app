@@ -409,8 +409,8 @@ open class AsyncOperation: Operation {
     }
 }
 
-public extension Operation {
-    func addDependencies(_ dependencies: [Operation]) {
+extension Operation {
+    public func addDependencies(_ dependencies: [Operation]) {
         for dependency in dependencies {
             addDependency(dependency)
         }
@@ -420,8 +420,8 @@ public extension Operation {
 public protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}
 
-public extension OperationBlockObserverSupport where Self: AsyncOperation {
-    func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
+extension OperationBlockObserverSupport where Self: AsyncOperation {
+    public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)
     }
 }

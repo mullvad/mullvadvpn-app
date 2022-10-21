@@ -22,12 +22,12 @@ public protocol InputOperation: Operation {
         where T: OutputOperation
 }
 
-public extension InputOperation {
-    func inject<T>(from dependency: T) where T: OutputOperation, T.Output == Input {
+extension InputOperation {
+    public func inject<T>(from dependency: T) where T: OutputOperation, T.Output == Input {
         inject(from: dependency, via: { $0 })
     }
 
-    func inject<T>(from dependency: T, via block: @escaping (T.Output) -> Input)
+    public func inject<T>(from dependency: T, via block: @escaping (T.Output) -> Input)
         where T: OutputOperation
     {
         setInputBlock {
@@ -38,7 +38,7 @@ public extension InputOperation {
         addDependency(dependency)
     }
 
-    func injectMany<Context>(context: Context) -> InputInjectionBuilder<Self, Context> {
+    public func injectMany<Context>(context: Context) -> InputInjectionBuilder<Self, Context> {
         return InputInjectionBuilder(
             operation: self,
             context: context
