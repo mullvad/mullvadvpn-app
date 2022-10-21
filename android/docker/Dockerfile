@@ -38,15 +38,6 @@ ENV ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${NDK_VERSION}
 ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
 ENV GRADLE_USER_HOME=/root/.gradle
 
-ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-ar \
-    AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android-ar \
-    AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-ar \
-    AR_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-ar \
-    CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android21-clang \
-    CC_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android21-clang \
-    CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android21-clang \
-    CC_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi21-clang
-
 # === Install/set up the image ===
 
 RUN apt-get update -y && apt-get install -y \
