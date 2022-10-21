@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadTypes
 import Operations
 
 class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {

@@ -206,6 +206,7 @@
 		5898D2B42902A8F000EB5EBA /* RelayConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */; };
 		5898D2B52902A8F000EB5EBA /* RelayConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */; };
 		5898D2B72902A9EA00EB5EBA /* PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */; };
+		5898D2B82902ABC400EB5EBA /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		589A454C28DDF5E100565204 /* Swizzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589A454B28DDF5E100565204 /* Swizzle.swift */; };
 		589A455628E094B300565204 /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
 		589A455C28E094BF00565204 /* OperationSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */; };
@@ -221,8 +222,6 @@
 		58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */; };
 		58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */; };
 		58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */; };
-		58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
-		58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584B26F3237434D00073B10E /* RelaySelectorTests.swift */; };
 		58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B3F30E2742708B00A2DD38 /* HeaderBarButton.swift */; };
 		58B43C1925F77DB60002C8C3 /* ConnectContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* ConnectContentView.swift */; };
@@ -989,6 +988,7 @@
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 				58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
+				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
@@ -1227,7 +1227,6 @@
 				58CE5E6F224146210008646E /* Info.plist */,
 				5872631C283F755900E14ADF /* IntentHandlers.swift */,
 				5872631A283F6EAB00E14ADF /* Intents.intentdefinition */,
-				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
@@ -1940,6 +1939,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				586A951429013235007BAF2B /* AnyIPEndpoint.swift in Sources */,
+				5898D2B82902ABC400EB5EBA /* KeychainError.swift in Sources */,
 				581943FC28F8020500B0CB5E /* Error+Chain.swift in Sources */,
 				5898D29329017CFD00EB5EBA /* Location.swift in Sources */,
 				581943FB28F801D500B0CB5E /* CustomErrorDescriptionProtocol.swift in Sources */,
@@ -2120,7 +2120,6 @@
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
-				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
 				5872631D283F755900E14ADF /* IntentHandlers.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
@@ -2164,7 +2163,6 @@
 			files = (
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
-				58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */,
 				58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */,
 				58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */,
 				5838318B27C40A3900000571 /* Pinger.swift in Sources */,
