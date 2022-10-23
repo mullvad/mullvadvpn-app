@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import StoreKit
 
 protocol DisplayChainedError {

@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import MullvadREST
 
 class TransportMonitor: TunnelObserver {
     private let packetTunnelTransport = PacketTunnelTransport()
-    private let urlSessionTransport = URLSessionTransport(urlSession: REST.sharedURLSession)
+    private let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
 
     init() {
         TunnelManager.shared.addObserver(self)
@@ -42,7 +43,7 @@ class TransportMonitor: TunnelObserver {
     // MARK: - Private
 
     private func setTransports() {
-        RESTTransportRegistry.shared.setTransport(
+        REST.TransportRegistry.shared.setTransport(
             stateUpdated(
                 tunnelState: TunnelManager.shared.tunnelStatus.state,
                 deviceState: TunnelManager.shared.deviceState

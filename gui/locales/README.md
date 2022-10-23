@@ -76,6 +76,14 @@ When the translations are done, download it by running:
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization download`
 ```
 
+## Verify translation formatting
+
+Use the localization script to verify that the strings are valid HTML and that they contain the
+correct amount of format specifiers:
+```
+./scripts/localization verify
+```
+
 ## Keeping messages.pot in sync
 
 This is only relevant when running the different tools for updating `messages.pot` manually, and

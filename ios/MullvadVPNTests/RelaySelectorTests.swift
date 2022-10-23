@@ -6,7 +6,10 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
+import MullvadTypes
 import Network
+import RelaySelector
 import XCTest
 
 class RelaySelectorTests: XCTestCase {

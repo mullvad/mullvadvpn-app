@@ -6,6 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
+import MullvadTypes
 import UIKit
 
 protocol LocationDataSourceItemProtocol {

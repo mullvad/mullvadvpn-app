@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import Operations
 import StoreKit
 import UIKit

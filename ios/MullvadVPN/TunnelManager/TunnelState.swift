@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadTypes
+import TunnelProviderMessaging
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {

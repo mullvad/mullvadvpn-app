@@ -10,8 +10,8 @@ import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
+import { formatHtml } from '../lib/html-formatter';
 import { useBoolean } from '../lib/utilityHooks';
-import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
@@ -159,12 +159,12 @@ function TransportProtocolSelector() {
           <Cell.CellFooter>
             <AriaDescription>
               <Cell.CellFooterText>
-                {formatMarkdown(
+                {formatHtml(
                   // TRANSLATORS: This is used to instruct users how to make UDP mode
                   // TRANSLATORS: available.
                   messages.pgettext(
                     'openvpn-settings-view',
-                    'To activate UDP, change **Bridge mode** to **Automatic** or **Off**.',
+                    'To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>.',
                   ),
                 )}
               </Cell.CellFooterText>
@@ -371,7 +371,7 @@ function bridgeModeFooterText(
   transportProtocol: RelayProtocol | null,
 ) {
   if (tunnelProtocol !== 'openvpn') {
-    return formatMarkdown(
+    return formatHtml(
       sprintf(
         // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
         // TRANSLATORS: available.
@@ -380,7 +380,7 @@ function bridgeModeFooterText(
         // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
         messages.pgettext(
           'openvpn-settings-view',
-          'To activate Bridge mode, go back and change **%(tunnelProtocol)s** to **%(openvpn)s**.',
+          'To activate Bridge mode, go back and change <b>%(tunnelProtocol)s</b> to <b>%(openvpn)s</b>.',
         ),
         {
           tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
@@ -389,7 +389,7 @@ function bridgeModeFooterText(
       ),
     );
   } else if (transportProtocol === 'udp') {
-    return formatMarkdown(
+    return formatHtml(
       sprintf(
         // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
         // TRANSLATORS: available.
@@ -399,7 +399,7 @@ function bridgeModeFooterText(
         // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
         messages.pgettext(
           'openvpn-settings-view',
-          'To activate Bridge mode, change **%(transportProtocol)s** to **%(automatic)s** or **%(tcp)s**.',
+          'To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>.',
         ),
         {
           transportProtocol: messages.pgettext('openvpn-settings-view', 'Transport protocol'),

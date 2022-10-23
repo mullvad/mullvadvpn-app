@@ -1,6 +1,6 @@
 //
 //  AsyncOperation.swift
-//  MullvadVPN
+//  Operations
 //
 //  Created by pronebird on 01/06/2020.
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
@@ -409,25 +409,19 @@ open class AsyncOperation: Operation {
     }
 }
 
-public extension Operation {
-    func addDependencies(_ dependencies: [Operation]) {
+extension Operation {
+    public func addDependencies(_ dependencies: [Operation]) {
         for dependency in dependencies {
             addDependency(dependency)
         }
     }
 }
 
-public extension Operation {
-    var operationName: String {
-        return name ?? "\(self)"
-    }
-}
-
 public protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}
 
-public extension OperationBlockObserverSupport where Self: AsyncOperation {
-    func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
+extension OperationBlockObserverSupport where Self: AsyncOperation {
+    public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)
     }
 }

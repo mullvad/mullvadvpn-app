@@ -7,7 +7,10 @@
 //
 
 import MullvadLogging
+import MullvadREST
+import MullvadTypes
 import Operations
+import RelayCache
 import UIKit
 
 class SceneDelegate: UIResponder {
@@ -85,7 +88,7 @@ class SceneDelegate: UIResponder {
             fatalError()
         }
 
-        RelayCache.Tracker.shared.addObserver(self)
+        RelayCacheTracker.shared.addObserver(self)
         NotificationManager.shared.delegate = self
 
         accountDataThrottling.requestUpdate(condition: .always)
@@ -112,18 +115,18 @@ class SceneDelegate: UIResponder {
             )
         }
 
-        RelayCache.Tracker.shared.startPeriodicUpdates()
+        RelayCacheTracker.shared.startPeriodicUpdates()
         TunnelManager.shared.startPeriodicPrivateKeyRotation()
-        AddressCache.Tracker.shared.startPeriodicUpdates()
+        AddressCacheTracker.shared.startPeriodicUpdates()
         ShortcutsManager.shared.updateVoiceShortcuts()
 
         setShowsPrivacyOverlay(false)
     }
 
     @objc private func sceneWillResignActive() {
-        RelayCache.Tracker.shared.stopPeriodicUpdates()
+        RelayCacheTracker.shared.stopPeriodicUpdates()
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
-        AddressCache.Tracker.shared.stopPeriodicUpdates()
+        AddressCacheTracker.shared.stopPeriodicUpdates()
 
         setShowsPrivacyOverlay(true)
     }
@@ -413,7 +416,7 @@ extension SceneDelegate {
         let selectLocationController = SelectLocationViewController()
         selectLocationController.delegate = self
 
-        if let cachedRelays = try? RelayCache.Tracker.shared.getCachedRelays() {
+        if let cachedRelays = try? RelayCacheTracker.shared.getCachedRelays() {
             selectLocationController.setCachedRelays(cachedRelays)
         }
 
@@ -932,8 +935,8 @@ extension SceneDelegate: TunnelObserver {
 
 extension SceneDelegate: RelayCacheObserver {
     func relayCache(
-        _ relayCache: RelayCache.Tracker,
-        didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays
+        _ relayCache: RelayCacheTracker,
+        didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
         selectLocationViewController?.setCachedRelays(cachedRelays)
     }

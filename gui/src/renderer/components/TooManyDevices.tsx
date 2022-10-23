@@ -9,9 +9,9 @@ import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
+import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
-import { formatMarkdown } from '../markdown-formatter';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
@@ -253,15 +253,15 @@ function Device(props: IDeviceProps) {
         ]}
         close={hideConfirmation}>
         <ModalMessage>
-          {formatMarkdown(
+          {formatHtml(
             sprintf(
               // TRANSLATORS: Text displayed above button which logs out another device.
-              // TRANSLATORS: The text enclosed in "**" will appear bold.
+              // TRANSLATORS: The text enclosed in "<b></b>" will appear bold.
               // TRANSLATORS: Available placeholders:
               // TRANSLATORS: %(deviceName)s - The name of the device to log out.
               messages.pgettext(
                 'device-management',
-                'Are you sure you want to log **%(deviceName)s** out?',
+                'Are you sure you want to log <b>%(deviceName)s</b> out?',
               ),
               { deviceName: capitalizedDeviceName },
             ),

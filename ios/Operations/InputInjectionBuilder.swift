@@ -1,6 +1,6 @@
 //
 //  InputInjectionBuilder.swift
-//  MullvadVPN
+//  Operations
 //
 //  Created by pronebird on 09/06/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
@@ -84,11 +84,11 @@ public final class InputInjectionBuilder<OperationType, Context>
     }
 }
 
-public extension InputInjectionBuilder
+extension InputInjectionBuilder
     where Context: OperationInputContext,
     Context.Input == OperationType.Input
 {
-    func reduce() {
+    public func reduce() {
         reduce { context in
             return context.reduce()
         }

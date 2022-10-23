@@ -314,6 +314,14 @@ started early enough to prevent leaks. To prevent this, another system unit is
 started during early boot that applies a blocking policy that persists until the
 `mullvad-daemon` is started.
 
+
+### macOS
+
+Due to the inability to specify dependencies of system services in `launchd` there is no way to
+ensure that our daemon is started before any other service  or program is started.  Thus, whilst our
+daemon will start as soon as it possibly can, there's nothing that can be done about the order in
+which launch daemons get started, so some leaks may still occur.
+
 ## Desktop Electron GUI
 
 The graphical frontend for the app on desktop is an Electron app. This app only ever loads

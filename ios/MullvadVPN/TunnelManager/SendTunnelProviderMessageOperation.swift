@@ -10,6 +10,7 @@ import Foundation
 import MullvadTypes
 import NetworkExtension
 import Operations
+import TunnelProviderMessaging
 
 /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
 /// Used to workaround a bug when talking to the tunnel too early during startup may cause it

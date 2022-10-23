@@ -8,8 +8,13 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
+import MullvadTypes
 import Network
 import NetworkExtension
+import RelayCache
+import RelaySelector
+import TunnelProviderMessaging
 import WireGuardKit
 
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
@@ -37,6 +42,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
+
+    /// URL session used for proxy requests.
+    private let urlSession = REST.makeURLSession()
 
     /// List of all proxied network requests bypassing VPN.
     private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
@@ -246,32 +254,31 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 completionHandler?(response)
 
             case let .sendURLRequest(proxyRequest):
-                let task = REST.sharedURLSession.dataTask(
-                    with: proxyRequest.urlRequest
-                ) { [weak self] data, response, error in
-                    guard let self = self else { return }
+                let task = self.urlSession
+                    .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
+                        guard let self = self else { return }
 
-                    self.dispatchQueue.async {
-                        self.proxiedRequests.removeValue(forKey: proxyRequest.id)
+                        self.dispatchQueue.async {
+                            self.proxiedRequests.removeValue(forKey: proxyRequest.id)
 
-                        var reply: Data?
-                        do {
-                            let response = ProxyURLResponse(
-                                data: data,
-                                response: response,
-                                error: error
-                            )
-                            reply = try TunnelProviderReply(response).encode()
-                        } catch {
-                            self.providerLogger.error(
-                                error: error,
-                                message: "Failed to encode ProxyURLResponse."
-                            )
+                            var reply: Data?
+                            do {
+                                let response = ProxyURLResponse(
+                                    data: data,
+                                    response: response,
+                                    error: error
+                                )
+                                reply = try TunnelProviderReply(response).encode()
+                            } catch {
+                                self.providerLogger.error(
+                                    error: error,
+                                    message: "Failed to encode ProxyURLResponse."
+                                )
+                            }
+
+                            completionHandler?(reply)
                         }
-
-                        completionHandler?(reply)
                     }
-                }
 
                 self.proxiedRequests[proxyRequest.id] = task
 
@@ -432,11 +439,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private class func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
         -> RelaySelectorResult
     {
-        let cacheFileURL = RelayCache.IO.defaultCacheFileURL(
+        let cacheFileURL = RelayCache.defaultCacheFileURL(
             forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
         )!
-        let prebundledRelaysURL = RelayCache.IO.preBundledRelaysFileURL!
-        let cachedRelayList = try RelayCache.IO.readWithFallback(
+        let prebundledRelaysURL = RelayCache.preBundledRelaysFileURL!
+        let cachedRelayList = try RelayCache.readWithFallback(
             cacheFileURL: cacheFileURL,
             preBundledRelaysFileURL: prebundledRelaysURL
         )

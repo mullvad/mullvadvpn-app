@@ -7,7 +7,11 @@
 //
 
 import Foundation
+import MullvadREST
+import MullvadTypes
 import Operations
+import RelayCache
+import RelaySelector
 
 class ReconnectTunnelOperation: ResultOperation<Void, Error> {
     private let interactor: TunnelInteractor
@@ -35,7 +39,7 @@ class ReconnectTunnelOperation: ResultOperation<Void, Error> {
             var selectorResult: RelaySelectorResult?
 
             if selectNewRelay {
-                let cachedRelays = try RelayCache.Tracker.shared.getCachedRelays()
+                let cachedRelays = try RelayCacheTracker.shared.getCachedRelays()
                 selectorResult = try RelaySelector.evaluate(
                     relays: cachedRelays.relays,
                     constraints: interactor.settings.relayConstraints
