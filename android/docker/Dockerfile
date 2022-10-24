@@ -36,7 +36,8 @@ ENV SDK_TOOLS_VERSION=4333796 \
 
 # NDK and checksum from: https://github.com/android/ndk/wiki/Unsupported-Downloads
 ENV NDK_VERSION=r20b \
-    NDK_SHA1_CHECKSUM=d903fdf077039ad9331fb6c3bee78aa46d45527b
+    NDK_SHA1_CHECKSUM=d903fdf077039ad9331fb6c3bee78aa46d45527b \
+    MIN_SDK_VERSION=21
 
 ENV ANDROID_HOME=/opt/android
 ENV ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${NDK_VERSION}
