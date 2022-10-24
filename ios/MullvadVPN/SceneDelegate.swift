@@ -931,11 +931,11 @@ extension SceneDelegate: TunnelObserver {
     }
 }
 
-// MARK: - RelayCacheObserver
+// MARK: - RelayCacheTrackerObserver
 
-extension SceneDelegate: RelayCacheObserver {
-    func relayCache(
-        _ relayCache: RelayCacheTracker,
+extension SceneDelegate: RelayCacheTrackerObserver {
+    func relayCacheTracker(
+        _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
         selectLocationViewController?.setCachedRelays(cachedRelays)

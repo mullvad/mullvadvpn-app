@@ -21,11 +21,10 @@ class RelayCacheTracker {
     /// Tracker log.
     private let logger = Logger(label: "RelayCacheTracker")
 
-    /// The cache location used by the class instance.
-    private let cacheFileURL: URL
-
-    /// The location of prebundled `relays.json`.
-    private let prebundledRelaysFileURL: URL
+    /// Relay cache.
+    private let cache = RelayCache(
+        securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
+    )!
 
     /// Lock used for synchronization.
     private let nslock = NSLock()
@@ -47,35 +46,17 @@ class RelayCacheTracker {
     private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
 
     /// Observers.
-    private let observerList = ObserverList<RelayCacheObserver>()
+    private let observerList = ObserverList<RelayCacheTrackerObserver>()
 
     /// Memory cache.
     private var cachedRelays: CachedRelays?
 
-    /// A shared instance of `RelayCache`
-    static let shared: RelayCacheTracker = {
-        let cacheFileURL = RelayCache
-            .defaultCacheFileURL(
-                forSecurityApplicationGroupIdentifier: ApplicationConfiguration
-                    .securityGroupIdentifier
-            )!
-        let prebundledRelaysFileURL = RelayCache.preBundledRelaysFileURL!
+    /// A shared instance of `RelayCacheTracker`.
+    static let shared = RelayCacheTracker()
 
-        return RelayCacheTracker(
-            cacheFileURL: cacheFileURL,
-            prebundledRelaysFileURL: prebundledRelaysFileURL
-        )
-    }()
-
-    private init(cacheFileURL: URL, prebundledRelaysFileURL: URL) {
-        self.cacheFileURL = cacheFileURL
-        self.prebundledRelaysFileURL = prebundledRelaysFileURL
-
+    private init() {
         do {
-            cachedRelays = try RelayCache.readWithFallback(
-                cacheFileURL: cacheFileURL,
-                preBundledRelaysFileURL: prebundledRelaysFileURL
-            )
+            cachedRelays = try cache.read()
         } catch {
             logger.error(
                 error: error,
@@ -180,11 +161,11 @@ class RelayCacheTracker {
 
     // MARK: - Observation
 
-    func addObserver(_ observer: RelayCacheObserver) {
+    func addObserver(_ observer: RelayCacheTrackerObserver) {
         observerList.append(observer)
     }
 
-    func removeObserver(_ observer: RelayCacheObserver) {
+    func removeObserver(_ observer: RelayCacheTrackerObserver) {
         observerList.remove(observer)
     }
 
@@ -242,14 +223,11 @@ class RelayCacheTracker {
         cachedRelays = newCachedRelays
         nslock.unlock()
 
-        try RelayCache.write(
-            cacheFileURL: cacheFileURL,
-            record: newCachedRelays
-        )
+        try cache.write(record: newCachedRelays)
 
         DispatchQueue.main.async {
             self.observerList.forEach { observer in
-                observer.relayCache(self, didUpdateCachedRelays: newCachedRelays)
+                observer.relayCacheTracker(self, didUpdateCachedRelays: newCachedRelays)
             }
         }
     }

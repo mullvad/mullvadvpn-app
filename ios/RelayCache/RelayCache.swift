@@ -9,25 +9,67 @@
 import Foundation
 import MullvadREST
 
-public class RelayCache {
-    /// The default cache file location bound by app group container.
-    public static func defaultCacheFileURL(
-        forSecurityApplicationGroupIdentifier appGroupIdentifier: String
-    ) -> URL? {
-        let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: appGroupIdentifier
-        )
+public final class RelayCache {
+    /// Cache file location.
+    let cacheFileURL: URL
 
-        return containerURL?.appendingPathComponent("relays.json")
+    /// Location of pre-bundled relays file.
+    let prebundledRelaysFileURL: URL
+
+    /// Initialize cache with default cache file location in app group container.
+    public init?(securityGroupIdentifier: String) {
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: securityGroupIdentifier
+        ), let prebundledRelaysFileURL = Bundle(for: Self.self)
+            .url(forResource: "relays", withExtension: "json") else { return nil }
+
+        cacheFileURL = containerURL.appendingPathComponent("relays.json", isDirectory: false)
+        self.prebundledRelaysFileURL = prebundledRelaysFileURL
     }
 
-    /// The path to pre-bundled `relays.json` file.
-    public static var preBundledRelaysFileURL: URL? {
-        return Bundle(for: Self.self).url(forResource: "relays", withExtension: "json")
+    /// Safely read the cache file from disk using file coordinator and fallback to prebundled
+    /// relays in case if the relay cache file is missing.
+    public func read() throws -> CachedRelays {
+        do {
+            return try readDiskCache()
+        } catch {
+            if error is DecodingError || (error as? CocoaError)?.code == .fileReadNoSuchFile {
+                return try readPrebundledRelays()
+            } else {
+                throw error
+            }
+        }
+    }
+
+    /// Safely write the cache file on disk using file coordinator.
+    public func write(record: CachedRelays) throws {
+        var result: Result<Void, Error>?
+        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+
+        let accessor = { (fileURLForWriting: URL) in
+            result = Result {
+                let data = try JSONEncoder().encode(record)
+                try data.write(to: fileURLForWriting)
+            }
+        }
+
+        var error: NSError?
+        fileCoordinator.coordinate(
+            writingItemAt: cacheFileURL,
+            options: [.forReplacing],
+            error: &error,
+            byAccessor: accessor
+        )
+
+        if let error = error {
+            result = .failure(error)
+        }
+
+        try result?.get()
     }
 
     /// Safely read the cache file from disk using file coordinator.
-    public static func read(cacheFileURL: URL) throws -> CachedRelays {
+    private func readDiskCache() throws -> CachedRelays {
         var result: Result<CachedRelays, Error>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
@@ -53,25 +95,9 @@ public class RelayCache {
         return try result!.get()
     }
 
-    /// Safely read the cache file from disk using file coordinator and fallback to prebundled
-    /// relays in case if the relay cache file is missing.
-    public static func readWithFallback(cacheFileURL: URL, preBundledRelaysFileURL: URL)
-        throws -> CachedRelays
-    {
-        do {
-            return try Self.read(cacheFileURL: cacheFileURL)
-        } catch {
-            if error is DecodingError || (error as? CocoaError)?.code == .fileReadNoSuchFile {
-                return try Self.readPrebundledRelays(fileURL: preBundledRelaysFileURL)
-            } else {
-                throw error
-            }
-        }
-    }
-
     /// Read pre-bundled relays file from disk.
-    public static func readPrebundledRelays(fileURL: URL) throws -> CachedRelays {
-        let data = try Data(contentsOf: fileURL)
+    private func readPrebundledRelays() throws -> CachedRelays {
+        let data = try Data(contentsOf: prebundledRelaysFileURL)
         let relays = try REST.Coding.makeJSONDecoder()
             .decode(REST.ServerRelaysResponse.self, from: data)
 
@@ -79,32 +105,5 @@ public class RelayCache {
             relays: relays,
             updatedAt: Date(timeIntervalSince1970: 0)
         )
-    }
-
-    /// Safely write the cache file on disk using file coordinator.
-    public static func write(cacheFileURL: URL, record: CachedRelays) throws {
-        var result: Result<Void, Error>?
-        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
-
-        let accessor = { (fileURLForWriting: URL) in
-            result = Result {
-                let data = try JSONEncoder().encode(record)
-                try data.write(to: fileURLForWriting)
-            }
-        }
-
-        var error: NSError?
-        fileCoordinator.coordinate(
-            writingItemAt: cacheFileURL,
-            options: [.forReplacing],
-            error: &error,
-            byAccessor: accessor
-        )
-
-        if let error = error {
-            result = .failure(error)
-        }
-
-        try result?.get()
     }
 }
