@@ -13,6 +13,11 @@
 # for more information.
 
 # === Base image (built from: ../../Dockerfile) ===
+# NOTE: When bumping the base image, it's important to keep the go patch applied
+# in this image in sync with the go version used in the base image. An appropriate
+# patch for a given go version can be identified by checking the wireguard-android
+# repo: https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go.
+# It's also important to keep the go path in sync.
 FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:b539c83c4336246fef1c324242b49b0fd35fb0839dffd2b9c9fc8361e629a40c
 
 # === Metadata ===
@@ -83,7 +88,7 @@ RUN curl -sfLo /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk
     rm /tmp/ndk.zip
 
 # Apply go patch required for Android
-# NOTE: The go path must match the one used in the base image.
+# See the comment above the FROM instruction for more information.
 COPY goruntime-boottime-over-monotonic.diff /tmp/goruntime-boottime-over-monotonic.diff
 RUN patch -p1 -f -N -r- -d /usr/local/go < /tmp/goruntime-boottime-over-monotonic.diff && \
     rm /tmp/goruntime-boottime-over-monotonic.diff
