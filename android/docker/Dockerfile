@@ -44,6 +44,26 @@ ENV ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${NDK_VERSION}
 ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
 ENV GRADLE_USER_HOME=/root/.gradle
 
+# Rust cross-compilation for: aarch64
+ENV AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-ar \
+    CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang \
+    CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang
+
+# Rust cross-compilation for: armv7
+ENV AR_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-ar \
+    CC_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi${MIN_SDK_VERSION}-clang \
+    CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi${MIN_SDK_VERSION}-clang
+
+# Rust cross-compilation for: i686
+ENV AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android-ar \
+    CC_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android${MIN_SDK_VERSION}-clang \
+    CARGO_TARGET_I686_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/i686-linux-android${MIN_SDK_VERSION}-clang
+
+# Rust cross-compilation for: x86_64
+ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-ar \
+    CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang \
+    CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang
+
 # === Install/set up the image ===
 
 RUN apt-get update -y && apt-get install -y \
@@ -86,8 +106,6 @@ RUN patch -p1 -f -N -r- -d /usr/local/go < /tmp/goruntime-boottime-over-monotoni
     rm /tmp/goruntime-boottime-over-monotonic.diff
 
 # Add rust targets
-# NOTE: The config.toml overrides the one created in the base image.
-COPY cargo-config.toml /root/.cargo/config.toml
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
 
 WORKDIR /build
