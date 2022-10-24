@@ -12,41 +12,11 @@ import MullvadTypes
 
 extension REST {
     public final class AddressCache {
-        public static let shared: AddressCache = {
-            let cacheFilename = "api-ip-address.json"
-            let cacheDirectoryURL = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first!
-            let cacheFileURL = cacheDirectoryURL.appendingPathComponent(
-                cacheFilename,
-                isDirectory: false
-            )
-            let prebundledCacheFileURL = Bundle(for: AddressCache.self).url(
-                forResource: cacheFilename,
-                withExtension: nil
-            )!
-
-            return AddressCache(
-                cacheFileURL: cacheFileURL,
-                prebundledCacheFileURL: prebundledCacheFileURL
-            )
-        }()
-
-        static var defaultCachedAddresses: CachedAddresses {
-            return CachedAddresses(
-                updatedAt: Date(timeIntervalSince1970: 0),
-                endpoints: [
-                    REST.defaultAPIEndpoint,
-                ]
-            )
-        }
-
         /// Logger.
-        private let logger = Logger(label: "AddressCache.Store")
+        private let logger = Logger(label: "AddressCache")
 
         /// Memory cache.
-        private var cachedAddresses: CachedAddresses
+        private var cachedAddresses: CachedAddresses = defaultCachedAddresses
 
         /// Cache file location.
         private let cacheFileURL: URL
@@ -57,50 +27,35 @@ extension REST {
         /// Lock used for synchronizing access to instance members.
         private let nslock = NSLock()
 
-        /// Designated initializer
-        public init(cacheFileURL: URL, prebundledCacheFileURL: URL) {
+        /// Whether address cache is in readonly mode.
+        private var isReadOnly: Bool
+
+        private static let defaultCachedAddresses = CachedAddresses(
+            updatedAt: Date(timeIntervalSince1970: 0),
+            endpoints: [REST.defaultAPIEndpoint]
+        )
+
+        /// Designated initializer.
+        public init?(securityGroupIdentifier: String, isReadOnly: Bool) {
+            let cacheFilename = "api-ip-address.json"
+
+            guard let containerURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: securityGroupIdentifier
+            ), let prebundledCacheFileURL = Bundle(for: AddressCache.self).url(
+                forResource: cacheFilename,
+                withExtension: nil
+            ) else { return nil }
+
+            let cacheFileURL = containerURL.appendingPathComponent(
+                cacheFilename,
+                isDirectory: false
+            )
+
             self.cacheFileURL = cacheFileURL
             self.prebundledCacheFileURL = prebundledCacheFileURL
+            self.isReadOnly = isReadOnly
 
-            do {
-                let readResult = try Self.readFromCacheLocationWithFallback(
-                    cacheFileURL: cacheFileURL,
-                    prebundledCacheFileURL: prebundledCacheFileURL,
-                    logger: logger
-                )
-
-                switch readResult.source {
-                case .disk:
-                    cachedAddresses = readResult.cachedAddresses
-
-                case .bundle:
-                    var addresses = readResult.cachedAddresses
-                    addresses.endpoints.shuffle()
-                    cachedAddresses = addresses
-
-                    logger.debug("Persist address list read from bundle.")
-
-                    do {
-                        try writeToDisk()
-                    } catch {
-                        logger.error(
-                            error: error,
-                            message: "Failed to persist address cache after reading it from bundle."
-                        )
-                    }
-                }
-
-                logger.debug(
-                    """
-                    Initialized cache from \(readResult.source) with \
-                    \(cachedAddresses.endpoints.count) endpoint(s).
-                    """
-                )
-            } catch {
-                logger.debug("Initialized cache with default API endpoint.")
-
-                cachedAddresses = Self.defaultCachedAddresses
-            }
+            initCache()
         }
 
         public func getCurrentEndpoint() -> AnyIPEndpoint {
@@ -122,20 +77,25 @@ extension REST {
             cachedAddresses.endpoints.removeFirst()
             cachedAddresses.endpoints.append(failedEndpoint)
 
+            if isReadOnly {
+                refreshAddresses()
+            }
+
             currentEndpoint = cachedAddresses.endpoints.first!
 
-            logger
-                .debug(
-                    "Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)"
-                )
+            logger.debug(
+                "Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)"
+            )
 
-            do {
-                try writeToDisk()
-            } catch {
-                logger.error(
-                    error: error,
-                    message: "Failed to write address cache after selecting next endpoint."
-                )
+            if !isReadOnly {
+                do {
+                    try writeToDisk()
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to write address cache after selecting next endpoint."
+                    )
+                }
             }
 
             return currentEndpoint
@@ -168,13 +128,15 @@ extension REST {
                 )
             }
 
-            do {
-                try writeToDisk()
-            } catch {
-                logger.error(
-                    error: error,
-                    message: "Failed to write address cache after setting new endpoints."
-                )
+            if !isReadOnly {
+                do {
+                    try writeToDisk()
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to write address cache after setting new endpoints."
+                    )
+                }
             }
         }
 
@@ -187,20 +149,53 @@ extension REST {
 
         // MARK: - Private
 
-        private static func readFromCacheLocationWithFallback(
-            cacheFileURL: URL,
-            prebundledCacheFileURL: URL,
-            logger: Logger
-        ) throws -> ReadResult {
+        private func initCache() {
             do {
-                let readResult = ReadResult(
-                    cachedAddresses: try readFromCacheLocation(cacheFileURL),
-                    source: .disk
-                )
+                try initCacheInner()
+            } catch {
+                logger.debug("Initialized cache with default API endpoint.")
 
-                try checkReadResultContainsEndpoints(readResult)
+                cachedAddresses = Self.defaultCachedAddresses
+            }
+        }
 
-                return readResult
+        private func initCacheInner() throws {
+            let readResult = try readFromCacheLocationWithFallback()
+
+            switch readResult.source {
+            case .disk:
+                cachedAddresses = readResult.cachedAddresses
+
+            case .bundle:
+                var addresses = readResult.cachedAddresses
+                addresses.endpoints.shuffle()
+                cachedAddresses = addresses
+
+                if !isReadOnly {
+                    logger.debug("Persist address list read from bundle.")
+
+                    do {
+                        try writeToDisk()
+                    } catch {
+                        logger.error(
+                            error: error,
+                            message: "Failed to persist address cache after reading it from bundle."
+                        )
+                    }
+                }
+            }
+
+            logger.debug(
+                """
+                Initialized cache from \(readResult.source) with \
+                \(cachedAddresses.endpoints.count) endpoint(s).
+                """
+            )
+        }
+
+        private func readFromCacheLocationWithFallback() throws -> ReadResult {
+            do {
+                return try readFromCacheLocation()
             } catch {
                 logger.error(
                     error: error,
@@ -208,14 +203,7 @@ extension REST {
                 )
 
                 do {
-                    let readResult = ReadResult(
-                        cachedAddresses: try readFromBundle(prebundledCacheFileURL),
-                        source: .bundle
-                    )
-
-                    try checkReadResultContainsEndpoints(readResult)
-
-                    return readResult
+                    return try readFromBundle()
                 } catch {
                     logger.error(
                         error: error,
@@ -227,41 +215,101 @@ extension REST {
             }
         }
 
-        private static func checkReadResultContainsEndpoints(_ readResult: ReadResult) throws {
-            if readResult.cachedAddresses.endpoints.isEmpty {
-                throw EmptyCacheError(source: readResult.source)
+        private func readFromCacheLocation() throws -> ReadResult {
+            var result: Result<ReadResult, Swift.Error>?
+            let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+
+            let accessor = { (fileURL: URL) in
+                result = Result {
+                    let data = try Data(contentsOf: fileURL)
+                    let cachedAddresses = try JSONDecoder().decode(CachedAddresses.self, from: data)
+
+                    if cachedAddresses.endpoints.isEmpty {
+                        throw EmptyCacheError(source: .disk)
+                    }
+
+                    return ReadResult(cachedAddresses: cachedAddresses, source: .disk)
+                }
             }
+
+            var error: NSError?
+            fileCoordinator.coordinate(
+                readingItemAt: cacheFileURL,
+                options: .withoutChanges,
+                error: &error,
+                byAccessor: accessor
+            )
+
+            if let error = error {
+                result = .failure(error)
+            }
+
+            return try result!.get()
         }
 
-        private static func readFromCacheLocation(_ cacheFileURL: URL) throws -> CachedAddresses {
-            let data = try Data(contentsOf: cacheFileURL)
-
-            return try JSONDecoder().decode(CachedAddresses.self, from: data)
-        }
-
-        private static func readFromBundle(_ prebundledCacheFileURL: URL) throws
-            -> CachedAddresses
-        {
+        private func readFromBundle() throws -> ReadResult {
             let data = try Data(contentsOf: prebundledCacheFileURL)
             let endpoints = try JSONDecoder().decode([AnyIPEndpoint].self, from: data)
 
-            return CachedAddresses(
+            let cachedAddresses = CachedAddresses(
                 updatedAt: Date(timeIntervalSince1970: 0),
                 endpoints: endpoints
             )
+
+            if cachedAddresses.endpoints.isEmpty {
+                throw EmptyCacheError(source: .bundle)
+            }
+
+            return ReadResult(cachedAddresses: cachedAddresses, source: .bundle)
         }
 
         private func writeToDisk() throws {
-            let cacheDirectoryURL = cacheFileURL.deletingLastPathComponent()
+            precondition(!isReadOnly)
 
-            try? FileManager.default.createDirectory(
-                at: cacheDirectoryURL,
-                withIntermediateDirectories: true,
-                attributes: nil
+            var result: Result<Void, Swift.Error>?
+            let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+
+            let accessor = { (fileURL: URL) in
+                result = Result {
+                    let data = try JSONEncoder().encode(self.cachedAddresses)
+                    try data.write(to: fileURL)
+                }
+            }
+
+            var error: NSError?
+            fileCoordinator.coordinate(
+                writingItemAt: cacheFileURL,
+                options: [.forReplacing],
+                error: &error,
+                byAccessor: accessor
             )
 
-            let data = try JSONEncoder().encode(cachedAddresses)
-            try data.write(to: cacheFileURL, options: .atomic)
+            if let error = error {
+                result = .failure(error)
+            }
+
+            return try result!.get()
+        }
+
+        private func refreshAddresses() {
+            do {
+                let readResult = try readFromCacheLocation()
+                var newCachedAddresses = readResult.cachedAddresses
+
+                guard Set(newCachedAddresses.endpoints) != Set(cachedAddresses.endpoints)
+                else { return }
+
+                // Move current endpoint to the top of the list
+                let currentEndpoint = cachedAddresses.endpoints.first!
+                if let index = newCachedAddresses.endpoints.firstIndex(of: currentEndpoint) {
+                    newCachedAddresses.endpoints.remove(at: index)
+                    newCachedAddresses.endpoints.insert(currentEndpoint, at: 0)
+                }
+
+                cachedAddresses = newCachedAddresses
+            } catch {
+                logger.error(error: error, message: "Failed to refresh address cache from disk.")
+            }
         }
     }
 
