@@ -40,6 +40,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Last runtime error.
     private var lastError: Error?
 
+    /// Relay cache.
+    private let relayCache = RelayCache(
+        securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
+    )!
+
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
 
@@ -363,7 +368,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         switch nextRelay {
         case .automatic:
-            selectorResult = try Self.selectRelayEndpoint(
+            selectorResult = try selectRelayEndpoint(
                 relayConstraints: tunnelSettings.relayConstraints
             )
         case let .set(aSelectorResult):
@@ -436,17 +441,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Load relay cache with potential networking to refresh the cache and pick the relay for the
     /// given relay constraints.
-    private class func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
+    private func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
         -> RelaySelectorResult
     {
-        let cacheFileURL = RelayCache.defaultCacheFileURL(
-            forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
-        )!
-        let prebundledRelaysURL = RelayCache.preBundledRelaysFileURL!
-        let cachedRelayList = try RelayCache.readWithFallback(
-            cacheFileURL: cacheFileURL,
-            preBundledRelaysFileURL: prebundledRelaysURL
-        )
+        let cachedRelayList = try relayCache.read()
 
         return try RelaySelector.evaluate(
             relays: cachedRelayList.relays,
