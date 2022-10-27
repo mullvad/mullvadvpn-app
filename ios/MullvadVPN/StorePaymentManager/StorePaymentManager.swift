@@ -19,6 +19,13 @@ class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         static let productsRequest = "StorePaymentManager.productsRequest"
     }
 
+    /// A shared instance of `AppStorePaymentManager`
+    static let shared = StorePaymentManager(
+        queue: SKPaymentQueue.default(),
+        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
+        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy()
+    )
+
     private let logger = Logger(label: "StorePaymentManager")
 
     private let operationQueue: OperationQueue = {
