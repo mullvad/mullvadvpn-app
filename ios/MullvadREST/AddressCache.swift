@@ -12,6 +12,11 @@ import MullvadTypes
 
 extension REST {
     public final class AddressCache {
+        public static let shared = AddressCache(
+            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
+            isReadOnly: false
+        )!
+
         /// Logger.
         private let logger = Logger(label: "AddressCache")
 
