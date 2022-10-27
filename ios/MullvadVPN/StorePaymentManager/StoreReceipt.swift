@@ -1,5 +1,5 @@
 //
-//  AppStoreReceipt.swift
+//  StoreReceipt.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 11/03/2020.
@@ -12,17 +12,17 @@ import MullvadTypes
 import Operations
 import StoreKit
 
-struct AppStoreReceiptNotFound: LocalizedError {
+struct StoreReceiptNotFound: LocalizedError {
     var errorDescription: String? {
         return "AppStore receipt file does not exist on disk."
     }
 }
 
-enum AppStoreReceipt {
+enum StoreReceipt {
     /// Internal operation queue.
     private static let operationQueue: OperationQueue = {
         let queue = AsyncOperationQueue()
-        queue.name = "AppStoreReceiptQueue"
+        queue.name = "StoreReceiptQueue"
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
@@ -86,7 +86,7 @@ private class FetchAppStoreReceiptOperation: ResultOperation<Data, Error>, SKReq
             let data = try readReceiptFromDisk()
 
             finish(completion: .success(data))
-        } catch is AppStoreReceiptNotFound {
+        } catch is StoreReceiptNotFound {
             // Pull receipt from AppStore if it's not cached locally.
             startRefreshRequest()
         } catch {
@@ -139,7 +139,7 @@ private class FetchAppStoreReceiptOperation: ResultOperation<Data, Error>, SKReq
 
     private func readReceiptFromDisk() throws -> Data {
         guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
-            throw AppStoreReceiptNotFound()
+            throw StoreReceiptNotFound()
         }
 
         do {
@@ -147,7 +147,7 @@ private class FetchAppStoreReceiptOperation: ResultOperation<Data, Error>, SKReq
         } catch let error as CocoaError
             where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
         {
-            throw AppStoreReceiptNotFound()
+            throw StoreReceiptNotFound()
         } catch {
             throw error
         }

@@ -1,5 +1,5 @@
 //
-//  SendAppStoreReceiptOperation.swift
+//  SendStoreReceiptOperation.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 29/03/2022.
@@ -12,9 +12,9 @@ import MullvadREST
 import MullvadTypes
 import Operations
 
-class SendAppStoreReceiptOperation: ResultOperation<
+class SendStoreReceiptOperation: ResultOperation<
     REST.CreateApplePaymentResponse,
-    AppStorePaymentManager.Error
+    StorePaymentManagerError
 > {
     private let apiProxy: REST.APIProxy
     private let accountToken: String
@@ -23,7 +23,7 @@ class SendAppStoreReceiptOperation: ResultOperation<
     private var fetchReceiptTask: Cancellable?
     private var submitReceiptTask: Cancellable?
 
-    private let logger = Logger(label: "SendAppStoreReceiptOperation")
+    private let logger = Logger(label: "SendStoreReceiptOperation")
 
     init(
         apiProxy: REST.APIProxy,
@@ -53,7 +53,7 @@ class SendAppStoreReceiptOperation: ResultOperation<
     }
 
     override func main() {
-        fetchReceiptTask = AppStoreReceipt.fetch(
+        fetchReceiptTask = StoreReceipt.fetch(
             forceRefresh: forceRefresh,
             receiptProperties: receiptProperties
         ) { completion in
@@ -82,10 +82,13 @@ class SendAppStoreReceiptOperation: ResultOperation<
         ) { result in
             switch result {
             case let .success(response):
-                self.logger
-                    .info(
-                        "AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry.logFormatDate())"
-                    )
+                self.logger.info(
+                    """
+                    AppStore receipt was processed. \
+                    Time added: \(response.timeAdded), \
+                    New expiry: \(response.newExpiry.logFormatDate())
+                    """
+                )
                 self.finish(completion: .success(response))
 
             case let .failure(error):
