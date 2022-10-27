@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
 
+#### Linux
+- Remove last filesystem dependency of early boot blocking unit.
+
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
