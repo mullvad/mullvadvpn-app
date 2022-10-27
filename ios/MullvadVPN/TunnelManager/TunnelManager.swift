@@ -960,30 +960,22 @@ final class TunnelManager {
 
 // MARK: - AppStore payment observer
 
-extension TunnelManager: AppStorePaymentObserver {
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
-        transaction: SKPaymentTransaction?,
-        payment: SKPayment,
-        accountToken: String?,
-        didFailWithError error: AppStorePaymentManager.Error
+extension TunnelManager: StorePaymentObserver {
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didReceiveEvent event: StorePaymentEvent
     ) {
-        // no-op
-    }
+        guard case let .finished(paymentCompletion) = event else {
+            return
+        }
 
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
-        transaction: SKPaymentTransaction,
-        accountToken: String,
-        didFinishWithResponse response: REST.CreateApplePaymentResponse
-    ) {
         scheduleDeviceStateUpdate(
             taskName: "Update account expiry after in-app purchase",
             modificationBlock: { deviceState in
                 switch deviceState {
                 case .loggedIn(var accountData, let deviceData):
-                    if accountData.number == accountToken {
-                        accountData.expiry = response.newExpiry
+                    if accountData.number == paymentCompletion.accountNumber {
+                        accountData.expiry = paymentCompletion.serverResponse.newExpiry
                         deviceState = .loggedIn(accountData, deviceData)
                     }
 

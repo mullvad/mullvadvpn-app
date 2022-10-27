@@ -107,7 +107,7 @@ extension SKError: LocalizedError {
     }
 }
 
-extension AppStorePaymentManager.Error: DisplayChainedError {
+extension StorePaymentManagerError: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
         case .noAccountSet:
@@ -144,7 +144,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             }
 
         case let .readReceipt(readReceiptError):
-            if readReceiptError is AppStoreReceiptNotFound {
+            if readReceiptError is StoreReceiptNotFound {
                 return NSLocalizedString(
                     "RECEIPT_NOT_FOUND_ERROR",
                     tableName: "AppStorePaymentManager",
