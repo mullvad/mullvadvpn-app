@@ -53,6 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
+        addApplicationNotifications(application: application)
 
         let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             TunnelManager.shared.loadConfiguration { error in
@@ -115,6 +116,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to
         // the discarded scenes, as they will not return.
+    }
+
+    // MARK: - Notifications
+
+    @objc private func didBecomeActive(_ notification: Notification) {
+        TunnelManager.shared.refreshTunnelStatus()
+        TunnelManager.shared.startPeriodicPrivateKeyRotation()
+        RelayCacheTracker.shared.startPeriodicUpdates()
+        AddressCacheTracker.shared.startPeriodicUpdates()
+    }
+
+    @objc private func willResignActive(_ notification: Notification) {
+        TunnelManager.shared.stopPeriodicPrivateKeyRotation()
+        RelayCacheTracker.shared.stopPeriodicUpdates()
+        AddressCacheTracker.shared.stopPeriodicUpdates()
+    }
+
+    @objc private func didEnterBackground(_ notification: Notification) {
+        scheduleBackgroundTasks()
     }
 
     // MARK: - Background tasks
@@ -194,7 +214,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    func scheduleBackgroundTasks() {
+    private func scheduleBackgroundTasks() {
         scheduleAppRefreshTask()
         scheduleKeyRotationTask()
         scheduleAddressCacheUpdateTask()
@@ -265,6 +285,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Private
+
+    private func addApplicationNotifications(application: UIApplication) {
+        let notificationCenter = NotificationCenter.default
+
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(didBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification,
+            object: application
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(willResignActive(_:)),
+            name: UIApplication.willResignActiveNotification,
+            object: application
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(didEnterBackground(_:)),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: application
+        )
+    }
 
     private func setupPaymentHandler() {
         StorePaymentManager.shared.delegate = self
