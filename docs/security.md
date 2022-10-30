@@ -33,9 +33,11 @@ An app with permission to act as a VPN service can request to open a VPN tunnel 
 provide a set of IP networks it would like to have routed via itself. Doing so and specifying
 the routes `0/0` and `::0/0` forces all traffic, except some
 [exempt by the system](#exempt-traffic), to go via the app. That is what this app does both when it
-has a VPN tunnel up, but also when in a state where it would like to block all network traffic. Such
+has a VPN tunnel up, but also when in a state where it would like to block all network traffic, such
 as the [connecting], [disconnecting] and [error] states. In these states, all outgoing packets are
-simply dropped, but incoming traffic is still allowed due to the limitations of Android.
+simply dropped. Incoming traffic is also blocked starting with Android 13 if the system is
+configured to "Block connections without VPN" via the system's settings for the particular VPN;
+otherwise, incoming traffic is allowed.
 
 #### Exempt traffic
 
