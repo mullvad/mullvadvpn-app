@@ -23,10 +23,24 @@ on:
     # Build if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
+    prepare:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Resolve container digest
+          id: resolve_container_digest
+          run: |
+            echo "inner_digest=$(cat ./dist-assets/android-container-image-digest.txt)" >> $GITHUB_OUTPUT
+        outputs:
+          container_image: "ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:${{ steps.resolve_container_digest.outputs.inner_digest }}"
+
     build:
+        needs: prepare
         runs-on: ubuntu-latest
         container:
-          image: ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:2efed8ce625375c3e60574bb4d35b0d80d7100ae8b5773d144812c7680ac247b
+          image: "${{ needs.prepare.outputs.container_image }}"
         steps:
             # Fix for HOME path overridden by GH runners when building in containers, see:
             # https://github.com/actions/runner/issues/863
