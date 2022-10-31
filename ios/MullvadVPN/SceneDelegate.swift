@@ -119,8 +119,6 @@ extension SceneDelegate: UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        TunnelManager.shared.refreshTunnelStatus()
-
         if isSceneConfigured {
             accountDataThrottling.requestUpdate(
                 condition: settingsNavController == nil
@@ -129,31 +127,18 @@ extension SceneDelegate: UIWindowSceneDelegate {
             )
         }
 
-        RelayCacheTracker.shared.startPeriodicUpdates()
-        TunnelManager.shared.startPeriodicPrivateKeyRotation()
-        AddressCacheTracker.shared.startPeriodicUpdates()
         ShortcutsManager.shared.updateVoiceShortcuts()
 
         setShowsPrivacyOverlay(false)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
-        RelayCacheTracker.shared.stopPeriodicUpdates()
-        TunnelManager.shared.stopPeriodicPrivateKeyRotation()
-        AddressCacheTracker.shared.stopPeriodicUpdates()
-
         setShowsPrivacyOverlay(true)
     }
 
-    func sceneWillEnterForeground(_ scene: UIScene) {
-        // no-op
-    }
+    func sceneWillEnterForeground(_ scene: UIScene) {}
 
-    func sceneDidEnterBackground(_ scene: UIScene) {
-        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-
-        appDelegate?.scheduleBackgroundTasks()
-    }
+    func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
 // MARK: - SettingsButtonInteractionDelegate
