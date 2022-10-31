@@ -32,7 +32,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - name: Checkout repository
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
 
         - name: Use custom container image if specified
           if: "${{ github.event.inputs.override_container_image != '' }}"
@@ -59,7 +59,7 @@ jobs:
               run: echo "HOME=/root" >> $GITHUB_ENV
 
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Calculate native lib cache hash
               id: native-lib-cache-hash
@@ -69,7 +69,7 @@ jobs:
                 echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
             - name: Cache native libraries
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               id: cache-native-libs
               with:
                 path: |
@@ -122,7 +122,7 @@ jobs:
                 execution-only-caches: true
 
             - name: Upload apks
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v3
               with:
                 name: apks
                 path: android/app/build/outputs/apk
@@ -139,14 +139,14 @@ jobs:
             fail-fast: false
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
-            - uses: actions/download-artifact@v2
+            - uses: actions/download-artifact@v3
               with:
                 name: apks
 
             - name: AVD cache
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               id: avd-cache
               with:
                 path: |
