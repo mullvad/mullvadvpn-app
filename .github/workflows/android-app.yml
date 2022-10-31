@@ -66,7 +66,7 @@ jobs:
               shell: bash
               run: |
                 non_android_hash="$(git grep --cached -l '' -- ':!android/' | xargs -d '\n' sha1sum | sha1sum | awk '{print $1}')"
-                echo "::set-output name=native_lib_hash::$non_android_hash"
+                echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
             - name: Cache native libraries
               uses: actions/cache@v2
