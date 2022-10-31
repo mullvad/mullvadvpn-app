@@ -64,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
-                AppStorePaymentManager.shared.startPaymentQueueMonitoring()
+                StorePaymentManager.shared.startPaymentQueueMonitoring()
 
                 operation.finish()
             }
@@ -267,8 +267,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Private
 
     private func setupPaymentHandler() {
-        AppStorePaymentManager.shared.delegate = self
-        AppStorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
+        StorePaymentManager.shared.delegate = self
+        StorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
     }
 
     private func setupNotificationHandler() {
@@ -282,9 +282,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 // MARK: - AppStorePaymentManagerDelegate
 
-extension AppDelegate: AppStorePaymentManagerDelegate {
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
+extension AppDelegate: StorePaymentManagerDelegate {
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
         didRequestAccountTokenFor payment: SKPayment
     ) -> String? {
         // Since we do not persist the relation between payment and account number between the

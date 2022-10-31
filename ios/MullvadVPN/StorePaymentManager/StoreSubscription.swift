@@ -1,6 +1,6 @@
 //
-//  AppStoreSubscription.swift
-//  AppStoreSubscription
+//  StoreSubscription.swift
+//  MullvadVPN
 //
 //  Created by pronebird on 03/09/2021.
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
@@ -9,7 +9,7 @@
 import Foundation
 import StoreKit
 
-enum AppStoreSubscription: String {
+enum StoreSubscription: String {
     /// Thirty days non-renewable subscription
     case thirtyDays = "net.mullvad.MullvadVPN.subscription.30days"
 
@@ -17,8 +17,8 @@ enum AppStoreSubscription: String {
         switch self {
         case .thirtyDays:
             return NSLocalizedString(
-                "APPSTORE_SUBSCRIPTION_TITLE_ADD_30_DAYS",
-                tableName: "AppStoreSubscriptions",
+                "STORE_SUBSCRIPTION_TITLE_ADD_30_DAYS",
+                tableName: "StoreSubscriptions",
                 value: "Add 30 days time",
                 comment: ""
             )
@@ -28,12 +28,12 @@ enum AppStoreSubscription: String {
 
 extension SKProduct {
     var customLocalizedTitle: String? {
-        return AppStoreSubscription(rawValue: productIdentifier)?.localizedTitle
+        return StoreSubscription(rawValue: productIdentifier)?.localizedTitle
     }
 }
 
-extension Set where Element == AppStoreSubscription {
+extension Set where Element == StoreSubscription {
     var productIdentifiersSet: Set<String> {
-        Set<String>(map { $0.rawValue })
+        return Set<String>(map { $0.rawValue })
     }
 }
