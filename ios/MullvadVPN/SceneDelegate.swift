@@ -51,22 +51,6 @@ class SceneDelegate: UIResponder {
         }
     }
 
-    func setupScene(windowFactory: WindowFactory) {
-        window = windowFactory.create()
-        window?.rootViewController = LaunchViewController()
-
-        privacyOverlayWindow = windowFactory.create()
-        privacyOverlayWindow?.rootViewController = LaunchViewController()
-        privacyOverlayWindow?.windowLevel = .alert + 1
-
-        window?.makeKeyAndVisible()
-
-        TunnelManager.shared.addObserver(self)
-        if TunnelManager.shared.isConfigurationLoaded {
-            configureScene()
-        }
-    }
-
     func showUserAccount() {
         rootContainer.showSettings(navigateTo: .account, animated: true)
     }
@@ -103,8 +87,38 @@ class SceneDelegate: UIResponder {
             window?.makeKeyAndVisible()
         }
     }
+}
 
-    @objc private func sceneDidBecomeActive() {
+// MARK: - UIWindowSceneDelegate
+
+extension SceneDelegate: UIWindowSceneDelegate {
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = LaunchViewController()
+
+        privacyOverlayWindow = UIWindow(windowScene: windowScene)
+        privacyOverlayWindow?.rootViewController = LaunchViewController()
+        privacyOverlayWindow?.windowLevel = .alert + 1
+
+        window?.makeKeyAndVisible()
+
+        TunnelManager.shared.addObserver(self)
+        if TunnelManager.shared.isConfigurationLoaded {
+            configureScene()
+        }
+    }
+
+    func sceneDidDisconnect(_ scene: UIScene) {
+        // no-op
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
         TunnelManager.shared.refreshTunnelStatus()
 
         if isSceneConfigured {
@@ -123,7 +137,7 @@ class SceneDelegate: UIResponder {
         setShowsPrivacyOverlay(false)
     }
 
-    @objc private func sceneWillResignActive() {
+    func sceneWillResignActive(_ scene: UIScene) {
         RelayCacheTracker.shared.stopPeriodicUpdates()
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
         AddressCacheTracker.shared.stopPeriodicUpdates()
@@ -131,44 +145,14 @@ class SceneDelegate: UIResponder {
         setShowsPrivacyOverlay(true)
     }
 
-    @objc private func sceneDidEnterBackground() {
-        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-
-        appDelegate?.scheduleBackgroundTasks()
-    }
-}
-
-// MARK: - UIWindowSceneDelegate
-
-extension SceneDelegate: UIWindowSceneDelegate {
-    func scene(
-        _ scene: UIScene,
-        willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
-    ) {
-        guard let windowScene = scene as? UIWindowScene else { return }
-
-        setupScene(windowFactory: SceneWindowFactory(windowScene: windowScene))
-    }
-
-    func sceneDidDisconnect(_ scene: UIScene) {
-        // no-op
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        sceneDidBecomeActive()
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        sceneWillResignActive()
-    }
-
     func sceneWillEnterForeground(_ scene: UIScene) {
         // no-op
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        sceneDidEnterBackground()
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+
+        appDelegate?.scheduleBackgroundTasks()
     }
 }
 
@@ -968,25 +952,5 @@ extension SceneDelegate: UISplitViewControllerDelegate {
             selectLocationViewController?.dismiss(animated: false)
         }
         return nil
-    }
-}
-
-// MARK: - Window factory
-
-protocol WindowFactory {
-    func create() -> UIWindow
-}
-
-struct ClassicWindowFactory: WindowFactory {
-    func create() -> UIWindow {
-        return UIWindow(frame: UIScreen.main.bounds)
-    }
-}
-
-struct SceneWindowFactory: WindowFactory {
-    let windowScene: UIWindowScene
-
-    func create() -> UIWindow {
-        return UIWindow(windowScene: windowScene)
     }
 }
