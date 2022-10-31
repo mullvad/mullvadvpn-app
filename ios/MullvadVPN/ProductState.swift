@@ -11,7 +11,7 @@ import StoreKit
 
 enum ProductState {
     case none
-    case fetching(AppStoreSubscription)
+    case fetching(StoreSubscription)
     case received(SKProduct)
     case failed
     case cannotMakePurchases
