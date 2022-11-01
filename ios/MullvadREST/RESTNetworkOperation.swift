@@ -281,8 +281,23 @@ extension REST {
             // Increment retry count.
             retryCount += 1
 
-            // Retry immediatly if retry delay is set to never.
-            guard retryStrategy.retryDelay != .never else {
+            switch retryStrategy.retryDelay {
+            case let .constant(retryDelay):
+                setTimer(retryDelay: retryDelay)
+
+            case var .recursiveDelay(iterator):
+                guard let retryDelay = iterator.next() else {
+                    finish(completion: .cancelled)
+                    return
+                }
+
+                setTimer(retryDelay: retryDelay)
+            }
+        }
+
+        private func setTimer(retryDelay: DispatchTimeInterval) {
+            // Retry immediately if retry delay is set to never.
+            guard retryDelay != .never else {
                 startRequest()
                 return
             }
@@ -298,7 +313,7 @@ extension REST {
                 self?.finish(completion: .cancelled)
             }
 
-            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
+            timer.schedule(wallDeadline: .now() + retryDelay)
             timer.activate()
 
             retryTimer = timer

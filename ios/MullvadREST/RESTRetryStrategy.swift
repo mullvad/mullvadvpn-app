@@ -22,11 +22,20 @@ extension REST {
         public static var noRetry = RetryStrategy(maxRetryCount: 0, retryDelay: .constant(.never))
 
         /// Startegy configured with 3 retry attempts with 2 seconds delay between.
-        public static var `default` = RetryStrategy(maxRetryCount: 3, retryDelay: .constant(.seconds(2)))
+        public static var `default` = RetryStrategy(
+            maxRetryCount: 3,
+            retryDelay: .constant(.seconds(2))
+        )
 
         /// Strategy configured with 10 retry attempts with 2 seconds delay between.
-        public static var aggressive = RetryStrategy(maxRetryCount: 10, retryDelay: .constant(.seconds(2)))
+        public static var aggressive = RetryStrategy(
+            maxRetryCount: 10,
+            retryDelay: .constant(.seconds(2))
+        )
 
-        public static var exponentialBackoffRecursiveDelay = RetryStrategy(maxRetryCount: 12, retryDelay: .recursiveDelay(RetryStrategy.ExponentialBackoff(base: 2, multiplier: 2)))
+        public static var exponentialBackoffRecursiveDelay = RetryStrategy(
+            maxRetryCount: 12,
+            retryDelay: .recursiveDelay(RetryStrategy.ExponentialBackoff(base: 2, multiplier: 2))
+        )
     }
 }
