@@ -126,7 +126,6 @@
 		584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */; };
 		584F99202902CBDD001F858D /* libRelaySelector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5898D29829017DAC00EB5EBA /* libRelaySelector.a */; };
 		584F99212902CF35001F858D /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
-		58505FFA290A7F0F00118C23 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		5856AD582902BE1A008E5127 /* PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */; };
 		5856AD592902BE1A008E5127 /* PacketTunnelStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
@@ -1117,13 +1116,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		585DA87526B0249A00B8C587 /* RelayCache */ = {
+		585DA87526B0249A00B8C587 /* RelayCacheTracker */ = {
 			isa = PBXGroup;
 			children = (
 				58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */,
 				58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */,
 			);
-			path = RelayCache;
+			path = RelayCacheTracker;
 			sourceTree = "<group>";
 		};
 		586A950B2901250A007BAF2B /* Operations */ = {
@@ -1332,8 +1331,8 @@
 				58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */,
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
-				585DA87526B0249A00B8C587 /* RelayCache */,
 				5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */,
+				585DA87526B0249A00B8C587 /* RelayCacheTracker */,
 				06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				580909D22876D09A0078138D /* RevokedDeviceViewController.swift */,
@@ -2027,7 +2026,6 @@
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
 				06799AED28F98E4800ACD94E /* RESTTransportRegistry.swift in Sources */,
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
-				58505FFA290A7F0F00118C23 /* ApplicationConfiguration.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
 				5897F1762914E62E00AF5695 /* Duration.swift in Sources */,
@@ -2214,8 +2212,8 @@
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
-				585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,
+				585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */,
 				584B17AB27637DE40057F3B8 /* ReconnectTunnelOperation.swift in Sources */,
 				5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */,
 				585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */,

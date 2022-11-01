@@ -6,19 +6,13 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
+import UIKit
 
 final class AddressCacheTracker {
-    /// Shared instance.
-    static let shared = AddressCacheTracker(
-        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
-        store: REST.AddressCache.shared
-    )
-
     /// Update interval (in seconds).
     private static let updateInterval: TimeInterval = 60 * 60 * 24
 
@@ -27,6 +21,7 @@ final class AddressCacheTracker {
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")
+    private let application: UIApplication
 
     /// REST API proxy.
     private let apiProxy: REST.APIProxy
@@ -54,7 +49,8 @@ final class AddressCacheTracker {
     private let nslock = NSLock()
 
     /// Designated initializer
-    private init(apiProxy: REST.APIProxy, store: REST.AddressCache) {
+    init(application: UIApplication, apiProxy: REST.APIProxy, store: REST.AddressCache) {
+        self.application = application
         self.apiProxy = apiProxy
         self.store = store
     }
@@ -120,7 +116,7 @@ final class AddressCacheTracker {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update endpoints",
                 cancelUponExpiration: true
             )

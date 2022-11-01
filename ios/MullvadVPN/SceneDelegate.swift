@@ -38,8 +38,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
     private var lastLoginAction: LoginAction?
-    private var accountDataThrottling = AccountDataThrottling()
+    private lazy var accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
+
     private var outOfTimeTimer: Timer?
+
+    private var appDelegate: AppDelegate {
+        return UIApplication.shared.delegate as! AppDelegate
+    }
+
+    private var storePaymentManager: StorePaymentManager {
+        return appDelegate.storePaymentManager
+    }
+
+    private var relayCacheTracker: RelayCacheTracker {
+        return appDelegate.relayCacheTracker
+    }
+
+    private var tunnelManager: TunnelManager {
+        return appDelegate.tunnelManager
+    }
+
+    private var apiProxy: REST.APIProxy {
+        return appDelegate.apiProxy
+    }
+
+    private var devicesProxy: REST.DevicesProxy {
+        return appDelegate.devicesProxy
+    }
 
     deinit {
         clearOutOfTimeTimer()
@@ -79,7 +104,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             fatalError()
         }
 
-        RelayCacheTracker.shared.addObserver(self)
+        relayCacheTracker.addObserver(self)
         NotificationManager.shared.delegate = self
 
         accountDataThrottling.requestUpdate(condition: .always)
@@ -113,15 +138,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
         window?.makeKeyAndVisible()
 
-        TunnelManager.shared.addObserver(self)
-        if TunnelManager.shared.isConfigurationLoaded {
+        tunnelManager.addObserver(self)
+        if tunnelManager.isConfigurationLoaded {
             configureScene()
         }
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-        // no-op
-    }
+    func sceneDidDisconnect(_ scene: UIScene) {}
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         if isSceneConfigured {
@@ -200,21 +223,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
         -> Bool
     {
-        guard TunnelManager.shared.deviceState.isLoggedIn else { return false }
+        guard tunnelManager.deviceState.isLoggedIn else { return false }
 
-        switch TunnelManager.shared.tunnelStatus.state {
+        switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity:
-            TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
+            tunnelManager.reconnectTunnel(selectNewRelay: true)
+
         case .disconnecting, .disconnected:
-            TunnelManager.shared.startTunnel()
+            tunnelManager.startTunnel()
+
         case .pendingReconnect:
             break
         }
+
         return true
     }
 
     private func setupPadUI() {
-        let tunnelManager = TunnelManager.shared
         let selectLocationController = makeSelectLocationController()
         let connectController = makeConnectViewController()
 
@@ -241,7 +266,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
             lazy var viewControllers: [UIViewController] = [self.makeLoginController()]
 
-            switch tunnelManager.deviceState {
+            switch self.tunnelManager.deviceState {
             case .loggedIn:
                 let didDismissModalRoot = {
                     self.handleExpiredAccount()
@@ -313,7 +338,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
             var viewControllers: [UIViewController] = [self.makeLoginController()]
 
-            switch TunnelManager.shared.deviceState {
+            switch self.tunnelManager.deviceState {
             case .loggedIn:
                 let connectController = self.makeConnectViewController()
                 self.connectController = connectController
@@ -346,9 +371,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     {
         let navController = SettingsNavigationController(
             interactorFactory: SettingsInteractorFactory(
-                storePaymentManager: .shared,
-                tunnelManager: .shared,
-                apiProxy: REST.ProxyFactory.shared.createAPIProxy()
+                storePaymentManager: storePaymentManager,
+                tunnelManager: tunnelManager,
+                apiProxy: apiProxy
             )
         )
         navController.settingsDelegate = self
@@ -370,8 +395,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private func makeOutOfTimeViewController() -> OutOfTimeViewController {
         let viewController = OutOfTimeViewController(
             interactor: OutOfTimeInteractor(
-                storePaymentManager: .shared,
-                tunnelManager: .shared
+                storePaymentManager: storePaymentManager,
+                tunnelManager: tunnelManager
             )
         )
         viewController.delegate = self
@@ -380,7 +405,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private func makeConnectViewController() -> ConnectViewController {
         let connectController = ConnectViewController(
-            interactor: ConnectInteractor(tunnelManager: .shared)
+            interactor: ConnectInteractor(tunnelManager: tunnelManager)
         )
         connectController.delegate = self
 
@@ -391,11 +416,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         let selectLocationController = SelectLocationViewController()
         selectLocationController.delegate = self
 
-        if let cachedRelays = try? RelayCacheTracker.shared.getCachedRelays() {
+        if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
             selectLocationController.setCachedRelays(cachedRelays)
         }
 
-        let relayConstraints = TunnelManager.shared.settings.relayConstraints
+        let relayConstraints = tunnelManager.settings.relayConstraints
 
         selectLocationController.setSelectedRelayLocation(
             relayConstraints.location.value,
@@ -426,7 +451,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private func makeRevokedDeviceController() -> RevokedDeviceViewController {
         let controller = RevokedDeviceViewController(
-            interactor: RevokedDeviceInteractor(tunnelManager: .shared)
+            interactor: RevokedDeviceInteractor(tunnelManager: tunnelManager)
         )
         controller.delegate = self
         return controller
@@ -439,7 +464,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     }
 
     private func handleExpiredAccount() {
-        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState,
+        guard case let .loggedIn(accountData, _) = tunnelManager.deviceState,
               accountData.expiry <= Date() else { return }
 
         switch UIDevice.current.userInterfaceIdiom {
@@ -571,7 +596,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     ) {
         setEnableSettingsButton(isEnabled: false, from: controller)
 
-        TunnelManager.shared.setAccount(action: action.setAccountAction) { operationCompletion in
+        tunnelManager.setAccount(action: action.setAccountAction) { operationCompletion in
             switch operationCompletion {
             case .success:
                 // RootContainer's settings button will be re-enabled in
@@ -587,7 +612,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
                     self.lastLoginAction = action
 
                     let deviceController = DeviceManagementViewController(
-                        interactor: DeviceManagementInteractor(accountNumber: accountNumber)
+                        interactor: DeviceManagementInteractor(
+                            accountNumber: accountNumber,
+                            devicesProxy: self.devicesProxy
+                        )
                     )
                     deviceController.delegate = self
 
@@ -621,7 +649,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         rootContainer.removeSettingsButtonFromPresentationContainer()
         setEnableSettingsButton(isEnabled: true, from: controller)
 
-        let relayConstraints = TunnelManager.shared.settings.relayConstraints
+        let relayConstraints = tunnelManager.settings.relayConstraints
         selectLocationViewController?.setSelectedRelayLocation(
             relayConstraints.location.value,
             animated: false,
@@ -650,7 +678,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private func setUpOutOfTimeTimer() {
         outOfTimeTimer?.invalidate()
 
-        guard case let .loggedIn(accountData, _) = TunnelManager.shared.deviceState,
+        guard case let .loggedIn(accountData, _) = tunnelManager.deviceState,
               accountData.expiry > Date() else { return }
 
         let timer = Timer(
@@ -778,15 +806,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private func selectLocationControllerDidSelectRelayLocation(_ relayLocation: RelayLocation) {
         let relayConstraints = RelayConstraints(location: .only(relayLocation))
 
-        TunnelManager.shared.setRelayConstraints(relayConstraints) {
-            TunnelManager.shared.startTunnel()
+        tunnelManager.setRelayConstraints(relayConstraints) {
+            self.tunnelManager.startTunnel()
         }
     }
 
     // MARK: - RevokedDeviceViewControllerDelegate
 
     func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController) {
-        TunnelManager.shared.unsetAccount { [weak self] in
+        tunnelManager.unsetAccount { [weak self] in
             self?.showLoginViewAfterLogout(dismissController: nil)
         }
     }

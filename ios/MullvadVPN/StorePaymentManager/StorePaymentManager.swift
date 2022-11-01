@@ -6,25 +6,18 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
 import StoreKit
+import UIKit
 
 final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private enum OperationCategory {
         static let sendStoreReceipt = "StorePaymentManager.sendStoreReceipt"
         static let productsRequest = "StorePaymentManager.productsRequest"
     }
-
-    /// A shared instance of `AppStorePaymentManager`
-    static let shared = StorePaymentManager(
-        queue: SKPaymentQueue.default(),
-        apiProxy: REST.ProxyFactory.shared.createAPIProxy(),
-        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy()
-    )
 
     private let logger = Logger(label: "StorePaymentManager")
 
@@ -34,6 +27,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return queue
     }()
 
+    private let application: UIApplication
     private let paymentQueue: SKPaymentQueue
     private let apiProxy: REST.APIProxy
     private let accountsProxy: REST.AccountsProxy
@@ -69,7 +63,13 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return SKPaymentQueue.canMakePayments()
     }
 
-    init(queue: SKPaymentQueue, apiProxy: REST.APIProxy, accountsProxy: REST.AccountsProxy) {
+    init(
+        application: UIApplication,
+        queue: SKPaymentQueue,
+        apiProxy: REST.APIProxy,
+        accountsProxy: REST.AccountsProxy
+    ) {
+        self.application = application
         paymentQueue = queue
         self.apiProxy = apiProxy
         self.accountsProxy = accountsProxy
@@ -201,7 +201,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
 
         accountOperation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Validate account number",
             cancelUponExpiration: false
         ))
@@ -240,7 +240,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Send AppStore receipt",
                 cancelUponExpiration: true
             )

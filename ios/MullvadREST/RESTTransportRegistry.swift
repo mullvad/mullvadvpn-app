@@ -10,12 +10,12 @@ import Foundation
 
 extension REST {
     public final class TransportRegistry {
-        public static let shared = TransportRegistry()
-
         private var transport: RESTTransport?
         private let nslock = NSLock()
 
-        private init() {}
+        public init(transport: RESTTransport?) {
+            self.transport = transport
+        }
 
         public func setTransport(_ transport: RESTTransport) {
             nslock.lock()

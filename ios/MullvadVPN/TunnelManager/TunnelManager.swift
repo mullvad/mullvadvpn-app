@@ -47,13 +47,9 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    static let shared = TunnelManager(
-        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
-        devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
-    )
-
     // MARK: - Internal variables
 
+    private let application: UIApplication
     private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
@@ -89,9 +85,14 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Initialization
 
-    private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+    init(
+        application: UIApplication,
+        relayCacheTracker: RelayCacheTracker,
+        accountsProxy: REST.AccountsProxy,
+        devicesProxy: REST.DevicesProxy
+    ) {
+        self.application = application
         self.relayCacheTracker = relayCacheTracker
-        self.relayCacheTracker = .shared
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -241,7 +242,7 @@ final class TunnelManager: StorePaymentObserver {
 
         groupOperation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Load tunnel configuration",
                 cancelUponExpiration: false
             )
@@ -294,7 +295,7 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Start tunnel",
             cancelUponExpiration: true
         ))
@@ -329,7 +330,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Stop tunnel",
             cancelUponExpiration: true
         ))
@@ -357,7 +358,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Reconnect tunnel",
                 cancelUponExpiration: true
             )
@@ -389,7 +390,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: action.taskName,
             cancelUponExpiration: true
         ))
@@ -427,7 +428,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update account data",
                 cancelUponExpiration: true
             )
@@ -463,7 +464,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update device data",
                 cancelUponExpiration: true
             )
@@ -518,7 +519,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
@@ -947,7 +948,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -983,7 +984,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
