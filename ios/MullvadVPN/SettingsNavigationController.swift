@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 enum SettingsNavigationRoute {
@@ -37,6 +36,8 @@ protocol SettingsNavigationControllerDelegate: AnyObject {
 class SettingsNavigationController: CustomNavigationController, SettingsViewControllerDelegate,
     AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate
 {
+    private let interactorFactory: SettingsInteractorFactory
+
     weak var settingsDelegate: SettingsNavigationControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
@@ -47,7 +48,9 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         return topViewController
     }
 
-    init() {
+    init(interactorFactory: SettingsInteractorFactory) {
+        self.interactorFactory = interactorFactory
+
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
         navigationBar.prefersLargeTitles = true
@@ -57,7 +60,7 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     }
 
     required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func willPop(navigationItem: UINavigationItem) {
@@ -102,23 +105,31 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController {
         switch route {
         case .root:
-            let settingsController = SettingsViewController()
-            settingsController.delegate = self
-            return settingsController
+            let controller = SettingsViewController(
+                interactor: interactorFactory.makeSettingsInteractor()
+            )
+            controller.delegate = self
+            return controller
 
         case .account:
-            let controller = AccountViewController()
+            let controller = AccountViewController(
+                interactor: interactorFactory.makeAccountInteractor()
+            )
             controller.delegate = self
             return controller
 
         case .preferences:
-            return PreferencesViewController()
+            return PreferencesViewController(
+                interactor: interactorFactory.makePreferencesInteractor()
+            )
 
         case .shortcuts:
             return ShortcutsViewController()
 
         case .problemReport:
-            return ProblemReportViewController()
+            return ProblemReportViewController(
+                interactor: interactorFactory.makeProblemReportInteractor()
+            )
         }
     }
 
