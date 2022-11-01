@@ -665,6 +665,21 @@ final class TunnelManager {
 
         _tunnelStatus = newTunnelStatus
 
+        if newTunnelStatus.packetTunnelStatus.isDeviceRevoked {
+            didDetectDeviceRevoked()
+        } else if let accountExpiry = newTunnelStatus.packetTunnelStatus.accountExpiry {
+            // checking for logged state and updating account data with new expiry
+            scheduleDeviceStateUpdate(
+                taskName: "Update account expiry",
+                reconnectTunnel: false
+            ) { deviceState in
+                if case .loggedIn(var accountData, let deviceData) = deviceState {
+                    accountData.expiry = accountExpiry
+                    deviceState = .loggedIn(accountData, deviceData)
+                }
+            } completionHandler: {}
+        }
+
         switch newTunnelStatus.state {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
@@ -895,6 +910,7 @@ final class TunnelManager {
 
     private func scheduleDeviceStateUpdate(
         taskName: String,
+        reconnectTunnel: Bool = true,
         modificationBlock: @escaping (inout DeviceState) -> Void,
         completionHandler: (() -> Void)?
     ) {
@@ -904,7 +920,10 @@ final class TunnelManager {
             modificationBlock(&deviceState)
 
             self.setDeviceState(deviceState, persist: true)
-            self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+
+            if reconnectTunnel {
+                self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+            }
         }
 
         operation.completionBlock = {
