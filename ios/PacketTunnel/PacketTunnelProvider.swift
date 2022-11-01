@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import Network
 import NetworkExtension
+import Operations
 import RelayCache
 import RelaySelector
 import TunnelProviderMessaging
@@ -36,6 +37,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Flag indicating whether network is reachable.
     private var isNetworkReachable = true
+
+    /// Flag indicating device is revoked or not.
+    public var isDeviceRevoked = false
+
+    /// Flag indicating that account expiry should be set again.
+    public var accountExpiry: Date?
+
+    /// Flag counting number of failed attempts happened.
+    private var numberOfFailedAttempts = 0
 
     /// Last runtime error.
     private var lastError: Error?
@@ -65,11 +75,23 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Tunnel monitor.
     private var tunnelMonitor: TunnelMonitor!
 
+    /// Account data request proxy
+    private lazy var accountProxy = REST.ProxyFactory.shared.createAccountsProxy()
+
+    /// Device data request proxy
+    private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
+
+    /// OperationQueue used for gathering account and device information from network requests and
+    /// unifying results in a single scope.
+    private let operationQueue = AsyncOperationQueue()
+
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
             lastError: lastError?.localizedDescription,
             isNetworkReachable: isNetworkReachable,
+            isDeviceRevoked: isDeviceRevoked,
+            accountExpiry: accountExpiry,
             tunnelRelay: selectorResult?.packetTunnelRelay
         )
     }
@@ -90,6 +112,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelLogger = Logger(label: "WireGuard")
 
         super.init()
+
+        REST.TransportRegistry.shared.setTransport(
+            URLSessionTransport(urlSession: urlSession)
+        )
 
         adapter = WireGuardAdapter(
             with: self,
@@ -307,6 +333,148 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelMonitor.onWake()
     }
 
+    private enum FailedToEstablishConnectionError: Error {
+        case unableToReadCredentials
+        case fetchingAccountDataFinishedWith(error: Error)
+        case fetchingDeviceDataFinishedWith(error: REST.Error)
+        case ranOutOfTime(newExpiry: Date)
+    }
+
+    private func createGetAccountDataOperation(accountNumber: String)
+        -> ResultOperation<REST.AccountData, REST.Error>
+    {
+        let operation = ResultBlockOperation<REST.AccountData, REST.Error>(
+            dispatchQueue: dispatchQueue
+        )
+
+        operation.setExecutionBlock { operation in
+            let task = self.accountProxy.getAccountData(
+                accountNumber: accountNumber,
+                retryStrategy: .noRetry
+            ) { completion in
+                operation.finish(completion: completion)
+            }
+
+            operation.addCancellationBlock {
+                task.cancel()
+            }
+        }
+
+        return operation
+    }
+
+    private func createGetDeviceDataOperation(accountNumber: String, identifier: String)
+        -> ResultOperation<REST.Device, REST.Error>
+    {
+        let operation = ResultBlockOperation<REST.Device, REST.Error>(dispatchQueue: dispatchQueue)
+
+        operation.setExecutionBlock { operation in
+            let task = self.deviceProxy.getDevice(
+                accountNumber: accountNumber,
+                identifier: identifier,
+                retryStrategy: .noRetry
+            ) { completion in
+                operation.finish(completion: completion)
+            }
+
+            operation.addCancellationBlock {
+                task.cancel()
+            }
+        }
+
+        return operation
+    }
+
+    private func verifyData(
+        accountNumber: String,
+        deviceIdentifier: String,
+        completion: @escaping (FailedToEstablishConnectionError?) -> Void
+    ) {
+        let accountOperation = createGetAccountDataOperation(accountNumber: accountNumber)
+        let deviceOperation = createGetDeviceDataOperation(
+            accountNumber: accountNumber,
+            identifier: deviceIdentifier
+        )
+
+        let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) {
+            let accountCompletion = accountOperation.completion
+            let deviceCompletion = deviceOperation.completion
+
+            if let accountData = accountCompletion?.value {
+                if accountData.expiry > Date() {
+                    completion(.ranOutOfTime(newExpiry: accountData.expiry))
+                }
+            }
+
+            if let deviceCompletionError = deviceCompletion?.error {
+                completion(.fetchingDeviceDataFinishedWith(error: deviceCompletionError))
+            }
+        }
+
+        completionOperation.addDependencies([accountOperation, deviceOperation])
+
+        operationQueue.addOperations(
+            [accountOperation, deviceOperation, completionOperation],
+            waitUntilFinished: false
+        )
+    }
+
+    // Introduce a new retry strategy with max amount
+    private func notifyGUIWithState(with failure: FailedToEstablishConnectionError) {
+        switch failure {
+        case .unableToReadCredentials:
+            providerLogger.debug("Unable to read credentials from keychain")
+
+        case .fetchingAccountDataFinishedWith:
+            // Attemp to Retry the request
+            break
+
+        case let .fetchingDeviceDataFinishedWith(error):
+            if error.compareErrorCode(.deviceNotFound) {
+                isDeviceRevoked = true
+            } else {
+                // Attemp to Retry the request
+            }
+
+        case let .ranOutOfTime(newExpiryDate):
+            // Pass new expiry to GUI
+            accountExpiry = newExpiryDate
+            // Stop monitoring tunnel
+            tunnelMonitor.stop()
+        }
+    }
+
+    private func startDiagnosticConnectionRecoveryFailingReason(
+        successCompletionHandler: @escaping () -> Void
+    ) {
+        providerLogger.debug("Failed to recover connection, started diagnostic process")
+
+        guard let deviceState = try? SettingsManager.readDeviceState(),
+              let accountData = deviceState.accountData,
+              let deviceIdentifier = deviceState.deviceData?.identifier
+        else {
+            notifyGUIWithState(with: .unableToReadCredentials)
+            return
+        }
+
+        verifyData(
+            accountNumber: accountData.number,
+            deviceIdentifier: deviceIdentifier
+        ) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .none:
+                self.numberOfFailedAttempts = 0
+
+            case let .some(failure):
+                self.notifyGUIWithState(with: failure)
+            }
+
+            self.providerLogger.debug("Recover connection. Picking next relay...")
+            self.reconnectTunnel(to: .automatic, completionHandler: successCompletionHandler)
+        }
+    }
+
     // MARK: - TunnelMonitorDelegate
 
     func tunnelMonitorDidDetermineConnectionEstablished(_ tunnelMonitor: TunnelMonitor) {
@@ -328,6 +496,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         shouldHandleConnectionRecoveryWithCompletion completionHandler: @escaping () -> Void
     ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        guard numberOfFailedAttempts.isMultiple(of: 2) else {
+            startDiagnosticConnectionRecoveryFailingReason(
+                successCompletionHandler: completionHandler
+            )
+            return
+        }
+
+        numberOfFailedAttempts += 1
 
         providerLogger.debug("Recover connection. Picking next relay...")
 

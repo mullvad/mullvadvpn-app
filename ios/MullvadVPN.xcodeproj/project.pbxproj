@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		061A2B67291121410084590B /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45AE28FD503000746E77 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45AD28FD503000746E77 /* WireGuardKit */; };
 		062B45B428FD508C00746E77 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45B328FD508C00746E77 /* Logging */; };
@@ -874,6 +875,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				061A2B67291121410084590B /* libOperations.a in Frameworks */,
 				5898D2AB2901845400EB5EBA /* libRelaySelector.a in Frameworks */,
 				5898D2AC2901845400EB5EBA /* libTunnelProviderMessaging.a in Frameworks */,
 				062B45B428FD508C00746E77 /* Logging in Frameworks */,
