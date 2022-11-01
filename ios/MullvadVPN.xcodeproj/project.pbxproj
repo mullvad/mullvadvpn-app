@@ -150,6 +150,7 @@
 		586A9516290133ED007BAF2B /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		586A95172901344A007BAF2B /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC115628F848D00037AF9A /* IPAddress+Codable.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
+		5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871167E2910035700D41AAC /* PreferencesInteractor.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
 		5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 5872631A283F6EAB00E14ADF /* Intents.intentdefinition */; };
@@ -634,6 +635,7 @@
 		586A95112901321B007BAF2B /* IPv6Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Endpoint.swift; sourceTree = "<group>"; };
 		586A951329013235007BAF2B /* AnyIPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPEndpoint.swift; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
+		5871167E2910035700D41AAC /* PreferencesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesInteractor.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
 		5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+IPAddress.swift"; sourceTree = "<group>"; };
 		5872631A283F6EAB00E14ADF /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
@@ -1293,6 +1295,7 @@
 				584D26C3270C855A004EA533 /* PreferencesDataSource.swift */,
 				587EB6732714520600123C75 /* PreferencesDataSourceDelegate.swift */,
 				58ACF6482655365700ACE4B7 /* PreferencesViewController.swift */,
+				5871167E2910035700D41AAC /* PreferencesInteractor.swift */,
 				587EB671271451E300123C75 /* PreferencesViewModel.swift */,
 				58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */,
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
@@ -2198,6 +2201,7 @@
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
+				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
