@@ -16,29 +16,29 @@ const SEND_RETRY_ATTEMPTS: u32 = 10;
 pub enum Error {
     /// Failed to open raw socket
     #[error(display = "Failed to open ICMP socket")]
-    OpenError(#[error(source)] io::Error),
+    Open(#[error(source)] io::Error),
 
     /// Failed to read from raw socket
     #[error(display = "Failed to read ICMP socket")]
-    ReadError(#[error(source)] io::Error),
+    Read(#[error(source)] io::Error),
 
     /// Failed to set socket options
     #[error(display = "Failed to set socket options")]
-    SocketOptError(#[error(source)] io::Error),
+    SocketOp(#[error(source)] io::Error),
 
     /// Failed to write to raw socket
     #[error(display = "Failed to write to socket")]
-    WriteError(#[error(source)] io::Error),
+    Write(#[error(source)] io::Error),
 
     /// Failed to get device index
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to obtain device index")]
-    DeviceIdxError(nix::errno::Errno),
+    DeviceIdx(nix::errno::Errno),
 
     /// Failed to bind socket to device by index
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to bind socket to device by index")]
-    BindSocketByDeviceError(io::Error),
+    BindSocketByDevice(io::Error),
 
     /// ICMP buffer too small
     #[error(display = "ICMP message buffer too small")]
@@ -64,13 +64,13 @@ impl Pinger {
         #[cfg(not(target_os = "windows"))] interface_name: String,
     ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
-        let sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))
-            .map_err(Error::OpenError)?;
-        sock.set_nonblocking(true).map_err(Error::OpenError)?;
+        let sock =
+            Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4)).map_err(Error::Open)?;
+        sock.set_nonblocking(true).map_err(Error::Open)?;
 
         #[cfg(target_os = "linux")]
         sock.bind_device(Some(interface_name.as_bytes()))
-            .map_err(Error::SocketOptError)?;
+            .map_err(Error::SocketOp)?;
 
         #[cfg(target_os = "macos")]
         Self::set_device_index(&sock, &interface_name)?;
@@ -85,12 +85,12 @@ impl Pinger {
 
     #[cfg(target_os = "macos")]
     fn set_device_index(socket: &Socket, interface_name: &str) -> Result<()> {
-        let index = nix::net::if_::if_nametoindex(interface_name).map_err(Error::DeviceIdxError)?;
+        let index = nix::net::if_::if_nametoindex(interface_name).map_err(Error::DeviceIdx)?;
         // Asserting that `index` is non-zero since otherwise `if_nametoindex` would have return
         // an error
         socket
             .bind_device_by_index(std::num::NonZeroU32::new(index))
-            .map_err(Error::BindSocketByDeviceError)?;
+            .map_err(Error::BindSocketByDevice)?;
 
         Ok(())
     }
@@ -105,9 +105,9 @@ impl Pinger {
                 }
                 Err(err) => {
                     if Some(10065) != err.raw_os_error() {
-                        return Err(Error::WriteError(err));
+                        return Err(Error::Write(err));
                     }
-                    result = Err(Error::WriteError(err));
+                    result = Err(Error::Write(err));
                 }
             }
             thread::sleep(Duration::from_secs(1));
