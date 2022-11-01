@@ -152,7 +152,7 @@ class SplitTunnelingFragmentTest : KoinTest {
         onView(withRecyclerView(R.id.recyclerView).atPositionOnView(0, R.id.itemText))
             .check(matches(withText("Test App Name")))
 
-        onView(withRecyclerView(R.id.recyclerView).atPosition(0)).perform(click())
+        onView(withRecyclerView(R.id.recyclerView).atPositionOnView(0)).perform(click())
 
         coVerifyAll {
             mockedViewModel.listItems
