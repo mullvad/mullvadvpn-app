@@ -34,7 +34,7 @@ private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager {
+final class TunnelManager: StorePaymentObserver {
     private enum OperationCategory: String {
         case manageTunnel
         case deviceStateUpdate
@@ -580,6 +580,34 @@ final class TunnelManager {
         observerList.remove(observer)
     }
 
+    // MARK: - StorePaymentObserver
+
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didReceiveEvent event: StorePaymentEvent
+    ) {
+        guard case let .finished(paymentCompletion) = event else {
+            return
+        }
+
+        scheduleDeviceStateUpdate(
+            taskName: "Update account expiry after in-app purchase",
+            modificationBlock: { deviceState in
+                switch deviceState {
+                case .loggedIn(var accountData, let deviceData):
+                    if accountData.number == paymentCompletion.accountNumber {
+                        accountData.expiry = paymentCompletion.serverResponse.newExpiry
+                        deviceState = .loggedIn(accountData, deviceData)
+                    }
+
+                case .loggedOut, .revoked:
+                    break
+                }
+            },
+            completionHandler: nil
+        )
+    }
+
     // MARK: - TunnelInteractor
 
     var isConfigurationLoaded: Bool {
@@ -983,36 +1011,6 @@ final class TunnelManager {
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = nil
         isPolling = false
-    }
-}
-
-// MARK: - AppStore payment observer
-
-extension TunnelManager: StorePaymentObserver {
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didReceiveEvent event: StorePaymentEvent
-    ) {
-        guard case let .finished(paymentCompletion) = event else {
-            return
-        }
-
-        scheduleDeviceStateUpdate(
-            taskName: "Update account expiry after in-app purchase",
-            modificationBlock: { deviceState in
-                switch deviceState {
-                case .loggedIn(var accountData, let deviceData):
-                    if accountData.number == paymentCompletion.accountNumber {
-                        accountData.expiry = paymentCompletion.serverResponse.newExpiry
-                        deviceState = .loggedIn(accountData, deviceData)
-                    }
-
-                case .loggedOut, .revoked:
-                    break
-                }
-            },
-            completionHandler: nil
-        )
     }
 }
 
