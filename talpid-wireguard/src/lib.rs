@@ -857,7 +857,7 @@ fn will_nm_manage_dns() -> bool {
 
     NetworkManager::new()
         .and_then(|nm| {
-            nm.can_be_used_to_manage_dns()?;
+            nm.ensure_can_be_used_to_manage_dns()?;
             Ok(true)
         })
         .unwrap_or(false)
