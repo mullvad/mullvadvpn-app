@@ -11,29 +11,32 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
+import StoreKit
 
 class SendStoreReceiptOperation: ResultOperation<
     REST.CreateApplePaymentResponse,
     StorePaymentManagerError
-> {
+>, SKRequestDelegate {
     private let apiProxy: REST.APIProxy
-    private let accountToken: String
+    private let accountNumber: String
+
     private let forceRefresh: Bool
     private let receiptProperties: [String: Any]?
-    private var fetchReceiptTask: Cancellable?
+    private var refreshRequest: SKReceiptRefreshRequest?
+
     private var submitReceiptTask: Cancellable?
 
     private let logger = Logger(label: "SendStoreReceiptOperation")
 
     init(
         apiProxy: REST.APIProxy,
-        accountToken: String,
+        accountNumber: String,
         forceRefresh: Bool,
         receiptProperties: [String: Any]?,
         completionHandler: @escaping CompletionHandler
     ) {
         self.apiProxy = apiProxy
-        self.accountToken = accountToken
+        self.accountNumber = accountNumber
         self.forceRefresh = forceRefresh
         self.receiptProperties = receiptProperties
 
@@ -45,42 +48,98 @@ class SendStoreReceiptOperation: ResultOperation<
     }
 
     override func operationDidCancel() {
-        fetchReceiptTask?.cancel()
-        fetchReceiptTask = nil
+        refreshRequest?.cancel()
+        refreshRequest = nil
 
         submitReceiptTask?.cancel()
         submitReceiptTask = nil
     }
 
     override func main() {
-        fetchReceiptTask = StoreReceipt.fetch(
-            forceRefresh: forceRefresh,
-            receiptProperties: receiptProperties
-        ) { completion in
-            switch completion {
-            case let .success(receiptData):
-                self.sendReceipt(receiptData)
+        // Pull receipt from AppStore if requested.
+        guard !forceRefresh else {
+            startRefreshRequest()
+            return
+        }
 
-            case let .failure(error):
+        // Read AppStore receipt from disk.
+        do {
+            let data = try readReceiptFromDisk()
+
+            sendReceipt(data)
+        } catch is StoreReceiptNotFound {
+            // Pull receipt from AppStore if it's not cached locally.
+            startRefreshRequest()
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to read the AppStore receipt."
+            )
+            finish(completion: .failure(.readReceipt(error)))
+        }
+    }
+
+    // - MARK: SKRequestDelegate
+
+    func requestDidFinish(_ request: SKRequest) {
+        dispatchQueue.async {
+            do {
+                let data = try self.readReceiptFromDisk()
+
+                self.sendReceipt(data)
+            } catch {
                 self.logger.error(
                     error: error,
-                    message: "Failed to fetch the AppStore receipt."
+                    message: "Failed to read the AppStore receipt after refresh."
                 )
                 self.finish(completion: .failure(.readReceipt(error)))
-
-            case .cancelled:
-                self.finish(completion: .cancelled)
             }
+        }
+    }
+
+    func request(_ request: SKRequest, didFailWithError error: Error) {
+        dispatchQueue.async {
+            self.logger.error(
+                error: error,
+                message: "Failed to refresh the AppStore receipt."
+            )
+            self.finish(completion: .failure(.readReceipt(error)))
+        }
+    }
+
+    // MARK: - Private
+
+    private func startRefreshRequest() {
+        let refreshRequest = SKReceiptRefreshRequest(receiptProperties: receiptProperties)
+        refreshRequest.delegate = self
+        refreshRequest.start()
+
+        self.refreshRequest = refreshRequest
+    }
+
+    private func readReceiptFromDisk() throws -> Data {
+        guard let appStoreReceiptURL = Bundle.main.appStoreReceiptURL else {
+            throw StoreReceiptNotFound()
+        }
+
+        do {
+            return try Data(contentsOf: appStoreReceiptURL)
+        } catch let error as CocoaError
+            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
+        {
+            throw StoreReceiptNotFound()
+        } catch {
+            throw error
         }
     }
 
     private func sendReceipt(_ receiptData: Data) {
         submitReceiptTask = apiProxy.createApplePayment(
-            accountNumber: accountToken,
+            accountNumber: accountNumber,
             receiptString: receiptData,
             retryStrategy: .noRetry
-        ) { result in
-            switch result {
+        ) { completion in
+            switch completion {
             case let .success(response):
                 self.logger.info(
                     """
@@ -103,5 +162,11 @@ class SendStoreReceiptOperation: ResultOperation<
                 self.finish(completion: .cancelled)
             }
         }
+    }
+}
+
+struct StoreReceiptNotFound: LocalizedError {
+    var errorDescription: String? {
+        return "AppStore receipt file does not exist on disk."
     }
 }

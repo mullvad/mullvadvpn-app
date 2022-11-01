@@ -148,14 +148,14 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     func restorePurchases(
-        for accountToken: String,
+        for accountNumber: String,
         completionHandler: @escaping (OperationCompletion<
             REST.CreateApplePaymentResponse,
             StorePaymentManagerError
         >) -> Void
     ) -> Cancellable {
         return sendStoreReceipt(
-            accountToken: accountToken,
+            accountNumber: accountNumber,
             forceRefresh: true,
             completionHandler: completionHandler
         )
@@ -220,17 +220,16 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     private func sendStoreReceipt(
-        accountToken: String,
+        accountNumber: String,
         forceRefresh: Bool,
         completionHandler: @escaping (OperationCompletion<
             REST.CreateApplePaymentResponse,
             StorePaymentManagerError
-        >)
-            -> Void
+        >) -> Void
     ) -> Cancellable {
         let operation = SendStoreReceiptOperation(
             apiProxy: apiProxy,
-            accountToken: accountToken,
+            accountNumber: accountNumber,
             forceRefresh: forceRefresh,
             receiptProperties: nil,
             completionHandler: completionHandler
@@ -315,7 +314,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     private func didFinishOrRestorePurchase(transaction: SKPaymentTransaction) {
-        guard let accountToken = deassociateAccountToken(transaction.payment) else {
+        guard let accountNumber = deassociateAccountToken(transaction.payment) else {
             let event = StorePaymentEvent.failure(
                 StorePaymentFailure(
                     transaction: transaction,
@@ -331,7 +330,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
             return
         }
 
-        _ = sendStoreReceipt(accountToken: accountToken, forceRefresh: false) { completion in
+        _ = sendStoreReceipt(accountNumber: accountNumber, forceRefresh: false) { completion in
             var event: StorePaymentEvent?
 
             switch completion {
@@ -340,7 +339,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
                 event = StorePaymentEvent.finished(StorePaymentCompletion(
                     transaction: transaction,
-                    accountNumber: accountToken,
+                    accountNumber: accountNumber,
                     serverResponse: response
                 ))
 
@@ -348,7 +347,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 event = StorePaymentEvent.failure(StorePaymentFailure(
                     transaction: transaction,
                     payment: transaction.payment,
-                    accountNumber: accountToken,
+                    accountNumber: accountNumber,
                     error: error
                 ))
 
