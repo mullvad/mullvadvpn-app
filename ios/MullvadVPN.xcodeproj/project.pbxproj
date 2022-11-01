@@ -137,6 +137,7 @@
 		585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770D29096984006F721F /* OutOfTimeInteractor.swift */; };
+		58677712290976FB006F721F /* SettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58677711290976FB006F721F /* SettingsInteractor.swift */; };
 		5867771429097BCD006F721F /* PaymentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771329097BCD006F721F /* PaymentState.swift */; };
 		5867771629097C5B006F721F /* ProductState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771529097C5B006F721F /* ProductState.swift */; };
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
@@ -628,6 +629,7 @@
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5867770D29096984006F721F /* OutOfTimeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimeInteractor.swift; sourceTree = "<group>"; };
+		58677711290976FB006F721F /* SettingsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInteractor.swift; sourceTree = "<group>"; };
 		5867771329097BCD006F721F /* PaymentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentState.swift; sourceTree = "<group>"; };
 		5867771529097C5B006F721F /* ProductState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductState.swift; sourceTree = "<group>"; };
 		5868585424054096000B8131 /* AppButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
@@ -1323,6 +1325,7 @@
 				584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
+				58677711290976FB006F721F /* SettingsInteractor.swift */,
 				75FD0C2028B108570021E33E /* ShortcutsDataSource.swift */,
 				75FD0C2228B109860021E33E /* ShortcutsDataSourceDelegate.swift */,
 				753D6C0B28B4BF3E0052D9E1 /* ShortcutsManager.swift */,
@@ -2160,6 +2163,7 @@
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
+				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* StoreReceipt.swift in Sources */,

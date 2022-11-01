@@ -23,9 +23,11 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
         return .lightContent
     }
 
-    private let dataSource = SettingsDataSource()
+    private let dataSource: SettingsDataSource
 
-    init() {
+    init(interactor: SettingsInteractor) {
+        dataSource = SettingsDataSource(interactor: interactor)
+
         super.init(style: .grouped)
     }
 
