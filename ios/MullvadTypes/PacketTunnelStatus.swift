@@ -16,16 +16,26 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
 
+    /// Flag indicating device is revoked or not.
+    public var isDeviceRevoked: Bool
+
+    /// Flag indicating that account expiry should be set again.
+    public var accountExpiry: Date?
+
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
     public init(
         lastError: String? = nil,
         isNetworkReachable: Bool = true,
+        isDeviceRevoked: Bool = false,
+        accountExpiry: Date? = nil,
         tunnelRelay: PacketTunnelRelay? = nil
     ) {
         self.lastError = lastError
         self.isNetworkReachable = isNetworkReachable
+        self.isDeviceRevoked = isDeviceRevoked
+        self.accountExpiry = accountExpiry
         self.tunnelRelay = tunnelRelay
     }
 }
