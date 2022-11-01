@@ -105,6 +105,17 @@ pub struct InitialTunnelState {
     pub exclude_paths: Vec<OsString>,
 }
 
+/// Identifiers for various network resources that should be unique to a given instance of a tunnel
+/// state machine.
+#[cfg(target_os = "linux")]
+pub struct LinuxNetworkingIdentifiers {
+    /// Firewall mark is used to mark traffic which should be able to bypass the tunnel
+    pub fwmark: u32,
+    /// The table ID will be used for the routing table that will route all traffic through the
+    /// tunnel interface.
+    pub table_id: u32,
+}
+
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub async fn spawn(
     initial_settings: InitialTunnelState,
@@ -116,8 +127,7 @@ pub async fn spawn(
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-    #[cfg(target_os = "linux")] fwmark: u32,
-    #[cfg(target_os = "linux")] table_id: u32,
+    #[cfg(target_os = "linux")] linux_ids: LinuxNetworkingIdentifiers,
 ) -> Result<TunnelStateMachineHandle, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -157,9 +167,7 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         android_context,
         #[cfg(target_os = "linux")]
-        fwmark,
-        #[cfg(target_os = "linux")]
-        table_id,
+        linux_ids,
     };
 
     let state_machine = TunnelStateMachine::new(init_args).await?;
@@ -250,9 +258,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     #[cfg(target_os = "android")]
     android_context: AndroidContext,
     #[cfg(target_os = "linux")]
-    fwmark: u32,
-    #[cfg(target_os = "linux")]
-    table_id: u32,
+    linux_ids: LinuxNetworkingIdentifiers,
 }
 
 impl TunnelStateMachine {
@@ -277,9 +283,9 @@ impl TunnelStateMachine {
         let route_manager = RouteManager::new(
             HashSet::new(),
             #[cfg(target_os = "linux")]
-            args.fwmark,
+            args.linux_ids.fwmark,
             #[cfg(target_os = "linux")]
-            args.table_id,
+            args.linux_ids.table_id,
         )
         .await
         .map_err(Error::InitRouteManagerError)?;
@@ -306,7 +312,7 @@ impl TunnelStateMachine {
             },
             allow_lan: args.settings.allow_lan,
             #[cfg(target_os = "linux")]
-            fwmark: args.fwmark,
+            fwmark: args.linux_ids.fwmark,
         };
 
         let firewall = Firewall::from_args(fw_args).map_err(Error::InitFirewallError)?;
@@ -342,7 +348,7 @@ impl TunnelStateMachine {
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
             #[cfg(target_os = "linux")]
-            Some(args.fwmark),
+            Some(args.linux_ids.fwmark),
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "windows")]
