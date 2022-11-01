@@ -124,55 +124,26 @@ class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return operation
     }
 
-    func addPayment(_ payment: SKPayment, for accountToken: String) {
-        var task: Cancellable?
-        let backgroundTaskIdentifier = UIApplication.shared
-            .beginBackgroundTask(withName: "Validate account token") {
-                task?.cancel()
-            }
-
+    func addPayment(_ payment: SKPayment, for accountNumber: String) {
         // Validate account token before adding new payment to the queue.
-        task = accountsProxy.getAccountData(
-            accountNumber: accountToken,
-            retryStrategy: .default
-        ) { completion in
-            dispatchPrecondition(condition: .onQueue(.main))
+        validateAccount(accountNumber: accountNumber) { error in
+            if let error = error {
+                let event = StorePaymentEvent.failure(
+                    StorePaymentFailure(
+                        transaction: nil,
+                        payment: payment,
+                        accountNumber: accountNumber,
+                        error: error
+                    )
+                )
 
-            switch completion {
-            case .success:
-                self.associateAccountToken(accountToken, and: payment)
+                self.observerList.forEach { observer in
+                    observer.storePaymentManager(self, didReceiveEvent: event)
+                }
+            } else {
+                self.associateAccountToken(accountNumber, and: payment)
                 self.paymentQueue.add(payment)
-
-            case let .failure(error):
-                let event = StorePaymentEvent.failure(
-                    StorePaymentFailure(
-                        transaction: nil,
-                        payment: payment,
-                        accountNumber: accountToken,
-                        error: .validateAccount(error)
-                    )
-                )
-
-                self.observerList.forEach { observer in
-                    observer.storePaymentManager(self, didReceiveEvent: event)
-                }
-
-            case .cancelled:
-                let event = StorePaymentEvent.failure(
-                    StorePaymentFailure(
-                        transaction: nil,
-                        payment: payment,
-                        accountNumber: accountToken,
-                        error: .validateAccount(.network(URLError(.cancelled)))
-                    )
-                )
-
-                self.observerList.forEach { observer in
-                    observer.storePaymentManager(self, didReceiveEvent: event)
-                }
             }
-
-            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
         }
     }
 
@@ -207,6 +178,45 @@ class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         } else {
             return classDelegate?.storePaymentManager(self, didRequestAccountTokenFor: payment)
         }
+    }
+
+    private func validateAccount(
+        accountNumber: String,
+        completionHandler: @escaping (StorePaymentManagerError?) -> Void
+    ) {
+        let accountOperation = ResultBlockOperation(dispatchQueue: .main) { op in
+            let task = self.accountsProxy.getAccountData(
+                accountNumber: accountNumber,
+                retryStrategy: .default
+            ) { completion in
+                op.finish(completion: completion)
+            }
+
+            op.addCancellationBlock {
+                task.cancel()
+            }
+        }
+
+        accountOperation.addObserver(BackgroundObserver(
+            application: .shared,
+            name: "Validate account number",
+            cancelUponExpiration: false
+        ))
+
+        accountOperation.completionQueue = .main
+        accountOperation.completionHandler = { completion in
+            var error: REST.Error?
+
+            if case .cancelled = completion {
+                error = .network(URLError(.cancelled))
+            } else {
+                error = completion.error
+            }
+
+            completionHandler(error.map { .validateAccount($0) })
+        }
+
+        operationQueue.addOperation(accountOperation)
     }
 
     private func sendStoreReceipt(
