@@ -281,7 +281,7 @@ extension REST {
             // Increment retry count.
             retryCount += 1
 
-            // Retry immediatly if retry delay is set to never.
+            // Retry immediately if retry delay is set to never.
             guard retryStrategy.retryDelay != .never else {
                 startRequest()
                 return
