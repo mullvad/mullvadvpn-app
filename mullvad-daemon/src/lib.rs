@@ -693,9 +693,10 @@ where
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "linux")]
-            mullvad_types::TUNNEL_FWMARK,
-            #[cfg(target_os = "linux")]
-            mullvad_types::TUNNEL_TABLE_ID,
+            tunnel_state_machine::LinuxNetworkingIdentifiers {
+                fwmark: mullvad_types::TUNNEL_FWMARK,
+                table_id: mullvad_types::TUNNEL_TABLE_ID,
+            },
         )
         .await
         .map_err(Error::TunnelError)?;
