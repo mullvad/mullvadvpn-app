@@ -161,6 +161,7 @@
 		5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */; };
 		5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */; };
+		5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27029091CF20096FC88 /* AccountInteractor.swift */; };
 		5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27429093A310096FC88 /* StorePaymentEvent.swift */; };
 		5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */; };
 		5878A279290954790096FC88 /* ConnectInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A278290954790096FC88 /* ConnectInteractor.swift */; };
@@ -645,6 +646,7 @@
 		58781CD422AFBA39009B9D8E /* RelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelBlockObserver.swift; sourceTree = "<group>"; };
 		5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportInteractor.swift; sourceTree = "<group>"; };
+		5878A27029091CF20096FC88 /* AccountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInteractor.swift; sourceTree = "<group>"; };
 		5878A27429093A310096FC88 /* StorePaymentEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentEvent.swift; sourceTree = "<group>"; };
 		5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentBlockObserver.swift; sourceTree = "<group>"; };
 		5878A278290954790096FC88 /* ConnectInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectInteractor.swift; sourceTree = "<group>"; };
@@ -1225,6 +1227,7 @@
 				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
 				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
+				5878A27029091CF20096FC88 /* AccountInteractor.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
 				5867771329097BCD006F721F /* PaymentState.swift */,
 				5867771529097C5B006F721F /* ProductState.swift */,
@@ -2084,6 +2087,7 @@
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
+				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
