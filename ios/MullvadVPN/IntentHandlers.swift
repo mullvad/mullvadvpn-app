@@ -9,8 +9,14 @@
 import Foundation
 
 final class StartVPNIntentHandler: NSObject, StartVPNIntentHandling {
+    private let tunnelManager: TunnelManager
+
+    init(tunnelManager: TunnelManager) {
+        self.tunnelManager = tunnelManager
+    }
+
     func handle(intent: StartVPNIntent, completion: @escaping (StartVPNIntentResponse) -> Void) {
-        TunnelManager.shared.startTunnel { operationCompletion in
+        tunnelManager.startTunnel { operationCompletion in
             let code: StartVPNIntentResponseCode = operationCompletion.isSuccess
                 ? .success
                 : .failure
@@ -22,8 +28,14 @@ final class StartVPNIntentHandler: NSObject, StartVPNIntentHandling {
 }
 
 final class StopVPNIntentHandler: NSObject, StopVPNIntentHandling {
+    private let tunnelManager: TunnelManager
+
+    init(tunnelManager: TunnelManager) {
+        self.tunnelManager = tunnelManager
+    }
+
     func handle(intent: StopVPNIntent, completion: @escaping (StopVPNIntentResponse) -> Void) {
-        TunnelManager.shared.stopTunnel { operationCompletion in
+        tunnelManager.stopTunnel { operationCompletion in
             let code: StopVPNIntentResponseCode = operationCompletion.isSuccess
                 ? .success
                 : .failure
@@ -35,12 +47,16 @@ final class StopVPNIntentHandler: NSObject, StopVPNIntentHandling {
 }
 
 final class ReconnectVPNIntentHandler: NSObject, ReconnectVPNIntentHandling {
+    private let tunnelManager: TunnelManager
+
+    init(tunnelManager: TunnelManager) {
+        self.tunnelManager = tunnelManager
+    }
+
     func handle(
         intent: ReconnectVPNIntent,
         completion: @escaping (ReconnectVPNIntentResponse) -> Void
     ) {
-        let tunnelManager = TunnelManager.shared
-
         tunnelManager.reconnectTunnel(selectNewRelay: true) { operationCompletion in
             let error = operationCompletion.error
 
@@ -52,7 +68,7 @@ final class ReconnectVPNIntentHandler: NSObject, ReconnectVPNIntentHandling {
             }
 
             if shouldStartTunnel {
-                tunnelManager.startTunnel { operationCompletion in
+                self.tunnelManager.startTunnel { operationCompletion in
                     completion(
                         ReconnectVPNIntentResponse(
                             code: operationCompletion.isSuccess ? .success : .failure,
