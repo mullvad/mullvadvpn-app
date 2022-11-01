@@ -35,9 +35,13 @@ the routes `0/0` and `::0/0` forces all traffic, except some
 [exempt by the system](#exempt-traffic), to go via the app. That is what this app does both when it
 has a VPN tunnel up, but also when in a state where it would like to block all network traffic, such
 as the [connecting], [disconnecting] and [error] states. In these states, all outgoing packets are
-simply dropped. Incoming traffic is also blocked starting with Android 13 if the system is
-configured to "Block connections without VPN" via the system's settings for the particular VPN;
-otherwise, incoming traffic is allowed.
+simply dropped. Incoming traffic is generally blocked in non-established states
+[starting with Android 13](https://cs.android.com/android/_/android/platform/packages/modules/Connectivity/+/966ff7f82ae3f387ea6bd4be3c75b08ff76656f9)
+if the system is configured to "Block connections without VPN" via the system's settings for the
+particular VPN. When a VPN connection *is* established,
+[starting with Android 12](https://cs.android.com/android/platform/superproject/+/android-12.0.0_r3:packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java;l=7456-7460),
+inbound traffic from outside the VPN is blocked when the VPN is established provided, it
+meets certain conditions, such as being fully-routed (`0/0` and `::0/0`).
 
 #### Exempt traffic
 
