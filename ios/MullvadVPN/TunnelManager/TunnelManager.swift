@@ -82,6 +82,10 @@ final class TunnelManager {
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
 
+    /// Flag indicating last changed date of device/account information changed from tunnel provider
+    /// side.
+    private var lastDeviceCheckIdentifier: UUID?
+
     // MARK: - Initialization
 
     private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
@@ -665,6 +669,28 @@ final class TunnelManager {
 
         _tunnelStatus = newTunnelStatus
 
+        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck,
+           deviceCheck.identifier != lastDeviceCheckIdentifier
+        {
+            if deviceCheck.isDeviceRevoked ?? false {
+                didDetectDeviceRevoked()
+
+            } else if let accountExpiry = deviceCheck.accountExpiry {
+                // checking for logged state and updating account data with new expiry
+                scheduleDeviceStateUpdate(
+                    taskName: "Update account expiry",
+                    reconnectTunnel: false
+                ) { deviceState in
+                    if case .loggedIn(var accountData, let deviceData) = deviceState {
+                        accountData.expiry = accountExpiry
+                        deviceState = .loggedIn(accountData, deviceData)
+                    }
+                }
+            }
+
+            lastDeviceCheckIdentifier = deviceCheck.identifier
+        }
+
         switch newTunnelStatus.state {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
@@ -895,16 +921,23 @@ final class TunnelManager {
 
     private func scheduleDeviceStateUpdate(
         taskName: String,
+        reconnectTunnel: Bool = true,
         modificationBlock: @escaping (inout DeviceState) -> Void,
-        completionHandler: (() -> Void)?
+        completionHandler: (() -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            var deviceState = self.deviceState
+            let oldState = self.deviceState
+            var deviceState = oldState
 
             modificationBlock(&deviceState)
 
-            self.setDeviceState(deviceState, persist: true)
-            self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+            if deviceState != oldState {
+                self.setDeviceState(deviceState, persist: true)
+
+                if reconnectTunnel {
+                    self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+                }
+            }
         }
 
         operation.completionBlock = {

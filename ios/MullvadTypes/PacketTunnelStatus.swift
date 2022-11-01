@@ -8,6 +8,28 @@
 
 import Foundation
 
+public struct DeviceCheck: Codable, Equatable {
+    /// Unique identifier for the device check.
+    /// Should only change when other fields in the struct are being changed.
+    public var identifier: UUID
+
+    /// Flag indicating device is revoked or not.
+    public var isDeviceRevoked: Bool?
+
+    /// Flag indicating that account expiry should be set again.
+    public var accountExpiry: Date?
+
+    public init(
+        identifier: UUID = UUID(),
+        isDeviceRevoked: Bool? = nil,
+        accountExpiry: Date? = nil
+    ) {
+        self.identifier = identifier
+        self.isDeviceRevoked = isDeviceRevoked
+        self.accountExpiry = accountExpiry
+    }
+}
+
 /// Struct describing packet tunnel process status.
 public struct PacketTunnelStatus: Codable, Equatable {
     /// Last tunnel error.
@@ -16,16 +38,36 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
 
+    public var deviceCheck: DeviceCheck?
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
     public init(
         lastError: String? = nil,
         isNetworkReachable: Bool = true,
+        isDeviceRevoked: Bool = false,
+        accountExpiry: Date? = nil,
         tunnelRelay: PacketTunnelRelay? = nil
     ) {
         self.lastError = lastError
         self.isNetworkReachable = isNetworkReachable
+        deviceCheck = DeviceCheck(
+            identifier: UUID(),
+            isDeviceRevoked: isDeviceRevoked,
+            accountExpiry: accountExpiry
+        )
+        self.tunnelRelay = tunnelRelay
+    }
+
+    public init(
+        lastError: String? = nil,
+        isNetworkReachable: Bool = true,
+        deviceCheck: DeviceCheck?,
+        tunnelRelay: PacketTunnelRelay? = nil
+    ) {
+        self.lastError = lastError
+        self.isNetworkReachable = isNetworkReachable
+        self.deviceCheck = deviceCheck
         self.tunnelRelay = tunnelRelay
     }
 }
