@@ -22,11 +22,36 @@ on:
             - update-version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+      inputs:
+        override_container_image:
+          description: 'Override container image'
+          type: string
+          required: false
 jobs:
+    prepare:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Use custom container image if specified
+          if: "${{ github.event.inputs.override_container_image != '' }}"
+          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+
+        - name: Use default container image and resolve digest
+          if: "${{ github.event.inputs.override_container_image == '' }}"
+          run: |
+            digest="$(cat ./dist-assets/android-container-image-digest.txt)"
+            echo "inner_container_image=ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:$digest" >> $GITHUB_ENV
+
+        outputs:
+          container_image: "${{ env.inner_container_image }}"
+
     build:
+        needs: prepare
         runs-on: ubuntu-latest
         container:
-          image: ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:2efed8ce625375c3e60574bb4d35b0d80d7100ae8b5773d144812c7680ac247b
+          image: "${{ needs.prepare.outputs.container_image }}"
         steps:
             # Fix for HOME path overridden by GH runners when building in containers, see:
             # https://github.com/actions/runner/issues/863
