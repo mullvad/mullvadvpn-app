@@ -158,6 +158,7 @@
 		587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587425C02299833500CA2045 /* RootContainerViewController.swift */; };
 		5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5875960926F371FC00BF6711 /* Tunnel+Messaging.swift */; };
 		5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
+		5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */; };
 		5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27429093A310096FC88 /* StorePaymentEvent.swift */; };
 		5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */; };
 		5878A279290954790096FC88 /* ConnectInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A278290954790096FC88 /* ConnectInteractor.swift */; };
@@ -638,6 +639,7 @@
 		5875960926F371FC00BF6711 /* Tunnel+Messaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tunnel+Messaging.swift"; sourceTree = "<group>"; };
 		58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraints.swift; sourceTree = "<group>"; };
 		58781CD422AFBA39009B9D8E /* RelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
+		5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelBlockObserver.swift; sourceTree = "<group>"; };
 		5878A27429093A310096FC88 /* StorePaymentEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentEvent.swift; sourceTree = "<group>"; };
 		5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentBlockObserver.swift; sourceTree = "<group>"; };
 		5878A278290954790096FC88 /* ConnectInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectInteractor.swift; sourceTree = "<group>"; };
@@ -1038,6 +1040,7 @@
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
+				5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -2150,6 +2153,7 @@
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				753D6C0C28B4BF3E0052D9E1 /* ShortcutsManager.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
+				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
