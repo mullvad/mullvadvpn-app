@@ -107,7 +107,6 @@ struct EventEntry {
 
 enum RecordEventType {
     AddRoute,
-    DeleteRoute,
 }
 
 pub type Callback = Box<dyn for<'a> Fn(RouteMonitorEventType<'a>, AddressFamily) + Send>;
@@ -337,14 +336,6 @@ impl RouteManagerInternal {
                         continue;
                     }
                     records.remove(record_idx);
-                }
-                RecordEventType::DeleteRoute => {
-                    if let Err(e) = Self::restore_into_routing_table(&event.record.registered_route)
-                    {
-                        result = result.and(Err(e));
-                        continue;
-                    }
-                    records.push(event.record.clone());
                 }
             }
         }
