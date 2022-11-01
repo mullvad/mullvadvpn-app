@@ -141,21 +141,15 @@ extension SceneDelegate: UIWindowSceneDelegate {
     func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
-// MARK: - SettingsButtonInteractionDelegate
+// MARK: - OutOfTimeViewControllerDelegate
 
-protocol SettingsButtonInteractionDelegate: AnyObject {
-    func viewController(
-        _ controller: UIViewController,
-        didRequestSettingsButtonEnabled isEnabled: Bool
-    )
-}
+extension SceneDelegate: OutOfTimeViewControllerDelegate {
+    func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController) {
+        setEnableSettingsButton(isEnabled: false, from: controller)
+    }
 
-extension SceneDelegate: SettingsButtonInteractionDelegate {
-    func viewController(
-        _ controller: UIViewController,
-        didRequestSettingsButtonEnabled isEnabled: Bool
-    ) {
-        setEnableSettingsButton(isEnabled: isEnabled, from: controller)
+    func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController) {
+        setEnableSettingsButton(isEnabled: true, from: controller)
     }
 }
 
@@ -369,7 +363,12 @@ extension SceneDelegate {
     }
 
     private func makeOutOfTimeViewController() -> OutOfTimeViewController {
-        let viewController = OutOfTimeViewController()
+        let viewController = OutOfTimeViewController(
+            interactor: OutOfTimeInteractor(
+                storePaymentManager: .shared,
+                tunnelManager: .shared
+            )
+        )
         viewController.delegate = self
         return viewController
     }
