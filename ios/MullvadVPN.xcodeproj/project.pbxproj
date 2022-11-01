@@ -160,6 +160,7 @@
 		5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27429093A310096FC88 /* StorePaymentEvent.swift */; };
 		5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */; };
+		5878A279290954790096FC88 /* ConnectInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A278290954790096FC88 /* ConnectInteractor.swift */; };
 		587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
 		587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */; };
 		587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */; };
@@ -638,6 +639,7 @@
 		58781CD422AFBA39009B9D8E /* RelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		5878A27429093A310096FC88 /* StorePaymentEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentEvent.swift; sourceTree = "<group>"; };
 		5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentBlockObserver.swift; sourceTree = "<group>"; };
+		5878A278290954790096FC88 /* ConnectInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectInteractor.swift; sourceTree = "<group>"; };
 		587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDataThrottling.swift; sourceTree = "<group>"; };
 		587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderHost.swift; sourceTree = "<group>"; };
 		587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV1.swift; sourceTree = "<group>"; };
@@ -1226,6 +1228,7 @@
 				58B43C1825F77DB60002C8C3 /* ConnectContentView.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
+				5878A278290954790096FC88 /* ConnectInteractor.swift */,
 				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
@@ -2087,6 +2090,7 @@
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
+				5878A279290954790096FC88 /* ConnectInteractor.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
 				75FD0C2128B108570021E33E /* ShortcutsDataSource.swift in Sources */,
