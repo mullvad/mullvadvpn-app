@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import Operations
+import RelayCache
 import RelaySelector
 import StoreKit
 import TunnelProviderMessaging
@@ -53,6 +54,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
+    private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -88,6 +90,8 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Initialization
 
     private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+        self.relayCacheTracker = relayCacheTracker
+        self.relayCacheTracker = .shared
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -799,6 +803,15 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Private methods
 
+    fileprivate func selectRelay() throws -> RelaySelectorResult {
+        let cachedRelays = try relayCacheTracker.getCachedRelays()
+
+        return try RelaySelector.evaluate(
+            relays: cachedRelays.relays,
+            constraints: settings.relayConstraints
+        )
+    }
+
     fileprivate func prepareForVPNConfigurationDeletion() {
         nslock.lock()
         defer { nslock.unlock() }
@@ -1067,5 +1080,9 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     func prepareForVPNConfigurationDeletion() {
         tunnelManager.prepareForVPNConfigurationDeletion()
+    }
+
+    func selectRelay() throws -> RelaySelectorResult {
+        return try tunnelManager.selectRelay()
     }
 }

@@ -51,11 +51,7 @@ class StartTunnelOperation: ResultOperation<Void, Error> {
 
         case .disconnected, .pendingReconnect:
             do {
-                let cachedRelays = try RelayCacheTracker.shared.getCachedRelays()
-                let selectorResult = try RelaySelector.evaluate(
-                    relays: cachedRelays.relays,
-                    constraints: interactor.settings.relayConstraints
-                )
+                let selectorResult = try interactor.selectRelay()
 
                 makeTunnelProviderAndStartTunnel(selectorResult: selectorResult) { error in
                     self.finish(completion: OperationCompletion(error: error))
