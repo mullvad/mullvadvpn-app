@@ -12,14 +12,6 @@ import MullvadTypes
 import TunnelProviderMessaging
 import UIKit
 
-class CustomOverlayRenderer: MKOverlayRenderer {
-    override func draw(_ mapRect: MKMapRect, zoomScale: MKZoomScale, in context: CGContext) {
-        let drawRect = rect(for: mapRect)
-        context.setFillColor(UIColor.secondaryColor.cgColor)
-        context.fill(drawRect)
-    }
-}
-
 protocol ConnectViewControllerDelegate: AnyObject {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
 }
