@@ -22,6 +22,11 @@ on:
             - update-version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+      inputs:
+        override_container_image:
+          description: 'Override container image'
+          type: string
+          required: false
 jobs:
     prepare:
         runs-on: ubuntu-latest
@@ -29,12 +34,18 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v2
 
-        - name: Resolve container digest
-          id: resolve_container_digest
+        - name: Use custom container image if specified
+          if: "${{ github.event.inputs.override_container_image != '' }}"
+          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+
+        - name: Use default container image and resolve digest
+          if: "${{ github.event.inputs.override_container_image == '' }}"
           run: |
-            echo "inner_digest=$(cat ./dist-assets/android-container-image-digest.txt)" >> $GITHUB_OUTPUT
+            digest="$(cat ./dist-assets/android-container-image-digest.txt)"
+            echo "inner_container_image=ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:$digest" >> $GITHUB_ENV
+
         outputs:
-          container_image: "ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:${{ steps.resolve_container_digest.outputs.inner_digest }}"
+          container_image: "${{ env.inner_container_image }}"
 
     build:
         needs: prepare
