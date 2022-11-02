@@ -121,7 +121,7 @@ impl RouteManagerHandle {
     pub async fn get_destination_route(
         &self,
         destination: IpAddr,
-        mark: Option<u32>,
+        mark: Option<Fwmark>,
     ) -> Result<Option<Route>, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
@@ -151,6 +151,8 @@ impl RouteManagerHandle {
     }
 }
 
+type Fwmark = u32;
+
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
@@ -168,10 +170,11 @@ pub(crate) enum RouteManagerCommand {
     NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
     #[cfg(target_os = "linux")]
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16, PlatformError>>),
+    /// Attempt to fetch a route for the given destination with an optional firewall mark.
     #[cfg(target_os = "linux")]
     GetDestinationRoute(
         IpAddr,
-        Option<u32>,
+        Option<Fwmark>,
         oneshot::Sender<Result<Option<Route>, PlatformError>>,
     ),
 }
