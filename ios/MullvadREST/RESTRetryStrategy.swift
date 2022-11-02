@@ -11,7 +11,16 @@ import Foundation
 extension REST {
     public enum WaitStrategy {
         case constant(DispatchTimeInterval)
-        case recursiveDelay(any IteratorProtocol<DispatchTimeInterval>)
+        case exponential(base: TimeInterval, multiplier: Double)
+
+        public var iterator: AnyIterator<DispatchTimeInterval> {
+            switch self {
+            case let .constant(timeInterval):
+                return IntervalIterator.constant(timeInterval)
+            case let .exponential(base, multiplier):
+                return IntervalIterator.exponential(base: base, multiplier: multiplier)
+            }
+        }
     }
 
     public struct RetryStrategy {
@@ -35,7 +44,7 @@ extension REST {
 
         public static var exponentialBackoffRecursiveDelay = RetryStrategy(
             maxRetryCount: 12,
-            retryDelay: .recursiveDelay(RetryStrategy.ExponentialBackoff(base: 2, multiplier: 2))
+            retryDelay: .exponential(base: 2, multiplier: 2)
         )
     }
 }
