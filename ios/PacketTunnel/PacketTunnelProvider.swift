@@ -81,6 +81,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Device data request proxy
     private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
 
+    /// OperationQueue used for gathering account and device information from network requests and unifying results in a single scope.
+    private let operationQueue = AsyncOperationQueue()
+
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
@@ -404,6 +407,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
 
         completionOperation.addDependencies([accountOperation, deviceOperation])
+
+        operationQueue.addOperations(
+            [accountOperation, deviceOperation, completionOperation],
+            waitUntilFinished: false
+        )
     }
 
     // Introduce a new retry strategy with max amount
