@@ -28,19 +28,19 @@ jobs:
     test:
         name: Unit tests
         runs-on: macos-11
-        strategy:
-            matrix:
-                destination: ['platform=iOS Simulator,OS=13.7,name=iPhone 8']
         env:
-            source_packages_dir: .spm
+            SOURCE_PACKAGES_PATH: .spm
         steps:
+            - name: Install xcbeautify
+              run: brew install xcbeautify
+
             - name: Checkout repository
               uses: actions/checkout@v3
 
             - name: Configure cache
               uses: actions/cache@v3
               with:
-                path: ios/${{ env.source_packages_dir }}
+                path: ios/${{ env.SOURCE_PACKAGES_PATH }}
                 key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
                 restore-keys: |
                   ${{ runner.os }}-spm-
@@ -78,32 +78,15 @@ jobs:
                   mv Package.resolved.out Package.resolved
               working-directory: ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
 
-            - name: Run MullvadVPNTests
+            - name: Run tests
               run: |
-                  xcodebuild test \
+                  set -o pipefail && xcodebuild test \
                       -project MullvadVPN.xcodeproj \
-                      -scheme MullvadVPNTests \
-                      -destination "${destination}" \
+                      -scheme MullvadVPN \
+                      -skip-testing:MullvadVPNScreenshots \
+                      -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
                       -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
                       CODE_SIGN_IDENTITY="" \
                       CODE_SIGNING_REQUIRED=NO \
-                      ONLY_ACTIVE_ARCH=YES
+                      ONLY_ACTIVE_ARCH=YES | xcbeautify
               working-directory: ios
-              env:
-                  destination: ${{ matrix.destination }}
-                  SOURCE_PACKAGES_PATH: ${{ env.source_packages_dir }}
-
-            - name: Run OperationsTests
-              run: |
-                  xcodebuild test \
-                      -project MullvadVPN.xcodeproj \
-                      -scheme OperationsTests \
-                      -destination "${destination}" \
-                      -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
-                      CODE_SIGN_IDENTITY="" \
-                      CODE_SIGNING_REQUIRED=NO \
-                      ONLY_ACTIVE_ARCH=YES
-              working-directory: ios
-              env:
-                  destination: ${{ matrix.destination }}
-                  SOURCE_PACKAGES_PATH: ${{ env.source_packages_dir }}

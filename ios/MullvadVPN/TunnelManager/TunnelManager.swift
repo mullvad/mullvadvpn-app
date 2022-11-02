@@ -556,7 +556,7 @@ final class TunnelManager {
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) throws -> Cancellable {
-        if let tunnel {
+        if let tunnel = tunnel {
             return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
         } else {
             throw UnsetTunnelError()
