@@ -333,7 +333,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         -> ResultOperation<REST.AccountData, REST.Error>
     {
         let operation = ResultBlockOperation<REST.AccountData, REST.Error>(
-            dispatchQueue: DispatchQueue(label: "PacketTunnel.AccountDataProxy", qos: .utility)
+            dispatchQueue: dispatchQueue
         )
 
         operation.setExecutionBlock { operation in
@@ -355,7 +355,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func createGetDeviceDataOperation(accountNumber: String, identifier: String)
         -> ResultOperation<REST.Device, REST.Error>
     {
-        let dispatchQueue = DispatchQueue(label: "PacketTunnel.DeviceDataProxy", qos: .utility)
         let operation = ResultBlockOperation<REST.Device, REST.Error>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
@@ -386,7 +385,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             identifier: deviceIdentifier
         )
 
-        let completionOperation = AsyncBlockOperation(dispatchQueue: .global()) {
+        let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) {
             let accountCompletion = accountOperation.completion
             let deviceCompletion = deviceOperation.completion
 
