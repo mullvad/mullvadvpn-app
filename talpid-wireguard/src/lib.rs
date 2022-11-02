@@ -862,30 +862,3 @@ fn will_nm_manage_dns() -> bool {
         })
         .unwrap_or(false)
 }
-
-/// Converts an interface name into the corresponding index.
-#[cfg(target_os = "linux")]
-pub fn iface_index(name: &str) -> std::result::Result<libc::c_uint, IfaceIndexLookupError> {
-    let c_name = std::ffi::CString::new(name)
-        .map_err(|e| IfaceIndexLookupError::InvalidInterfaceName(name.to_owned(), e))?;
-    let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
-    if index == 0 {
-        Err(IfaceIndexLookupError::InterfaceLookupError(
-            name.to_owned(),
-            std::io::Error::last_os_error(),
-        ))
-    } else {
-        Ok(index)
-    }
-}
-
-/// Failure to lookup an interfaces index by its name.
-#[derive(Debug, err_derive::Error)]
-pub enum IfaceIndexLookupError {
-    /// The interface name is invalid -  contains null bytes or is too long.
-    #[error(display = "Invalid network interface name: {}", _0)]
-    InvalidInterfaceName(String, #[error(source)] std::ffi::NulError),
-    /// Interface wasn't found by its name.
-    #[error(display = "Failed to get index for interface {}", _0)]
-    InterfaceLookupError(String, #[error(source)] std::io::Error),
-}

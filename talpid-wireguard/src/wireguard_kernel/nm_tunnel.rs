@@ -100,7 +100,7 @@ impl Tunnel for NetworkManagerTunnel {
         let interface_name = self.interface_name.clone();
         let mut wg = self.netlink_connections.wg_handle.clone();
         Box::pin(async move {
-            let index = crate::iface_index(&interface_name).map_err(|err| {
+            let index = iface_index(&interface_name).map_err(|err| {
                 log::error!("Failed to fetch WireGuard device index: {}", err);
                 TunnelError::SetConfigError
             })?;
@@ -203,4 +203,31 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
     settings.insert("connection".into(), connection_config);
 
     settings
+}
+
+/// Converts an interface name into the corresponding index.
+#[cfg(target_os = "linux")]
+fn iface_index(name: &str) -> std::result::Result<libc::c_uint, IfaceIndexLookupError> {
+    let c_name = std::ffi::CString::new(name)
+        .map_err(|e| IfaceIndexLookupError::InvalidInterfaceName(name.to_owned(), e))?;
+    let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
+    if index == 0 {
+        Err(IfaceIndexLookupError::InterfaceLookupError(
+            name.to_owned(),
+            std::io::Error::last_os_error(),
+        ))
+    } else {
+        Ok(index)
+    }
+}
+
+/// Failure to lookup an interfaces index by its name.
+#[derive(Debug, err_derive::Error)]
+pub enum IfaceIndexLookupError {
+    /// The interface name is invalid -  contains null bytes or is too long.
+    #[error(display = "Invalid network interface name: {}", _0)]
+    InvalidInterfaceName(String, #[error(source)] std::ffi::NulError),
+    /// Interface wasn't found by its name.
+    #[error(display = "Failed to get index for interface {}", _0)]
+    InterfaceLookupError(String, #[error(source)] std::io::Error),
 }
