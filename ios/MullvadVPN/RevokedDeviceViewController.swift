@@ -12,7 +12,7 @@ protocol RevokedDeviceViewControllerDelegate: AnyObject {
     func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController)
 }
 
-class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObserver {
+class RevokedDeviceViewController: UIViewController, RootContainment {
     private lazy var imageView: StatusImageView = {
         let statusImageView = StatusImageView(style: .failure)
         statusImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -87,7 +87,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        let tunnelState = TunnelManager.shared.tunnelStatus.state
+        let tunnelState = interactor.tunnelStatus.state
 
         return HeaderBarPresentation(
             style: tunnelState.isSecured ? .secured : .unsecured,
@@ -97,6 +97,17 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
 
     var prefersHeaderBarHidden: Bool {
         return false
+    }
+
+    private let interactor: RevokedDeviceInteractor
+
+    init(interactor: RevokedDeviceInteractor) {
+        self.interactor = interactor
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -149,8 +160,12 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
             logoutButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
         ])
 
-        TunnelManager.shared.addObserver(self)
-        updateView(tunnelState: TunnelManager.shared.tunnelStatus.state)
+        interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
+            self?.setNeedsHeaderBarStyleAppearanceUpdate()
+            self?.updateView(tunnelState: tunnelStatus.state)
+        }
+
+        updateView(tunnelState: interactor.tunnelStatus.state)
     }
 
     @objc private func didTapLogoutButton(_ sender: Any?) {
@@ -162,31 +177,5 @@ class RevokedDeviceViewController: UIViewController, RootContainment, TunnelObse
     private func updateView(tunnelState: TunnelState) {
         logoutButton.style = tunnelState.isSecured ? .danger : .default
         footerLabel.isHidden = !tunnelState.isSecured
-    }
-
-    // MARK: - TunnelObserver
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        setNeedsHeaderBarStyleAppearanceUpdate()
-        updateView(tunnelState: tunnelStatus.state)
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        // no-op
-    }
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
-        // no-op
     }
 }
