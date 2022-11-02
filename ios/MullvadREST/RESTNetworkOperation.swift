@@ -30,6 +30,8 @@ extension REST {
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
+        private var retryStrategyIterator: AnyIterator<DispatchTimeInterval>
+
         init(
             name: String,
             dispatchQueue: DispatchQueue,
@@ -48,6 +50,8 @@ extension REST {
             var logger = Logger(label: "REST.NetworkOperation")
             logger[metadataKey: "name"] = .string(name)
             self.logger = logger
+
+            retryStrategyIterator = retryStrategy.retryDelay.iterator
 
             super.init(
                 dispatchQueue: dispatchQueue,
@@ -281,21 +285,11 @@ extension REST {
             // Increment retry count.
             retryCount += 1
 
-            switch retryStrategy.retryDelay {
-            case let .constant(retryDelay):
-                setTimer(retryDelay: retryDelay)
-
-            case var .recursiveDelay(iterator):
-                guard let retryDelay = iterator.next() else {
-                    finish(completion: .cancelled)
-                    return
-                }
-
-                setTimer(retryDelay: retryDelay)
+            guard let retryDelay = retryStrategyIterator.next() else {
+                finish(completion: .cancelled)
+                return
             }
-        }
 
-        private func setTimer(retryDelay: DispatchTimeInterval) {
             // Retry immediately if retry delay is set to never.
             guard retryDelay != .never else {
                 startRequest()
