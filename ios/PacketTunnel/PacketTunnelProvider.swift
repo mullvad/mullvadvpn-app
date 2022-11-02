@@ -75,7 +75,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Tunnel monitor.
     private var tunnelMonitor: TunnelMonitor!
 
-    private lazy var accountsProxy = REST.ProxyFactory.shared.createAccountsProxy()
+    /// Account data request proxy
+    private lazy var accountProxy = REST.ProxyFactory.shared.createAccountsProxy()
+
+    /// Device data request proxy
     private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
 
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
@@ -337,7 +340,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         operation.setExecutionBlock { operation in
-            let task = self.accountsProxy.getAccountData(
+            let task = self.accountProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .default
             ) { completion in
