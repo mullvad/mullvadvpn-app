@@ -81,7 +81,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Device data request proxy
     private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
 
-    /// OperationQueue used for gathering account and device information from network requests and unifying results in a single scope.
+    /// OperationQueue used for gathering account and device information from network requests and
+    /// unifying results in a single scope.
     private let operationQueue = AsyncOperationQueue()
 
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
@@ -349,7 +350,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         operation.setExecutionBlock { operation in
             let task = self.accountProxy.getAccountData(
                 accountNumber: accountNumber,
-                retryStrategy: .default
+                retryStrategy: .noRetry
             ) { completion in
                 operation.finish(completion: completion)
             }
@@ -371,7 +372,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             let task = self.deviceProxy.getDevice(
                 accountNumber: accountNumber,
                 identifier: identifier,
-                retryStrategy: .default
+                retryStrategy: .noRetry
             ) { completion in
                 operation.finish(completion: completion)
             }
@@ -465,12 +466,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case .none:
                 self.numberOfFailedAttempts = 0
 
-                self.providerLogger.debug("Recover connection. Picking next relay...")
-                self.reconnectTunnel(to: .automatic, completionHandler: successCompletionHandler)
-
             case let .some(failure):
                 self.notifyGUIWithState(with: failure)
             }
+
+            self.providerLogger.debug("Recover connection. Picking next relay...")
+            self.reconnectTunnel(to: .automatic, completionHandler: successCompletionHandler)
         }
     }
 
@@ -496,7 +497,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-        guard numberOfFailedAttempts < 3 else {
+        guard numberOfFailedAttempts.isMultiple(of: 2) else {
             startDiagnosticConnectionRecoveryFailingReason(
                 successCompletionHandler: completionHandler
             )
