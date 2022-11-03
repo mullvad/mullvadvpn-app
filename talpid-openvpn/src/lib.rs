@@ -366,7 +366,7 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
     let tun_node = talpid_routing::Node::device(tun_interface.to_string());
     let mut routes = HashSet::new();
     for network in &["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()] {
-        routes.insert(RequiredRoute::new(*network, tun_node.clone()));
+        routes.insert(RequiredRoute::new(*network, tun_node.clone()).use_main_table(false));
     }
     Ok(routes)
 }
