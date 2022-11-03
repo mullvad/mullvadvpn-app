@@ -80,8 +80,9 @@ pub struct RequiredRoute {
     /// Route's prefix
     pub prefix: IpNetwork,
     node: NetNode,
+    /// Specifies whether the route should be added to the main routing table or not.
     #[cfg(target_os = "linux")]
-    table_id: u32,
+    main_table: bool,
 }
 
 impl RequiredRoute {
@@ -91,14 +92,14 @@ impl RequiredRoute {
             node: node.into(),
             prefix,
             #[cfg(target_os = "linux")]
-            table_id: u32::from(RT_TABLE_MAIN),
+            main_table: true,
         }
     }
 
     /// Sets the routing table ID of the route.
     #[cfg(target_os = "linux")]
-    pub fn table(mut self, new_id: u32) -> Self {
-        self.table_id = new_id;
+    pub fn use_main_table(mut self, main_table: bool) -> Self {
+        self.main_table = main_table;
         self
     }
 }

@@ -295,8 +295,12 @@ impl RouteManagerImpl {
         for route in required_routes {
             match route.node {
                 NetNode::RealNode(node) => {
-                    required_normal_routes
-                        .insert(Route::new(node, route.prefix).table(route.table_id));
+                    let table = if route.main_table {
+                        RT_TABLE_MAIN.into()
+                    } else {
+                        self.table_id
+                    };
+                    required_normal_routes.insert(Route::new(node, route.prefix).table(table));
                 }
             }
         }
