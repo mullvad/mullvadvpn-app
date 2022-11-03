@@ -286,7 +286,12 @@ extension REST {
             retryCount += 1
 
             guard let retryDelay = retryStrategyIterator.next() else {
-                finish(completion: .cancelled)
+                logger.debug("Could not retrieve next strategy iterator")
+
+                let restError: REST.Error = (error as? URLError).map { .network($0) }
+                    ?? .transport(error)
+
+                finish(completion: .failure(restError))
                 return
             }
 
