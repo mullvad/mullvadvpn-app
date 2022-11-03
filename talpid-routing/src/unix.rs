@@ -151,6 +151,8 @@ impl RouteManagerHandle {
     }
 }
 
+/// Represents a firewall mark.
+#[cfg(target_os = "linux")]
 type Fwmark = u32;
 
 /// Commands for the underlying route manager object.

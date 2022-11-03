@@ -22,9 +22,6 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 #[cfg(target_os = "macos")]
 pub use imp::{get_default_routes, listen_for_default_route_changes, PlatformError};
 
-#[cfg(target_os = "windows")]
-pub use imp::routing;
-
 pub use imp::{Error, RouteManager};
 
 pub use imp::RouteManagerHandle;
