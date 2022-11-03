@@ -184,7 +184,10 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         accountNumber: String,
         completionHandler: @escaping (StorePaymentManagerError?) -> Void
     ) {
-        let accountOperation = ResultBlockOperation(dispatchQueue: .main) { op in
+        let accountOperation = ResultBlockOperation<
+            REST.AccountData,
+            REST.Error
+        >(dispatchQueue: .main) { op in
             let task = self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .default
