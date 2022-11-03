@@ -410,6 +410,16 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     splitTunnelingEnabled &&
     (!filteredNonSplitApplications || filteredNonSplitApplications.length > 0);
 
+  const excludedTitle = (
+    <Cell.SectionTitle>
+      {messages.pgettext('split-tunneling-view', 'Excluded apps')}
+    </Cell.SectionTitle>
+  );
+
+  const allTitle = (
+    <Cell.SectionTitle>{messages.pgettext('split-tunneling-view', 'All apps')}</Cell.SectionTitle>
+  );
+
   return (
     <>
       <SettingsHeader>
@@ -428,10 +438,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
       {splitTunnelingEnabled && <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />}
 
       <Accordion expanded={showSplitSection}>
-        <Cell.Section>
-          <Cell.SectionTitle>
-            {messages.pgettext('split-tunneling-view', 'Excluded apps')}
-          </Cell.SectionTitle>
+        <Cell.Section sectionTitle={excludedTitle}>
           <ApplicationList
             applications={filteredSplitApplications}
             rowRenderer={excludedRowRenderer}
@@ -440,10 +447,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
       </Accordion>
 
       <Accordion expanded={showNonSplitSection}>
-        <Cell.Section>
-          <Cell.SectionTitle>
-            {messages.pgettext('split-tunneling-view', 'All apps')}
-          </Cell.SectionTitle>
+        <Cell.Section sectionTitle={allTitle}>
           <ApplicationList
             applications={filteredNonSplitApplications}
             rowRenderer={includedRowRenderer}
