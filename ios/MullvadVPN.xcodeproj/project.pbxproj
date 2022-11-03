@@ -203,6 +203,8 @@
 		5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */; };
+		5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */; };
+		5897F1762914E62E00AF5695 /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5897F1752914E62E00AF5695 /* Duration.swift */; };
 		5898D29029017BEE00EB5EBA /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		5898D29129017C3100EB5EBA /* TunnelProviderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */; };
 		5898D29229017CA000EB5EBA /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
@@ -690,6 +692,8 @@
 		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
 		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
 		5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountContentView.swift; sourceTree = "<group>"; };
+		5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialBackoff.swift; sourceTree = "<group>"; };
+		5897F1752914E62E00AF5695 /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		5898D28929017BD400EB5EBA /* libTunnelProviderMessaging.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTunnelProviderMessaging.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5898D29829017DAC00EB5EBA /* libRelaySelector.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRelaySelector.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderReply.swift; sourceTree = "<group>"; };
@@ -971,6 +975,8 @@
 				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
 				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
 				06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */,
+				5897F1752914E62E00AF5695 /* Duration.swift */,
+				5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */,
@@ -1964,11 +1970,13 @@
 				58505FFA290A7F0F00118C23 /* ApplicationConfiguration.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
+				5897F1762914E62E00AF5695 /* Duration.swift in Sources */,
 				06799AF028F98E4800ACD94E /* REST.swift in Sources */,
 				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
+				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
 				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
