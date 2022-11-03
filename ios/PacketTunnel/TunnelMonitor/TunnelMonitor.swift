@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import NetworkExtension
 import WireGuardKit
+import MullvadTypes
 
 /// Interval for periodic heartbeat ping issued when traffic is flowing.
 /// Should help to detect connectivity issues on networks that drop traffic in one of directions,

@@ -11,7 +11,7 @@ import Foundation
 extension FixedWidthInteger {
     /// Saturating integer multiplication. Computes `self * rhs`, saturating at the numeric bounds
     /// instead of overflowing.
-    func saturatingMultiplication(_ rhs: Self) -> Self {
+    public func saturatingMultiplication(_ rhs: Self) -> Self {
         let (partialValue, isOverflow) = multipliedReportingOverflow(by: rhs)
 
         if isOverflow {
@@ -23,7 +23,7 @@ extension FixedWidthInteger {
 
     /// Saturating integer addition. Computes `self + rhs`, saturating at the numeric bounds
     /// instead of overflowing.
-    func saturatingAddition(_ rhs: Self) -> Self {
+    public func saturatingAddition(_ rhs: Self) -> Self {
         let (partialValue, isOverflow) = addingReportingOverflow(rhs)
 
         if isOverflow {
@@ -35,7 +35,7 @@ extension FixedWidthInteger {
 
     /// Saturating integer subtraction. Computes `self - rhs`, saturating at the numeric bounds
     /// instead of overflowing.
-    func saturatingSubtraction(_ rhs: Self) -> Self {
+    public func saturatingSubtraction(_ rhs: Self) -> Self {
         let (partialValue, isOverflow) = subtractingReportingOverflow(rhs)
 
         if isOverflow {
@@ -47,7 +47,7 @@ extension FixedWidthInteger {
 
     /// Saturating integer exponentiation. Computes `self ** exp`, saturating at the numeric
     /// bounds instead of overflowing.
-    func saturatingPow(_ exp: UInt32) -> Self {
+    public func saturatingPow(_ exp: UInt32) -> Self {
         let result = pow(Double(self), Double(exp))
 
         if result.isFinite {
