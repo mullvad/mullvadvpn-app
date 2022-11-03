@@ -10,8 +10,6 @@ use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
-use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
-#[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -694,11 +692,6 @@ impl WireguardMonitor {
                 }),
         );
 
-        // The gateway route, as well as the exit endpoint, need to be in the main table.
-        // Otherwise, DNS will not work for excluded apps, nor will the exit be reachable.
-        #[cfg(target_os = "linux")]
-        let routes = routes.map(|route| route.table(u32::from(RT_TABLE_MAIN)));
-
         routes
     }
 
@@ -708,7 +701,7 @@ impl WireguardMonitor {
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
-        Self::get_tunnel_destinations(config)
+        let iter = Self::get_tunnel_destinations(config)
             .filter(|allowed_ip| allowed_ip.prefix() == 0)
             .flat_map(Self::replace_default_prefixes)
             .map(move |allowed_ip| {
@@ -717,7 +710,12 @@ impl WireguardMonitor {
                 } else {
                     RequiredRoute::new(allowed_ip, node_v6.clone())
                 }
-            })
+            });
+        #[cfg(not(target_os = "linux"))]
+        return iter;
+
+        #[cfg(target_os = "linux")]
+        iter.map(|route| route.use_main_table(false))
     }
 
     /// Return routes for all allowed IPs.
