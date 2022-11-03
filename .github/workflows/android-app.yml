@@ -27,6 +27,10 @@ on:
           description: 'Override container image'
           type: string
           required: false
+    # Build if master is updated to ensure up-to-date caches are available
+    push:
+      branches:
+        - master
 jobs:
     prepare:
         runs-on: ubuntu-latest
