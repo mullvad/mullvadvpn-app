@@ -11,7 +11,7 @@ import { DaemonEvent, DeviceEvent, ISettings, TunnelState } from '../shared/daem
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
-import { IChangelog, IHistoryObject, ScrollPositions } from '../shared/ipc-types';
+import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { SystemNotification } from '../shared/notifications/notification';
@@ -105,7 +105,6 @@ class ApplicationMain
   private changelog?: IChangelog;
 
   private navigationHistory?: IHistoryObject;
-  private scrollPositions: ScrollPositions = {};
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -699,7 +698,6 @@ class ApplicationMain
       changelog: this.changelog ?? [],
       forceShowChanges: SHOULD_SHOW_CHANGES,
       navigationHistory: this.navigationHistory,
-      scrollPositions: this.scrollPositions,
     }));
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
@@ -759,9 +757,6 @@ class ApplicationMain
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
-    });
-    IpcMainEventChannel.navigation.handleSetScrollPositions((scrollPositions) => {
-      this.scrollPositions = scrollPositions;
     });
 
     problemReport.registerIpcListeners();

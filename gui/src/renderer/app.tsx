@@ -25,12 +25,7 @@ import {
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IRelayListPair } from '../shared/ipc-schema';
-import {
-  IChangelog,
-  ICurrentAppVersionInfo,
-  IHistoryObject,
-  ScrollPositions,
-} from '../shared/ipc-types';
+import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { Scheduler } from '../shared/scheduler';
@@ -251,8 +246,6 @@ export default class AppRenderer {
     }
 
     void this.updateLocation();
-
-    this.reduxActions.userInterface.setScrollPositions(initialState.scrollPositions);
 
     if (initialState.navigationHistory) {
       // Set last action to POP to trigger automatic scrolling to saved coordinates.
@@ -516,10 +509,6 @@ export default class AppRenderer {
 
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
-  }
-
-  public setScrollPositions(scrollPositions: ScrollPositions) {
-    IpcRendererEventChannel.navigation.setScrollPositions(scrollPositions);
   }
 
   private isLoggedIn(): boolean {

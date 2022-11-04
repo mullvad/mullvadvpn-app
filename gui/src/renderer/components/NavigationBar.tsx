@@ -3,11 +3,8 @@ import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } fr
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
-import { useSelector } from '../redux/store';
-import userInterface from '../redux/userinterface/actions';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
 import { BackActionContext } from './KeyboardNavigation';
 import {
@@ -92,41 +89,35 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   forwardedRef?: React.Ref<CustomScrollbarsRef>,
 ) {
   const history = useHistory();
+  const { setNavigationHistory } = useAppContext();
   const { onScroll } = useContext(NavigationScrollContext);
-  const { setScrollPositions } = useAppContext();
 
   const ref = useRef<CustomScrollbarsRef>();
   const combinedRefs = useCombinedRefs(forwardedRef, ref);
 
-  const { addScrollPosition, removeScrollPosition } = useActions(userInterface);
-  const scrollPositions = useSelector((state) => state.userInterface.scrollPosition);
-
   useEffect(() => {
-    const path = history.location.pathname;
     const beforeunload = () => {
       if (ref.current) {
-        const scrollPosition = ref.current.getScrollPosition();
-        setScrollPositions({ ...scrollPositions, [path]: scrollPosition });
+        history.location.state.scrollPosition = ref.current.getScrollPosition();
+        setNavigationHistory(history.asObject);
       }
     };
 
     window.addEventListener('beforeunload', beforeunload);
 
     return () => window.removeEventListener('beforeunload', beforeunload);
-  }, [scrollPositions]);
+  }, []);
 
   useLayoutEffect(() => {
-    const path = history.location.pathname;
-
-    const scrollPosition = scrollPositions[history.location.pathname];
-    if (history.action === 'POP' && scrollPosition) {
-      ref.current?.scrollTo(...scrollPosition);
-      removeScrollPosition(path);
+    const location = history.location;
+    if (history.action === 'POP') {
+      ref.current?.scrollTo(...location.state.scrollPosition);
     }
 
     return () => {
       if (history.action === 'PUSH' && ref.current) {
-        addScrollPosition(path, ref.current.getScrollPosition());
+        location.state.scrollPosition = ref.current.getScrollPosition();
+        setNavigationHistory(history.asObject);
       }
     };
   }, []);
