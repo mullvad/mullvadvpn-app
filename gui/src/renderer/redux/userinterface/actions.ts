@@ -1,5 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
-import { IChangelog, ScrollPositions } from '../../../shared/ipc-types';
+import { IChangelog } from '../../../shared/ipc-types';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';
@@ -18,22 +18,6 @@ export interface IUpdateConnectionInfoOpenAction {
 export interface ISetWindowFocusedAction {
   type: 'SET_WINDOW_FOCUSED';
   focused: boolean;
-}
-
-export interface ISetScrollPositions {
-  type: 'SET_SCROLL_POSITIONS';
-  scrollPositions: ScrollPositions;
-}
-
-export interface IAddScrollPosition {
-  type: 'ADD_SCROLL_POSITION';
-  path: string;
-  scrollPosition: [number, number];
-}
-
-export interface IRemoveScrollPosition {
-  type: 'REMOVE_SCROLL_POSITION';
-  path: string;
 }
 
 export interface ISetMacOsScrollbarVisibility {
@@ -66,9 +50,6 @@ export type UserInterfaceAction =
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
   | ISetWindowFocusedAction
-  | ISetScrollPositions
-  | IAddScrollPosition
-  | IRemoveScrollPosition
   | ISetMacOsScrollbarVisibility
   | ISetConnectedToDaemon
   | ISetChangelog
@@ -99,28 +80,6 @@ function setWindowFocused(focused: boolean): ISetWindowFocusedAction {
   return {
     type: 'SET_WINDOW_FOCUSED',
     focused,
-  };
-}
-
-function setScrollPositions(scrollPositions: ScrollPositions): ISetScrollPositions {
-  return {
-    type: 'SET_SCROLL_POSITIONS',
-    scrollPositions,
-  };
-}
-
-function addScrollPosition(path: string, scrollPosition: [number, number]): IAddScrollPosition {
-  return {
-    type: 'ADD_SCROLL_POSITION',
-    path,
-    scrollPosition,
-  };
-}
-
-function removeScrollPosition(path: string): IRemoveScrollPosition {
-  return {
-    type: 'REMOVE_SCROLL_POSITION',
-    path,
   };
 }
 
@@ -166,9 +125,6 @@ export default {
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setWindowFocused,
-  setScrollPositions,
-  addScrollPosition,
-  removeScrollPosition,
   setMacOsScrollbarVisibility,
   setConnectedToDaemon,
   setChangelog,

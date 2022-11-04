@@ -7,7 +7,6 @@ export interface IUserInterfaceReduxState {
   arrowPosition?: number;
   connectionPanelVisible: boolean;
   windowFocused: boolean;
-  scrollPosition: Record<string, [number, number]>;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   connectedToDaemon: boolean;
   changelog: IChangelog;
@@ -19,7 +18,6 @@ const initialState: IUserInterfaceReduxState = {
   locale: 'en',
   connectionPanelVisible: false,
   windowFocused: false,
-  scrollPosition: {},
   macOsScrollbarVisibility: undefined,
   connectedToDaemon: false,
   changelog: [],
@@ -43,21 +41,6 @@ export default function (
 
     case 'SET_WINDOW_FOCUSED':
       return { ...state, windowFocused: action.focused };
-
-    case 'SET_SCROLL_POSITIONS':
-      return { ...state, scrollPosition: action.scrollPositions };
-
-    case 'ADD_SCROLL_POSITION':
-      return {
-        ...state,
-        scrollPosition: { ...state.scrollPosition, [action.path]: action.scrollPosition },
-      };
-
-    case 'REMOVE_SCROLL_POSITION': {
-      const scrollPosition = { ...state.scrollPosition };
-      delete scrollPosition[action.path];
-      return { ...state, scrollPosition };
-    }
 
     case 'SET_MACOS_SCROLLBAR_VISIBILITY':
       return { ...state, macOsScrollbarVisibility: action.visibility };
