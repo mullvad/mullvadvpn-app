@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
+import { useAppContext } from '../../context';
+import { useHistory } from '../../lib/history';
 import { useBoolean } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import ChevronButton from '../ChevronButton';
@@ -56,12 +58,23 @@ const StyledTitleContainer = styled(Container)({
 });
 
 interface ExpandableSectionProps extends SectionProps {
+  expandableId: string;
   expandedInitially?: boolean;
 }
 
 export function ExpandableSection(props: ExpandableSectionProps) {
-  const { expandedInitially, sectionTitle, ...otherProps } = props;
-  const [expanded, , , toggleExpanded] = useBoolean(!!expandedInitially);
+  const { expandableId, expandedInitially, sectionTitle, ...otherProps } = props;
+
+  const history = useHistory();
+  const { setNavigationHistory } = useAppContext();
+  const expandedValue =
+    history.location.state.expandedSections[props.expandableId] ?? !!expandedInitially;
+  const [expanded, , , toggleExpanded] = useBoolean(expandedValue);
+
+  useEffect(() => {
+    history.location.state.expandedSections[props.expandableId] = expanded;
+    setNavigationHistory(history.asObject);
+  }, [expanded]);
 
   const title = (
     <>
