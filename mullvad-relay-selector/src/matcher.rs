@@ -63,43 +63,29 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
     pub fn filter_matching_relay_list(&self, relays: &[Relay]) -> Vec<Relay> {
         let matches = relays
             .iter()
-            .filter_map(|relay| self.pre_filter_matching_relay(relay));
+            .filter(|relay| self.pre_filter_matching_relay(relay));
 
         let ignore_include_in_country = !matches.clone().any(|relay| relay.include_in_country);
 
         matches
-            .filter_map(|relay| self.post_filter_matching_relay(relay, ignore_include_in_country))
+            .filter(|relay| self.post_filter_matching_relay(relay, ignore_include_in_country))
+            .cloned()
             .collect()
     }
 
-    /// Filter a relay and its endpoints based on constraints, 1st pass.
-    /// Only matching endpoints are included in the returned Relay.
-    fn pre_filter_matching_relay(&self, relay: &Relay) -> Option<Relay> {
-        if !relay.active
-            || !self.providers.matches(relay)
-            || !self.ownership.matches(relay)
-            || !self.location.matches_with_opts(relay, true)
-        {
-            return None;
-        }
-
-        self.endpoint_matcher.filter_matching_endpoints(relay)
+    /// Filter a relay based on constraints and endpoint type, 1st pass.
+    fn pre_filter_matching_relay(&self, relay: &Relay) -> bool {
+        relay.active
+            && self.providers.matches(relay)
+            && self.ownership.matches(relay)
+            && self.location.matches_with_opts(relay, true)
+            && self.endpoint_matcher.is_matching_relay(relay)
     }
 
-    /// Filter a relay and its endpoints based on constraints, 2nd pass.
-    /// Only matching endpoints are included in the returned Relay.
-    fn post_filter_matching_relay(
-        &self,
-        relay: Relay,
-        ignore_include_in_country: bool,
-    ) -> Option<Relay> {
-        if !self
-            .location
+    /// Filter a relay based on constraints and endpoint type, 2nd pass.
+    fn post_filter_matching_relay(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+        self.location
             .matches_with_opts(&relay, ignore_include_in_country)
-        {
-            return None;
-        }
-        Some(relay)
     }
 
     pub fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
