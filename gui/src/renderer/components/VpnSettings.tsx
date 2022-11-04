@@ -260,7 +260,7 @@ function DnsBlockers() {
   );
 
   return (
-    <Cell.ExpandableSection sectionTitle={title}>
+    <Cell.ExpandableSection sectionTitle={title} expandableId="dns-blockers">
       <BlockAds />
       <BlockTrackers />
       <BlockMalware />

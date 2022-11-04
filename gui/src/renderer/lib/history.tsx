@@ -194,7 +194,7 @@ export default class History {
         pathname: location.pathname ?? this.location.pathname,
         search: location.search ?? '',
         hash: location.hash ?? '',
-        state: location.state ?? { scrollPosition: [0, 0], expandedSections: [] },
+        state: location.state ?? { scrollPosition: [0, 0], expandedSections: {} },
         key: location.key ?? this.getRandomKey(),
       };
     }
@@ -205,7 +205,7 @@ export default class History {
       pathname: path,
       search: '',
       hash: '',
-      state: state ?? { scrollPosition: [0, 0], expandedSections: [] },
+      state: state ?? { scrollPosition: [0, 0], expandedSections: {} },
       key: this.getRandomKey(),
     };
   }

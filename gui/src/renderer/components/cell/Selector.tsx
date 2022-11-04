@@ -26,7 +26,7 @@ interface CommonSelectorProps<T, U> {
   selectedCellRef?: React.Ref<HTMLElement>;
   className?: string;
   details?: React.ReactElement;
-  expandable?: boolean;
+  expandable?: { expandable: boolean; id: string };
   disabled?: boolean;
   thinTitle?: boolean;
   automaticLabel?: string;
@@ -98,14 +98,15 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
     </Cell.Group>
   );
 
-  if (props.expandable) {
+  if (props.expandable?.expandable) {
     return (
       <AriaInput>
         <Cell.ExpandableSection
           role="listbox"
           expandedInitially={false}
           className={props.className}
-          sectionTitle={title}>
+          sectionTitle={title}
+          expandableId={props.expandable.id}>
           {children}
         </Cell.ExpandableSection>
       </AriaInput>

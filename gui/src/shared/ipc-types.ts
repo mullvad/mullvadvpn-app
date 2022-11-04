@@ -15,7 +15,7 @@ export type IChangelog = Array<string>;
 
 export interface LocationState {
   scrollPosition: [number, number];
-  expandedSections: number[];
+  expandedSections: Record<string, boolean>;
 }
 
 export interface IHistoryObject {
