@@ -1294,6 +1294,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr ""
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr ""
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr ""
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr ""
@@ -1310,26 +1320,6 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr ""
 
-msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr ""
-
 #. This is displayed when the custom DNS setting is turned on which makes the block
 #. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
 #. Available placeholders:
@@ -1343,7 +1333,11 @@ msgstr ""
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -1367,6 +1361,11 @@ msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr ""
 
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr ""
+
 #. Description for multihop settings toggle.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -1388,6 +1387,11 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
+msgstr ""
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -1418,6 +1422,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr ""
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr ""
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr ""
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr ""
 
@@ -1431,31 +1444,11 @@ msgid "VPN settings"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr ""
 
 msgctxt "vpn-settings-view"
