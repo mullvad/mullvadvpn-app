@@ -59,7 +59,7 @@ Identical to android/2022.2-beta2 except for updated translations.
 ### Added
 - Add custom option to WireGuard port selector.
 
-####Linux
+#### Linux
 - Add ARM64 (aarch64) builds. This is the first release with Linux ARM support.
 
 ### Changed
