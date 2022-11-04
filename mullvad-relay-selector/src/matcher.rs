@@ -63,43 +63,29 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
     pub fn filter_matching_relay_list(&self, relays: &[Relay]) -> Vec<Relay> {
         let matches = relays
             .iter()
-            .filter_map(|relay| self.pre_filter_matching_relay(relay));
+            .filter(|relay| self.pre_filter_matching_relay(relay));
 
         let ignore_include_in_country = !matches.clone().any(|relay| relay.include_in_country);
 
         matches
-            .filter_map(|relay| self.post_filter_matching_relay(relay, ignore_include_in_country))
+            .filter(|relay| self.post_filter_matching_relay(relay, ignore_include_in_country))
+            .cloned()
             .collect()
     }
 
-    /// Filter a relay and its endpoints based on constraints, 1st pass.
-    /// Only matching endpoints are included in the returned Relay.
-    fn pre_filter_matching_relay(&self, relay: &Relay) -> Option<Relay> {
-        if !relay.active
-            || !self.providers.matches(relay)
-            || !self.ownership.matches(relay)
-            || !self.location.matches_with_opts(relay, true)
-        {
-            return None;
-        }
-
-        self.endpoint_matcher.filter_matching_endpoints(relay)
+    /// Filter a relay based on constraints and endpoint type, 1st pass.
+    fn pre_filter_matching_relay(&self, relay: &Relay) -> bool {
+        relay.active
+            && self.providers.matches(relay)
+            && self.ownership.matches(relay)
+            && self.location.matches_with_opts(relay, true)
+            && self.endpoint_matcher.is_matching_relay(relay)
     }
 
-    /// Filter a relay and its endpoints based on constraints, 2nd pass.
-    /// Only matching endpoints are included in the returned Relay.
-    fn post_filter_matching_relay(
-        &self,
-        relay: Relay,
-        ignore_include_in_country: bool,
-    ) -> Option<Relay> {
-        if !self
-            .location
-            .matches_with_opts(&relay, ignore_include_in_country)
-        {
-            return None;
-        }
-        Some(relay)
+    /// Filter a relay based on constraints and endpoint type, 2nd pass.
+    fn post_filter_matching_relay(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+        self.location
+            .matches_with_opts(relay, ignore_include_in_country)
     }
 
     pub fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
@@ -111,23 +97,23 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
 /// This enables one to not have false dependencies on OpenVpn specific constraints when
 /// selecting only WireGuard tunnels.
 pub trait EndpointMatcher: Clone {
-    /// Filter a relay and its endpoints based on constraints.
-    /// Only matching endpoints are included in the returned Relay.
-    fn filter_matching_endpoints(&self, relay: &Relay) -> Option<Relay>;
+    /// Returns whether the relay has matching endpoints.
+    fn is_matching_relay(&self, relay: &Relay) -> bool;
     /// Constructs a MullvadEndpoint for a given Relay using extra data from the relay matcher
     /// itself.
     fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint>;
 }
 
 impl EndpointMatcher for OpenVpnMatcher {
-    fn filter_matching_endpoints(&self, relay: &Relay) -> Option<Relay> {
-        if !self.matches(&self.data) || !matches!(relay.endpoint_data, RelayEndpointData::Openvpn) {
-            return None;
-        }
-        Some(relay.clone())
+    fn is_matching_relay(&self, relay: &Relay) -> bool {
+        self.matches(&self.data) && matches!(relay.endpoint_data, RelayEndpointData::Openvpn)
     }
 
     fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
+        if !self.is_matching_relay(relay) {
+            return None;
+        }
+
         self.get_transport_port().map(|endpoint| {
             MullvadEndpoint::OpenVpn(Endpoint::new(
                 relay.ipv4_addr_in,
@@ -193,24 +179,13 @@ pub struct AnyTunnelMatcher {
 }
 
 impl EndpointMatcher for AnyTunnelMatcher {
-    fn filter_matching_endpoints(&self, relay: &Relay) -> Option<Relay> {
+    fn is_matching_relay(&self, relay: &Relay) -> bool {
         match self.tunnel_type {
             Constraint::Any => {
-                let wireguard_relay = self.wireguard.filter_matching_endpoints(relay);
-                let openvpn_relay = self.openvpn.filter_matching_endpoints(relay);
-
-                match (wireguard_relay, openvpn_relay) {
-                    (Some(relay), None) | (None, Some(relay)) => Some(relay),
-                    (Some(_), Some(_)) => {
-                        unreachable!("relay cannot match multiple endpoint types")
-                    }
-                    _ => None,
-                }
+                self.wireguard.is_matching_relay(relay) || self.openvpn.is_matching_relay(relay)
             }
-            Constraint::Only(TunnelType::OpenVpn) => self.openvpn.filter_matching_endpoints(relay),
-            Constraint::Only(TunnelType::Wireguard) => {
-                self.wireguard.filter_matching_endpoints(relay)
-            }
+            Constraint::Only(TunnelType::OpenVpn) => self.openvpn.is_matching_relay(relay),
+            Constraint::Only(TunnelType::Wireguard) => self.wireguard.is_matching_relay(relay),
         }
     }
 
@@ -329,22 +304,19 @@ impl WireguardMatcher {
 }
 
 impl EndpointMatcher for WireguardMatcher {
-    fn filter_matching_endpoints(&self, relay: &Relay) -> Option<Relay> {
-        if self
+    fn is_matching_relay(&self, relay: &Relay) -> bool {
+        !self
             .peer
             .as_ref()
             .map(|peer_relay| peer_relay.hostname == relay.hostname)
             .unwrap_or(false)
-        {
-            return None;
-        }
-        if !matches!(relay.endpoint_data, RelayEndpointData::Wireguard(..)) {
-            return None;
-        }
-        Some(relay.clone())
+            && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(..))
     }
 
     fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
+        if !self.is_matching_relay(relay) {
+            return None;
+        }
         self.wg_data_to_endpoint(relay, &self.data)
     }
 }
@@ -353,11 +325,8 @@ impl EndpointMatcher for WireguardMatcher {
 pub struct BridgeMatcher(pub ());
 
 impl EndpointMatcher for BridgeMatcher {
-    fn filter_matching_endpoints(&self, relay: &Relay) -> Option<Relay> {
-        if !matches!(relay.endpoint_data, RelayEndpointData::Bridge) {
-            return None;
-        }
-        Some(relay.clone())
+    fn is_matching_relay(&self, relay: &Relay) -> bool {
+        matches!(relay.endpoint_data, RelayEndpointData::Bridge)
     }
 
     fn mullvad_endpoint(&self, _relay: &Relay) -> Option<MullvadEndpoint> {
