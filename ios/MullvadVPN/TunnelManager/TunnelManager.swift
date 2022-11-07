@@ -82,8 +82,7 @@ final class TunnelManager {
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
 
-    /// Flag indicating last changed date of device/account information changed from tunnel provider
-    /// side.
+    /// Last processed device check identifier.
     private var lastDeviceCheckIdentifier: UUID?
 
     // MARK: - Initialization
@@ -676,7 +675,6 @@ final class TunnelManager {
                 didDetectDeviceRevoked()
 
             } else if let accountExpiry = deviceCheck.accountExpiry {
-                // checking for logged state and updating account data with new expiry
                 scheduleDeviceStateUpdate(
                     taskName: "Update account expiry",
                     reconnectTunnel: false
