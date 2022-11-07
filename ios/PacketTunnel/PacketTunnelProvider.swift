@@ -38,11 +38,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Flag indicating whether network is reachable.
     private var isNetworkReachable = true
 
-    /// Flag that holds device information flags. indicating device is revoked or account expiry
-    /// should be set again.
+    /// Struct holding result of the last device check.
     private var deviceCheck: DeviceCheck?
 
-    /// Flag counting number of failed attempts happened.
+    /// Number of consecutive connection failure attempts.
     private var numberOfFailedAttempts: UInt = 0
 
     /// Last runtime error.
@@ -81,8 +80,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     private lazy var checkDeviceStateTask: Cancellable? = nil
 
-    /// OperationQueue used for gathering account and device information from network requests and
-    /// unifying results in a single scope.
+    /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
 
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
@@ -491,8 +489,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
     }
 
-    // MARK: - Connection Recovery Diagnostic
+    // MARK: - Device check
 
+    /// Fetch account and device data to verify account expiry and device status.
+    /// Saves the result into deviceCheck
     private func startDeviceCheck() {
         let deviceState: DeviceState
         do {
@@ -511,7 +511,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         providerLogger.debug("Start device check")
 
-        let accountOperation = createGetAccountDataOperation(accountNumber: storedAccountData.number)
+        let accountOperation = createGetAccountDataOperation(
+            accountNumber: storedAccountData.number
+        )
         let deviceOperation = createGetDeviceDataOperation(
             accountNumber: storedAccountData.number,
             identifier: storedDeviceData.identifier

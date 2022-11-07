@@ -9,8 +9,8 @@
 import Foundation
 
 public struct DeviceCheck: Codable, Equatable {
-    /// Flag indicating last changed date of device/account information changed from tunnel provider
-    /// side.
+    /// Unique identifier for the device check.
+    /// Should only change when other fields in the struct are being changed.
     public var identifier: UUID
 
     /// Flag indicating device is revoked or not.
