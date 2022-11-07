@@ -111,7 +111,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         super.init()
 
         REST.TransportRegistry.shared.setTransport(
-            URLSessionTransport(urlSession: urlSession)
+            REST.URLSessionTransport(urlSession: urlSession)
         )
 
         adapter = WireGuardAdapter(
