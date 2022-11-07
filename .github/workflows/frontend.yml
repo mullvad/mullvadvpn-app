@@ -8,6 +8,7 @@ on:
             - mullvad-management-interface/proto/**
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+
 jobs:
     check-frontend:
         strategy:
@@ -24,7 +25,8 @@ jobs:
 
             - name: Get npm cache directory path
               id: npm-cache-dir-path
-              run: echo "::set-output name=dir::$(npm config get cache)"
+              shell: bash # To ensure that Windows correctly ouputs the cache path
+              run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
 
             - name: Cache npm dependencies
               uses: actions/cache@v3
