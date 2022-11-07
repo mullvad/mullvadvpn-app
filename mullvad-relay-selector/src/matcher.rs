@@ -305,7 +305,8 @@ impl WireguardMatcher {
 
 impl EndpointMatcher for WireguardMatcher {
     fn is_matching_relay(&self, relay: &Relay) -> bool {
-        self.peer
+        !self
+            .peer
             .as_ref()
             .map(|peer_relay| peer_relay.hostname == relay.hostname)
             .unwrap_or(false)
