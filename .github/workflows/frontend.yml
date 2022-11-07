@@ -48,6 +48,12 @@ jobs:
               run: npm run build
 
             - name: Run headless test
+              if: runner.os == 'Linux'
+              working-directory: gui
+              run: xvfb-run -a npm test
+
+            - name: Run headless test
+              if: runner.os != 'Linux'
               working-directory: gui
               run: npm test
 
