@@ -924,8 +924,7 @@ final class TunnelManager {
         completionHandler: (() -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            let oldState = self.deviceState
-            var deviceState = oldState
+            var deviceState = self.deviceState
 
             modificationBlock(&deviceState)
 
