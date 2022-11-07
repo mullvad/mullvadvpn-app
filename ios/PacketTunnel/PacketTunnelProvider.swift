@@ -641,12 +641,12 @@ extension DeviceCheck {
     mutating func update(accountExpiry: Date?, isDeviceRevoked: Bool?) {
         var shouldChangeIdentifier = false
 
-        if let accountExpiry = accountExpiry {
+        if let accountExpiry = accountExpiry, self.accountExpiry != accountExpiry {
             shouldChangeIdentifier = true
             self.accountExpiry = accountExpiry
         }
 
-        if let isDeviceRevoked = isDeviceRevoked {
+        if let isDeviceRevoked = isDeviceRevoked, self.isDeviceRevoked != isDeviceRevoked {
             shouldChangeIdentifier = true
             self.isDeviceRevoked = isDeviceRevoked
         }
