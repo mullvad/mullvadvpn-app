@@ -931,12 +931,10 @@ final class TunnelManager {
 
             modificationBlock(&deviceState)
 
-            if deviceState != oldState {
-                self.setDeviceState(deviceState, persist: true)
-
-                if reconnectTunnel {
-                    self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
-                }
+            self.setDeviceState(deviceState, persist: true)
+            
+            if reconnectTunnel {
+                self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
             }
         }
 

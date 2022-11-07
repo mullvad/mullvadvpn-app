@@ -13,10 +13,12 @@ public struct DeviceCheck: Codable, Equatable {
     /// Should only change when other fields in the struct are being changed.
     public var identifier: UUID
 
-    /// Flag indicating device is revoked or not.
+    /// Flag indicating whether device is revoked.
+    /// Set to nil when the device status is unknown yet.
     public var isDeviceRevoked: Bool?
 
-    /// Flag indicating that account expiry should be set again.
+    /// Last known account expiry.
+    /// Set to nil when the device status is unknown yet.
     public var accountExpiry: Date?
 
     public init(
@@ -38,6 +40,7 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
 
+    /// Last performed device check.
     public var deviceCheck: DeviceCheck?
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
@@ -45,24 +48,7 @@ public struct PacketTunnelStatus: Codable, Equatable {
     public init(
         lastError: String? = nil,
         isNetworkReachable: Bool = true,
-        isDeviceRevoked: Bool = false,
-        accountExpiry: Date? = nil,
-        tunnelRelay: PacketTunnelRelay? = nil
-    ) {
-        self.lastError = lastError
-        self.isNetworkReachable = isNetworkReachable
-        deviceCheck = DeviceCheck(
-            identifier: UUID(),
-            isDeviceRevoked: isDeviceRevoked,
-            accountExpiry: accountExpiry
-        )
-        self.tunnelRelay = tunnelRelay
-    }
-
-    public init(
-        lastError: String? = nil,
-        isNetworkReachable: Bool = true,
-        deviceCheck: DeviceCheck?,
+        deviceCheck: DeviceCheck? = nil,
         tunnelRelay: PacketTunnelRelay? = nil
     ) {
         self.lastError = lastError

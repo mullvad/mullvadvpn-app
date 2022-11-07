@@ -220,7 +220,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         dispatchQueue.async {
             self.tunnelMonitor.stop()
-
+            self.checkDeviceStateTask?.cancel()
+            self.checkDeviceStateTask = nil
             self.startTunnelCompletionHandler = nil
             self.reassertTunnelCompletionHandler = nil
         }
