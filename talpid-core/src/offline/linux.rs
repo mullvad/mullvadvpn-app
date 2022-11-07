@@ -1,9 +1,9 @@
-use crate::routing::{self, RouteManagerHandle};
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
 };
+use talpid_routing::{self, RouteManagerHandle};
 use talpid_types::ErrorExt;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -12,11 +12,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[error(no_from)]
 pub enum Error {
     #[error(display = "The route manager returned an error")]
-    RouteManagerError(#[error(source)] routing::Error),
+    RouteManagerError(#[error(source)] talpid_routing::Error),
 }
 
 pub struct MonitorHandle {
     route_manager: RouteManagerHandle,
+    fwmark: Option<u32>,
     _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
@@ -26,7 +27,7 @@ const PUBLIC_INTERNET_ADDRESS_V6: IpAddr =
 
 impl MonitorHandle {
     pub async fn host_is_offline(&self) -> bool {
-        match public_ip_unreachable(&self.route_manager).await {
+        match public_ip_unreachable(&self.route_manager, self.fwmark).await {
             Ok(is_offline) => is_offline,
             Err(err) => {
                 log::error!(
@@ -42,8 +43,9 @@ impl MonitorHandle {
 pub async fn spawn_monitor(
     notify_tx: UnboundedSender<bool>,
     route_manager: RouteManagerHandle,
+    fwmark: Option<u32>,
 ) -> Result<MonitorHandle> {
-    let mut is_offline = public_ip_unreachable(&route_manager).await?;
+    let mut is_offline = public_ip_unreachable(&route_manager, fwmark).await?;
 
     let mut listener = route_manager
         .change_listener()
@@ -54,6 +56,7 @@ pub async fn spawn_monitor(
     let sender = Arc::downgrade(&notify_tx);
     let monitor_handle = MonitorHandle {
         route_manager: route_manager.clone(),
+        fwmark,
         _notify_tx: notify_tx,
     };
 
@@ -61,7 +64,7 @@ pub async fn spawn_monitor(
         while let Some(_event) = listener.next().await {
             match sender.upgrade() {
                 Some(sender) => {
-                    let new_offline_state = public_ip_unreachable(&route_manager)
+                    let new_offline_state = public_ip_unreachable(&route_manager, fwmark)
                         .await
                         .unwrap_or_else(|err| {
                             log::error!(
@@ -83,14 +86,14 @@ pub async fn spawn_monitor(
     Ok(monitor_handle)
 }
 
-async fn public_ip_unreachable(handle: &RouteManagerHandle) -> Result<bool> {
+async fn public_ip_unreachable(handle: &RouteManagerHandle, fwmark: Option<u32>) -> Result<bool> {
     Ok(handle
-        .get_destination_route(PUBLIC_INTERNET_ADDRESS_V4, true)
+        .get_destination_route(PUBLIC_INTERNET_ADDRESS_V4, fwmark)
         .await
         .map_err(Error::RouteManagerError)?
         .is_none()
         && handle
-            .get_destination_route(PUBLIC_INTERNET_ADDRESS_V6, true)
+            .get_destination_route(PUBLIC_INTERNET_ADDRESS_V6, fwmark)
             .await
             .unwrap_or(None)
             .is_none())

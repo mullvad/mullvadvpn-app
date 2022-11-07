@@ -34,6 +34,3 @@ talpid-time = { path = "../talpid-time" }
 shadowsocks = { version = "1.14.2", default-features = false, features = ["stream-cipher"] }
 
 uuid = { version = "0.8", features = ["v4"] }
-
-[target.'cfg(target_os="macos")'.dependencies]
-tokio-stream = { version = "0.1", features = ["io-util"] }

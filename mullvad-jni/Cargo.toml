@@ -28,4 +28,5 @@ mullvad-problem-report = { path = "../mullvad-problem-report" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
 talpid-core = { path = "../talpid-core" }
+talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }

@@ -11,7 +11,7 @@ use nftnl::{
 use std::{
     env,
     ffi::{CStr, CString},
-    io,
+    fs, io,
     net::{IpAddr, Ipv4Addr},
 };
 use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
@@ -19,6 +19,7 @@ use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
 const PREROUTING_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_CONNTRACK + 1;
+const PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK: &str = "/proc/sys/net/ipv4/conf/all/src_valid_mark";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -96,7 +97,9 @@ enum End {
 }
 
 /// The Linux implementation for the firewall and DNS.
-pub struct Firewall(());
+pub struct Firewall {
+    fwmark: u32,
+}
 
 struct FirewallTables {
     main: Table,
@@ -105,12 +108,12 @@ struct FirewallTables {
 }
 
 impl Firewall {
-    pub fn from_args(_args: FirewallArguments) -> Result<Self> {
-        Ok(Firewall(()))
+    pub fn from_args(args: FirewallArguments) -> Result<Self> {
+        Firewall::new(args.fwmark)
     }
 
-    pub fn new() -> Result<Self> {
-        Ok(Firewall(()))
+    pub fn new(fwmark: u32) -> Result<Self> {
+        Ok(Firewall { fwmark })
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
@@ -119,7 +122,7 @@ impl Firewall {
             mangle_v4: Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
             mangle_v6: Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
         };
-        let batch = PolicyBatch::new(&tables).finalize(&policy)?;
+        let batch = PolicyBatch::new(&tables).finalize(&policy, self.fwmark)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
         self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME_V4, &MANGLE_TABLE_NAME_V6])
@@ -152,7 +155,7 @@ impl Firewall {
         }
 
         if let FirewallPolicy::Connecting { .. } = policy {
-            if let Err(err) = crate::linux::set_src_valid_mark_sysctl() {
+            if let Err(err) = set_src_valid_mark_sysctl() {
                 log::error!("Failed to apply src_valid_mark: {}", err);
             }
         }
@@ -314,17 +317,17 @@ impl<'a> PolicyBatch<'a> {
 
     /// Finalize the nftnl message batch by adding every firewall rule needed to satisfy the given
     /// policy.
-    pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
+    pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules(policy)?;
+        self.add_split_tunneling_rules(policy, fwmark)?;
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
-        self.add_policy_specific_rules(policy)?;
+        self.add_policy_specific_rules(policy, fwmark)?;
 
         Ok(self.batch.finalize())
     }
 
-    fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
+    fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
             tunnel,
@@ -365,7 +368,7 @@ impl<'a> PolicyBatch<'a> {
             rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
             rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
-            rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
+            rule.add_expr(&nft_expr!(immediate data fwmark));
             rule.add_expr(&nft_expr!(meta mark set));
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
@@ -416,7 +419,7 @@ impl<'a> PolicyBatch<'a> {
             check_not_iface(&mut prerouting_rule, Direction::In, &tunnel.interface)?;
             prerouting_rule.add_expr(&nft_expr!(ct mark));
             prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-            prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
+            prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
             if *ADD_COUNTERS {
                 prerouting_rule.add_expr(&nft_expr!(counter));
@@ -551,7 +554,7 @@ impl<'a> PolicyBatch<'a> {
         }
     }
 
-    fn add_policy_specific_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
+    fn add_policy_specific_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
@@ -560,7 +563,7 @@ impl<'a> PolicyBatch<'a> {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -589,7 +592,7 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 dns_servers,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
@@ -632,10 +635,10 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, fwmark: u32) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         check_endpoint(&mut prerouting_rule, End::Src, endpoint);
-        prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
+        prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
         prerouting_rule.add_expr(&nft_expr!(meta mark set));
 
         if *ADD_COUNTERS {
@@ -658,7 +661,7 @@ impl<'a> PolicyBatch<'a> {
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
         out_rule.add_expr(&nft_expr!(meta mark));
-        out_rule.add_expr(&nft_expr!(cmp == crate::linux::TUNNEL_FW_MARK));
+        out_rule.add_expr(&nft_expr!(cmp == fwmark));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
@@ -1058,4 +1061,8 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
         rule.add_expr(&nft_expr!(counter));
     }
     rule.add_expr(verdict);
+}
+
+fn set_src_valid_mark_sysctl() -> io::Result<()> {
+    fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK, b"1")
 }

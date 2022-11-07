@@ -2,7 +2,6 @@ use super::windows::{
     get_device_path, get_process_creation_time, get_process_device_path, open_process, Event,
     Overlapped, ProcessAccess, ProcessSnapshot,
 };
-use crate::windows::as_uninit_byte_slice;
 use bitflags::bitflags;
 use memoffset::offset_of;
 use std::{
@@ -993,4 +992,9 @@ fn write_string_to_buffer(buffer: &mut [MaybeUninit<u8>], byte_offset: usize, st
     {
         buffer[byte_offset + i] = MaybeUninit::new(byte);
     }
+}
+
+/// Casts a struct to a slice of possibly uninitialized bytes.
+pub fn as_uninit_byte_slice<T: Copy + Sized>(value: &T) -> &[mem::MaybeUninit<u8>] {
+    unsafe { std::slice::from_raw_parts(value as *const _ as *const _, mem::size_of::<T>()) }
 }

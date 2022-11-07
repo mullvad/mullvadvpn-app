@@ -1,30 +1,18 @@
-use self::tun_provider::TunProvider;
-use crate::{logging, routing::RouteManagerHandle};
-use futures::{channel::oneshot, future::BoxFuture};
-use std::{
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
-};
+use crate::logging;
+#[cfg(not(target_os = "android"))]
+use futures::channel::oneshot;
+use std::path;
+#[cfg(not(target_os = "android"))]
+use talpid_openvpn;
+#[cfg(any(target_os = "linux", target_os = "windows"))]
+use talpid_routing::RouteManagerHandle;
+pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
-use talpid_types::net::{wireguard as wireguard_types, AllowedTunnelTraffic, TunnelParameters};
-
-#[cfg(target_os = "android")]
-pub use self::tun_provider::TunConfig;
-
-#[cfg(target_os = "windows")]
-mod windows;
-
-/// A module for all OpenVPN related tunnel management.
-#[cfg(not(target_os = "android"))]
-pub mod openvpn;
+use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
 
 /// A module for all WireGuard related tunnel management.
-pub mod wireguard;
-
-/// A module for low level platform specific tunnel device management.
-pub(crate) mod tun_provider;
+use talpid_wireguard;
 
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
@@ -42,7 +30,7 @@ pub enum Error {
     /// Failure in Windows syscall.
     #[cfg(windows)]
     #[error(display = "Failure in Windows syscall")]
-    WinnetError(#[error(source)] crate::routing::Error),
+    WinnetError(#[error(source)] talpid_routing::Error),
 
     /// Running on an operating system which is not supported yet.
     #[error(display = "Tunnel type not supported on this operating system")]
@@ -54,73 +42,25 @@ pub enum Error {
 
     /// Failure to build Wireguard configuration.
     #[error(display = "Failed to configure Wireguard with the given parameters")]
-    WireguardConfigError(#[error(source)] self::wireguard::config::Error),
+    WireguardConfigError(#[error(source)] talpid_wireguard::config::Error),
 
     /// There was an error listening for events from the OpenVPN tunnel
     #[cfg(not(target_os = "android"))]
     #[error(display = "Failed while listening for events from the OpenVPN tunnel")]
-    OpenVpnTunnelMonitoringError(#[error(source)] openvpn::Error),
+    OpenVpnTunnelMonitoringError(#[error(source)] talpid_openvpn::Error),
 
     /// There was an error listening for events from the Wireguard tunnel
     #[error(display = "Failed while listening for events from the Wireguard tunnel")]
-    WireguardTunnelMonitoringError(#[error(source)] wireguard::Error),
+    WireguardTunnelMonitoringError(#[error(source)] talpid_wireguard::Error),
 
     /// Could not detect and assign the correct mtu
     #[error(display = "Could not detect and assign a correct MTU for the Wireguard tunnel")]
     AssignMtuError,
 }
 
-/// Possible events from the VPN tunnel and the child process managing it.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum TunnelEvent {
-    /// Sent when the tunnel fails to connect due to an authentication error.
-    AuthFailed(Option<String>),
-    /// Sent when the tunnel interface has been created, before routes are set up.
-    InterfaceUp(TunnelMetadata, AllowedTunnelTraffic),
-    /// Sent when the tunnel comes up and is ready for traffic.
-    Up(TunnelMetadata),
-    /// Sent when the tunnel goes down.
-    Down,
-}
-
-/// Information about a VPN tunnel.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct TunnelMetadata {
-    /// The name of the device which the tunnel is running on.
-    pub interface: String,
-    /// The local IPs on the tunnel interface.
-    pub ips: Vec<IpAddr>,
-    /// The IP to the default gateway on the tunnel interface.
-    pub ipv4_gateway: Ipv4Addr,
-    /// The IP to the IPv6 default gateway on the tunnel interface.
-    pub ipv6_gateway: Option<Ipv6Addr>,
-}
-
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
     monitor: InternalTunnelMonitor,
-}
-
-/// Arguments for creating a tunnel.
-pub struct TunnelArgs<'a, L>
-where
-    // L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-    L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
-{
-    /// Toktio runtime handle.
-    pub runtime: tokio::runtime::Handle,
-    /// Resource directory path.
-    pub resource_dir: &'a Path,
-    /// Callback function called when an event happens.
-    pub on_event: L,
-    /// Receiver oneshot channel for closing the tunnel.
-    pub tunnel_close_rx: oneshot::Receiver<()>,
-    /// Mutex to tunnel provider.
-    pub tun_provider: Arc<Mutex<TunProvider>>,
-    /// Connection retry attempts.
-    pub retry_attempt: u32,
-    /// Route manager handle.
-    pub route_manager: RouteManagerHandle,
 }
 
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
@@ -130,7 +70,7 @@ impl TunnelMonitor {
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
         tunnel_parameters: &mut TunnelParameters,
-        log_dir: &Option<PathBuf>,
+        log_dir: &Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
@@ -165,7 +105,7 @@ impl TunnelMonitor {
 
     /// Returns a path to an executable that communicates with relay servers.
     #[cfg(windows)]
-    pub fn get_relay_client(resource_dir: &Path, params: &TunnelParameters) -> PathBuf {
+    pub fn get_relay_client(resource_dir: &path::Path, params: &TunnelParameters) -> path::PathBuf {
         let resource_dir = resource_dir.to_path_buf();
         let process_string = match params {
             TunnelParameters::OpenVpn(params) => {
@@ -187,7 +127,7 @@ impl TunnelMonitor {
 
     fn start_wireguard_tunnel<L>(
         params: &mut wireguard_types::TunnelParameters,
-        log: Option<PathBuf>,
+        log: Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
     where
@@ -200,8 +140,8 @@ impl TunnelMonitor {
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         args.runtime
             .block_on(Self::assign_mtu(&args.route_manager, params));
-        let config = wireguard::config::Config::from_parameters(params)?;
-        let monitor = wireguard::WireguardMonitor::start(
+        let config = talpid_wireguard::config::Config::from_parameters(params)?;
+        let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             if params.options.use_pq_safe_psk {
                 Some(
@@ -280,8 +220,8 @@ impl TunnelMonitor {
     #[cfg(not(target_os = "android"))]
     async fn start_openvpn_tunnel<L>(
         config: &openvpn_types::TunnelParameters,
-        log: Option<PathBuf>,
-        resource_dir: &Path,
+        log: Option<path::PathBuf>,
+        resource_dir: &path::Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
         #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
@@ -292,7 +232,7 @@ impl TunnelMonitor {
             + Sync
             + 'static,
     {
-        let monitor = openvpn::OpenVpnMonitor::start(
+        let monitor = talpid_openvpn::OpenVpnMonitor::start(
             on_event,
             config,
             log,
@@ -323,8 +263,8 @@ impl TunnelMonitor {
     #[cfg(not(target_os = "windows"))]
     fn prepare_tunnel_log_file(
         parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-    ) -> Result<Option<PathBuf>> {
+        log_dir: &Option<path::PathBuf>,
+    ) -> Result<Option<path::PathBuf>> {
         if let Some(ref log_dir) = log_dir {
             match parameters {
                 TunnelParameters::OpenVpn(_) => {
@@ -342,8 +282,8 @@ impl TunnelMonitor {
     #[cfg(target_os = "windows")]
     fn prepare_tunnel_log_file(
         parameters: &TunnelParameters,
-        log_dir: &Option<PathBuf>,
-    ) -> Result<Option<PathBuf>> {
+        log_dir: &Option<path::PathBuf>,
+    ) -> Result<Option<path::PathBuf>> {
         if let Some(ref log_dir) = log_dir {
             let filename = match parameters {
                 TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
@@ -365,8 +305,8 @@ impl TunnelMonitor {
 
 enum InternalTunnelMonitor {
     #[cfg(not(target_os = "android"))]
-    OpenVpn(openvpn::OpenVpnMonitor),
-    Wireguard(wireguard::WireguardMonitor),
+    OpenVpn(talpid_openvpn::OpenVpnMonitor),
+    Wireguard(talpid_wireguard::WireguardMonitor),
 }
 
 impl InternalTunnelMonitor {
