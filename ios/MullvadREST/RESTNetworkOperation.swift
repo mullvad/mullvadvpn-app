@@ -30,8 +30,6 @@ extension REST {
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
-        private var retryStrategyIterator: AnyIterator<DispatchTimeInterval>
-
         init(
             name: String,
             dispatchQueue: DispatchQueue,
@@ -50,8 +48,6 @@ extension REST {
             var logger = Logger(label: "REST.NetworkOperation")
             logger[metadataKey: "name"] = .string(name)
             self.logger = logger
-
-            retryStrategyIterator = retryStrategy.retryDelay.iterator
 
             super.init(
                 dispatchQueue: dispatchQueue,
@@ -285,18 +281,8 @@ extension REST {
             // Increment retry count.
             retryCount += 1
 
-            guard let retryDelay = retryStrategyIterator.next() else {
-                logger.debug("Could not retrieve next strategy iterator")
-
-                let restError: REST.Error = (error as? URLError).map { .network($0) }
-                    ?? .transport(error)
-
-                finish(completion: .failure(restError))
-                return
-            }
-
             // Retry immediately if retry delay is set to never.
-            guard retryDelay != .never else {
+            guard retryStrategy.retryDelay != .never else {
                 startRequest()
                 return
             }
@@ -312,7 +298,7 @@ extension REST {
                 self?.finish(completion: .cancelled)
             }
 
-            timer.schedule(wallDeadline: .now() + retryDelay)
+            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
             timer.activate()
 
             retryTimer = timer
