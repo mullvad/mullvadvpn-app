@@ -82,6 +82,10 @@ final class TunnelManager {
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
 
+    /// Flag indicating last changed date of device/account information changed from tunnel provider
+    /// side.
+    private var lastDeviceCheckIdentifier: UUID?
+
     // MARK: - Initialization
 
     private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
@@ -665,23 +669,26 @@ final class TunnelManager {
 
         _tunnelStatus = newTunnelStatus
 
-        if newTunnelStatus.packetTunnelStatus.deviceCheck?.isDeviceRevoked ?? false {
-            didDetectDeviceRevoked()
-        } else if let accountExpiry = newTunnelStatus
-            .packetTunnelStatus
-            .deviceCheck?
-            .accountExpiry
+        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck,
+           deviceCheck.identifier != lastDeviceCheckIdentifier
         {
-            // checking for logged state and updating account data with new expiry
-            scheduleDeviceStateUpdate(
-                taskName: "Update account expiry",
-                reconnectTunnel: false
-            ) { deviceState in
-                if case .loggedIn(var accountData, let deviceData) = deviceState {
-                    accountData.expiry = accountExpiry
-                    deviceState = .loggedIn(accountData, deviceData)
+            if deviceCheck.isDeviceRevoked ?? false {
+                didDetectDeviceRevoked()
+
+            } else if let accountExpiry = deviceCheck.accountExpiry {
+                // checking for logged state and updating account data with new expiry
+                scheduleDeviceStateUpdate(
+                    taskName: "Update account expiry",
+                    reconnectTunnel: false
+                ) { deviceState in
+                    if case .loggedIn(var accountData, let deviceData) = deviceState {
+                        accountData.expiry = accountExpiry
+                        deviceState = .loggedIn(accountData, deviceData)
+                    }
                 }
-            } completionHandler: {}
+            }
+
+            lastDeviceCheckIdentifier = deviceCheck.identifier
         }
 
         switch newTunnelStatus.state {
@@ -916,7 +923,7 @@ final class TunnelManager {
         taskName: String,
         reconnectTunnel: Bool = true,
         modificationBlock: @escaping (inout DeviceState) -> Void,
-        completionHandler: (() -> Void)?
+        completionHandler: (() -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             let oldState = self.deviceState

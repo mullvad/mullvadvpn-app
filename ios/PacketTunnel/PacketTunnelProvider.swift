@@ -38,11 +38,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Flag indicating whether network is reachable.
     private var isNetworkReachable = true
 
-    /// Flag indicating device is revoked or not.
-    public var isDeviceRevoked = false
-
-    /// Flag indicating that account expiry should be set again.
-    public var accountExpiry: Date?
+    /// Flag that holds device information flags. indicating device is revoked or account expiry
+    /// should be set again.
+    private var deviceCheck: DeviceCheck?
 
     /// Flag counting number of failed attempts happened.
     private var numberOfFailedAttempts: UInt = 0
@@ -92,8 +90,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         return PacketTunnelStatus(
             lastError: lastError?.localizedDescription,
             isNetworkReachable: isNetworkReachable,
-            isDeviceRevoked: isDeviceRevoked,
-            accountExpiry: accountExpiry,
+            deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
         )
     }
@@ -353,8 +350,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         checkDeviceStateTask?.cancel()
         checkDeviceStateTask = nil
 
-        isDeviceRevoked = false
-        accountExpiry = nil
+        deviceCheck = nil
 
         setReconnecting(false)
     }
@@ -365,12 +361,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
+        let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
+        numberOfFailedAttempts = isOverflow ? 0 : value
+
         if numberOfFailedAttempts.isMultiple(of: 2) {
             startDiagnosticConnectionRecoveryFailingReason()
         }
-
-        let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
-        numberOfFailedAttempts = isOverflow ? 0 : value
 
         providerLogger.debug("Recover connection. Picking next relay...")
 
@@ -539,38 +535,52 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
             guard let self = self else { return }
 
-            var shouldStopTunnelManager = false
+            var newAccountExpiry: Date?
+            var newDeviceRevoked: Bool?
 
             switch accountOperation.completion {
-            case .none, .cancelled: break
             case let .failure(error):
                 self.providerLogger.error(
                     error: error,
                     message: "Failed to fetch account data."
                 )
-            case let .success(accountData):
-                self.accountExpiry = accountData.expiry
 
-                if accountData.expiry < Date() {
-                    shouldStopTunnelManager = true
-                }
+            case let .success(accountData):
+                newAccountExpiry = accountData.expiry
+
+            case .none, .cancelled: break
             }
 
             switch deviceOperation.completion {
-            case .none, .cancelled, .success: break
             case let .failure(error):
                 if error.compareErrorCode(.deviceNotFound) {
-                    self.isDeviceRevoked = true
-                    shouldStopTunnelManager = true
+                    newDeviceRevoked = true
                 } else {
                     self.providerLogger.error(
                         error: error,
                         message: "Failed to fetch device data."
                     )
                 }
+
+            case .none, .cancelled, .success: break
             }
 
-            if shouldStopTunnelManager {
+            if var deviceCheck = self.deviceCheck {
+                deviceCheck.update(
+                    accountExpiry: newAccountExpiry,
+                    isDeviceRevoked: newDeviceRevoked
+                )
+
+                self.deviceCheck = deviceCheck
+            } else {
+                self.deviceCheck = DeviceCheck(
+                    identifier: UUID(),
+                    isDeviceRevoked: newDeviceRevoked,
+                    accountExpiry: newAccountExpiry
+                )
+            }
+
+            if newDeviceRevoked ?? false {
                 self.tunnelMonitor.stop()
             }
         }
@@ -640,4 +650,24 @@ private enum NextRelay {
 
     /// Determine next relay using relay selector.
     case automatic
+}
+
+extension DeviceCheck {
+    mutating func update(accountExpiry: Date?, isDeviceRevoked: Bool?) {
+        var shouldChangeIdentifier = false
+
+        if let accountExpiry = accountExpiry {
+            shouldChangeIdentifier = true
+            self.accountExpiry = accountExpiry
+        }
+
+        if let isDeviceRevoked = isDeviceRevoked {
+            shouldChangeIdentifier = true
+            self.isDeviceRevoked = isDeviceRevoked
+        }
+
+        if shouldChangeIdentifier {
+            identifier = UUID()
+        }
+    }
 }
