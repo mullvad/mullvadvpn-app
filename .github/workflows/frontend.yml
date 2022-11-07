@@ -47,12 +47,12 @@ jobs:
               working-directory: gui
               run: npm run build
 
-            - name: Run headless test
+            - name: Run headless test Linux
               if: runner.os == 'Linux'
               working-directory: gui
               run: xvfb-run -a npm test
 
-            - name: Run headless test
+            - name: Run headless test Windows
               if: runner.os != 'Linux'
               working-directory: gui
               run: npm test
