@@ -276,6 +276,8 @@ function Udp2tcpPortSetting() {
     [],
   );
 
+  const expandableProps = useMemo(() => ({ expandable: true, id: 'udp2tcp-port' }), []);
+
   const selectPort = useCallback(
     async (port: LiftedConstraint<number>) => {
       await setObfuscationSettings({
@@ -307,7 +309,7 @@ function Udp2tcpPortSetting() {
           value={port}
           onSelect={selectPort}
           disabled={obfuscationSettings.selectedObfuscation === ObfuscationType.off}
-          expandable
+          expandable={expandableProps}
           thinTitle
           automaticValue={'any' as const}
         />
