@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadTypes
 import NetworkExtension
 import WireGuardKit
 

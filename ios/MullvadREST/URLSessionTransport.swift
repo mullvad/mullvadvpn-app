@@ -11,23 +11,25 @@ import MullvadTypes
 
 extension URLSessionTask: Cancellable {}
 
-public final class URLSessionTransport: RESTTransport {
-    public var name: String {
-        return "url-session"
-    }
+extension REST {
+    public final class URLSessionTransport: RESTTransport {
+        public var name: String {
+            return "url-session"
+        }
 
-    public let urlSession: URLSession
+        public let urlSession: URLSession
 
-    public init(urlSession: URLSession) {
-        self.urlSession = urlSession
-    }
+        public init(urlSession: URLSession) {
+            self.urlSession = urlSession
+        }
 
-    public func sendRequest(
-        _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) throws -> Cancellable {
-        let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
-        dataTask.resume()
-        return dataTask
+        public func sendRequest(
+            _ request: URLRequest,
+            completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
+        ) throws -> Cancellable {
+            let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
+            dataTask.resume()
+            return dataTask
+        }
     }
 }
