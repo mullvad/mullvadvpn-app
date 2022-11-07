@@ -48,10 +48,8 @@ jobs:
               run: npm run build
 
             - name: Run headless test
-              uses: GabrielBB/xvfb-action@v1.6
-              with:
-                  working-directory: gui
-                  run: npm test
+              working-directory: gui
+              run: npm test
 
             - name: Run Playwright tests
               working-directory: gui
