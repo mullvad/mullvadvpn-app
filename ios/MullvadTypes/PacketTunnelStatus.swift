@@ -14,11 +14,11 @@ public struct DeviceCheck: Codable, Equatable {
     public var identifier: UUID
 
     /// Flag indicating whether device is revoked.
-    /// Set to nil when the device status is unknown yet.
+    /// Set to `nil` when the device status is unknown yet.
     public var isDeviceRevoked: Bool?
 
     /// Last known account expiry.
-    /// Set to nil when the device status is unknown yet.
+    /// Set to `nil` when account expiry is unknown yet.
     public var accountExpiry: Date?
 
     public init(
