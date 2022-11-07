@@ -18,11 +18,7 @@ import { SystemNotification } from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import {
-  SHOULD_DISABLE_RESET_NAVIGATION,
-  SHOULD_FORWARD_RENDERER_LOG,
-  SHOULD_SHOW_CHANGES,
-} from './command-line-options';
+import { SHOULD_DISABLE_RESET_NAVIGATION, SHOULD_SHOW_CHANGES } from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -250,11 +246,7 @@ class ApplicationMain
     const mainLogPath = getMainLogPath();
     const rendererLogPath = getRendererLogPath();
 
-    if (process.env.NODE_ENV === 'development') {
-      if (SHOULD_FORWARD_RENDERER_LOG) {
-        log.addInput(new IpcInput());
-      }
-    } else {
+    if (process.env.NODE_ENV === 'production') {
       this.rendererLog = new Logger();
       this.rendererLog.addInput(new IpcInput());
 

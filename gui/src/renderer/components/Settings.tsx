@@ -84,6 +84,12 @@ export default function Support() {
                     <SupportButton />
                     <AppVersionButton />
                   </Cell.Group>
+
+                  {window.env.development && (
+                    <Cell.Group>
+                      <DebugButton />
+                    </Cell.Group>
+                  )}
                 </StyledSettingsContent>
               </StyledContent>
 
@@ -233,6 +239,17 @@ function SupportButton() {
   return (
     <Cell.CellNavigationButton onClick={navigate}>
       <Cell.Label>{messages.pgettext('settings-view', 'Support')}</Cell.Label>
+    </Cell.CellNavigationButton>
+  );
+}
+
+function DebugButton() {
+  const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.debug), [history]);
+
+  return (
+    <Cell.CellNavigationButton onClick={navigate}>
+      <Cell.Label>Developer tools</Cell.Label>
     </Cell.CellNavigationButton>
   );
 }

@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, WebContents } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,6 +34,29 @@ export class FileOutput implements ILogOutput {
 export class IpcInput implements ILogInput {
   public on(handler: (level: LogLevel, message: string) => void) {
     IpcMainEventChannel.logging.handleLog(({ level, message }) => handler(level, message));
+  }
+}
+
+export class WebContentsConsoleInput implements ILogInput {
+  public constructor(private webContents: WebContents) {}
+
+  public on(handler: (level: LogLevel, message: string) => void) {
+    const levelMap = [LogLevel.verbose, LogLevel.info, LogLevel.warning, LogLevel.error];
+
+    this.webContents.on('console-message', (_event, consoleLevel, message) => {
+      const level = levelMap[consoleLevel];
+      handler(level, WebContentsConsoleInput.formatMessage(level, message));
+    });
+
+    this.webContents.on('preload-error', (_event, _path, error) =>
+      handler(LogLevel.error, WebContentsConsoleInput.formatMessage(LogLevel.error, error.message)),
+    );
+  }
+
+  private static formatMessage(level: LogLevel, message: string) {
+    // Prefix all messages from renderer with [Renderer] in blue or red depending on level.
+    const color = level === LogLevel.error ? '\x1b[31m' : '\x1b[34m';
+    return `${color}[Renderer]\x1b[0m ${message}`;
   }
 }
 
