@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add menu item to control shortcuts.
 - Add continuous monitoring of tunnel connection. Verify ping replies to detect whether traffic is 
   really flowing.
+- Check if device is revoked or account has expired when the tunnel fails to connect on each second
+  failed attempt.
 
 ### Changed
 - When logged into an account with no time left, a new view is shown instead of account settings,

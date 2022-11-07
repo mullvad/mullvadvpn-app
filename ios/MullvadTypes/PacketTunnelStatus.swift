@@ -8,6 +8,30 @@
 
 import Foundation
 
+public struct DeviceCheck: Codable, Equatable {
+    /// Unique identifier for the device check.
+    /// Should only change when other fields in the struct are being changed.
+    public var identifier: UUID
+
+    /// Flag indicating whether device is revoked.
+    /// Set to `nil` when the device status is unknown yet.
+    public var isDeviceRevoked: Bool?
+
+    /// Last known account expiry.
+    /// Set to `nil` when account expiry is unknown yet.
+    public var accountExpiry: Date?
+
+    public init(
+        identifier: UUID = UUID(),
+        isDeviceRevoked: Bool? = nil,
+        accountExpiry: Date? = nil
+    ) {
+        self.identifier = identifier
+        self.isDeviceRevoked = isDeviceRevoked
+        self.accountExpiry = accountExpiry
+    }
+}
+
 /// Struct describing packet tunnel process status.
 public struct PacketTunnelStatus: Codable, Equatable {
     /// Last tunnel error.
@@ -16,16 +40,20 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
 
+    /// Last performed device check.
+    public var deviceCheck: DeviceCheck?
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
     public init(
         lastError: String? = nil,
         isNetworkReachable: Bool = true,
+        deviceCheck: DeviceCheck? = nil,
         tunnelRelay: PacketTunnelRelay? = nil
     ) {
         self.lastError = lastError
         self.isNetworkReachable = isNetworkReachable
+        self.deviceCheck = deviceCheck
         self.tunnelRelay = tunnelRelay
     }
 }
