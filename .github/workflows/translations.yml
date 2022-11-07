@@ -36,10 +36,7 @@ jobs:
               run: npm ci
 
             - name: Install nightly Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                toolchain: stable
-                default: true
+              run: curl https://sh.rustup.rs -sSf | sh -s -- -y
 
             - name: Verify translations
               run: scripts/localization verify
