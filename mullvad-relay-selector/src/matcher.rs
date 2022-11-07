@@ -85,7 +85,7 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
     /// Filter a relay based on constraints and endpoint type, 2nd pass.
     fn post_filter_matching_relay(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         self.location
-            .matches_with_opts(&relay, ignore_include_in_country)
+            .matches_with_opts(relay, ignore_include_in_country)
     }
 
     pub fn mullvad_endpoint(&self, relay: &Relay) -> Option<MullvadEndpoint> {
@@ -195,7 +195,7 @@ impl EndpointMatcher for AnyTunnelMatcher {
             Constraint::Any => self
                 .openvpn
                 .mullvad_endpoint(relay)
-                .or_else(|| self.wireguard.mullvad_endpoint(&relay)),
+                .or_else(|| self.wireguard.mullvad_endpoint(relay)),
             Constraint::Only(TunnelType::OpenVpn) => self.openvpn.mullvad_endpoint(relay),
             Constraint::Only(TunnelType::Wireguard) => self.wireguard.mullvad_endpoint(relay),
         }
@@ -316,7 +316,7 @@ impl EndpointMatcher for WireguardMatcher {
         if !self.is_matching_relay(relay) {
             return None;
         }
-        self.wg_data_to_endpoint(&relay, &self.data)
+        self.wg_data_to_endpoint(relay, &self.data)
     }
 }
 
