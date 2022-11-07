@@ -8,6 +8,15 @@
 
 import Foundation
 
+public struct DeviceCheck: Codable, Equatable {
+    public var lastUpdateDate: Date
+    /// Flag indicating device is revoked or not.
+    public var isDeviceRevoked: Bool
+
+    /// Flag indicating that account expiry should be set again.
+    public var accountExpiry: Date?
+}
+
 /// Struct describing packet tunnel process status.
 public struct PacketTunnelStatus: Codable, Equatable {
     /// Last tunnel error.
@@ -16,12 +25,7 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
 
-    /// Flag indicating device is revoked or not.
-    public var isDeviceRevoked: Bool
-
-    /// Flag indicating that account expiry should be set again.
-    public var accountExpiry: Date?
-
+    public var deviceCheck: DeviceCheck?
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
@@ -34,8 +38,23 @@ public struct PacketTunnelStatus: Codable, Equatable {
     ) {
         self.lastError = lastError
         self.isNetworkReachable = isNetworkReachable
-        self.isDeviceRevoked = isDeviceRevoked
-        self.accountExpiry = accountExpiry
+        deviceCheck = DeviceCheck(
+            lastUpdateDate: Date(),
+            isDeviceRevoked: isDeviceRevoked,
+            accountExpiry: accountExpiry
+        )
+        self.tunnelRelay = tunnelRelay
+    }
+
+    public init(
+        lastError: String? = nil,
+        isNetworkReachable: Bool = true,
+        deviceCheck: DeviceCheck,
+        tunnelRelay: PacketTunnelRelay? = nil
+    ) {
+        self.lastError = lastError
+        self.isNetworkReachable = isNetworkReachable
+        self.deviceCheck = deviceCheck
         self.tunnelRelay = tunnelRelay
     }
 }

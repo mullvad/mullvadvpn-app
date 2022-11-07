@@ -45,7 +45,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     public var accountExpiry: Date?
 
     /// Flag counting number of failed attempts happened.
-    private var numberOfFailedAttempts = 0
+    private var numberOfFailedAttempts: UInt = 0
 
     /// Last runtime error.
     private var lastError: Error?
@@ -80,6 +80,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Device data request proxy
     private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
+
+    private lazy var checkDeviceStateTask: Cancellable? = nil
 
     /// OperationQueue used for gathering account and device information from network requests and
     /// unifying results in a single scope.
@@ -346,6 +348,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         reassertTunnelCompletionHandler?()
         reassertTunnelCompletionHandler = nil
 
+        numberOfFailedAttempts = 0
+
+        checkDeviceStateTask?.cancel()
+        checkDeviceStateTask = nil
+
+        isDeviceRevoked = false
+        accountExpiry = nil
+
         setReconnecting(false)
     }
 
@@ -355,14 +365,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-        guard numberOfFailedAttempts.isMultiple(of: 2) else {
-            startDiagnosticConnectionRecoveryFailingReason(
-                shouldHandleConnectionRecoveryWithCompletion: completionHandler
-            )
-            return
+        if numberOfFailedAttempts.isMultiple(of: 2) {
+            startDiagnosticConnectionRecoveryFailingReason()
         }
 
-        numberOfFailedAttempts += 1
+        let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
+        numberOfFailedAttempts = isOverflow ? 0 : value
 
         providerLogger.debug("Recover connection. Picking next relay...")
 
@@ -489,50 +497,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     // MARK: - Connection Recovery Diagnostic
 
-    private enum ConnectionRecoveryDiagnosticErrors: Error {
-        case unableToReadCredentials
-        case fetchingAccountDataFinishedWith(error: Error)
-        case fetchingDeviceDataFinishedWith(error: REST.Error)
-        case ranOutOfTime(newExpiry: Date)
-    }
-
-    private func startDiagnosticConnectionRecoveryFailingReason(
-        shouldHandleConnectionRecoveryWithCompletion completionHandler: @escaping () -> Void
-    ) {
+    private func startDiagnosticConnectionRecoveryFailingReason() {
         providerLogger.debug("Failed to recover connection, started diagnostic process")
 
-        guard let deviceState = try? SettingsManager.readDeviceState(),
-              let accountData = deviceState.accountData,
-              let deviceIdentifier = deviceState.deviceData?.identifier
-        else {
-            reportConnectionRecoveryDiagnosticError(.unableToReadCredentials)
+        let deviceState: DeviceState
+        do {
+            deviceState = try SettingsManager.readDeviceState()
+        } catch {
+            providerLogger.error(
+                error: error,
+                message: "Failed to read device states"
+            )
+            return
+        }
+
+        guard case let .loggedIn(storedAccountData, storedDeviceData) = deviceState else {
             return
         }
 
         verifyUserData(
-            accountNumber: accountData.number,
-            deviceIdentifier: deviceIdentifier
-        ) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .none:
-                self.numberOfFailedAttempts = 0
+            accountNumber: storedAccountData.number,
+            deviceIdentifier: storedDeviceData.identifier
+        )
 
-            case let .some(error):
-                self.reportConnectionRecoveryDiagnosticError(error)
-            }
-
-            self.providerLogger.debug("Recover connection. Picking next relay...")
-            self.reconnectTunnel(to: .automatic, completionHandler: completionHandler)
-        }
+        providerLogger.debug("Recover connection. Picking next relay...")
+        reconnectTunnel(to: .automatic)
     }
 
     /// Verifying device data to check if its not revoked
     /// Verifying account data to check if we haven't ran out of time. (Account expired)
     private func verifyUserData(
         accountNumber: String,
-        deviceIdentifier: String,
-        completion: @escaping (ConnectionRecoveryDiagnosticErrors?) -> Void
+        deviceIdentifier: String
     ) {
         let accountOperation = createGetAccountDataOperation(accountNumber: accountNumber)
         let deviceOperation = createGetDeviceDataOperation(
@@ -540,27 +536,55 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             identifier: deviceIdentifier
         )
 
-        let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) {
-            let accountCompletion = accountOperation.completion
-            let deviceCompletion = deviceOperation.completion
+        let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
+            guard let self = self else { return }
 
-            if let accountData = accountCompletion?.value {
-                if accountData.expiry > Date() {
-                    completion(.ranOutOfTime(newExpiry: accountData.expiry))
+            var shouldStopTunnelManager = false
+
+            switch accountOperation.completion {
+            case .none, .cancelled: break
+            case let .failure(error):
+                self.providerLogger.error(
+                    error: error,
+                    message: "Failed to fetch account data."
+                )
+            case let .success(accountData):
+                self.accountExpiry = accountData.expiry
+
+                if accountData.expiry < Date() {
+                    shouldStopTunnelManager = true
                 }
             }
 
-            if let deviceCompletionError = deviceCompletion?.error {
-                completion(.fetchingDeviceDataFinishedWith(error: deviceCompletionError))
+            switch deviceOperation.completion {
+            case .none, .cancelled, .success: break
+            case let .failure(error):
+                if error.compareErrorCode(.deviceNotFound) {
+                    self.isDeviceRevoked = true
+                    shouldStopTunnelManager = true
+                } else {
+                    self.providerLogger.error(
+                        error: error,
+                        message: "Failed to fetch device data."
+                    )
+                }
+            }
+
+            if shouldStopTunnelManager {
+                self.tunnelMonitor.stop()
             }
         }
 
         completionOperation.addDependencies([accountOperation, deviceOperation])
 
-        operationQueue.addOperations(
-            [accountOperation, deviceOperation, completionOperation],
-            waitUntilFinished: false
-        )
+        let groupOperation = GroupOperation(operations: [
+            accountOperation,
+            deviceOperation,
+            completionOperation,
+        ])
+        checkDeviceStateTask = groupOperation
+
+        operationQueue.addOperation(groupOperation)
     }
 
     private func createGetAccountDataOperation(accountNumber: String)
@@ -606,37 +630,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
 
         return operation
-    }
-
-    private func reportConnectionRecoveryDiagnosticError(
-        _ error: ConnectionRecoveryDiagnosticErrors
-    ) {
-        switch error {
-        case .unableToReadCredentials:
-            providerLogger.debug("Unable to read credentials from keychain")
-
-        case let .fetchingAccountDataFinishedWith(error):
-            providerLogger
-                .debug(
-                    "Unable to fetch account data from network request, original error: \(error.localizedDescription)"
-                )
-
-        case let .fetchingDeviceDataFinishedWith(error):
-            if error.compareErrorCode(.deviceNotFound) {
-                isDeviceRevoked = true
-            } else {
-                providerLogger
-                    .debug(
-                        "Unable to fetch account data from network request, original error: \(error.localizedDescription)"
-                    )
-            }
-
-        case let .ranOutOfTime(newExpiryDate):
-            // Pass new expiry to GUI
-            accountExpiry = newExpiryDate
-            // Stop monitoring tunnel
-            tunnelMonitor.stop()
-        }
     }
 }
 

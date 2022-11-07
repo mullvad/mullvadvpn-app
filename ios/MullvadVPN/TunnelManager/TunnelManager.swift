@@ -665,9 +665,13 @@ final class TunnelManager {
 
         _tunnelStatus = newTunnelStatus
 
-        if newTunnelStatus.packetTunnelStatus.isDeviceRevoked {
+        if newTunnelStatus.packetTunnelStatus.deviceCheck?.isDeviceRevoked ?? false {
             didDetectDeviceRevoked()
-        } else if let accountExpiry = newTunnelStatus.packetTunnelStatus.accountExpiry {
+        } else if let accountExpiry = newTunnelStatus
+            .packetTunnelStatus
+            .deviceCheck?
+            .accountExpiry
+        {
             // checking for logged state and updating account data with new expiry
             scheduleDeviceStateUpdate(
                 taskName: "Update account expiry",
@@ -915,14 +919,17 @@ final class TunnelManager {
         completionHandler: (() -> Void)?
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            var deviceState = self.deviceState
+            let oldState = self.deviceState
+            var deviceState = oldState
 
             modificationBlock(&deviceState)
 
-            self.setDeviceState(deviceState, persist: true)
+            if deviceState != oldState {
+                self.setDeviceState(deviceState, persist: true)
 
-            if reconnectTunnel {
-                self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+                if reconnectTunnel {
+                    self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+                }
             }
         }
 
