@@ -111,8 +111,6 @@ final class TunnelManager: StorePaymentObserver {
 
         isRunningPeriodicPrivateKeyRotation = true
         updatePrivateKeyRotationTimer()
-
-        nslock.unlock()
     }
 
     func stopPeriodicPrivateKeyRotation() {
