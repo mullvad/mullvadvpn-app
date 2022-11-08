@@ -316,6 +316,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_auth_file,
             proxy_monitor,
             tunnel_close_rx,
+            #[cfg(target_os = "linux")]
+            fwmark: params.fwmark,
         };
         Self::new_internal(
             cmd,
@@ -380,6 +382,8 @@ struct OpenVpnTunnelInitArgs {
     proxy_auth_file: Option<mktemp::TempFile>,
     proxy_monitor: Option<Box<dyn ProxyMonitor>>,
     tunnel_close_rx: oneshot::Receiver<()>,
+    #[cfg(target_os = "linux")]
+    fwmark: u32,
 }
 
 impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
@@ -407,6 +411,9 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
         #[cfg(windows)]
         let wintun = Arc::new(wintun);
+
+        #[cfg(target_os = "linux")]
+        cmd.fwmark(init_args.fwmark);
 
         cmd.plugin(plugin_path, vec![ipc_path])
             .log(log_path.as_deref());
@@ -769,6 +776,10 @@ pub trait OpenVpnBuilder {
 
     /// Spawn the subprocess and return a handle.
     fn start(&self) -> io::Result<Self::ProcessHandle>;
+
+    /// Sets the firewall mark for the connection.
+    #[cfg(target_os = "linux")]
+    fn fwmark(&mut self, fwmark: u32) -> &mut Self;
 }
 
 /// Trait for types acting as handles to subprocesses for `OpenVpnMonitor`
@@ -797,6 +808,12 @@ impl OpenVpnBuilder for OpenVpnCommand {
 
     fn start(&self) -> io::Result<OpenVpnProcHandle> {
         OpenVpnProcHandle::new(self.build())
+    }
+
+    #[cfg(target_os = "linux")]
+    fn fwmark(&mut self, fwmark: u32) -> &mut Self {
+        self.fwmark(Some(fwmark));
+        self
     }
 }
 
@@ -1196,6 +1213,11 @@ mod tests {
             self
         }
 
+        #[cfg(target_os = "linux")]
+        fn fwmark(&mut self, _fwmark: u32) -> &mut Self {
+            self
+        }
+
         fn start(&self) -> io::Result<Self::ProcessHandle> {
             self.process_handle
                 .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "failed to start"))
@@ -1246,6 +1268,8 @@ mod tests {
             proxy_auth_file: None,
             proxy_monitor: None,
             tunnel_close_rx: close_rx,
+            #[cfg(target_os = "linux")]
+            fwmark: 0,
         }
     }
 
