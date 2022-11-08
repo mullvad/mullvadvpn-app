@@ -183,7 +183,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         } catch {
             providerLogger.error(
                 error: error,
-                message: "Failed to start the tunnel."
+                message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
             completionHandler(error)
