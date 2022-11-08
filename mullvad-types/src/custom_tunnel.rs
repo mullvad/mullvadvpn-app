@@ -54,6 +54,8 @@ impl CustomTunnelEndpoint {
                 options: tunnel_options.openvpn.clone(),
                 generic_options: tunnel_options.generic,
                 proxy,
+                #[cfg(target_os = "linux")]
+                fwmark: crate::TUNNEL_FWMARK,
             }
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {

@@ -13,6 +13,8 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub proxy: Option<ProxySettings>,
+    #[cfg(target_os = "linux")]
+    pub fwmark: u32,
 }
 
 /// Connection configuration used by [`TunnelParameters`].
