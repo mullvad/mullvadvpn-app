@@ -17,7 +17,9 @@ import UIKit
 import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,
+    StorePaymentManagerDelegate
+{
     private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -324,11 +326,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
         UNUserNotificationCenter.current().delegate = self
     }
-}
 
-// MARK: - AppStorePaymentManagerDelegate
+    // MARK: - StorePaymentManagerDelegate
 
-extension AppDelegate: StorePaymentManagerDelegate {
     func storePaymentManager(
         _ manager: StorePaymentManager,
         didRequestAccountTokenFor payment: SKPayment
@@ -338,11 +338,9 @@ extension AppDelegate: StorePaymentManagerDelegate {
         // number.
         return TunnelManager.shared.deviceState.accountData?.number
     }
-}
 
-// MARK: - UNUserNotificationCenterDelegate
+    // MARK: - UNUserNotificationCenterDelegate
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
