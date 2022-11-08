@@ -528,26 +528,23 @@ impl RouteManagerInternal {
             // changed. So removing and adding again is the only option.
             //
 
-            match Self::delete_from_routing_table(&affected_route.registered_route) {
-                Ok(()) => (),
-                Err(e) => {
-                    log::error!(
-                        "Failed to delete route when refreshing existing routes: {}",
-                        e
-                    );
-                    continue;
-                }
+            if let Err(error) = Self::delete_from_routing_table(&affected_route.registered_route) {
+                log::error!(
+                    "Failed to delete route when refreshing existing routes: {}",
+                    error
+                );
+                continue;
             }
 
             affected_route.registered_route.luid = route.iface;
             affected_route.registered_route.next_hop = route.gateway;
 
-            match Self::restore_into_routing_table(&affected_route.registered_route) {
-                Ok(()) => (),
-                Err(e) => {
-                    log::error!("Failed to add route when refreshing existing routes: {}", e);
-                    continue;
-                }
+            if let Err(error) = Self::restore_into_routing_table(&affected_route.registered_route) {
+                log::error!(
+                    "Failed to add route when refreshing existing routes: {}",
+                    error
+                );
+                continue;
             }
         }
     }
@@ -601,11 +598,6 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         })
         .collect();
 
-    if matches.is_empty() {
-        log::error!("Unable to find network adapter with specified gateway");
-        return Err(Error::DeviceGatewayNotFound);
-    }
-
     // Sort matching interfaces ascending by metric.
     //
 
@@ -621,8 +613,13 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
 
     // Select the interface with the best (lowest) metric.
     //
-
-    Ok(matches[0].Luid)
+    matches
+        .get(0)
+        .map(|interface| interface.Luid)
+        .ok_or_else(|| {
+            log::error!("Unable to find network adapter with specified gateway");
+            Error::DeviceGatewayNotFound
+        })
 }
 
 /// SAFETY: adapter.FirstGatewayAddress must be dereferencable and must live as long as adapter
@@ -741,7 +738,7 @@ impl Adapters {
                 GetAdaptersAddresses(
                     family,
                     flags,
-                    std::ptr::null_mut() as *mut _,
+                    std::ptr::null_mut(),
                     buffer_pointer as *mut IP_ADAPTER_ADDRESSES_LH,
                     &mut buffer_size,
                 )
