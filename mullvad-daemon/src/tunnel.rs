@@ -182,6 +182,8 @@ impl InnerParametersGenerator {
                     options: self.tunnel_options.openvpn.clone(),
                     generic_options: self.tunnel_options.generic.clone(),
                     proxy: bridge_settings,
+                    #[cfg(target_os = "linux")]
+                    fwmark: mullvad_types::TUNNEL_FWMARK,
                 }
                 .into())
             }
