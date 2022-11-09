@@ -6,6 +6,7 @@ import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
+import SearchBar from './SearchBar';
 import { HeaderTitle } from './SettingsHeader';
 
 export const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
@@ -87,64 +88,6 @@ export const StyledCellContainer = styled(Cell.Container)({
   marginBottom: measurements.rowVerticalMargin,
 });
 
-export const StyledSearchContainer = styled.div({
-  position: 'relative',
-  marginBottom: measurements.buttonVerticalMargin,
-});
-
-export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
-  ...normalText,
-  width: `calc(100% - ${measurements.viewMargin} * 2)`,
-  border: 'none',
-  borderRadius: '4px',
-  padding: '9px 38px',
-  margin: `0 ${measurements.viewMargin}`,
-  color: colors.white60,
-  backgroundColor: colors.white10,
-  '::placeholder': {
-    color: colors.white60,
-  },
-  ':focus': {
-    color: colors.blue,
-    backgroundColor: colors.white,
-    '::placeholder': {
-      color: colors.blue40,
-    },
-  },
-});
-
-export const StyledClearButton = styled.button({
-  position: 'absolute',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  right: '28px',
-  border: 'none',
-  background: 'none',
-  padding: 0,
-});
-
-export const StyledSearchIcon = styled(ImageView)({
-  position: 'absolute',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  left: '28px',
-  [`${StyledSearchInput}:focus ~ &`]: {
-    backgroundColor: colors.blue,
-  },
-});
-
-export const StyledClearIcon = styled(ImageView)({
-  ':hover': {
-    backgroundColor: colors.white60,
-  },
-  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &`]: {
-    backgroundColor: colors.blue40,
-    ':hover': {
-      backgroundColor: colors.blue,
-    },
-  },
-});
-
 export const StyledNoResult = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
@@ -163,4 +106,10 @@ export const StyledHeaderTitleContainer = styled.div({
 
 export const StyledHeaderTitle = styled(HeaderTitle)({
   flex: 1,
+});
+
+export const StyledSearchBar = styled(SearchBar)({
+  marginLeft: measurements.viewMargin,
+  marginRight: measurements.viewMargin,
+  marginBottom: measurements.buttonVerticalMargin,
 });
