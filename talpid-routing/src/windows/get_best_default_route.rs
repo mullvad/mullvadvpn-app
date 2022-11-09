@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use std::{convert::TryInto, io, net::SocketAddr};
+use std::{io, net::SocketAddr, slice};
 use talpid_windows_net::{
     get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily,
 };
@@ -22,7 +22,7 @@ const TUNNEL_INTERFACE_DESCS: [&WideCStr; 3] = [
     widecstr!("Tunnel"),
 ];
 
-fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> {
+fn get_ip_forward_table(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> {
     let family = family.to_af_family();
     let mut table_ptr = std::ptr::null_mut();
 
@@ -36,32 +36,23 @@ fn get_ipforward_rows(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>> 
     }
 
     // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error
-    let num_entries = unsafe { *table_ptr }.NumEntries;
-    let mut vec = Vec::with_capacity(num_entries.try_into().unwrap_or_default());
+    let num_entries = usize::try_from(unsafe { *table_ptr }.NumEntries).unwrap();
+    assert!(
+        num_entries
+            .checked_mul(std::mem::size_of::<MIB_IPFORWARD_ROW2>())
+            .unwrap()
+            <= usize::try_from(isize::MAX).unwrap()
+    );
+    // SAFETY: num_entries * size_of(MIB_IPFORWARD_ROW2) is at most isize::MAX
+    let rows = unsafe { slice::from_raw_parts((*table_ptr).Table.as_ptr(), num_entries) }.to_vec();
 
-    for i in 0..num_entries {
-        assert!(
-            usize::try_from(i).unwrap() * std::mem::size_of::<MIB_IPFORWARD_ROW2>()
-                < usize::try_from(isize::MAX).unwrap()
-        );
-
-        // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error nor have we
-        // or will we modify the table
-        let ptr: *const MIB_IPFORWARD_ROW2 = unsafe { (*table_ptr).Table.as_ptr() };
-
-        // SAFETY: The assert guarantees that the amount of bytes we are jumping is not larger than
-        // isize::MAX. Win32 guarantees that the resulting pointer is aligned, non-null,
-        // init.
-        let row: &MIB_IPFORWARD_ROW2 =
-            unsafe { ptr.offset(i.try_into().unwrap()).as_ref() }.unwrap();
-        vec.push(row.clone());
-    }
     // SAFETY: FreeMibTable does not have clear safety rules but it deallocates the
     // MIB_IPFORWARD_TABLE2 This pointer is ONLY deallocated here so it is guaranteed to not
     // have been already deallocated. We have cloned all MIB_IPFORWARD_ROW2s and the rows do not
     // contain pointers to the table so they will not be dangling after this free.
     unsafe { FreeMibTable(table_ptr as *const _) }
-    Ok(vec)
+
+    Ok(rows)
 }
 
 /// General type for passing interface and gateway
@@ -81,7 +72,7 @@ impl PartialEq for InterfaceAndGateway {
 
 /// Get the best default route for the given address family or None if none exists.
 pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceAndGateway>> {
-    let table = get_ipforward_rows(family)?;
+    let table = get_ip_forward_table(family)?;
 
     // Remove all candidates without a gateway and which are not on a physical interface.
     // Then get the annotated routes which are active.
@@ -92,29 +83,29 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceA
                 && route_has_gateway(row)
                 && is_route_on_physical_interface(row).unwrap_or(false)
         })
-        .filter_map(|row| annotate_route(row))
+        .filter_map(annotate_route)
         .collect();
-
-    if annotated.is_empty() {
-        return Ok(None);
-    }
 
     // We previously filtered out all inactive routes so we only need to sort by acending
     // effective_metric
     annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
 
-    Ok(Some(InterfaceAndGateway {
-        iface: annotated[0].route.InterfaceLuid,
-        gateway: try_socketaddr_from_inet_sockaddr(annotated[0].route.NextHop)
-            .map_err(|_| Error::InvalidSiFamily)?,
-    }))
+    annotated
+        .get(0)
+        .map(|annotated| {
+            Ok(InterfaceAndGateway {
+                iface: annotated.route.InterfaceLuid,
+                gateway: try_socketaddr_from_inet_sockaddr(annotated.route.NextHop)
+                    .map_err(|_| Error::InvalidSiFamily)?,
+            })
+        })
+        .transpose()
 }
 
 pub fn route_has_gateway(route: &MIB_IPFORWARD_ROW2) -> bool {
-    match try_socketaddr_from_inet_sockaddr(route.NextHop) {
-        Ok(sock) => !sock.ip().is_unspecified(),
-        Err(_) => false,
-    }
+    try_socketaddr_from_inet_sockaddr(route.NextHop)
+        .map(|addr| !addr.ip().is_unspecified())
+        .unwrap_or(false)
 }
 
 // TODO(Jon): It would be more correct to filter for devices that match the known LUID of the tunnel

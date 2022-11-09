@@ -217,11 +217,8 @@ impl WgGoTunnel {
         let iface_idx: u32 = match event_type {
             Updated(default_route) => {
                 let mut iface_idx = 0u32;
-                // TODO: Make sure unwrap is fine
                 let iface_luid = default_route.iface;
-                let status = unsafe {
-                    ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _)
-                };
+                let status = unsafe { ConvertInterfaceLuidToIndex(&iface_luid, &mut iface_idx) };
                 if status != 0 {
                     log::error!(
                         "Failed to convert interface LUID to interface index: {}: {}",
