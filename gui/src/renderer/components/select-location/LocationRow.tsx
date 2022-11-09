@@ -2,14 +2,14 @@ import React, { useCallback, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
-import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import Accordion from './Accordion';
-import * as Cell from './cell';
-import ChevronButton from './ChevronButton';
-import { measurements, normalText } from './common-styles';
-import RelayStatusIndicator from './RelayStatusIndicator';
+import { colors } from '../../../config.json';
+import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-types';
+import { messages } from '../../../shared/gettext';
+import Accordion from '../Accordion';
+import * as Cell from '../cell';
+import ChevronButton from '../ChevronButton';
+import { measurements, normalText } from '../common-styles';
+import RelayStatusIndicator from '../RelayStatusIndicator';
 
 interface IButtonColorProps {
   selected: boolean;
@@ -99,6 +99,7 @@ interface IProps {
   location: RelayLocation;
   selected: boolean;
   expanded?: boolean;
+  expandable: boolean;
   onSelect?: (location: RelayLocation) => void;
   onExpand?: (location: RelayLocation, value: boolean) => void;
   onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
@@ -107,7 +108,7 @@ interface IProps {
 }
 
 function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
-  const hasChildren = props.children !== undefined;
+  const hasChildren = React.Children.count(props.children) > 0;
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
 
   const toggleCollapse = useCallback(() => {
@@ -142,7 +143,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
           <RelayStatusIndicator active={props.active} selected={props.selected} />
           <StyledLocationRowLabel>{props.name}</StyledLocationRowLabel>
         </StyledLocationRowButton>
-        {hasChildren ? (
+        {hasChildren && props.expandable ? (
           <StyledLocationRowIcon
             as={ChevronButton}
             onClick={toggleCollapse}
@@ -163,7 +164,7 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
       {hasChildren && (
         <Accordion
           expanded={props.expanded}
-          onWillExpand={onWillExpand}
+          onWillExpand={props.expandable ? onWillExpand : undefined}
           onTransitionEnd={props.onTransitionEnd}
           animationDuration={150}>
           <Cell.Group noMarginBottom>{props.children}</Cell.Group>

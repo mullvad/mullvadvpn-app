@@ -1,34 +1,32 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../config.json';
+import { colors } from '../../../config.json';
 import {
   LiftedConstraint,
   Ownership,
   RelayLocation,
   TunnelProtocol,
-} from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { IRelayLocationRedux } from '../redux/settings/reducers';
-import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
-import { CustomScrollbarsRef } from './CustomScrollbars';
-import ImageView from './ImageView';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import LocationList, {
-  DisabledReason,
-  LocationSelection,
-  LocationSelectionType,
-} from './LocationList';
-import { EntryLocations, ExitLocations } from './Locations';
+} from '../../../shared/daemon-rpc-types';
+import { messages } from '../../../shared/gettext';
+import { IRelayLocationRedux } from '../../redux/settings/reducers';
+import { CustomScrollbarsRef } from '../CustomScrollbars';
+import ImageView from '../ImageView';
+import { BackAction } from '../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../Layout';
 import {
   NavigationBar,
   NavigationContainer,
   NavigationItems,
   NavigationScrollbars,
   TitleBarItem,
-} from './NavigationBar';
-import { ScopeBarItem } from './ScopeBar';
+} from '../NavigationBar';
+import { ScopeBarItem } from '../ScopeBar';
+import { HeaderSubTitle, HeaderTitle } from '../SettingsHeader';
+import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
+import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
+import { EntryLocations, ExitLocations } from './Locations';
+import { DisabledReason } from './RelayLocations';
 import {
   StyledClearFilterButton,
   StyledContent,
@@ -37,9 +35,10 @@ import {
   StyledFilterRow,
   StyledNavigationBarAttachment,
   StyledScopeBar,
+  StyledSearchBar,
   StyledSettingsHeader,
 } from './SelectLocationStyles';
-import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { SpacePreAllocationView } from './SpacePreAllocationView';
 
 interface IProps {
   locale: string;
@@ -70,6 +69,7 @@ enum LocationScope {
 interface IState {
   headingHeight: number;
   locationScope: LocationScope;
+  filter: string;
 }
 
 interface ISelectLocationSnapshot {
@@ -78,7 +78,7 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  public state = { headingHeight: 0, locationScope: LocationScope.exit };
+  public state = { headingHeight: 0, locationScope: LocationScope.exit, filter: '' };
 
   private scrollView = React.createRef<CustomScrollbarsRef>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
@@ -173,8 +173,22 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                           messages.pgettext('select-location-view', 'Select location')
                         }
                       </HeaderTitle>
-                      {this.renderHeaderSubtitle()}
                     </StyledSettingsHeader>
+
+                    {this.props.allowEntrySelection && (
+                      <StyledScopeBar
+                        defaultSelectedIndex={this.state.locationScope}
+                        onChange={this.onChangeLocationScope}>
+                        <ScopeBarItem>
+                          {messages.pgettext('select-location-view', 'Entry')}
+                        </ScopeBarItem>
+                        <ScopeBarItem>
+                          {messages.pgettext('select-location-view', 'Exit')}
+                        </ScopeBarItem>
+                      </StyledScopeBar>
+                    )}
+
+                    {this.renderHeaderSubtitle()}
 
                     {showFilters && (
                       <StyledFilterRow>
@@ -223,18 +237,8 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                         )}
                       </StyledFilterRow>
                     )}
-                    {this.props.allowEntrySelection && (
-                      <StyledScopeBar
-                        defaultSelectedIndex={this.state.locationScope}
-                        onChange={this.onChangeLocationScope}>
-                        <ScopeBarItem>
-                          {messages.pgettext('select-location-view', 'Entry')}
-                        </ScopeBarItem>
-                        <ScopeBarItem>
-                          {messages.pgettext('select-location-view', 'Exit')}
-                        </ScopeBarItem>
-                      </StyledScopeBar>
-                    )}
+
+                    <StyledSearchBar searchTerm={this.state.filter} onSearch={this.updateFilter} />
                   </StyledNavigationBarAttachment>
 
                   <StyledContent>{this.renderLocationList()}</StyledContent>
@@ -325,6 +329,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       return (
         <ExitLocations
           ref={this.exitLocationList}
+          filter={this.state.filter}
           source={this.props.relayLocations}
           locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
@@ -346,6 +351,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       return (
         <EntryLocations
           ref={this.entryLocationList}
+          filter={this.state.filter}
           source={this.props.relayLocations}
           locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
@@ -361,6 +367,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       return (
         <BridgeLocations
           ref={this.bridgeLocationList}
+          filter={this.state.filter}
           source={this.props.bridgeLocations}
           locale={this.props.locale}
           defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
@@ -439,33 +446,8 @@ export default class SelectLocation extends React.Component<IProps, IState> {
     this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
     this.scrollView.current?.scrollIntoView(locationRect);
   };
-}
 
-interface ISpacePreAllocationView {
-  children?: React.ReactNode;
-}
-
-class SpacePreAllocationView extends React.Component<ISpacePreAllocationView> {
-  private ref = React.createRef<HTMLDivElement>();
-
-  public allocate(height: number) {
-    if (this.ref.current) {
-      this.minHeight = this.ref.current.offsetHeight + height + 'px';
-    }
-  }
-
-  public reset = () => {
-    this.minHeight = 'auto';
+  private updateFilter = (filter: string) => {
+    this.setState({ filter });
   };
-
-  public render() {
-    return <div ref={this.ref}>{this.props.children}</div>;
-  }
-
-  private set minHeight(value: string) {
-    const element = this.ref.current;
-    if (element) {
-      element.style.minHeight = value;
-    }
-  }
 }
