@@ -1,16 +1,12 @@
 import * as React from 'react';
 
-import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { IRelayLocationRedux } from '../redux/settings/reducers';
-import LocationList, {
-  LocationSelection,
-  LocationSelectionType,
-  RelayLocations,
-  SpecialLocation,
-  SpecialLocationIcon,
-  SpecialLocations,
-} from './LocationList';
+import { LiftedConstraint, RelayLocation } from '../../../shared/daemon-rpc-types';
+import { messages } from '../../../shared/gettext';
+import { IRelayLocationRedux } from '../../redux/settings/reducers';
+import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
+import { RelayLocations } from './RelayLocations';
+import { SpecialLocation, SpecialLocationIcon } from './SpecialLocation';
+import { SpecialLocations } from './SpecialLocations';
 
 export enum SpecialBridgeLocationType {
   closestToExit = 0,
@@ -18,6 +14,7 @@ export enum SpecialBridgeLocationType {
 
 interface IBridgeLocationsProps {
   source: IRelayLocationRedux[];
+  filter: string;
   locale: string;
   defaultExpandedLocations?: RelayLocation[];
   selectedValue?: LiftedConstraint<RelayLocation>;
@@ -46,19 +43,22 @@ const BridgeLocations = React.forwardRef(function BridgeLocationsT(
       selectedValue={selectedValue}
       selectedElementRef={props.selectedElementRef}
       onSelect={props.onSelect}>
-      <SpecialLocations>
-        <SpecialLocation
-          icon={SpecialLocationIcon.geoLocation}
-          value={SpecialBridgeLocationType.closestToExit}
-          info={messages.pgettext(
-            'select-location-view',
-            'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
-          )}>
-          {messages.gettext('Automatic')}
-        </SpecialLocation>
-      </SpecialLocations>
+      {!props.filter && (
+        <SpecialLocations>
+          <SpecialLocation
+            icon={SpecialLocationIcon.geoLocation}
+            value={SpecialBridgeLocationType.closestToExit}
+            info={messages.pgettext(
+              'select-location-view',
+              'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
+            )}>
+            {messages.gettext('Automatic')}
+          </SpecialLocation>
+        </SpecialLocations>
+      )}
       <RelayLocations
         source={props.source}
+        filter={props.filter}
         locale={props.locale}
         onWillExpand={props.onWillExpand}
         onTransitionEnd={props.onTransitionEnd}
