@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Remove last filesystem dependency of early boot blocking unit.
+- Ensure RPM package removes all application directories when uninstalled.
 
 #### Windows
 - Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.

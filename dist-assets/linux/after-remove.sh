@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-echo "Running after-remove.sh"
-
 function remove_logs_and_cache {
   rm -r --interactive=never /var/log/mullvad-vpn/ || \
     echo "Failed to remove mullvad-vpn logs"
