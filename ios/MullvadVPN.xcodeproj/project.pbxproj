@@ -43,7 +43,6 @@
 		06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66528F83CA30033DD93 /* RESTURLSession.swift */; };
 		06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66E28F83CA40033DD93 /* RESTProxy.swift */; };
 		06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */; };
-		06799AED28F98E4800ACD94E /* RESTTransportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */; };
 		06799AEE28F98E4800ACD94E /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */; };
 		06799AEF28F98E4800ACD94E /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */; };
 		06799AF028F98E4800ACD94E /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
@@ -539,7 +538,6 @@
 		06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestFactory.swift; sourceTree = "<group>"; };
 		06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
 		06FAE66C28F83CA40033DD93 /* RESTCoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTCoding.swift; sourceTree = "<group>"; };
-		06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransportRegistry.swift; sourceTree = "<group>"; };
 		06FAE66E28F83CA40033DD93 /* RESTProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxy.swift; sourceTree = "<group>"; };
 		06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTNetworkOperation.swift; sourceTree = "<group>"; };
 		06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthenticationProxy.swift; sourceTree = "<group>"; };
@@ -999,7 +997,6 @@
 				5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
-				06FAE66D28F83CA40033DD93 /* RESTTransportRegistry.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
 				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
@@ -2024,7 +2021,6 @@
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
-				06799AED28F98E4800ACD94E /* RESTTransportRegistry.swift in Sources */,
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,

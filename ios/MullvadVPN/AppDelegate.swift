@@ -63,9 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             isReadOnly: false
         )!
 
-        let transportRegistry = REST.TransportRegistry(transport: nil)
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportRegistry: transportRegistry,
+            transportProvider: { [weak self] in
+                return self?.transportMonitor.transport
+            },
             addressCache: addressCache
         )
 
@@ -94,10 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(
-            tunnelManager: tunnelManager,
-            transportRegistry: transportRegistry
-        )
+        transportMonitor = TransportMonitor(tunnelManager: tunnelManager)
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator

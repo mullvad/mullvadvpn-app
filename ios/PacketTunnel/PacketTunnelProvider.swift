@@ -113,11 +113,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
             isReadOnly: true
         )!
-        let transportRegistry = REST.TransportRegistry(
-            transport: REST.URLSessionTransport(urlSession: urlSession)
-        )
+        let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportRegistry: transportRegistry,
+            transportProvider: { () -> RESTTransport? in
+                return urlSessionTransport
+            },
             addressCache: addressCache
         )
         accountsProxy = proxyFactory.createAccountsProxy()
