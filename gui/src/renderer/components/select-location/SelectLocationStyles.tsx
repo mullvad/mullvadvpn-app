@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
-import { tinyText } from './common-styles';
-import { ScopeBar } from './ScopeBar';
-import SettingsHeader from './SettingsHeader';
+import { colors } from '../../../config.json';
+import { tinyText } from '../common-styles';
+import { ScopeBar } from '../ScopeBar';
+import SearchBar from '../SearchBar';
+import SettingsHeader from '../SettingsHeader';
 
 export const StyledScopeBar = styled(ScopeBar)({
   marginTop: '8px',
@@ -63,4 +64,8 @@ export const StyledClearFilterButton = styled.div({
   margin: '0 0 0 6px',
   cursor: 'default',
   backgroundColor: 'transparent',
+});
+
+export const StyledSearchBar = styled(SearchBar)({
+  marginBottom: '14px',
 });

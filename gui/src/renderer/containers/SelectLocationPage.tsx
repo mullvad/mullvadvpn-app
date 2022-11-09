@@ -4,7 +4,7 @@ import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
-import SelectLocation from '../components/SelectLocation';
+import SelectLocation from '../components/select-location/SelectLocation';
 import { useAppContext } from '../context';
 import { createWireguardRelayUpdater } from '../lib/constraint-updater';
 import filterLocations from '../lib/filter-locations';

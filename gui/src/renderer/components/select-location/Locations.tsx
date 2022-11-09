@@ -1,16 +1,13 @@
-import * as React from 'react';
+import React from 'react';
 
-import { RelayLocation } from '../../shared/daemon-rpc-types';
-import { IRelayLocationRedux } from '../redux/settings/reducers';
-import LocationList, {
-  DisabledReason,
-  LocationSelection,
-  LocationSelectionType,
-  RelayLocations,
-} from './LocationList';
+import { RelayLocation } from '../../../shared/daemon-rpc-types';
+import { IRelayLocationRedux } from '../../redux/settings/reducers';
+import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
+import { DisabledReason, RelayLocations } from './RelayLocations';
 
 interface ILocationsProps {
   source: IRelayLocationRedux[];
+  filter: string;
   locale: string;
   defaultExpandedLocations?: RelayLocation[];
   selectedValue?: RelayLocation;
@@ -35,6 +32,7 @@ function Locations(props: ILocationsProps, ref: React.Ref<LocationList<never>>) 
       onSelect={props.onSelect}>
       <RelayLocations
         source={props.source}
+        filter={props.filter}
         locale={props.locale}
         disabledLocation={props.disabledLocation}
         onWillExpand={props.onWillExpand}
