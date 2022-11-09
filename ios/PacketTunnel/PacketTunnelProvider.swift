@@ -73,12 +73,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var tunnelMonitor: TunnelMonitor!
 
     /// Account data request proxy
-    private lazy var accountProxy = REST.ProxyFactory.shared.createAccountsProxy()
+    private let accountsProxy: REST.AccountsProxy
 
     /// Device data request proxy
-    private lazy var deviceProxy = REST.ProxyFactory.shared.createDevicesProxy()
+    private let devicesProxy: REST.DevicesProxy
 
-    private lazy var checkDeviceStateTask: Cancellable? = nil
+    /// Last device check task.
+    private var checkDeviceStateTask: Cancellable?
 
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
@@ -108,11 +109,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger = Logger(label: "PacketTunnelProvider")
         tunnelLogger = Logger(label: "WireGuard")
 
-        super.init()
-
-        REST.TransportRegistry.shared.setTransport(
-            REST.URLSessionTransport(urlSession: urlSession)
+        let addressCache = REST.AddressCache(
+            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
+            isReadOnly: true
+        )!
+        let transportRegistry = REST.TransportRegistry(
+            transport: REST.URLSessionTransport(urlSession: urlSession)
         )
+        let proxyFactory = REST.ProxyFactory.makeProxyFactory(
+            transportRegistry: transportRegistry,
+            addressCache: addressCache
+        )
+        accountsProxy = proxyFactory.createAccountsProxy()
+        devicesProxy = proxyFactory.createDevicesProxy()
+
+        super.init()
 
         adapter = WireGuardAdapter(
             with: self,
@@ -172,7 +183,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         } catch {
             providerLogger.error(
                 error: error,
-                message: "Failed to start the tunnel."
+                message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
             completionHandler(error)
@@ -593,7 +604,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         operation.setExecutionBlock { operation in
-            let task = self.accountProxy.getAccountData(
+            let task = self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .noRetry
             ) { completion in
@@ -614,7 +625,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let operation = ResultBlockOperation<REST.Device, REST.Error>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
-            let task = self.deviceProxy.getDevice(
+            let task = self.devicesProxy.getDevice(
                 accountNumber: accountNumber,
                 identifier: identifier,
                 retryStrategy: .noRetry

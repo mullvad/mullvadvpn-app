@@ -36,15 +36,7 @@ class ReconnectTunnelOperation: ResultOperation<Void, Error> {
         }
 
         do {
-            var selectorResult: RelaySelectorResult?
-
-            if selectNewRelay {
-                let cachedRelays = try RelayCacheTracker.shared.getCachedRelays()
-                selectorResult = try RelaySelector.evaluate(
-                    relays: cachedRelays.relays,
-                    constraints: interactor.settings.relayConstraints
-                )
-            }
+            let selectorResult = selectNewRelay ? try interactor.selectRelay() : nil
 
             task = tunnel.reconnectTunnel(
                 relaySelectorResult: selectorResult

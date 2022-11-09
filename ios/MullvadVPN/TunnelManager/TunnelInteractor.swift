@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import RelayCache
+import RelaySelector
 
 protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
@@ -32,4 +34,5 @@ protocol TunnelInteractor {
 
     func startTunnel()
     func prepareForVPNConfigurationDeletion()
+    func selectRelay() throws -> RelaySelectorResult
 }

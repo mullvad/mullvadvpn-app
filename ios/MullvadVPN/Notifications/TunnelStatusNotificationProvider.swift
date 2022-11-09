@@ -31,10 +31,9 @@ class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationP
         }
     }
 
-    override init() {
+    init(tunnelManager: TunnelManager) {
         super.init()
 
-        let tunnelManager = TunnelManager.shared
         tunnelManager.addObserver(self)
         handleTunnelStatus(tunnelManager.tunnelStatus)
     }

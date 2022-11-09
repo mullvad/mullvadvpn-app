@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import Operations
+import RelayCache
 import RelaySelector
 import StoreKit
 import TunnelProviderMessaging
@@ -46,13 +47,10 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    static let shared = TunnelManager(
-        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
-        devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
-    )
-
     // MARK: - Internal variables
 
+    private let application: UIApplication
+    private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -87,7 +85,14 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Initialization
 
-    private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+    init(
+        application: UIApplication,
+        relayCacheTracker: RelayCacheTracker,
+        accountsProxy: REST.AccountsProxy,
+        devicesProxy: REST.DevicesProxy
+    ) {
+        self.application = application
+        self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -106,8 +111,6 @@ final class TunnelManager: StorePaymentObserver {
 
         isRunningPeriodicPrivateKeyRotation = true
         updatePrivateKeyRotationTimer()
-
-        nslock.unlock()
     }
 
     func stopPeriodicPrivateKeyRotation() {
@@ -237,7 +240,7 @@ final class TunnelManager: StorePaymentObserver {
 
         groupOperation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Load tunnel configuration",
                 cancelUponExpiration: false
             )
@@ -290,7 +293,7 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Start tunnel",
             cancelUponExpiration: true
         ))
@@ -325,7 +328,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Stop tunnel",
             cancelUponExpiration: true
         ))
@@ -353,7 +356,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Reconnect tunnel",
                 cancelUponExpiration: true
             )
@@ -385,7 +388,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: action.taskName,
             cancelUponExpiration: true
         ))
@@ -423,7 +426,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update account data",
                 cancelUponExpiration: true
             )
@@ -459,7 +462,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update device data",
                 cancelUponExpiration: true
             )
@@ -514,7 +517,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
@@ -799,6 +802,15 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Private methods
 
+    fileprivate func selectRelay() throws -> RelaySelectorResult {
+        let cachedRelays = try relayCacheTracker.getCachedRelays()
+
+        return try RelaySelector.evaluate(
+            relays: cachedRelays.relays,
+            constraints: settings.relayConstraints
+        )
+    }
+
     fileprivate func prepareForVPNConfigurationDeletion() {
         nslock.lock()
         defer { nslock.unlock() }
@@ -934,7 +946,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -970,7 +982,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -1067,5 +1079,9 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     func prepareForVPNConfigurationDeletion() {
         tunnelManager.prepareForVPNConfigurationDeletion()
+    }
+
+    func selectRelay() throws -> RelaySelectorResult {
+        return try tunnelManager.selectRelay()
     }
 }
