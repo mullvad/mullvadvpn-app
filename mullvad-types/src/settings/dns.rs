@@ -82,3 +82,9 @@ pub struct DefaultDnsOptions {
 pub struct CustomDnsOptions {
     pub addresses: Vec<IpAddr>,
 }
+
+/// Trusted DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct TrustedDnsOptions {
+    pub addresses: Vec<IpAddr>,
+}

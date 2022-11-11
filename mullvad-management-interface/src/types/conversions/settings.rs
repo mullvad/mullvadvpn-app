@@ -42,6 +42,18 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
     }
 }
 
+impl From<&mullvad_types::settings::TrustedDnsOptions> for proto::TrustedDnsOptions {
+    fn from(options: &mullvad_types::settings::TrustedDnsOptions) -> Self {
+        proto::TrustedDnsOptions {
+            addresses: options
+                .addresses
+                .iter()
+                .map(|addr| addr.to_string())
+                .collect(),
+        }
+    }
+}
+
 impl From<&mullvad_types::settings::DnsOptions> for proto::DnsOptions {
     fn from(options: &mullvad_types::settings::DnsOptions) -> Self {
         use proto::dns_options;
@@ -95,6 +107,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             #[cfg(target_os = "android")]
             dns_options: None,
+            trusted_dns_options: Some(proto::TrustedDnsOptions::from(&options.trusted_dns_options)),
         }
     }
 }
@@ -124,6 +137,11 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
             .dns_options
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "missing tunnel DNS options",
+            ))?;
+        let trusted_dns_options = options
+            .trusted_dns_options
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing tunnel trusted DNS options"
             ))?;
 
         Ok(Self {
@@ -165,7 +183,30 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
             },
             #[cfg(not(target_os = "android"))]
             dns_options: mullvad_types::settings::DnsOptions::try_from(dns_options)?,
+            trusted_dns_options: mullvad_types::settings::TrustedDnsOptions::try_from(trusted_dns_options)?,
         })
+    }
+}
+
+impl TryFrom<proto::TrustedDnsOptions> for mullvad_types::settings::TrustedDnsOptions {
+    type Error = FromProtobufTypeError;
+    fn try_from(options: proto::TrustedDnsOptions) -> Result<Self, Self::Error> {
+        use mullvad_types::settings::{
+            TrustedDnsOptions as MullvadTrustedDnsOptions
+        };
+
+        Ok(MullvadTrustedDnsOptions{
+            addresses: options
+                .addresses
+                .into_iter()
+                .map(|addr| {
+                    addr.parse().map_err(|_| {
+                        FromProtobufTypeError::InvalidArgument("invalid IP address")
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?,
+        })
+
     }
 }
 

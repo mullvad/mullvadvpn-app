@@ -172,6 +172,13 @@ impl TunnelState for ErrorState {
                     SameState(self.into())
                 }
             }
+            Some(TunnelCommand::DnsTrust(servers)) => {
+                if let Err(error_state_cause) = shared_values.set_trusted_dns_servers(servers) {
+                    NewState(Self::enter(shared_values, error_state_cause))
+                } else {
+                    SameState(self.into())
+                }
+            }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 SameState(self.into())

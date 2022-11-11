@@ -282,6 +282,16 @@ impl DaemonInterface {
             .map_err(|_| Error::SettingsError)
     }
 
+    pub fn set_trusted_dns_options(&self, trusted_dns_options: TrustedDnsOptions) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetTrustedDnsOptions(tx, dns_options))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
+    }
+
     pub fn set_wireguard_mtu(&self, wireguard_mtu: Option<u16>) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 

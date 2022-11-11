@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
+- Add a trusted DNS option
 
 ### Security
 #### Windows

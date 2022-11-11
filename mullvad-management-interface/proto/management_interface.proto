@@ -45,6 +45,7 @@ service ManagementService {
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetQuantumResistantTunnel(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
+	rpc SetTrustedDnsOptions(TrustedDnsOptions) returns (google.protobuf.Empty) {}
 
 	// Account management
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -448,6 +449,7 @@ message TunnelOptions {
 	WireguardOptions wireguard = 2;
 	GenericOptions generic = 3;
 	DnsOptions dns_options = 4;
+	TrustedDnsOptions trusted_dns_options = 5;
 }
 
 message DefaultDnsOptions {
@@ -470,6 +472,10 @@ message DnsOptions {
 	DnsState state = 1;
 	DefaultDnsOptions default_options = 2;
 	CustomDnsOptions custom_options = 3;
+}
+
+message TrustedDnsOptions {
+	repeated string addresses = 1;
 }
 
 message PublicKey {

@@ -13,7 +13,7 @@ impl Command for Dns {
 
     fn clap_subcommand(&self) -> clap::App<'static> {
         clap::App::new(self.name())
-            .about("Configure DNS servers to use when connected")
+            .about("Configure DNS servers and policy")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(clap::App::new("get").about("Display the current DNS settings"))
             .subcommand(
@@ -23,6 +23,8 @@ impl Command for Dns {
                     .subcommand(
                         clap::App::new("default")
                             .about("Use default DNS servers")
+                            // FIXME can we get help strings to appear for
+                            // these options?
                             .arg(
                                 clap::Arg::new("block ads")
                                     .long("block-ads")
@@ -65,6 +67,23 @@ impl Command for Dns {
                             ),
                     ),
             )
+            .subcommand(
+                clap::App::new("trusted")
+                    .about("Requests to trusted DNS servers will be allowed through the firewall")
+                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+                    .subcommand(clap::App::new("get").about("Display the current trusted DNS servers"))
+                    .subcommand(
+                        clap::App::new("set")
+                            .about("Set trusted DNS servers")
+                            .arg(
+                                clap::Arg::new("servers")
+                                    .multiple_occurrences(true)
+                                    .help("One or more IP addresses of DNS resolvers.")
+                                    // Can give none.
+                                    .required(false),
+                            ),
+                    ),
+            )
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
@@ -93,6 +112,21 @@ impl Command for Dns {
                 _ => unreachable!("No custom-dns server command given"),
             },
             Some(("get", _)) => self.get().await,
+            Some(("trusted", matches)) => match matches.subcommand() {
+                Some(("set", matches)) => {
+                    let servers = match matches.values_of_t::<IpAddr>("servers") {
+                        Ok(servers) => servers,
+                        Err(e) => match e.kind {
+                            // No servers given is totally normal.
+                            clap::ErrorKind::ArgumentNotFound => Vec::new(),
+                            _ => e.exit(),
+                        },
+                    };
+                    self.set_trusted(servers).await
+                },
+                Some(("get", _)) => self.get_trusted().await,
+                _ => unreachable!("no trusted DNS server command given"),
+            }
             _ => unreachable!("No custom-dns command given"),
         }
     }
@@ -141,6 +175,40 @@ impl Dns {
         })
         .await?;
         println!("Updated DNS settings");
+        Ok(())
+    }
+
+    async fn set_trusted(&self, servers: Vec<IpAddr>) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        let settings = rpc.get_settings(()).await?.into_inner();
+        rpc.set_trusted_dns_options(types::TrustedDnsOptions {
+            addresses: servers
+                .into_iter()
+                .map(|a| a.to_string())
+                .collect(),
+            ..settings.tunnel_options.unwrap().trusted_dns_options.unwrap()
+        })
+        .await?;
+        println!("Updated trusted DNS settings");
+        Ok(())
+    }
+
+    async fn get_trusted(&self) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        let options: types::TrustedDnsOptions = rpc
+              .get_settings(())
+              .await?
+              .into_inner()
+              .tunnel_options
+              .unwrap()
+              .trusted_dns_options
+              .unwrap()
+              .try_into()
+              .unwrap();
+        println!("Trusted DNS servers:");
+        for server in &options.addresses {
+            println!("{}", server);
+        }
         Ok(())
     }
 

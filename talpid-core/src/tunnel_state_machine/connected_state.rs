@@ -85,12 +85,15 @@ impl ConnectedState {
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
         #[cfg(not(target_os = "android"))]
         if let Some(ref servers) = shared_values.dns_servers {
-            servers.clone()
+            let mut server_list = servers.clone();
+            server_list.append(&mut shared_values.trusted_dns_servers.clone());
+            server_list
         } else {
             let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
             if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
                 dns_ips.push(ipv6_gateway.into());
             };
+            dns_ips.append(&mut shared_values.trusted_dns_servers.clone());
             dns_ips
         }
         #[cfg(target_os = "android")]
@@ -100,6 +103,7 @@ impl ConnectedState {
             if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
                 dns_ips.push(ipv6_gateway.into());
             };
+            dns_ips.append(&mut shared_values.dns_servers_allowed.clone());
             dns_ips
         }
     }
@@ -235,6 +239,22 @@ impl ConnectedState {
                                 AfterDisconnect::Block(ErrorStateCause::SetDnsError),
                             )
                         }
+                    }
+                }
+                Ok(false) => SameState(self.into()),
+                Err(error_cause) => {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                }
+            },
+            Some(TunnelCommand::DnsTrust(servers)) => match shared_values.set_trusted_dns_servers(servers) {
+                Ok(true) => {
+                    if let Err(error) = self.set_firewall_policy(shared_values) {
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        );
+                    } else {
+                        SameState(self.into())
                     }
                 }
                 Ok(false) => SameState(self.into()),

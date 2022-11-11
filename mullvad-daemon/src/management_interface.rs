@@ -11,6 +11,7 @@ use mullvad_management_interface::{
 use mullvad_paths;
 #[cfg(not(target_os = "android"))]
 use mullvad_types::settings::DnsOptions;
+use mullvad_types::settings::TrustedDnsOptions;
 use mullvad_types::{
     account::AccountToken,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -371,6 +372,24 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(target_os = "android")]
     async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn set_trusted_dns_options(&self, request: Request<types::TrustedDnsOptions>) -> ServiceResult<()> {
+        let options = TrustedDnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
+        log::debug!("set_trusted_dns_options({:?})", options);
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetTrustedDnsOptions(tx, options))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_settings_error)
+    }
+
+    #[cfg(target_os = "android")]
+    async fn set_trusted_dns_options(&self, request: Request<types::TrustedDnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
