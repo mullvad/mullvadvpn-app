@@ -754,7 +754,12 @@ final class TunnelManager: StorePaymentObserver {
 
         if persist {
             do {
-                try SettingsManager.writeSettings(settings)
+                try SettingsManager.writeSettings(
+                    Versioned(
+                        version: ApplicationConfiguration.settingsCurrentVersion,
+                        data: settings
+                    )
+                )
             } catch {
                 logger.error(
                     error: error,
@@ -782,7 +787,12 @@ final class TunnelManager: StorePaymentObserver {
 
         if persist {
             do {
-                try SettingsManager.writeDeviceState(deviceState)
+                try SettingsManager.writeDeviceState(
+                    Versioned(
+                        version: ApplicationConfiguration.deviceStateCurrentVersion,
+                        data: deviceState
+                    )
+                )
             } catch {
                 logger.error(
                     error: error,
