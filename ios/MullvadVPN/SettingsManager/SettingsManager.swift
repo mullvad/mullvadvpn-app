@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
 import MullvadTypes
 
 enum SettingsManager {}
@@ -18,11 +19,19 @@ struct LegacyTunnelSettings {
 }
 
 private let keychainServiceName = "Mullvad VPN"
+private let accountTokenKey = "accountToken"
+private let accountExpiryKey = "accountExpiry"
 
-private enum Item: String, CaseIterable {
+enum SettingsStorableItem: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case lastUsedAccount = "LastUsedAccount"
+}
+
+protocol SettingsStore: AnyObject {
+    func read(for itemKey: SettingsStorableItem) throws -> Data
+    func write(_ data: Data, for itemKey: SettingsStorableItem) throws
+    func delete(itemKey: SettingsStorableItem) throws
 }
 
 struct StringDecodingError: LocalizedError {
@@ -42,10 +51,18 @@ struct StringEncodingError: LocalizedError {
 }
 
 extension SettingsManager {
+    private static func makeDecoder() -> JSONDecoder {
+        JSONDecoder()
+    }
+
+    private static func makeEncoder() -> JSONEncoder {
+        JSONEncoder()
+    }
+
     // MARK: - Lsat used account
 
     static func getLastUsedAccount() throws -> String {
-        let data = try readItemData(.lastUsedAccount)
+        let data = try store.read(for: .lastUsedAccount)
 
         if let string = String(data: data, encoding: .utf8) {
             return string
@@ -60,10 +77,10 @@ extension SettingsManager {
                 throw StringEncodingError(string: string)
             }
 
-            try addOrUpdateItem(.lastUsedAccount, data: data)
+            try store.write(data, for: .lastUsedAccount)
         } else {
             do {
-                try deleteItem(.lastUsedAccount)
+                try store.delete(itemKey: .lastUsedAccount)
             } catch let error as KeychainError where error == .itemNotFound {
                 return
             } catch {
@@ -72,114 +89,200 @@ extension SettingsManager {
         }
     }
 
+    private static let store: SettingsStore = KeychainSettingsFacade()
+
     // MARK: - Settings
 
     static func readSettings() throws -> TunnelSettingsV2 {
-        let data = try readItemData(.settings)
+        let readerWriter = makeVersionMiddlewareFactory()
 
-        return try JSONDecoder().decode(TunnelSettingsV2.self, from: data)
+        return try readerWriter.readSettings()
     }
 
     static func writeSettings(_ settings: TunnelSettingsV2) throws {
-        let data = try JSONEncoder().encode(settings)
+        let readerWriter = makeVersionMiddlewareFactory()
 
-        try addOrUpdateItem(.settings, data: data)
+        return try readerWriter.saveSettings(settings)
     }
 
     static func deleteSettings() throws {
-        try deleteItem(.settings)
+        try store.delete(itemKey: .settings)
     }
 
     // MARK: - Device state
 
     static func readDeviceState() throws -> DeviceState {
-        let data = try readItemData(.deviceState)
+        let readerWriter = makeVersionMiddlewareFactory()
 
-        return try JSONDecoder().decode(DeviceState.self, from: data)
+        return try readerWriter.readDeviceState()
     }
 
     static func writeDeviceState(_ deviceState: DeviceState) throws {
-        let data = try JSONEncoder().encode(deviceState)
+        let readerWriter = makeVersionMiddlewareFactory()
 
-        try addOrUpdateItem(.deviceState, data: data)
+        return try readerWriter.saveDeviceState(deviceState)
     }
 
     static func deleteDeviceState() throws {
-        try deleteItem(.deviceState)
+        try store.delete(itemKey: .deviceState)
     }
 
-    // MARK: - Keychain helpers
+    // MARK: - Migration
 
-    private static func addItem(_ item: Item, data: Data) throws {
-        var query = createDefaultAttributes(item: item)
-        query.merge(createAccessAttributes()) { current, _ in
-            return current
-        }
-        query[kSecValueData] = data
-
-        let status = SecItemAdd(query as CFDictionary, nil)
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
-        }
+    static func makeVersionMiddlewareFactory(
+        store: SettingsStore = Self.store,
+        decoder: JSONDecoder = Self.makeDecoder(),
+        encoder: JSONEncoder = Self.makeEncoder()
+    ) -> SettingsStorageMiddleware {
+        SettingsStorageMiddleware(
+            store: store,
+            decoder: decoder,
+            encoder: encoder
+        )
     }
 
-    private static func updateItem(_ item: Item, data: Data) throws {
-        let query = createDefaultAttributes(item: item)
-        let status = SecItemUpdate(
-            query as CFDictionary,
-            [kSecValueData: data] as CFDictionary
+    static func migrateStore(
+        with restFactory: REST.ProxyFactory,
+        completion: @escaping (Error?) -> Void
+    ) {
+        guard let settingsData = try? store.read(for: .settings),
+              let deviceStateData = try? store.read(for: .deviceState)
+        else {
+            // Return new/not logged in user immediately.
+            completion(nil)
+            return
+        }
+
+        // Check versions.
+        if let settingsHeader = try? JSONDecoder().decode(VersionHeader.self, from: settingsData),
+           let deviceStateHeader = try? JSONDecoder()
+           .decode(VersionHeader.self, from: deviceStateData)
+        {
+            if settingsHeader.version != SchemaVersion.current.rawValue {
+                completion(VersioningError.unsupportedSettings(
+                    storedVersion: settingsHeader.version,
+                    currentVersion: SchemaVersion.current
+                        .rawValue
+                ))
+
+                return
+            }
+
+            if deviceStateHeader.version != SchemaVersion.current.rawValue {
+                completion(VersioningError.unsupportedDeviceState(
+                    storedVersion: deviceStateHeader.version,
+                    currentVersion: SchemaVersion.current
+                        .rawValue
+                ))
+
+                return
+            }
+
+            completion(nil)
+            return
+        }
+
+        let readerWriterMiddleware = Self.makeVersionMiddlewareFactory()
+
+        // Check for legacy settings.
+        if let legacySettings = readLegacySettings() {
+            let migration = MigrationFromV1ToV2(
+                restFactory: restFactory,
+                legacySettings: legacySettings,
+                logger: logger
+            )
+
+            migration.migrate(with: readerWriterMiddleware) { error in
+                if let error = error {
+                    completion(error)
+                } else {
+                    // migration was successful, deleting legacy settings.
+                    let userDefaults = UserDefaults.standard
+
+                    logger.debug("Remove legacy settings from keychain.")
+                    Self.deleteLegacySettings()
+
+                    logger.debug("Remove legacy settings from user defaults.")
+
+                    userDefaults.removeObject(forKey: accountTokenKey)
+                    userDefaults.removeObject(forKey: accountExpiryKey)
+
+                    completion(nil)
+                }
+            }
+
+            return
+        }
+
+        // Check for unversion settings.
+        let migrator = MigrationFromUnversionedToV2(
+            settingsData: settingsData,
+            deviceStateData: deviceStateData,
+            logger: logger
         )
 
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
+        migrator.migrate(with: readerWriterMiddleware) { error in
+            completion(error)
         }
     }
 
-    private static func addOrUpdateItem(_ item: Item, data: Data) throws {
+    // MARK: - Legacy settings
+
+    private static func readLegacySettings() -> LegacyTunnelSettings? {
+        let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey)
+
+        guard let storedAccountNumber = storedAccountNumber else {
+            logger.debug("Account number is not found in user defaults. Nothing to migrate.")
+
+            return nil
+        }
+
+        // Set legacy account number as last used.
+        logger.debug("Found legacy account number.")
+        logger.debug("Store last used account.")
+
         do {
-            try updateItem(item, data: data)
-        } catch let error as KeychainError where error == .itemNotFound {
-            try addItem(item, data: data)
+            try Self.setLastUsedAccount(storedAccountNumber)
         } catch {
-            throw error
+            logger.error(
+                error: error,
+                message: "Failed to store last used account."
+            )
         }
-    }
 
-    private static func readItemData(_ item: Item) throws -> Data {
-        var query = createDefaultAttributes(item: item)
-        query[kSecReturnData] = true
+        // List legacy settings stored in keychain.
+        logger.debug("Read legacy settings...")
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        var storedSettings: [LegacyTunnelSettings] = []
+        do {
+            storedSettings = try Self.readLegacySettings()
+        } catch .itemNotFound as KeychainError {
+            logger.debug("Legacy settings are not found in keychain.")
 
-        if status == errSecSuccess {
-            return result as? Data ?? Data()
-        } else {
-            throw KeychainError(code: status)
+            return nil
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to read legacy settings from keychain."
+            )
+
+            return nil
         }
-    }
 
-    private static func deleteItem(_ item: Item) throws {
-        let query = createDefaultAttributes(item: item)
-        let status = SecItemDelete(query as CFDictionary)
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
+        // Find settings matching the account number stored in user defaults.
+        let matchingSettings = storedSettings.first { settings in
+            return settings.accountNumber == storedAccountNumber
         }
-    }
 
-    private static func createDefaultAttributes(item: Item) -> [CFString: Any] {
-        return [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecAttrAccount: item.rawValue,
-        ]
-    }
+        guard let matchingSettings = matchingSettings else {
+            logger.debug(
+                "Could not find legacy settings matching the legacy account number."
+            )
 
-    private static func createAccessAttributes() -> [CFString: Any] {
-        return [
-            kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
-            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
-        ]
+            return nil
+        }
+
+        return matchingSettings
     }
 
     // MARK: - Legacy settings support
@@ -293,6 +396,222 @@ extension SettingsManager {
             return false
         }
 
-        return Item(rawValue: accountNumber) == nil
+        return SettingsStorableItem(rawValue: accountNumber) == nil
+    }
+}
+
+// MARK: - Keychain Facade
+
+class KeychainSettingsFacade: SettingsStore {
+    func read(for itemKey: SettingsStorableItem) throws -> Data {
+        try readItemData(itemKey)
+    }
+
+    func write(_ data: Data, for itemKey: SettingsStorableItem) throws {
+        try addOrUpdateItem(itemKey, data: data)
+    }
+
+    func delete(itemKey: SettingsStorableItem) throws {
+        try deleteItem(itemKey)
+    }
+
+    private func addItem(_ item: SettingsStorableItem, data: Data) throws {
+        var query = createDefaultAttributes(item: item)
+        query.merge(createAccessAttributes()) { current, _ in
+            return current
+        }
+        query[kSecValueData] = data
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        if status != errSecSuccess {
+            throw KeychainError(code: status)
+        }
+    }
+
+    private func updateItem(_ item: SettingsStorableItem, data: Data) throws {
+        let query = createDefaultAttributes(item: item)
+        let status = SecItemUpdate(
+            query as CFDictionary,
+            [kSecValueData: data] as CFDictionary
+        )
+
+        if status != errSecSuccess {
+            throw KeychainError(code: status)
+        }
+    }
+
+    private func addOrUpdateItem(_ item: SettingsStorableItem, data: Data) throws {
+        do {
+            try updateItem(item, data: data)
+        } catch let error as KeychainError where error == .itemNotFound {
+            try addItem(item, data: data)
+        } catch {
+            throw error
+        }
+    }
+
+    private func readItemData(_ item: SettingsStorableItem) throws -> Data {
+        var query = createDefaultAttributes(item: item)
+        query[kSecReturnData] = true
+
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        if status == errSecSuccess {
+            return result as? Data ?? Data()
+        } else {
+            throw KeychainError(code: status)
+        }
+    }
+
+    private func deleteItem(_ item: SettingsStorableItem) throws {
+        let query = createDefaultAttributes(item: item)
+        let status = SecItemDelete(query as CFDictionary)
+        if status != errSecSuccess {
+            throw KeychainError(code: status)
+        }
+    }
+
+    private func createDefaultAttributes(item: SettingsStorableItem) -> [CFString: Any] {
+        return [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: keychainServiceName,
+            kSecAttrAccount: item.rawValue,
+        ]
+    }
+
+    private func createAccessAttributes() -> [CFString: Any] {
+        return [
+            kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
+            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
+        ]
+    }
+}
+
+// MARK: - Settings Storage Middleware
+
+private struct VersionHeader: Codable {
+    var version: Int
+}
+
+struct SettingsStorageMiddleware {
+    private struct Payload<T: Codable>: Codable {
+        var data: T
+    }
+
+    private struct VersionedPayload<T: Codable>: Codable {
+        var version: Int
+        var data: T
+    }
+
+    /// Top level data storage.
+    private let store: SettingsStore
+
+    /// The decoder used to decode values.
+    private let decoder: JSONDecoder
+
+    /// The decoder used to decode values.
+    private let encoder: JSONEncoder
+
+    fileprivate init(store: SettingsStore, decoder: JSONDecoder, encoder: JSONEncoder) {
+        self.store = store
+        self.decoder = decoder
+        self.encoder = encoder
+    }
+
+    func readSettings() throws -> TunnelSettingsV2 {
+        let data = try store.read(for: .settings)
+
+        return try read(data: data)
+    }
+
+    func readDeviceState() throws -> DeviceState {
+        let data = try store.read(for: .deviceState)
+
+        return try read(data: data)
+    }
+
+    /// Returns unversioned payload parsed as the given type.
+    func parseUnversionedPayload<T: Codable>(
+        as type: T.Type,
+        from data: Data
+    ) throws -> T {
+        return try decoder.decode(T.self, from: data)
+    }
+
+    /// Persist versioned `TunnelSettings` payload to the keychain store.
+    func saveSettings(_ payload: TunnelSettingsV2) throws {
+        let versionedPayload = VersionedPayload(
+            version: SchemaVersion.current.rawValue,
+            data: payload
+        )
+
+        let data = try encoder.encode(versionedPayload)
+
+        try store.write(data, for: .settings)
+    }
+
+    /// Persist versioned `DeviceState` payload to the keychain store.
+    func saveDeviceState(_ payload: DeviceState) throws {
+        let versionedPayload = VersionedPayload(
+            version: SchemaVersion.current.rawValue,
+            data: payload
+        )
+
+        let data = try encoder.encode(versionedPayload)
+
+        try store.write(data, for: .deviceState)
+    }
+
+    // Private
+
+    /// Returns payload data for the given type.
+    private func read<T: Codable>(data: Data) throws -> T {
+        let storedVersion = try parseVersion(data: data)
+        let currentVersionNumber = SchemaVersion.current.rawValue
+
+        if storedVersion != currentVersionNumber {
+            throw VersioningError.unsupportedSettings(
+                storedVersion: storedVersion,
+                currentVersion: currentVersionNumber
+            )
+        }
+
+        return try parsePayload(as: T.self, from: data).data
+    }
+
+    /// Returns settings version if found inside the stored data.
+    private func parseVersion(data: Data) throws -> Int {
+        let header = try decoder.decode(VersionHeader.self, from: data)
+
+        return header.version
+    }
+
+    /// Returns payload type holding the given type.
+    private func parsePayload<T: Codable>(
+        as type: T.Type,
+        from data: Data
+    ) throws -> Payload<T> {
+        return try decoder.decode(Payload<T>.self, from: data)
+    }
+}
+
+// MARK: - Versioning Error
+
+/// An error type that contains description about version handling.
+enum VersioningError: LocalizedError {
+    /// Difference between stored `TunnelSettings` version and current version
+    case unsupportedSettings(storedVersion: Int, currentVersion: Int)
+
+    /// Difference between stored `DeviceState` version and current version
+    case unsupportedDeviceState(storedVersion: Int, currentVersion: Int)
+
+    var errorDescription: String? {
+        switch self {
+        case let .unsupportedSettings(storedVersion, currentVersion):
+            return "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+        case let .unsupportedDeviceState(storedVersion, currentVersion):
+            return "Stored device state version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+        }
     }
 }

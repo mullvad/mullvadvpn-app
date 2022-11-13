@@ -40,111 +40,153 @@ class MigrateSettingsOperation: AsyncOperation {
     }
 
     override func main() {
+//        SettingsManager.migrateStore(with: REST.ProxyFactory) { error in
+//            if let error = error {
+//                self.finish(error: error)
+//            } else {
+        self.finishMigration()
+//            }
+//        }
+
         // Read legacy account number from user defaults.
-        let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey)
-
-        guard let storedAccountNumber = storedAccountNumber else {
-            logger.debug("Account number is not found in user defaults. Nothing to migrate.")
-
-            finishMigration()
-            return
-        }
-
-        // Set legacy account number as last used.
-        logger.debug("Found legacy account number.")
-        logger.debug("Store last used account.")
-
-        do {
-            try SettingsManager.setLastUsedAccount(storedAccountNumber)
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to store last used account."
-            )
-        }
-
-        // List legacy settings stored in keychain.
-        logger.debug("Read legacy settings...")
-
-        var storedSettings: [LegacyTunnelSettings] = []
-        do {
-            storedSettings = try SettingsManager.readLegacySettings()
-        } catch .itemNotFound as KeychainError {
-            logger.debug("Legacy settings are not found in keychain.")
-
-            finishMigration()
-            return
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read legacy settings from keychain."
-            )
-            finishMigration()
-            return
-        }
-
-        // Find settings matching the account number stored in user defaults.
-        let matchingSettings = storedSettings.first { settings in
-            return settings.accountNumber == storedAccountNumber
-        }
-
-        guard let matchingSettings = matchingSettings else {
-            logger.debug(
-                "Could not find legacy settings matching the legacy account number."
-            )
-
-            finishMigration()
-            return
-        }
-
-        // Fetch remote data concurrently.
-        logger.debug("Fetching account and device data...")
-
-        let dispatchGroup = DispatchGroup()
-
-        dispatchGroup.enter()
-        accountTask = accountsProxy.getAccountData(
-            accountNumber: storedAccountNumber,
-            retryStrategy: .aggressive
-        ) { completion in
-            self.dispatchQueue.async {
-                self.didFinishAccountRequest(completion)
-
-                dispatchGroup.leave()
-            }
-        }
-
-        dispatchGroup.enter()
-        deviceTask = devicesProxy.getDevices(
-            accountNumber: storedAccountNumber,
-            retryStrategy: .aggressive
-        ) { completion in
-            self.dispatchQueue.async {
-                self.didFinishDeviceRequest(completion)
-
-                dispatchGroup.leave()
-            }
-        }
-
-        dispatchGroup.notify(queue: dispatchQueue) {
-            // Migrate settings if all data is available.
-            if let accountData = self.accountData, let devices = self.devices {
-                self.migrateSettings(
-                    settings: matchingSettings,
-                    accountData: accountData,
-                    devices: devices
-                )
-            }
-
-            // Finish migration.
-            self.finishMigration()
-        }
+//        let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey)
+//
+//        guard let storedAccountNumber = storedAccountNumber else {
+//            logger.debug("Account number is not found in user defaults. Nothing to migrate.")
+//
+//            checkVersionAndMigrateIfNeeded()
+//            return
+//        }
+//
+//        // Set legacy account number as last used.
+//        logger.debug("Found legacy account number.")
+//        logger.debug("Store last used account.")
+//
+//        do {
+//            try SettingsManager.setLastUsedAccount(storedAccountNumber)
+//        } catch {
+//            logger.error(
+//                error: error,
+//                message: "Failed to store last used account."
+//            )
+//        }
+//
+//        // List legacy settings stored in keychain.
+//        logger.debug("Read legacy settings...")
+//
+//        var storedSettings: [LegacyTunnelSettings] = []
+//        do {
+//            storedSettings = try SettingsManager.readLegacySettings()
+//        } catch .itemNotFound as KeychainError {
+//            logger.debug("Legacy settings are not found in keychain.")
+//
+//            checkVersionAndMigrateIfNeeded()
+//            return
+//        } catch {
+//            logger.error(
+//                error: error,
+//                message: "Failed to read legacy settings from keychain."
+//            )
+//
+//            checkVersionAndMigrateIfNeeded()
+//            return
+//        }
+//
+//        // Find settings matching the account number stored in user defaults.
+//        let matchingSettings = storedSettings.first { settings in
+//            return settings.accountNumber == storedAccountNumber
+//        }
+//
+//        guard let matchingSettings = matchingSettings else {
+//            logger.debug(
+//                "Could not find legacy settings matching the legacy account number."
+//            )
+//
+//            checkVersionAndMigrateIfNeeded()
+//            return
+//        }
+//
+//        // Fetch remote data concurrently.
+//        logger.debug("Fetching account and device data...")
+//
+//        let dispatchGroup = DispatchGroup()
+//
+//        dispatchGroup.enter()
+//        accountTask = accountsProxy.getAccountData(
+//            accountNumber: storedAccountNumber,
+//            retryStrategy: .aggressive
+//        ) { completion in
+//            self.dispatchQueue.async {
+//                self.didFinishAccountRequest(completion)
+//
+//                dispatchGroup.leave()
+//            }
+//        }
+//
+//        dispatchGroup.enter()
+//        deviceTask = devicesProxy.getDevices(
+//            accountNumber: storedAccountNumber,
+//            retryStrategy: .aggressive
+//        ) { completion in
+//            self.dispatchQueue.async {
+//                self.didFinishDeviceRequest(completion)
+//
+//                dispatchGroup.leave()
+//            }
+//        }
+//
+//        dispatchGroup.notify(queue: dispatchQueue) {
+//            // Migrate settings if all data is available.
+//            if let accountData = self.accountData, let devices = self.devices {
+//                self.migrateSettings(
+//                    settings: matchingSettings,
+//                    accountData: accountData,
+//                    devices: devices
+//                )
+//            }
+//
+//            // Finish migration.
+//            self.finishMigration()
+//        }
     }
 
-    private func didFinishAccountRequest(_ completion: OperationCompletion<
-        REST.AccountData,
-        REST.Error
-    >) {
+    /*
+          let encoder = SettingsManager.makeEncoder()
+
+     //                let migrator = MigrationFromV1ToV2(
+     //                    logger: self.logger,
+     //                    settings: matchingSettings,
+     //                    accountData: accountData,
+     //                    devices: devices,
+     //                    encoder: encoder
+     //                )
+
+          let migrator = MigrationFromV1ToV2(
+              dispatchQueue: self.dispatchQueue,
+              restFactory: REST.ProxyFactory.makeProxyFactory(transportRegistry: REST.TransportRegistry,
+                                                              addressCache: <#T##REST.AddressCache#>),
+              logger: <#T##Logger#>,
+              settings: <#T##LegacyTunnelSettings#>,
+              encoder: <#T##JSONEncoder#>
+          )
+
+          migrator.migrate { error in
+
+          }
+
+     //                self.migrateSettings(
+     //                    settings: matchingSettings,
+     //                    accountData: accountData,
+     //                    devices: devices
+     //                )
+          */
+
+    private func didFinishAccountRequest(
+        _ completion: OperationCompletion<
+            REST.AccountData,
+            REST.Error
+        >
+    ) {
         switch completion {
         case let .success(accountData):
             self.accountData = accountData
@@ -242,6 +284,90 @@ class MigrateSettingsOperation: AsyncOperation {
                 message: "Failed to write migrated settings."
             )
         }
+    }
+
+    /// Method to check `DeviceState` and `TunnelSettings` version, that has been stored in
+    /// keychain, with application's current version, and migrate if it was needed.
+    private func checkVersionAndMigrateIfNeeded() {
+//        let migrator = MigrationFromUnversionedToV2(
+//            logger: logger,
+//            encoder: SettingsManager.makeEncoder(),
+//            decoder: SettingsManager.makeDecoder()
+//        )
+//
+//        migrator.migrate { error in
+//            if let error = error {
+//                self.finish(error: error)
+//            } else {
+//                self.finishMigration()
+//            }
+//        }
+
+//        if let readerWriter = try? SettingsManager.tryMigrateSettings() {
+//            migrator.migrate(with: readerWriter) { error in
+//                if let error = error {
+//                    finish(error: error)
+//                } else {
+//                    finishMigration()
+//                }
+//            }
+//        } else {
+//            finishMigration()
+//        }
+
+//        do {
+//            try SettingsManager.writeSettings(newSettings)
+//            try SettingsManager.writeDeviceState(newDeviceState)
+//        } catch {
+//            logger.error(
+//                error: error,
+//                message: "Failed to write migrated settings."
+//            )
+//        }
+
+//        do {
+//            if var migrationManager = try SettingsManager.tryMigrateSettings() {
+//                let decoder = SettingsManager.makeDecoder()
+//
+//                let data = try migrationManager.parseUnversionedPayload(
+//                    as: TunnelSettingsV2.self,
+//                    with: decoder
+//                )
+//
+//                let versionedPayload = SettingsManager.VersionedPayload(
+//                    version: SchemaVersion.current.rawValue,
+//                    data: data
+//                )
+//
+//                let encoder = SettingsManager.makeEncoder()
+//
+//                try migrationManager.store(versionedPayload: versionedPayload, with: encoder)
+//            }
+//
+//            if var migrationManager = try SettingsManager.tryMigrateDeviceState() {
+//                let decoder = SettingsManager.makeDecoder()
+//
+//                let data = try migrationManager.parseUnversionedPayload(
+//                    as: DeviceState.self,
+//                    with: decoder
+//                )
+//
+//                let versionedPayload = SettingsManager.VersionedPayload(
+//                    version: SchemaVersion.current.rawValue,
+//                    data: data
+//                )
+//
+//                let encoder = SettingsManager.makeEncoder()
+//
+//                try migrationManager.store(versionedPayload: versionedPayload, with: encoder)
+//            }
+//
+//            finishMigration()
+//        } catch is VersioningError {
+//            finish(error: error)
+//        } catch {
+//            finishMigration()
+//        }
     }
 
     private func finishMigration() {
