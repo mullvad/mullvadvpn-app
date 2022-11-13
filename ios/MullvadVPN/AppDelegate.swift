@@ -110,21 +110,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupNotificationHandler()
         addApplicationNotifications(application: application)
 
-        let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            self.tunnelManager.loadConfiguration { error in
-                // TODO: avoid throwing fatal error and show the problem report UI instead.
-                if let error = error {
-                    fatalError(error.localizedDescription)
+        let setupTunnelManagerOperation =
+            AsyncBlockOperation(dispatchQueue: .main) { operation in
+                SettingsManager.migrateStore(with: self.proxyFactory) { error in
+                    precondition(error == nil)
+
+                    self.tunnelManager.loadConfiguration { error in
+                        // TODO: avoid throwing fatal error and show the problem report UI instead.
+                        if let error = error {
+                            fatalError(error.localizedDescription)
+                        }
+
+                        self.logger.debug("Finished initialization.")
+
+                        NotificationManager.shared.updateNotifications()
+                        self.storePaymentManager.startPaymentQueueMonitoring()
+
+                        operation.finish()
+                    }
                 }
-
-                self.logger.debug("Finished initialization.")
-
-                NotificationManager.shared.updateNotifications()
-                self.storePaymentManager.startPaymentQueueMonitoring()
-
-                operation.finish()
             }
-        }
 
         operationQueue.addOperation(setupTunnelManagerOperation)
 

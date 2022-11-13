@@ -207,12 +207,6 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Public methods
 
     func loadConfiguration(completionHandler: @escaping (Error?) -> Void) {
-        let migrateSettingsOperation = MigrateSettingsOperation(
-            dispatchQueue: internalQueue,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy
-        )
-
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -232,13 +226,8 @@ final class TunnelManager: StorePaymentObserver {
 
             completionHandler(completion.error)
         }
-        loadTunnelOperation.addDependency(migrateSettingsOperation)
 
-        let groupOperation = GroupOperation(operations: [
-            migrateSettingsOperation, loadTunnelOperation,
-        ])
-
-        groupOperation.addObserver(
+        loadTunnelOperation.addObserver(
             BackgroundObserver(
                 application: application,
                 name: "Load tunnel configuration",
@@ -246,17 +235,11 @@ final class TunnelManager: StorePaymentObserver {
             )
         )
 
-        groupOperation.addCondition(
+        loadTunnelOperation.addCondition(
             MutuallyExclusive(category: OperationCategory.manageTunnel.category)
         )
-        groupOperation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-        groupOperation.addCondition(
-            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
-        )
 
-        operationQueue.addOperation(groupOperation)
+        operationQueue.addOperation(loadTunnelOperation)
     }
 
     func refreshTunnelStatus() {

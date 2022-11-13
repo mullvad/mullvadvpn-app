@@ -13,6 +13,15 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
+/// Settings and device state schema versions.
+enum SchemaVersion: Int {
+    /// New settings format, stored as `TunnelSettingsV2`.
+    case v2 = 2
+
+    /// Current schema version.
+    static let current = SchemaVersion.v2
+}
+
 struct TunnelSettingsV2: Codable, Equatable {
     /// Relay constraints.
     var relayConstraints = RelayConstraints()
