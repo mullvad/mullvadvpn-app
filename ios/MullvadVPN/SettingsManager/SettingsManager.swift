@@ -74,13 +74,31 @@ extension SettingsManager {
 
     // MARK: - Settings
 
+    private static func readVersionedSettings() throws -> VersionedTunnelSettings {
+        let data = try readItemData(.settings)
+
+        return try JSONDecoder().decode(VersionedTunnelSettings.self, from: data)
+    }
+
+    static func readSettingsVersion() throws -> Int {
+        let version = try readVersionedSettings()
+            .version
+
+        return version
+    }
+
     static func readSettings() throws -> TunnelSettingsV2 {
+        try readVersionedSettings()
+            .data
+    }
+
+    static func readRawSettings() throws -> TunnelSettingsV2 {
         let data = try readItemData(.settings)
 
         return try JSONDecoder().decode(TunnelSettingsV2.self, from: data)
     }
 
-    static func writeSettings(_ settings: TunnelSettingsV2) throws {
+    static func writeSettings(_ settings: VersionedTunnelSettings) throws {
         let data = try JSONEncoder().encode(settings)
 
         try addOrUpdateItem(.settings, data: data)
@@ -92,13 +110,31 @@ extension SettingsManager {
 
     // MARK: - Device state
 
+    private static func readVersionedDeviceState() throws -> VersionedDeviceState {
+        let data = try readItemData(.deviceState)
+
+        return try JSONDecoder().decode(VersionedDeviceState.self, from: data)
+    }
+
+    static func readDeviceVersion() throws -> Int {
+        let version = try readVersionedDeviceState()
+            .version
+
+        return version
+    }
+
     static func readDeviceState() throws -> DeviceState {
+        try readVersionedDeviceState()
+            .data
+    }
+
+    static func readRawDeviceState() throws -> DeviceState {
         let data = try readItemData(.deviceState)
 
         return try JSONDecoder().decode(DeviceState.self, from: data)
     }
 
-    static func writeDeviceState(_ deviceState: DeviceState) throws {
+    static func writeDeviceState(_ deviceState: VersionedDeviceState) throws {
         let data = try JSONEncoder().encode(deviceState)
 
         try addOrUpdateItem(.deviceState, data: data)
