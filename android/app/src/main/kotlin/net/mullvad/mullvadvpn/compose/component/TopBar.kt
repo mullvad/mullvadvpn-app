@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.R
 @Composable
 fun TopBar(
     backgroundColor: Color,
-    onSettingsClicked: () -> Unit,
+    onSettingsClicked: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     ConstraintLayout(
@@ -62,18 +62,20 @@ fun TopBar(
                 }
         )
 
-        Icon(
-            painter = painterResource(R.drawable.icon_settings),
-            contentDescription = stringResource(id = R.string.settings),
-            tint = Color.White,
+        if (onSettingsClicked != null) {
+            Icon(
+                painter = painterResource(R.drawable.icon_settings),
+                contentDescription = stringResource(id = R.string.settings),
+                tint = Color.White,
 
-            modifier = Modifier
-                .clickable { onSettingsClicked() }
-                .fillMaxHeight()
-                .padding(horizontal = 16.dp)
-                .constrainAs(settingsIcon) {
-                    end.linkTo(parent.end)
-                }
-        )
+                modifier = Modifier
+                    .clickable { onSettingsClicked() }
+                    .fillMaxHeight()
+                    .padding(horizontal = 16.dp)
+                    .constrainAs(settingsIcon) {
+                        end.linkTo(parent.end)
+                    }
+            )
+        }
     }
 }
