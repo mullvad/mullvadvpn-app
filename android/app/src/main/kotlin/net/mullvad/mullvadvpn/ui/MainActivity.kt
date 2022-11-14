@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -100,18 +101,24 @@ open class MainActivity : FragmentActivity() {
         }
 
         setContentView(R.layout.main)
-
-        launchDeviceStateHandler()
-        checkForNotificationPermission()
     }
 
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
+        initializeStateHandlerAndServiceConnection(
+            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+        )
+        checkForNotificationPermission()
+    }
 
+    private fun initializeStateHandlerAndServiceConnection(
+        apiEndpointConfiguration: ApiEndpointConfiguration?
+    ) {
+        launchDeviceStateHandler()
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+            apiEndpointConfiguration = apiEndpointConfiguration
         )
     }
 
