@@ -1,3 +1,2 @@
-- Add built in Mullvad device management. Simplifies managing the devices on your Mullvad account
-- Lowered the default MTU to 1280. Should make the tunnel work better on some networks
-- Fixed lots of crashes and bugs
+- Add privacy policy link in settings
+- Add initial privacy consent which is showed on each start until approved

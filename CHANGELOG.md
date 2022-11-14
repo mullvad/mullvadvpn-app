@@ -34,11 +34,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
 
-### Added
-#### Android
-- Add privacy policy link in settings.
-- Add initial privacy consent which is showed on each start until approved.
-
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
 - Reorganize settings into more logical categories.
@@ -53,6 +48,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Only use the most recent list of apps to split when resuming from hibernation/sleep if applying
   it was successful.
+
+
+## [android/2022.3] - 2022-11-14
+### Added
+#### Android
+- Add privacy policy link in settings.
+- Add initial privacy consent which is showed on each start until approved.
 
 
 ## [android/2022.2] - 2022-10-17
