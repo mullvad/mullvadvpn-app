@@ -78,7 +78,7 @@
                 <net.mullvad.mullvadvpn.ui.widget.UrlCell android:layout_width="match_parent"
                                                           android:layout_height="wrap_content"
                                                           android:layout_marginTop="1dp"
-                                                          mullvad:text="@string/privacy_policy"
+                                                          mullvad:text="@string/privacy_policy_label"
                                                           mullvad:url="@string/privacy_policy_url" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
