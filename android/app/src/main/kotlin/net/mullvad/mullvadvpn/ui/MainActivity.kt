@@ -78,13 +78,16 @@ open class MainActivity : FragmentActivity() {
         }
 
         setContentView(R.layout.main)
-
-        launchDeviceStateHandler()
     }
 
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
+        initializeStateHandlerAndServiceConnection()
+    }
+
+    private fun initializeStateHandlerAndServiceConnection() {
+        launchDeviceStateHandler()
         serviceConnectionManager.bind(vpnPermissionRequestHandler = ::requestVpnPermission)
     }
 
