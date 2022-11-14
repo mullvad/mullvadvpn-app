@@ -284,7 +284,6 @@ class MigrateSettingsOperation: AsyncOperation {
             deviceVersion = try SettingsManager.readDeviceVersion()
         } catch is DecodingError {
             readDeviceStateAndSaveWithVersion()
-            return
         } catch .itemNotFound as KeychainError {
             // No op
         } catch {
