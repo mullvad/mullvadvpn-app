@@ -182,4 +182,7 @@
     <string name="hide_account_number">Hide account number</string>
     <string name="show_account_number">Show account number</string>
     <string name="failed_to_remove_device">Failed to remove device</string>
+    <string name="accept">Accept</string>
+    <string name="privacy_disclaimer_title">Do you agree to remaining anonymous?</string>
+    <string name="privacy_disclaimer_body">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous.</string>
 </resources>
