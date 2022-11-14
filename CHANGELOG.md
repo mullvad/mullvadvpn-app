@@ -34,10 +34,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - GUI: Add electron flags to run Wayland native if in a compositor/desktop known to work well
 
+### Added
+#### Android
+- Add privacy policy link in settings.
+
 ### Changed
 - Reject invalid WireGuard ports in the CLI.
 - Reorganize settings into more logical categories.
-
 
 ### Fixed
 - Connect to TCP endpoints over IPv6 if IPv6 is enabled for WireGuard.
