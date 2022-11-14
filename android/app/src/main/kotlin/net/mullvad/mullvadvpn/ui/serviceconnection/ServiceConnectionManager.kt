@@ -23,6 +23,7 @@ class ServiceConnectionManager(
     @Deprecated(message = "Use connectionState")
     val serviceNotifier = EventNotifier<ServiceConnectionContainer?>(null)
 
+    var isBound = false
     private var vpnPermissionRequestHandler: (() -> Unit)? = null
 
     private val serviceConnection = object : android.content.ServiceConnection {
@@ -48,17 +49,27 @@ class ServiceConnectionManager(
     }
 
     fun bind(vpnPermissionRequestHandler: () -> Unit) {
-        this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
-        val intent = Intent(context, MullvadVpnService::class.java)
-        context.startService(intent)
-        context.bindService(intent, serviceConnection, 0)
+        synchronized(this) {
+            if (isBound.not()) {
+                this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
+                val intent = Intent(context, MullvadVpnService::class.java)
+                context.startService(intent)
+                context.bindService(intent, serviceConnection, 0)
+                isBound = true
+            }
+        }
     }
 
     fun unbind() {
-        _connectionState.value.readyContainer()?.onDestroy()
-        context.unbindService(serviceConnection)
-        notify(ServiceConnectionState.Disconnected)
-        vpnPermissionRequestHandler = null
+        synchronized(this) {
+            if (isBound) {
+                _connectionState.value.readyContainer()?.onDestroy()
+                context.unbindService(serviceConnection)
+                notify(ServiceConnectionState.Disconnected)
+                vpnPermissionRequestHandler = null
+                isBound = false
+            }
+        }
     }
 
     fun onDestroy() {

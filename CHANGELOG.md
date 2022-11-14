@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Android
 - Add privacy policy link in settings.
+- Add initial privacy consent which is showed on each start until approved.
 
 ### Changed
 - Reject invalid WireGuard ports in the CLI.

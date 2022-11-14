@@ -11,7 +11,7 @@ fun ScaffoldWithTopBar(
     topBarColor: Color,
     statusBarColor: Color,
     navigationBarColor: Color,
-    onSettingsClicked: () -> Unit,
+    onSettingsClicked: (() -> Unit)?,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()

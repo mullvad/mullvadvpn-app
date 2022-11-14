@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
@@ -53,6 +54,7 @@ open class MainActivity : FragmentActivity() {
 
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +63,7 @@ open class MainActivity : FragmentActivity() {
         getKoin().apply {
             accountRepository = get()
             deviceRepository = get()
+            privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
         }
 
@@ -78,13 +81,21 @@ open class MainActivity : FragmentActivity() {
         }
 
         setContentView(R.layout.main)
-
-        launchDeviceStateHandler()
     }
 
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
+
+        if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            initializeStateHandlerAndServiceConnection()
+        } else {
+            openPrivacyDisclaimerFragment()
+        }
+    }
+
+    fun initializeStateHandlerAndServiceConnection() {
+        launchDeviceStateHandler()
         serviceConnectionManager.bind(vpnPermissionRequestHandler = ::requestVpnPermission)
     }
 
@@ -188,6 +199,13 @@ open class MainActivity : FragmentActivity() {
     private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LaunchFragment())
+            commitAllowingStateLoss()
+        }
+    }
+
+    private fun openPrivacyDisclaimerFragment() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, PrivacyDisclaimerFragment())
             commitAllowingStateLoss()
         }
     }
