@@ -1641,6 +1641,9 @@ msgstr ""
 msgid "Regenerate key"
 msgstr ""
 
+msgid "Privacy policy"
+msgstr ""
+
 msgid "Secured"
 msgstr ""
 
