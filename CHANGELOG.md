@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- Add privacy policy link in settings.
+
+
 ### Fixed
 - When a country is selected, and the constraints only match relays that are not included on the
   country level, select those relays anyway.
