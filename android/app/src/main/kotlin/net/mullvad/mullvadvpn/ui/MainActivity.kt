@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
@@ -74,6 +75,7 @@ open class MainActivity : FragmentActivity() {
 
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
 
@@ -83,6 +85,7 @@ open class MainActivity : FragmentActivity() {
         getKoin().apply {
             accountRepository = get()
             deviceRepository = get()
+            privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             changelogViewModel = get()
         }
@@ -106,13 +109,18 @@ open class MainActivity : FragmentActivity() {
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
-        initializeStateHandlerAndServiceConnection(
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
-        )
-        checkForNotificationPermission()
+
+        if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            initializeStateHandlerAndServiceConnection(
+                apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+            )
+            checkForNotificationPermission()
+        } else {
+            openPrivacyDisclaimerFragment()
+        }
     }
 
-    private fun initializeStateHandlerAndServiceConnection(
+    fun initializeStateHandlerAndServiceConnection(
         apiEndpointConfiguration: ApiEndpointConfiguration?
     ) {
         launchDeviceStateHandler()
@@ -247,6 +255,13 @@ open class MainActivity : FragmentActivity() {
     private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoadingFragment())
+            commitAllowingStateLoss()
+        }
+    }
+
+    private fun openPrivacyDisclaimerFragment() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, PrivacyDisclaimerFragment())
             commitAllowingStateLoss()
         }
     }
