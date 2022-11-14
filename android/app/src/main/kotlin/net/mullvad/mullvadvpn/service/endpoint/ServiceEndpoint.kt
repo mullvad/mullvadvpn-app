@@ -88,20 +88,19 @@ class ServiceEndpoint(
         voucherRedeemer.onDestroy()
     }
 
+    @Synchronized
     internal fun sendEvent(event: Event) {
-        synchronized(this) {
-            val deadListeners = mutableSetOf<Int>()
+        val deadListeners = mutableSetOf<Int>()
 
-            for ((id, listener) in listeners) {
-                try {
-                    listener.send(event.message)
-                } catch (_: DeadObjectException) {
-                    deadListeners.add(id)
-                }
+        for ((id, listener) in listeners) {
+            try {
+                listener.send(event.message)
+            } catch (_: DeadObjectException) {
+                deadListeners.add(id)
             }
-
-            deadListeners.forEach { listeners.remove(it) }
         }
+
+        deadListeners.forEach { listeners.remove(it) }
     }
 
     private fun startRegistrator() = GlobalScope.actor<Command>(
@@ -124,39 +123,40 @@ class ServiceEndpoint(
         }
     }
 
+    @Synchronized
     private fun registerListener(listener: Messenger) {
-        synchronized(this) {
-            val listenerId = newListenerId()
+        val listenerId = newListenerId()
 
-            listeners.put(listenerId, listener)
+        listeners.put(listenerId, listener)
 
-            val initialEvents = mutableListOf(
-                Event.TunnelStateChange(connectionProxy.state),
-                Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
-                Event.SettingsUpdate(settingsListener.settings),
-                Event.NewLocation(locationInfoCache.location),
-                Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
-                Event.CurrentVersion(appVersionInfoCache.currentVersion),
-                Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
-                Event.NewRelayList(relayListListener.relayList),
-                Event.AuthToken(authTokenCache.authToken),
-                Event.ListenerReady(messenger, listenerId)
-            )
+        val initialEvents = mutableListOf(
+            Event.TunnelStateChange(connectionProxy.state),
+            Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
+            Event.SettingsUpdate(settingsListener.settings),
+            Event.NewLocation(locationInfoCache.location),
+            Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
+            Event.CurrentVersion(appVersionInfoCache.currentVersion),
+            Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
+            Event.NewRelayList(relayListListener.relayList),
+            Event.AuthToken(authTokenCache.authToken),
+            Event.ListenerReady(messenger, listenerId)
+        )
 
-            if (vpnPermission.waitingForResponse) {
-                initialEvents.add(Event.VpnPermissionRequest)
-            }
-
+        if (vpnPermission.waitingForResponse) {
+            initialEvents.add(Event.VpnPermissionRequest)
+        }
+        try {
             initialEvents.forEach { event ->
                 listener.send(event.message)
             }
+        } catch (_: DeadObjectException) {
+            listeners.remove(listenerId)
         }
     }
 
+    @Synchronized
     private fun unregisterListener(listenerId: Int) {
-        synchronized(this) {
-            listeners.remove(listenerId)
-        }
+        listeners.remove(listenerId)
     }
 
     private fun newListenerId(): Int {
