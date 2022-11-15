@@ -1,4 +1,6 @@
 use crate::types::{proto, FromProtobufTypeError};
+#[cfg(windows)]
+use crate::types::conversions::option_from_proto_string;
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
