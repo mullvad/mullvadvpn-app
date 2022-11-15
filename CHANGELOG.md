@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
   country level, select those relays anyway.
 - Fix regression where WireGuard relays were connected to over OpenVPN after a couple of failed
   attempts, when the tunnel type was set to `any`.
+- Fix missing connect timeout when connecting to a WireGuard relay over TCP.
 
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
