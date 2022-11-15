@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import filterLocations from '../lib/filter-locations';
+import { filterLocations } from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utilityHooks';
 import { IRelayLocationRedux } from '../redux/settings/reducers';

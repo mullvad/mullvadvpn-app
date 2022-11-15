@@ -10,6 +10,15 @@ import * as Cell from '../cell';
 import ChevronButton from '../ChevronButton';
 import { measurements, normalText } from '../common-styles';
 import RelayStatusIndicator from '../RelayStatusIndicator';
+import {
+  CitySpecification,
+  CountrySpecification,
+  getLocationChildren,
+  LocationSelection,
+  LocationSelectionType,
+  LocationSpecification,
+  RelaySpecification,
+} from './select-location-types';
 
 interface IButtonColorProps {
   selected: boolean;
@@ -92,70 +101,76 @@ export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
   fontWeight: 400,
 });
 
-interface IProps {
-  name: string;
-  active: boolean;
-  disabled: boolean;
-  location: RelayLocation;
-  selected: boolean;
-  expanded?: boolean;
-  expandable: boolean;
-  onSelect?: (location: RelayLocation) => void;
-  onExpand?: (location: RelayLocation, value: boolean) => void;
-  onWillExpand?: (locationRect: DOMRect, expandedContentHeight: number) => void;
-  onTransitionEnd?: () => void;
-  children?: React.ReactElement<IProps>[];
+interface IProps<C extends LocationSpecification> {
+  source: C;
+  selectedElementRef: React.Ref<HTMLDivElement>;
+  onSelect: (value: LocationSelection<never>) => void;
+  onExpand: (location: RelayLocation) => void;
+  onCollapse: (location: RelayLocation) => void;
+  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onTransitionEnd: () => void;
+  children?: C extends RelaySpecification
+    ? never
+    : React.ReactElement<
+        IProps<C extends CountrySpecification ? CitySpecification : RelaySpecification>
+      >[];
 }
 
-function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
+function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const hasChildren = React.Children.count(props.children) > 0;
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
 
+  const expanded = 'expanded' in props.source ? props.source.expanded : undefined;
   const toggleCollapse = useCallback(() => {
-    props.onExpand?.(props.location, !props.expanded);
-  }, [props.onExpand, props.expanded, props.location]);
+    if (expanded !== undefined) {
+      const callback = expanded ? props.onCollapse : props.onExpand;
+      callback(props.source.location);
+    }
+  }, [props.onExpand, props.onCollapse, props.source.location, expanded]);
 
-  const handleClick = useCallback(() => props.onSelect?.(props.location), [
-    props.onSelect,
-    props.location,
-  ]);
+  const handleClick = useCallback(() => {
+    if (!props.source.selected) {
+      props.onSelect({ type: LocationSelectionType.relay, value: props.source.location });
+    }
+  }, [props.onSelect, props.source.location, props.source.selected]);
 
   const onWillExpand = useCallback(
     (nextHeight: number) => {
       const buttonRect = buttonRef.current?.getBoundingClientRect();
-      if (buttonRect) {
-        props.onWillExpand?.(buttonRect, nextHeight);
+      if (expanded !== undefined && buttonRect) {
+        props.onWillExpand(buttonRect, nextHeight);
       }
     },
     [props.onWillExpand],
   );
 
+  const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   return (
     <>
-      <StyledLocationRowContainer ref={ref} disabled={props.disabled}>
+      <StyledLocationRowContainer ref={selectedRef} disabled={props.source.disabled}>
         <StyledLocationRowButton
           as="button"
           ref={buttonRef}
           onClick={handleClick}
-          selected={props.selected}
-          location={props.location}
-          disabled={props.disabled}>
-          <RelayStatusIndicator active={props.active} selected={props.selected} />
-          <StyledLocationRowLabel>{props.name}</StyledLocationRowLabel>
+          selected={props.source.selected}
+          location={props.source.location}
+          disabled={props.source.disabled}>
+          <RelayStatusIndicator active={props.source.active} selected={props.source.selected} />
+          <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
         </StyledLocationRowButton>
-        {hasChildren && props.expandable ? (
+        {hasChildren ? (
           <StyledLocationRowIcon
             as={ChevronButton}
             onClick={toggleCollapse}
-            up={props.expanded ?? false}
-            selected={props.selected}
-            disabled={props.disabled}
-            location={props.location}
+            up={expanded ?? false}
+            selected={props.source.selected}
+            disabled={props.source.disabled}
+            location={props.source.location}
             aria-label={sprintf(
-              props.expanded
+              expanded === true
                 ? messages.pgettext('accessibility', 'Collapse %(location)s')
                 : messages.pgettext('accessibility', 'Expand %(location)s'),
-              { location: props.name },
+              { location: props.source.label },
             )}
           />
         ) : null}
@@ -163,8 +178,8 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
 
       {hasChildren && (
         <Accordion
-          expanded={props.expanded}
-          onWillExpand={props.expandable ? onWillExpand : undefined}
+          expanded={expanded}
+          onWillExpand={onWillExpand}
           onTransitionEnd={props.onTransitionEnd}
           animationDuration={150}>
           <Cell.Group noMarginBottom>{props.children}</Cell.Group>
@@ -174,35 +189,58 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
   );
 }
 
-export default React.memo(React.forwardRef(LocationRow), compareProps);
+export default React.memo(LocationRow, compareProps);
 
-function compareProps(oldProps: IProps, nextProps: IProps): boolean {
+function compareProps<C extends LocationSpecification>(
+  oldProps: IProps<C>,
+  nextProps: IProps<C>,
+): boolean {
   return (
-    React.Children.count(oldProps.children) === React.Children.count(nextProps.children) &&
-    oldProps.name === nextProps.name &&
-    oldProps.active === nextProps.active &&
-    oldProps.disabled === nextProps.disabled &&
-    oldProps.selected === nextProps.selected &&
-    oldProps.expanded === nextProps.expanded &&
     oldProps.onSelect === nextProps.onSelect &&
     oldProps.onExpand === nextProps.onExpand &&
     oldProps.onWillExpand === nextProps.onWillExpand &&
     oldProps.onTransitionEnd === nextProps.onTransitionEnd &&
-    compareRelayLocation(oldProps.location, nextProps.location) &&
-    compareChildren(oldProps.children, nextProps.children)
+    compareLocation(oldProps.source, nextProps.source)
+  );
+}
+
+function compareLocation(
+  oldLocation: LocationSpecification,
+  nextLocation: LocationSpecification,
+): boolean {
+  return (
+    oldLocation.label === nextLocation.label &&
+    oldLocation.active === nextLocation.active &&
+    oldLocation.disabled === nextLocation.disabled &&
+    oldLocation.selected === nextLocation.selected &&
+    compareRelayLocation(oldLocation.location, nextLocation.location) &&
+    compareExpanded(oldLocation, nextLocation) &&
+    compareChildren(oldLocation, nextLocation)
   );
 }
 
 function compareChildren(
-  oldChildren?: React.ReactElement<IProps>[],
-  nextChildren?: React.ReactElement<IProps>[],
-) {
-  if (oldChildren === undefined || nextChildren === undefined) {
-    return oldChildren === nextChildren;
-  }
+  oldLocation: LocationSpecification,
+  nextLocation: LocationSpecification,
+): boolean {
+  const oldChildren = getLocationChildren(oldLocation);
+  const nextChildren = getLocationChildren(nextLocation);
+
+  // Children shouldn't be checked if the row is collapsed
+  const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
 
   return (
-    oldChildren.length === nextChildren.length &&
-    oldChildren.every((oldChild, i) => compareProps(oldChild.props, nextChildren[i].props))
+    !nextExpanded ||
+    (oldChildren.length === nextChildren.length &&
+      oldChildren.every((oldChild, i) => compareLocation(oldChild, nextChildren[i])))
   );
+}
+
+function compareExpanded(
+  oldLocation: LocationSpecification,
+  nextLocation: LocationSpecification,
+): boolean {
+  const oldExpanded = 'expanded' in oldLocation && oldLocation.expanded;
+  const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
+  return oldExpanded === nextExpanded;
 }
