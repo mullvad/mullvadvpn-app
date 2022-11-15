@@ -13,27 +13,17 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
-enum Versions: Int {
-    case one = 1
-    case two = 2
+/// Settings and device state schema versions.
+enum SchemaVersion: Int {
+    /// Legacy settings format, stored as `TunnelSettingsV1`.
+    case v1 = 1
+
+    /// New settings format, stored as `TunnelSettingsV2`.
+    case v2 = 2
+
+    /// Current schema version.
+    static let current = SchemaVersion.v1
 }
-
-struct Versioned<T: Codable>: Codable {
-    let version: Int
-    let data: T
-
-    init(version: Int, data: T) {
-        self.version = version
-        self.data = data
-    }
-
-    init(version: Versions, data: T) {
-        self.version = version.rawValue
-        self.data = data
-    }
-}
-
-typealias VersionedTunnelSettings = Versioned<TunnelSettingsV2>
 
 struct TunnelSettingsV2: Codable, Equatable {
     /// Relay constraints.
@@ -53,8 +43,6 @@ struct StoredAccountData: Codable, Equatable {
     /// Account expiry.
     var expiry: Date
 }
-
-typealias VersionedDeviceState = Versioned<DeviceState>
 
 enum DeviceState: Codable, Equatable {
     case loggedIn(StoredAccountData, StoredDeviceData)
