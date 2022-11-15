@@ -84,21 +84,32 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
                         message: "Cannot decode settings. Will attempt to delete them from keychain."
                     )
 
-                    return Result { try SettingsManager.deleteSettings() }
-                        .mapError { error in
-                            logger.error(
-                                error: error,
-                                message: "Failed to delete settings from keychain."
-                            )
+                    return deleteSettings()
+                } else if let error = error as? VersioningError {
+                    logger.error(
+                        error: error,
+                        message: "Version is outdated."
+                    )
 
-                            return error
-                        }
-                        .map { _ in
-                            return nil
-                        }
+                    return deleteSettings()
                 } else {
                     return .failure(error)
                 }
+            }
+    }
+
+    private func deleteSettings() -> Result<TunnelSettingsV2?, Error> {
+        return Result { try SettingsManager.deleteSettings() }
+            .mapError { error in
+                logger.error(
+                    error: error,
+                    message: "Failed to delete settings from keychain."
+                )
+
+                return error
+            }
+            .map { _ in
+                return nil
             }
     }
 
