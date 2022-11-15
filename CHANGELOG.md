@@ -28,7 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add privacy policy link in settings.
 
 #### Windows
-- Add `/purge` option to the uninstaller for forcing all settings to be removed.
+- Remove all settings when the app is uninstalled silently.
 
 ### Fixed
 - When a country is selected, and the constraints only match relays that are not included on the
