@@ -74,32 +74,35 @@ extension SettingsManager {
 
     // MARK: - Settings
 
-    private static func readVersionedSettings() throws -> VersionedTunnelSettings {
-        let data = try readItemData(.settings)
-
-        return try JSONDecoder().decode(VersionedTunnelSettings.self, from: data)
-    }
-
-    static func readSettingsVersion() throws -> Int {
-        let version = try readVersionedSettings()
-            .version
-
-        return version
-    }
-
     static func readSettings() throws -> TunnelSettingsV2 {
-        try readVersionedSettings()
-            .data
-    }
-
-    static func readRawSettings() throws -> TunnelSettingsV2 {
         let data = try readItemData(.settings)
 
-        return try JSONDecoder().decode(TunnelSettingsV2.self, from: data)
+        var manager = MigrationManager(item: .settings, data: data)
+
+        if let version = manager.parseVersion() {
+            if version != SchemaVersion.current.rawValue {
+                throw VersioningError.settingsOutdated
+            }
+        } else {
+            let data = try manager.parseUnversionedPayload(as: TunnelSettingsV2.self)
+
+            let versionedPayload = VersionedPayload(
+                version: SchemaVersion.current.rawValue,
+                data: data
+            )
+
+            try manager.store(versionedPayload: versionedPayload)
+        }
+
+        return try manager.parsePayload(as: TunnelSettingsV2.self).data
     }
 
-    static func writeSettings(_ settings: VersionedTunnelSettings) throws {
-        let data = try JSONEncoder().encode(settings)
+    static func writeSettings(_ settings: TunnelSettingsV2) throws {
+        let versionedSettings = VersionedPayload(
+            version: SchemaVersion.current.rawValue,
+            data: settings
+        )
+        let data = try JSONEncoder().encode(versionedSettings)
 
         try addOrUpdateItem(.settings, data: data)
     }
@@ -110,38 +113,94 @@ extension SettingsManager {
 
     // MARK: - Device state
 
-    private static func readVersionedDeviceState() throws -> VersionedDeviceState {
-        let data = try readItemData(.deviceState)
-
-        return try JSONDecoder().decode(VersionedDeviceState.self, from: data)
-    }
-
-    static func readDeviceVersion() throws -> Int {
-        let version = try readVersionedDeviceState()
-            .version
-
-        return version
-    }
-
     static func readDeviceState() throws -> DeviceState {
-        try readVersionedDeviceState()
-            .data
-    }
-
-    static func readRawDeviceState() throws -> DeviceState {
         let data = try readItemData(.deviceState)
 
-        return try JSONDecoder().decode(DeviceState.self, from: data)
+        var manager = MigrationManager(item: .settings, data: data)
+
+        if let version = manager.parseVersion() {
+            if version != SchemaVersion.current.rawValue {
+                throw VersioningError.deviceStateOutdated
+            }
+        } else {
+            let data = try manager.parseUnversionedPayload(as: DeviceState.self)
+
+            let versionedPayload = VersionedPayload(
+                version: SchemaVersion.current.rawValue,
+                data: data
+            )
+
+            try manager.store(versionedPayload: versionedPayload)
+        }
+
+        return try manager.parsePayload(as: DeviceState.self).data
     }
 
-    static func writeDeviceState(_ deviceState: VersionedDeviceState) throws {
-        let data = try JSONEncoder().encode(deviceState)
+    static func writeDeviceState(_ deviceState: DeviceState) throws {
+        let versionedDeviceData = VersionedPayload(
+            version: SchemaVersion.current.rawValue,
+            data: deviceState
+        )
+        let data = try JSONEncoder().encode(versionedDeviceData)
 
         try addOrUpdateItem(.deviceState, data: data)
     }
 
     static func deleteDeviceState() throws {
         try deleteItem(.deviceState)
+    }
+
+    // MARK: - Versioning
+
+    private struct VersionHeader: Codable {
+        var version: Int
+    }
+
+    struct Payload<T: Codable>: Codable {
+        var data: T
+    }
+
+    struct VersionedPayload<T: Codable>: Codable {
+        var version: Int
+        var data: T
+    }
+
+    // MARK: - Migration manager
+
+    struct MigrationManager {
+        private let item: Item
+        var data: Data
+
+        fileprivate init(item: Item, data: Data) {
+            self.item = item
+            self.data = data
+        }
+
+        /// Returns settings version if found inside the stored data.
+        func parseVersion() -> Int? {
+            let header = try? JSONDecoder().decode(VersionHeader.self, from: data)
+
+            return header?.version
+        }
+
+        /// Returns payload type holding the given type.
+        func parsePayload<T: Codable>(as type: T.Type) throws -> Payload<T> {
+            return try JSONDecoder().decode(Payload<T>.self, from: data)
+        }
+
+        /// Returns unversioned payload parsed as the given type.
+        func parseUnversionedPayload<T: Codable>(as type: T.Type) throws -> T {
+            return try JSONDecoder().decode(T.self, from: data)
+        }
+
+        /// Persist versioned payload to the keychain store.
+        mutating func store<T: Codable>(versionedPayload: VersionedPayload<T>) throws {
+            let data = try JSONEncoder().encode(versionedPayload)
+
+            try SettingsManager.addOrUpdateItem(item, data: data)
+
+            self.data = data
+        }
     }
 
     // MARK: - Keychain helpers
@@ -330,5 +389,19 @@ extension SettingsManager {
         }
 
         return Item(rawValue: accountNumber) == nil
+    }
+}
+
+enum VersioningError: Error, LocalizedError {
+    case settingsOutdated
+    case deviceStateOutdated
+
+    var errorDescription: String? {
+        switch self {
+        case .settingsOutdated:
+            return "Settings version is older than current version"
+        case .deviceStateOutdated:
+            return "Device state version is older than current version"
+        }
     }
 }
