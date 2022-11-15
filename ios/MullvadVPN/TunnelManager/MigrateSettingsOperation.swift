@@ -28,6 +28,8 @@ class MigrateSettingsOperation: AsyncOperation {
     private var accountData: REST.AccountData?
     private var devices: [REST.Device]?
 
+//    private static let currentVersion: Versions = .two
+
     init(
         dispatchQueue: DispatchQueue,
         accountsProxy: REST.AccountsProxy,
@@ -46,7 +48,7 @@ class MigrateSettingsOperation: AsyncOperation {
         guard let storedAccountNumber = storedAccountNumber else {
             logger.debug("Account number is not found in user defaults. Nothing to migrate.")
 
-            checkSettingsAndDeviceStateVersion()
+            finishMigration()
             return
         }
 
@@ -72,7 +74,7 @@ class MigrateSettingsOperation: AsyncOperation {
         } catch .itemNotFound as KeychainError {
             logger.debug("Legacy settings are not found in keychain.")
 
-            checkSettingsAndDeviceStateVersion()
+            finishMigration()
             return
         } catch {
             logger.error(
@@ -80,7 +82,7 @@ class MigrateSettingsOperation: AsyncOperation {
                 message: "Failed to read legacy settings from keychain."
             )
 
-            checkSettingsAndDeviceStateVersion()
+            finishMigration()
             return
         }
 
@@ -235,115 +237,14 @@ class MigrateSettingsOperation: AsyncOperation {
             dnsSettings: interfaceData.dnsSettings
         )
 
-        let versionedSettings = Versioned(
-            version: ApplicationConfiguration.settingsCurrentVersion,
-            data: newSettings
-        )
-
-        let versionedDeviceState = Versioned(
-            version: ApplicationConfiguration.settingsCurrentVersion,
-            data: newDeviceState
-        )
-
         // Save settings.
         do {
-            try SettingsManager.writeSettings(versionedSettings)
-            try SettingsManager.writeDeviceState(versionedDeviceState)
+            try SettingsManager.writeSettings(newSettings)
+            try SettingsManager.writeDeviceState(newDeviceState)
         } catch {
             logger.error(
                 error: error,
                 message: "Failed to write migrated settings."
-            )
-        }
-    }
-
-    // MARK: - Check version
-
-    private func checkSettingsAndDeviceStateVersion(
-        settingsCurrentVersion: Versions = ApplicationConfiguration.settingsCurrentVersion,
-        deviceStateCurrentVersion: Versions = ApplicationConfiguration.deviceStateCurrentVersion
-    ) {
-        var settingsVersion = 0
-        var deviceVersion = 0
-
-        do {
-            settingsVersion = try SettingsManager.readSettingsVersion()
-        } catch is DecodingError {
-            readSettingsAndSaveWithVersion()
-            // Passing to check device state
-        } catch .itemNotFound as KeychainError {
-            // No op, Passing to check device state
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read settings version"
-            )
-        }
-
-        do {
-            deviceVersion = try SettingsManager.readDeviceVersion()
-        } catch is DecodingError {
-            readDeviceStateAndSaveWithVersion()
-        } catch .itemNotFound as KeychainError {
-            // No op
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read device state's version"
-            )
-        }
-
-        guard settingsVersion > 0, deviceVersion > 0 else {
-            // New device
-            finishMigration()
-            return
-        }
-
-        if settingsVersion < settingsCurrentVersion.rawValue {
-            // Version missmatch action?
-            finish(error: VersioningError.settingsOutdated)
-            return
-        }
-
-        if deviceVersion < deviceStateCurrentVersion.rawValue {
-            // Version missmatch action?
-            finish(error: VersioningError.deviceStateOutdated)
-            return
-        }
-
-        finishMigration()
-    }
-
-    private func readSettingsAndSaveWithVersion() {
-        do {
-            let rawSettings = try SettingsManager.readRawSettings()
-            let versionedSettings = Versioned(
-                version: ApplicationConfiguration.settingsCurrentVersion,
-                data: rawSettings
-            )
-
-            try SettingsManager.writeSettings(versionedSettings)
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read old settings and write new with version"
-            )
-        }
-    }
-
-    private func readDeviceStateAndSaveWithVersion() {
-        do {
-            let rawDeviceState = try SettingsManager.readRawDeviceState()
-            let versionedDeviceState = Versioned(
-                version: ApplicationConfiguration.settingsCurrentVersion,
-                data: rawDeviceState
-            )
-
-            try SettingsManager.writeDeviceState(versionedDeviceState)
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read old device state and write new with version"
             )
         }
     }
@@ -359,21 +260,5 @@ class MigrateSettingsOperation: AsyncOperation {
         userDefaults.removeObject(forKey: accountExpiryKey)
 
         finish()
-    }
-}
-
-extension MigrateSettingsOperation {
-    enum VersioningError: Error, LocalizedError {
-        case settingsOutdated
-        case deviceStateOutdated
-
-        var errorDescription: String? {
-            switch self {
-            case .settingsOutdated:
-                return "Settings version is older than current version"
-            case .deviceStateOutdated:
-                return "Device state version is older than current version"
-            }
-        }
     }
 }
