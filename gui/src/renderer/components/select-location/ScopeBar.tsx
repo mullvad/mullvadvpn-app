@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
-import { smallText } from './common-styles';
+import { colors } from '../../../config.json';
+import { smallText } from '../common-styles';
 
 const StyledScopeBar = styled.div({
   display: 'flex',
@@ -13,25 +13,18 @@ const StyledScopeBar = styled.div({
 });
 
 interface IScopeBarProps {
-  defaultSelectedIndex?: number;
+  selectedIndex: number;
   onChange?: (selectedIndex: number) => void;
   className?: string;
   children: React.ReactElement<IScopeBarItemProps>[];
 }
 
 export function ScopeBar(props: IScopeBarProps) {
-  const [selectedIndex, setSelectedIndex] = useState(props.defaultSelectedIndex ?? 0);
-
-  const onClick = useCallback((index: number) => setSelectedIndex(index), []);
-  useEffect(() => {
-    props.onChange?.(selectedIndex);
-  }, [selectedIndex]);
-
   const children = React.Children.map(props.children, (child, index) => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, {
-        selected: index === selectedIndex,
-        onClick,
+        selected: index === props.selectedIndex,
+        onClick: props.onChange,
         index,
       });
     } else {
