@@ -1015,7 +1015,6 @@
 	# Check command line arguments
 	Var /GLOBAL FullUninstall
 	Var /GLOBAL IsUpdate
-	Var /GLOBAL Purge
 	Var /GLOBAL Silent
 	Var /GLOBAL NewVersion
 
@@ -1042,21 +1041,11 @@
 
 	Pop $IsUpdate
 
-	${GetOptions} $0 "/purge" $1
-	${If} ${Errors}
-		Push 0
-	${Else}
-		Push 1
-	${EndIf}
-
-	Pop $Purge
-
 	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
 	${If} $Silent == 1
 	${AndIf} $IsUpdate == 1
-	${AndIf} $Purge == 0
 		ReadRegStr $NewVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "NewVersion"
 
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" is-older-version $0'
@@ -1148,7 +1137,7 @@
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
-		${ElseIf} $Purge != 1
+		${ElseIf} $IsUpdate != 1
 			Goto customRemoveFiles_after_remove_settings
 		${EndIf}
 
