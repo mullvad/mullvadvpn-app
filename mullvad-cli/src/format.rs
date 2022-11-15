@@ -1,14 +1,8 @@
-use mullvad_management_interface::types::{
-    error_state::{
-        firewall_policy_error::ErrorType as FirewallPolicyErrorType, AuthFailedError,
-        Cause as ErrorStateCause, FirewallPolicyError, GenerationError,
-    },
-    tunnel_state,
-    tunnel_state::State::*,
-    ErrorState, ObfuscationType, ProxyType, TransportProtocol, TunnelState, TunnelStateRelayInfo,
-    TunnelType,
+use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
+use talpid_types::{
+    net::{Endpoint, TunnelEndpoint},
+    tunnel::ErrorState,
 };
-use std::borrow::Cow;
 
 pub fn print_state(state: &TunnelState, verbose: bool) {
     use TunnelState::*;
@@ -166,98 +160,32 @@ fn print_error_state(error_state: &ErrorState) {
         eprintln!("Daemon cannot block traffic from flowing, non-local traffic will leak");
     }
 
-    match ErrorStateCause::from_i32(error_state.cause) {
-        Some(ErrorStateCause::AuthFailed) => {
-            println!(
-                "Blocked: {}",
-                auth_failed_error_to_string(error_state.auth_failed_error),
-            );
-        }
+    match error_state.cause() {
         #[cfg(target_os = "linux")]
         cause @ talpid_types::tunnel::ErrorStateCause::SetFirewallPolicyError(_) => {
             println!("Blocked: {}", cause);
             println!("Your kernel might be terribly out of date or missing nftables");
         }
-        _ => println!("Blocked: {}", error_state_to_string(error_state)),
+        talpid_types::tunnel::ErrorStateCause::AuthFailed(Some(auth_failed)) => {
+            println!(
+                "Blocked: Authentication with remote server failed: {}",
+                get_auth_failed_message(AuthFailed::from(auth_failed.as_str()))
+            );
+        }
+        cause => println!("Blocked: {}", cause),
     }
 }
 
-fn error_state_to_string(error_state: &ErrorState) -> String {
-    use ErrorStateCause::*;
-
-    let error_str = match ErrorStateCause::from_i32(error_state.cause).expect("unknown error cause")
-    {
-        AuthFailed => {
-            return format!(
-                "Authentication with remote server failed: {}",
-                auth_failed_error_to_string(error_state.auth_failed_error)
-            );
-        }
-        Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
-        SetFirewallPolicyError => {
-            return policy_error_to_string(error_state.policy_error.as_ref().unwrap())
-        }
-        SetDnsError => "Failed to set system DNS server",
-        StartTunnelError => "Failed to start connection to remote server",
-        TunnelParameterError => {
-            return format!(
-                "Failure to generate tunnel parameters: {}",
-                tunnel_parameter_error_to_string(error_state.parameter_error)
-            );
-        }
-        IsOffline => "This device is offline, no tunnels can be established",
-        #[cfg(target_os = "android")]
-        VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
-        #[cfg(target_os = "windows")]
-        SplitTunnelError => "The split tunneling module reported an error",
-        #[cfg(not(target_os = "android"))]
-        _ => unreachable!("unknown error cause"),
-    };
-
-    error_str.to_string()
-}
-
-fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
-    match GenerationError::from_i32(parameter_error).expect("unknown generation error") {
-        GenerationError::NoMatchingRelay => "Failure to select a matching tunnel relay",
-        GenerationError::NoMatchingBridgeRelay => "Failure to select a matching bridge relay",
-        GenerationError::NoWireguardKey => "No wireguard key available",
-        GenerationError::CustomTunnelHostResolutionError => {
-            "Can't resolve hostname for custom tunnel host"
-        }
-    }
-}
-
-fn policy_error_to_string(policy_error: &FirewallPolicyError) -> String {
-    let cause = match FirewallPolicyErrorType::from_i32(policy_error.r#type)
-        .expect("unknown policy error")
-    {
-        FirewallPolicyErrorType::Generic => return "Failed to set firewall policy".to_string(),
-        FirewallPolicyErrorType::Locked => format!(
-            "An application prevented the firewall policy from being set: {} (pid {})",
-            policy_error.lock_name, policy_error.lock_pid
-        ),
-    };
-    format!("Failed to set firewall policy: {}", cause)
-}
-
-fn auth_failed_error_to_string(auth_failed_error: i32) -> &'static str {
+const fn get_auth_failed_message(auth_failed: AuthFailed) -> &'static str {
     const INVALID_ACCOUNT_MSG: &str = "You've logged in with an account number that is not valid. Please log out and try another one.";
     const EXPIRED_ACCOUNT_MSG: &str = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
     const TOO_MANY_CONNECTIONS_MSG: &str = "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.";
     const UNKNOWN_MSG: &str = "Unknown error.";
 
-    match AuthFailedError::from_i32(auth_failed_error).expect("invalid auth failed error") {
-        AuthFailedError::InvalidAccount => INVALID_ACCOUNT_MSG,
-        AuthFailedError::ExpiredAccount => EXPIRED_ACCOUNT_MSG,
-        AuthFailedError::TooManyConnections => TOO_MANY_CONNECTIONS_MSG,
-        AuthFailedError::Unknown => UNKNOWN_MSG,
-    }
-}
-
-fn format_protocol(protocol: TransportProtocol) -> &'static str {
-    match protocol {
-        TransportProtocol::Udp => "UDP",
-        TransportProtocol::Tcp => "TCP",
+    match auth_failed {
+        AuthFailed::InvalidAccount => INVALID_ACCOUNT_MSG,
+        AuthFailed::ExpiredAccount => EXPIRED_ACCOUNT_MSG,
+        AuthFailed::TooManyConnections => TOO_MANY_CONNECTIONS_MSG,
+        AuthFailed::Unknown => UNKNOWN_MSG,
     }
 }
