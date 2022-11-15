@@ -1148,7 +1148,7 @@
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
-		${ElseIf} $ForceRemoveSettings != 1
+		${ElseIf} $Purge != 1
 			Goto customRemoveFiles_after_remove_settings
 		${EndIf}
 
