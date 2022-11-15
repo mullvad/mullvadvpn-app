@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useSelector } from '../redux/store';
+
 export function useMounted() {
   const mountedRef = useRef(false);
   const isMounted = useCallback(() => mountedRef.current, []);
@@ -52,4 +54,14 @@ export function useBoolean(initialValue = false) {
   const toggle = useCallback(() => setValue((value) => !value), []);
 
   return [value, setTrue, setFalse, toggle] as const;
+}
+
+export function useNormalRelaySettings() {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  return 'normal' in relaySettings ? relaySettings.normal : undefined;
+}
+
+export function useNormalBridgeSettings() {
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
+  return 'normal' in bridgeSettings ? bridgeSettings.normal : undefined;
 }

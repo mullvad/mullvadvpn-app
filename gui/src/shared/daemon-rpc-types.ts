@@ -162,7 +162,7 @@ export type TunnelProtocol = 'wireguard' | 'openvpn';
 
 export type IpVersion = 'ipv4' | 'ipv6';
 
-interface IRelaySettingsNormal<OpenVpn, Wireguard> {
+export interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
   tunnelProtocol: Constraint<TunnelProtocol>;
   providers: string[];
