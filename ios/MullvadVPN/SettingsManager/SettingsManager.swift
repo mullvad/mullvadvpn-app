@@ -169,7 +169,7 @@ extension SettingsManager {
 
     struct MigrationManager {
         private let item: Item
-        var data: Data
+        private var data: Data
 
         fileprivate init(item: Item, data: Data) {
             self.item = item
