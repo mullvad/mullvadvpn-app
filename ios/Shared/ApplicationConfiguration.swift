@@ -69,8 +69,5 @@ class ApplicationConfiguration {
     /// API address background task identifier
     static let addressCacheUpdateTaskIdentifier = "net.mullvad.MullvadVPN.AddressCacheUpdate"
 
-    static let settingsCurrentVersion: Versions = .two
-    static let deviceStateCurrentVersion: Versions = .one
-
     private init() {}
 }
