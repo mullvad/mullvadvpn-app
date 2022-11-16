@@ -76,25 +76,16 @@ extension SettingsManager {
 
     static func readSettings() throws -> TunnelSettingsV2 {
         let data = try readItemData(.settings)
+        let version = try JSONDecoder().decode(VersionHeader.self, from: data).version
 
-        var manager = MigrationManager(item: .settings, data: data)
-
-        if let version = manager.parseVersion() {
-            if version != SchemaVersion.current.rawValue {
-                throw VersioningError.settingsOutdated
-            }
-        } else {
-            let data = try manager.parseUnversionedPayload(as: TunnelSettingsV2.self)
-
-            let versionedPayload = VersionedPayload(
-                version: SchemaVersion.current.rawValue,
-                data: data
+        if version != SchemaVersion.current.rawValue {
+            throw VersioningError.unsupportedSettings(
+                storedVersion: version,
+                currentVersion: SchemaVersion.current.rawValue
             )
-
-            try manager.store(versionedPayload: versionedPayload)
         }
 
-        return try manager.parsePayload(as: TunnelSettingsV2.self).data
+        return try JSONDecoder().decode(Payload<TunnelSettingsV2>.self, from: data).data
     }
 
     static func writeSettings(_ settings: TunnelSettingsV2) throws {
@@ -115,25 +106,16 @@ extension SettingsManager {
 
     static func readDeviceState() throws -> DeviceState {
         let data = try readItemData(.deviceState)
+        let version = try JSONDecoder().decode(VersionHeader.self, from: data).version
 
-        var manager = MigrationManager(item: .settings, data: data)
-
-        if let version = manager.parseVersion() {
-            if version != SchemaVersion.current.rawValue {
-                throw VersioningError.deviceStateOutdated
-            }
-        } else {
-            let data = try manager.parseUnversionedPayload(as: DeviceState.self)
-
-            let versionedPayload = VersionedPayload(
-                version: SchemaVersion.current.rawValue,
-                data: data
+        if version != SchemaVersion.current.rawValue {
+            throw VersioningError.unsupportedDeviceState(
+                storedVersion: version,
+                currentVersion: SchemaVersion.current.rawValue
             )
-
-            try manager.store(versionedPayload: versionedPayload)
         }
 
-        return try manager.parsePayload(as: DeviceState.self).data
+        return try JSONDecoder().decode(Payload<DeviceState>.self, from: data).data
     }
 
     static func writeDeviceState(_ deviceState: DeviceState) throws {
@@ -166,6 +148,31 @@ extension SettingsManager {
     }
 
     // MARK: - Migration manager
+
+    static func tryMigrateSettings() throws -> MigrationManager? {
+        return try tryMigrate(item: .settings)
+    }
+
+    static func tryMigrateDeviceState() throws -> MigrationManager? {
+        return try tryMigrate(item: .deviceState)
+    }
+
+    private static func tryMigrate(item: Item) throws -> MigrationManager? {
+        do {
+            let data = try readItemData(item)
+            let header = try? JSONDecoder().decode(VersionHeader.self, from: data)
+
+            if header?.version == SchemaVersion.current.rawValue {
+                return nil
+            } else {
+                return MigrationManager(item: item, data: data)
+            }
+        } catch .itemNotFound as KeychainError {
+            return nil
+        } catch {
+            throw error
+        }
+    }
 
     struct MigrationManager {
         private let item: Item
@@ -392,16 +399,20 @@ extension SettingsManager {
     }
 }
 
-enum VersioningError: Error, LocalizedError {
-    case settingsOutdated
-    case deviceStateOutdated
+/// An error type that contains description about version handling.
+enum VersioningError: LocalizedError {
+    /// Difference between stored `TunnelSettings` version and current version
+    case unsupportedSettings(storedVersion: Int, currentVersion: Int)
+
+    /// Difference between stored `DeviceState` version and current version
+    case unsupportedDeviceState(storedVersion: Int, currentVersion: Int)
 
     var errorDescription: String? {
         switch self {
-        case .settingsOutdated:
-            return "Settings version is older than current version"
-        case .deviceStateOutdated:
-            return "Device state version is older than current version"
+        case let .unsupportedSettings(storedVersion, currentVersion):
+            return "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+        case let .unsupportedDeviceState(storedVersion, currentVersion):
+            return "Stored device state version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
         }
     }
 }

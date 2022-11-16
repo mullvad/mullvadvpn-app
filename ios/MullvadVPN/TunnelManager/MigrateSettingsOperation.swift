@@ -28,8 +28,6 @@ class MigrateSettingsOperation: AsyncOperation {
     private var accountData: REST.AccountData?
     private var devices: [REST.Device]?
 
-//    private static let currentVersion: Versions = .two
-
     init(
         dispatchQueue: DispatchQueue,
         accountsProxy: REST.AccountsProxy,
@@ -48,7 +46,7 @@ class MigrateSettingsOperation: AsyncOperation {
         guard let storedAccountNumber = storedAccountNumber else {
             logger.debug("Account number is not found in user defaults. Nothing to migrate.")
 
-            finishMigration()
+            checkVersionAndMigrateIfNeeded()
             return
         }
 
@@ -74,7 +72,7 @@ class MigrateSettingsOperation: AsyncOperation {
         } catch .itemNotFound as KeychainError {
             logger.debug("Legacy settings are not found in keychain.")
 
-            finishMigration()
+            checkVersionAndMigrateIfNeeded()
             return
         } catch {
             logger.error(
@@ -82,7 +80,7 @@ class MigrateSettingsOperation: AsyncOperation {
                 message: "Failed to read legacy settings from keychain."
             )
 
-            finishMigration()
+            checkVersionAndMigrateIfNeeded()
             return
         }
 
@@ -96,7 +94,7 @@ class MigrateSettingsOperation: AsyncOperation {
                 "Could not find legacy settings matching the legacy account number."
             )
 
-            finishMigration()
+            checkVersionAndMigrateIfNeeded()
             return
         }
 
@@ -246,6 +244,40 @@ class MigrateSettingsOperation: AsyncOperation {
                 error: error,
                 message: "Failed to write migrated settings."
             )
+        }
+    }
+
+    /// Method to check `DeviceState` and `TunnelSettings` version, that has been stored in
+    /// keychain, with application's current version, and migrate if it was needed.
+    private func checkVersionAndMigrateIfNeeded() {
+        do {
+            if var migrationManager = try SettingsManager.tryMigrateSettings() {
+                let data = try migrationManager.parseUnversionedPayload(as: TunnelSettingsV2.self)
+
+                let versionedPayload = SettingsManager.VersionedPayload(
+                    version: SchemaVersion.current.rawValue,
+                    data: data
+                )
+
+                try migrationManager.store(versionedPayload: versionedPayload)
+            }
+
+            if var migrationManager = try SettingsManager.tryMigrateDeviceState() {
+                let data = try migrationManager.parseUnversionedPayload(as: DeviceState.self)
+
+                let versionedPayload = SettingsManager.VersionedPayload(
+                    version: SchemaVersion.current.rawValue,
+                    data: data
+                )
+
+                try migrationManager.store(versionedPayload: versionedPayload)
+            }
+
+            finishMigration()
+        } catch is VersioningError {
+            finish(error: error)
+        } catch {
+            finishMigration()
         }
     }
 
