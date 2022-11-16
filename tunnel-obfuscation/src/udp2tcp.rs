@@ -47,6 +47,7 @@ impl Udp2Tcp {
             listen_addr,
             settings.peer,
             TcpOptions {
+                lazy_connect: true,
                 #[cfg(target_os = "linux")]
                 fwmark: settings.fwmark,
                 ..TcpOptions::default()
