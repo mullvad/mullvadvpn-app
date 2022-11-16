@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -235,6 +236,10 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
         actionButton.tunnelState = uiState
         switchLocationButton.tunnelState = uiState
+
+        if (realState.isTunnelErrorStateDueToExpiredAccount()) {
+            openOutOfTimeScreen()
+        }
     }
 
     private fun openSwitchLocationScreen() {
@@ -274,5 +279,10 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             delay(5_000)
             openOutOfTimeScreen()
         }
+    }
+
+    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
+        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
+            ?.isCausedByExpiredAccount() ?: false
     }
 }
