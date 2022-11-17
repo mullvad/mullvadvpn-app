@@ -31,9 +31,8 @@ use windows_sys::{
     },
 };
 
-pub fn get_mullvad_daemon_settings_path() -> io::Result<PathBuf> {
+pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
     get_system_service_known_folder(&FOLDERID_LocalAppData)
-        .map(|settings| settings.join(mullvad_paths::PRODUCT_NAME))
 }
 
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
@@ -92,7 +91,7 @@ fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Res
 }
 
 fn adjust_current_thread_token_privilege(
-    privilege: &WideCString,
+    privilege: &WideCStr,
     enable: bool,
 ) -> std::io::Result<()> {
     let mut token_handle: HANDLE = 0;
@@ -134,7 +133,7 @@ fn adjust_current_thread_token_privilege(
 
 fn adjust_token_privilege(
     token_handle: HANDLE,
-    privilege: &WideCString,
+    privilege: &WideCStr,
     enable: bool,
 ) -> std::io::Result<()> {
     let mut privilege_luid: LUID = unsafe { mem::zeroed() };
