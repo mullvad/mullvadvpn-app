@@ -119,10 +119,12 @@ interface IProps<C extends LocationSpecification> {
 function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const hasChildren = React.Children.count(props.children) > 0;
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
+  const recentClickRef = useRef(false);
 
   const expanded = 'expanded' in props.source ? props.source.expanded : undefined;
   const toggleCollapse = useCallback(() => {
     if (expanded !== undefined) {
+      recentClickRef.current = true;
       const callback = expanded ? props.onCollapse : props.onExpand;
       callback(props.source.location);
     }
@@ -137,8 +139,9 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const onWillExpand = useCallback(
     (nextHeight: number) => {
       const buttonRect = buttonRef.current?.getBoundingClientRect();
-      if (expanded !== undefined && buttonRect) {
+      if (expanded !== undefined && buttonRect && recentClickRef.current) {
         props.onWillExpand(buttonRect, nextHeight);
+        recentClickRef.current = false;
       }
     },
     [props.onWillExpand],

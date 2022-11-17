@@ -137,17 +137,12 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
   public scrollToTop(smooth = false) {
     const scrollable = this.scrollableRef.current;
-    if (scrollable) {
-      scrollable.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
-    }
+    scrollable?.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
   }
 
-  public scrollTo(x: number, y: number) {
+  public scrollTo(x: number, y: number, smooth = false) {
     const scrollable = this.scrollableRef.current;
-    if (scrollable) {
-      scrollable.scrollLeft = x;
-      scrollable.scrollTop = y;
-    }
+    scrollable?.scrollTo({ top: y, left: x, behavior: smooth ? 'smooth' : 'auto' });
   }
 
   public scrollToElement(child: HTMLElement, scrollPosition: ScrollPosition) {
