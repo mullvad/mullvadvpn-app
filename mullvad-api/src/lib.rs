@@ -70,6 +70,7 @@ struct ApiEndpoint {
     host: String,
     addr: SocketAddr,
     disable_address_cache: bool,
+    disable_tls: bool,
 }
 
 impl ApiEndpoint {
@@ -100,6 +101,7 @@ impl ApiEndpoint {
             host: API_HOST_DEFAULT.to_owned(),
             addr: SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
             disable_address_cache: false,
+            disable_tls: false,
         };
 
         if cfg!(feature = "api-override") {
