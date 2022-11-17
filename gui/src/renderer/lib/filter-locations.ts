@@ -1,29 +1,57 @@
-import { Ownership, RelayLocation } from '../../shared/daemon-rpc-types';
+import { Ownership, RelayEndpointType, RelayLocation } from '../../shared/daemon-rpc-types';
 import {
   IRelayLocationCityRedux,
   IRelayLocationRedux,
   IRelayLocationRelayRedux,
+  NormalRelaySettingsRedux,
 } from '../redux/settings/reducers';
+
+export enum EndpointType {
+  any,
+  entry,
+  exit,
+}
 
 export function filterLocations(
   locations: IRelayLocationRedux[],
-  providers: string[],
-  ownership: Ownership,
+  endpointType: EndpointType,
+  relaySettings?: NormalRelaySettingsRedux,
+  ownership?: Ownership,
+  providers?: Array<string>,
 ): IRelayLocationRedux[] {
-  const locationsFilteredByOwnership = filterLocationsByOwnership(locations, ownership);
-  const locationsFilteredByProvider = filterLocationsByProvider(
-    locationsFilteredByOwnership,
-    providers,
-  );
+  const byTunnelProtocol = filterByTunnelProtocol(locations, endpointType, relaySettings);
+  const byOwnership = filterByOwnership(byTunnelProtocol, ownership ?? relaySettings?.ownership);
+  const byProvider = filterByProvider(byOwnership, providers ?? relaySettings?.providers);
 
-  return locationsFilteredByProvider;
+  return byProvider;
 }
 
-function filterLocationsByOwnership(
+function filterByTunnelProtocol(
   locations: IRelayLocationRedux[],
-  ownership: Ownership,
+  endpointType: EndpointType,
+  relaySettings?: NormalRelaySettingsRedux,
+) {
+  const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';
+  const endpointTypes: Array<RelayEndpointType> = [];
+  if (endpointType !== EndpointType.exit && tunnelProtocol === 'openvpn') {
+    endpointTypes.push('bridge');
+  } else if (tunnelProtocol === 'any') {
+    endpointTypes.push('wireguard');
+    if (!relaySettings?.wireguard.useMultihop) {
+      endpointTypes.push('openvpn');
+    }
+  } else {
+    endpointTypes.push(tunnelProtocol);
+  }
+
+  return filterLocationsImpl(locations, (relay) => endpointTypes.includes(relay.endpointType));
+}
+
+function filterByOwnership(
+  locations: IRelayLocationRedux[],
+  ownership?: Ownership,
 ): IRelayLocationRedux[] {
-  if (ownership === Ownership.any) {
+  if (ownership === undefined || ownership === Ownership.any) {
     return locations;
   }
 
@@ -31,11 +59,11 @@ function filterLocationsByOwnership(
   return filterLocationsImpl(locations, (relay) => relay.owned === expectOwned);
 }
 
-function filterLocationsByProvider(
+function filterByProvider(
   locations: IRelayLocationRedux[],
-  providers: string[],
+  providers?: string[],
 ): IRelayLocationRedux[] {
-  return providers.length === 0
+  return providers === undefined || providers.length === 0
     ? locations
     : filterLocationsImpl(locations, (relay) => providers.includes(relay.provider));
 }

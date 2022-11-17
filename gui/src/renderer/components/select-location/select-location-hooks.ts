@@ -10,7 +10,7 @@ import log from '../../../shared/logging';
 import RelaySettingsBuilder from '../../../shared/relay-settings-builder';
 import { useAppContext } from '../../context';
 import { createWireguardRelayUpdater } from '../../lib/constraint-updater';
-import { filterLocations } from '../../lib/filter-locations';
+import { EndpointType, filterLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { IRelayLocationRedux } from '../../redux/settings/reducers';
@@ -34,27 +34,16 @@ import {
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
-function useFullRelayList(): Array<IRelayLocationRedux> {
-  const { locationType } = useSelectLocationContext();
-  const relaySettings = useNormalRelaySettings();
-  const relayLocations = useSelector((state) => state.settings.relayLocations);
-  const bridgeLocations = useSelector((state) => state.settings.bridgeLocations);
-  return locationType === LocationType.entry && relaySettings?.tunnelProtocol === 'openvpn'
-    ? bridgeLocations
-    : relayLocations;
-}
-
 // Return all locations that matches both the set filters and the search term.
 function useFilteredRelays(): Array<IRelayLocationRedux> {
-  const relayList = useFullRelayList();
+  const { locationType } = useSelectLocationContext();
+  const relayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
 
+  const endpointType = locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
   const filteredRelayList = useMemo(
-    () =>
-      relaySettings
-        ? filterLocations(relayList, relaySettings.providers, relaySettings.ownership)
-        : relayList,
-    [relaySettings, relayList, relaySettings?.providers, relaySettings?.ownership],
+    () => (relaySettings ? filterLocations(relayList, endpointType, relaySettings) : relayList),
+    [relaySettings, relayList, endpointType],
   );
 
   return filteredRelayList;
