@@ -71,6 +71,7 @@ struct ApiEndpoint {
     addr: SocketAddr,
     disable_address_cache: bool,
     disable_tls: bool,
+    force_direct_connection: bool,
 }
 
 impl ApiEndpoint {
@@ -102,6 +103,7 @@ impl ApiEndpoint {
             addr: SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
             disable_address_cache: false,
             disable_tls: false,
+            force_direct_connection: false,
         };
 
         if cfg!(feature = "api-override") {
@@ -115,6 +117,7 @@ impl ApiEndpoint {
                         .parse()
                         .expect("MULLVAD_API_ADDR is not a valid socketaddr");
                     api.disable_address_cache = true;
+                    api.force_direct_connection = true;
                     log::debug!("Overriding API. Using {} at {}", api.host, api.addr);
                 }
             }
