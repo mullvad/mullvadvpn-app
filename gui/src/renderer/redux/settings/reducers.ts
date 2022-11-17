@@ -9,6 +9,7 @@ import {
   ObfuscationType,
   Ownership,
   ProxySettings,
+  RelayEndpointType,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
@@ -65,6 +66,7 @@ export interface IRelayLocationRelayRedux {
   active: boolean;
   owned: boolean;
   weight: number;
+  endpointType: RelayEndpointType;
 }
 
 export interface IRelayLocationCityRedux {
@@ -86,7 +88,6 @@ export interface ISettingsReduxState {
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationRedux[];
-  bridgeLocations: IRelayLocationRedux[];
   wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
@@ -132,7 +133,6 @@ const initialState: ISettingsReduxState = {
     },
   },
   relayLocations: [],
-  bridgeLocations: [],
   wireguardEndpointData: { portRanges: [], udp2tcpPorts: [] },
   allowLan: false,
   enableIpv6: true,
@@ -190,12 +190,6 @@ export default function (
       return {
         ...state,
         relayLocations: action.relayLocations,
-      };
-
-    case 'UPDATE_BRIDGE_LOCATIONS':
-      return {
-        ...state,
-        bridgeLocations: action.bridgeLocations,
       };
 
     case 'UPDATE_WIREGUARD_ENDPOINT_DATA':
