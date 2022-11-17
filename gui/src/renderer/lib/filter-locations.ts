@@ -12,25 +12,30 @@ export enum EndpointType {
   exit,
 }
 
-export function filterLocations(
+export function filterLocationsByEndPointType(
   locations: IRelayLocationRedux[],
   endpointType: EndpointType,
   relaySettings?: NormalRelaySettingsRedux,
+): IRelayLocationRedux[] {
+  return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, relaySettings));
+}
+
+export function filterLocations(
+  locations: IRelayLocationRedux[],
   ownership?: Ownership,
   providers?: Array<string>,
 ): IRelayLocationRedux[] {
-  const byTunnelProtocol = filterByTunnelProtocol(locations, endpointType, relaySettings);
-  const byOwnership = filterByOwnership(byTunnelProtocol, ownership ?? relaySettings?.ownership);
-  const byProvider = filterByProvider(byOwnership, providers ?? relaySettings?.providers);
+  const filters = [getOwnershipFilter(ownership), getProviderFilter(providers)];
 
-  return byProvider;
+  return filters.some((filter) => filter !== undefined)
+    ? filterLocationsImpl(locations, (relay) => filters.every((filter) => filter?.(relay) ?? true))
+    : locations;
 }
 
-function filterByTunnelProtocol(
-  locations: IRelayLocationRedux[],
+function getTunnelProtocolFilter(
   endpointType: EndpointType,
   relaySettings?: NormalRelaySettingsRedux,
-) {
+): (relay: IRelayLocationRelayRedux) => boolean {
   const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';
   const endpointTypes: Array<RelayEndpointType> = [];
   if (endpointType !== EndpointType.exit && tunnelProtocol === 'openvpn') {
@@ -44,28 +49,26 @@ function filterByTunnelProtocol(
     endpointTypes.push(tunnelProtocol);
   }
 
-  return filterLocationsImpl(locations, (relay) => endpointTypes.includes(relay.endpointType));
+  return (relay) => endpointTypes.includes(relay.endpointType);
 }
 
-function filterByOwnership(
-  locations: IRelayLocationRedux[],
+function getOwnershipFilter(
   ownership?: Ownership,
-): IRelayLocationRedux[] {
+): ((relay: IRelayLocationRelayRedux) => boolean) | undefined {
   if (ownership === undefined || ownership === Ownership.any) {
-    return locations;
+    return undefined;
   }
 
   const expectOwned = ownership === Ownership.mullvadOwned;
-  return filterLocationsImpl(locations, (relay) => relay.owned === expectOwned);
+  return (relay) => relay.owned === expectOwned;
 }
 
-function filterByProvider(
-  locations: IRelayLocationRedux[],
+function getProviderFilter(
   providers?: string[],
-): IRelayLocationRedux[] {
+): ((relay: IRelayLocationRelayRedux) => boolean) | undefined {
   return providers === undefined || providers.length === 0
-    ? locations
-    : filterLocationsImpl(locations, (relay) => providers.includes(relay.provider));
+    ? undefined
+    : (relay) => providers.includes(relay.provider);
 }
 
 function filterLocationsImpl(
@@ -89,7 +92,7 @@ export function searchForLocations(
   return countries.reduce((countries, country) => {
     const matchingCities = searchCities(country.cities, searchTerm);
     const expanded = matchingCities.length > 0;
-    const match = search(country.code, searchTerm) || search(country.name, searchTerm);
+    const match = search(searchTerm, country.code) || search(searchTerm, country.name);
     const resultingCities = match ? country.cities : matchingCities;
     return expanded || match ? [...countries, { ...country, cities: resultingCities }] : countries;
   }, [] as Array<IRelayLocationRedux>);
@@ -102,7 +105,7 @@ function searchCities(
   return cities.reduce((cities, city) => {
     const matchingRelays = city.relays.filter((relay) => search(searchTerm, relay.hostname));
     const expanded = matchingRelays.length > 0;
-    const match = search(city.code, searchTerm) || search(city.name, searchTerm);
+    const match = search(searchTerm, city.code) || search(searchTerm, city.name);
     const resultingRelays = match ? city.relays : matchingRelays;
     return expanded || match ? [...cities, { ...city, relays: resultingRelays }] : cities;
   }, [] as Array<IRelayLocationCityRedux>);
@@ -118,8 +121,11 @@ export function getLocationsExpandedBySearch(
       country.code,
       searchTerm,
     );
+    const cityMatches = country.cities.some(
+      (city) => search(searchTerm, city.code) || search(searchTerm, city.name),
+    );
     const location = { country: country.code };
-    const expanded = cityLocations.length > 0;
+    const expanded = cityMatches || cityLocations.length > 0;
     return expanded ? [...locations, ...cityLocations, location] : locations;
   }, [] as Array<RelayLocation>);
 }

@@ -10,9 +10,19 @@ import log from '../../../shared/logging';
 import RelaySettingsBuilder from '../../../shared/relay-settings-builder';
 import { useAppContext } from '../../context';
 import { createWireguardRelayUpdater } from '../../lib/constraint-updater';
-import { EndpointType, filterLocations } from '../../lib/filter-locations';
+import {
+  EndpointType,
+  filterLocations,
+  filterLocationsByEndPointType,
+  getLocationsExpandedBySearch,
+  searchForLocations,
+} from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
-import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
+import {
+  useNormalBridgeSettings,
+  useNormalRelaySettings,
+  useSharedMemo,
+} from '../../lib/utilityHooks';
 import { IRelayLocationRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
 import {
@@ -36,14 +46,38 @@ import { useSelectLocationContext } from './SelectLocationContainer';
 
 // Return all locations that matches both the set filters and the search term.
 function useFilteredRelays(): Array<IRelayLocationRedux> {
-  const { locationType } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationContext();
   const relayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
 
-  const endpointType = locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
-  const filteredRelayList = useMemo(
-    () => (relaySettings ? filterLocations(relayList, endpointType, relaySettings) : relayList),
-    [relaySettings, relayList, endpointType],
+  const relayListForEndpointType = useSharedMemo(
+    'relay-list-endpoint-type',
+    () => {
+      const endpointType =
+        locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
+      return filterLocationsByEndPointType(relayList, endpointType, relaySettings);
+    },
+    [relayList, locationType, relaySettings?.tunnelProtocol],
+  );
+
+  const relayListForFilters = useSharedMemo(
+    'relay-list-filters',
+    () => {
+      return filterLocations(
+        relayListForEndpointType,
+        relaySettings?.ownership,
+        relaySettings?.providers,
+      );
+    },
+    [relaySettings?.ownership, relaySettings?.providers, relayListForEndpointType],
+  );
+
+  const filteredRelayList = useSharedMemo(
+    'relay-list-search',
+    () => {
+      return searchForLocations(relayListForFilters, searchTerm);
+    },
+    [relayListForFilters, searchTerm],
   );
 
   return filteredRelayList;
@@ -53,12 +87,13 @@ function useFilteredRelays(): Array<IRelayLocationRedux> {
 export function useExpandedLocations() {
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
-  const { locationType, expandedLocations, setExpandedLocations } = useSelectLocationContext();
-
-  const expandedLocationsForType = useMemo(() => expandedLocations[locationType], [
-    expandedLocations,
+  const {
     locationType,
-  ]);
+    expandedLocations,
+    setExpandedLocations,
+    searchTerm,
+  } = useSelectLocationContext();
+  const relayList = useFilteredRelays();
 
   const expandLocation = useCallback(
     (location: RelayLocation) => {
@@ -82,15 +117,22 @@ export function useExpandedLocations() {
     [locationType],
   );
 
-  const resetExpandedLocations = useCallback(() => {
-    setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
-  }, [relaySettings, bridgeSettings]);
+  const updateExpandedLocations = useCallback(() => {
+    if (searchTerm === '') {
+      setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
+    } else {
+      setExpandedLocations((expandedLocations) => ({
+        ...expandedLocations,
+        [locationType]: getLocationsExpandedBySearch(relayList, searchTerm),
+      }));
+    }
+  }, [relayList, searchTerm, relaySettings?.ownership, relaySettings?.providers]);
 
   return {
-    expandedLocations: expandedLocationsForType,
+    expandedLocations: expandedLocations[locationType],
     expandLocation,
     collapseLocation,
-    resetExpandedLocations,
+    updateExpandedLocations,
   };
 }
 
@@ -103,77 +145,81 @@ export function useRelayList(): LocationList<never> {
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
 
-  return relayList
-    .map((country) => {
-      const countryLocation = { country: country.code };
-      const countryDisabled = isCountryDisabled(country, countryLocation.country, disabledLocation);
+  return useSharedMemo('relay-list-formatted', () => {
+    return relayList
+      .map((country) => {
+        const countryLocation = { country: country.code };
+        const countryDisabled = isCountryDisabled(country, countryLocation.country, disabledLocation);
 
-      return {
-        ...country,
-        type: LocationSelectionType.relay as const,
-        label: formatRowName(country.name, countryLocation, countryDisabled),
-        location: countryLocation,
-        active: countryDisabled !== DisabledReason.inactive,
-        disabled: countryDisabled !== undefined,
-        expanded: isExpanded(countryLocation, expandedLocations),
-        selected: isSelected(countryLocation, selectedLocation),
-        cities: country.cities
-          .map((city) => {
-            const cityLocation: RelayLocation = { city: [country.code, city.code] };
-            const cityDisabled =
-              countryDisabled ?? isCityDisabled(city, cityLocation.city, disabledLocation);
+        return {
+          ...country,
+          type: LocationSelectionType.relay as const,
+          label: formatRowName(country.name, countryLocation, countryDisabled),
+          location: countryLocation,
+          active: countryDisabled !== DisabledReason.inactive,
+          disabled: countryDisabled !== undefined,
+          expanded: isExpanded(countryLocation, expandedLocations),
+          selected: isSelected(countryLocation, selectedLocation),
+          cities: country.cities
+            .map((city) => {
+              const cityLocation: RelayLocation = { city: [country.code, city.code] };
+              const cityDisabled =
+                countryDisabled ?? isCityDisabled(city, cityLocation.city, disabledLocation);
 
-            return {
-              ...city,
-              label: formatRowName(city.name, cityLocation, cityDisabled),
-              location: cityLocation,
-              active: cityDisabled !== DisabledReason.inactive,
-              disabled: cityDisabled !== undefined,
-              expanded: isExpanded(cityLocation, expandedLocations),
-              selected: isSelected(cityLocation, selectedLocation),
-              relays: city.relays
-                .map((relay) => {
-                  const relayLocation: RelayLocation = {
-                    hostname: [country.code, city.code, relay.hostname],
-                  };
-                  const relayDisabled =
-                    countryDisabled ??
-                    cityDisabled ??
-                    isRelayDisabled(relay, relayLocation.hostname, disabledLocation);
+              return {
+                ...city,
+                label: formatRowName(city.name, cityLocation, cityDisabled),
+                location: cityLocation,
+                active: cityDisabled !== DisabledReason.inactive,
+                disabled: cityDisabled !== undefined,
+                expanded: isExpanded(cityLocation, expandedLocations),
+                selected: isSelected(cityLocation, selectedLocation),
+                relays: city.relays
+                  .map((relay) => {
+                    const relayLocation: RelayLocation = {
+                      hostname: [country.code, city.code, relay.hostname],
+                    };
+                    const relayDisabled =
+                      countryDisabled ??
+                      cityDisabled ??
+                      isRelayDisabled(relay, relayLocation.hostname, disabledLocation);
 
-                  return {
-                    ...relay,
-                    label: formatRowName(relay.hostname, relayLocation, relayDisabled),
-                    location: relayLocation,
-                    disabled: relayDisabled !== undefined,
-                    selected: isSelected(relayLocation, selectedLocation),
-                  };
-                })
-                .sort((a, b) => a.hostname.localeCompare(b.hostname, locale, { numeric: true })),
-            };
-          })
-          .sort((a, b) => a.label.localeCompare(b.label, locale)),
-      };
-    })
-    .sort((a, b) => a.label.localeCompare(b.label, locale));
+                    return {
+                      ...relay,
+                      label: formatRowName(relay.hostname, relayLocation, relayDisabled),
+                      location: relayLocation,
+                      disabled: relayDisabled !== undefined,
+                      selected: isSelected(relayLocation, selectedLocation),
+                    };
+                  })
+                  .sort((a, b) => a.hostname.localeCompare(b.hostname, locale, { numeric: true })),
+              };
+            })
+            .sort((a, b) => a.label.localeCompare(b.label, locale)),
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, locale));
+  }, [locale, expandedLocations, relayList, selectedLocation, disabledLocation]);
 }
 
 function useDisabledLocation() {
   const { locationType } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
 
-  if (relaySettings?.tunnelProtocol !== 'openvpn' && relaySettings?.wireguard.useMultihop) {
-    if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
-      return {
-        location: relaySettings?.wireguard.entryLocation,
-        reason: DisabledReason.entry,
-      };
-    } else if (locationType === LocationType.entry && relaySettings?.location !== 'any') {
-      return { location: relaySettings?.location, reason: DisabledReason.exit };
+  return useMemo(() => {
+    if (relaySettings?.tunnelProtocol !== 'openvpn' && relaySettings?.wireguard.useMultihop) {
+      if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
+        return {
+          location: relaySettings?.wireguard.entryLocation,
+          reason: DisabledReason.entry,
+        };
+      } else if (locationType === LocationType.entry && relaySettings?.location !== 'any') {
+        return { location: relaySettings?.location, reason: DisabledReason.exit };
+      }
     }
-  }
 
-  return undefined;
+    return undefined;
+  }, [locationType, relaySettings?.tunnelProtocol, relaySettings?.wireguard.useMultihop, relaySettings?.wireguard.entryLocation, relaySettings?.location]);
 }
 
 // Returns the selected location for the current tunnel protocol and location type
@@ -182,15 +228,17 @@ function useSelectedLocation() {
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
 
-  if (locationType === LocationType.exit) {
-    return relaySettings?.location === 'any' ? undefined : relaySettings?.location;
-  } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
-    return relaySettings?.wireguard.entryLocation === 'any'
-      ? undefined
-      : relaySettings?.wireguard.entryLocation;
-  } else {
-    return bridgeSettings?.location;
-  }
+  return useMemo(() => {
+    if (locationType === LocationType.exit) {
+      return relaySettings?.location === 'any' ? undefined : relaySettings?.location;
+    } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
+      return relaySettings?.wireguard.entryLocation === 'any'
+        ? undefined
+        : relaySettings?.wireguard.entryLocation;
+    } else {
+      return bridgeSettings?.location;
+    }
+  }, [locationType, relaySettings?.location, relaySettings?.tunnelProtocol, relaySettings?.wireguard.entryLocation, bridgeSettings?.location]);
 }
 
 export function useOnSelectLocation() {
