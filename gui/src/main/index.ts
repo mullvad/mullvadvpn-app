@@ -7,7 +7,13 @@ import util from 'util';
 import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
-import { DaemonEvent, DeviceEvent, ISettings, TunnelState } from '../shared/daemon-rpc-types';
+import {
+  DaemonEvent,
+  DeviceEvent,
+  IRelayListWithEndpointData,
+  ISettings,
+  TunnelState,
+} from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
@@ -40,7 +46,6 @@ import NotificationController, {
 } from './notification-controller';
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
-import RelayList from './relay-list';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, {
   TunnelStateHandlerDelegate,
@@ -75,7 +80,6 @@ class ApplicationMain
   private notificationController = new NotificationController(this);
   private version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
   private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
-  private relayList = new RelayList();
   private userInterface?: UserInterface;
   private account: Account = new Account(this, this.daemonRpc);
   private tunnelState = new TunnelStateHandler(this);
@@ -101,6 +105,8 @@ class ApplicationMain
   private changelog?: IChangelog;
 
   private navigationHistory?: IHistoryObject;
+
+  private relayList?: IRelayListWithEndpointData;
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -514,11 +520,7 @@ class ApplicationMain
 
     // fetch relays
     try {
-      this.relayList.setRelays(
-        await this.daemonRpc.getRelayLocations(),
-        this.settings.relaySettings,
-        this.settings.bridgeState,
-      );
+      this.setRelayList(await this.daemonRpc.getRelayLocations());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch relay locations: ${error.message}`);
@@ -610,11 +612,7 @@ class ApplicationMain
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
-          this.relayList.setRelays(
-            daemonEvent.relayList,
-            this.settings.relaySettings,
-            this.settings.bridgeState,
-          );
+          IpcMainEventChannel.relays.notify?.(daemonEvent.relayList);
         } else if ('appVersionInfo' in daemonEvent) {
           this.version.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
@@ -652,10 +650,11 @@ class ApplicationMain
     if (windowsSplitTunneling) {
       void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
     }
+  }
 
-    // since settings can have the relay constraints changed, the relay
-    // list should also be updated
-    this.relayList.updateSettings(newSettings.relaySettings, newSettings.bridgeState);
+  private setRelayList(relayList: IRelayListWithEndpointData) {
+    this.relayList = relayList;
+    IpcMainEventChannel.relays.notify?.(relayList);
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {
@@ -677,10 +676,7 @@ class ApplicationMain
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceState: this.account.deviceState,
-      relayListPair: this.relayList.getProcessedRelays(
-        this.settings.relaySettings,
-        this.settings.bridgeState,
-      ),
+      relayList: this.relayList,
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
       guiSettings: this.settings.gui.state,
