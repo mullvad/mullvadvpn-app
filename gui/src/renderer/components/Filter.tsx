@@ -5,7 +5,11 @@ import { colors } from '../../config.json';
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { EndpointType, filterLocations } from '../lib/filter-locations';
+import {
+  EndpointType,
+  filterLocations,
+  filterLocationsByEndPointType,
+} from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
 import { useBoolean, useNormalRelaySettings } from '../lib/utilityHooks';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
@@ -118,19 +122,24 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
   const endpointType = bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
 
   const availableProviders = useMemo(() => {
-    const filteredRelays = filterLocations(locations, endpointType, relaySettings, ownership, []);
-    return providersFromRelays(filteredRelays);
-  }, [locations, ownership]);
-
-  const availableOwnershipOptions = useMemo(() => {
-    const filteredRelays = filterLocations(
+    const relayListForEndpointType = filterLocationsByEndPointType(
       locations,
       endpointType,
       relaySettings,
-      Ownership.any,
-      providers,
     );
-    const filteredRelayOwnership = filteredRelays.flatMap((country) =>
+    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, []);
+    return providersFromRelays(relaylistForFilters);
+  }, [locations, ownership]);
+
+  const availableOwnershipOptions = useMemo(() => {
+    const relayListForEndpointType = filterLocationsByEndPointType(
+      locations,
+      endpointType,
+      relaySettings,
+    );
+    const relaylistForFilters = filterLocations(relayListForEndpointType, Ownership.any, providers);
+
+    const filteredRelayOwnership = relaylistForFilters.flatMap((country) =>
       country.cities.flatMap((city) => city.relays.map((relay) => relay.owned)),
     );
 
@@ -162,12 +171,10 @@ function providersSelector(state: IReduxState): Record<string, boolean> {
   const providerConstraint = relaySettings?.providers ?? [];
 
   const endpointType = state.settings.bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-  const relays = filterLocations(
+  const relays = filterLocationsByEndPointType(
     state.settings.relayLocations,
     endpointType,
     relaySettings,
-    Ownership.any,
-    [],
   );
   const providers = providersFromRelays(relays);
 

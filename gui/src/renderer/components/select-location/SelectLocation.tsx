@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../../config.json';
@@ -9,7 +9,6 @@ import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
-import { CustomScrollbarsRef } from '../CustomScrollbars';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
@@ -43,16 +42,15 @@ import {
   StyledFilterIconButton,
   StyledFilterRow,
   StyledNavigationBarAttachment,
+  StyledSearchBar,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 
 export default function SelectLocation() {
   const history = useHistory();
   const { updateRelaySettings } = useAppContext();
-  const { scrollViewRef, saveScrollPosition, resetScrollPositions } = useScrollPosition();
-  const { resetExpandedLocations } = useExpandedLocations();
-  const spacePreAllocationViewRef = useRef() as React.RefObject<SpacePreAllocationView>;
-  const { locationType, setLocationType } = useSelectLocationContext();
+  const { saveScrollPosition, resetScrollPositions, applyScrollPosition } = useScrollPosition();
+  const { scrollViewRef, spacePreAllocationViewRef, locationType, setLocationType, searchTerm, setSearchTerm } = useSelectLocationContext();
 
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
@@ -69,13 +67,11 @@ export default function SelectLocation() {
 
   const onClearProviders = useCallback(async () => {
     resetScrollPositions();
-    resetExpandedLocations();
     await updateRelaySettings({ normal: { providers: [] } });
   }, []);
 
   const onClearOwnership = useCallback(async () => {
     resetScrollPositions();
-    resetExpandedLocations();
     await updateRelaySettings({ normal: { ownership: Ownership.any } });
   }, []);
 
@@ -86,6 +82,16 @@ export default function SelectLocation() {
     },
     [saveScrollPosition],
   );
+
+  const updateSearchTerm = useCallback(
+    (value: string) => {
+      resetScrollPositions();
+      setSearchTerm(value);
+    },
+    [resetScrollPositions],
+  );
+
+  useEffect(applyScrollPosition, [applyScrollPosition]);
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
@@ -171,15 +177,14 @@ export default function SelectLocation() {
                   )}
                 </StyledFilterRow>
               )}
+
+              <StyledSearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <StyledContent>
-                  <SelectLocationContent
-                    spacePreAllocationViewRef={spacePreAllocationViewRef}
-                    scrollViewRef={scrollViewRef}
-                  />
+                  <SelectLocationContent />
                 </StyledContent>
               </SpacePreAllocationView>
             </NavigationScrollbars>
@@ -201,30 +206,20 @@ function ownershipFilterLabel(ownership: Ownership): string {
   }
 }
 
-interface SelectLocationContentProps {
-  spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView>;
-  scrollViewRef: React.RefObject<CustomScrollbarsRef>;
-}
-
-function SelectLocationContent(props: SelectLocationContentProps) {
-  const { locationType, selectedLocationRef } = useSelectLocationContext();
+function SelectLocationContent() {
+  const { locationType, selectedLocationRef, spacePreAllocationViewRef } = useSelectLocationContext();
   const relayList = useRelayList();
-  const { expandLocation, collapseLocation } = useExpandedLocations();
+  const { expandLocation, collapseLocation, updateExpandedLocations } = useExpandedLocations();
+  const { onBeforeExpand } = useScrollPosition();
   const onSelectLocation = useOnSelectLocation();
   const onSelectBridgeLocation = useOnSelectBridgeLocation();
 
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
 
-  const onWillExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number) => {
-    locationRect.height += expandedContentHeight;
-    props.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
-    props.scrollViewRef.current?.scrollIntoView(locationRect);
-  }, []);
+  const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
 
-  const resetHeight = useCallback(() => {
-    props.spacePreAllocationViewRef.current?.reset();
-  }, []);
+  useEffect(updateExpandedLocations, [updateExpandedLocations]);
 
   if (locationType === LocationType.exit) {
     return (
@@ -235,7 +230,7 @@ function SelectLocationContent(props: SelectLocationContentProps) {
         onSelect={onSelectLocation}
         onExpand={expandLocation}
         onCollapse={collapseLocation}
-        onWillExpand={onWillExpand}
+        onWillExpand={onBeforeExpand}
         onTransitionEnd={resetHeight}
       />
     );
@@ -248,7 +243,7 @@ function SelectLocationContent(props: SelectLocationContentProps) {
         onSelect={onSelectLocation}
         onExpand={expandLocation}
         onCollapse={collapseLocation}
-        onWillExpand={onWillExpand}
+        onWillExpand={onBeforeExpand}
         onTransitionEnd={resetHeight}
       />
     );
@@ -275,7 +270,7 @@ function SelectLocationContent(props: SelectLocationContentProps) {
         onSelect={onSelectBridgeLocation}
         onExpand={expandLocation}
         onCollapse={collapseLocation}
-        onWillExpand={onWillExpand}
+        onWillExpand={onBeforeExpand}
         onTransitionEnd={resetHeight}
       />
     );
@@ -283,17 +278,12 @@ function SelectLocationContent(props: SelectLocationContentProps) {
 }
 
 function useScrollPosition() {
-  const {
-    activeFilter,
-    locationType,
-    scrollPositions,
-    selectedLocationRef,
-  } = useSelectLocationContext();
-  const scrollViewRef = useRef<CustomScrollbarsRef>(null);
+  const { locationType, scrollPositions, scrollViewRef, spacePreAllocationViewRef, selectedLocationRef, searchTerm } = useSelectLocationContext();
+  const relaySettings = useNormalRelaySettings();
 
   const saveScrollPosition = useCallback(() => {
     const scrollPosition = scrollViewRef.current?.getScrollPosition();
-    if (scrollPositions.current) {
+    if (scrollPositions.current && scrollPosition) {
       scrollPositions.current[locationType] = scrollPosition;
     }
   }, [locationType]);
@@ -309,7 +299,7 @@ function useScrollPosition() {
     }
   }, [locationType]);
 
-  useEffect(() => {
+  const applyScrollPosition = useCallback(() => {
     const scrollPosition = scrollPositions.current?.[locationType];
     if (scrollPosition) {
       scrollViewRef.current?.scrollTo(...scrollPosition);
@@ -318,7 +308,13 @@ function useScrollPosition() {
     } else {
       scrollViewRef.current?.scrollToTop();
     }
-  }, [locationType, activeFilter]);
+  }, [locationType, searchTerm, relaySettings?.ownership, relaySettings?.providers]);
 
-  return { scrollViewRef, saveScrollPosition, resetScrollPositions };
+  const onBeforeExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number) => {
+    locationRect.height += expandedContentHeight;
+    spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
+    scrollViewRef.current?.scrollIntoView(locationRect);
+  }, []);
+
+  return { spacePreAllocationViewRef, saveScrollPosition, resetScrollPositions, applyScrollPosition, onBeforeExpand };
 }

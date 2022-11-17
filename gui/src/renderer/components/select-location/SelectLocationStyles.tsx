@@ -51,5 +51,6 @@ export const StyledClearFilterButton = styled.div({
 });
 
 export const StyledSearchBar = styled(SearchBar)({
-  marginBottom: '14px',
+  marginTop: '10px',
+  marginBottom: '4px',
 });
