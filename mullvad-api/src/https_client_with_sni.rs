@@ -1,8 +1,8 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
+    proxy::{ApiConnection, ApiConnectionMode, ConnectionDecorator, ProxyConfig},
     tls_stream::TlsStream,
-    AddressCache,
+    AddressCache, API,
 };
 use futures::{channel::mpsc, future, pin_mut, StreamExt};
 #[cfg(target_os = "android")]
@@ -303,8 +303,13 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 socket_bypass_tx.clone(),
                             )
                             .await?;
-                            let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
-                            Ok::<_, io::Error>(ApiConnection::Direct(Box::new(tls_stream)))
+                            if API.disable_tls {
+                                Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)))
+                            } else {
+                                let tls_stream =
+                                    TlsStream::connect_https(socket, &hostname).await?;
+                                Ok(ApiConnection::new(Box::new(tls_stream)))
+                            }
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
                             let socket = Self::open_socket(
@@ -319,8 +324,12 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 &ServerConfig::from(proxy_config),
                                 addr,
                             );
-                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                            Ok(ApiConnection::Proxied(Box::new(tls_stream)))
+                            if API.disable_tls {
+                                Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))))
+                            } else {
+                                let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
+                                Ok(ApiConnection::new(Box::new(tls_stream)))
+                            }
                         }
                     }
                 };
