@@ -154,6 +154,8 @@ See [this](Release.md) for instructions on how to make a new release.
 
 * `MULLVAD_API_ADDR` - Set the IP address and port to use in API requests. E.g. `10.10.1.2:443`.
 
+* `MULLVAD_API_DISABLE_TLS` - Use plain HTTP for API requests.
+
 ### Setting environment variables
 
 #### Windows

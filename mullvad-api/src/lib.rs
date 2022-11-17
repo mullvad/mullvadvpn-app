@@ -97,6 +97,7 @@ impl ApiEndpoint {
 
         let host_var = read_var("MULLVAD_API_HOST");
         let address_var = read_var("MULLVAD_API_ADDR");
+        let disable_tls_var = read_var("MULLVAD_API_DISABLE_TLS");
 
         let mut api = ApiEndpoint {
             host: API_HOST_DEFAULT.to_owned(),
@@ -106,21 +107,34 @@ impl ApiEndpoint {
             force_direct_connection: false,
         };
 
-        if cfg!(feature = "api-override") {
-            match (host_var, address_var) {
-                (None, None) => (),
-                (Some(_), None) => panic!("MULLVAD_API_HOST is set, but not MULLVAD_API_ADDR"),
-                (None, Some(_)) => panic!("MULLVAD_API_ADDR is set, but not MULLVAD_API_HOST"),
-                (Some(user_host), Some(user_addr)) => {
-                    api.host = user_host;
-                    api.addr = user_addr
-                        .parse()
-                        .expect("MULLVAD_API_ADDR is not a valid socketaddr");
-                    api.disable_address_cache = true;
-                    api.force_direct_connection = true;
-                    log::debug!("Overriding API. Using {} at {}", api.host, api.addr);
-                }
+        if cfg!(feature = "api-override") && (host_var.is_some() || address_var.is_some()) {
+            use std::net::ToSocketAddrs;
+
+            let scheme = if let Some(disable_tls_var) = disable_tls_var {
+                api.disable_tls = disable_tls_var != "0";
+                "http://"
+            } else {
+                "https://"
+            };
+
+            if let Some(user_host) = host_var {
+                api.host = user_host;
             }
+            if let Some(user_addr) = address_var {
+                api.addr = user_addr
+                    .parse()
+                    .expect("MULLVAD_API_ADDR is not a valid socketaddr");
+            } else {
+                log::warn!("Resolving API IP from MULLVAD_API_HOST");
+                api.addr = format!("{}:{}", api.host, API_PORT_DEFAULT)
+                    .to_socket_addrs()
+                    .expect("failed to resolve API host")
+                    .next()
+                    .expect("API host yielded 0 addresses");
+            }
+            api.disable_address_cache = true;
+            api.force_direct_connection = true;
+            log::debug!("Overriding API. Using {} at {scheme}{}", api.host, api.addr);
         } else if host_var.is_some() || address_var.is_some() {
             log::warn!("MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds");
         }
