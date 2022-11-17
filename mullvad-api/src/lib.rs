@@ -9,6 +9,7 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
+use once_cell::sync::Lazy;
 use proxy::ApiConnectionMode;
 use std::{
     collections::BTreeMap,
@@ -62,9 +63,7 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
-lazy_static::lazy_static! {
-    static ref API: ApiEndpoint = ApiEndpoint::get();
-}
+static API: Lazy<ApiEndpoint> = Lazy::new(|| ApiEndpoint::from_env_vars());
 
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 struct ApiEndpoint {
@@ -80,7 +79,7 @@ impl ApiEndpoint {
     ///
     /// Panics if `MULLVAD_API_ADDR` has invalid contents or if only one of
     /// `MULLVAD_API_ADDR` or `MULLVAD_API_HOST` has been set but not the other.
-    fn get() -> ApiEndpoint {
+    fn from_env_vars() -> ApiEndpoint {
         const API_HOST_DEFAULT: &str = "api.mullvad.net";
         const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
         const API_PORT_DEFAULT: u16 = 443;
