@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportRegistry: TransportRegistry
+        private let transportProvider: () -> RESTTransport?
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -41,7 +41,7 @@ extension REST {
             completionHandler: @escaping CompletionHandler
         ) {
             addressCacheStore = configuration.addressCacheStore
-            transportRegistry = configuration.transportRegistry
+            transportProvider = configuration.transportProvider
             self.retryStrategy = retryStrategy
             retryDelayIterator = retryStrategy.makeDelayIterator()
             self.requestHandler = requestHandler
@@ -139,7 +139,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            guard let transport = transportRegistry.getTransport() else {
+            guard let transport = transportProvider() else {
                 logger.error("Failed to obtain transport.")
                 finish(completion: .failure(.transport(NoTransportError())))
                 return
