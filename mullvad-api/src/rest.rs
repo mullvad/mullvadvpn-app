@@ -6,6 +6,7 @@ use crate::{
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
     proxy::ApiConnectionMode,
+    API,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -145,7 +146,9 @@ impl<
             socket_bypass_tx.clone(),
         );
 
-        if let Some(config) = proxy_config_provider.next().await {
+        if API.force_direct_connection {
+            log::debug!("API proxies are disabled");
+        } else if let Some(config) = proxy_config_provider.next().await {
             connector_handle.set_connection_mode(config);
         }
 
@@ -214,6 +217,11 @@ impl<
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig => {
+                if API.force_direct_connection {
+                    log::debug!("Ignoring API connection mode");
+                    return;
+                }
+
                 if let Some(new_config) = self.proxy_config_provider.next().await {
                     let endpoint = match new_config.get_endpoint() {
                         Some(endpoint) => endpoint,
