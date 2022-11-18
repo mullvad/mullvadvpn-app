@@ -9,12 +9,14 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use once_cell::sync::Lazy;
+use once_cell::sync::OnceCell;
 use proxy::ApiConnectionMode;
 use std::{
+    cell::Cell,
     collections::BTreeMap,
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
+    ops::Deref,
     path::Path,
 };
 use talpid_types::ErrorExt;
@@ -63,15 +65,48 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
-static API: Lazy<ApiEndpoint> = Lazy::new(|| ApiEndpoint::from_env_vars());
+pub static API: LazyManual<ApiEndpoint> = LazyManual::new(ApiEndpoint::from_env_vars);
+
+unsafe impl<T, F: Send> Sync for LazyManual<T, F> where OnceCell<T>: Sync {}
+
+/// A value that is either initialized on access or explicitly.
+pub struct LazyManual<T, F = fn() -> T> {
+    cell: OnceCell<T>,
+    lazy_fn: Cell<Option<F>>,
+}
+
+impl<T, F> LazyManual<T, F> {
+    const fn new(lazy_fn: F) -> Self {
+        Self {
+            cell: OnceCell::new(),
+            lazy_fn: Cell::new(Some(lazy_fn)),
+        }
+    }
+
+    /// Tries to initialize the object. An error is returned if it is
+    /// already initialized.
+    pub fn override_init(&self, val: T) -> Result<(), T> {
+        let _ = self.lazy_fn.take();
+        self.cell.set(val)
+    }
+}
+
+impl<T> Deref for LazyManual<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.cell.get_or_init(|| (self.lazy_fn.take().unwrap())())
+    }
+}
 
 /// A hostname and socketaddr to reach the Mullvad REST API over.
-struct ApiEndpoint {
-    host: String,
-    addr: SocketAddr,
-    disable_address_cache: bool,
-    disable_tls: bool,
-    force_direct_connection: bool,
+#[derive(Debug)]
+pub struct ApiEndpoint {
+    pub host: String,
+    pub addr: SocketAddr,
+    pub disable_address_cache: bool,
+    pub disable_tls: bool,
+    pub force_direct_connection: bool,
 }
 
 impl ApiEndpoint {
@@ -81,7 +116,7 @@ impl ApiEndpoint {
     ///
     /// Panics if `MULLVAD_API_ADDR` has invalid contents or if only one of
     /// `MULLVAD_API_ADDR` or `MULLVAD_API_HOST` has been set but not the other.
-    fn from_env_vars() -> ApiEndpoint {
+    pub fn from_env_vars() -> ApiEndpoint {
         const API_HOST_DEFAULT: &str = "api.mullvad.net";
         const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
         const API_PORT_DEFAULT: u16 = 443;
