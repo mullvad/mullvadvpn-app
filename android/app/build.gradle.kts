@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
@@ -12,6 +13,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
+val defaultChangeLogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
 val keystorePropertiesFile = file("${rootProject.projectDir}/keystore.properties")
@@ -31,6 +33,14 @@ android {
         versionCode = generateVersionCode()
         versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val alwaysShowChangelog = gradleLocalProperties(rootProject.projectDir)
+            .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
+        buildConfigField(
+            type = "boolean",
+            name = "ALWAYS_SHOW_CHANGELOG",
+            value = alwaysShowChangelog
+        )
     }
 
     if (keystorePropertiesFile.exists()) {
@@ -65,7 +75,12 @@ android {
 
     sourceSets {
         getByName("main") {
-            assets.srcDirs(extraAssetsDirectory)
+            val changelogDir = gradleLocalProperties(rootProject.projectDir).getOrDefault(
+                "OVERRIDE_CHANGELOG_DIR",
+                defaultChangeLogAssetsDirectory
+            )
+
+            assets.srcDirs(extraAssetsDirectory, changelogDir)
             jniLibs.srcDirs(extraJniDirectory)
             java.srcDirs("src/main/kotlin/")
         }

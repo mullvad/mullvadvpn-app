@@ -23,6 +23,8 @@
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
+    <string name="changes_dialog_dismiss_button">Verstanden!</string>
+    <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
