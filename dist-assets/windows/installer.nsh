@@ -1030,7 +1030,7 @@
 	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
-	${If} $Silent == 1
+	${If} ${isUpdated}
 		ReadRegStr $NewVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "NewVersion"
 
 		nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" is-older-version $0'
@@ -1122,10 +1122,13 @@
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
-			${RemoveSettings}
-
-			DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "net.mullvad.vpn"
+		${ElseIf} ${isUpdated}
+			Goto customRemoveFiles_after_remove_settings
 		${EndIf}
+
+		${RemoveSettings}
+		DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "net.mullvad.vpn"
+
 		customRemoveFiles_after_remove_settings:
 	${Else}
 		log::SetLogTarget ${LOG_VOID}
