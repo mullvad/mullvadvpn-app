@@ -1536,6 +1536,12 @@ msgstr ""
 msgid "All applications"
 msgstr ""
 
+msgid "Always-on VPN assigned to other app"
+msgstr ""
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr ""
+
 msgid "Blocking all connections"
 msgstr ""
 
@@ -1626,10 +1632,16 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr ""
+
 msgid "Unsecured"
 msgstr ""
 
 msgid "Update available, download to remain safe."
+msgstr ""
+
+msgid "VPN permission error"
 msgstr ""
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
