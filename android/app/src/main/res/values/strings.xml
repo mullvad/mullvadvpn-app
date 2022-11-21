@@ -184,4 +184,12 @@
     <string name="failed_to_remove_device">Failed to remove device</string>
     <string name="changes_dialog_subtitle">Changes in this version:</string>
     <string name="changes_dialog_dismiss_button">Got it!</string>
+    <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to other
+    app</string>
+    <string name="always_on_vpn_error_notification_content">
+    <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before
+    using Mullvad VPN.]]></string>
+    <string name="vpn_permission_error_notification_title">VPN permission error</string>
+    <string name="vpn_permission_error_notification_message">Always-on might be enabled for another
+    app</string>
 </resources>
