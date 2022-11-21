@@ -245,6 +245,7 @@ function SelectLocationContent() {
       />
     );
   } else {
+    // Add the "Automatic" item to the list
     const automaticItem: SpecialLocation<SpecialBridgeLocationType> = {
       type: LocationSelectionType.special,
       label: messages.gettext('Automatic'),

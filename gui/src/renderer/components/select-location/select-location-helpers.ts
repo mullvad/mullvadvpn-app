@@ -70,6 +70,7 @@ function expandRelayLocation(location: RelayLocation): RelayLocation[] {
   }
 }
 
+// Formats the label that is discplayed for a country, city or relay
 export function formatRowName(
   name: string,
   location: RelayLocation,
@@ -77,6 +78,7 @@ export function formatRowName(
 ): string {
   const translatedName = 'hostname' in location ? name : relayLocations.gettext(name);
 
+  // In some situations the exit/entry server should be marked on a location
   let info: string | undefined;
   if (disabledReason === DisabledReason.entry) {
     info = messages.pgettext('select-location-view', 'Entry');

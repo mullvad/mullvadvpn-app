@@ -6,6 +6,7 @@ import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
 import SelectLocation from './SelectLocation';
 
+// Context containing data required by different components in the sub tree
 interface SelectLocationContext {
   locationType: LocationType;
   setLocationType: (locationType: LocationType) => void;
