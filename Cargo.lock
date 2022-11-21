@@ -1722,6 +1722,8 @@ dependencies = [
  "dirs-next",
  "err-derive",
  "log",
+ "widestring 1.0.2",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -1786,8 +1788,6 @@ dependencies = [
  "talpid-core",
  "talpid-types",
  "tokio",
- "widestring 0.5.1",
- "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -3211,7 +3211,7 @@ dependencies = [
  "triggered",
  "uuid",
  "which",
- "widestring 0.5.1",
+ "widestring 1.0.2",
  "winapi",
  "windows-sys 0.42.0",
  "winreg",
@@ -3373,7 +3373,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tunnel-obfuscation",
- "widestring 0.5.1",
+ "widestring 1.0.2",
  "windows-sys 0.42.0",
  "zeroize",
 ]
