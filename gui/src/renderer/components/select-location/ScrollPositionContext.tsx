@@ -67,7 +67,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       saveScrollPosition,
       resetScrollPositions,
     }),
-    [],
+    [saveScrollPosition, resetScrollPositions],
   );
 
   // Restore the scroll position when parameters change
