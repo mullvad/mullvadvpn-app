@@ -22,7 +22,7 @@ enum SchemaVersion: Int {
     case v2 = 2
 
     /// Current schema version.
-    static let current = SchemaVersion.v1
+    static let current = SchemaVersion.v2
 }
 
 struct TunnelSettingsV2: Codable, Equatable {
