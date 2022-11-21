@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { tinyText } from '../common-styles';
-import SearchBar from '../SearchBar';
+import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
   display: 'flex',
@@ -11,8 +11,12 @@ export const StyledContent = styled.div({
   overflow: 'visible',
 });
 
+export const StyledScopeBar = styled(ScopeBar)({
+  marginBottom: '14px',
+});
+
 export const StyledNavigationBarAttachment = styled.div({
-  padding: '0px 16px 8px',
+  padding: '0px 16px 14px',
 });
 
 export const StyledFilterIconButton = styled.button({
@@ -27,7 +31,7 @@ export const StyledFilterIconButton = styled.button({
 export const StyledFilterRow = styled.div({
   ...tinyText,
   color: colors.white,
-  margin: '10px 6px 2px',
+  margin: '0px 6px 14px',
 });
 
 export const StyledFilter = styled.div({
@@ -48,9 +52,4 @@ export const StyledClearFilterButton = styled.div({
   margin: '0 0 0 6px',
   cursor: 'default',
   backgroundColor: 'transparent',
-});
-
-export const StyledSearchBar = styled(SearchBar)({
-  marginTop: '10px',
-  marginBottom: '4px',
 });
