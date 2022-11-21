@@ -147,7 +147,7 @@ impl ApiEndpoint {
 
             let scheme;
             if let Some(tls_var) = disable_tls_var {
-                api.disable_tls = !tls_var.eq_ignore_ascii_case("false");
+                api.disable_tls = tls_var != "0";
                 scheme = "http://";
             } else {
                 scheme = "https://";
