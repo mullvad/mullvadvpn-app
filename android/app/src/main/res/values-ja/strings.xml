@@ -23,6 +23,8 @@
     <string name="buy_credit">クレジットを購入</string>
     <string name="buy_more_credit">追加クレジットを購入</string>
     <string name="cancel">キャンセル</string>
+    <string name="changes_dialog_dismiss_button">了解</string>
+    <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
     <string name="confirm_local_dns">環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>

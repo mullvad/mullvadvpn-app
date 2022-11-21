@@ -68,14 +68,14 @@ extension REST {
     }
 
     public class ProxyConfiguration {
-        public let transportRegistry: TransportRegistry
+        public let transportProvider: () -> RESTTransport?
         public let addressCacheStore: AddressCache
 
         public init(
-            transportRegistry: TransportRegistry,
+            transportProvider: @escaping () -> RESTTransport?,
             addressCacheStore: AddressCache
         ) {
-            self.transportRegistry = transportRegistry
+            self.transportProvider = transportProvider
             self.addressCacheStore = addressCacheStore
         }
     }
@@ -90,7 +90,7 @@ extension REST {
             self.accessTokenManager = accessTokenManager
 
             super.init(
-                transportRegistry: proxyConfiguration.transportRegistry,
+                transportProvider: proxyConfiguration.transportProvider,
                 addressCacheStore: proxyConfiguration.addressCacheStore
             )
         }

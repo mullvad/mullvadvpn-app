@@ -69,3 +69,6 @@ pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
 mod settings;
 pub use crate::settings::{get_default_settings_dir, settings_dir};
+
+#[cfg(windows)]
+mod windows;

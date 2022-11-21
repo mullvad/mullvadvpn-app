@@ -482,6 +482,8 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
     match error {
         tunnel::Error::WireguardTunnelMonitoringError(Error::CreateObfuscatorError(_)) => true,
 
+        tunnel::Error::WireguardTunnelMonitoringError(Error::ObfuscatorError(_)) => true,
+
         tunnel::Error::WireguardTunnelMonitoringError(Error::PskNegotiationError(
             talpid_tunnel_config_client::Error::GrpcConnectError(_),
         )) => true,

@@ -23,6 +23,8 @@
     <string name="buy_credit">Пополнить баланс</string>
     <string name="buy_more_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
+    <string name="changes_dialog_dismiss_button">Понятно!</string>
+    <string name="changes_dialog_subtitle">Изменения в этой версии:</string>
     <string name="confirm_local_dns">Локальный DNS-сервер не будет работать, пока вы не включите «Обмен данными в локальной сети» в разделе «Параметры».</string>
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
     <string name="confirm_removal">Выйти из профиля на устройстве</string>

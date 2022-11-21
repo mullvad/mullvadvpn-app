@@ -13,6 +13,8 @@
             translatable="false">https://mullvad.net/download</string>
     <string name="faqs_and_guides_url"
             translatable="false">https://mullvad.net/help/tag/mullvad-app/</string>
+    <string name="privacy_policy_url"
+            translatable="false">https://mullvad.net/help/privacy-policy/</string>
     <string name="split_tunneling"
             translatable="false">Split tunneling</string>
     <string name="wireguard"

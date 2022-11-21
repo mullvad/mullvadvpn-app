@@ -75,6 +75,11 @@
                                                           android:layout_marginTop="1dp"
                                                           mullvad:text="@string/faqs_and_guides"
                                                           mullvad:url="@string/faqs_and_guides_url" />
+                <net.mullvad.mullvadvpn.ui.widget.UrlCell android:layout_width="match_parent"
+                                                          android:layout_height="wrap_content"
+                                                          android:layout_marginTop="1dp"
+                                                          mullvad:text="@string/privacy_policy"
+                                                          mullvad:url="@string/privacy_policy_url" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
     </LinearLayout>
