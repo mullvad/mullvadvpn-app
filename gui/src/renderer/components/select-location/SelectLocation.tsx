@@ -19,9 +19,10 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from '../NavigationBar';
+import SearchBar from '../SearchBar';
 import LocationList from './LocationList';
 import { useRelayListContext } from './RelayListContext';
-import { ScopeBar, ScopeBarItem } from './ScopeBar';
+import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import { useOnSelectBridgeLocation, useOnSelectLocation } from './select-location-hooks';
 import {
@@ -39,7 +40,7 @@ import {
   StyledFilterIconButton,
   StyledFilterRow,
   StyledNavigationBarAttachment,
-  StyledSearchBar,
+  StyledScopeBar,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 
@@ -126,10 +127,10 @@ export default function SelectLocation() {
 
             <StyledNavigationBarAttachment>
               {allowEntrySelection && (
-                <ScopeBar selectedIndex={locationType} onChange={changeLocationType}>
+                <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
                   <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
                   <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-                </ScopeBar>
+                </StyledScopeBar>
               )}
 
               {showFilters && (
@@ -178,7 +179,7 @@ export default function SelectLocation() {
                 </StyledFilterRow>
               )}
 
-              <StyledSearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
+              <SearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
