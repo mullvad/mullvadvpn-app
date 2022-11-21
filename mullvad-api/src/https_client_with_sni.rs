@@ -215,18 +215,23 @@ impl HttpsConnectorWithSni {
     }
 
     async fn resolve_address(address_cache: AddressCache, uri: Uri) -> io::Result<SocketAddr> {
+        const DEFAULT_PORT: u16 = 443;
+
         let hostname = uri.host().ok_or_else(|| {
             io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
         })?;
-        let port = uri.port_u16().unwrap_or(443);
+        let port = uri.port_u16();
         if let Ok(addr) = hostname.parse::<IpAddr>() {
-            return Ok(SocketAddr::new(addr, port));
+            return Ok(SocketAddr::new(addr, port.unwrap_or(DEFAULT_PORT)));
         }
 
         // Preferentially, use cached address.
         //
         if let Some(addr) = address_cache.resolve_hostname(hostname).await {
-            return Ok(SocketAddr::new(addr.ip(), port));
+            return Ok(SocketAddr::new(
+                addr.ip(),
+                port.unwrap_or_else(|| addr.port()),
+            ));
         }
 
         // Use getaddrinfo as a fallback
@@ -241,7 +246,7 @@ impl HttpsConnectorWithSni {
         let addr = addrs
             .next()
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
-        Ok(SocketAddr::new(addr.ip(), port))
+        Ok(SocketAddr::new(addr.ip(), port.unwrap_or(DEFAULT_PORT)))
     }
 }
 
