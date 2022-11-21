@@ -34,7 +34,11 @@ interface RelayListContext {
   relayList: LocationList<never>;
   expandLocation: (location: RelayLocation) => void;
   collapseLocation: (location: RelayLocation) => void;
-  onBeforeExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
+  onBeforeExpand: (
+    locationRect: DOMRect,
+    expandedContentHeight: number,
+    invokedByUser: boolean,
+  ) => void;
 }
 
 type ExpandedLocations = Partial<Record<LocationType, Array<RelayLocation>>>;
@@ -103,17 +107,21 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     [relayList, expandLocation, collapseLocation, onBeforeExpand],
   );
 
-  // Restore the expanded locations on locationType change or change of other parameters
+  // Calculate expanded locations when location change
   useEffect(() => {
     if (searchTerm === '') {
       setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
-    } else {
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (searchTerm !== '') {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
         [locationType]: getLocationsExpandedBySearch(relayListForFilters, searchTerm),
       }));
     }
-  }, [relayListForFilters, searchTerm, relaySettings?.ownership, relaySettings?.providers]);
+  }, [relayListForFilters, searchTerm]);
 
   return <relayListContext.Provider value={value}>{props.children}</relayListContext.Provider>;
 }
@@ -221,13 +229,16 @@ function useExpandedLocations(
     [locationType],
   );
 
-  const onBeforeExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => {
-    if (invokedByUser) {
-      locationRect.height += expandedContentHeight;
-      spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
-      scrollViewRef.current?.scrollIntoView(locationRect);
-    }
-  }, []);
+  const onBeforeExpand = useCallback(
+    (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => {
+      if (invokedByUser) {
+        locationRect.height += expandedContentHeight;
+        spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
+        scrollViewRef.current?.scrollIntoView(locationRect);
+      }
+    },
+    [],
+  );
 
   return {
     expandedLocations: expandedLocationsMap[locationType],

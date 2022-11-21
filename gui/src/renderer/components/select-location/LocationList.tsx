@@ -17,7 +17,11 @@ interface LocationListProps<T> {
   onSelect: (value: LocationSelection<T>) => void;
   onExpand: (location: RelayLocation) => void;
   onCollapse: (location: RelayLocation) => void;
-  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
+  onWillExpand: (
+    locationRect: DOMRect,
+    expandedContentHeight: number,
+    invokedByUser: boolean,
+  ) => void;
   onTransitionEnd: () => void;
 }
 
