@@ -6,10 +6,14 @@ import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 
+// Context containing the scroll position for each location type and methods to interact with it.
 interface ScrollPositionContext {
   scrollPositions: React.RefObject<Partial<Record<LocationType, ScrollPosition>>>;
+  // The selected location element is used to scroll to it when opening the view
   selectedLocationRef: React.RefObject<HTMLDivElement>;
+  // The scroll view container is used to get the current scroll position and to restore an old one
   scrollViewRef: React.RefObject<CustomScrollbarsRef>;
+  // The space pre allocation view is used to enable smooth scrolling when opening locations
   spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView>;
   saveScrollPosition: () => void;
   resetScrollPositions: () => void;
@@ -31,9 +35,9 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
   const { locationType, searchTerm } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
 
+  const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useRef() as React.RefObject<SpacePreAllocationView>;
-  const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const selectedLocationRef = useRef<HTMLDivElement>(null);
 
   const saveScrollPosition = useCallback(() => {
@@ -66,6 +70,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     [],
   );
 
+  // Restore the scroll position when parameters change
   useEffect(() => {
     const scrollPosition = scrollPositions.current?.[locationType];
     if (scrollPosition) {

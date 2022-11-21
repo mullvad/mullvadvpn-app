@@ -15,7 +15,7 @@ interface CommonProps {
   onSelect: (value: LocationSelection<never>) => void;
   onExpand: (location: RelayLocation) => void;
   onCollapse: (location: RelayLocation) => void;
-  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
   onTransitionEnd: () => void;
 }
 
