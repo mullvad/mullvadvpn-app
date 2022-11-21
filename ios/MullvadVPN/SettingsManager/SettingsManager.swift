@@ -94,13 +94,13 @@ extension SettingsManager {
     // MARK: - Settings
 
     static func readSettings() throws -> TunnelSettingsV2 {
-        let readerWriter = makeVersionMiddlewareFactory()
+        let readerWriter = makeStorageMiddlewareFactory()
 
         return try readerWriter.readSettings()
     }
 
     static func writeSettings(_ settings: TunnelSettingsV2) throws {
-        let readerWriter = makeVersionMiddlewareFactory()
+        let readerWriter = makeStorageMiddlewareFactory()
 
         return try readerWriter.saveSettings(settings)
     }
@@ -112,13 +112,13 @@ extension SettingsManager {
     // MARK: - Device state
 
     static func readDeviceState() throws -> DeviceState {
-        let readerWriter = makeVersionMiddlewareFactory()
+        let readerWriter = makeStorageMiddlewareFactory()
 
         return try readerWriter.readDeviceState()
     }
 
     static func writeDeviceState(_ deviceState: DeviceState) throws {
-        let readerWriter = makeVersionMiddlewareFactory()
+        let readerWriter = makeStorageMiddlewareFactory()
 
         return try readerWriter.saveDeviceState(deviceState)
     }
@@ -129,7 +129,7 @@ extension SettingsManager {
 
     // MARK: - Migration
 
-    static func makeVersionMiddlewareFactory(
+    static func makeStorageMiddlewareFactory(
         store: SettingsStore = Self.store,
         decoder: JSONDecoder = Self.makeDecoder(),
         encoder: JSONEncoder = Self.makeEncoder()
@@ -182,7 +182,7 @@ extension SettingsManager {
             return
         }
 
-        let readerWriterMiddleware = Self.makeVersionMiddlewareFactory()
+        let storageMiddleware = Self.makeStorageMiddlewareFactory()
 
         // Check for legacy settings.
         if let legacySettings = readLegacySettings() {
@@ -192,7 +192,7 @@ extension SettingsManager {
                 logger: logger
             )
 
-            migration.migrate(with: readerWriterMiddleware) { error in
+            migration.migrate(with: storageMiddleware) { error in
                 if let error = error {
                     completion(error)
                 } else {
@@ -221,7 +221,7 @@ extension SettingsManager {
             logger: logger
         )
 
-        migrator.migrate(with: readerWriterMiddleware) { error in
+        migrator.migrate(with: storageMiddleware) { error in
             completion(error)
         }
     }
@@ -510,7 +510,7 @@ struct SettingsStorageMiddleware {
     /// The decoder used to decode values.
     private let decoder: JSONDecoder
 
-    /// The decoder used to decode values.
+    /// The encoder used to encode values.
     private let encoder: JSONEncoder
 
     fileprivate init(store: SettingsStore, decoder: JSONDecoder, encoder: JSONEncoder) {
