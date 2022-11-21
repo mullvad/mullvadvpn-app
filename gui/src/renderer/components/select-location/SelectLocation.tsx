@@ -19,7 +19,6 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from '../NavigationBar';
-import SearchBar from '../SearchBar';
 import LocationList from './LocationList';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
@@ -39,8 +38,10 @@ import {
   StyledFilter,
   StyledFilterIconButton,
   StyledFilterRow,
+  StyledHeaderSubTitle,
   StyledNavigationBarAttachment,
   StyledScopeBar,
+  StyledSearchBar,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 
@@ -127,10 +128,30 @@ export default function SelectLocation() {
 
             <StyledNavigationBarAttachment>
               {allowEntrySelection && (
-                <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
-                  <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-                </StyledScopeBar>
+                <>
+                  <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
+                    <ScopeBarItem>
+                      {messages.pgettext('select-location-view', 'Entry')}
+                    </ScopeBarItem>
+                    <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
+                  </StyledScopeBar>
+
+                  {tunnelProtocol === 'openvpn' ? (
+                    <StyledHeaderSubTitle>
+                      {messages.pgettext(
+                        'select-location-view',
+                        'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
+                      )}
+                    </StyledHeaderSubTitle>
+                  ) : (
+                    <StyledHeaderSubTitle>
+                      {messages.pgettext(
+                        'select-location-view',
+                        'While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers).',
+                      )}
+                    </StyledHeaderSubTitle>
+                  )}
+                </>
               )}
 
               {showFilters && (
@@ -179,7 +200,7 @@ export default function SelectLocation() {
                 </StyledFilterRow>
               )}
 
-              <SearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
+              <StyledSearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { tinyText } from '../common-styles';
+import SearchBar from '../SearchBar';
+import { HeaderSubTitle } from '../SettingsHeader';
 import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
@@ -16,7 +18,7 @@ export const StyledScopeBar = styled(ScopeBar)({
 });
 
 export const StyledNavigationBarAttachment = styled.div({
-  padding: '0px 16px 14px',
+  padding: '0 16px 14px',
 });
 
 export const StyledFilterIconButton = styled.button({
@@ -31,7 +33,7 @@ export const StyledFilterIconButton = styled.button({
 export const StyledFilterRow = styled.div({
   ...tinyText,
   color: colors.white,
-  margin: '0px 6px 14px',
+  margin: '0 6px 14px',
 });
 
 export const StyledFilter = styled.div({
@@ -52,4 +54,13 @@ export const StyledClearFilterButton = styled.div({
   margin: '0 0 0 6px',
   cursor: 'default',
   backgroundColor: 'transparent',
+});
+
+export const StyledHeaderSubTitle = styled(HeaderSubTitle)({
+  display: 'block',
+  margin: '0 6px 14px',
+});
+
+export const StyledSearchBar = styled(SearchBar)({
+  margin: '0 6px',
 });
