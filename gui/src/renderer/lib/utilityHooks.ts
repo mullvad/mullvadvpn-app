@@ -65,28 +65,3 @@ export function useNormalBridgeSettings() {
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
   return 'normal' in bridgeSettings ? bridgeSettings.normal : undefined;
 }
-
-const sharedMemoData: Record<
-  string,
-  { value: unknown; dependencies: Array<unknown> | undefined }
-> = {};
-export function useSharedMemo<T>(
-  key: string,
-  factory: () => T,
-  dependencies: Array<unknown> | undefined,
-): T {
-  const data = sharedMemoData[key];
-  if (
-    data === undefined ||
-    data.dependencies === undefined ||
-    dependencies === undefined ||
-    data.dependencies.length !== dependencies.length ||
-    data.dependencies.some((item, i) => item !== dependencies[i])
-  ) {
-    const value = factory();
-    sharedMemoData[key] = { value, dependencies };
-    return value;
-  } else {
-    return data.value as T;
-  }
-}
