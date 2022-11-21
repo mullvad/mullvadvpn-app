@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../../config.json';
@@ -20,13 +20,10 @@ import {
   TitleBarItem,
 } from '../NavigationBar';
 import LocationList from './LocationList';
+import { useRelayListContext } from './RelayListContext';
 import { ScopeBar, ScopeBarItem } from './ScopeBar';
-import {
-  useExpandedLocations,
-  useOnSelectBridgeLocation,
-  useOnSelectLocation,
-  useRelayList,
-} from './select-location-hooks';
+import { useScrollPositionContext } from './ScrollPositionContext';
+import { useOnSelectBridgeLocation, useOnSelectLocation } from './select-location-hooks';
 import {
   LocationSelectionType,
   LocationType,
@@ -49,8 +46,13 @@ import { SpacePreAllocationView } from './SpacePreAllocationView';
 export default function SelectLocation() {
   const history = useHistory();
   const { updateRelaySettings } = useAppContext();
-  const { saveScrollPosition, resetScrollPositions, applyScrollPosition } = useScrollPosition();
-  const { scrollViewRef, spacePreAllocationViewRef, locationType, setLocationType, searchTerm, setSearchTerm } = useSelectLocationContext();
+  const {
+    saveScrollPosition,
+    resetScrollPositions,
+    scrollViewRef,
+    spacePreAllocationViewRef,
+  } = useScrollPositionContext();
+  const { locationType, setLocationType, searchTerm, setSearchTerm } = useSelectLocationContext();
 
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
@@ -90,8 +92,6 @@ export default function SelectLocation() {
     },
     [resetScrollPositions],
   );
-
-  useEffect(applyScrollPosition, [applyScrollPosition]);
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
@@ -207,10 +207,9 @@ function ownershipFilterLabel(ownership: Ownership): string {
 }
 
 function SelectLocationContent() {
-  const { locationType, selectedLocationRef, spacePreAllocationViewRef } = useSelectLocationContext();
-  const relayList = useRelayList();
-  const { expandLocation, collapseLocation, updateExpandedLocations } = useExpandedLocations();
-  const { onBeforeExpand } = useScrollPosition();
+  const { locationType } = useSelectLocationContext();
+  const { selectedLocationRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
   const onSelectLocation = useOnSelectLocation();
   const onSelectBridgeLocation = useOnSelectBridgeLocation();
 
@@ -218,8 +217,6 @@ function SelectLocationContent() {
   const bridgeSettings = useNormalBridgeSettings();
 
   const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
-
-  useEffect(updateExpandedLocations, [updateExpandedLocations]);
 
   if (locationType === LocationType.exit) {
     return (
@@ -275,46 +272,4 @@ function SelectLocationContent() {
       />
     );
   }
-}
-
-function useScrollPosition() {
-  const { locationType, scrollPositions, scrollViewRef, spacePreAllocationViewRef, selectedLocationRef, searchTerm } = useSelectLocationContext();
-  const relaySettings = useNormalRelaySettings();
-
-  const saveScrollPosition = useCallback(() => {
-    const scrollPosition = scrollViewRef.current?.getScrollPosition();
-    if (scrollPositions.current && scrollPosition) {
-      scrollPositions.current[locationType] = scrollPosition;
-    }
-  }, [locationType]);
-
-  const resetScrollPositions = useCallback(() => {
-    for (const locationTypeVariant of [LocationType.entry, LocationType.exit]) {
-      if (
-        scrollPositions.current &&
-        (scrollPositions.current[locationTypeVariant] || locationTypeVariant === locationType)
-      ) {
-        scrollPositions.current[locationTypeVariant] = [0, 0];
-      }
-    }
-  }, [locationType]);
-
-  const applyScrollPosition = useCallback(() => {
-    const scrollPosition = scrollPositions.current?.[locationType];
-    if (scrollPosition) {
-      scrollViewRef.current?.scrollTo(...scrollPosition);
-    } else if (selectedLocationRef.current) {
-      scrollViewRef.current?.scrollToElement(selectedLocationRef.current, 'middle');
-    } else {
-      scrollViewRef.current?.scrollToTop();
-    }
-  }, [locationType, searchTerm, relaySettings?.ownership, relaySettings?.providers]);
-
-  const onBeforeExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number) => {
-    locationRect.height += expandedContentHeight;
-    spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
-    scrollViewRef.current?.scrollIntoView(locationRect);
-  }, []);
-
-  return { spacePreAllocationViewRef, saveScrollPosition, resetScrollPositions, applyScrollPosition, onBeforeExpand };
 }
