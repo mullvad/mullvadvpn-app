@@ -107,7 +107,11 @@ interface IProps<C extends LocationSpecification> {
   onSelect: (value: LocationSelection<never>) => void;
   onExpand: (location: RelayLocation) => void;
   onCollapse: (location: RelayLocation) => void;
-  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
+  onWillExpand: (
+    locationRect: DOMRect,
+    expandedContentHeight: number,
+    invokedByUser: boolean,
+  ) => void;
   onTransitionEnd: () => void;
   children?: C extends RelaySpecification
     ? never
