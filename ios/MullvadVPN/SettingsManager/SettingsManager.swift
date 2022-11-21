@@ -154,9 +154,10 @@ extension SettingsManager {
         }
 
         // Check versions.
-        if let settingsHeader = try? JSONDecoder().decode(VersionHeader.self, from: settingsData),
-           let deviceStateHeader = try? JSONDecoder()
-           .decode(VersionHeader.self, from: deviceStateData)
+        let decoder = Self.makeDecoder()
+
+        if let settingsHeader = try? decoder.decode(VersionHeader.self, from: settingsData),
+           let deviceStateHeader = try? decoder.decode(VersionHeader.self, from: deviceStateData)
         {
             if settingsHeader.version != SchemaVersion.current.rawValue {
                 completion(VersioningError.unsupportedSettings(
