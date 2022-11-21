@@ -107,7 +107,7 @@ interface IProps<C extends LocationSpecification> {
   onSelect: (value: LocationSelection<never>) => void;
   onExpand: (location: RelayLocation) => void;
   onCollapse: (location: RelayLocation) => void;
-  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
   onTransitionEnd: () => void;
   children?: C extends RelaySpecification
     ? never
@@ -116,15 +116,17 @@ interface IProps<C extends LocationSpecification> {
       >[];
 }
 
+// Renders the rows and its children for countries, cities and relays
 function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const hasChildren = React.Children.count(props.children) > 0;
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
-  const recentClickRef = useRef(false);
+  const userInvokedExpand = useRef(false);
 
+  // Expand/collapse should only be available if the expanded property is provided in the source
   const expanded = 'expanded' in props.source ? props.source.expanded : undefined;
   const toggleCollapse = useCallback(() => {
     if (expanded !== undefined) {
-      recentClickRef.current = true;
+      userInvokedExpand.current = true;
       const callback = expanded ? props.onCollapse : props.onExpand;
       callback(props.source.location);
     }
@@ -139,14 +141,15 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const onWillExpand = useCallback(
     (nextHeight: number) => {
       const buttonRect = buttonRef.current?.getBoundingClientRect();
-      if (expanded !== undefined && buttonRect && recentClickRef.current) {
-        props.onWillExpand(buttonRect, nextHeight);
-        recentClickRef.current = false;
+      if (expanded !== undefined && buttonRect) {
+        props.onWillExpand(buttonRect, nextHeight, userInvokedExpand.current);
+        userInvokedExpand.current = false;
       }
     },
     [props.onWillExpand],
   );
 
+  // The selectedRef should only be used if the element is selected
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   return (
     <>
@@ -192,6 +195,8 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   );
 }
 
+// This is to avoid unnecessary rerenders since most of the subtree is hidden and would result in
+// a lot more work than necessary
 export default React.memo(LocationRow, compareProps);
 
 function compareProps<C extends LocationSpecification>(

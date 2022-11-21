@@ -16,6 +16,7 @@ import {
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
+// Functions for handling selection of locations
 export function useOnSelectLocation() {
   const history = useHistory();
   const { updateRelaySettings } = useAppContext();

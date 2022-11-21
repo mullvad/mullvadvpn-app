@@ -29,11 +29,12 @@ import {
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
+// Context containing the relay list and related data and callbacks
 interface RelayListContext {
   relayList: LocationList<never>;
   expandLocation: (location: RelayLocation) => void;
   collapseLocation: (location: RelayLocation) => void;
-  onBeforeExpand: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onBeforeExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
 }
 
 type ExpandedLocations = Partial<Record<LocationType, Array<RelayLocation>>>;
@@ -54,6 +55,8 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
 
+  // Keeps the state of which locations are expanded for which locationType. This is used to restore
+  // the state when switching back and forth between entry and exit.
   const [expandedLocationsMap, setExpandedLocations] = useState<ExpandedLocations>(() =>
     defaultExpandedLocations(relaySettings, bridgeSettings),
   );
@@ -64,12 +67,16 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     onBeforeExpand,
   } = useExpandedLocations(expandedLocationsMap, setExpandedLocations);
 
+  // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
+  // "openvpn" or "bridge"
   const relayListForEndpointType = useMemo(() => {
     const endpointType =
       locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
     return filterLocationsByEndPointType(fullRelayList, endpointType, relaySettings);
   }, [fullRelayList, locationType, relaySettings?.tunnelProtocol]);
 
+  // Filters the relays to only keep the relays matching the currently selected filters, e.g.
+  // ownership and providers
   const relayListForFilters = useMemo(() => {
     return filterLocations(
       relayListForEndpointType,
@@ -78,10 +85,12 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     );
   }, [relaySettings?.ownership, relaySettings?.providers, relayListForEndpointType]);
 
+  // Filters the relays based on the provided search term
   const relayListForSearch = useMemo(() => {
     return searchForLocations(relayListForFilters, searchTerm);
   }, [relayListForFilters, searchTerm]);
 
+  // Prepares all relays and combines the data needed for rendering them
   const relayList = useRelayList(relayListForSearch, expandedLocations);
 
   const value = useMemo(
@@ -94,6 +103,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     [relayList, expandLocation, collapseLocation, onBeforeExpand],
   );
 
+  // Restore the expanded locations on locationType change or change of other parameters
   useEffect(() => {
     if (searchTerm === '') {
       setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
@@ -211,10 +221,12 @@ function useExpandedLocations(
     [locationType],
   );
 
-  const onBeforeExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number) => {
-    locationRect.height += expandedContentHeight;
-    spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
-    scrollViewRef.current?.scrollIntoView(locationRect);
+  const onBeforeExpand = useCallback((locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => {
+    if (invokedByUser) {
+      locationRect.height += expandedContentHeight;
+      spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
+      scrollViewRef.current?.scrollIntoView(locationRect);
+    }
   }, []);
 
   return {
@@ -225,6 +237,8 @@ function useExpandedLocations(
   };
 }
 
+// Returns the location (if any) that should be disabled. This is currently used for disabling the
+// entry location when selecting exit location etc.
 function useDisabledLocation() {
   const { locationType } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();

@@ -17,10 +17,11 @@ interface LocationListProps<T> {
   onSelect: (value: LocationSelection<T>) => void;
   onExpand: (location: RelayLocation) => void;
   onCollapse: (location: RelayLocation) => void;
-  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number) => void;
+  onWillExpand: (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => void;
   onTransitionEnd: () => void;
 }
 
+// Renders the special locations and the regular locations as separate lists
 export default function LocationsList<T>(props: LocationListProps<T>) {
   const specialLocations = props.source.filter(isSpecialLocation);
   const relayLocations = props.source.filter(isRelayLocation);
