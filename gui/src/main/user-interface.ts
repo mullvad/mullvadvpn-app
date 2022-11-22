@@ -23,6 +23,7 @@ export interface UserInterfaceDelegate {
   connectTunnel(): void;
   reconnectTunnel(): void;
   disconnectTunnel(): void;
+  disconnectAndQuit(): void;
   isUnpinnedWindow(): boolean;
   isLoggedIn(): boolean;
   getAccountData(): IAccountData | undefined;
@@ -617,6 +618,15 @@ export default class UserInterface implements WindowControllerDelegate {
         label: messages.gettext('Disconnect'),
         enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
         click: this.delegate.disconnectTunnel,
+      },
+      { type: 'separator' },
+      {
+        id: 'disconnect',
+        label:
+          tunnelState.state === 'disconnected'
+            ? messages.gettext('Quit')
+            : messages.gettext('Disconnect and quit'),
+        click: this.delegate.disconnectAndQuit,
       },
     ];
 

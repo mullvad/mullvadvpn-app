@@ -211,6 +211,22 @@ class ApplicationMain
     );
   };
 
+  public disconnectAndQuit = async () => {
+    if (this.daemonRpc.isConnected) {
+      try {
+        await this.daemonRpc.disconnectTunnel();
+        log.info('Disconnected the tunnel');
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to disconnect the tunnel: ${error.message}`);
+      }
+    } else {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    }
+
+    app.quit();
+  };
+
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, _argv, _workingDirectory) => {
       this.userInterface?.showWindow();
@@ -269,22 +285,6 @@ class ApplicationMain
   }
 
   private onActivate = () => this.userInterface?.showWindow();
-
-  private async disconnectAndQuit() {
-    if (this.daemonRpc.isConnected) {
-      try {
-        await this.daemonRpc.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to disconnect the tunnel: ${error.message}`);
-      }
-    } else {
-      log.info('Cannot close the tunnel because there is no active connection to daemon.');
-    }
-
-    app.quit();
-  }
 
   // This is a last try to disconnect and quit gracefully if the app quits without having received
   // the before-quit event.
