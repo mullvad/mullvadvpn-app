@@ -8,15 +8,15 @@
 
 import Foundation
 
-struct VersionHeader: Codable {
+private struct VersionHeader: Codable {
     var version: Int
 }
 
-struct Payload<T: Codable>: Codable {
+private struct Payload<T: Codable>: Codable {
     var data: T
 }
 
-struct VersionedPayload<T: Codable>: Codable {
+private struct VersionedPayload<T: Codable>: Codable {
     var version: Int
     var data: T
 }
@@ -36,12 +36,12 @@ struct SettingsParser {
         self.encoder = encoder
     }
 
-    func producePayload<T: Encodable>(_ payload: VersionedPayload<T>) throws -> Data {
-        try encoder.encode(payload)
+    func producePayload<T: Codable>(_ payload: T, version: Int) throws -> Data {
+        return try encoder.encode(VersionedPayload(version: version, data: payload))
     }
 
-    func produceUnversionedPayload<T: Encodable>(_ payload: T) throws -> Data {
-        try encoder.encode(payload)
+    func produceUnversionedPayload<T: Codable>(_ payload: T) throws -> Data {
+        return try encoder.encode(payload)
     }
 
     /// Returns settings version if found inside the stored data.

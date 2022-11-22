@@ -32,12 +32,10 @@ class MigrationFromUnversionedToV2: Migration {
                 from: data
             )
 
-            let versionedTunnelSettings = VersionedPayload(
-                version: SchemaVersion.v2.rawValue,
-                data: unversionedTunnelSettings
+            let settingsData = try parser.producePayload(
+                unversionedTunnelSettings,
+                version: SchemaVersion.v2.rawValue
             )
-
-            let settingsData = try parser.producePayload(versionedTunnelSettings)
 
             try store.write(settingsData, for: .settings)
 

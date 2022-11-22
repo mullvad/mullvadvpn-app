@@ -72,8 +72,7 @@ enum SettingsManager {
 
     static func writeSettings(_ settings: TunnelSettingsV2) throws {
         let parser = makeParser()
-        let versioned = VersionedPayload(version: SchemaVersion.current.rawValue, data: settings)
-        let data = try parser.producePayload(versioned)
+        let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)
 
         try store.write(data, for: .settings)
     }

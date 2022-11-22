@@ -154,13 +154,11 @@ class MigrationFromV1ToV2: Migration {
             dnsSettings: interfaceData.dnsSettings
         )
 
-        let versionedSettings = VersionedPayload(
-            version: SchemaVersion.v2.rawValue,
-            data: newSettings
-        )
-
         // Save settings.
-        let settingsData = try parser.producePayload(versionedSettings)
+        let settingsData = try parser.producePayload(
+            newSettings,
+            version: SchemaVersion.v2.rawValue
+        )
         let deviceData = try parser.produceUnversionedPayload(newDeviceState)
 
         try store.write(settingsData, for: .settings)

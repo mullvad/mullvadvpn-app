@@ -32,6 +32,7 @@
 		06410E05292D0FC000AFC18C /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
 		06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
 		06410E08292D117800AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
+		06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -2338,6 +2339,7 @@
 			files = (
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
+				06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */,
 				58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */,
 				068CE5782927BE4800A068BB /* Migration.swift in Sources */,
 				58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */,
