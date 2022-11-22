@@ -169,6 +169,9 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr ""
+
 msgid "Off"
 msgstr ""
 
@@ -182,6 +185,9 @@ msgid "QUANTUM SECURE CONNECTION"
 msgstr ""
 
 msgid "Reconnect"
+msgstr ""
+
+msgid "Search for..."
 msgstr ""
 
 msgid "SECURE CONNECTION"
@@ -198,6 +204,9 @@ msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
+msgstr ""
+
+msgid "Try a different search."
 msgstr ""
 
 msgid "UDP"
@@ -972,11 +981,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr ""
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr ""
@@ -1058,10 +1062,6 @@ msgid "Excluded apps"
 msgstr ""
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr ""
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr ""
 
@@ -1071,10 +1071,6 @@ msgstr ""
 
 msgctxt "split-tunneling-view"
 msgid "Launch"
-msgstr ""
-
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
 msgstr ""
 
 #. This error message is shown if the user tries to launch a Linux desktop
@@ -1088,10 +1084,6 @@ msgstr ""
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or contact support."
-msgstr ""
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
 msgstr ""
 
 #. Error message showed in a dialog when an application failes to launch.
