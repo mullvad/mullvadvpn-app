@@ -256,10 +256,13 @@ function DebugButton() {
 
 function QuitButton() {
   const { quit } = useAppContext();
+  const tunnelState = useSelector((state) => state.connection.status);
 
   return (
     <StyledQuitButton onClick={quit}>
-      {messages.pgettext('settings-view', 'Quit app')}
+      {tunnelState.state === 'disconnected'
+        ? messages.gettext('Quit')
+        : messages.gettext('Disconnect & quit')}
     </StyledQuitButton>
   );
 }
