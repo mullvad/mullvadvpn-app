@@ -23,10 +23,6 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Added
-#### Android
-- Add privacy policy link in settings.
-
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
@@ -56,6 +52,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - DNS loopback traffic is no longer blocked. Note that local resolvers are still unable to forward
   queries to servers that would normally be blocked.
+
+
+## [android/2022.3] - 2022-11-14
+### Added
+#### Android
+- Add privacy policy link in settings.
+- Add initial privacy consent which is showed on each start until approved.
 
 
 ## [android/2022.2] - 2022-10-17
