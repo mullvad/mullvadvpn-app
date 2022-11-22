@@ -142,8 +142,15 @@ impl ApiEndpoint {
             force_direct_connection: false,
         };
 
-        if cfg!(feature = "api-override") && (host_var.is_some() || address_var.is_some()) {
+        if cfg!(feature = "api-override") {
             use std::net::ToSocketAddrs;
+
+            if host_var.is_none() && address_var.is_none() {
+                if disable_tls_var.is_some() {
+                    log::warn!("MULLVAD_API_DISABLE_TLS is ignored since MULLVAD_API_HOST and MULLVAD_API_ADDR are not set");
+                }
+                return api;
+            }
 
             let scheme = if let Some(disable_tls_var) = disable_tls_var {
                 api.disable_tls = disable_tls_var != "0";
@@ -170,8 +177,8 @@ impl ApiEndpoint {
             api.disable_address_cache = true;
             api.force_direct_connection = true;
             log::debug!("Overriding API. Using {} at {scheme}{}", api.host, api.addr);
-        } else if host_var.is_some() || address_var.is_some() {
-            log::warn!("MULLVAD_API_HOST and MULLVAD_API_ADDR are ignored in production builds");
+        } else if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
+            log::warn!("These variables are ignored in production builds: MULLVAD_API_HOST, MULLVAD_API_ADDR, MULLVAD_API_DISABLE_TLS");
         }
         api
     }
