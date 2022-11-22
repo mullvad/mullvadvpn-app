@@ -23,6 +23,7 @@ export interface UserInterfaceDelegate {
   connectTunnel(): void;
   reconnectTunnel(): void;
   disconnectTunnel(): void;
+  disconnectAndQuit(): void;
   isUnpinnedWindow(): boolean;
   isLoggedIn(): boolean;
   getAccountData(): IAccountData | undefined;
@@ -618,9 +619,22 @@ export default class UserInterface implements WindowControllerDelegate {
         enabled: disconnectEnabled(connectedToDaemon, tunnelState.state),
         click: this.delegate.disconnectTunnel,
       },
+      { type: 'separator' },
+      {
+        id: 'disconnect',
+        label:
+          tunnelState.state === 'disconnected'
+            ? messages.gettext('Quit')
+            : this.escapeContextMenuLabel(messages.gettext('Disconnect & quit')),
+        click: this.delegate.disconnectAndQuit,
+      },
     ];
 
     return Menu.buildFromTemplate(template);
+  }
+
+  private escapeContextMenuLabel(label: string): string {
+    return label.replace('&', '&&');
   }
 
   private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
