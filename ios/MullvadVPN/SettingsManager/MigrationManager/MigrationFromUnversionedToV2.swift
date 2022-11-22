@@ -13,57 +13,39 @@ import MullvadTypes
 class MigrationFromUnversionedToV2: Migration {
     private let logger: Logger
 
-    /// `TunnelSettings` stored data.
-    private let settingsData: Data
-
-    /// `DeviceState` stored data.
-    private let deviceStateData: Data
-
-    init(
-        settingsData: Data,
-        deviceStateData: Data,
-        logger: Logger
-    ) {
-        self.settingsData = settingsData
-        self.deviceStateData = deviceStateData
+    init(logger: Logger) {
         self.logger = logger
     }
 
     func migrate(
-        with middleware: SettingsStorageMiddleware,
+        with store: SettingsStore,
+        parser: SettingsParser,
         completion: @escaping (Error?) -> Void
     ) {
         do {
-            // Tunnel settings
-            logger.debug("Try to parse unversioned settings")
+            logger.debug("Migrating from unversioned to version v2")
 
-            let unversionedTunnelSettings = try middleware.parseUnversionedPayload(
+            let data = try store.read(key: .settings)
+
+            let unversionedTunnelSettings = try parser.parseUnversionedPayload(
                 as: TunnelSettingsV2.self,
-                from: settingsData
+                from: data
             )
 
-            // Device state
-            let unversionedDeviceState = try middleware.parseUnversionedPayload(
-                as: DeviceState.self,
-                from: deviceStateData
+            let versionedTunnelSettings = VersionedPayload(
+                version: SchemaVersion.v2.rawValue,
+                data: unversionedTunnelSettings
             )
 
-            logger
-                .debug(
-                    "Store settings with version, current version: \(SchemaVersion.current.rawValue)"
-                )
+            let settingsData = try parser.producePayload(versionedTunnelSettings)
 
-            // Save settings.
-            try middleware.saveSettings(unversionedTunnelSettings)
-            try middleware.saveDeviceState(unversionedDeviceState)
+            try store.write(settingsData, for: .settings)
 
-            completion(nil)
-        } catch is DecodingError {
             completion(nil)
         } catch {
             logger.error(
                 error: error,
-                message: "Failed to migrate settings from unversioned, to new version."
+                message: "Failed to migrate settings from unversioned to version v2."
             )
 
             completion(error)

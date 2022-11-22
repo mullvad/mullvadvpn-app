@@ -10,7 +10,8 @@ import Foundation
 
 protocol Migration {
     func migrate(
-        with middleware: SettingsStorageMiddleware,
+        with store: SettingsStore,
+        parser: SettingsParser,
         completion: @escaping (Error?) -> Void
     )
 }

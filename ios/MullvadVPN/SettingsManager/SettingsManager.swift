@@ -11,58 +11,19 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 
-enum SettingsManager {}
-
-struct LegacyTunnelSettings {
-    let accountNumber: String
-    let tunnelSettings: TunnelSettingsV1
-}
-
 private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
-enum SettingsStorableItem: String, CaseIterable {
-    case settings = "Settings"
-    case deviceState = "DeviceState"
-    case lastUsedAccount = "LastUsedAccount"
-}
-
-protocol SettingsStore: AnyObject {
-    func read(for itemKey: SettingsStorableItem) throws -> Data
-    func write(_ data: Data, for itemKey: SettingsStorableItem) throws
-    func delete(itemKey: SettingsStorableItem) throws
-}
-
-struct StringDecodingError: LocalizedError {
-    let data: Data
-
-    var errorDescription: String? {
-        return "Failed to decode string from data."
-    }
-}
-
-struct StringEncodingError: LocalizedError {
-    let string: String
-
-    var errorDescription: String? {
-        return "Failed to encode string into data."
-    }
-}
-
-extension SettingsManager {
-    private static func makeDecoder() -> JSONDecoder {
-        JSONDecoder()
+enum SettingsManager {
+    private static func makeParser() -> SettingsParser {
+        SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
 
-    private static func makeEncoder() -> JSONEncoder {
-        JSONEncoder()
-    }
-
-    // MARK: - Lsat used account
+    // MARK: - Last used account
 
     static func getLastUsedAccount() throws -> String {
-        let data = try store.read(for: .lastUsedAccount)
+        let data = try store.read(key: .lastUsedAccount)
 
         if let string = String(data: data, encoding: .utf8) {
             return string
@@ -80,7 +41,7 @@ extension SettingsManager {
             try store.write(data, for: .lastUsedAccount)
         } else {
             do {
-                try store.delete(itemKey: .lastUsedAccount)
+                try store.delete(key: .lastUsedAccount)
             } catch let error as KeychainError where error == .itemNotFound {
                 return
             } catch {
@@ -89,64 +50,57 @@ extension SettingsManager {
         }
     }
 
-    private static let store: SettingsStore = KeychainSettingsFacade()
+    private static let store: SettingsStore = KeychainSettingsStore(
+        keychainServiceName: keychainServiceName
+    )
 
     // MARK: - Settings
 
     static func readSettings() throws -> TunnelSettingsV2 {
-        let readerWriter = makeStorageMiddlewareFactory()
+        let data = try store.read(key: .settings)
+        let parser = makeParser()
 
-        return try readerWriter.readSettings()
+        let version = try parser.parseVersion(data: data)
+        let currentVersion = SchemaVersion.current.rawValue
+
+        if version == currentVersion {
+            return try parser.parsePayload(as: TunnelSettingsV2.self, from: data)
+        } else {
+            throw UnsupportedVersionSettings(storedVersion: version, currentVersion: currentVersion)
+        }
     }
 
     static func writeSettings(_ settings: TunnelSettingsV2) throws {
-        let readerWriter = makeStorageMiddlewareFactory()
+        let parser = makeParser()
+        let versioned = VersionedPayload(version: SchemaVersion.current.rawValue, data: settings)
+        let data = try parser.producePayload(versioned)
 
-        return try readerWriter.saveSettings(settings)
-    }
-
-    static func deleteSettings() throws {
-        try store.delete(itemKey: .settings)
+        try store.write(data, for: .settings)
     }
 
     // MARK: - Device state
 
     static func readDeviceState() throws -> DeviceState {
-        let readerWriter = makeStorageMiddlewareFactory()
+        let data = try store.read(key: .deviceState)
+        let parser = makeParser()
 
-        return try readerWriter.readDeviceState()
+        return try parser.parseUnversionedPayload(as: DeviceState.self, from: data)
     }
 
     static func writeDeviceState(_ deviceState: DeviceState) throws {
-        let readerWriter = makeStorageMiddlewareFactory()
+        let parser = makeParser()
+        let data = try parser.produceUnversionedPayload(deviceState)
 
-        return try readerWriter.saveDeviceState(deviceState)
-    }
-
-    static func deleteDeviceState() throws {
-        try store.delete(itemKey: .deviceState)
+        try store.write(data, for: .deviceState)
     }
 
     // MARK: - Migration
-
-    static func makeStorageMiddlewareFactory(
-        store: SettingsStore = Self.store,
-        decoder: JSONDecoder = Self.makeDecoder(),
-        encoder: JSONEncoder = Self.makeEncoder()
-    ) -> SettingsStorageMiddleware {
-        SettingsStorageMiddleware(
-            store: store,
-            decoder: decoder,
-            encoder: encoder
-        )
-    }
 
     static func migrateStore(
         with restFactory: REST.ProxyFactory,
         completion: @escaping (Error?) -> Void
     ) {
-        guard let settingsData = try? store.read(for: .settings),
-              let deviceStateData = try? store.read(for: .deviceState)
+        guard let settingsData = try? store.read(key: .settings)
         else {
             // Return new/not logged in user immediately.
             completion(nil)
@@ -154,47 +108,49 @@ extension SettingsManager {
         }
 
         // Check versions.
-        let decoder = Self.makeDecoder()
+        let parser = makeParser()
 
-        if let settingsHeader = try? decoder.decode(VersionHeader.self, from: settingsData),
-           let deviceStateHeader = try? decoder.decode(VersionHeader.self, from: deviceStateData)
+        if let settingsVersion = try? parser.parseVersion(data: settingsData),
+           settingsVersion != SchemaVersion.current.rawValue
         {
-            if settingsHeader.version != SchemaVersion.current.rawValue {
-                completion(VersioningError.unsupportedSettings(
-                    storedVersion: settingsHeader.version,
-                    currentVersion: SchemaVersion.current
-                        .rawValue
-                ))
+            completion(UnsupportedVersionSettings(
+                storedVersion: settingsVersion,
+                currentVersion: SchemaVersion.current.rawValue
+            ))
 
-                return
+        } else if case .some = try? parser.parseUnversionedPayload(
+            as: TunnelSettingsV2.self,
+            from: settingsData
+        ) {
+            // Check for unversion settings.
+            let migrator = MigrationFromUnversionedToV2(logger: logger)
+
+            migrator.migrate(with: store, parser: parser) { error in
+                if let error = error {
+                    logger.error(
+                        error: error,
+                        message: "Failed to migrate from unversioned settings to v2."
+                    )
+                }
+
+                completion(error)
             }
 
-            if deviceStateHeader.version != SchemaVersion.current.rawValue {
-                completion(VersioningError.unsupportedDeviceState(
-                    storedVersion: deviceStateHeader.version,
-                    currentVersion: SchemaVersion.current
-                        .rawValue
-                ))
-
-                return
-            }
-
-            completion(nil)
-            return
-        }
-
-        let storageMiddleware = Self.makeStorageMiddlewareFactory()
-
-        // Check for legacy settings.
-        if let legacySettings = readLegacySettings() {
+        } else if let legacySettings = readLegacySettings() {
+            // Check for legacy settings.
             let migration = MigrationFromV1ToV2(
                 restFactory: restFactory,
                 legacySettings: legacySettings,
                 logger: logger
             )
 
-            migration.migrate(with: storageMiddleware) { error in
+            migration.migrate(with: store, parser: parser) { error in
                 if let error = error {
+                    logger.error(
+                        error: error,
+                        message: "Failed to migrate from legacy settings to v2."
+                    )
+
                     completion(error)
                 } else {
                     // migration was successful, deleting legacy settings.
@@ -211,19 +167,8 @@ extension SettingsManager {
                     completion(nil)
                 }
             }
-
-            return
-        }
-
-        // Check for unversion settings.
-        let migrator = MigrationFromUnversionedToV2(
-            settingsData: settingsData,
-            deviceStateData: deviceStateData,
-            logger: logger
-        )
-
-        migrator.migrate(with: storageMiddleware) { error in
-            completion(error)
+        } else {
+            completion(nil)
         }
     }
 
@@ -397,222 +342,42 @@ extension SettingsManager {
             return false
         }
 
-        return SettingsStorableItem(rawValue: accountNumber) == nil
+        return SettingsKey(rawValue: accountNumber) == nil
     }
 }
 
-// MARK: - Keychain Facade
-
-class KeychainSettingsFacade: SettingsStore {
-    func read(for itemKey: SettingsStorableItem) throws -> Data {
-        try readItemData(itemKey)
-    }
-
-    func write(_ data: Data, for itemKey: SettingsStorableItem) throws {
-        try addOrUpdateItem(itemKey, data: data)
-    }
-
-    func delete(itemKey: SettingsStorableItem) throws {
-        try deleteItem(itemKey)
-    }
-
-    private func addItem(_ item: SettingsStorableItem, data: Data) throws {
-        var query = createDefaultAttributes(item: item)
-        query.merge(createAccessAttributes()) { current, _ in
-            return current
-        }
-        query[kSecValueData] = data
-
-        let status = SecItemAdd(query as CFDictionary, nil)
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
-        }
-    }
-
-    private func updateItem(_ item: SettingsStorableItem, data: Data) throws {
-        let query = createDefaultAttributes(item: item)
-        let status = SecItemUpdate(
-            query as CFDictionary,
-            [kSecValueData: data] as CFDictionary
-        )
-
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
-        }
-    }
-
-    private func addOrUpdateItem(_ item: SettingsStorableItem, data: Data) throws {
-        do {
-            try updateItem(item, data: data)
-        } catch let error as KeychainError where error == .itemNotFound {
-            try addItem(item, data: data)
-        } catch {
-            throw error
-        }
-    }
-
-    private func readItemData(_ item: SettingsStorableItem) throws -> Data {
-        var query = createDefaultAttributes(item: item)
-        query[kSecReturnData] = true
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        if status == errSecSuccess {
-            return result as? Data ?? Data()
-        } else {
-            throw KeychainError(code: status)
-        }
-    }
-
-    private func deleteItem(_ item: SettingsStorableItem) throws {
-        let query = createDefaultAttributes(item: item)
-        let status = SecItemDelete(query as CFDictionary)
-        if status != errSecSuccess {
-            throw KeychainError(code: status)
-        }
-    }
-
-    private func createDefaultAttributes(item: SettingsStorableItem) -> [CFString: Any] {
-        return [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecAttrAccount: item.rawValue,
-        ]
-    }
-
-    private func createAccessAttributes() -> [CFString: Any] {
-        return [
-            kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
-            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
-        ]
-    }
+struct LegacyTunnelSettings {
+    let accountNumber: String
+    let tunnelSettings: TunnelSettingsV1
 }
 
-// MARK: - Settings Storage Middleware
-
-private struct VersionHeader: Codable {
-    var version: Int
+enum SettingsKey: String, CaseIterable {
+    case settings = "Settings"
+    case deviceState = "DeviceState"
+    case lastUsedAccount = "LastUsedAccount"
 }
-
-struct SettingsStorageMiddleware {
-    private struct Payload<T: Codable>: Codable {
-        var data: T
-    }
-
-    private struct VersionedPayload<T: Codable>: Codable {
-        var version: Int
-        var data: T
-    }
-
-    /// Top level data storage.
-    private let store: SettingsStore
-
-    /// The decoder used to decode values.
-    private let decoder: JSONDecoder
-
-    /// The encoder used to encode values.
-    private let encoder: JSONEncoder
-
-    fileprivate init(store: SettingsStore, decoder: JSONDecoder, encoder: JSONEncoder) {
-        self.store = store
-        self.decoder = decoder
-        self.encoder = encoder
-    }
-
-    func readSettings() throws -> TunnelSettingsV2 {
-        let data = try store.read(for: .settings)
-
-        return try read(data: data)
-    }
-
-    func readDeviceState() throws -> DeviceState {
-        let data = try store.read(for: .deviceState)
-
-        return try read(data: data)
-    }
-
-    /// Returns unversioned payload parsed as the given type.
-    func parseUnversionedPayload<T: Codable>(
-        as type: T.Type,
-        from data: Data
-    ) throws -> T {
-        return try decoder.decode(T.self, from: data)
-    }
-
-    /// Persist versioned `TunnelSettings` payload to the keychain store.
-    func saveSettings(_ payload: TunnelSettingsV2) throws {
-        let versionedPayload = VersionedPayload(
-            version: SchemaVersion.current.rawValue,
-            data: payload
-        )
-
-        let data = try encoder.encode(versionedPayload)
-
-        try store.write(data, for: .settings)
-    }
-
-    /// Persist versioned `DeviceState` payload to the keychain store.
-    func saveDeviceState(_ payload: DeviceState) throws {
-        let versionedPayload = VersionedPayload(
-            version: SchemaVersion.current.rawValue,
-            data: payload
-        )
-
-        let data = try encoder.encode(versionedPayload)
-
-        try store.write(data, for: .deviceState)
-    }
-
-    // Private
-
-    /// Returns payload data for the given type.
-    private func read<T: Codable>(data: Data) throws -> T {
-        let storedVersion = try parseVersion(data: data)
-        let currentVersionNumber = SchemaVersion.current.rawValue
-
-        if storedVersion != currentVersionNumber {
-            throw VersioningError.unsupportedSettings(
-                storedVersion: storedVersion,
-                currentVersion: currentVersionNumber
-            )
-        }
-
-        return try parsePayload(as: T.self, from: data).data
-    }
-
-    /// Returns settings version if found inside the stored data.
-    private func parseVersion(data: Data) throws -> Int {
-        let header = try decoder.decode(VersionHeader.self, from: data)
-
-        return header.version
-    }
-
-    /// Returns payload type holding the given type.
-    private func parsePayload<T: Codable>(
-        as type: T.Type,
-        from data: Data
-    ) throws -> Payload<T> {
-        return try decoder.decode(Payload<T>.self, from: data)
-    }
-}
-
-// MARK: - Versioning Error
 
 /// An error type that contains description about version handling.
-enum VersioningError: LocalizedError {
-    /// Difference between stored `TunnelSettings` version and current version
-    case unsupportedSettings(storedVersion: Int, currentVersion: Int)
-
-    /// Difference between stored `DeviceState` version and current version
-    case unsupportedDeviceState(storedVersion: Int, currentVersion: Int)
+struct UnsupportedVersionSettings: LocalizedError {
+    let storedVersion, currentVersion: Int
 
     var errorDescription: String? {
-        switch self {
-        case let .unsupportedSettings(storedVersion, currentVersion):
-            return "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
-        case let .unsupportedDeviceState(storedVersion, currentVersion):
-            return "Stored device state version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
-        }
+        "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+    }
+}
+
+struct StringDecodingError: LocalizedError {
+    let data: Data
+
+    var errorDescription: String? {
+        return "Failed to decode string from data."
+    }
+}
+
+struct StringEncodingError: LocalizedError {
+    let string: String
+
+    var errorDescription: String? {
+        return "Failed to encode string into data."
     }
 }

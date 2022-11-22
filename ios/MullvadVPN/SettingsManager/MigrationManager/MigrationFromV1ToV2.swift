@@ -19,10 +19,8 @@ class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountData: REST.AccountData?
-    private var devices: [REST.Device]?
-
-    private let dispatchQueue = DispatchQueue(label: "Migration.internalQueue")
+    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error>?
+    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error>?
 
     private let legacySettings: LegacyTunnelSettings
 
@@ -40,7 +38,8 @@ class MigrationFromV1ToV2: Migration {
     }
 
     func migrate(
-        with middleware: SettingsStorageMiddleware,
+        with store: SettingsStore,
+        parser: SettingsParser,
         completion: @escaping (Error?) -> Void
     ) {
         let storedAccountNumber = legacySettings.accountNumber
@@ -54,11 +53,9 @@ class MigrationFromV1ToV2: Migration {
             accountNumber: storedAccountNumber,
             retryStrategy: .aggressive
         ) { completion in
-            self.dispatchQueue.async {
-                self.didFinishAccountRequest(completion)
+            self.accountCompletion = completion
 
-                dispatchGroup.leave()
-            }
+            dispatchGroup.leave()
         }
 
         dispatchGroup.enter()
@@ -66,69 +63,43 @@ class MigrationFromV1ToV2: Migration {
             accountNumber: storedAccountNumber,
             retryStrategy: .aggressive
         ) { completion in
-            self.dispatchQueue.async {
-                self.didFinishDeviceRequest(completion)
+            self.devicesCompletion = completion
 
-                dispatchGroup.leave()
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            switch (self.accountCompletion, self.devicesCompletion) {
+            case let (.success(accountData), .success(deviceData)):
+                // Migrate settings if all data is available.
+
+                let result = Result {
+                    try self.migrateSettings(
+                        store: store,
+                        parser: parser,
+                        settings: self.legacySettings,
+                        accountData: accountData,
+                        devices: deviceData
+                    )
+                }
+
+                completion(result.error)
+
+            default:
+                let errors = [self.accountCompletion?.error, self.devicesCompletion?.error]
+                    .compactMap { $0 }
+                completion(MigrateLegacySettingsError(underlyingErrors: errors))
             }
-        }
-
-        dispatchGroup.notify(queue: dispatchQueue) {
-            // Migrate settings if all data is available.
-            if let accountData = self.accountData, let devices = self.devices {
-                self.migrateSettings(
-                    middleware: middleware,
-                    settings: self.legacySettings,
-                    accountData: accountData,
-                    devices: devices
-                )
-            }
-
-            // Finish migration.
-            completion(nil)
-        }
-    }
-
-    private func didFinishAccountRequest(
-        _ completion: OperationCompletion<
-            REST.AccountData,
-            REST.Error
-        >
-    ) {
-        switch completion {
-        case let .success(accountData):
-            self.accountData = accountData
-
-        case let .failure(error):
-            logger.error(error: error, message: "Failed to fetch accound data.")
-
-        case .cancelled:
-            logger.debug("Account data request was cancelled.")
-        }
-    }
-
-    private func didFinishDeviceRequest(_ completion: OperationCompletion<
-        [REST.Device],
-        REST.Error
-    >) {
-        switch completion {
-        case let .success(devices):
-            self.devices = devices
-
-        case let .failure(error):
-            logger.error(error: error, message: "Failed to fetch devices.")
-
-        case .cancelled:
-            logger.debug("Device request was cancelled.")
         }
     }
 
     private func migrateSettings(
-        middleware: SettingsStorageMiddleware,
+        store: SettingsStore,
+        parser: SettingsParser,
         settings: LegacyTunnelSettings,
         accountData: REST.AccountData,
         devices: [REST.Device]
-    ) {
+    ) throws {
         let tunnelSettings = settings.tunnelSettings
         let interfaceData = settings.tunnelSettings.interface
 
@@ -183,15 +154,28 @@ class MigrationFromV1ToV2: Migration {
             dnsSettings: interfaceData.dnsSettings
         )
 
+        let versionedSettings = VersionedPayload(
+            version: SchemaVersion.v2.rawValue,
+            data: newSettings
+        )
+
         // Save settings.
-        do {
-            try middleware.saveSettings(newSettings)
-            try middleware.saveDeviceState(newDeviceState)
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to write migrated settings."
-            )
-        }
+        let settingsData = try parser.producePayload(versionedSettings)
+        let deviceData = try parser.produceUnversionedPayload(newDeviceState)
+
+        try store.write(settingsData, for: .settings)
+        try store.write(deviceData, for: .deviceState)
+    }
+}
+
+struct MigrateLegacySettingsError: WrappingError {
+    let underlyingErrors: [REST.Error]
+
+    var underlyingError: Error? {
+        underlyingErrors.first
+    }
+
+    var errorDescription: String? {
+        "Failed to migrate legacy settings to v2"
     }
 }
