@@ -126,6 +126,9 @@ msgstr ""
 msgid "Disconnect"
 msgstr ""
 
+msgid "Disconnect & quit"
+msgstr ""
+
 msgid "Disconnected"
 msgstr ""
 
@@ -179,6 +182,9 @@ msgid "Open URL"
 msgstr ""
 
 msgid "QUANTUM SECURE CONNECTION"
+msgstr ""
+
+msgid "Quit"
 msgstr ""
 
 msgid "Reconnect"
@@ -1004,10 +1010,6 @@ msgstr ""
 
 msgctxt "settings-view"
 msgid "OUT OF TIME"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "Quit app"
 msgstr ""
 
 #. Navigation button to the 'Split tunneling' view
