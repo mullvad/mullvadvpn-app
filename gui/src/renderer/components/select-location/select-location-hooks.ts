@@ -16,17 +16,14 @@ import {
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
-// Functions for handling selection of locations
 export function useOnSelectLocation() {
   const history = useHistory();
-  const { updateRelaySettings } = useAppContext();
-  const { locationType } = useSelectLocationContext();
+  const { updateRelaySettings, connectTunnel } = useAppContext();
+  const { locationType, setLocationType } = useSelectLocationContext();
   const baseRelaySettings = useSelector((state) => state.settings.relaySettings);
 
   const onSelectLocation = useCallback(
     async (relayUpdate: RelaySettingsUpdate) => {
-      // dismiss the view first
-      history.dismiss();
       try {
         await updateRelaySettings(relayUpdate);
       } catch (e) {
@@ -39,15 +36,18 @@ export function useOnSelectLocation() {
 
   const onSelectExitLocation = useCallback(
     async (relayLocation: LocationSelection<never>) => {
+      history.dismiss();
       const relayUpdate = RelaySettingsBuilder.normal()
         .location.fromRaw(relayLocation.value)
         .build();
       await onSelectLocation(relayUpdate);
+      await connectTunnel();
     },
-    [onSelectLocation],
+    [onSelectLocation, history],
   );
   const onSelectEntryLocation = useCallback(
     async (entryLocation: LocationSelection<never>) => {
+      setLocationType(LocationType.exit);
       const relayUpdate = createWireguardRelayUpdater(baseRelaySettings)
         .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation.value))
         .build();
@@ -62,12 +62,10 @@ export function useOnSelectLocation() {
 export function useOnSelectBridgeLocation() {
   const history = useHistory();
   const { updateBridgeSettings } = useAppContext();
+  const { setLocationType } = useSelectLocationContext();
 
   return useCallback(
     async (location: LocationSelection<SpecialBridgeLocationType>) => {
-      // dismiss the view first
-      history.dismiss();
-
       let bridgeUpdate;
       if (location.type === LocationSelectionType.relay) {
         bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location.value).build();
@@ -79,6 +77,7 @@ export function useOnSelectBridgeLocation() {
       }
 
       if (bridgeUpdate) {
+        setLocationType(LocationType.exit);
         try {
           await updateBridgeSettings(bridgeUpdate);
         } catch (e) {
