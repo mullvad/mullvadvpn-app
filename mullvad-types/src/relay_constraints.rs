@@ -378,6 +378,7 @@ pub struct Providers {
 }
 
 /// Returned if the iterator contained no providers.
+#[derive(Debug)]
 pub struct NoProviders(());
 
 impl Providers {
