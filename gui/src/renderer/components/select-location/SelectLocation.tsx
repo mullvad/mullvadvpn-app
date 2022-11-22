@@ -6,6 +6,7 @@ import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useAppContext } from '../../context';
 import { useHistory } from '../../lib/history';
+import {formatHtml} from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
@@ -40,6 +41,8 @@ import {
   StyledFilterRow,
   StyledHeaderSubTitle,
   StyledNavigationBarAttachment,
+  StyledNoResult,
+  StyledNoResultText,
   StyledScopeBar,
   StyledSearchBar,
 } from './SelectLocationStyles';
@@ -231,7 +234,7 @@ function ownershipFilterLabel(ownership: Ownership): string {
 }
 
 function SelectLocationContent() {
-  const { locationType } = useSelectLocationContext();
+  const { locationType, searchTerm } = useSelectLocationContext();
   const { selectedLocationRef, spacePreAllocationViewRef } = useScrollPositionContext();
   const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
   const onSelectLocation = useOnSelectLocation();
@@ -242,7 +245,23 @@ function SelectLocationContent() {
 
   const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
 
-  if (locationType === LocationType.exit) {
+  if (searchTerm !== '' && relayList.length === 0) {
+    return (
+        <StyledNoResult>
+          <StyledNoResultText>
+            {formatHtml(
+              sprintf(
+                messages.gettext('No result for <b>%(searchTerm)s</b>.'),
+                { searchTerm },
+              ),
+            )}
+          </StyledNoResultText>
+          <StyledNoResultText>
+            {messages.gettext('Try a different search.')}
+          </StyledNoResultText>
+        </StyledNoResult>
+    );
+  } else if (locationType === LocationType.exit) {
     return (
       <LocationList
         key={locationType}

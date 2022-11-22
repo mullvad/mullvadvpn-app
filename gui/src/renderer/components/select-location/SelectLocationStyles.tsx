@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
+import * as Cell from '../cell';
 import { tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
 import { HeaderSubTitle } from '../SettingsHeader';
@@ -63,4 +64,15 @@ export const StyledHeaderSubTitle = styled(HeaderSubTitle)({
 
 export const StyledSearchBar = styled(SearchBar)({
   margin: '0 6px',
+});
+
+export const StyledNoResult = styled(Cell.CellFooter)({
+  display: 'flex',
+  flexDirection: 'column',
+  paddingTop: 0,
+  marginTop: 0,
+});
+
+export const StyledNoResultText = styled(Cell.CellFooterText)({
+  textAlign: 'center',
 });
