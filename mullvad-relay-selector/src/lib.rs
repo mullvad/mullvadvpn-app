@@ -1268,7 +1268,7 @@ mod test {
                                     include_in_country: true,
                                     active: true,
                                     owned: true,
-                                    provider: "31173".to_string(),
+                                    provider: "provider0".to_string(),
                                     weight: 1,
                                     endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
                                         public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
@@ -1282,7 +1282,7 @@ mod test {
                                     include_in_country: true,
                                     active: true,
                                     owned: false,
-                                    provider: "31173".to_string(),
+                                    provider: "provider1".to_string(),
                                     weight: 1,
                                     endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
                                         public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
@@ -1296,7 +1296,7 @@ mod test {
                                     include_in_country: true,
                                     active: true,
                                     owned: true,
-                                    provider: "31173".to_string(),
+                                    provider: "provider2".to_string(),
                                     weight: 1,
                                     endpoint_data: RelayEndpointData::Openvpn,
                                     location: None,
@@ -1886,6 +1886,29 @@ mod test {
                     ..
                 }
             ));
+        }
+    }
+
+    #[test]
+    fn test_providers() {
+        const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
+
+        let relay_selector = new_relay_selector();
+        let mut constraints = RelayConstraints::default();
+
+        for i in 0..10 {
+            constraints.providers = Constraint::Only(
+                Providers::new(EXPECTED_PROVIDERS.into_iter().map(|p| p.to_owned())).unwrap(),
+            );
+            let relay = relay_selector
+                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard)
+                .unwrap();
+            assert!(
+                EXPECTED_PROVIDERS.contains(&relay.exit_relay.provider.as_str()),
+                "cannot find provider {} in {:?}",
+                relay.exit_relay.provider,
+                EXPECTED_PROVIDERS
+            );
         }
     }
 
