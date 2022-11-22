@@ -89,6 +89,10 @@ export function searchForLocations(
   countries: Array<IRelayLocationRedux>,
   searchTerm: string,
 ): Array<IRelayLocationRedux> {
+  if (searchTerm === '') {
+    return countries;
+  }
+
   return countries.reduce((countries, country) => {
     const matchingCities = searchCities(country.cities, searchTerm);
     const expanded = matchingCities.length > 0;

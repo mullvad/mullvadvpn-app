@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-types';
 import {
@@ -39,6 +39,7 @@ interface RelayListContext {
     expandedContentHeight: number,
     invokedByUser: boolean,
   ) => void;
+  expandSearchResults: (searchTerm: string) => void;
 }
 
 type ExpandedLocations = Partial<Record<LocationType, Array<RelayLocation>>>;
@@ -64,12 +65,6 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const [expandedLocationsMap, setExpandedLocations] = useState<ExpandedLocations>(() =>
     defaultExpandedLocations(relaySettings, bridgeSettings),
   );
-  const {
-    expandedLocations,
-    expandLocation,
-    collapseLocation,
-    onBeforeExpand,
-  } = useExpandedLocations(expandedLocationsMap, setExpandedLocations);
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
@@ -90,9 +85,25 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   }, [relaySettings?.ownership, relaySettings?.providers, relayListForEndpointType]);
 
   // Filters the relays based on the provided search term
+  const prevRelayListForSearch = useRef<Array<IRelayLocationRedux>>([]);
   const relayListForSearch = useMemo(() => {
-    return searchForLocations(relayListForFilters, searchTerm);
+    // It shouldn't search for just one letter
+    if (searchTerm.length === 1) {
+      return prevRelayListForSearch.current;
+    }
+
+    const relayList = searchForLocations(relayListForFilters, searchTerm);
+    prevRelayListForSearch.current = relayList;
+    return relayList;
   }, [relayListForFilters, searchTerm]);
+
+  const {
+    expandedLocations,
+    expandLocation,
+    collapseLocation,
+    onBeforeExpand,
+    expandSearchResults,
+  } = useExpandedLocations(expandedLocationsMap, setExpandedLocations, relayListForFilters);
 
   // Prepares all relays and combines the data needed for rendering them
   const relayList = useRelayList(relayListForSearch, expandedLocations);
@@ -103,25 +114,21 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       expandLocation,
       collapseLocation,
       onBeforeExpand,
+      expandSearchResults,
     }),
-    [relayList, expandLocation, collapseLocation, onBeforeExpand],
+    [relayList, expandLocation, collapseLocation, onBeforeExpand, expandSearchResults],
   );
 
-  // Calculate expanded locations when location change
+  // Expand locations when filters are changed
   useEffect(() => {
-    if (searchTerm === '') {
-      setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
-    }
-  }, [searchTerm]);
-
-  useEffect(() => {
-    if (searchTerm !== '') {
+    // It shouldn't search for just one letter
+    if (searchTerm.length > 1) {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
         [locationType]: getLocationsExpandedBySearch(relayListForFilters, searchTerm),
       }));
     }
-  }, [relayListForFilters, searchTerm]);
+  }, [relayListForFilters]);
 
   return <relayListContext.Provider value={value}>{props.children}</relayListContext.Provider>;
 }
@@ -203,15 +210,18 @@ function useExpandedLocations(
   setExpandedLocations: (
     arg: ExpandedLocations | ((prev: ExpandedLocations) => ExpandedLocations),
   ) => void,
+  filteredLocations: Array<IRelayLocationRedux>,
 ) {
   const { locationType } = useSelectLocationContext();
   const { spacePreAllocationViewRef, scrollViewRef } = useScrollPositionContext();
+  const relaySettings = useNormalRelaySettings();
+  const bridgeSettings = useNormalBridgeSettings();
 
   const expandLocation = useCallback(
     (location: RelayLocation) => {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
-        [locationType]: [...(expandedLocationsMap[locationType] ?? []), location],
+        [locationType]: [...(expandedLocations[locationType] ?? []), location],
       }));
     },
     [locationType],
@@ -221,7 +231,7 @@ function useExpandedLocations(
     (location: RelayLocation) => {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
-        [locationType]: expandedLocationsMap[locationType]!.filter(
+        [locationType]: expandedLocations[locationType]!.filter(
           (item) => !compareRelayLocation(location, item),
         ),
       }));
@@ -229,6 +239,7 @@ function useExpandedLocations(
     [locationType],
   );
 
+  // Called before expansion to make room for expansion and to scroll to fit the element
   const onBeforeExpand = useCallback(
     (locationRect: DOMRect, expandedContentHeight: number, invokedByUser: boolean) => {
       if (invokedByUser) {
@@ -240,11 +251,27 @@ function useExpandedLocations(
     [],
   );
 
+  // Expand search results when searching
+  const expandSearchResults = useCallback(
+    (searchTerm: string) => {
+      if (searchTerm === '') {
+        setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
+      } else if (searchTerm.length > 1) {
+        setExpandedLocations((expandedLocations) => ({
+          ...expandedLocations,
+          [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
+        }));
+      }
+    },
+    [relaySettings, bridgeSettings, locationType, filteredLocations],
+  );
+
   return {
     expandedLocations: expandedLocationsMap[locationType],
     expandLocation,
     collapseLocation,
     onBeforeExpand,
+    expandSearchResults,
   };
 }
 
