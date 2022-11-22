@@ -55,6 +55,7 @@ export default function SelectLocation() {
     spacePreAllocationViewRef,
   } = useScrollPositionContext();
   const { locationType, setLocationType, searchTerm, setSearchTerm } = useSelectLocationContext();
+  const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
@@ -90,6 +91,7 @@ export default function SelectLocation() {
   const updateSearchTerm = useCallback(
     (value: string) => {
       resetScrollPositions();
+      expandSearchResults(value);
       setSearchTerm(value);
     },
     [resetScrollPositions],
