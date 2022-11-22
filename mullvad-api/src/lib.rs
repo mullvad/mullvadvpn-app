@@ -145,13 +145,12 @@ impl ApiEndpoint {
         if cfg!(feature = "api-override") && (host_var.is_some() || address_var.is_some()) {
             use std::net::ToSocketAddrs;
 
-            let scheme;
-            if let Some(tls_var) = disable_tls_var {
-                api.disable_tls = tls_var != "0";
-                scheme = "http://";
+            let scheme = if let Some(disable_tls_var) = disable_tls_var {
+                api.disable_tls = disable_tls_var != "0";
+                "http://"
             } else {
-                scheme = "https://";
-            }
+                "https://"
+            };
 
             if let Some(user_host) = host_var {
                 api.host = user_host;
