@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service
 
-import java.net.InetSocketAddress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.model.ApiEndpoint
@@ -40,7 +39,9 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     init {
         System.loadLibrary("mullvad_jni")
-        initialize(vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath, null)
+        initialize(
+            vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath, null
+        )
 
         onSettingsChange.notify(getSettings())
 

@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import java.net.InetSocketAddress
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ApiEndpoint(
