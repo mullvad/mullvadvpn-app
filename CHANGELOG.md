@@ -45,7 +45,6 @@ Line wrap the file at 100 chars.                                              Th
 - Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.
   Previously, the installer would abort.
 
-
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
 
