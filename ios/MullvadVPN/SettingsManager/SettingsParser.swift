@@ -58,7 +58,7 @@ struct SettingsParser {
         return try decoder.decode(T.self, from: data)
     }
 
-    /// Returns payload type holding the given type.
+    /// Returns data from versioned payload parsed as the given type.
     func parsePayload<T: Codable>(
         as type: T.Type,
         from data: Data
