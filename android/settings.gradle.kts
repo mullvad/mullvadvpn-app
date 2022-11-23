@@ -1,2 +1,2 @@
 include(":app")
-include(":test", ":e2e")
+include(":test", ":test:e2e")
