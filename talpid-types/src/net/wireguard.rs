@@ -287,12 +287,6 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self)
-    }
-}
-
-impl fmt::Display for PresharedKey {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", &base64::encode(self.as_bytes()))
     }
 }
