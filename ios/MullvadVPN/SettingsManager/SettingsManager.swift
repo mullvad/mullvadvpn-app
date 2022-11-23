@@ -151,10 +151,9 @@ enum SettingsManager {
 
         do {
             let settingsData = try store.read(key: .settings)
+            let settingsVersion = try parser.parseVersion(data: settingsData)
 
-            if let settingsVersion = try? parser.parseVersion(data: settingsData),
-               settingsVersion != SchemaVersion.current.rawValue
-            {
+            if settingsVersion != SchemaVersion.current.rawValue {
                 let error = UnsupportedVersionSettings(
                     storedVersion: settingsVersion,
                     currentVersion: SchemaVersion.current.rawValue
@@ -167,24 +166,6 @@ enum SettingsManager {
 
                 completion(error)
 
-            } else if case .some = try? parser.parseUnversionedPayload(
-                as: TunnelSettingsV2.self,
-                from: settingsData
-            ) {
-                logger.debug("Migrating from unversioned to version v2")
-
-                let migrator = MigrationFromUnversionedToV2()
-
-                migrator.migrate(with: store, parser: parser) { error in
-                    if let error = error {
-                        logger.error(
-                            error: error,
-                            message: "Failed to migrate from unversioned settings to v2."
-                        )
-                    }
-
-                    completion(error)
-                }
             } else {
                 completion(nil)
             }
