@@ -150,7 +150,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         userInvokedExpand.current = false;
       }
     },
-    [props.onWillExpand],
+    [props.onWillExpand, expanded],
   );
 
   // The selectedRef should only be used if the element is selected

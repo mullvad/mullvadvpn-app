@@ -59,7 +59,7 @@ function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
         value: props.source.value,
       });
     }
-  }, []);
+  }, [props.source.selected, props.onSelect, props.source.value]);
 
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   return (
