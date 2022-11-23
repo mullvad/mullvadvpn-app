@@ -1,6 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
 
-import { useNormalRelaySettings } from '../../lib/utilityHooks';
 import { RelayListContextProvider } from './RelayListContext';
 import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
@@ -21,15 +20,11 @@ export function useSelectLocationContext() {
 }
 
 export default function SelectLocationContainer() {
-  const relaySettings = useNormalRelaySettings();
   const [locationType, setLocationType] = useState(LocationType.exit);
-
   const [searchTerm, setSearchTerm] = useState('');
 
   const value = useMemo(() => ({ locationType, setLocationType, searchTerm, setSearchTerm }), [
     locationType,
-    relaySettings?.ownership,
-    relaySettings?.providers,
     searchTerm,
   ]);
 
