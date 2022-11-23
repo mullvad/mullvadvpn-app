@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../../config.json';
@@ -57,12 +57,14 @@ export default function SelectLocation() {
     scrollViewRef,
     spacePreAllocationViewRef,
   } = useScrollPositionContext();
-  const { locationType, setLocationType, searchTerm, setSearchTerm } = useSelectLocationContext();
+  const { locationType, setLocationType, setSearchTerm } = useSelectLocationContext();
   const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
+
+  const [searchValue, setSearchValue] = useState('');
 
   const onClose = useCallback(() => history.dismiss(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
@@ -93,9 +95,15 @@ export default function SelectLocation() {
 
   const updateSearchTerm = useCallback(
     (value: string) => {
-      resetScrollPositions();
-      expandSearchResults(value);
-      setSearchTerm(value);
+      setSearchValue(value);
+      if (value.length === 1) {
+        expandSearchResults('');
+        setSearchTerm('');
+      } else {
+        resetScrollPositions();
+        expandSearchResults(value);
+        setSearchTerm(value);
+      }
     },
     [resetScrollPositions, expandSearchResults],
   );
@@ -205,7 +213,7 @@ export default function SelectLocation() {
                 </StyledFilterRow>
               )}
 
-              <StyledSearchBar searchTerm={searchTerm} onSearch={updateSearchTerm} />
+              <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
