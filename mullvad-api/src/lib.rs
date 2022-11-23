@@ -85,6 +85,7 @@ impl<T, F> LazyManual<T, F> {
 
     /// Tries to initialize the object. An error is returned if it is
     /// already initialized.
+    #[cfg(feature = "api-override")]
     pub fn override_init(&self, val: T) -> Result<(), T> {
         let _ = self.lazy_fn.take();
         self.cell.set(val)
@@ -104,8 +105,11 @@ impl<T> Deref for LazyManual<T> {
 pub struct ApiEndpoint {
     pub host: String,
     pub addr: SocketAddr,
+    #[cfg(feature = "api-override")]
     pub disable_address_cache: bool,
+    #[cfg(feature = "api-override")]
     pub disable_tls: bool,
+    #[cfg(feature = "api-override")]
     pub force_direct_connection: bool,
 }
 
@@ -134,15 +138,20 @@ impl ApiEndpoint {
         let address_var = read_var("MULLVAD_API_ADDR");
         let disable_tls_var = read_var("MULLVAD_API_DISABLE_TLS");
 
+        #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         let mut api = ApiEndpoint {
             host: API_HOST_DEFAULT.to_owned(),
             addr: SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
+            #[cfg(feature = "api-override")]
             disable_address_cache: false,
+            #[cfg(feature = "api-override")]
             disable_tls: false,
+            #[cfg(feature = "api-override")]
             force_direct_connection: false,
         };
 
-        if cfg!(feature = "api-override") {
+        #[cfg(feature = "api-override")]
+        {
             use std::net::ToSocketAddrs;
 
             if host_var.is_none() && address_var.is_none() {
@@ -177,7 +186,9 @@ impl ApiEndpoint {
             api.disable_address_cache = true;
             api.force_direct_connection = true;
             log::debug!("Overriding API. Using {} at {scheme}{}", api.host, api.addr);
-        } else if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
+        }
+        #[cfg(not(feature = "api-override"))]
+        if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
             log::warn!("These variables are ignored in production builds: MULLVAD_API_HOST, MULLVAD_API_ADDR, MULLVAD_API_DISABLE_TLS");
         }
         api
@@ -249,6 +260,7 @@ impl Runtime {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         let handle = tokio::runtime::Handle::current();
+        #[cfg(feature = "api-override")]
         if API.disable_address_cache {
             return Self::new_inner(
                 handle,

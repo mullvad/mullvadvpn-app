@@ -7,6 +7,10 @@ license = "GPL-3.0"
 edition = "2021"
 publish = false
 
+[features]
+# Allow the API server to use to be configured
+api-override = ["mullvad-api/api-override"]
+
 [lib]
 crate_type = ["cdylib"]
 

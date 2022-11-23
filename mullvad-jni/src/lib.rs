@@ -29,7 +29,6 @@ use mullvad_types::{
 };
 use std::{
     io,
-    net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
     ptr,
     sync::{
@@ -39,6 +38,9 @@ use std::{
     thread,
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
+
+#[cfg(feature = "api-override")]
+use std::net::{IpAddr, SocketAddr};
 
 const LOG_FILENAME: &str = "daemon.log";
 
@@ -207,7 +209,15 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     let resource_dir = PathBuf::from(String::from_java(&env, resourceDirectory));
 
     let api_endpoint = if !apiEndpoint.is_null() {
-        Some(api_endpoint_from_java(&env, apiEndpoint))
+        #[cfg(feature = "api-override")]
+        {
+            Some(api_endpoint_from_java(&env, apiEndpoint))
+        }
+        #[cfg(not(feature = "api-override"))]
+        {
+            log::warn!("apiEndpoint will be ignored since 'api-override' is not enabled");
+            None
+        }
     } else {
         None
     };
@@ -235,6 +245,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     }
 }
 
+#[cfg(feature = "api-override")]
 fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api::ApiEndpoint {
     let mut endpoint = mullvad_api::ApiEndpoint::from_env_vars();
 
@@ -244,37 +255,30 @@ fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api
         .l()
         .expect("ApiEndpoint.address is not an InetSocketAddress");
 
-    if let Some(addr) = try_socketaddr_from_java(env, address) {
-        endpoint.addr = addr;
-    } else {
-        log::error!("Received unresolved InetSocketAddress");
-    }
-
-    let disable_addr_cache = env
+    endpoint.addr =
+        try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress");
+    endpoint.disable_address_cache = env
         .call_method(object, "component2", "()Z", &[])
         .expect("missing ApiEndpoint.disableAddressCache")
         .z()
         .expect("ApiEndpoint.disableAddressCache is not a bool");
-    let disable_tls = env
+    endpoint.disable_tls = env
         .call_method(object, "component3", "()Z", &[])
         .expect("missing ApiEndpoint.disableTls")
         .z()
         .expect("ApiEndpoint.disableTls is not a bool");
-    let force_direct_connection = env
+    endpoint.force_direct_connection = env
         .call_method(object, "component4", "()Z", &[])
         .expect("missing ApiEndpoint.forceDirectConnection")
         .z()
         .expect("ApiEndpoint.forceDirectConnection is not a bool");
-
-    endpoint.disable_address_cache = disable_addr_cache;
-    endpoint.disable_tls = disable_tls;
-    endpoint.force_direct_connection = force_direct_connection;
 
     endpoint
 }
 
 /// Converts InetSocketAddress to a SocketAddr. Return `None` if the
 /// hostname is unresolved.
+#[cfg(feature = "api-override")]
 fn try_socketaddr_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<SocketAddr> {
     let class = env.get_class("java/net/InetSocketAddress");
 
@@ -374,7 +378,9 @@ fn spawn_daemon(
     this: &JObject<'_>,
     cache_dir: PathBuf,
     resource_dir: PathBuf,
-    api_endpoint: Option<mullvad_api::ApiEndpoint>,
+    #[cfg_attr(not(feature = "api-override"), allow(unused_variables))] api_endpoint: Option<
+        mullvad_api::ApiEndpoint,
+    >,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
@@ -399,6 +405,7 @@ fn spawn_daemon(
             );
         }
 
+        #[cfg(feature = "api-override")]
         if let Some(api_endpoint) = api_endpoint {
             log::debug!("Overriding API endpoint: {api_endpoint:?}");
             if mullvad_api::API.override_init(api_endpoint).is_err() {

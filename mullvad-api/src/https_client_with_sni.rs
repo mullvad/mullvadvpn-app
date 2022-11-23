@@ -1,8 +1,8 @@
 use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{ApiConnection, ApiConnectionMode, ConnectionDecorator, ProxyConfig},
+    proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
-    AddressCache, API,
+    AddressCache,
 };
 use futures::{channel::mpsc, future, pin_mut, StreamExt};
 #[cfg(target_os = "android")]
@@ -39,6 +39,9 @@ use tokio::{
     net::{TcpSocket, TcpStream},
     time::timeout,
 };
+
+#[cfg(feature = "api-override")]
+use crate::{proxy::ConnectionDecorator, API};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -308,13 +311,13 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 socket_bypass_tx.clone(),
                             )
                             .await?;
+                            #[cfg(feature = "api-override")]
                             if API.disable_tls {
-                                Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)))
-                            } else {
-                                let tls_stream =
-                                    TlsStream::connect_https(socket, &hostname).await?;
-                                Ok(ApiConnection::new(Box::new(tls_stream)))
+                                return Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)));
                             }
+
+                            let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
+                            Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
                             let socket = Self::open_socket(
@@ -329,12 +332,16 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 &ServerConfig::from(proxy_config),
                                 addr,
                             );
+
+                            #[cfg(feature = "api-override")]
                             if API.disable_tls {
-                                Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))))
-                            } else {
-                                let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                                Ok(ApiConnection::new(Box::new(tls_stream)))
+                                return Ok(ApiConnection::new(Box::new(ConnectionDecorator(
+                                    proxy,
+                                ))));
                             }
+
+                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
+                            Ok(ApiConnection::new(Box::new(tls_stream)))
                         }
                     }
                 };

@@ -30,7 +30,7 @@ while [ ! -z "${1:-""}" ]; do
         BUNDLE_TASK="bundleDebug"
         BUILT_APK_SUFFIX="-debug"
         FILE_SUFFIX="-debug"
-        CARGO_ARGS=""
+        CARGO_ARGS="--features api-override"
     elif [[ "${1:-""}" == "--fdroid" ]]; then
         GRADLE_BUILD_TYPE="fdroid"
         GRADLE_TASK="assembleFdroid"
