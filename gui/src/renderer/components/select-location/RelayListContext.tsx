@@ -58,13 +58,6 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useNormalBridgeSettings();
-
-  // Keeps the state of which locations are expanded for which locationType. This is used to restore
-  // the state when switching back and forth between entry and exit.
-  const [expandedLocationsMap, setExpandedLocations] = useState<ExpandedLocations>(() =>
-    defaultExpandedLocations(relaySettings, bridgeSettings),
-  );
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
@@ -103,12 +96,12 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     collapseLocation,
     onBeforeExpand,
     expandSearchResults,
-  } = useExpandedLocations(expandedLocationsMap, setExpandedLocations, relayListForFilters);
+  } = useExpandedLocations(relayListForFilters);
 
   // Prepares all relays and combines the data needed for rendering them
   const relayList = useRelayList(relayListForSearch, expandedLocations);
 
-  const value = useMemo(
+  const contextValue = useMemo(
     () => ({
       relayList,
       expandLocation,
@@ -119,18 +112,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     [relayList, expandLocation, collapseLocation, onBeforeExpand, expandSearchResults],
   );
 
-  // Expand locations when filters are changed
-  useEffect(() => {
-    // It shouldn't search for just one letter
-    if (searchTerm.length > 1) {
-      setExpandedLocations((expandedLocations) => ({
-        ...expandedLocations,
-        [locationType]: getLocationsExpandedBySearch(relayListForFilters, searchTerm),
-      }));
-    }
-  }, [relayListForFilters]);
-
-  return <relayListContext.Provider value={value}>{props.children}</relayListContext.Provider>;
+  return (
+    <relayListContext.Provider value={contextValue}>{props.children}</relayListContext.Provider>
+  );
 }
 
 // Return the final filtered and formatted relay list. This should be the only place in the app
@@ -147,11 +131,7 @@ function useRelayList(
     return relayList
       .map((country) => {
         const countryLocation = { country: country.code };
-        const countryDisabled = isCountryDisabled(
-          country,
-          countryLocation.country,
-          disabledLocation,
-        );
+        const countryDisabled = isCountryDisabled(country, country.code, disabledLocation);
 
         return {
           ...country,
@@ -205,17 +185,17 @@ function useRelayList(
 }
 
 // Return all RelayLocations that should be expanded
-function useExpandedLocations(
-  expandedLocationsMap: ExpandedLocations,
-  setExpandedLocations: (
-    arg: ExpandedLocations | ((prev: ExpandedLocations) => ExpandedLocations),
-  ) => void,
-  filteredLocations: Array<IRelayLocationRedux>,
-) {
-  const { locationType } = useSelectLocationContext();
+function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
+  const { locationType, searchTerm } = useSelectLocationContext();
   const { spacePreAllocationViewRef, scrollViewRef } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
+
+  // Keeps the state of which locations are expanded for which locationType. This is used to restore
+  // the state when switching back and forth between entry and exit.
+  const [expandedLocationsMap, setExpandedLocations] = useState<ExpandedLocations>(() =>
+    defaultExpandedLocations(relaySettings, bridgeSettings),
+  );
 
   const expandLocation = useCallback(
     (location: RelayLocation) => {
@@ -265,6 +245,17 @@ function useExpandedLocations(
     },
     [relaySettings, bridgeSettings, locationType, filteredLocations],
   );
+
+  // Expand locations when filters are changed
+  useEffect(() => {
+    // It shouldn't search for just one letter
+    if (searchTerm.length > 1) {
+      setExpandedLocations((expandedLocations) => ({
+        ...expandedLocations,
+        [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
+      }));
+    }
+  }, [filteredLocations]);
 
   return {
     expandedLocations: expandedLocationsMap[locationType],
