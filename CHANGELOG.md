@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add quit button to tray context menu on Linux and Window.
+
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
@@ -44,7 +46,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.
   Previously, the installer would abort.
-
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
