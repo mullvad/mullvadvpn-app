@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
