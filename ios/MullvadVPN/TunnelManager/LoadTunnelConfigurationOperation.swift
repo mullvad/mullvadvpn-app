@@ -78,25 +78,12 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
                     logger.debug("Settings not found in keychain.")
 
                     return .success(nil)
-                } else if let error = error as? DecodingError {
+                } else {
                     logger.error(
                         error: error,
-                        message: "Cannot decode settings. Will attempt to delete them from keychain."
+                        message: "Cannot read settings."
                     )
 
-                    return Result { try SettingsManager.deleteSettings() }
-                        .mapError { error in
-                            logger.error(
-                                error: error,
-                                message: "Failed to delete settings from keychain."
-                            )
-
-                            return error
-                        }
-                        .map { _ in
-                            return nil
-                        }
-                } else {
                     return .failure(error)
                 }
             }
@@ -109,25 +96,12 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
                     logger.debug("Device state not found in keychain.")
 
                     return .success(nil)
-                } else if let error = error as? DecodingError {
+                } else {
                     logger.error(
                         error: error,
-                        message: "Cannot decode device state. Will attempt to delete it from keychain."
+                        message: "Cannot read device state."
                     )
 
-                    return Result { try SettingsManager.deleteDeviceState() }
-                        .mapError { error in
-                            logger.error(
-                                error: error,
-                                message: "Failed to delete device state from keychain."
-                            )
-
-                            return error
-                        }
-                        .map { _ in
-                            return nil
-                        }
-                } else {
                     return .failure(error)
                 }
             }

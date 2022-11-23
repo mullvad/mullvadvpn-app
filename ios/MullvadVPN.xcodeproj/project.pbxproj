@@ -24,6 +24,13 @@
 		063F027F2902B6EB001FA09F /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
 		063F028A2902B7B2001FA09F /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 063F02892902B7B2001FA09F /* WireGuardKitTypes */; };
 		063F028F2902BD8C001FA09F /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
+		06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */; };
+		06410DFF292CF16C00AFC18C /* KeychainSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */; };
+		06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
+		06410E05292D0FC000AFC18C /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
+		06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
+		06410E08292D117800AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
+		06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -51,6 +58,10 @@
 		06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */; };
 		06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */; };
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
+		068CE57029278F5300A068BB /* MigrationFromV1ToV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */; };
+		068CE57229278F6D00A068BB /* MigrationFromV1ToV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */; };
+		068CE5742927B7A400A068BB /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE5732927B7A400A068BB /* Migration.swift */; };
+		068CE5782927BE4800A068BB /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE5732927B7A400A068BB /* Migration.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		06D47B7B28F98F53008E762C /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
@@ -71,7 +82,6 @@
 		580F8B8628197958002E0998 /* DNSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8528197958002E0998 /* DNSSettings.swift */; };
 		580F8B872819795C002E0998 /* DNSSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8528197958002E0998 /* DNSSettings.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
-		58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58161C9B28352F850028ECFD /* MigrateSettingsOperation.swift */; };
 		5818139F28E09BD8002817DE /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
 		581813A128E09DBB002817DE /* NoCancelledDependenciesCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581813A028E09DBB002817DE /* NoCancelledDependenciesCondition.swift */; };
 		581813A328E09DCD002817DE /* NoFailedDependenciesCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581813A228E09DCD002817DE /* NoFailedDependenciesCondition.swift */; };
@@ -365,6 +375,13 @@
 			remoteGlobalIDString = 063F02722902B63F001FA09F;
 			remoteInfo = RelayCache;
 		};
+		06410DF9292C4ABC00AFC18C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58CE5E5F224146200008646E;
+			remoteInfo = MullvadVPN;
+		};
 		06799ACF28F98E1D00ACD94E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -522,9 +539,14 @@
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
 		063F02732902B63F001FA09F /* RelayCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RelayCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		063F02752902B63F001FA09F /* RelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RelayCache.h; sourceTree = "<group>"; };
+		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
+		06410E03292D0F7100AFC18C /* SettingsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsParser.swift; sourceTree = "<group>"; };
+		06410E06292D108E00AFC18C /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		06799AB428F98CE700ACD94E /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		06799ABE28F98E1D00ACD94E /* MullvadREST.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadREST.h; sourceTree = "<group>"; };
+		068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationFromV1ToV2.swift; sourceTree = "<group>"; };
+		068CE5732927B7A400A068BB /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
@@ -568,7 +590,6 @@
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
-		58161C9B28352F850028ECFD /* MigrateSettingsOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateSettingsOperation.swift; sourceTree = "<group>"; };
 		581813A028E09DBB002817DE /* NoCancelledDependenciesCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoCancelledDependenciesCondition.swift; sourceTree = "<group>"; };
 		581813A228E09DCD002817DE /* NoFailedDependenciesCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFailedDependenciesCondition.swift; sourceTree = "<group>"; };
 		581813A428E09DE2002817DE /* BlockCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockCondition.swift; sourceTree = "<group>"; };
@@ -1005,10 +1026,23 @@
 			path = MullvadREST;
 			sourceTree = "<group>";
 		};
+		068CE57129278F5F00A068BB /* SettingsMigration */ = {
+			isa = PBXGroup;
+			children = (
+				068CE5732927B7A400A068BB /* Migration.swift */,
+				068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */,
+			);
+			path = SettingsMigration;
+			sourceTree = "<group>";
+		};
 		580F8B88281A79A7002E0998 /* SettingsManager */ = {
 			isa = PBXGroup;
 			children = (
+				068CE57129278F5F00A068BB /* SettingsMigration */,
+				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
+				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
+				06410E06292D108E00AFC18C /* SettingsStore.swift */,
 				587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */,
 				580F8B8228197881002E0998 /* TunnelSettingsV2.swift */,
 				58421033282E4B1500F24E46 /* TunnelSettingsV2+REST.swift */,
@@ -1061,7 +1095,6 @@
 			children = (
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
 				58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */,
-				58161C9B28352F850028ECFD /* MigrateSettingsOperation.swift */,
 				584B17AA27637DE40057F3B8 /* ReconnectTunnelOperation.swift */,
 				58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */,
 				586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */,
@@ -1664,6 +1697,7 @@
 			dependencies = (
 				062B45BF28FDA85D00746E77 /* PBXTargetDependency */,
 				58D889B528DDF4DD00583FA8 /* PBXTargetDependency */,
+				06410DFA292C4ABC00AFC18C /* PBXTargetDependency */,
 			);
 			name = MullvadVPNTests;
 			packageProductDependencies = (
@@ -2158,13 +2192,13 @@
 				5872631B283F6EAB00E14ADF /* Intents.intentdefinition in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
+				068CE5742927B7A400A068BB /* Migration.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				E158B360285381C60002F069 /* StringFormatter.swift in Sources */,
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
 				58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */,
-				58161C9C28352F850028ECFD /* MigrateSettingsOperation.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
@@ -2176,6 +2210,7 @@
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
+				068CE57029278F5300A068BB /* MigrationFromV1ToV2.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
@@ -2233,6 +2268,7 @@
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
+				06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */,
 				586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
@@ -2245,10 +2281,12 @@
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
+				06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				5872631D283F755900E14ADF /* IntentHandlers.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */,
 				580F8B8628197958002E0998 /* DNSSettings.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
@@ -2291,13 +2329,19 @@
 			files = (
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
+				06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */,
 				58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */,
+				068CE5782927BE4800A068BB /* Migration.swift in Sources */,
 				58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */,
 				5838318B27C40A3900000571 /* Pinger.swift in Sources */,
+				06410E05292D0FC000AFC18C /* SettingsParser.swift in Sources */,
 				58E0729D28814AAE008902F8 /* PacketTunnelConfiguration.swift in Sources */,
 				58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */,
 				580F8B8428197884002E0998 /* TunnelSettingsV2.swift in Sources */,
+				06410E08292D117800AFC18C /* SettingsStore.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
+				068CE57229278F6D00A068BB /* MigrationFromV1ToV2.swift in Sources */,
+				06410DFF292CF16C00AFC18C /* KeychainSettingsStore.swift in Sources */,
 				580F8B872819795C002E0998 /* DNSSettings.swift in Sources */,
 				58E072A128814B0E008902F8 /* MullvadEndpoint+WgEndpoint.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
@@ -2384,6 +2428,11 @@
 			isa = PBXTargetDependency;
 			target = 063F02722902B63F001FA09F /* RelayCache */;
 			targetProxy = 063F028B2902B83C001FA09F /* PBXContainerItemProxy */;
+		};
+		06410DFA292C4ABC00AFC18C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58CE5E5F224146200008646E /* MullvadVPN */;
+			targetProxy = 06410DF9292C4ABC00AFC18C /* PBXContainerItemProxy */;
 		};
 		06799AD028F98E1D00ACD94E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
