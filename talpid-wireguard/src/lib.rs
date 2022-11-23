@@ -121,11 +121,25 @@ const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 struct ObfuscatorHandle {
     abort_handle: FutureAbortHandle,
+    #[cfg(target_os = "android")]
+    remote_socket_fd: std::os::unix::io::RawFd,
 }
 
 impl ObfuscatorHandle {
-    pub fn new(abort_handle: FutureAbortHandle) -> Self {
-        Self { abort_handle }
+    pub fn new(
+        abort_handle: FutureAbortHandle,
+        #[cfg(target_os = "android")] remote_socket_fd: std::os::unix::io::RawFd,
+    ) -> Self {
+        Self {
+            abort_handle,
+            #[cfg(target_os = "android")]
+            remote_socket_fd,
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
+        self.remote_socket_fd
     }
 
     pub fn abort(&self) {
@@ -172,8 +186,13 @@ async fn maybe_create_obfuscator(
                     .await
                     .map_err(Error::CreateObfuscatorError)?;
                 let endpoint = obfuscator.endpoint();
+
                 log::trace!("Patching first WireGuard peer to become {:?}", endpoint);
                 first_peer.endpoint = endpoint;
+
+                #[cfg(target_os = "android")]
+                let remote_socket_fd = obfuscator.remote_socket_fd();
+
                 let (runner, abort_handle) = abortable(async move {
                     match obfuscator.run().await {
                         Ok(_) => {
@@ -190,7 +209,11 @@ async fn maybe_create_obfuscator(
                     }
                 });
                 tokio::spawn(runner);
-                return Ok(Some(ObfuscatorHandle::new(abort_handle)));
+                return Ok(Some(ObfuscatorHandle::new(
+                    abort_handle,
+                    #[cfg(target_os = "android")]
+                    remote_socket_fd,
+                )));
             }
         }
     }
@@ -230,13 +253,22 @@ impl WireguardMonitor {
             &Self::patch_allowed_ips(&config, psk_negotiation.is_some()),
             log_path,
             args.resource_dir,
-            args.tun_provider,
+            args.tun_provider.clone(),
             #[cfg(target_os = "windows")]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
         let iface_name = tunnel.get_interface_name();
+
+        #[cfg(target_os = "android")]
+        if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
+            // Exclude remote obfuscation socket or bridge
+            log::debug!("Excluding remote socket fd from the tunnel");
+            if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+                log::error!("Failed to exclude remote socket fd: {error}");
+            }
+        }
 
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();

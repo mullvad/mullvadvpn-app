@@ -78,6 +78,11 @@ impl Obfuscator for Udp2Tcp {
             .map_err(Error::RunObfuscator)
             .map_err(crate::Error::RunUdp2TcpObfuscator)
     }
+
+    #[cfg(target_os = "android")]
+    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
+        self.instance.remote_tcp_fd()
+    }
 }
 
 pub async fn create_obfuscator(settings: &Udp2TcpSettings) -> Result<Box<dyn Obfuscator>> {
