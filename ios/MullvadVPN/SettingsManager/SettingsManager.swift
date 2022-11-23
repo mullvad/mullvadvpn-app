@@ -99,10 +99,57 @@ enum SettingsManager {
         with restFactory: REST.ProxyFactory,
         completion: @escaping (Error?) -> Void
     ) {
+        if let legacySettings = readLegacySettings() {
+            migrateLegacySettings(
+                restFactory: restFactory,
+                legacySettings: legacySettings,
+                completion: completion
+            )
+        } else {
+            migrateModernSettings(completion: completion)
+        }
+    }
+
+    private static func migrateLegacySettings(
+        restFactory: REST.ProxyFactory,
+        legacySettings: LegacyTunnelSettings,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let parser = makeParser()
+
+        let migration = MigrationFromV1ToV2(
+            restFactory: restFactory,
+            legacySettings: legacySettings
+        )
+
+        migration.migrate(with: store, parser: parser) { error in
+            if let error = error {
+                logger.error(
+                    error: error,
+                    message: "Failed to migrate from legacy settings to v2."
+                )
+
+                completion(error)
+            } else {
+                let userDefaults = UserDefaults.standard
+
+                logger.debug("Remove legacy settings from keychain.")
+                Self.deleteLegacySettings()
+
+                logger.debug("Remove legacy settings from user defaults.")
+
+                userDefaults.removeObject(forKey: accountTokenKey)
+                userDefaults.removeObject(forKey: accountExpiryKey)
+
+                completion(nil)
+            }
+        }
+    }
+
+    private static func migrateModernSettings(completion: @escaping (Error?) -> Void) {
         let parser = makeParser()
 
         if let settingsData = try? store.read(key: .settings) {
-
             if let settingsVersion = try? parser.parseVersion(data: settingsData),
                settingsVersion != SchemaVersion.current.rawValue
             {
@@ -138,36 +185,6 @@ enum SettingsManager {
                 }
             } else {
                 completion(nil)
-            }
-
-        } else if let legacySettings = readLegacySettings() {
-            // Check for legacy settings.
-            let migration = MigrationFromV1ToV2(
-                restFactory: restFactory,
-                legacySettings: legacySettings
-            )
-
-            migration.migrate(with: store, parser: parser) { error in
-                if let error = error {
-                    logger.error(
-                        error: error,
-                        message: "Failed to migrate from legacy settings to v2."
-                    )
-
-                    completion(error)
-                } else {
-                    let userDefaults = UserDefaults.standard
-
-                    logger.debug("Remove legacy settings from keychain.")
-                    Self.deleteLegacySettings()
-
-                    logger.debug("Remove legacy settings from user defaults.")
-
-                    userDefaults.removeObject(forKey: accountTokenKey)
-                    userDefaults.removeObject(forKey: accountExpiryKey)
-
-                    completion(nil)
-                }
             }
         } else {
             completion(nil)

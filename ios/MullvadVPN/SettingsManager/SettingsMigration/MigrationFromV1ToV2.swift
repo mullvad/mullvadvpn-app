@@ -24,7 +24,7 @@ class MigrationFromV1ToV2: Migration {
 
     private let legacySettings: LegacyTunnelSettings
 
-    private let logger: Logger = Logger(label: "Migration.V1ToV2")
+    private let logger = Logger(label: "Migration.V1ToV2")
 
     init(
         restFactory: REST.ProxyFactory,

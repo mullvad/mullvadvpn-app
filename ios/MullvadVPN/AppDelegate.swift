@@ -114,7 +114,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             AsyncBlockOperation(dispatchQueue: .main) { operation in
                 SettingsManager.migrateStore(with: self.proxyFactory) { error in
                     precondition(error == nil)
-                    
+
                     self.tunnelManager.loadConfiguration { error in
                         // TODO: avoid throwing fatal error and show the problem report UI instead.
                         if let error = error {
