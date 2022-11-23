@@ -457,15 +457,10 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
         <StyledNoResult>
           <StyledNoResultText>
             {formatHtml(
-              sprintf(
-                messages.gettext('No result for <b>%(searchTerm)s</b>.'),
-                { searchTerm },
-              ),
+              sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
             )}
           </StyledNoResultText>
-          <StyledNoResultText>
-            {messages.gettext('Try a different search.')}
-          </StyledNoResultText>
+          <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
         </StyledNoResult>
       )}
 

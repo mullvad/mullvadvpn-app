@@ -6,7 +6,7 @@ import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useAppContext } from '../../context';
 import { useHistory } from '../../lib/history';
-import {formatHtml} from '../../lib/html-formatter';
+import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
@@ -76,12 +76,12 @@ export default function SelectLocation() {
   const onClearProviders = useCallback(async () => {
     resetScrollPositions();
     await updateRelaySettings({ normal: { providers: [] } });
-  }, []);
+  }, [resetScrollPositions]);
 
   const onClearOwnership = useCallback(async () => {
     resetScrollPositions();
     await updateRelaySettings({ normal: { ownership: Ownership.any } });
-  }, []);
+  }, [resetScrollPositions]);
 
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
@@ -97,7 +97,7 @@ export default function SelectLocation() {
       expandSearchResults(value);
       setSearchTerm(value);
     },
-    [resetScrollPositions],
+    [resetScrollPositions, expandSearchResults],
   );
 
   const showOwnershipFilter = ownership !== Ownership.any;
@@ -247,19 +247,14 @@ function SelectLocationContent() {
 
   if (searchTerm !== '' && relayList.length === 0) {
     return (
-        <StyledNoResult>
-          <StyledNoResultText>
-            {formatHtml(
-              sprintf(
-                messages.gettext('No result for <b>%(searchTerm)s</b>.'),
-                { searchTerm },
-              ),
-            )}
-          </StyledNoResultText>
-          <StyledNoResultText>
-            {messages.gettext('Try a different search.')}
-          </StyledNoResultText>
-        </StyledNoResult>
+      <StyledNoResult>
+        <StyledNoResultText>
+          {formatHtml(
+            sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
+          )}
+        </StyledNoResultText>
+        <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+      </StyledNoResult>
     );
   } else if (locationType === LocationType.exit) {
     return (
