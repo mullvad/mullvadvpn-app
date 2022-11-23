@@ -10,7 +10,11 @@ import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
 import { SHOULD_DISABLE_DEVTOOLS_OPEN, SHOULD_FORWARD_RENDERER_LOG } from './command-line-options';
 import { DaemonRpc } from './daemon-rpc';
-import { changeIpcWebContents, IpcMainEventChannel } from './ipc-event-channel';
+import {
+  changeIpcWebContents,
+  IpcMainEventChannel,
+  unsetIpcWebContents,
+} from './ipc-event-channel';
 import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
@@ -51,11 +55,6 @@ export default class UserInterface implements WindowControllerDelegate {
   ) {
     const window = this.createWindow();
 
-    changeIpcWebContents(window.webContents);
-    window.webContents.on('destroyed', () => {
-      changeIpcWebContents(undefined);
-    });
-
     this.windowController = this.createWindowController(window);
     this.tray = this.createTray();
   }
@@ -87,6 +86,10 @@ export default class UserInterface implements WindowControllerDelegate {
     }
 
     const window = this.windowController.window;
+
+    // Make sure the IPC wrapper always has the latest webcontents if any
+    window.webContents.on('destroyed', unsetIpcWebContents);
+    changeIpcWebContents(window.webContents);
 
     this.registerWindowListener();
     this.addContextMenu();
@@ -149,6 +152,10 @@ export default class UserInterface implements WindowControllerDelegate {
   public async recreateWindow(isLoggedIn: boolean, tunnelState: TunnelState): Promise<void> {
     if (this.tray) {
       this.tray.removeAllListeners();
+      // Prevent the IPC webcontents reference to be reset when replacing window. Resetting wouldn't
+      // work since the old webContents is destroyed after the IPC wrapper has been updated with the
+      // new one.
+      this.windowController.webContents?.removeListener('destroyed', unsetIpcWebContents);
 
       const window = this.createWindow();
       changeIpcWebContents(window.webContents);
