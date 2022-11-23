@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-types';
 import {
@@ -78,16 +78,8 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   }, [relaySettings?.ownership, relaySettings?.providers, relayListForEndpointType]);
 
   // Filters the relays based on the provided search term
-  const prevRelayListForSearch = useRef<Array<IRelayLocationRedux>>([]);
   const relayListForSearch = useMemo(() => {
-    // It shouldn't search for just one letter
-    if (searchTerm.length === 1) {
-      return prevRelayListForSearch.current;
-    }
-
-    const relayList = searchForLocations(relayListForFilters, searchTerm);
-    prevRelayListForSearch.current = relayList;
-    return relayList;
+    return searchForLocations(relayListForFilters, searchTerm);
   }, [relayListForFilters, searchTerm]);
 
   const {
@@ -236,7 +228,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
     (searchTerm: string) => {
       if (searchTerm === '') {
         setExpandedLocations(defaultExpandedLocations(relaySettings, bridgeSettings));
-      } else if (searchTerm.length > 1) {
+      } else {
         setExpandedLocations((expandedLocations) => ({
           ...expandedLocations,
           [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
@@ -248,8 +240,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
 
   // Expand locations when filters are changed
   useEffect(() => {
-    // It shouldn't search for just one letter
-    if (searchTerm.length > 1) {
+    if (searchTerm !== '') {
       setExpandedLocations((expandedLocations) => ({
         ...expandedLocations,
         [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
