@@ -93,6 +93,7 @@ object Dependencies {
             "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:windows"
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
+        const val androidLibraryId = "com.android.library"
         const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
