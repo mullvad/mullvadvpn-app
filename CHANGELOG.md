@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add search bar to location list in desktop app.
+
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
