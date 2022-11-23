@@ -171,9 +171,9 @@ enum SettingsManager {
             }
 
         } catch .itemNotFound as KeychainError {
-           completion(nil)
+            completion(nil)
         } catch {
-           completion(error)
+            completion(error)
         }
     }
 
