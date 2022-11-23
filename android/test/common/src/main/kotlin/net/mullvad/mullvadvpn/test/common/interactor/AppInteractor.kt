@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.test.e2e.interactor
+package net.mullvad.mullvadvpn.test.common.interactor
 
 import android.content.Context
 import android.content.Intent
@@ -6,20 +6,18 @@ import android.widget.ImageButton
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import net.mullvad.mullvadvpn.test.e2e.constant.APP_LAUNCH_TIMEOUT
-import net.mullvad.mullvadvpn.test.e2e.constant.CONNECTION_TIMEOUT
-import net.mullvad.mullvadvpn.test.e2e.constant.LOGIN_TIMEOUT
-import net.mullvad.mullvadvpn.test.e2e.constant.MULLVAD_PACKAGE
-import net.mullvad.mullvadvpn.test.e2e.constant.SETTINGS_COG_ID
-import net.mullvad.mullvadvpn.test.e2e.constant.TUNNEL_INFO_ID
-import net.mullvad.mullvadvpn.test.e2e.constant.TUNNEL_OUT_ADDRESS_ID
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
+import net.mullvad.mullvadvpn.test.common.constant.SETTINGS_COG_ID
+import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_INFO_ID
+import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_OUT_ADDRESS_ID
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AppInteractor(
     private val device: UiDevice,
-    private val targetContext: Context,
-    private val validTestAccountToken: String,
-    private val invalidTestAccountToken: String
+    private val targetContext: Context
 ) {
     fun launch() {
         device.pressHome()
@@ -40,13 +38,13 @@ class AppInteractor(
         )
     }
 
-    fun launchAndEnsureLoggedIn(accountToken: String = validTestAccountToken) {
+    fun launchAndEnsureLoggedIn(accountToken: String) {
         launch()
         attemptLogin(accountToken)
         ensureLoggedIn()
     }
 
-    fun attemptLogin(accountToken: String = validTestAccountToken) {
+    fun attemptLogin(accountToken: String) {
         device.findObjectWithTimeout(By.text("Login"))
         val loginObject = device.findObjectWithTimeout(By.clazz("android.widget.EditText"))
             .apply { text = accountToken }

@@ -1,18 +1,17 @@
-package net.mullvad.mullvadvpn.test.e2e.misc
+package net.mullvad.mullvadvpn.test.common.rule
 
 import android.util.Log
 import androidx.test.runner.screenshot.BasicScreenCaptureProcessor
 import androidx.test.runner.screenshot.ScreenCaptureProcessor
 import androidx.test.runner.screenshot.Screenshot
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-class CaptureScreenshotOnFailedTestRule : TestWatcher() {
+class CaptureScreenshotOnFailedTestRule(private val logTag: String) : TestWatcher() {
     override fun failed(e: Throwable?, description: Description?) {
-        Log.d(LOG_TAG, "Capturing screenshot of failed test: " + description?.methodName)
+        Log.d(logTag, "Capturing screenshot of failed test: " + description?.methodName)
         val timestamp = DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()).replace(":", "")
         val screenshotName = "$timestamp-${description?.methodName}"
         captureScreenshot(screenshotName)
@@ -25,7 +24,7 @@ class CaptureScreenshotOnFailedTestRule : TestWatcher() {
             processorSet.add(BasicScreenCaptureProcessor())
             screenCapture.process(processorSet)
         } catch (ex: Exception) {
-            Log.d(LOG_TAG, "Error capturing screenshot: " + ex.message)
+            Log.d(logTag, "Error capturing screenshot: " + ex.message)
         }
     }
 }

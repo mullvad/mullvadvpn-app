@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
+import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
-import net.mullvad.mullvadvpn.test.e2e.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.e2e.interactor.WebViewInteractor
-import net.mullvad.mullvadvpn.test.e2e.misc.CaptureScreenshotOnFailedTestRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -19,7 +20,7 @@ abstract class EndToEndTest {
 
     @Rule
     @JvmField
-    val rule = CaptureScreenshotOnFailedTestRule()
+    val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
     lateinit var device: UiDevice
     lateinit var targetContext: Context
@@ -40,9 +41,7 @@ abstract class EndToEndTest {
 
         app = AppInteractor(
             device,
-            targetContext,
-            validTestAccountToken,
-            invalidTestAccountToken
+            targetContext
         )
 
         web = WebViewInteractor(

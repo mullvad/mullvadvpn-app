@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
 import junit.framework.Assert.assertEquals
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.interactor.WebViewInteractor
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
 import org.junit.Rule
@@ -17,7 +17,7 @@ class ConnectionTest : EndToEndTest() {
     @Test
     fun testConnectAndVerifyWithConnectionCheck() {
         // Given
-        app.launchAndEnsureLoggedIn()
+        app.launchAndEnsureLoggedIn(validTestAccountToken)
 
         // When
         device.findObjectWithTimeout(By.text("Secure my connection")).click()

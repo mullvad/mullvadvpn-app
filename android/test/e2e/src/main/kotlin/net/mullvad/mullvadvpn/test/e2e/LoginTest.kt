@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.test.e2e
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
 import junit.framework.Assert.assertNotNull
-import net.mullvad.mullvadvpn.test.e2e.constant.LOGIN_FAILURE_TIMEOUT
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +45,7 @@ class LoginTest : EndToEndTest() {
     @Test
     fun testLogout() {
         // Given
-        app.launchAndEnsureLoggedIn()
+        app.launchAndEnsureLoggedIn(validTestAccountToken)
 
         // When
         app.clickSettingsCog()

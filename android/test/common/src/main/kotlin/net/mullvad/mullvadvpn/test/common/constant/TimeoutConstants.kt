@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.test.e2e.constant
+package net.mullvad.mullvadvpn.test.common.constant
 
 const val APP_LAUNCH_TIMEOUT = 5000L
 const val CONNECTION_TIMEOUT = 30000L
