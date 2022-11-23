@@ -86,9 +86,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
         </AriaDetails>
       )}
     </>
-  ) : (
-    <></>
-  );
+  ) : undefined;
 
   // Add potential additional items to the list. Used for custom entry.
   const children = (
