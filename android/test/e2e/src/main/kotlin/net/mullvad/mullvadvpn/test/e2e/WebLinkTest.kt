@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import org.junit.Test
 
 class WebLinkTest : EndToEndTest() {
