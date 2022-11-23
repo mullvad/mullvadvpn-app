@@ -7,11 +7,10 @@ import android.webkit.WebView
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import net.mullvad.mullvadvpn.TestActivity
-import net.mullvad.mullvadvpn.test.e2e.constant.CONNECTION_CHECK_IS_CONNECTED
+import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_IS_CONNECTED
 import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_URL
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectByCaseInsensitiveText
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectWithTimeout
-
 class WebViewInteractor(
     private val context: Context,
     private val device: UiDevice
@@ -37,7 +36,7 @@ class WebViewInteractor(
         val wireGuardIpv4ConnectionRow = webView.findObjects(By.clazz(View::class.java))
             .first { it.text?.endsWith("(WireGuard)") == true }
         val wireGuardIpv4Address = wireGuardIpv4ConnectionRow.text.split(" ")[0].trim()
-        return ConnCheckState(stateText.text == CONNECTION_CHECK_IS_CONNECTED, wireGuardIpv4Address)
+        return ConnCheckState(stateText.text == CONN_CHECK_IS_CONNECTED, wireGuardIpv4Address)
     }
 
     data class ConnCheckState(

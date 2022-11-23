@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import net.mullvad.mullvadvpn.test.e2e.extension.findObjectByCaseInsensitiveText
+import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 
 class SystemSettingsInteractor(
     private val uiDevice: UiDevice,
