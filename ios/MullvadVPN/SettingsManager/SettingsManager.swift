@@ -149,7 +149,9 @@ enum SettingsManager {
     private static func migrateModernSettings(completion: @escaping (Error?) -> Void) {
         let parser = makeParser()
 
-        if let settingsData = try? store.read(key: .settings) {
+        do {
+            let settingsData = try store.read(key: .settings)
+
             if let settingsVersion = try? parser.parseVersion(data: settingsData),
                settingsVersion != SchemaVersion.current.rawValue
             {
@@ -186,8 +188,11 @@ enum SettingsManager {
             } else {
                 completion(nil)
             }
-        } else {
-            completion(nil)
+
+        } catch .itemNotFound as KeychainError {
+           completion(nil)
+        } catch {
+           completion(error)
         }
     }
 
