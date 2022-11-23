@@ -1,5 +1,5 @@
 use futures::Stream;
-use hyper::client::connect::{Connected, Connection};
+use hyper::client::connect::Connected;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -127,7 +127,7 @@ impl ApiConnectionMode {
     }
 }
 
-/// Implements `Connection` by wrapping a type.
+/// Implements `hyper::client::connect::Connection` by wrapping a type.
 pub struct ConnectionDecorator<T: AsyncRead + AsyncWrite>(pub T);
 
 impl<T: AsyncRead + AsyncWrite + Unpin> AsyncRead for ConnectionDecorator<T> {
@@ -158,21 +158,26 @@ impl<T: AsyncRead + AsyncWrite + Unpin> AsyncWrite for ConnectionDecorator<T> {
     }
 }
 
-impl<T: AsyncRead + AsyncWrite> Connection for ConnectionDecorator<T> {
+impl<T: AsyncRead + AsyncWrite> hyper::client::connect::Connection for ConnectionDecorator<T> {
     fn connected(&self) -> Connected {
         Connected::new()
     }
 }
 
-trait AnyConnection: AsyncRead + AsyncWrite + Unpin + Connection + Send {}
+trait Connection: AsyncRead + AsyncWrite + Unpin + hyper::client::connect::Connection + Send {}
 
-impl<T: AsyncRead + AsyncWrite + Unpin + Connection + Send> AnyConnection for T {}
+impl<T: AsyncRead + AsyncWrite + Unpin + hyper::client::connect::Connection + Send> Connection
+    for T
+{
+}
 
 /// Stream that represents a Mullvad API connection
-pub struct ApiConnection(Box<dyn AnyConnection>);
+pub struct ApiConnection(Box<dyn Connection>);
 
 impl ApiConnection {
-    pub fn new<T: AsyncRead + AsyncWrite + Unpin + Connection + Send + 'static>(
+    pub fn new<
+        T: AsyncRead + AsyncWrite + Unpin + hyper::client::connect::Connection + Send + 'static,
+    >(
         conn: Box<T>,
     ) -> Self {
         Self(conn)
@@ -207,7 +212,7 @@ impl AsyncWrite for ApiConnection {
     }
 }
 
-impl Connection for ApiConnection {
+impl hyper::client::connect::Connection for ApiConnection {
     fn connected(&self) -> Connected {
         self.0.connected()
     }
