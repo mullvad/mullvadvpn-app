@@ -28,18 +28,17 @@ struct SettingsParser {
     /// The encoder used to encode values.
     private let encoder: JSONEncoder
 
-    init(
-        decoder: JSONDecoder,
-        encoder: JSONEncoder
-    ) {
+    init(decoder: JSONDecoder, encoder: JSONEncoder) {
         self.decoder = decoder
         self.encoder = encoder
     }
 
+    /// Produces versioned data encoded as the given type
     func producePayload<T: Codable>(_ payload: T, version: Int) throws -> Data {
         return try encoder.encode(VersionedPayload(version: version, data: payload))
     }
 
+    /// Produces unversioned data encoded as the given type
     func produceUnversionedPayload<T: Codable>(_ payload: T) throws -> Data {
         return try encoder.encode(payload)
     }

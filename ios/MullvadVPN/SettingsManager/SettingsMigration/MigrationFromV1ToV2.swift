@@ -24,16 +24,14 @@ class MigrationFromV1ToV2: Migration {
 
     private let legacySettings: LegacyTunnelSettings
 
-    private let logger: Logger
+    private let logger: Logger = Logger(label: "Migration.V1ToV2")
 
     init(
         restFactory: REST.ProxyFactory,
-        legacySettings: LegacyTunnelSettings,
-        logger: Logger
+        legacySettings: LegacyTunnelSettings
     ) {
         accountsProxy = restFactory.createAccountsProxy()
         devicesProxy = restFactory.createDevicesProxy()
-        self.logger = logger
         self.legacySettings = legacySettings
     }
 
@@ -170,10 +168,10 @@ struct MigrateLegacySettingsError: WrappingError {
     let underlyingErrors: [REST.Error]
 
     var underlyingError: Error? {
-        underlyingErrors.first
+        return underlyingErrors.first
     }
 
     var errorDescription: String? {
-        "Failed to migrate legacy settings to v2"
+        return "Failed to migrate legacy settings to v2"
     }
 }

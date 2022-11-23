@@ -26,8 +26,6 @@
 		063F028F2902BD8C001FA09F /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */; };
 		06410DFF292CF16C00AFC18C /* KeychainSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */; };
-		06410E00292D04A300AFC18C /* libMullvadLogging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943D628F800C900B0CB5E /* libMullvadLogging.a */; };
-		06410E02292D04AD00AFC18C /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 06410E01292D04AD00AFC18C /* Logging */; };
 		06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
 		06410E05292D0FC000AFC18C /* SettingsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E03292D0F7100AFC18C /* SettingsParser.swift */; };
 		06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
@@ -904,9 +902,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				06410E00292D04A300AFC18C /* libMullvadLogging.a in Frameworks */,
 				584F99212902CF35001F858D /* libMullvadTypes.a in Frameworks */,
-				06410E02292D04AD00AFC18C /* Logging in Frameworks */,
 				584F99202902CBDD001F858D /* libRelaySelector.a in Frameworks */,
 				588E4EAE28FEEDD8008046E3 /* MullvadREST.framework in Frameworks */,
 				58D889B328DDF4B400583FA8 /* libOperations.a in Frameworks */,
@@ -1033,20 +1029,20 @@
 			path = MullvadREST;
 			sourceTree = "<group>";
 		};
-		068CE57129278F5F00A068BB /* MigrationManager */ = {
+		068CE57129278F5F00A068BB /* SettingsMigration */ = {
 			isa = PBXGroup;
 			children = (
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */,
 				068CE5752927B7B900A068BB /* MigrationFromUnversionedToV2.swift */,
 			);
-			path = MigrationManager;
+			path = SettingsMigration;
 			sourceTree = "<group>";
 		};
 		580F8B88281A79A7002E0998 /* SettingsManager */ = {
 			isa = PBXGroup;
 			children = (
-				068CE57129278F5F00A068BB /* MigrationManager */,
+				068CE57129278F5F00A068BB /* SettingsMigration */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
@@ -1710,7 +1706,6 @@
 			name = MullvadVPNTests;
 			packageProductDependencies = (
 				583E1E2B2848E1A1004838B3 /* WireGuardKitTypes */,
-				06410E01292D04AD00AFC18C /* Logging */,
 			);
 			productName = MullvadVPNTests;
 			productReference = 58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */;
@@ -3359,11 +3354,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
-		};
-		06410E01292D04AD00AFC18C /* Logging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
-			productName = Logging;
 		};
 		06D9844B28F990AB003AABE9 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;

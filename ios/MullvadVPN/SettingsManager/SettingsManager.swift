@@ -99,48 +99,52 @@ enum SettingsManager {
         with restFactory: REST.ProxyFactory,
         completion: @escaping (Error?) -> Void
     ) {
-        guard let settingsData = try? store.read(key: .settings)
-        else {
-            // Return new/not logged in user immediately.
-            completion(nil)
-            return
-        }
-
-        // Check versions.
         let parser = makeParser()
 
-        if let settingsVersion = try? parser.parseVersion(data: settingsData),
-           settingsVersion != SchemaVersion.current.rawValue
-        {
-            completion(UnsupportedVersionSettings(
-                storedVersion: settingsVersion,
-                currentVersion: SchemaVersion.current.rawValue
-            ))
+        if let settingsData = try? store.read(key: .settings) {
 
-        } else if case .some = try? parser.parseUnversionedPayload(
-            as: TunnelSettingsV2.self,
-            from: settingsData
-        ) {
-            // Check for unversion settings.
-            let migrator = MigrationFromUnversionedToV2(logger: logger)
+            if let settingsVersion = try? parser.parseVersion(data: settingsData),
+               settingsVersion != SchemaVersion.current.rawValue
+            {
+                let error = UnsupportedVersionSettings(
+                    storedVersion: settingsVersion,
+                    currentVersion: SchemaVersion.current.rawValue
+                )
 
-            migrator.migrate(with: store, parser: parser) { error in
-                if let error = error {
-                    logger.error(
-                        error: error,
-                        message: "Failed to migrate from unversioned settings to v2."
-                    )
-                }
+                logger.error(
+                    error: error,
+                    message: "Encountered an unknown version."
+                )
 
                 completion(error)
+
+            } else if case .some = try? parser.parseUnversionedPayload(
+                as: TunnelSettingsV2.self,
+                from: settingsData
+            ) {
+                logger.debug("Migrating from unversioned to version v2")
+
+                let migrator = MigrationFromUnversionedToV2()
+
+                migrator.migrate(with: store, parser: parser) { error in
+                    if let error = error {
+                        logger.error(
+                            error: error,
+                            message: "Failed to migrate from unversioned settings to v2."
+                        )
+                    }
+
+                    completion(error)
+                }
+            } else {
+                completion(nil)
             }
 
         } else if let legacySettings = readLegacySettings() {
             // Check for legacy settings.
             let migration = MigrationFromV1ToV2(
                 restFactory: restFactory,
-                legacySettings: legacySettings,
-                logger: logger
+                legacySettings: legacySettings
             )
 
             migration.migrate(with: store, parser: parser) { error in
@@ -152,7 +156,6 @@ enum SettingsManager {
 
                     completion(error)
                 } else {
-                    // migration was successful, deleting legacy settings.
                     let userDefaults = UserDefaults.standard
 
                     logger.debug("Remove legacy settings from keychain.")
@@ -356,12 +359,11 @@ enum SettingsKey: String, CaseIterable {
     case lastUsedAccount = "LastUsedAccount"
 }
 
-/// An error type that contains description about version handling.
 struct UnsupportedVersionSettings: LocalizedError {
     let storedVersion, currentVersion: Int
 
     var errorDescription: String? {
-        "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+        return "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
     }
 }
 
