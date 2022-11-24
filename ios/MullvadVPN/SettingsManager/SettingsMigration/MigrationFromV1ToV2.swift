@@ -19,8 +19,8 @@ class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error>?
-    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error>?
+    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error> = .cancelled
+    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error> = .cancelled
 
     private let legacySettings: LegacyTunnelSettings
 
@@ -79,27 +79,16 @@ class MigrationFromV1ToV2: Migration {
         }
 
         dispatchGroup.notify(queue: .main) {
-            switch (self.accountCompletion, self.devicesCompletion) {
-            case let (.success(accountData), .success(deviceData)):
-                // Migrate settings if all data is available.
-
-                let result = Result {
-                    try self.migrateSettings(
-                        store: store,
-                        parser: parser,
-                        settings: self.legacySettings,
-                        accountData: accountData,
-                        devices: deviceData
-                    )
-                }
-
-                completion(result.error)
-
-            default:
-                let errors = [self.accountCompletion?.error, self.devicesCompletion?.error]
-                    .compactMap { $0 }
-                completion(MigrateLegacySettingsError(underlyingErrors: errors))
+            let result = Result {
+                try self.migrateSettings(
+                    store: store,
+                    parser: parser,
+                    settings: self.legacySettings,
+                    accountData: try self.accountCompletion.get(),
+                    devices: try self.devicesCompletion.get()
+                )
             }
+            completion(result.error)
         }
     }
 
@@ -173,17 +162,5 @@ class MigrationFromV1ToV2: Migration {
 
         try store.write(settingsData, for: .settings)
         try store.write(deviceData, for: .deviceState)
-    }
-}
-
-struct MigrateLegacySettingsError: WrappingError {
-    let underlyingErrors: [REST.Error]
-
-    var underlyingError: Error? {
-        return underlyingErrors.first
-    }
-
-    var errorDescription: String? {
-        return "Failed to migrate legacy settings to v2"
     }
 }
