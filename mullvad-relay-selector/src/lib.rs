@@ -1247,7 +1247,7 @@ mod test {
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
         },
     };
-    use talpid_types::net::wireguard::PublicKey;
+    use talpid_types::net::{wireguard::PublicKey, Endpoint};
 
     lazy_static::lazy_static! {
         static ref RELAYS: RelayList = RelayList {
@@ -1604,6 +1604,131 @@ mod test {
             endpoint.exit_peer.as_ref().unwrap().endpoint.ip()
         );
         assert_ne!(exit_relay.ipv4_addr_in, endpoint.peer.endpoint.ip());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_openvpn_constraints() -> Result<(), String> {
+        let relay_selector = new_relay_selector();
+
+        const ACTUAL_TCP_PORT: u16 = 443;
+        const ACTUAL_UDP_PORT: u16 = 1194;
+        const NON_EXISTENT_PORT: u16 = 1337;
+
+        // Test all combinations of constraints, and whether they should
+        // match some relay
+        const CONSTRAINT_COMBINATIONS: [(OpenVpnConstraints, bool); 7] = [
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Any,
+                },
+                true,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Udp,
+                        port: Constraint::Any,
+                    }),
+                },
+                true,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Tcp,
+                        port: Constraint::Any,
+                    }),
+                },
+                true,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Udp,
+                        port: Constraint::Only(ACTUAL_UDP_PORT),
+                    }),
+                },
+                true,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Udp,
+                        port: Constraint::Only(NON_EXISTENT_PORT),
+                    }),
+                },
+                false,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Tcp,
+                        port: Constraint::Only(ACTUAL_TCP_PORT),
+                    }),
+                },
+                true,
+            ),
+            (
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Tcp,
+                        port: Constraint::Only(NON_EXISTENT_PORT),
+                    }),
+                },
+                false,
+            ),
+        ];
+
+        let matches_constraints =
+            |endpoint: Endpoint, constraints: &OpenVpnConstraints| match constraints.port {
+                Constraint::Any => true,
+                Constraint::Only(TransportPort { protocol, port }) => {
+                    if endpoint.protocol != protocol {
+                        return false;
+                    }
+                    match port {
+                        Constraint::Any => true,
+                        Constraint::Only(port) => port == endpoint.address.port(),
+                    }
+                }
+            };
+
+        let mut relay_constraints = RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
+            ..RelayConstraints::default()
+        };
+
+        for (openvpn_constraints, should_match) in &CONSTRAINT_COMBINATIONS {
+            relay_constraints.openvpn_constraints = *openvpn_constraints;
+
+            for retry_attempt in 0..10 {
+                let relay = relay_selector.get_tunnel_endpoint(
+                    &relay_constraints,
+                    BridgeState::Auto,
+                    retry_attempt,
+                    default_tunnel_type(),
+                );
+
+                println!("relay: {relay:?}, constraints: {relay_constraints:?}");
+
+                if !should_match {
+                    relay.expect_err("unexpected relay");
+                    continue;
+                }
+
+                let relay = relay.expect("expected to find a relay");
+
+                assert!(
+                    matches_constraints(
+                        relay.endpoint.to_endpoint(),
+                        &relay_constraints.openvpn_constraints,
+                    ),
+                    "{relay:?}, on attempt {retry_attempt}, did not match constraints: {relay_constraints:?}"
+                );
+            }
+        }
 
         Ok(())
     }
