@@ -1239,10 +1239,12 @@ impl NormalSelectedRelay {
 mod test {
     use super::*;
     use mullvad_types::{
-        relay_constraints::{BridgeConstraints, RelayConstraints},
+        relay_constraints::{
+            BridgeConstraints, RelayConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
+        },
         relay_list::{
             OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
-            WireguardEndpointData, WireguardRelayEndpointData,
+            ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
         },
     };
     use talpid_types::net::wireguard::PublicKey;
@@ -1300,6 +1302,18 @@ mod test {
                                     weight: 1,
                                     endpoint_data: RelayEndpointData::Openvpn,
                                     location: None,
+                                },
+                                Relay {
+                                    hostname: "se-got-br-001".to_string(),
+                                    ipv4_addr_in: "1.3.3.7".parse().unwrap(),
+                                    ipv6_addr_in: None,
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "provider3".to_string(),
+                                    weight: 1,
+                                    endpoint_data: RelayEndpointData::Bridge,
+                                    location: None,
                                 }
                             ],
                         },
@@ -1323,7 +1337,26 @@ mod test {
                 ],
             },
             bridge: BridgeEndpointData {
-                shadowsocks: vec![],
+                shadowsocks: vec![
+                    ShadowsocksEndpointData {
+                        port: 443,
+                        cipher: "aes-256-gcm".to_string(),
+                        password: "mullvad".to_string(),
+                        protocol: TransportProtocol::Tcp,
+                    },
+                    ShadowsocksEndpointData {
+                        port: 1234,
+                        cipher: "aes-256-cfb".to_string(),
+                        password: "mullvad".to_string(),
+                        protocol: TransportProtocol::Udp,
+                    },
+                    ShadowsocksEndpointData {
+                        port: 1236,
+                        cipher: "aes-256-gcm".to_string(),
+                        password: "mullvad".to_string(),
+                        protocol: TransportProtocol::Udp,
+                    },
+                ],
             },
             wireguard: WireguardEndpointData {
                 port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
@@ -1332,6 +1365,14 @@ mod test {
                 udp2tcp_ports: vec![],
             },
         };
+    }
+
+    fn default_tunnel_type() -> TunnelType {
+        if cfg!(target_os = "windows") {
+            TunnelType::OpenVpn
+        } else {
+            TunnelType::Wireguard
+        }
     }
 
     fn new_relay_selector_with_relays(relay_list: RelayList) -> RelaySelector {
@@ -1351,7 +1392,7 @@ mod test {
                     ..Default::default()
                 },
                 bridge_state: BridgeState::Auto,
-                default_tunnel_type: TunnelType::Wireguard,
+                default_tunnel_type: default_tunnel_type(),
             })),
         }
     }
@@ -1686,13 +1727,7 @@ mod test {
 
         let relay_selector = new_relay_selector();
 
-        let default_tunnel_type = if cfg!(target_os = "windows") {
-            TunnelType::OpenVpn
-        } else {
-            TunnelType::Wireguard
-        };
-
-        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, default_tunnel_type)
+        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, default_tunnel_type())
             .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
         // Windows will ignore WireGuard until WireGuard is supported well enough
         // TODO: Remove this caveat once Windows defaults to using WireGuard
@@ -1744,7 +1779,7 @@ mod test {
     fn test_selecting_wireguard_location_will_consider_multihop() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard multihop constraints");
 
         assert!(result.entry_relay.is_some());
@@ -1755,7 +1790,7 @@ mod test {
     fn test_selecting_wg_endpoint_with_udp2tcp_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -1784,7 +1819,7 @@ mod test {
     fn test_selecting_wg_endpoint_with_auto_obfuscation() {
         let relay_selector = new_relay_selector();
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, TunnelType::Wireguard)
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -1909,6 +1944,41 @@ mod test {
                 relay.exit_relay.provider,
                 EXPECTED_PROVIDERS
             );
+        }
+    }
+
+    /// Verify that bridges are automatically used when bridge mode is set
+    /// to automatic.
+    #[test]
+    fn test_auto_bridge() {
+        let relay_selector = new_relay_selector();
+
+        {
+            let mut config = relay_selector.config.lock();
+            config.bridge_state = BridgeState::Auto;
+        }
+
+        const ATTEMPT_SHOULD_USE_BRIDGE: [bool; 5] = [false, false, false, false, true];
+
+        for (i, should_use_bridge) in ATTEMPT_SHOULD_USE_BRIDGE.iter().enumerate() {
+            let (_relay, bridge, _obfs) = relay_selector.get_relay(i as u32).unwrap();
+            assert_eq!(*should_use_bridge, bridge.is_some());
+        }
+
+        // Verify that bridges are ignored when tunnel protocol is WireGuard
+        {
+            let mut config = relay_selector.config.lock();
+            config.relay_settings =
+                config
+                    .relay_settings
+                    .merge(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
+                        ..Default::default()
+                    }));
+        }
+        for i in 0..20 {
+            let (_relay, bridge, _obfs) = relay_selector.get_relay(i).unwrap();
+            assert!(bridge.is_none());
         }
     }
 
