@@ -1247,6 +1247,7 @@ mod test {
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
         },
     };
+    use std::collections::HashSet;
     use talpid_types::net::{wireguard::PublicKey, Endpoint};
 
     lazy_static::lazy_static! {
@@ -1299,6 +1300,18 @@ mod test {
                                     active: true,
                                     owned: true,
                                     provider: "provider2".to_string(),
+                                    weight: 1,
+                                    endpoint_data: RelayEndpointData::Openvpn,
+                                    location: None,
+                                },
+                                Relay {
+                                    hostname: "se-got-002".to_string(),
+                                    ipv4_addr_in: "1.2.3.4".parse().unwrap(),
+                                    ipv6_addr_in: None,
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "provider0".to_string(),
                                     weight: 1,
                                     endpoint_data: RelayEndpointData::Openvpn,
                                     location: None,
@@ -2046,6 +2059,55 @@ mod test {
                     ..
                 }
             ));
+        }
+    }
+
+    // Make sure server and port selection varies between retry attempts.
+    #[test]
+    fn test_load_balancing() {
+        let relay_selector = new_relay_selector();
+
+        for tunnel_protocol in [
+            Constraint::Any,
+            Constraint::Only(TunnelType::Wireguard),
+            Constraint::Only(TunnelType::OpenVpn),
+        ] {
+            {
+                let mut config = relay_selector.config.lock();
+                config.relay_settings = config.relay_settings.merge(RelaySettingsUpdate::Normal(
+                    RelayConstraintsUpdate {
+                        tunnel_protocol: Some(tunnel_protocol),
+                        location: Some(Constraint::Only(LocationConstraint::Country(
+                            "se".to_string(),
+                        ))),
+                        ..Default::default()
+                    },
+                ));
+            }
+
+            let mut actual_ports = HashSet::new();
+            let mut actual_ips = HashSet::new();
+
+            for retry_attempt in 0..10 {
+                let (relay, ..) = relay_selector.get_relay(retry_attempt).unwrap();
+                match relay {
+                    SelectedRelay::Normal(relay) => {
+                        let address = relay.endpoint.to_endpoint().address;
+                        actual_ports.insert(address.port());
+                        actual_ips.insert(address.ip());
+                    }
+                    SelectedRelay::Custom(_) => unreachable!("not using custom relay"),
+                }
+            }
+
+            assert!(
+                actual_ports.len() > 1,
+                "expected more than 1 port, got {actual_ports:?}, for tunnel protocol {tunnel_protocol:?}",
+            );
+            assert!(
+                actual_ips.len() > 1,
+                "expected more than 1 server, got {actual_ips:?}, for tunnel protocol {tunnel_protocol:?}",
+            );
         }
     }
 
