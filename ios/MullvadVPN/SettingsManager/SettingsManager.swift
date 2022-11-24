@@ -22,7 +22,7 @@ enum SettingsManager {
     )
 
     private static func makeParser() -> SettingsParser {
-        SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        return SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
 
     // MARK: - Last used account
