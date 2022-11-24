@@ -12,4 +12,4 @@ async-trait = "0.1"
 err-derive = "0.3.0"
 futures = "0.3.5"
 tokio = { version = "1.8", features = ["rt-multi-thread", "macros", "net", "io-util"] }
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "d03e67b1a082982981626b5cbf49b29bb9663d63" }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "4d52f93cd9962562cb52d66e36771d5f5c70e25a" }
