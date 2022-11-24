@@ -166,11 +166,9 @@ enum SettingsManager {
                 )
 
                 completion(error)
-
             } else {
                 completion(nil)
             }
-
         } catch .itemNotFound as KeychainError {
             completion(nil)
         } catch {
