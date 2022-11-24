@@ -16,6 +16,8 @@ private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
 enum SettingsManager {
+    private static let logger = Logger(label: "SettingsManager")
+
     private static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
@@ -223,8 +225,6 @@ enum SettingsManager {
     }
 
     // MARK: - Legacy settings support
-
-    private static let logger = Logger(label: "SettingsManager")
 
     private static func findAllLegacySettingsInKeychain() throws -> [LegacyTunnelSettings] {
         let query: [CFString: Any] = [
