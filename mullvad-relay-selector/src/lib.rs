@@ -1239,7 +1239,9 @@ impl NormalSelectedRelay {
 mod test {
     use super::*;
     use mullvad_types::{
-        relay_constraints::{BridgeConstraints, RelayConstraints},
+        relay_constraints::{
+            BridgeConstraints, RelayConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
+        },
         relay_list::{
             OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
@@ -1973,6 +1975,22 @@ mod test {
         }
 
         assert!(bridge_was_returned);
+
+        // Verify that bridges are ignored when tunnel protocol is WireGuard
+        {
+            let mut config = relay_selector.config.lock();
+            config.relay_settings =
+                config
+                    .relay_settings
+                    .merge(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
+                        ..Default::default()
+                    }));
+        }
+        for i in 0..20 {
+            let (_relay, bridge, _obfs) = relay_selector.get_relay(i).unwrap();
+            assert!(bridge.is_none());
+        }
     }
 
     /// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
