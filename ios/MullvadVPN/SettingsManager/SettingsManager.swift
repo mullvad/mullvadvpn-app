@@ -64,12 +64,15 @@ enum SettingsManager {
         let parser = makeParser()
 
         let version = try parser.parseVersion(data: data)
-        let currentVersion = SchemaVersion.current.rawValue
+        let currentVersion = SchemaVersion.current
 
-        if version == currentVersion {
+        if version == currentVersion.rawValue {
             return try parser.parsePayload(as: TunnelSettingsV2.self, from: data)
         } else {
-            throw UnsupportedVersionSettings(storedVersion: version, currentVersion: currentVersion)
+            throw UnsupportedSettingsVersionError(
+                storedVersion: version,
+                currentVersion: currentVersion
+            )
         }
     }
 
@@ -98,20 +101,37 @@ enum SettingsManager {
 
     // MARK: - Migration
 
+    /// Migrate settings store if needed.
+    ///
+    /// The error returned in `completion` handler is set to `nil` upon success or when no
+    /// migration is not needed.
+    ///
+    /// The following types of error are expected to be returned by this method:
+    /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
     static func migrateStore(
         with restFactory: REST.ProxyFactory,
         completion: @escaping (Error?) -> Void
     ) {
+        let handleCompletion = { (error: Error?) in
+            // Reset store upon failure to migrate settings.
+            if error != nil {
+                self.resetStore()
+            }
+            completion(error)
+        }
+
         if let legacySettings = readLegacySettings() {
             migrateLegacySettings(
                 restFactory: restFactory,
                 legacySettings: legacySettings,
-                completion: completion
+                completion: handleCompletion
             )
         } else {
-            migrateModernSettings(completion: completion)
+            migrateModernSettings(completion: handleCompletion)
         }
     }
+
+    // MARK: - Private
 
     private static func migrateLegacySettings(
         restFactory: REST.ProxyFactory,
@@ -127,22 +147,17 @@ enum SettingsManager {
 
         migration.migrate(with: store, parser: parser) { error in
             if let error = error {
-                logger.error(
-                    error: error,
-                    message: "Failed to migrate from legacy settings to v2."
+                let migrationError = SettingsMigrationError(
+                    sourceVersion: .v1,
+                    targetVersion: .v2,
+                    underlyingError: error
                 )
 
-                completion(error)
+                logger.error(error: migrationError)
+
+                completion(migrationError)
             } else {
-                let userDefaults = UserDefaults.standard
-
-                logger.debug("Remove legacy settings from keychain.")
-                Self.deleteLegacySettings()
-
-                logger.debug("Remove legacy settings from user defaults.")
-
-                userDefaults.removeObject(forKey: accountTokenKey)
-                userDefaults.removeObject(forKey: accountExpiryKey)
+                Self.deleteAllLegacySettings()
 
                 completion(nil)
             }
@@ -150,22 +165,18 @@ enum SettingsManager {
     }
 
     private static func migrateModernSettings(completion: @escaping (Error?) -> Void) {
-        let parser = makeParser()
-
         do {
+            let parser = makeParser()
             let settingsData = try store.read(key: .settings)
             let settingsVersion = try parser.parseVersion(data: settingsData)
 
             if settingsVersion != SchemaVersion.current.rawValue {
-                let error = UnsupportedVersionSettings(
+                let error = UnsupportedSettingsVersionError(
                     storedVersion: settingsVersion,
-                    currentVersion: SchemaVersion.current.rawValue
+                    currentVersion: SchemaVersion.current
                 )
 
-                logger.error(
-                    error: error,
-                    message: "Encountered an unknown version."
-                )
+                logger.error(error: error, message: "Encountered an unknown version.")
 
                 completion(error)
             } else {
@@ -174,18 +185,39 @@ enum SettingsManager {
         } catch .itemNotFound as KeychainError {
             completion(nil)
         } catch {
-            completion(error)
+            completion(ReadSettingsVersionError(underlyingError: error))
         }
+    }
+
+    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
+    /// account number stored.
+    private static func resetStore() {
+        logger.debug("Reset store.")
+
+        do {
+            try store.delete(key: .deviceState)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete device state.")
+            }
+        }
+
+        do {
+            try store.delete(key: .settings)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete settings.")
+            }
+        }
+
+        Self.deleteAllLegacySettings()
     }
 
     // MARK: - Legacy settings
 
     private static func readLegacySettings() -> LegacyTunnelSettings? {
-        let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey)
-
-        guard let storedAccountNumber = storedAccountNumber else {
-            logger.debug("Account number is not found in user defaults. Nothing to migrate.")
-
+        guard let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey) else {
+            logger.debug("Legacy account number is not found in user defaults. Nothing to migrate.")
             return nil
         }
 
@@ -223,8 +255,6 @@ enum SettingsManager {
 
         return matchingSettings
     }
-
-    // MARK: - Legacy settings support
 
     private static func findAllLegacySettingsInKeychain() throws -> [LegacyTunnelSettings] {
         let query: [CFString: Any] = [
@@ -273,7 +303,17 @@ enum SettingsManager {
             }
     }
 
-    static func deleteLegacySettings() {
+    private static func deleteAllLegacySettings() {
+        logger.debug("Remove legacy settings from keychain.")
+        deleteLegacySettingsFromKeychain()
+
+        logger.debug("Remove legacy settings from user defaults.")
+        let userDefaults = UserDefaults.standard
+        userDefaults.removeObject(forKey: accountTokenKey)
+        userDefaults.removeObject(forKey: accountExpiryKey)
+    }
+
+    private static func deleteLegacySettingsFromKeychain() {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainServiceName,
@@ -348,11 +388,53 @@ enum SettingsKey: String, CaseIterable {
     case lastUsedAccount = "LastUsedAccount"
 }
 
-struct UnsupportedVersionSettings: LocalizedError {
-    let storedVersion, currentVersion: Int
+/// An error type describing a failure to read or parse settings version.
+struct ReadSettingsVersionError: LocalizedError, WrappingError {
+    private let inner: Error
+
+    var underlyingError: Error? {
+        return inner
+    }
 
     var errorDescription: String? {
-        return "Stored settings version was not the same as current version, stored version: \(storedVersion), current version: \(currentVersion)"
+        return "Failed to read settings version."
+    }
+
+    init(underlyingError: Error) {
+        inner = underlyingError
+    }
+}
+
+/// An error returned when stored settings version is unknown to the currently running app.
+struct UnsupportedSettingsVersionError: LocalizedError {
+    let storedVersion: Int
+    let currentVersion: SchemaVersion
+
+    var errorDescription: String? {
+        return """
+        Stored settings version was not the same as current version, \
+        stored version: \(storedVersion), current version: \(currentVersion)
+        """
+    }
+}
+
+/// A wrapper type for errors returned by concrete migrations.
+struct SettingsMigrationError: LocalizedError, WrappingError {
+    private let inner: Error
+    let sourceVersion, targetVersion: SchemaVersion
+
+    var underlyingError: Error? {
+        return inner
+    }
+
+    var errorDescription: String? {
+        return "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
+    }
+
+    init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
+        self.sourceVersion = sourceVersion
+        self.targetVersion = targetVersion
+        inner = underlyingError
     }
 }
 
