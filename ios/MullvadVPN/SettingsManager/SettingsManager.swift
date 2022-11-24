@@ -188,11 +188,11 @@ enum SettingsManager {
         }
 
         // List legacy settings stored in keychain.
-        logger.debug("Read legacy settings...")
+        logger.debug("List legacy settings in keychain...")
 
         var storedSettings: [LegacyTunnelSettings] = []
         do {
-            storedSettings = try Self.readLegacySettings()
+            storedSettings = try findAllLegacySettingsInKeychain()
         } catch .itemNotFound as KeychainError {
             logger.debug("Legacy settings are not found in keychain.")
 
@@ -226,7 +226,7 @@ enum SettingsManager {
 
     private static let logger = Logger(label: "SettingsManager")
 
-    static func readLegacySettings() throws -> [LegacyTunnelSettings] {
+    private static func findAllLegacySettingsInKeychain() throws -> [LegacyTunnelSettings] {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: keychainServiceName,
