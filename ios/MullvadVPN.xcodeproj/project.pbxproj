@@ -1028,20 +1028,20 @@
 			path = MullvadREST;
 			sourceTree = "<group>";
 		};
-		068CE57129278F5F00A068BB /* SettingsMigration */ = {
+		068CE57129278F5F00A068BB /* Migrations */ = {
 			isa = PBXGroup;
 			children = (
-				068CE5732927B7A400A068BB /* Migration.swift */,
 				068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */,
 			);
-			path = SettingsMigration;
+			path = Migrations;
 			sourceTree = "<group>";
 		};
 		580F8B88281A79A7002E0998 /* SettingsManager */ = {
 			isa = PBXGroup;
 			children = (
-				068CE57129278F5F00A068BB /* SettingsMigration */,
+				068CE57129278F5F00A068BB /* Migrations */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
+				068CE5732927B7A400A068BB /* Migration.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
 				06410E06292D108E00AFC18C /* SettingsStore.swift */,
