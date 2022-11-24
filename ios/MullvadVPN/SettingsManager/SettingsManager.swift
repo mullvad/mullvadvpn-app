@@ -16,6 +16,11 @@ private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
 enum SettingsManager {
+    private static let store: SettingsStore = KeychainSettingsStore(
+        serviceName: keychainServiceName,
+        accessGroup: ApplicationConfiguration.securityGroupIdentifier
+    )
+
     private static func makeParser() -> SettingsParser {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
@@ -49,10 +54,6 @@ enum SettingsManager {
             }
         }
     }
-
-    private static let store: SettingsStore = KeychainSettingsStore(
-        keychainServiceName: keychainServiceName
-    )
 
     // MARK: - Settings
 

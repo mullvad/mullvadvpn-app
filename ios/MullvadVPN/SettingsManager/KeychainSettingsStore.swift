@@ -11,10 +11,12 @@ import MullvadTypes
 import Security
 
 class KeychainSettingsStore: SettingsStore {
-    let keychainServiceName: String
+    let serviceName: String
+    let accessGroup: String
 
-    init(keychainServiceName: String) {
-        self.keychainServiceName = keychainServiceName
+    init(serviceName: String, accessGroup: String) {
+        self.serviceName = serviceName
+        self.accessGroup = accessGroup
     }
 
     func read(key: SettingsKey) throws -> Data {
@@ -89,14 +91,14 @@ class KeychainSettingsStore: SettingsStore {
     private func createDefaultAttributes(item: SettingsKey) -> [CFString: Any] {
         return [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
+            kSecAttrService: serviceName,
             kSecAttrAccount: item.rawValue,
         ]
     }
 
     private func createAccessAttributes() -> [CFString: Any] {
         return [
-            kSecAttrAccessGroup: ApplicationConfiguration.securityGroupIdentifier,
+            kSecAttrAccessGroup: accessGroup,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
         ]
     }
