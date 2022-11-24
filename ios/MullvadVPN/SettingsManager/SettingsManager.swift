@@ -187,19 +187,6 @@ enum SettingsManager {
             return nil
         }
 
-        // Set legacy account number as last used.
-        logger.debug("Found legacy account number.")
-        logger.debug("Store last used account.")
-
-        do {
-            try Self.setLastUsedAccount(storedAccountNumber)
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to store last used account."
-            )
-        }
-
         // List legacy settings stored in keychain.
         logger.debug("Read legacy settings...")
 

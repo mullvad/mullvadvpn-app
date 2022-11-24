@@ -42,6 +42,18 @@ class MigrationFromV1ToV2: Migration {
     ) {
         let storedAccountNumber = legacySettings.accountNumber
 
+        // Store last used account number.
+        logger.debug("Store legacy account number as last used account.")
+        do {
+            if let accountData = storedAccountNumber.data(using: .utf8) {
+                try store.write(accountData, for: .lastUsedAccount)
+            } else {
+                logger.error("Failed to encode account number into utf-8 data.")
+            }
+        } catch {
+            logger.error(error: error, message: "Failed to store last used account.")
+        }
+
         // Fetch remote data concurrently.
         logger.debug("Fetching account and device data...")
         let dispatchGroup = DispatchGroup()
