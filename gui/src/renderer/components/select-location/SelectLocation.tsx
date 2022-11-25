@@ -20,11 +20,15 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from '../NavigationBar';
-import LocationList from './LocationList';
+import CombinedLocationList from './LocationList';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
-import { useOnSelectBridgeLocation, useOnSelectLocation } from './select-location-hooks';
+import {
+  useOnSelectBridgeLocation,
+  useOnSelectEntryLocation,
+  useOnSelectExitLocation,
+} from './select-location-hooks';
 import {
   LocationSelectionType,
   LocationType,
@@ -245,7 +249,8 @@ function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationContext();
   const { selectedLocationRef, spacePreAllocationViewRef } = useScrollPositionContext();
   const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
-  const onSelectLocation = useOnSelectLocation();
+  const onSelectExitLocation = useOnSelectExitLocation();
+  const onSelectEntryLocation = useOnSelectEntryLocation();
   const onSelectBridgeLocation = useOnSelectBridgeLocation();
 
   const relaySettings = useNormalRelaySettings();
@@ -265,12 +270,19 @@ function SelectLocationContent() {
       </StyledNoResult>
     );
   } else if (locationType === LocationType.exit) {
+    const customItem: SpecialLocation<undefined> = {
+      type: LocationSelectionType.special,
+      label: messages.gettext('Custom'),
+      value: undefined,
+      selected: true,
+    };
+
     return (
-      <LocationList
+      <CombinedLocationList
         key={locationType}
-        source={relayList}
+        source={relaySettings === undefined ? [customItem, ...relayList] : relayList}
         selectedElementRef={selectedLocationRef}
-        onSelect={onSelectLocation}
+        onSelect={onSelectExitLocation}
         onExpand={expandLocation}
         onCollapse={collapseLocation}
         onWillExpand={onBeforeExpand}
@@ -279,11 +291,11 @@ function SelectLocationContent() {
     );
   } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
     return (
-      <LocationList
+      <CombinedLocationList
         key={locationType}
         source={relayList}
         selectedElementRef={selectedLocationRef}
-        onSelect={onSelectLocation}
+        onSelect={onSelectEntryLocation}
         onExpand={expandLocation}
         onCollapse={collapseLocation}
         onWillExpand={onBeforeExpand}
@@ -302,14 +314,12 @@ function SelectLocationContent() {
       ),
       value: SpecialBridgeLocationType.closestToExit,
       selected: bridgeSettings?.location === 'any',
-      disabled: false,
     };
 
-    const bridgeRelayList = [automaticItem, ...relayList];
     return (
-      <LocationList
+      <CombinedLocationList
         key={locationType}
-        source={bridgeRelayList}
+        source={[automaticItem, ...relayList]}
         selectedElementRef={selectedLocationRef}
         onSelect={onSelectBridgeLocation}
         onExpand={expandLocation}

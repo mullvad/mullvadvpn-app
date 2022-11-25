@@ -33,10 +33,10 @@ export enum SpecialLocationIcon {
 export interface SpecialLocation<T> {
   type: LocationSelectionType.special;
   label: string;
-  icon: SpecialLocationIcon;
-  info: string;
+  icon?: SpecialLocationIcon;
+  info?: string;
   value: T;
-  disabled: boolean;
+  disabled?: boolean;
   selected: boolean;
 }
 

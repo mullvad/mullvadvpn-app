@@ -26,7 +26,7 @@ interface LocationListProps<T> {
 }
 
 // Renders the special locations and the regular locations as separate lists
-export default function LocationsList<T>(props: LocationListProps<T>) {
+export default function CombinedLocationList<T>(props: LocationListProps<T>) {
   const specialLocations = props.source.filter(isSpecialLocation);
   const relayLocations = props.source.filter(isRelayLocation);
 

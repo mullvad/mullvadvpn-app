@@ -16,23 +16,17 @@ import {
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
-export function useOnSelectLocation() {
+export function useOnSelectExitLocation() {
+  const onSelectLocation = useOnSelectLocation();
   const history = useHistory();
-  const { updateRelaySettings, connectTunnel } = useAppContext();
-  const { locationType, setLocationType } = useSelectLocationContext();
-  const baseRelaySettings = useSelector((state) => state.settings.relaySettings);
+  const { connectTunnel } = useAppContext();
 
-  const onSelectLocation = useCallback(async (relayUpdate: RelaySettingsUpdate) => {
-    try {
-      await updateRelaySettings(relayUpdate);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to select the exit location: ${error.message}`);
-    }
-  }, []);
+  return useCallback(
+    async (relayLocation: LocationSelection<undefined>) => {
+      if (relayLocation.value === undefined) {
+        throw new Error('relayLocation should never be undefiend');
+      }
 
-  const onSelectExitLocation = useCallback(
-    async (relayLocation: LocationSelection<never>) => {
       history.dismiss();
       const relayUpdate = RelaySettingsBuilder.normal()
         .location.fromRaw(relayLocation.value)
@@ -42,16 +36,33 @@ export function useOnSelectLocation() {
     },
     [history],
   );
+}
 
-  const onSelectEntryLocation = useCallback(async (entryLocation: LocationSelection<never>) => {
+export function useOnSelectEntryLocation() {
+  const onSelectLocation = useOnSelectLocation();
+  const { setLocationType } = useSelectLocationContext();
+  const baseRelaySettings = useSelector((state) => state.settings.relaySettings);
+
+  return useCallback(async (entryLocation: LocationSelection<never>) => {
     setLocationType(LocationType.exit);
     const relayUpdate = createWireguardRelayUpdater(baseRelaySettings)
       .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation.value))
       .build();
     await onSelectLocation(relayUpdate);
   }, []);
+}
 
-  return locationType === LocationType.exit ? onSelectExitLocation : onSelectEntryLocation;
+function useOnSelectLocation() {
+  const { updateRelaySettings } = useAppContext();
+
+  return useCallback(async (relayUpdate: RelaySettingsUpdate) => {
+    try {
+      await updateRelaySettings(relayUpdate);
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to select the exit location: ${error.message}`);
+    }
+  }, []);
 }
 
 export function useOnSelectBridgeLocation() {

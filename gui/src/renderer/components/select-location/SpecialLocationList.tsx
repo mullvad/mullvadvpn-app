@@ -61,24 +61,29 @@ function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
     }
   }, [props.source.selected, props.onSelect, props.source.value]);
 
+  const icon = props.source.selected ? 'icon-tick' : props.source.icon ?? undefined;
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
       <StyledLocationRowButton onClick={onSelect} selected={props.source.selected}>
-        <StyledSpecialLocationIcon
-          source={props.source.selected ? 'icon-tick' : props.source.icon}
-          tintColor={colors.white}
-          height={22}
-          width={22}
-        />
+        {icon && (
+          <StyledSpecialLocationIcon
+            source={icon}
+            tintColor={colors.white}
+            height={22}
+            width={22}
+          />
+        )}
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
-      <StyledLocationRowIcon
-        as={StyledSpecialLocationInfoButton}
-        message={props.source.info}
-        selected={props.source.selected}
-        aria-label={messages.pgettext('accessibility', 'info')}
-      />
+      {props.source.info && (
+        <StyledLocationRowIcon
+          as={StyledSpecialLocationInfoButton}
+          message={props.source.info}
+          selected={props.source.selected}
+          aria-label={messages.pgettext('accessibility', 'info')}
+        />
+      )}
     </StyledLocationRowContainerWithMargin>
   );
 }
