@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
@@ -68,6 +68,7 @@ interface ISearchBarProps {
   searchTerm: string;
   onSearch: (searchTerm: string) => void;
   className?: string;
+  disableAutoFocus?: boolean;
 }
 
 export default function SearchBar(props: ISearchBarProps) {
@@ -85,6 +86,12 @@ export default function SearchBar(props: ISearchBarProps) {
     props.onSearch('');
     inputRef.current?.blur();
   }, [props.onSearch]);
+
+  useEffect(() => {
+    if (!props.disableAutoFocus) {
+      inputRef.current?.focus();
+    }
+  }, []);
 
   return (
     <StyledSearchContainer className={props.className}>
