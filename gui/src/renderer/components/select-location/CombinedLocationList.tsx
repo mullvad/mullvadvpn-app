@@ -11,7 +11,7 @@ import {
 } from './select-location-types';
 import SpecialLocationList from './SpecialLocationList';
 
-interface LocationListProps<T> {
+export interface CombinedLocationListProps<T> {
   source: LocationList<T>;
   selectedElementRef: React.Ref<HTMLDivElement>;
   onSelect: (value: LocationSelection<T>) => void;
@@ -26,7 +26,7 @@ interface LocationListProps<T> {
 }
 
 // Renders the special locations and the regular locations as separate lists
-export default function CombinedLocationList<T>(props: LocationListProps<T>) {
+export default function CombinedLocationList<T>(props: CombinedLocationListProps<T>) {
   const specialLocations = props.source.filter(isSpecialLocation);
   const relayLocations = props.source.filter(isRelayLocation);
 

@@ -1,4 +1,5 @@
 import { Ownership, RelayEndpointType, RelayLocation } from '../../shared/daemon-rpc-types';
+import { SpecialLocation } from '../components/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
   IRelayLocationRedux,
@@ -148,4 +149,11 @@ function getCityLocationsExpandecBySearch(
 
 function search(searchTerm: string, value: string): boolean {
   return value.toLowerCase().includes(searchTerm.toLowerCase());
+}
+
+export function filterSpecialLocations<T>(
+  searchTerm: string,
+  locations: Array<SpecialLocation<T>>,
+): Array<SpecialLocation<T>> {
+  return locations.filter((location) => search(searchTerm, location.label));
 }

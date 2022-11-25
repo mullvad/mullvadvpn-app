@@ -5,6 +5,7 @@ import { colors } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useAppContext } from '../../context';
+import { filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
@@ -20,7 +21,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from '../NavigationBar';
-import CombinedLocationList from './LocationList';
+import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
@@ -258,29 +259,25 @@ function SelectLocationContent() {
 
   const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
 
-  if (searchTerm !== '' && relayList.length === 0) {
-    return (
-      <StyledNoResult>
-        <StyledNoResultText>
-          {formatHtml(
-            sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
-          )}
-        </StyledNoResultText>
-        <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
-      </StyledNoResult>
-    );
-  } else if (locationType === LocationType.exit) {
-    const customItem: SpecialLocation<undefined> = {
-      type: LocationSelectionType.special,
-      label: messages.gettext('Custom'),
-      value: undefined,
-      selected: true,
-    };
+  if (locationType === LocationType.exit) {
+    // Add "Custom" item if a custom relay is selected
+    const specialList: Array<SpecialLocation<undefined>> =
+      relaySettings === undefined
+        ? [
+            {
+              type: LocationSelectionType.special,
+              label: messages.gettext('Custom'),
+              value: undefined,
+              selected: true,
+            },
+          ]
+        : [];
 
+    const relayListWithSpecial = [...filterSpecialLocations(searchTerm, specialList), ...relayList];
     return (
-      <CombinedLocationList
+      <LocationList
         key={locationType}
-        source={relaySettings === undefined ? [customItem, ...relayList] : relayList}
+        source={relayListWithSpecial}
         selectedElementRef={selectedLocationRef}
         onSelect={onSelectExitLocation}
         onExpand={expandLocation}
@@ -291,7 +288,7 @@ function SelectLocationContent() {
     );
   } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
     return (
-      <CombinedLocationList
+      <LocationList
         key={locationType}
         source={relayList}
         selectedElementRef={selectedLocationRef}
@@ -303,23 +300,26 @@ function SelectLocationContent() {
       />
     );
   } else {
-    // Add the "Automatic" item to the list
-    const automaticItem: SpecialLocation<SpecialBridgeLocationType> = {
-      type: LocationSelectionType.special,
-      label: messages.gettext('Automatic'),
-      icon: SpecialLocationIcon.geoLocation,
-      info: messages.pgettext(
-        'select-location-view',
-        'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
-      ),
-      value: SpecialBridgeLocationType.closestToExit,
-      selected: bridgeSettings?.location === 'any',
-    };
+    // Add the "Automatic" item
+    const specialList: Array<SpecialLocation<SpecialBridgeLocationType>> = [
+      {
+        type: LocationSelectionType.special,
+        label: messages.gettext('Automatic'),
+        icon: SpecialLocationIcon.geoLocation,
+        info: messages.pgettext(
+          'select-location-view',
+          'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
+        ),
+        value: SpecialBridgeLocationType.closestToExit,
+        selected: bridgeSettings?.location === 'any',
+      },
+    ];
 
+    const relayListWithSpecial = [...filterSpecialLocations(searchTerm, specialList), ...relayList];
     return (
-      <CombinedLocationList
+      <LocationList
         key={locationType}
-        source={[automaticItem, ...relayList]}
+        source={relayListWithSpecial}
         selectedElementRef={selectedLocationRef}
         onSelect={onSelectBridgeLocation}
         onExpand={expandLocation}
@@ -328,5 +328,24 @@ function SelectLocationContent() {
         onTransitionEnd={resetHeight}
       />
     );
+  }
+}
+
+function LocationList<T>(props: CombinedLocationListProps<T>) {
+  const { searchTerm } = useSelectLocationContext();
+
+  if (searchTerm !== '' && props.source.length === 0) {
+    return (
+      <StyledNoResult>
+        <StyledNoResultText>
+          {formatHtml(
+            sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
+          )}
+        </StyledNoResultText>
+        <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+      </StyledNoResult>
+    );
+  } else {
+    return <CombinedLocationList {...props} />;
   }
 }
