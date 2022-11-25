@@ -15,6 +15,7 @@ import {
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
+  IRelayListWithEndpointData,
   ISettings,
   liftConstraint,
   ObfuscationSettings,
@@ -24,7 +25,6 @@ import {
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IRelayListPair } from '../shared/ipc-schema';
 import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
@@ -92,7 +92,7 @@ export default class AppRenderer {
 
   private location?: Partial<ILocation>;
   private lastDisconnectedLocation?: Partial<ILocation>;
-  private relayListPair!: IRelayListPair;
+  private relayList?: IRelayListWithEndpointData;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private deviceState?: DeviceState;
@@ -150,7 +150,7 @@ export default class AppRenderer {
       this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
     });
 
-    IpcRendererEventChannel.relays.listen((relayListPair: IRelayListPair) => {
+    IpcRendererEventChannel.relays.listen((relayListPair: IRelayListWithEndpointData) => {
       this.setRelayListPair(relayListPair);
     });
 
@@ -217,7 +217,7 @@ export default class AppRenderer {
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
 
-    this.setRelayListPair(initialState.relayListPair);
+    this.setRelayListPair(initialState.relayList);
     this.setCurrentVersion(initialState.currentVersion);
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
@@ -827,20 +827,16 @@ export default class AppRenderer {
     }
   }
 
-  private setRelayListPair(relayListPair: IRelayListPair) {
-    this.relayListPair = relayListPair;
+  private setRelayListPair(relayListPair?: IRelayListWithEndpointData) {
+    this.relayList = relayListPair;
     this.propagateRelayListPairToRedux();
   }
 
   private propagateRelayListPairToRedux() {
-    const relays = this.relayListPair.relays.countries;
-    const bridges = this.relayListPair.bridges.countries;
-
-    this.reduxActions.settings.updateRelayLocations(relays);
-    this.reduxActions.settings.updateBridgeLocations(bridges);
-    this.reduxActions.settings.updateWireguardEndpointData(
-      this.relayListPair.wireguardEndpointData,
-    );
+    if (this.relayList) {
+      this.reduxActions.settings.updateRelayLocations(this.relayList.relayList.countries);
+      this.reduxActions.settings.updateWireguardEndpointData(this.relayList.wireguardEndpointData);
+    }
   }
 
   private setCurrentVersion(versionInfo: ICurrentAppVersionInfo) {

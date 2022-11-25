@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add quit button to tray context menu on Linux and Window.
+- Add search bar to location list in desktop app.
 
 #### Windows
 - Remove all settings when the app is uninstalled silently.

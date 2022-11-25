@@ -13,9 +13,8 @@ import {
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
-  IRelayList,
+  IRelayListWithEndpointData,
   ISettings,
-  IWireguardEndpointData,
   ObfuscationSettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -42,12 +41,6 @@ export interface ITranslations {
   relayLocations?: GetTextTranslations;
 }
 
-export interface IRelayListPair {
-  relays: IRelayList;
-  bridges: IRelayList;
-  wireguardEndpointData: IWireguardEndpointData;
-}
-
 export type LaunchApplicationResult = { success: true } | { error: string };
 
 export enum MacOsScrollbarVisibility {
@@ -65,7 +58,7 @@ export interface IAppStateSnapshot {
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
   deviceState?: DeviceState;
-  relayListPair: IRelayListPair;
+  relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
@@ -135,7 +128,7 @@ export const ipcSchema = {
     disconnected: notifyRenderer<void>(),
   },
   relays: {
-    '': notifyRenderer<IRelayListPair>(),
+    '': notifyRenderer<IRelayListWithEndpointData>(),
   },
   currentVersion: {
     '': notifyRenderer<ICurrentAppVersionInfo>(),
