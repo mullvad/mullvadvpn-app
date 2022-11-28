@@ -19,8 +19,8 @@ class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error>?
-    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error>?
+    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error> = .cancelled
+    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error> = .cancelled
 
     private let legacySettings: LegacyTunnelSettings
 
@@ -41,6 +41,18 @@ class MigrationFromV1ToV2: Migration {
         completion: @escaping (Error?) -> Void
     ) {
         let storedAccountNumber = legacySettings.accountNumber
+
+        // Store last used account number.
+        logger.debug("Store legacy account number as last used account.")
+        do {
+            if let accountData = storedAccountNumber.data(using: .utf8) {
+                try store.write(accountData, for: .lastUsedAccount)
+            } else {
+                logger.error("Failed to encode account number into utf-8 data.")
+            }
+        } catch {
+            logger.error(error: error, message: "Failed to store last used account.")
+        }
 
         // Fetch remote data concurrently.
         logger.debug("Fetching account and device data...")
@@ -67,27 +79,16 @@ class MigrationFromV1ToV2: Migration {
         }
 
         dispatchGroup.notify(queue: .main) {
-            switch (self.accountCompletion, self.devicesCompletion) {
-            case let (.success(accountData), .success(deviceData)):
-                // Migrate settings if all data is available.
-
-                let result = Result {
-                    try self.migrateSettings(
-                        store: store,
-                        parser: parser,
-                        settings: self.legacySettings,
-                        accountData: accountData,
-                        devices: deviceData
-                    )
-                }
-
-                completion(result.error)
-
-            default:
-                let errors = [self.accountCompletion?.error, self.devicesCompletion?.error]
-                    .compactMap { $0 }
-                completion(MigrateLegacySettingsError(underlyingErrors: errors))
+            let result = Result {
+                try self.migrateSettings(
+                    store: store,
+                    parser: parser,
+                    settings: self.legacySettings,
+                    accountData: try self.accountCompletion.get(),
+                    devices: try self.devicesCompletion.get()
+                )
             }
+            completion(result.error)
         }
     }
 
@@ -161,17 +162,5 @@ class MigrationFromV1ToV2: Migration {
 
         try store.write(settingsData, for: .settings)
         try store.write(deviceData, for: .deviceState)
-    }
-}
-
-struct MigrateLegacySettingsError: WrappingError {
-    let underlyingErrors: [REST.Error]
-
-    var underlyingError: Error? {
-        return underlyingErrors.first
-    }
-
-    var errorDescription: String? {
-        return "Failed to migrate legacy settings to v2"
     }
 }

@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     SettingsNavigationControllerDelegate, ConnectViewControllerDelegate,
     OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
-    RelayCacheTrackerObserver
+    RelayCacheTrackerObserver, SettingsMigrationUIHandler
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -951,5 +951,65 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             selectLocationViewController?.dismiss(animated: false)
         }
         return nil
+    }
+
+    // MARK: - SettingsMigrationUIHandler
+
+    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+        let alertController = UIAlertController(
+            title: NSLocalizedString(
+                "ALERT_TITLE",
+                tableName: "SettingsMigrationUI",
+                value: "Settings migration error",
+                comment: ""
+            ),
+            message: Self.migrationErrorReason(error),
+            preferredStyle: .alert
+        )
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("OK", tableName: "SettingsMigrationUI", comment: ""),
+                style: .default,
+                handler: { _ in
+                    completionHandler()
+                }
+            )
+        )
+
+        if let rootViewController = window?.rootViewController {
+            rootViewController.present(alertController, animated: true)
+        } else {
+            completionHandler()
+        }
+    }
+
+    private static func migrationErrorReason(_ error: Error) -> String {
+        if error is UnsupportedSettingsVersionError {
+            return NSLocalizedString(
+                "NEWER_STORED_SETTINGS_ERROR",
+                tableName: "SettingsMigrationUI",
+                value: """
+                The version of settings stored on device is from a newer app than is currently \
+                running. Settings will be reset to defaults.
+                """,
+                comment: ""
+            )
+        } else if let error = error as? SettingsMigrationError,
+                  error.underlyingError is REST.Error
+        {
+            return NSLocalizedString(
+                "NETWORK_ERROR",
+                tableName: "SettingsMigrationUI",
+                value: "Network error occurred. Settings will be reset to defaults.",
+                comment: ""
+            )
+        } else {
+            return NSLocalizedString(
+                "INTERNAL_ERROR",
+                tableName: "SettingsMigrationUI",
+                value: "Internal error occurred. Settings will be reset to defaults.",
+                comment: ""
+            )
+        }
     }
 }

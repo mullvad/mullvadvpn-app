@@ -110,28 +110,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupNotificationHandler()
         addApplicationNotifications(application: application)
 
-        let setupTunnelManagerOperation =
-            AsyncBlockOperation(dispatchQueue: .main) { operation in
-                SettingsManager.migrateStore(with: self.proxyFactory) { error in
-                    precondition(error == nil)
+        let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            SettingsManager.migrateStore(with: self.proxyFactory) { error in
+                guard let error = error else {
+                    operation.finish()
+                    return
+                }
 
-                    self.tunnelManager.loadConfiguration { error in
-                        // TODO: avoid throwing fatal error and show the problem report UI instead.
-                        if let error = error {
-                            fatalError(error.localizedDescription)
-                        }
+                guard let migrationUIHandler = application.connectedScenes.compactMap({ scene in
+                    return scene.delegate as? SettingsMigrationUIHandler
+                }).first else {
+                    operation.finish()
+                    return
+                }
 
-                        self.logger.debug("Finished initialization.")
-
-                        NotificationManager.shared.updateNotifications()
-                        self.storePaymentManager.startPaymentQueueMonitoring()
-
-                        operation.finish()
-                    }
+                migrationUIHandler.showMigrationError(error) {
+                    operation.finish()
                 }
             }
+        }
 
-        operationQueue.addOperation(setupTunnelManagerOperation)
+        let loadTunnelConfigurationOperation =
+            AsyncBlockOperation(dispatchQueue: .main) { operation in
+                self.tunnelManager.loadConfiguration { error in
+                    // TODO: avoid throwing fatal error and show the problem report UI instead.
+                    if let error = error {
+                        fatalError(error.localizedDescription)
+                    }
+
+                    self.logger.debug("Finished initialization.")
+
+                    NotificationManager.shared.updateNotifications()
+                    self.storePaymentManager.startPaymentQueueMonitoring()
+
+                    operation.finish()
+                }
+            }
+        loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
+
+        operationQueue.addOperations(
+            [migrateSettingsOperation, loadTunnelConfigurationOperation],
+            waitUntilFinished: false
+        )
 
         return true
     }

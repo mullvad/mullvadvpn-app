@@ -14,7 +14,10 @@ import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
 /// Settings and device state schema versions.
-enum SchemaVersion: Int {
+enum SchemaVersion: Int, Equatable {
+    /// Legacy settings format, stored as `TunnelSettingsV1`.
+    case v1 = 1
+
     /// New settings format, stored as `TunnelSettingsV2`.
     case v2 = 2
 
