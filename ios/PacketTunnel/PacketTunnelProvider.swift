@@ -87,7 +87,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
-            lastError: lastError?.localizedDescription,
+            lastError: lastError,
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
