@@ -43,7 +43,7 @@ class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationP
     private func handleTunnelStatus(_ tunnelStatus: TunnelStatus) {
         let invalidateForTunnelError = updateLastTunnelError(
             tunnelStatus.packetTunnelStatus
-                .lastError
+                .lastError?.localizedDescription
         )
         let invalidateForManagerError = updateTunnelManagerError(tunnelStatus.state)
         let invalidateForConnectivity = updateConnectivity(tunnelStatus.state)
