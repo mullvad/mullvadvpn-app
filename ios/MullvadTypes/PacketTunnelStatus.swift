@@ -35,7 +35,7 @@ public struct DeviceCheck: Codable, Equatable {
 /// Struct describing packet tunnel process status.
 public struct PacketTunnelStatus: Codable, Equatable {
     /// Last tunnel error.
-    public var lastError: String?
+    public var lastErrors: [PacketTunnelErrorWrapper]
 
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
@@ -47,12 +47,12 @@ public struct PacketTunnelStatus: Codable, Equatable {
     public var tunnelRelay: PacketTunnelRelay?
 
     public init(
-        lastError: String? = nil,
+        lastErrors: [PacketTunnelErrorWrapper] = [],
         isNetworkReachable: Bool = true,
         deviceCheck: DeviceCheck? = nil,
         tunnelRelay: PacketTunnelRelay? = nil
     ) {
-        self.lastError = lastError
+        self.lastErrors = lastErrors
         self.isNetworkReachable = isNetworkReachable
         self.deviceCheck = deviceCheck
         self.tunnelRelay = tunnelRelay
