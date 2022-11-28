@@ -8,8 +8,11 @@
 
 import Foundation
 
-public enum PacketTunnelErrorWrapper: LocalizedError {
+public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
+    /// Failure that indicates wire guard errors.
     case wireguard(error: String)
+
+    /// Failure that indicates settings need migration.
     case settingsMigration
 
     public var errorDescription: String? {
@@ -17,7 +20,7 @@ public enum PacketTunnelErrorWrapper: LocalizedError {
         case .wireguard(let error):
             return error
         case .settingsMigration:
-            return "Failure due to read settings."
+            return "Failure to read settings."
         }
     }
 }
