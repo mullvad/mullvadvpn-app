@@ -26,6 +26,9 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
+#[cfg(feature = "api-override")]
+use crate::API;
+
 pub use hyper::StatusCode;
 
 pub type Request = hyper::Request<hyper::Body>;
@@ -145,7 +148,14 @@ impl<
             socket_bypass_tx.clone(),
         );
 
-        if let Some(config) = proxy_config_provider.next().await {
+        #[cfg(feature = "api-override")]
+        let force_direct_connection = API.force_direct_connection;
+        #[cfg(not(feature = "api-override"))]
+        let force_direct_connection = false;
+
+        if force_direct_connection {
+            log::debug!("API proxies are disabled");
+        } else if let Some(config) = proxy_config_provider.next().await {
             connector_handle.set_connection_mode(config);
         }
 
@@ -214,6 +224,12 @@ impl<
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig => {
+                #[cfg(feature = "api-override")]
+                if API.force_direct_connection {
+                    log::debug!("Ignoring API connection mode");
+                    return;
+                }
+
                 if let Some(new_config) = self.proxy_config_provider.next().await {
                     let endpoint = match new_config.get_endpoint() {
                         Some(endpoint) => endpoint,
@@ -619,9 +635,11 @@ impl MullvadRestHandle {
             availability,
             token_store,
         };
-        if !super::API.disable_address_cache {
-            handle.spawn_api_address_fetcher(address_cache);
+        #[cfg(feature = "api-override")]
+        if API.disable_address_cache {
+            return handle;
         }
+        handle.spawn_api_address_fetcher(address_cache);
         handle
     }
 

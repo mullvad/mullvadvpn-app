@@ -40,6 +40,9 @@ use tokio::{
     time::timeout,
 };
 
+#[cfg(feature = "api-override")]
+use crate::{proxy::ConnectionDecorator, API};
+
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Clone)]
@@ -215,18 +218,23 @@ impl HttpsConnectorWithSni {
     }
 
     async fn resolve_address(address_cache: AddressCache, uri: Uri) -> io::Result<SocketAddr> {
+        const DEFAULT_PORT: u16 = 443;
+
         let hostname = uri.host().ok_or_else(|| {
             io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
         })?;
-        let port = uri.port_u16().unwrap_or(443);
+        let port = uri.port_u16();
         if let Ok(addr) = hostname.parse::<IpAddr>() {
-            return Ok(SocketAddr::new(addr, port));
+            return Ok(SocketAddr::new(addr, port.unwrap_or(DEFAULT_PORT)));
         }
 
         // Preferentially, use cached address.
         //
         if let Some(addr) = address_cache.resolve_hostname(hostname).await {
-            return Ok(SocketAddr::new(addr.ip(), port));
+            return Ok(SocketAddr::new(
+                addr.ip(),
+                port.unwrap_or_else(|| addr.port()),
+            ));
         }
 
         // Use getaddrinfo as a fallback
@@ -241,7 +249,7 @@ impl HttpsConnectorWithSni {
         let addr = addrs
             .next()
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
-        Ok(SocketAddr::new(addr.ip(), port))
+        Ok(SocketAddr::new(addr.ip(), port.unwrap_or(DEFAULT_PORT)))
     }
 }
 
@@ -303,8 +311,13 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 socket_bypass_tx.clone(),
                             )
                             .await?;
+                            #[cfg(feature = "api-override")]
+                            if API.disable_tls {
+                                return Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)));
+                            }
+
                             let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
-                            Ok::<_, io::Error>(ApiConnection::Direct(Box::new(tls_stream)))
+                            Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
                         }
                         InnerConnectionMode::Proxied(proxy_config) => {
                             let socket = Self::open_socket(
@@ -319,8 +332,16 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 &ServerConfig::from(proxy_config),
                                 addr,
                             );
+
+                            #[cfg(feature = "api-override")]
+                            if API.disable_tls {
+                                return Ok(ApiConnection::new(Box::new(ConnectionDecorator(
+                                    proxy,
+                                ))));
+                            }
+
                             let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                            Ok(ApiConnection::Proxied(Box::new(tls_stream)))
+                            Ok(ApiConnection::new(Box::new(tls_stream)))
                         }
                     }
                 };
