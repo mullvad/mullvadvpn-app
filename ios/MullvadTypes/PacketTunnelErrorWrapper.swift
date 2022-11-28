@@ -17,7 +17,7 @@ public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .wireguard(let error):
+        case let .wireguard(error):
             return error
         case .settingsMigration:
             return "Failure to read settings."
