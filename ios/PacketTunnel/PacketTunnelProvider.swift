@@ -45,7 +45,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var numberOfFailedAttempts: UInt = 0
 
     /// Last runtime error.
-    private var lastError: Error?
+    private var lastError: PacketTunnelErrorWrapper?
 
     /// Relay cache.
     private let relayCache = RelayCache(
@@ -180,6 +180,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
 
             tunnelConfiguration = try makeConfiguration(initialRelay)
+
+            // Releasing last error
+            if let lastError = lastError, case .settingsMigration = lastError {
+                self.lastError = nil
+            }
+
+        } catch is DecodingError, is SettingsMigrationError {
+            lastError = .settingsMigration
+            startEmptyTunnel(completionHandler: completionHandler)
+
+            return
         } catch {
             providerLogger.error(
                 error: error,
@@ -217,6 +228,34 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                     self.tunnelMonitor.start(
                         probeAddress: tunnelConfiguration.selectorResult.endpoint.ipv4Gateway
+                    )
+                }
+            }
+        }
+    }
+
+    private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
+        let emptyWGTunnelConfig = TunnelConfiguration.emptyTunnel
+
+        adapter.start(tunnelConfiguration: emptyWGTunnelConfig) { error in
+            self.dispatchQueue.async {
+                if let error = error {
+                    self.providerLogger.error(
+                        error: error,
+                        message: "Failed to start the tunnel."
+                    )
+
+                    completionHandler(error)
+                } else {
+                    self.providerLogger.debug("Started an empty tunnel.")
+
+                    self.startTunnelCompletionHandler = { [weak self] in
+                        self?.isConnected = true
+                        completionHandler(nil)
+                    }
+
+                    self.tunnelMonitor.start(
+                        probeAddress: IPv4Address("0.0.0.0/0")!
                     )
                 }
             }
@@ -411,8 +450,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func makeConfiguration(_ nextRelay: NextRelay)
         throws -> PacketTunnelConfiguration
     {
-        let deviceState = try SettingsManager.readDeviceState()
         let tunnelSettings = try SettingsManager.readSettings()
+        let deviceState = try SettingsManager.readDeviceState()
         let selectorResult: RelaySelectorResult
 
         switch nextRelay {
@@ -459,7 +498,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
-                self.lastError = error
+                if let error = error {
+                    self.lastError = .wireguard(error: error.localizedDescription)
+                }
 
                 if let error = error {
                     self.providerLogger.error(
@@ -669,4 +710,13 @@ extension DeviceCheck {
             identifier = UUID()
         }
     }
+}
+
+/// Used for creating an empty tunnel in certain situations.
+extension TunnelConfiguration {
+    fileprivate static let emptyTunnel = TunnelConfiguration(
+        name: nil,
+        interface: InterfaceConfiguration(privateKey: PrivateKey()),
+        peers: []
+    )
 }
