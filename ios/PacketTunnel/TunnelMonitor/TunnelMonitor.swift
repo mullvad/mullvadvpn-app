@@ -437,30 +437,44 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func handleNetworkPathUpdate(_ networkPath: Network.NWPath) {
-        let isReachable = isNetworkPathReachable(networkPath)
+        let pathStatus = networkPath.status
+        let isReachable = pathStatus == .requiresConnection || pathStatus == .satisfied
+        let hasPhysicalNetworkInterface = networkPath.availableInterfaces.contains { nw in
+            return nw.type == .wifi || nw.type == .cellular || nw.type == .wiredEthernet
+        }
 
-        switch (isReachable, state.connectionState) {
-        case (true, .pendingStart):
-            logger.debug("Start monitoring connection.")
-            startMonitoring()
-            sendDelegateNetworkStatusChange(isReachable)
+        lazy var isRoutableViaUtun = isTunnelInterfaceUp(networkPath) &&
+            hasPhysicalNetworkInterface && isReachable
 
-        case (false, .pendingStart):
-            logger.debug("Wait for network to become reachable before starting monitoring.")
-            state.connectionState = .waitingConnectivity
-            sendDelegateNetworkStatusChange(isReachable)
+        switch state.connectionState {
+        case .pendingStart:
+            // Wait for tunnel interface to appear first.
+            guard isTunnelInterfaceUp(networkPath) else { return }
 
-        case (true, .waitingConnectivity):
+            if isReachable, hasPhysicalNetworkInterface {
+                logger.debug("Start monitoring connection.")
+                startMonitoring()
+                sendDelegateNetworkStatusChange(true)
+            } else {
+                logger.debug("Wait for network to become reachable before starting monitoring.")
+                state.connectionState = .waitingConnectivity
+                sendDelegateNetworkStatusChange(false)
+            }
+
+        case .waitingConnectivity:
+            guard isRoutableViaUtun else { return }
+
             logger.debug("Network is reachable. Resume monitoring.")
             startMonitoring()
-            sendDelegateNetworkStatusChange(isReachable)
+            sendDelegateNetworkStatusChange(true)
 
-        case (false, .connecting), (false, .connected):
+        case .connecting, .connected:
+            guard !isRoutableViaUtun else { return }
+
             logger.debug("Network is unreachable. Pause monitoring.")
-
             state.connectionState = .waitingConnectivity
             stopMonitoring(resetRetryAttempt: true)
-            sendDelegateNetworkStatusChange(isReachable)
+            sendDelegateNetworkStatusChange(false)
 
         default:
             break
@@ -637,30 +651,13 @@ final class TunnelMonitor: PingerDelegate {
         return newStats
     }
 
-    private func isNetworkPathReachable(_ networkPath: Network.NWPath) -> Bool {
+    private func isTunnelInterfaceUp(_ networkPath: Network.NWPath) -> Bool {
         guard let tunName = adapter.interfaceName else { return false }
 
-        // Check if utun is up.
         let utunUp = networkPath.availableInterfaces.contains { interface in
             return interface.name == tunName
         }
 
-        guard utunUp else {
-            return false
-        }
-
-        // Return false if utun is the only available interface.
-        if networkPath.availableInterfaces.count == 1 {
-            return false
-        }
-
-        switch networkPath.status {
-        case .requiresConnection, .satisfied:
-            return true
-        case .unsatisfied:
-            return false
-        @unknown default:
-            return false
-        }
+        return utunUp
     }
 }
