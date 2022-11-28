@@ -31,6 +31,7 @@
 		06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
 		06410E08292D117800AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
 		06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
+		06410E182934F43B00AFC18C /* PacketTunnelErrorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		06799AD228F98E1D00ACD94E /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -539,6 +540,7 @@
 		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
 		06410E03292D0F7100AFC18C /* SettingsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsParser.swift; sourceTree = "<group>"; };
 		06410E06292D108E00AFC18C /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelErrorWrapper.swift; sourceTree = "<group>"; };
 		06799AB428F98CE700ACD94E /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		06799ABC28F98E1D00ACD94E /* MullvadREST.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadREST.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		06799ABE28F98E1D00ACD94E /* MullvadREST.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadREST.h; sourceTree = "<group>"; };
@@ -1080,6 +1082,7 @@
 				585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */,
 				5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */,
 				58900D0228BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift */,
+				06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -2092,6 +2095,7 @@
 				586A9516290133ED007BAF2B /* AnyIPAddress.swift in Sources */,
 				5856AD592902BE1A008E5127 /* PacketTunnelStatus.swift in Sources */,
 				5898D2A32901807500EB5EBA /* MullvadEndpoint.swift in Sources */,
+				06410E182934F43B00AFC18C /* PacketTunnelErrorWrapper.swift in Sources */,
 				5898D2B32902A8F000EB5EBA /* RelayLocation.swift in Sources */,
 				063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */,
 				5856AD582902BE1A008E5127 /* PacketTunnelRelay.swift in Sources */,
