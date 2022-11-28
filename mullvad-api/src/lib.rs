@@ -82,7 +82,7 @@ impl ApiEndpoint {
     /// `MULLVAD_API_ADDR` or `MULLVAD_API_HOST` has been set but not the other.
     fn get() -> ApiEndpoint {
         const API_HOST_DEFAULT: &str = "api.mullvad.net";
-        const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 222, 100));
+        const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
         const API_PORT_DEFAULT: u16 = 443;
 
         fn read_var(key: &'static str) -> Option<String> {

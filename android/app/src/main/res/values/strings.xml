@@ -55,6 +55,7 @@
     <string name="update_available_footer">Update available, download to remain safe.</string>
     <string name="report_a_problem">Report a problem</string>
     <string name="faqs_and_guides">FAQs &amp; Guides</string>
+    <string name="privacy_policy">Privacy policy</string>
     <string name="account_number">Account number</string>
     <string name="device_name">Device name</string>
     <string name="mullvad_account_number">Mullvad account number</string>
@@ -182,4 +183,6 @@
     <string name="hide_account_number">Hide account number</string>
     <string name="show_account_number">Show account number</string>
     <string name="failed_to_remove_device">Failed to remove device</string>
+    <string name="changes_dialog_subtitle">Changes in this version:</string>
+    <string name="changes_dialog_dismiss_button">Got it!</string>
 </resources>

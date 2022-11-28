@@ -13,9 +13,8 @@ import {
   IDeviceRemoval,
   IDnsOptions,
   ILocation,
-  IRelayList,
+  IRelayListWithEndpointData,
   ISettings,
-  IWireguardEndpointData,
   ObfuscationSettings,
   RelaySettingsUpdate,
   TunnelState,
@@ -34,19 +33,12 @@ import {
   ICurrentAppVersionInfo,
   IHistoryObject,
   IWindowShapeParameters,
-  ScrollPositions,
 } from './ipc-types';
 
 export interface ITranslations {
   locale: string;
   messages?: GetTextTranslations;
   relayLocations?: GetTextTranslations;
-}
-
-export interface IRelayListPair {
-  relays: IRelayList;
-  bridges: IRelayList;
-  wireguardEndpointData: IWireguardEndpointData;
 }
 
 export type LaunchApplicationResult = { success: true } | { error: string };
@@ -66,7 +58,7 @@ export interface IAppStateSnapshot {
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
   deviceState?: DeviceState;
-  relayListPair: IRelayListPair;
+  relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
@@ -76,7 +68,6 @@ export interface IAppStateSnapshot {
   changelog: IChangelog;
   forceShowChanges: boolean;
   navigationHistory?: IHistoryObject;
-  scrollPositions: ScrollPositions;
 }
 
 // The different types of requests are:
@@ -130,7 +121,6 @@ export const ipcSchema = {
   navigation: {
     reset: notifyRenderer<void>(),
     setHistory: send<IHistoryObject>(),
-    setScrollPositions: send<ScrollPositions>(),
   },
   daemon: {
     isPerformingPostUpgrade: notifyRenderer<boolean>(),
@@ -138,7 +128,7 @@ export const ipcSchema = {
     disconnected: notifyRenderer<void>(),
   },
   relays: {
-    '': notifyRenderer<IRelayListPair>(),
+    '': notifyRenderer<IRelayListWithEndpointData>(),
   },
   currentVersion: {
     '': notifyRenderer<ICurrentAppVersionInfo>(),

@@ -4,7 +4,6 @@ on:
     pull_request:
         paths:
             - .github/workflows/clippy.yml
-            - ci/check-clippy.sh
             - clippy.toml
             - '**/*.rs'
     # Check if requested manually from the Actions tab

@@ -18,8 +18,14 @@ pub enum Error {
 
 #[async_trait]
 pub trait Obfuscator: Send {
-    fn endpoint(&self) -> SocketAddr;
     async fn run(self: Box<Self>) -> Result<()>;
+
+    /// Returns the address of the local socket.
+    fn endpoint(&self) -> SocketAddr;
+
+    /// Returns the file descriptor of the outbound socket.
+    #[cfg(target_os = "android")]
+    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd;
 }
 
 pub enum Settings {

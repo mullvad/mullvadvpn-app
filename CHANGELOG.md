@@ -23,13 +23,30 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add quit button to tray context menu on Linux and Window.
+- Add search bar to location list in desktop app.
+
+#### Windows
+- Remove all settings when the app is uninstalled silently.
+
 ### Fixed
 - When a country is selected, and the constraints only match relays that are not included on the
   country level, select those relays anyway.
+- Fix regression where WireGuard relays were connected to over OpenVPN after a couple of failed
+  attempts, when the tunnel type was set to `any`.
+- Fix missing connect timeout when connecting to a WireGuard relay over TCP.
 
 #### macOS
 - Fix fish shell completions when installed via Homebrew on Apple Silicon Macs.
 
+#### Linux
+- Remove last filesystem dependency of early boot blocking unit.
+- Ensure RPM package removes all application directories when uninstalled.
+
+#### Windows
+- Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.
+  Previously, the installer would abort.
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
@@ -38,6 +55,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - DNS loopback traffic is no longer blocked. Note that local resolvers are still unable to forward
   queries to servers that would normally be blocked.
+
+
+## [android/2022.3] - 2022-11-14
+### Added
+#### Android
+- Add privacy policy link in settings.
+- Add initial privacy consent which is showed on each start until approved.
 
 
 ## [android/2022.2] - 2022-10-17
@@ -54,7 +78,7 @@ Identical to android/2022.2-beta2 except for updated translations.
 ### Added
 - Add custom option to WireGuard port selector.
 
-####Linux
+#### Linux
 - Add ARM64 (aarch64) builds. This is the first release with Linux ARM support.
 
 ### Changed

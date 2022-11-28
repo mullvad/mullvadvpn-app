@@ -8,6 +8,7 @@ on:
             - mullvad-management-interface/proto/**
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+
 jobs:
     check-frontend:
         strategy:
@@ -17,14 +18,15 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Setup volta
               uses: volta-cli/action@v4
 
             - name: Get npm cache directory path
               id: npm-cache-dir-path
-              run: echo "::set-output name=dir::$(npm config get cache)"
+              shell: bash # To ensure that Windows correctly ouputs the cache path
+              run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
 
             - name: Cache npm dependencies
               uses: actions/cache@v3
@@ -47,11 +49,15 @@ jobs:
               working-directory: gui
               run: npm run build
 
-            - name: Run headless test
-              uses: GabrielBB/xvfb-action@v1
-              with:
-                  working-directory: gui
-                  run: npm test
+            - name: Run headless test Linux
+              if: runner.os == 'Linux'
+              working-directory: gui
+              run: xvfb-run -a npm test
+
+            - name: Run headless test Windows
+              if: runner.os != 'Linux'
+              working-directory: gui
+              run: npm test
 
             - name: Run Playwright tests
               working-directory: gui

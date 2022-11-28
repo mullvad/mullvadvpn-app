@@ -10,7 +10,7 @@ import Foundation
 import UserNotifications
 
 let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
-let accountExpiryDefaultTriggerInterval = 3
+private let defaultTriggerInterval = 3
 
 class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
     InAppNotificationProvider, TunnelObserver
@@ -24,13 +24,13 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         return accountExpiryNotificationIdentifier
     }
 
-    init(triggerInterval: Int = accountExpiryDefaultTriggerInterval) {
+    init(tunnelManager: TunnelManager, triggerInterval: Int = defaultTriggerInterval) {
         self.triggerInterval = triggerInterval
 
         super.init()
 
-        TunnelManager.shared.addObserver(self)
-        accountExpiry = TunnelManager.shared.deviceState.accountData?.expiry
+        tunnelManager.addObserver(self)
+        accountExpiry = tunnelManager.deviceState.accountData?.expiry
     }
 
     private var trigger: UNNotificationTrigger? {

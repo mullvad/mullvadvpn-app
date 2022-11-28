@@ -65,6 +65,14 @@ public enum OperationCompletion<Success, Failure: Error> {
         }
     }
 
+    public func get() throws -> Success {
+        if let result = result {
+            return try result.get()
+        } else {
+            throw OperationCancellationError()
+        }
+    }
+
     public func map<NewSuccess>(_ block: (Success) -> NewSuccess)
         -> OperationCompletion<NewSuccess, Failure>
     {
@@ -141,5 +149,11 @@ public enum OperationCompletion<Success, Failure: Error> {
 
     public func eraseFailureType() -> OperationCompletion<Success, Error> {
         return mapError { $0 }
+    }
+}
+
+public struct OperationCancellationError: LocalizedError {
+    public var errorDescription: String? {
+        return "Operation was cancelled."
     }
 }

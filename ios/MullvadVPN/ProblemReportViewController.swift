@@ -7,32 +7,15 @@
 //
 
 import MullvadREST
+import MullvadTypes
 import Operations
 import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
-    private let apiProxy = REST.ProxyFactory.shared.createAPIProxy()
+    private let interactor: ProblemReportInteractor
 
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
     private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
-
-    private lazy var consolidatedLog: ConsolidatedApplicationLog = {
-        let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
-
-        // TODO: make sure we redact old tokens
-
-        let redactStrings = [TunnelManager.shared.deviceState.accountData?.number]
-            .compactMap { $0 }
-
-        let report = ConsolidatedApplicationLog(
-            redactCustomStrings: redactStrings,
-            redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
-        )
-
-        report.addLogFiles(fileURLs: ApplicationConfiguration.logFileURLs, includeLogBackups: true)
-
-        return report
-    }()
 
     /// Scroll view
     private lazy var scrollView: UIScrollView = {
@@ -204,6 +187,16 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         return false
     }
 
+    init(interactor: ProblemReportInteractor) {
+        self.interactor = interactor
+
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -283,7 +276,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     @objc func handleViewLogsButtonTap() {
         let reviewController = ProblemReportReviewViewController(
-            reportString: consolidatedLog.string
+            reportString: interactor.reportString
         )
         let navigationController = UINavigationController(rootViewController: reviewController)
 
@@ -681,21 +674,12 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     private func sendProblemReport() {
         let viewModel = Self.persistentViewModel
 
-        let log = consolidatedLog.string
-        let metadata = consolidatedLog.metadata.reduce(into: [:]) { output, entry in
-            output[entry.key.rawValue] = entry.value
-        }
-
-        let request = REST.ProblemReportRequest(
-            address: viewModel.email,
-            message: viewModel.message,
-            log: log,
-            metadata: metadata
-        )
-
         willSendProblemReport()
 
-        _ = apiProxy.sendProblemReport(request, retryStrategy: .default) { completion in
+        _ = interactor.sendReport(
+            email: viewModel.email,
+            message: viewModel.message
+        ) { completion in
             self.didSendProblemReport(viewModel: viewModel, completion: completion)
         }
     }

@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import Operations
+import RelayCache
 import RelaySelector
 import StoreKit
 import TunnelProviderMessaging
@@ -34,7 +35,7 @@ private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager {
+final class TunnelManager: StorePaymentObserver {
     private enum OperationCategory: String {
         case manageTunnel
         case deviceStateUpdate
@@ -46,13 +47,10 @@ final class TunnelManager {
         }
     }
 
-    static let shared = TunnelManager(
-        accountsProxy: REST.ProxyFactory.shared.createAccountsProxy(),
-        devicesProxy: REST.ProxyFactory.shared.createDevicesProxy()
-    )
-
     // MARK: - Internal variables
 
+    private let application: UIApplication
+    private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -82,9 +80,19 @@ final class TunnelManager {
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
 
+    /// Last processed device check identifier.
+    private var lastDeviceCheckIdentifier: UUID?
+
     // MARK: - Initialization
 
-    private init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+    init(
+        application: UIApplication,
+        relayCacheTracker: RelayCacheTracker,
+        accountsProxy: REST.AccountsProxy,
+        devicesProxy: REST.DevicesProxy
+    ) {
+        self.application = application
+        self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
@@ -103,8 +111,6 @@ final class TunnelManager {
 
         isRunningPeriodicPrivateKeyRotation = true
         updatePrivateKeyRotationTimer()
-
-        nslock.unlock()
     }
 
     func stopPeriodicPrivateKeyRotation() {
@@ -201,12 +207,6 @@ final class TunnelManager {
     // MARK: - Public methods
 
     func loadConfiguration(completionHandler: @escaping (Error?) -> Void) {
-        let migrateSettingsOperation = MigrateSettingsOperation(
-            dispatchQueue: internalQueue,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy
-        )
-
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -226,31 +226,20 @@ final class TunnelManager {
 
             completionHandler(completion.error)
         }
-        loadTunnelOperation.addDependency(migrateSettingsOperation)
 
-        let groupOperation = GroupOperation(operations: [
-            migrateSettingsOperation, loadTunnelOperation,
-        ])
-
-        groupOperation.addObserver(
+        loadTunnelOperation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Load tunnel configuration",
                 cancelUponExpiration: false
             )
         )
 
-        groupOperation.addCondition(
+        loadTunnelOperation.addCondition(
             MutuallyExclusive(category: OperationCategory.manageTunnel.category)
         )
-        groupOperation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-        groupOperation.addCondition(
-            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
-        )
 
-        operationQueue.addOperation(groupOperation)
+        operationQueue.addOperation(loadTunnelOperation)
     }
 
     func refreshTunnelStatus() {
@@ -287,7 +276,7 @@ final class TunnelManager {
         )
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Start tunnel",
             cancelUponExpiration: true
         ))
@@ -322,7 +311,7 @@ final class TunnelManager {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: "Stop tunnel",
             cancelUponExpiration: true
         ))
@@ -350,7 +339,7 @@ final class TunnelManager {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Reconnect tunnel",
                 cancelUponExpiration: true
             )
@@ -382,7 +371,7 @@ final class TunnelManager {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: action.taskName,
             cancelUponExpiration: true
         ))
@@ -420,7 +409,7 @@ final class TunnelManager {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update account data",
                 cancelUponExpiration: true
             )
@@ -456,7 +445,7 @@ final class TunnelManager {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Update device data",
                 cancelUponExpiration: true
             )
@@ -511,7 +500,7 @@ final class TunnelManager {
 
         operation.addObserver(
             BackgroundObserver(
-                application: .shared,
+                application: application,
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
@@ -556,7 +545,7 @@ final class TunnelManager {
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
     ) throws -> Cancellable {
-        if let tunnel {
+        if let tunnel = tunnel {
             return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
         } else {
             throw UnsetTunnelError()
@@ -575,6 +564,34 @@ final class TunnelManager {
     /// Remove tunnel observer.
     func removeObserver(_ observer: TunnelObserver) {
         observerList.remove(observer)
+    }
+
+    // MARK: - StorePaymentObserver
+
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didReceiveEvent event: StorePaymentEvent
+    ) {
+        guard case let .finished(paymentCompletion) = event else {
+            return
+        }
+
+        scheduleDeviceStateUpdate(
+            taskName: "Update account expiry after in-app purchase",
+            modificationBlock: { deviceState in
+                switch deviceState {
+                case .loggedIn(var accountData, let deviceData):
+                    if accountData.number == paymentCompletion.accountNumber {
+                        accountData.expiry = paymentCompletion.serverResponse.newExpiry
+                        deviceState = .loggedIn(accountData, deviceData)
+                    }
+
+                case .loggedOut, .revoked:
+                    break
+                }
+            },
+            completionHandler: nil
+        )
     }
 
     // MARK: - TunnelInteractor
@@ -665,6 +682,27 @@ final class TunnelManager {
 
         _tunnelStatus = newTunnelStatus
 
+        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck,
+           deviceCheck.identifier != lastDeviceCheckIdentifier
+        {
+            if deviceCheck.isDeviceRevoked ?? false {
+                didDetectDeviceRevoked()
+
+            } else if let accountExpiry = deviceCheck.accountExpiry {
+                scheduleDeviceStateUpdate(
+                    taskName: "Update account expiry",
+                    reconnectTunnel: false
+                ) { deviceState in
+                    if case .loggedIn(var accountData, let deviceData) = deviceState {
+                        accountData.expiry = accountExpiry
+                        deviceState = .loggedIn(accountData, deviceData)
+                    }
+                }
+            }
+
+            lastDeviceCheckIdentifier = deviceCheck.identifier
+        }
+
         switch newTunnelStatus.state {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
@@ -746,6 +784,15 @@ final class TunnelManager {
     }
 
     // MARK: - Private methods
+
+    fileprivate func selectRelay() throws -> RelaySelectorResult {
+        let cachedRelays = try relayCacheTracker.getCachedRelays()
+
+        return try RelaySelector.evaluate(
+            relays: cachedRelays.relays,
+            constraints: settings.relayConstraints
+        )
+    }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
         nslock.lock()
@@ -882,7 +929,7 @@ final class TunnelManager {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -895,8 +942,9 @@ final class TunnelManager {
 
     private func scheduleDeviceStateUpdate(
         taskName: String,
+        reconnectTunnel: Bool = true,
         modificationBlock: @escaping (inout DeviceState) -> Void,
-        completionHandler: (() -> Void)?
+        completionHandler: (() -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             var deviceState = self.deviceState
@@ -904,7 +952,10 @@ final class TunnelManager {
             modificationBlock(&deviceState)
 
             self.setDeviceState(deviceState, persist: true)
-            self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+
+            if reconnectTunnel {
+                self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+            }
         }
 
         operation.completionBlock = {
@@ -914,7 +965,7 @@ final class TunnelManager {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: .shared,
+            application: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -955,44 +1006,6 @@ final class TunnelManager {
         tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = nil
         isPolling = false
-    }
-}
-
-// MARK: - AppStore payment observer
-
-extension TunnelManager: AppStorePaymentObserver {
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
-        transaction: SKPaymentTransaction?,
-        payment: SKPayment,
-        accountToken: String?,
-        didFailWithError error: AppStorePaymentManager.Error
-    ) {
-        // no-op
-    }
-
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
-        transaction: SKPaymentTransaction,
-        accountToken: String,
-        didFinishWithResponse response: REST.CreateApplePaymentResponse
-    ) {
-        scheduleDeviceStateUpdate(
-            taskName: "Update account expiry after in-app purchase",
-            modificationBlock: { deviceState in
-                switch deviceState {
-                case .loggedIn(var accountData, let deviceData):
-                    if accountData.number == accountToken {
-                        accountData.expiry = response.newExpiry
-                        deviceState = .loggedIn(accountData, deviceData)
-                    }
-
-                case .loggedOut, .revoked:
-                    break
-                }
-            },
-            completionHandler: nil
-        )
     }
 }
 
@@ -1049,5 +1062,9 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     func prepareForVPNConfigurationDeletion() {
         tunnelManager.prepareForVPNConfigurationDeletion()
+    }
+
+    func selectRelay() throws -> RelaySelectorResult {
+        return try tunnelManager.selectRelay()
     }
 }

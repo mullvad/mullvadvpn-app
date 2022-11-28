@@ -48,11 +48,11 @@
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
 
 #
-# CleanupTempFiles
+# UnloadPlugins
 #
-# Clean up files used temporarily by the installer.
+# Ensures that temporary files can be removed by the installer.
 #
-!macro CleanupTempFiles
+!macro UnloadPlugins
 
 	Push $0
 
@@ -60,36 +60,32 @@
 
 	# Horrendous hack for unpinning log.dll. Since we do not know the reference count
 	# it is safest to unload it from here.
-	CleanupTempFiles_free_logger:
+	UnloadPlugins_free_logger:
 	System::Call "KERNEL32::GetModuleHandle(t $\"$PLUGINSDIR\log.dll$\")p.r0"
 	${If} $0 P<> 0
 		System::Call "KERNEL32::FreeLibrary(pr0)"
-		Goto CleanupTempFiles_free_logger
+		Goto UnloadPlugins_free_logger
 	${EndIf}
 
 	# The working directory cannot be deleted, so make sure it's set to $TEMP.
 	SetOutPath "$TEMP"
 
-	Delete "$TEMP\wintun.dll"
-	Delete "$TEMP\mullvad-wireguard.dll"
-	Delete "$TEMP\driverlogic.exe"
-	Delete "$TEMP\mullvad-setup.exe"
-	Delete "$TEMP\winfw.dll"
+	# $PLUGINSDIR is deleted for us as long as nothing is in use.
 
 	Pop $0
 
 !macroend
 
-!define CleanupTempFiles '!insertmacro "CleanupTempFiles"'
+!define UnloadPlugins '!insertmacro "UnloadPlugins"'
 
 #
 # ExtractDriverlogic
 #
-# Extract device setup tools to $TEMP
+# Extract device setup tools to $PLUGINSDIR
 #
 !macro ExtractDriverlogic
 
-	SetOutPath "$TEMP"
+	SetOutPath "$PLUGINSDIR"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-$%CPP_BUILD_MODE%\driverlogic.exe"
 
 !macroend
@@ -99,11 +95,11 @@
 #
 # ExtractWireGuard
 #
-# Extract Wintun and WireGuardNT installer into $TEMP
+# Extract Wintun and WireGuardNT installer into $PLUGINSDIR
 #
 !macro ExtractWireGuard
 
-	SetOutPath "$TEMP"
+	SetOutPath "$PLUGINSDIR"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\mullvad-wireguard.dll"
 
@@ -114,11 +110,11 @@
 #
 # ExtractMullvadSetup
 #
-# Extract mullvad-setup into $TEMP
+# Extract mullvad-setup into $PLUGINSDIR
 #
 !macro ExtractMullvadSetup
 
-	SetOutPath "$TEMP"
+	SetOutPath "$PLUGINSDIR"
 	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
 	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-$%CPP_BUILD_MODE%\winfw.dll"
 
@@ -137,7 +133,7 @@
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-driver'
+	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wintun-delete-driver'
 	Pop $0
 	Pop $1
 
@@ -172,7 +168,7 @@
 
 	log::Log "RemoveWireGuardNt()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wg-nt-cleanup'
+	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wg-nt-cleanup'
 	Pop $0
 	Pop $1
 
@@ -207,7 +203,7 @@
 
 	log::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-abandoned-device'
+	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wintun-delete-abandoned-device'
 	Pop $0
 	Pop $1
 
@@ -317,7 +313,7 @@
 	Push $1
 
 	log::Log "Removing Split Tunneling driver"
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" st-remove'
+	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" st-remove'
 	
 	Pop $0
 	Pop $1
@@ -600,7 +596,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" reset-firewall'
 	Pop $0
 	Pop $1
 
@@ -656,7 +652,7 @@
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" remove-device'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" remove-device'
 	Pop $0
 	Pop $1
 
@@ -796,11 +792,6 @@
 	${ExtractDriverlogic}
 	${RemoveAbandonedWintunAdapter}
 
-	${If} $R0 != 0
-		MessageBox MB_OK "$R0"
-		Goto customInstall_abort_installation
-	${EndIf}
-
 	${RemoveSplitTunnelDriver}
 
 	${If} $R0 != 0
@@ -838,7 +829,7 @@
 
 	customInstall_skip_abort:
 
-	${CleanupTempFiles}
+	${UnloadPlugins}
 
 	Pop $R0
 
@@ -1039,10 +1030,10 @@
 	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
-	${If} $Silent == 1
+	${If} ${isUpdated}
 		ReadRegStr $NewVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "NewVersion"
 
-		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" is-older-version $0'
+		nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" is-older-version $0'
 		Pop $0
 		Pop $1
 
@@ -1065,7 +1056,7 @@
 
 	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
-		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
+		nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
 
@@ -1131,10 +1122,13 @@
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
-			${RemoveSettings}
-
-			DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "net.mullvad.vpn"
+		${ElseIf} ${isUpdated}
+			Goto customRemoveFiles_after_remove_settings
 		${EndIf}
+
+		${RemoveSettings}
+		DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "net.mullvad.vpn"
+
 		customRemoveFiles_after_remove_settings:
 	${Else}
 		log::SetLogTarget ${LOG_VOID}
@@ -1143,7 +1137,7 @@
 		Delete "$LOCALAPPDATA\Mullvad VPN\uninstall.log"
 	${EndIf}
 
-	${CleanupTempFiles}
+	${UnloadPlugins}
 
 	Pop $R0
 	Pop $1

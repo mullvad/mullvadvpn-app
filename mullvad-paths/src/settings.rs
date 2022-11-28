@@ -24,7 +24,10 @@ pub fn get_default_settings_dir() -> Result<PathBuf> {
         }
         #[cfg(windows)]
         {
-            dir = dirs_next::data_local_dir().ok_or_else(|| crate::Error::FindDirError);
+            dir = crate::windows::get_system_service_appdata().map_err(|error| {
+                log::error!("Failed to obtain system app data path: {error}");
+                crate::Error::FindDirError
+            })
         }
         dir.map(|dir| dir.join(crate::PRODUCT_NAME))
     }

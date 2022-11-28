@@ -863,9 +863,9 @@ dependencies = [
 
 [[package]]
 name = "futures"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a12aa0eb539080d55c3f2d45a67c3b58b6b0773c1a3ca2dfec66d58c97fd66ca"
+checksum = "38390104763dc37a5145a53c29c63c1290b5d316d6086ec32c293f6736051bb0"
 dependencies = [
  "futures-channel",
  "futures-core",
@@ -878,9 +878,9 @@ dependencies = [
 
 [[package]]
 name = "futures-channel"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5da6ba8c3bb3c165d3c7319fc1cc8304facf1fb8db99c5de877183c08a273888"
+checksum = "52ba265a92256105f45b719605a571ffe2d1f0fea3807304b522c1d778f79eed"
 dependencies = [
  "futures-core",
  "futures-sink",
@@ -888,15 +888,15 @@ dependencies = [
 
 [[package]]
 name = "futures-core"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88d1c26957f23603395cd326b0ffe64124b818f4449552f960d815cfba83a53d"
+checksum = "04909a7a7e4633ae6c4a9ab280aeb86da1236243a77b694a49eacd659a4bd3ac"
 
 [[package]]
 name = "futures-executor"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45025be030969d763025784f7f355043dc6bc74093e4ecc5000ca4dc50d8745c"
+checksum = "7acc85df6714c176ab5edf386123fafe217be88c0840ec11f199441134a074e2"
 dependencies = [
  "futures-core",
  "futures-task",
@@ -905,18 +905,16 @@ dependencies = [
 
 [[package]]
 name = "futures-io"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "522de2a0fe3e380f1bc577ba0474108faf3f6b18321dbf60b3b9c39a75073377"
+checksum = "00f5fb52a06bdcadeb54e8d3671f8888a39697dcb0b81b23b55174030427f4eb"
 
 [[package]]
 name = "futures-macro"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18e4a4b95cea4b4ccbcf1c5675ca7c4ee4e9e75eb79944d07defde18068f79bb"
+checksum = "bdfb8ce053d86b91919aad980c220b1fb8401a9394410e1c289ed7e66b61835d"
 dependencies = [
- "autocfg",
- "proc-macro-hack",
  "proc-macro2",
  "quote",
  "syn",
@@ -924,23 +922,22 @@ dependencies = [
 
 [[package]]
 name = "futures-sink"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36ea153c13024fe480590b3e3d4cad89a0cfacecc24577b68f86c6ced9c2bc11"
+checksum = "39c15cf1a4aa79df40f1bb462fb39676d0ad9e366c2a33b590d7c66f4f81fcf9"
 
 [[package]]
 name = "futures-task"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d3d00f4eddb73e498a54394f228cd55853bdf059259e8e7bc6e69d408892e99"
+checksum = "2ffb393ac5d9a6eaa9d3fdf37ae2776656b706e200c8e16b1bdb227f5198e6ea"
 
 [[package]]
 name = "futures-util"
-version = "0.3.17"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36568465210a3a6ee45e1f165136d68671471a501e632e9a98d96872222b5481"
+checksum = "197676987abd2f9cadff84926f410af1c183608d36641465df73ae8211dc65d6"
 dependencies = [
- "autocfg",
  "futures-channel",
  "futures-core",
  "futures-io",
@@ -950,8 +947,6 @@ dependencies = [
  "memchr",
  "pin-project-lite",
  "pin-utils",
- "proc-macro-hack",
- "proc-macro-nested",
  "slab",
 ]
 
@@ -1587,7 +1582,6 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-rustls",
- "tokio-stream",
  "uuid",
 ]
 
@@ -1626,7 +1620,6 @@ dependencies = [
  "ctrlc",
  "dirs-next",
  "duct",
- "either",
  "err-derive",
  "fern",
  "futures",
@@ -1690,6 +1683,7 @@ dependencies = [
  "nix 0.23.1",
  "rand 0.8.5",
  "talpid-core",
+ "talpid-tunnel",
  "talpid-types",
  "tokio",
 ]
@@ -1723,6 +1717,8 @@ dependencies = [
  "dirs-next",
  "err-derive",
  "log",
+ "widestring 1.0.2",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -1787,8 +1783,6 @@ dependencies = [
  "talpid-core",
  "talpid-types",
  "tokio",
- "widestring 0.5.1",
- "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -2347,12 +2341,6 @@ name = "proc-macro-hack"
 version = "0.5.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
-
-[[package]]
-name = "proc-macro-nested"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc881b2c22681370c6a780e47af9840ef841837bc98118431d4e1868bd0c1086"
 
 [[package]]
 name = "proc-macro2"
@@ -3121,10 +3109,7 @@ dependencies = [
  "log",
  "memoffset",
  "mnl",
- "netlink-packet-core",
  "netlink-packet-route",
- "netlink-packet-utils",
- "netlink-proto",
  "netlink-sys",
  "nftnl",
  "nix 0.23.1",
@@ -3146,23 +3131,25 @@ dependencies = [
  "subslice",
  "system-configuration",
  "talpid-dbus",
+ "talpid-openvpn",
  "talpid-platform-metadata",
+ "talpid-routing",
  "talpid-time",
+ "talpid-tunnel",
  "talpid-tunnel-config-client",
  "talpid-types",
+ "talpid-windows-net",
+ "talpid-wireguard",
  "tempfile",
  "tokio",
- "tokio-stream",
  "tonic",
  "tonic-build",
  "triggered",
  "trust-dns-server",
  "tun",
- "tunnel-obfuscation",
  "uuid",
  "which",
  "widestring 1.0.2",
- "winapi",
  "windows",
  "windows-service",
  "windows-sys 0.42.0",
@@ -3180,6 +3167,43 @@ dependencies = [
  "libc",
  "log",
  "tokio",
+]
+
+[[package]]
+name = "talpid-openvpn"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "atty",
+ "bitflags",
+ "byteorder",
+ "cfg-if",
+ "duct",
+ "err-derive",
+ "futures",
+ "lazy_static",
+ "log",
+ "os_pipe",
+ "parity-tokio-ipc",
+ "parking_lot 0.11.2",
+ "prost",
+ "shadowsocks-service",
+ "shell-escape",
+ "socket2",
+ "talpid-routing",
+ "talpid-tunnel",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tonic",
+ "tonic-build",
+ "triggered",
+ "uuid",
+ "which",
+ "widestring 1.0.2",
+ "winapi",
+ "windows-sys 0.42.0",
+ "winreg",
 ]
 
 [[package]]
@@ -3212,11 +3236,55 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-routing"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "futures",
+ "ipnetwork",
+ "jnix",
+ "lazy_static",
+ "libc",
+ "log",
+ "netlink-packet-route",
+ "netlink-sys",
+ "rtnetlink",
+ "socket2",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tokio-stream",
+ "widestring 1.0.2",
+ "winapi",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
  "libc",
  "tokio",
+]
+
+[[package]]
+name = "talpid-tunnel"
+version = "0.0.0"
+dependencies = [
+ "cfg-if",
+ "duct",
+ "err-derive",
+ "futures",
+ "ipnetwork",
+ "jnix",
+ "log",
+ "nix 0.23.1",
+ "talpid-routing",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tun",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -3245,6 +3313,57 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "x25519-dalek",
+ "zeroize",
+]
+
+[[package]]
+name = "talpid-windows-net"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "futures",
+ "libc",
+ "socket2",
+ "winapi",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "talpid-wireguard"
+version = "0.0.0"
+dependencies = [
+ "bitflags",
+ "byteorder",
+ "chrono",
+ "duct",
+ "err-derive",
+ "futures",
+ "hex",
+ "internet-checksum",
+ "ipnetwork",
+ "lazy_static",
+ "libc",
+ "log",
+ "netlink-packet-core",
+ "netlink-packet-route",
+ "netlink-packet-utils",
+ "netlink-proto",
+ "nix 0.23.1",
+ "parking_lot 0.11.2",
+ "rand 0.8.5",
+ "rtnetlink",
+ "socket2",
+ "talpid-dbus",
+ "talpid-routing",
+ "talpid-tunnel",
+ "talpid-tunnel-config-client",
+ "talpid-types",
+ "talpid-windows-net",
+ "tokio",
+ "tokio-stream",
+ "tunnel-obfuscation",
+ "widestring 1.0.2",
+ "windows-sys 0.42.0",
  "zeroize",
 ]
 
@@ -3725,7 +3844,7 @@ checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
 [[package]]
 name = "udp-over-tcp"
 version = "0.2.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=3dae584677ed26aff08ab759f7799a55c0ff1aec#3dae584677ed26aff08ab759f7799a55c0ff1aec"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=4d52f93cd9962562cb52d66e36771d5f5c70e25a#4d52f93cd9962562cb52d66e36771d5f5c70e25a"
 dependencies = [
  "err-context",
  "futures",

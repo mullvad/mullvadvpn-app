@@ -9,6 +9,7 @@ import {
   ObfuscationType,
   Ownership,
   ProxySettings,
+  RelayEndpointType,
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
@@ -16,24 +17,30 @@ import {
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
+export type NormalRelaySettingsRedux = {
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>;
+  location: LiftedConstraint<RelayLocation>;
+  providers: string[];
+  ownership: Ownership;
+  openvpn: {
+    port: LiftedConstraint<number>;
+    protocol: LiftedConstraint<RelayProtocol>;
+  };
+  wireguard: {
+    port: LiftedConstraint<number>;
+    ipVersion: LiftedConstraint<IpVersion>;
+    useMultihop: boolean;
+    entryLocation: LiftedConstraint<RelayLocation>;
+  };
+};
+
+export type NormalBridgeSettingsRedux = {
+  location: LiftedConstraint<RelayLocation>;
+};
+
 export type RelaySettingsRedux =
   | {
-      normal: {
-        tunnelProtocol: LiftedConstraint<TunnelProtocol>;
-        location: LiftedConstraint<RelayLocation>;
-        providers: string[];
-        ownership: Ownership;
-        openvpn: {
-          port: LiftedConstraint<number>;
-          protocol: LiftedConstraint<RelayProtocol>;
-        };
-        wireguard: {
-          port: LiftedConstraint<number>;
-          ipVersion: LiftedConstraint<IpVersion>;
-          useMultihop: boolean;
-          entryLocation: LiftedConstraint<RelayLocation>;
-        };
-      };
+      normal: NormalRelaySettingsRedux;
     }
   | {
       customTunnelEndpoint: {
@@ -45,9 +52,7 @@ export type RelaySettingsRedux =
 
 export type BridgeSettingsRedux =
   | {
-      normal: {
-        location: LiftedConstraint<RelayLocation>;
-      };
+      normal: NormalBridgeSettingsRedux;
     }
   | {
       custom: ProxySettings;
@@ -61,6 +66,7 @@ export interface IRelayLocationRelayRedux {
   active: boolean;
   owned: boolean;
   weight: number;
+  endpointType: RelayEndpointType;
 }
 
 export interface IRelayLocationCityRedux {
@@ -82,7 +88,6 @@ export interface ISettingsReduxState {
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationRedux[];
-  bridgeLocations: IRelayLocationRedux[];
   wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
@@ -128,7 +133,6 @@ const initialState: ISettingsReduxState = {
     },
   },
   relayLocations: [],
-  bridgeLocations: [],
   wireguardEndpointData: { portRanges: [], udp2tcpPorts: [] },
   allowLan: false,
   enableIpv6: true,
@@ -186,12 +190,6 @@ export default function (
       return {
         ...state,
         relayLocations: action.relayLocations,
-      };
-
-    case 'UPDATE_BRIDGE_LOCATIONS':
-      return {
-        ...state,
-        bridgeLocations: action.bridgeLocations,
       };
 
     case 'UPDATE_WIREGUARD_ENDPOINT_DATA':

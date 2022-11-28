@@ -23,11 +23,6 @@ export interface IUpdateRelayLocationsAction {
   relayLocations: IRelayLocationRedux[];
 }
 
-export interface IUpdateBridgeLocationsAction {
-  type: 'UPDATE_BRIDGE_LOCATIONS';
-  bridgeLocations: IRelayLocationRedux[];
-}
-
 export interface IUpdateWireguardEndpointData {
   type: 'UPDATE_WIREGUARD_ENDPOINT_DATA';
   wireguardEndpointData: IWireguardEndpointData;
@@ -102,7 +97,6 @@ export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
   | IUpdateRelayLocationsAction
-  | IUpdateBridgeLocationsAction
   | IUpdateWireguardEndpointData
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
@@ -136,15 +130,6 @@ function updateRelayLocations(relayLocations: IRelayLocationRedux[]): IUpdateRel
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
     relayLocations,
-  };
-}
-
-function updateBridgeLocations(
-  bridgeLocations: IRelayLocationRedux[],
-): IUpdateBridgeLocationsAction {
-  return {
-    type: 'UPDATE_BRIDGE_LOCATIONS',
-    bridgeLocations,
   };
 }
 
@@ -258,7 +243,6 @@ export default {
   updateGuiSettings,
   updateRelay,
   updateRelayLocations,
-  updateBridgeLocations,
   updateWireguardEndpointData,
   updateAllowLan,
   updateEnableIpv6,

@@ -5,14 +5,9 @@ mod volume_monitor;
 mod windows;
 
 use crate::{
-    routing::{self, get_best_default_route, CallbackHandle, EventType, RouteManagerHandle},
     tunnel::TunnelMetadata,
     tunnel_state_machine::TunnelCommand,
-    windows::{
-        get_ip_address_for_interface,
-        window::{PowerManagementEvent, PowerManagementListener},
-        AddressFamily,
-    },
+    window::{PowerManagementEvent, PowerManagementListener},
 };
 use futures::channel::{mpsc, oneshot};
 use std::{
@@ -28,7 +23,9 @@ use std::{
     },
     time::Duration,
 };
+use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
+use talpid_windows_net::{get_ip_address_for_interface, AddressFamily};
 use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
@@ -72,11 +69,11 @@ pub enum Error {
 
     /// Failed to obtain default route
     #[error(display = "Failed to obtain the default route")]
-    ObtainDefaultRoute(#[error(source)] routing::Error),
+    ObtainDefaultRoute(#[error(source)] talpid_routing::Error),
 
     /// Failed to obtain an IP address given a network interface LUID
     #[error(display = "Failed to obtain IP address for interface LUID")]
-    LuidToIp(#[error(source)] crate::windows::Error),
+    LuidToIp(#[error(source)] talpid_windows_net::Error),
 
     /// Failed to set up callback for monitoring default route changes
     #[error(display = "Failed to register default route change callback")]
@@ -854,7 +851,7 @@ fn split_tunnel_default_route_change_handler<'a>(
     address_family: AddressFamily,
     ctx_mutex: &Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>,
 ) {
-    use crate::routing::EventType::*;
+    use talpid_routing::EventType::*;
 
     // Update the "internet interface" IP when best default route changes
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");

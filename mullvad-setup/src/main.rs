@@ -34,15 +34,6 @@ impl From<Error> for ExitStatus {
     }
 }
 
-#[cfg(windows)]
-mod daemon_paths;
-
-#[cfg(windows)]
-type SettingsPathErrorType = std::io::Error;
-
-#[cfg(not(windows))]
-type SettingsPathErrorType = mullvad_paths::Error;
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -65,7 +56,7 @@ pub enum Error {
     RemoveDeviceError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to obtain settings directory path")]
-    SettingsPathError(#[error(source)] SettingsPathErrorType),
+    SettingsPathError(#[error(source)] mullvad_paths::Error),
 
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] mullvad_paths::Error),
@@ -154,10 +145,13 @@ async fn reset_firewall() -> Result<(), Error> {
         return Err(Error::DaemonIsRunning);
     }
 
-    Firewall::new()
-        .map_err(Error::FirewallError)?
-        .reset_policy()
-        .map_err(Error::FirewallError)
+    Firewall::new(
+        #[cfg(target_os = "linux")]
+        mullvad_types::TUNNEL_FWMARK,
+    )
+    .map_err(Error::FirewallError)?
+    .reset_policy()
+    .map_err(Error::FirewallError)
 }
 
 async fn remove_device() -> Result<(), Error> {
@@ -201,17 +195,8 @@ async fn remove_device() -> Result<(), Error> {
     Ok(())
 }
 
-#[cfg(not(windows))]
 fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
     let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
     let settings_path = mullvad_paths::settings_dir().map_err(Error::SettingsPathError)?;
-    Ok((cache_path, settings_path))
-}
-
-#[cfg(windows)]
-fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
-    let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
-    let settings_path =
-        daemon_paths::get_mullvad_daemon_settings_path().map_err(Error::SettingsPathError)?;
     Ok((cache_path, settings_path))
 }

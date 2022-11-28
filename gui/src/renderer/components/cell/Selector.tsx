@@ -3,26 +3,13 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
-import { useBoolean } from '../../lib/utilityHooks';
-import Accordion from '../Accordion';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
-import ChevronButton from '../ChevronButton';
 import { normalText } from '../common-styles';
 import InfoButton from '../InfoButton';
 import * as Cell from '.';
 
-const StyledTitle = styled(Cell.Container)({
-  display: 'flex',
-  padding: 0,
-});
-
 const StyledTitleLabel = styled(Cell.SectionTitle)({
   flex: 1,
-});
-
-const StyledChevronButton = styled(ChevronButton)({
-  padding: 0,
-  marginRight: '16px',
 });
 
 export interface SelectorItem<T> {
@@ -39,7 +26,7 @@ interface CommonSelectorProps<T, U> {
   selectedCellRef?: React.Ref<HTMLElement>;
   className?: string;
   details?: React.ReactElement;
-  expandable?: boolean;
+  expandable?: { expandable: boolean; id: string };
   disabled?: boolean;
   thinTitle?: boolean;
   automaticLabel?: string;
@@ -52,8 +39,6 @@ interface SelectorProps<T, U> extends CommonSelectorProps<T, U> {
 }
 
 export default function Selector<T, U>(props: SelectorProps<T, U>) {
-  const [expanded, , , toggleExpanded] = useBoolean(!props.expandable);
-
   const items = props.items.map((item) => {
     const selected = props.value === item.value;
     const ref = selected ? (props.selectedCellRef as React.Ref<HTMLButtonElement>) : undefined;
@@ -88,8 +73,8 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
     );
   }
 
-  const title = props.title && (
-    <StyledTitle>
+  const title = props.title ? (
+    <>
       <AriaLabel>
         <StyledTitleLabel as="label" disabled={props.disabled} thin={props.thinTitle}>
           {props.title}
@@ -100,9 +85,8 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
           <InfoButton>{props.details}</InfoButton>
         </AriaDetails>
       )}
-      {props.expandable && <StyledChevronButton up={expanded} onClick={toggleExpanded} />}
-    </StyledTitle>
-  );
+    </>
+  ) : undefined;
 
   // Add potential additional items to the list. Used for custom entry.
   const children = (
@@ -112,14 +96,28 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
     </Cell.Group>
   );
 
-  return (
-    <AriaInput>
-      <Cell.Section role="listbox" className={props.className}>
-        {title}
-        {props.expandable ? <Accordion expanded={expanded}>{children}</Accordion> : children}
-      </Cell.Section>
-    </AriaInput>
-  );
+  if (props.expandable?.expandable) {
+    return (
+      <AriaInput>
+        <Cell.ExpandableSection
+          role="listbox"
+          expandedInitially={false}
+          className={props.className}
+          sectionTitle={title}
+          expandableId={props.expandable.id}>
+          {children}
+        </Cell.ExpandableSection>
+      </AriaInput>
+    );
+  } else {
+    return (
+      <AriaInput>
+        <Cell.Section role="listbox" className={props.className} sectionTitle={title}>
+          {children}
+        </Cell.Section>
+      </AriaInput>
+    );
+  }
 }
 
 const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({

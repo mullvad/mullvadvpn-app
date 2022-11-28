@@ -12,21 +12,15 @@ import MullvadTypes
 import TunnelProviderMessaging
 import UIKit
 
-class CustomOverlayRenderer: MKOverlayRenderer {
-    override func draw(_ mapRect: MKMapRect, zoomScale: MKZoomScale, in context: CGContext) {
-        let drawRect = rect(for: mapRect)
-        context.setFillColor(UIColor.secondaryColor.cgColor)
-        context.fill(drawRect)
-    }
-}
-
 protocol ConnectViewControllerDelegate: AnyObject {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
 }
 
-class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver {
+class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment {
     private static let geoJSONSourceFileName = "countries.geo.json"
     private static let locationMarkerReuseIdentifier = "location"
+
+    private let interactor: ConnectInteractor
 
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -51,7 +45,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        switch TunnelManager.shared.deviceState {
+        switch interactor.deviceState {
         case .loggedIn, .revoked:
             return HeaderBarPresentation(
                 style: tunnelState.isSecured ? .secured : .unsecured,
@@ -74,10 +68,20 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
             // Avoid unnecessary animations, particularly when this property is changed from inside
             // the `viewDidLoad`.
-            let isViewVisible = self.viewIfLoaded?.window != nil
+            let isViewVisible = viewIfLoaded?.window != nil
 
             updateLocation(animated: isViewVisible)
         }
+    }
+
+    init(interactor: ConnectInteractor) {
+        self.interactor = interactor
+
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -110,15 +114,20 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             for: .touchUpInside
         )
 
-        TunnelManager.shared.addObserver(self)
-        tunnelState = TunnelManager.shared.tunnelStatus.state
+        interactor.didUpdateDeviceState = { [weak self] deviceState in
+            self?.setNeedsHeaderBarStyleAppearanceUpdate()
+        }
+
+        interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
+            self?.tunnelState = tunnelStatus.state
+        }
+
+        tunnelState = interactor.tunnelStatus.state
 
         addSubviews()
         setupMapView()
         updateLocation(animated: false)
         addNotificationController()
-
-        TunnelManager.shared.addObserver(self)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -166,31 +175,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         coordinator.animate(alongsideTransition: { _ in }, completion: { context in
             self.updateLocation(animated: context.isAnimated)
         })
-    }
-
-    // MARK: - TunnelObserver
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        // no-op
-    }
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        setNeedsHeaderBarStyleAppearanceUpdate()
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        tunnelState = tunnelStatus.state
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
-        // no-op
     }
 
     // MARK: - Private
@@ -438,15 +422,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     // MARK: - Actions
 
     @objc func handleConnect(_ sender: Any) {
-        TunnelManager.shared.startTunnel()
+        interactor.startTunnel()
     }
 
     @objc func handleDisconnect(_ sender: Any) {
-        TunnelManager.shared.stopTunnel()
+        interactor.stopTunnel()
     }
 
     @objc func handleReconnect(_ sender: Any) {
-        TunnelManager.shared.reconnectTunnel(selectNewRelay: true)
+        interactor.reconnectTunnel(selectNewRelay: true)
     }
 
     @objc func handleSelectLocation(_ sender: Any) {

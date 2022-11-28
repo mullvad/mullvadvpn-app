@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadTypes
-import Network
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 

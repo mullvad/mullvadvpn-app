@@ -7,22 +7,24 @@ import util from 'util';
 import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
-import { DaemonEvent, DeviceEvent, ISettings, TunnelState } from '../shared/daemon-rpc-types';
+import {
+  DaemonEvent,
+  DeviceEvent,
+  IRelayListWithEndpointData,
+  ISettings,
+  TunnelState,
+} from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
-import { IChangelog, IHistoryObject, ScrollPositions } from '../shared/ipc-types';
+import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { SystemNotification } from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import {
-  SHOULD_DISABLE_RESET_NAVIGATION,
-  SHOULD_FORWARD_RENDERER_LOG,
-  SHOULD_SHOW_CHANGES,
-} from './command-line-options';
+import { SHOULD_DISABLE_RESET_NAVIGATION, SHOULD_SHOW_CHANGES } from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -44,7 +46,6 @@ import NotificationController, {
 } from './notification-controller';
 import * as problemReport from './problem-report';
 import ReconnectionBackoff from './reconnection-backoff';
-import RelayList from './relay-list';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, {
   TunnelStateHandlerDelegate,
@@ -79,7 +80,6 @@ class ApplicationMain
   private notificationController = new NotificationController(this);
   private version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
   private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
-  private relayList = new RelayList();
   private userInterface?: UserInterface;
   private account: Account = new Account(this, this.daemonRpc);
   private tunnelState = new TunnelStateHandler(this);
@@ -105,7 +105,8 @@ class ApplicationMain
   private changelog?: IChangelog;
 
   private navigationHistory?: IHistoryObject;
-  private scrollPositions: ScrollPositions = {};
+
+  private relayList?: IRelayListWithEndpointData;
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -216,6 +217,22 @@ class ApplicationMain
     );
   };
 
+  public disconnectAndQuit = async () => {
+    if (this.daemonRpc.isConnected) {
+      try {
+        await this.daemonRpc.disconnectTunnel();
+        log.info('Disconnected the tunnel');
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to disconnect the tunnel: ${error.message}`);
+      }
+    } else {
+      log.info('Cannot close the tunnel because there is no active connection to daemon.');
+    }
+
+    app.quit();
+  };
+
   private addSecondInstanceEventHandler() {
     app.on('second-instance', (_event, _argv, _workingDirectory) => {
       this.userInterface?.showWindow();
@@ -251,11 +268,7 @@ class ApplicationMain
     const mainLogPath = getMainLogPath();
     const rendererLogPath = getRendererLogPath();
 
-    if (process.env.NODE_ENV === 'development') {
-      if (SHOULD_FORWARD_RENDERER_LOG) {
-        log.addInput(new IpcInput());
-      }
-    } else {
+    if (process.env.NODE_ENV === 'production') {
       this.rendererLog = new Logger();
       this.rendererLog.addInput(new IpcInput());
 
@@ -278,22 +291,6 @@ class ApplicationMain
   }
 
   private onActivate = () => this.userInterface?.showWindow();
-
-  private async disconnectAndQuit() {
-    if (this.daemonRpc.isConnected) {
-      try {
-        await this.daemonRpc.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to disconnect the tunnel: ${error.message}`);
-      }
-    } else {
-      log.info('Cannot close the tunnel because there is no active connection to daemon.');
-    }
-
-    app.quit();
-  }
 
   // This is a last try to disconnect and quit gracefully if the app quits without having received
   // the before-quit event.
@@ -523,11 +520,7 @@ class ApplicationMain
 
     // fetch relays
     try {
-      this.relayList.setRelays(
-        await this.daemonRpc.getRelayLocations(),
-        this.settings.relaySettings,
-        this.settings.bridgeState,
-      );
+      this.setRelayList(await this.daemonRpc.getRelayLocations());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch relay locations: ${error.message}`);
@@ -619,11 +612,7 @@ class ApplicationMain
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
-          this.relayList.setRelays(
-            daemonEvent.relayList,
-            this.settings.relaySettings,
-            this.settings.bridgeState,
-          );
+          IpcMainEventChannel.relays.notify?.(daemonEvent.relayList);
         } else if ('appVersionInfo' in daemonEvent) {
           this.version.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
@@ -661,10 +650,11 @@ class ApplicationMain
     if (windowsSplitTunneling) {
       void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
     }
+  }
 
-    // since settings can have the relay constraints changed, the relay
-    // list should also be updated
-    this.relayList.updateSettings(newSettings.relaySettings, newSettings.bridgeState);
+  private setRelayList(relayList: IRelayListWithEndpointData) {
+    this.relayList = relayList;
+    IpcMainEventChannel.relays.notify?.(relayList);
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {
@@ -686,10 +676,7 @@ class ApplicationMain
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       deviceState: this.account.deviceState,
-      relayListPair: this.relayList.getProcessedRelays(
-        this.settings.relaySettings,
-        this.settings.bridgeState,
-      ),
+      relayList: this.relayList,
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
       guiSettings: this.settings.gui.state,
@@ -699,7 +686,6 @@ class ApplicationMain
       changelog: this.changelog ?? [],
       forceShowChanges: SHOULD_SHOW_CHANGES,
       navigationHistory: this.navigationHistory,
-      scrollPositions: this.scrollPositions,
     }));
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
@@ -759,9 +745,6 @@ class ApplicationMain
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
-    });
-    IpcMainEventChannel.navigation.handleSetScrollPositions((scrollPositions) => {
-      this.scrollPositions = scrollPositions;
     });
 
     problemReport.registerIpcListeners();

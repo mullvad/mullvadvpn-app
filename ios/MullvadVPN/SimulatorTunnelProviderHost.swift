@@ -21,9 +21,14 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
     private let urlSession = REST.makeURLSession()
     private var proxiedRequests = [UUID: URLSessionDataTask]()
+    private let relayCacheTracker: RelayCacheTracker
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
+
+    init(relayCacheTracker: RelayCacheTracker) {
+        self.relayCacheTracker = relayCacheTracker
+    }
 
     override func startTunnel(
         options: [String: NSObject]?,
@@ -158,7 +163,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelay() throws -> RelaySelectorResult {
-        let cachedRelays = try RelayCacheTracker.shared.getCachedRelays()
+        let cachedRelays = try relayCacheTracker.getCachedRelays()
         let tunnelSettings = try SettingsManager.readSettings()
 
         return try RelaySelector.evaluate(

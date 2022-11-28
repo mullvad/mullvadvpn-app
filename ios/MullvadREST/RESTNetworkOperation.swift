@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportRegistry: TransportRegistry
+        private let transportProvider: () -> RESTTransport?
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -27,6 +27,7 @@ extension REST {
         private var retryInvalidAccessTokenError = true
 
         private let retryStrategy: RetryStrategy
+        private var retryDelayIterator: AnyIterator<Duration>
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
 
@@ -40,8 +41,9 @@ extension REST {
             completionHandler: @escaping CompletionHandler
         ) {
             addressCacheStore = configuration.addressCacheStore
-            transportRegistry = configuration.transportRegistry
+            transportProvider = configuration.transportProvider
             self.retryStrategy = retryStrategy
+            retryDelayIterator = retryStrategy.makeDelayIterator()
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
 
@@ -137,7 +139,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            guard let transport = transportRegistry.getTransport() else {
+            guard let transport = transportProvider() else {
                 logger.error("Failed to obtain transport.")
                 finish(completion: .failure(.transport(NoTransportError())))
                 return
@@ -270,22 +272,27 @@ extension REST {
                 if retryStrategy.maxRetryCount > 0 {
                     logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
-
-                let restError: REST.Error = (error as? URLError).map { .network($0) }
-                    ?? .transport(error)
-
-                finish(completion: .failure(restError))
+                finish(completion: .failure(wrapRequestError(error)))
                 return
             }
 
             // Increment retry count.
             retryCount += 1
 
-            // Retry immediatly if retry delay is set to never.
-            guard retryStrategy.retryDelay != .never else {
+            // Retry immediately if retry delay is set to never.
+            guard retryStrategy.delay != .never else {
                 startRequest()
                 return
             }
+
+            guard let waitDelay = retryDelayIterator.next() else {
+                logger.debug("Retry delay iterator failed to produce next value.")
+
+                finish(completion: .failure(wrapRequestError(error)))
+                return
+            }
+
+            logger.debug("Retry in \(waitDelay.format()).")
 
             // Create timer to delay retry.
             let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
@@ -298,10 +305,18 @@ extension REST {
                 self?.finish(completion: .cancelled)
             }
 
-            timer.schedule(wallDeadline: .now() + retryStrategy.retryDelay)
+            timer.schedule(wallDeadline: .now() + waitDelay.timeInterval)
             timer.activate()
 
             retryTimer = timer
+        }
+
+        private func wrapRequestError(_ error: Swift.Error) -> REST.Error {
+            if let error = error as? URLError {
+                return .network(error)
+            } else {
+                return .transport(error)
+            }
         }
     }
 }

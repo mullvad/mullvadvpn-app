@@ -6,19 +6,18 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadLogging
 import UIKit
 
-class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate,
-    TunnelObserver
-{
+class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
+    private let interactor: PreferencesInteractor
     private let dataSource = PreferencesDataSource()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
-    init() {
+    init(interactor: PreferencesInteractor) {
+        self.interactor = interactor
         super.init(style: .grouped)
     }
 
@@ -45,8 +44,11 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         )
         navigationItem.rightBarButtonItem = editButtonItem
 
-        TunnelManager.shared.addObserver(self)
-        dataSource.update(from: TunnelManager.shared.settings.dnsSettings)
+        interactor.dnsSettingsDidChange = { [weak self] newDNSSettings in
+            self?.dataSource.update(from: newDNSSettings)
+        }
+
+        dataSource.update(from: interactor.dnsSettings)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -68,31 +70,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     ) {
         let dnsSettings = dataModel.asDNSSettings()
 
-        TunnelManager.shared.setDNSSettings(dnsSettings)
-    }
-
-    // MARK: - TunnelObserver
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
-        // no-op
-    }
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {
-        dataSource.update(from: tunnelSettings.dnsSettings)
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        // no-op
+        interactor.setDNSSettings(dnsSettings)
     }
 }

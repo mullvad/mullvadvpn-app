@@ -1,12 +1,13 @@
 import { createRef, useCallback, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router';
 
+import SelectLocation from '../components/select-location/SelectLocationContainer';
 import LoginPage from '../containers/LoginPage';
-import SelectLocationPage from '../containers/SelectLocationPage';
 import { useAppContext } from '../context';
 import { ITransitionSpecification, transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import Account from './Account';
+import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import {
   SetupFinished,
@@ -79,7 +80,8 @@ export default function AppRouter() {
             <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
             <Route exact path={RoutePath.support} component={Support} />
             <Route exact path={RoutePath.problemReport} component={ProblemReport} />
-            <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
+            <Route exact path={RoutePath.debug} component={Debug} />
+            <Route exact path={RoutePath.selectLocation} component={SelectLocation} />
             <Route exact path={RoutePath.filter} component={Filter} />
           </Switch>
         </TransitionView>

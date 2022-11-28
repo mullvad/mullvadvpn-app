@@ -22,27 +22,58 @@ on:
             - update-version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+      inputs:
+        override_container_image:
+          description: 'Override container image'
+          type: string
+          required: false
+    # Build if master is updated to ensure up-to-date caches are available
+    push:
+      branches:
+        - master
 jobs:
-    build:
+    prepare:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                repo-token: ${{ secrets.GITHUB_TOKEN }}
+        - name: Use custom container image if specified
+          if: "${{ github.event.inputs.override_container_image != '' }}"
+          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+
+        - name: Use default container image and resolve digest
+          if: "${{ github.event.inputs.override_container_image == '' }}"
+          run: |
+            digest="$(cat ./dist-assets/android-container-image-digest.txt)"
+            echo "inner_container_image=ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:$digest" >> $GITHUB_ENV
+
+        outputs:
+          container_image: "${{ env.inner_container_image }}"
+
+    build:
+        needs: prepare
+        runs-on: ubuntu-latest
+        container:
+          image: "${{ needs.prepare.outputs.container_image }}"
+        steps:
+            # Fix for HOME path overridden by GH runners when building in containers, see:
+            # https://github.com/actions/runner/issues/863
+            - name: Fix HOME path
+              run: echo "HOME=/root" >> $GITHUB_ENV
+
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
             - name: Calculate native lib cache hash
               id: native-lib-cache-hash
               shell: bash
               run: |
                 non_android_hash="$(git grep --cached -l '' -- ':!android/' | xargs -d '\n' sha1sum | sha1sum | awk '{print $1}')"
-                echo "::set-output name=native_lib_hash::$non_android_hash"
+                echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
             - name: Cache native libraries
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               id: cache-native-libs
               with:
                 path: |
@@ -51,64 +82,22 @@ jobs:
                   ./dist-assets/api-ip-address.txt
                 key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
 
-            - name: Configure Rust
-              if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                  toolchain: stable
-                  target: x86_64-linux-android
-                  default: true
-
-            - name: Configure Go
-              if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.18.5
-
-            - name: Configure Android NDK
-              if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              id: install-android-ndk
-              uses: nttld/setup-ndk@v1
-              with:
-                  ndk-version: r20b
-
-            - name: Bind Cargo with NDK
-              if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              run: |
-                cat >> $HOME/.cargo/config << EOF
-                [target.x86_64-linux-android]
-                ar = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-                linker = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
-                EOF
-
             - name: Build native libraries
               if: steps.cache-native-libs.outputs.cache-hit != 'true'
               env:
                 RUSTFLAGS: --deny warnings
-                NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-                AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
-                CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
                 ABI: x86_64
                 TARGET: x86_64-linux-android
                 BUILD_TYPE: debug
               run: |
                 ARCHITECTURES="$ABI"
-                UNSTRIPPED_LIB_PATH="./target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+                UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
                 STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
                 NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
                 ./wireguard/build-wireguard-go.sh --android --no-docker
-                source env.sh $TARGET
                 cargo build --target $TARGET --verbose --package mullvad-jni
                 cargo run --bin relay_list > dist-assets/relays.json
                 $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
-
-            - name: Configure Android SDK
-              uses: maxim-lobanov/setup-android-tools@v1
-              with:
-                  packages: |
-                      platforms;android-30
-                      build-tools;30.0.3
-                  cache: true
 
             - name: Build Android app
               uses: burrunan/gradle-cache-action@v1
@@ -137,7 +126,7 @@ jobs:
                 execution-only-caches: true
 
             - name: Upload apks
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v3
               with:
                 name: apks
                 path: android/app/build/outputs/apk
@@ -154,14 +143,14 @@ jobs:
             fail-fast: false
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
-            - uses: actions/download-artifact@v2
+            - uses: actions/download-artifact@v3
               with:
                 name: apks
 
             - name: AVD cache
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               id: avd-cache
               with:
                 path: |

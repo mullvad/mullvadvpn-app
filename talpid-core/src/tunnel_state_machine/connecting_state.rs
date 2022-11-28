@@ -5,10 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    routing::RouteManager,
-    tunnel::{
-        self, tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata, TunnelMonitor,
-    },
+    tunnel::{self, TunnelMonitor},
 };
 use cfg_if::cfg_if;
 use futures::{
@@ -22,17 +19,16 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
+use talpid_routing::RouteManager;
+use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::{
     net::{AllowedTunnelTraffic, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
 
-#[cfg(windows)]
-use crate::routing;
-
 #[cfg(target_os = "android")]
-use crate::tunnel::tun_provider;
+use talpid_tunnel::tun_provider;
 
 use super::connected_state::TunnelEventsReceiver;
 
@@ -175,16 +171,16 @@ impl ConnectingState {
                         tunnel::Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
-                            tunnel::wireguard::Error::TunnelError(
-                                tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                            talpid_wireguard::Error::TunnelError(
+                                talpid_wireguard::TunnelError::SetupTunnelDeviceError(
                                     tun_provider::Error::PermissionDenied,
                                 ),
                             ),
                         ) => ErrorStateCause::VpnPermissionDenied,
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
-                            tunnel::wireguard::Error::TunnelError(
-                                tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                            talpid_wireguard::Error::TunnelError(
+                                talpid_wireguard::TunnelError::SetupTunnelDeviceError(
                                     tun_provider::Error::InvalidDnsServers(addresses),
                                 ),
                             ),
@@ -227,7 +223,7 @@ impl ConnectingState {
             Ok(_) => None,
             Err(error) => match error {
                 tunnel::Error::WireguardTunnelMonitoringError(
-                    tunnel::wireguard::Error::TimeoutError,
+                    talpid_wireguard::Error::TimeoutError,
                 ) => {
                     log::debug!("WireGuard tunnel timed out");
                     None
@@ -481,12 +477,12 @@ impl ConnectingState {
 
 #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
 fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
-    #[cfg(windows)]
-    use tunnel::openvpn;
-    use tunnel::wireguard::{Error, TunnelError};
+    use talpid_wireguard::{Error, TunnelError};
 
     match error {
         tunnel::Error::WireguardTunnelMonitoringError(Error::CreateObfuscatorError(_)) => true,
+
+        tunnel::Error::WireguardTunnelMonitoringError(Error::ObfuscatorError(_)) => true,
 
         tunnel::Error::WireguardTunnelMonitoringError(Error::PskNegotiationError(
             talpid_tunnel_config_client::Error::GrpcConnectError(_),
@@ -513,18 +509,18 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
         )) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
 
         #[cfg(windows)]
-        tunnel::Error::OpenVpnTunnelMonitoringError(openvpn::Error::WintunCreateAdapterError(
-            _,
-        )) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
+        tunnel::Error::OpenVpnTunnelMonitoringError(
+            talpid_openvpn::Error::WintunCreateAdapterError(_),
+        ) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
 
         _ => false,
     }
 }
 
 #[cfg(windows)]
-fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
+fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
     match error {
-        routing::Error::AddRoutesFailed(_) => true,
+        talpid_routing::Error::AddRoutesFailed(_) => true,
         _ => false,
     }
 }

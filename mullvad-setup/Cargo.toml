@@ -28,17 +28,3 @@ mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
-
-[target.'cfg(windows)'.dependencies]
-widestring = "0.5"
-
-[target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.42.0"
-features = [
-    "Win32_Foundation",
-    "Win32_Security",
-    "Win32_System_Com",
-    "Win32_System_ProcessStatus",
-    "Win32_System_Threading",
-    "Win32_UI_Shell",
-]

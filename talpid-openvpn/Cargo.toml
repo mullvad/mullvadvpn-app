@@ -1,0 +1,62 @@
+[package]
+name = "talpid-openvpn"
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+description = "Library for creating OpenVPN tunnels"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+
+[dependencies]
+bitflags = "1.2"
+async-trait = "0.1"
+atty = "0.2"
+cfg-if = "1.0"
+duct = "0.13"
+err-derive = "0.3.1"
+futures = "0.3.15"
+lazy_static = "1.0"
+log = "0.4"
+os_pipe = "0.9"
+parking_lot = "0.11"
+shell-escape = "0.1"
+talpid-routing = { path = "../talpid-routing" }
+talpid-tunnel = { path = "../talpid-tunnel" }
+talpid-types = { path = "../talpid-types" }
+uuid = { version = "0.8", features = ["v4"] }
+tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+shadowsocks-service = { version = "1.14.3", default-features = false, features = ["local", "stream-cipher"] }
+
+[target.'cfg(not(target_os="android"))'.dependencies]
+byteorder = "1"
+socket2 = { version = "0.4.2", features = ["all"] }
+parity-tokio-ipc = "0.9"
+triggered = "0.1.1"
+tonic = "0.8"
+prost = "0.11"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+which = { version = "4.0", default-features = false }
+
+[target.'cfg(windows)'.dependencies]
+widestring = "1.0"
+winreg = { version = "0.7", features = ["transactions"] }
+winapi = { version = "0.3.6", features = ["ws2def"] }
+talpid-windows-net = { path = "../talpid-windows-net" }
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.42.0"
+features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Registry",
+    "Win32_NetworkManagement_Ndis",
+]
+
+[build-dependencies]
+tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+
+
+[dev-dependencies]
+tokio = { version = "1", features = [ "test-util" ] }

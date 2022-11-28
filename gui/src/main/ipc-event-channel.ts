@@ -10,3 +10,7 @@ export let IpcMainEventChannel = createIpcMain(ipcSchema, ipcMain, undefined);
 export function changeIpcWebContents(webContents: WebContents | undefined) {
   IpcMainEventChannel = createIpcMain(ipcSchema, ipcMain, webContents);
 }
+
+export function unsetIpcWebContents() {
+  changeIpcWebContents(undefined);
+}

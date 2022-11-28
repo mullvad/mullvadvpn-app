@@ -30,7 +30,7 @@ struct AccountDataThrottling {
     let tunnelManager: TunnelManager
     private(set) var lastUpdate: Date?
 
-    init(tunnelManager: TunnelManager = .shared) {
+    init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
     }
 

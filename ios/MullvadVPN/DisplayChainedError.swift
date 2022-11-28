@@ -107,13 +107,13 @@ extension SKError: LocalizedError {
     }
 }
 
-extension AppStorePaymentManager.Error: DisplayChainedError {
+extension StorePaymentManagerError: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
         case .noAccountSet:
             return NSLocalizedString(
                 "NO_ACCOUNT_SET_ERROR",
-                tableName: "AppStorePaymentManager",
+                tableName: "StorePaymentManager",
                 value: "Internal error: account is not set.",
                 comment: ""
             )
@@ -125,7 +125,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 return String(
                     format: NSLocalizedString(
                         "INVALID_ACCOUNT_ERROR",
-                        tableName: "AppStorePaymentManager",
+                        tableName: "StorePaymentManager",
                         value: "Cannot add credit to invalid account.",
                         comment: ""
                     ), reason
@@ -136,7 +136,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 return String(
                     format: NSLocalizedString(
                         "VALIDATE_ACCOUNT_ERROR",
-                        tableName: "AppStorePaymentManager",
+                        tableName: "StorePaymentManager",
                         value: "Failed to validate account token: %@",
                         comment: ""
                     ), reason
@@ -144,10 +144,10 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             }
 
         case let .readReceipt(readReceiptError):
-            if readReceiptError is AppStoreReceiptNotFound {
+            if readReceiptError is StoreReceiptNotFound {
                 return NSLocalizedString(
                     "RECEIPT_NOT_FOUND_ERROR",
-                    tableName: "AppStorePaymentManager",
+                    tableName: "StorePaymentManager",
                     value: "AppStore receipt is not found on disk.",
                     comment: ""
                 )
@@ -155,7 +155,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 return String(
                     format: NSLocalizedString(
                         "REFRESH_RECEIPT_ERROR",
-                        tableName: "AppStorePaymentManager",
+                        tableName: "StorePaymentManager",
                         value: "Cannot refresh the AppStore receipt: %@",
                         comment: ""
                     ),
@@ -165,7 +165,7 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
                 return String(
                     format: NSLocalizedString(
                         "READ_RECEIPT_ERROR",
-                        tableName: "AppStorePaymentManager",
+                        tableName: "StorePaymentManager",
                         value: "Cannot read the AppStore receipt from disk: %@",
                         comment: ""
                     ),
@@ -177,13 +177,13 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             let reason = restError.errorChainDescription ?? ""
             let errorFormat = NSLocalizedString(
                 "SEND_RECEIPT_ERROR",
-                tableName: "AppStorePaymentManager",
+                tableName: "StorePaymentManager",
                 value: "Failed to send the receipt to server: %@",
                 comment: ""
             )
             let recoverySuggestion = NSLocalizedString(
                 "SEND_RECEIPT_RECOVERY_SUGGESTION",
-                tableName: "AppStorePaymentManager",
+                tableName: "StorePaymentManager",
                 value: "Please retry by using the \"Restore purchases\" button.",
                 comment: ""
             )

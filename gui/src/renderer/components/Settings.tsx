@@ -84,6 +84,12 @@ export default function Support() {
                     <SupportButton />
                     <AppVersionButton />
                   </Cell.Group>
+
+                  {window.env.development && (
+                    <Cell.Group>
+                      <DebugButton />
+                    </Cell.Group>
+                  )}
                 </StyledSettingsContent>
               </StyledContent>
 
@@ -237,12 +243,26 @@ function SupportButton() {
   );
 }
 
+function DebugButton() {
+  const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.debug), [history]);
+
+  return (
+    <Cell.CellNavigationButton onClick={navigate}>
+      <Cell.Label>Developer tools</Cell.Label>
+    </Cell.CellNavigationButton>
+  );
+}
+
 function QuitButton() {
   const { quit } = useAppContext();
+  const tunnelState = useSelector((state) => state.connection.status);
 
   return (
     <StyledQuitButton onClick={quit}>
-      {messages.pgettext('settings-view', 'Quit app')}
+      {tunnelState.state === 'disconnected'
+        ? messages.gettext('Quit')
+        : messages.gettext('Disconnect & quit')}
     </StyledQuitButton>
   );
 }

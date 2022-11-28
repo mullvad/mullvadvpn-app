@@ -2,7 +2,7 @@ use crate::Obfuscator;
 use async_trait::async_trait;
 use std::net::SocketAddr;
 use udp_over_tcp::{
-    udp2tcp::{ConnectError, ForwardError, Udp2Tcp as Udp2TcpImpl},
+    udp2tcp::{self, Udp2Tcp as Udp2TcpImpl},
     TcpOptions,
 };
 
@@ -19,7 +19,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Failed to create obfuscator
     #[error(display = "Failed to create obfuscator")]
-    CreateObfuscator(#[error(source)] ConnectError),
+    CreateObfuscator(#[error(source)] udp2tcp::Error),
 
     /// Failed to determine UDP socket details
     #[error(display = "Failed to determine UDP socket details")]
@@ -27,7 +27,7 @@ pub enum Error {
 
     /// Failed to run obfuscator
     #[error(display = "Failed to run obfuscator")]
-    RunObfuscator(#[error(source)] ForwardError),
+    RunObfuscator(#[error(source)] udp2tcp::Error),
 }
 
 struct Udp2Tcp {
@@ -77,6 +77,11 @@ impl Obfuscator for Udp2Tcp {
             .await
             .map_err(Error::RunObfuscator)
             .map_err(crate::Error::RunUdp2TcpObfuscator)
+    }
+
+    #[cfg(target_os = "android")]
+    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
+        self.instance.remote_tcp_fd()
     }
 }
 

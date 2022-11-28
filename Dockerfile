@@ -47,13 +47,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
 
 ENV PATH=/root/.cargo/bin:$PATH
-
-RUN echo '[target.aarch64-unknown-linux-gnu]\n\
-linker = "aarch64-linux-gnu-gcc"\n\
-\n\
-[target.aarch64-unknown-linux-gnu.dbus]\n\
-rustc-link-search = ["/usr/aarch64-linux-gnu/lib"]\n\
-rustc-link-lib = ["dbus-1"]' > /root/.cargo/config.toml
+ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
+    PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
 
 # === Volta for npm + node ===
 

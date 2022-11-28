@@ -17,11 +17,13 @@ import UIKit
 import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,
+    StorePaymentManagerDelegate
+{
     private var logger: Logger!
 
     #if targetEnvironment(simulator)
-    private let simulatorTunnelProvider = SimulatorTunnelProviderHost()
+    private var simulatorTunnelProviderHost: SimulatorTunnelProviderHost?
     #endif
 
     private let operationQueue: AsyncOperationQueue = {
@@ -30,7 +32,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return operationQueue
     }()
 
-    private let transportMonitor = TransportMonitor()
+    private(set) var tunnelManager: TunnelManager!
+    private(set) var addressCache: REST.AddressCache!
+
+    private var proxyFactory: REST.ProxyFactory!
+    private(set) var apiProxy: REST.APIProxy!
+    private(set) var accountsProxy: REST.AccountsProxy!
+    private(set) var devicesProxy: REST.DevicesProxy!
+
+    private(set) var addressCacheTracker: AddressCacheTracker!
+    private(set) var relayCacheTracker: RelayCacheTracker!
+    private(set) var storePaymentManager: StorePaymentManager!
+    private var transportMonitor: TransportMonitor!
 
     // MARK: - Application lifecycle
 
@@ -45,32 +58,100 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         logger = Logger(label: "AppDelegate")
 
+        addressCache = REST.AddressCache(
+            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
+            isReadOnly: false
+        )!
+
+        proxyFactory = REST.ProxyFactory.makeProxyFactory(
+            transportProvider: { [weak self] in
+                return self?.transportMonitor.transport
+            },
+            addressCache: addressCache
+        )
+
+        apiProxy = proxyFactory.createAPIProxy()
+        accountsProxy = proxyFactory.createAccountsProxy()
+        devicesProxy = proxyFactory.createDevicesProxy()
+
+        relayCacheTracker = RelayCacheTracker(application: application, apiProxy: apiProxy)
+        addressCacheTracker = AddressCacheTracker(
+            application: application,
+            apiProxy: apiProxy,
+            store: addressCache
+        )
+
+        tunnelManager = TunnelManager(
+            application: application,
+            relayCacheTracker: relayCacheTracker,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy
+        )
+
+        storePaymentManager = StorePaymentManager(
+            application: application,
+            queue: .default(),
+            apiProxy: apiProxy,
+            accountsProxy: accountsProxy
+        )
+
+        transportMonitor = TransportMonitor(tunnelManager: tunnelManager)
+
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
-        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
+        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+            relayCacheTracker: relayCacheTracker
+        )
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
 
         registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
+        addApplicationNotifications(application: application)
 
-        let setupTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            TunnelManager.shared.loadConfiguration { error in
-                // TODO: avoid throwing fatal error and show the problem report UI instead.
-                if let error = error {
-                    fatalError(error.localizedDescription)
+        let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            SettingsManager.migrateStore(with: self.proxyFactory) { error in
+                guard let error = error else {
+                    operation.finish()
+                    return
                 }
 
-                self.logger.debug("Finished initialization.")
+                guard let migrationUIHandler = application.connectedScenes.compactMap({ scene in
+                    return scene.delegate as? SettingsMigrationUIHandler
+                }).first else {
+                    operation.finish()
+                    return
+                }
 
-                NotificationManager.shared.updateNotifications()
-                AppStorePaymentManager.shared.startPaymentQueueMonitoring()
-
-                operation.finish()
+                migrationUIHandler.showMigrationError(error) {
+                    operation.finish()
+                }
             }
         }
 
-        operationQueue.addOperation(setupTunnelManagerOperation)
+        let loadTunnelConfigurationOperation =
+            AsyncBlockOperation(dispatchQueue: .main) { operation in
+                self.tunnelManager.loadConfiguration { error in
+                    // TODO: avoid throwing fatal error and show the problem report UI instead.
+                    if let error = error {
+                        fatalError(error.localizedDescription)
+                    }
+
+                    self.logger.debug("Finished initialization.")
+
+                    NotificationManager.shared.updateNotifications()
+                    self.storePaymentManager.startPaymentQueueMonitoring()
+
+                    operation.finish()
+                }
+            }
+        loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
+
+        operationQueue.addOperations(
+            [migrateSettingsOperation, loadTunnelConfigurationOperation],
+            waitUntilFinished: false
+        )
 
         return true
     }
@@ -78,11 +159,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
         switch intent {
         case is StartVPNIntent:
-            return StartVPNIntentHandler()
+            return StartVPNIntentHandler(tunnelManager: tunnelManager)
         case is StopVPNIntent:
-            return StopVPNIntentHandler()
+            return StopVPNIntentHandler(tunnelManager: tunnelManager)
         case is ReconnectVPNIntent:
-            return ReconnectVPNIntentHandler()
+            return ReconnectVPNIntentHandler(tunnelManager: tunnelManager)
         default:
             return nil
         }
@@ -95,8 +176,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         configurationForConnecting connectingSceneSession: UISceneSession,
         options: UIScene.ConnectionOptions
     ) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
         let sceneConfiguration = UISceneConfiguration(
             name: "Default Configuration",
             sessionRole: connectingSceneSession.role
@@ -109,12 +188,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
-    ) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running,
-        // this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to
-        // the discarded scenes, as they will not return.
+    ) {}
+
+    // MARK: - Notifications
+
+    @objc private func didBecomeActive(_ notification: Notification) {
+        tunnelManager.refreshTunnelStatus()
+        tunnelManager.startPeriodicPrivateKeyRotation()
+        relayCacheTracker.startPeriodicUpdates()
+        addressCacheTracker.startPeriodicUpdates()
+    }
+
+    @objc private func willResignActive(_ notification: Notification) {
+        tunnelManager.stopPeriodicPrivateKeyRotation()
+        relayCacheTracker.stopPeriodicUpdates()
+        addressCacheTracker.stopPeriodicUpdates()
+    }
+
+    @objc private func didEnterBackground(_ notification: Notification) {
+        scheduleBackgroundTasks()
     }
 
     // MARK: - Background tasks
@@ -130,7 +222,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
             using: nil
         ) { task in
-            let handle = RelayCacheTracker.shared.updateRelays { completion in
+            let handle = self.relayCacheTracker.updateRelays { completion in
                 task.setTaskCompleted(success: completion.isSuccess)
             }
 
@@ -153,7 +245,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
             using: nil
         ) { task in
-            let handle = TunnelManager.shared.rotatePrivateKey(forceRotate: false) { completion in
+            let handle = self.tunnelManager.rotatePrivateKey(forceRotate: false) { completion in
                 self.scheduleKeyRotationTask()
 
                 task.setTaskCompleted(success: completion.isSuccess)
@@ -176,7 +268,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
             using: nil
         ) { task in
-            let handle = AddressCacheTracker.shared.updateEndpoints { completion in
+            let handle = self.addressCacheTracker.updateEndpoints { completion in
                 self.scheduleAddressCacheUpdateTask()
 
                 task.setTaskCompleted(success: completion.isSuccess)
@@ -194,7 +286,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
-    func scheduleBackgroundTasks() {
+    private func scheduleBackgroundTasks() {
         scheduleAppRefreshTask()
         scheduleKeyRotationTask()
         scheduleAddressCacheUpdateTask()
@@ -202,7 +294,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func scheduleAppRefreshTask() {
         do {
-            let date = RelayCacheTracker.shared.getNextUpdateDate()
+            let date = relayCacheTracker.getNextUpdateDate()
 
             let request = BGAppRefreshTaskRequest(
                 identifier: ApplicationConfiguration.appRefreshTaskIdentifier
@@ -222,7 +314,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func scheduleKeyRotationTask() {
         do {
-            guard let date = TunnelManager.shared.getNextKeyRotationDate() else {
+            guard let date = tunnelManager.getNextKeyRotationDate() else {
                 return
             }
 
@@ -245,7 +337,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func scheduleAddressCacheUpdateTask() {
         do {
-            let date = AddressCacheTracker.shared.nextScheduleDate()
+            let date = addressCacheTracker.nextScheduleDate()
 
             let request = BGProcessingTaskRequest(
                 identifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier
@@ -266,37 +358,56 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Private
 
+    private func addApplicationNotifications(application: UIApplication) {
+        let notificationCenter = NotificationCenter.default
+
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(didBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification,
+            object: application
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(willResignActive(_:)),
+            name: UIApplication.willResignActiveNotification,
+            object: application
+        )
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(didEnterBackground(_:)),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: application
+        )
+    }
+
     private func setupPaymentHandler() {
-        AppStorePaymentManager.shared.delegate = self
-        AppStorePaymentManager.shared.addPaymentObserver(TunnelManager.shared)
+        storePaymentManager.delegate = self
+        storePaymentManager.addPaymentObserver(tunnelManager)
     }
 
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
-            AccountExpiryNotificationProvider(),
-            TunnelStatusNotificationProvider(),
+            AccountExpiryNotificationProvider(tunnelManager: tunnelManager),
+            TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
         ]
         UNUserNotificationCenter.current().delegate = self
     }
-}
 
-// MARK: - AppStorePaymentManagerDelegate
+    // MARK: - StorePaymentManagerDelegate
 
-extension AppDelegate: AppStorePaymentManagerDelegate {
-    func appStorePaymentManager(
-        _ manager: AppStorePaymentManager,
+    func storePaymentManager(
+        _ manager: StorePaymentManager,
         didRequestAccountTokenFor payment: SKPayment
     ) -> String? {
         // Since we do not persist the relation between payment and account number between the
         // app launches, we assume that all successful purchases belong to the active account
         // number.
-        return TunnelManager.shared.deviceState.accountData?.number
+        return tunnelManager.deviceState.accountData?.number
     }
-}
 
-// MARK: - UNUserNotificationCenterDelegate
+    // MARK: - UNUserNotificationCenterDelegate
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,

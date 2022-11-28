@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -61,7 +60,7 @@ class AdvancedFragment : BaseFragment() {
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
 
-    val sharedCustomDnsInstance = serviceConnectionManager.connectionState
+    val shared = serviceConnectionManager.connectionState
         .flatMapLatest { state ->
             if (state is ServiceConnectionState.ConnectedReady) {
                 flowOf(state.container)
@@ -98,12 +97,9 @@ class AdvancedFragment : BaseFragment() {
                 }
 
                 launch {
-                    sharedCustomDnsInstance
-                        .flatMapLatest { customDnsInstance ->
-                            callbackFlowFromNotifier(customDnsInstance.onEnabledChanged)
-                                .onStart {
-                                    emit(customDnsInstance.isCustomDnsEnabled())
-                                }
+                    shared
+                        .flatMapLatest {
+                            callbackFlowFromNotifier(it.onEnabledChanged)
                         }
                         .collect { isEnabled ->
                             customDnsAdapter?.updateState(isEnabled)
@@ -118,7 +114,7 @@ class AdvancedFragment : BaseFragment() {
                 }
 
                 launch {
-                    sharedCustomDnsInstance
+                    shared
                         .flatMapLatest {
                             callbackFlowFromNotifier(it.onDnsServersChanged)
                         }
@@ -214,6 +210,14 @@ class AdvancedFragment : BaseFragment() {
         }
 
         customDnsToggle = view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {
+            state = serviceConnectionManager.customDns().let { customDns ->
+                if (customDns?.isCustomDnsEnabled() == true) {
+                    CellSwitch.State.ON
+                } else {
+                    CellSwitch.State.OFF
+                }
+            }
+
             listener = { state ->
                 jobTracker.newBackgroundJob("toggleCustomDns") {
                     if (state == CellSwitch.State.ON) {

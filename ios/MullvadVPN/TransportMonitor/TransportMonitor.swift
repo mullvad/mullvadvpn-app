@@ -10,11 +10,27 @@ import Foundation
 import MullvadREST
 
 class TransportMonitor: TunnelObserver {
-    private let packetTunnelTransport = PacketTunnelTransport()
-    private let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
+    private let tunnelManager: TunnelManager
+    private let packetTunnelTransport: PacketTunnelTransport
+    private let urlSessionTransport: REST.URLSessionTransport
 
-    init() {
-        TunnelManager.shared.addObserver(self)
+    private let nslock = NSLock()
+    private var _transport: RESTTransport?
+
+    var transport: RESTTransport? {
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        return _transport
+    }
+
+    init(tunnelManager: TunnelManager) {
+        self.tunnelManager = tunnelManager
+
+        packetTunnelTransport = PacketTunnelTransport(tunnelManager: tunnelManager)
+        urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
+
+        tunnelManager.addObserver(self)
 
         setTransports()
     }
@@ -43,11 +59,12 @@ class TransportMonitor: TunnelObserver {
     // MARK: - Private
 
     private func setTransports() {
-        REST.TransportRegistry.shared.setTransport(
-            stateUpdated(
-                tunnelState: TunnelManager.shared.tunnelStatus.state,
-                deviceState: TunnelManager.shared.deviceState
-            )
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        _transport = stateUpdated(
+            tunnelState: tunnelManager.tunnelStatus.state,
+            deviceState: tunnelManager.deviceState
         )
     }
 

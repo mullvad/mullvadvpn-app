@@ -692,6 +692,11 @@ where
             exclusion_gid,
             #[cfg(target_os = "android")]
             android_context,
+            #[cfg(target_os = "linux")]
+            tunnel_state_machine::LinuxNetworkingIdentifiers {
+                fwmark: mullvad_types::TUNNEL_FWMARK,
+                table_id: mullvad_types::TUNNEL_TABLE_ID,
+            },
         )
         .await
         .map_err(Error::TunnelError)?;

@@ -31,8 +31,6 @@ import {
   StyledCellButton,
   StyledCellLabel,
   StyledCellWarningIcon,
-  StyledClearButton,
-  StyledClearIcon,
   StyledContent,
   StyledHeaderTitle,
   StyledHeaderTitleContainer,
@@ -43,9 +41,7 @@ import {
   StyledNoResult,
   StyledNoResultText,
   StyledPageCover,
-  StyledSearchContainer,
-  StyledSearchIcon,
-  StyledSearchInput,
+  StyledSearchBar,
   StyledSpinnerRow,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
@@ -176,7 +172,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
         </HeaderSubTitle>
       </SettingsHeader>
 
-      <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
       <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
 
       <StyledBrowseButton onClick={launchWithFilePicker}>
@@ -410,6 +406,16 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     splitTunnelingEnabled &&
     (!filteredNonSplitApplications || filteredNonSplitApplications.length > 0);
 
+  const excludedTitle = (
+    <Cell.SectionTitle>
+      {messages.pgettext('split-tunneling-view', 'Excluded apps')}
+    </Cell.SectionTitle>
+  );
+
+  const allTitle = (
+    <Cell.SectionTitle>{messages.pgettext('split-tunneling-view', 'All apps')}</Cell.SectionTitle>
+  );
+
   return (
     <>
       <SettingsHeader>
@@ -425,13 +431,12 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
         </HeaderSubTitle>
       </SettingsHeader>
 
-      {splitTunnelingEnabled && <SearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />}
+      {splitTunnelingEnabled && (
+        <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
+      )}
 
       <Accordion expanded={showSplitSection}>
-        <Cell.Section>
-          <Cell.SectionTitle>
-            {messages.pgettext('split-tunneling-view', 'Excluded apps')}
-          </Cell.SectionTitle>
+        <Cell.Section sectionTitle={excludedTitle}>
           <ApplicationList
             applications={filteredSplitApplications}
             rowRenderer={excludedRowRenderer}
@@ -440,10 +445,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
       </Accordion>
 
       <Accordion expanded={showNonSplitSection}>
-        <Cell.Section>
-          <Cell.SectionTitle>
-            {messages.pgettext('split-tunneling-view', 'All apps')}
-          </Cell.SectionTitle>
+        <Cell.Section sectionTitle={allTitle}>
           <ApplicationList
             applications={filteredNonSplitApplications}
             rowRenderer={includedRowRenderer}
@@ -455,15 +457,10 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
         <StyledNoResult>
           <StyledNoResultText>
             {formatHtml(
-              sprintf(
-                messages.pgettext('split-tunneling-view', 'No result for <b>%(searchTerm)s</b>.'),
-                { searchTerm },
-              ),
+              sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
             )}
           </StyledNoResultText>
-          <StyledNoResultText>
-            {messages.pgettext('split-tunneling-view', 'Try a different search.')}
-          </StyledNoResultText>
+          <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
         </StyledNoResult>
       )}
 
@@ -559,45 +556,6 @@ function WindowsApplicationRow(props: IWindowsApplicationRowProps) {
         />
       )}
     </Cell.CellButton>
-  );
-}
-
-interface ISearchBarProps {
-  searchTerm: string;
-  onSearch: (searchTerm: string) => void;
-}
-
-function SearchBar(props: ISearchBarProps) {
-  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
-
-  const onInput = useCallback(
-    (event: React.FormEvent) => {
-      const element = event.target as HTMLInputElement;
-      props.onSearch(element.value);
-    },
-    [props.onSearch],
-  );
-
-  const onClear = useCallback(() => {
-    props.onSearch('');
-    inputRef.current?.blur();
-  }, [props.onSearch]);
-
-  return (
-    <StyledSearchContainer>
-      <StyledSearchInput
-        ref={inputRef}
-        value={props.searchTerm}
-        onInput={onInput}
-        placeholder={messages.pgettext('split-tunneling-view', 'Filter...')}
-      />
-      <StyledSearchIcon source="icon-filter" width={24} tintColor={colors.white60} />
-      {props.searchTerm.length > 0 && (
-        <StyledClearButton onClick={onClear}>
-          <StyledClearIcon source="icon-close" width={18} tintColor={colors.white40} />
-        </StyledClearButton>
-      )}
-    </StyledSearchContainer>
   );
 }
 

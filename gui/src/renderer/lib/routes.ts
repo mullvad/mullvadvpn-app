@@ -22,6 +22,7 @@ export enum RoutePath {
   splitTunneling = '/settings/split-tunneling',
   support = '/settings/support',
   problemReport = '/settings/support/problem-report',
+  debug = '/settings/debug',
   selectLocation = '/select-location',
   filter = '/select-location/filter',
 }

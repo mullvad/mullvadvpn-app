@@ -1,6 +1,6 @@
-#[cfg(target_os = "linux")]
-use crate::routing::RouteManagerHandle;
 use std::net::IpAddr;
+#[cfg(target_os = "linux")]
+use talpid_routing::RouteManagerHandle;
 
 #[cfg(target_os = "macos")]
 use {

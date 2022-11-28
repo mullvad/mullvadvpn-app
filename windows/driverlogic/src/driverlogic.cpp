@@ -186,9 +186,17 @@ ReturnCode CommandWintunDeleteAbandonedDevice(const std::vector<std::wstring> &a
 	{
 		static wchar_t WintunMullvadAdapter[] = L"{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}";
 
-		auto candidateAdapterGuid = GetDeviceNetCfgInstanceId(deviceInfoSet, deviceInfo);
+		try
+		{
+			auto candidateAdapterGuid = GetDeviceNetCfgInstanceId(deviceInfoSet, deviceInfo);
 
-		return 0 == _wcsicmp(candidateAdapterGuid.c_str(), WintunMullvadAdapter);
+			return 0 == _wcsicmp(candidateAdapterGuid.c_str(), WintunMullvadAdapter);
+		}
+		catch (...)
+		{
+			// Skip adapters for which we cannot obtain NetCfgInstanceId.
+			return false;
+		}
 	});
 
 	EnumeratedDevice device;

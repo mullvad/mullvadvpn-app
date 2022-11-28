@@ -1,7 +1,7 @@
 import { Action, History as OriginalHistory, Location, LocationDescriptorObject } from 'history';
 import { useHistory as useReactRouterHistory } from 'react-router';
 
-import { IHistoryObject } from '../../shared/ipc-types';
+import { IHistoryObject, LocationState } from '../../shared/ipc-types';
 import { GeneratedRoutePath, RoutePath } from './routes';
 
 export interface ITransitionSpecification {
@@ -39,25 +39,21 @@ export const transitions: ITransitionMap = {
   },
 };
 
-type LocationDescriptor<S> = RoutePath | GeneratedRoutePath | LocationDescriptorObject<S>;
+type LocationDescriptor = RoutePath | GeneratedRoutePath | LocationDescriptorObject<LocationState>;
 
-type LocationListener<S = unknown> = (
-  location: Location<S>,
+type LocationListener = (
+  location: Location<LocationState>,
   action: Action,
   transition: ITransitionSpecification,
 ) => void;
 
-// It currently isn't possible to implement this correctly with support for a generic state. State
-// can be added as a generic type (<S = unknown>) after this issue has been resolved:
-// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/49060
-type S = unknown;
 export default class History {
-  private listeners: LocationListener<S>[] = [];
-  private entries: Location<S>[];
+  private listeners: LocationListener[] = [];
+  private entries: Location<LocationState>[];
   private index = 0;
   private lastAction: Action = 'POP';
 
-  public constructor(location: LocationDescriptor<S>, state?: S) {
+  public constructor(location: LocationDescriptor, state?: LocationState) {
     this.entries = [this.createLocation(location, state)];
   }
 
@@ -70,7 +66,7 @@ export default class History {
     return history;
   }
 
-  public get location(): Location<S> {
+  public get location(): Location<LocationState> {
     return this.entries[this.index];
   }
 
@@ -82,7 +78,7 @@ export default class History {
     return this.lastAction;
   }
 
-  public push = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+  public push = (nextLocation: LocationDescriptor, nextState?: LocationState) => {
     this.pushImpl(nextLocation, nextState);
     this.notify(transitions.push);
   };
@@ -93,7 +89,7 @@ export default class History {
     }
   };
 
-  public show = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+  public show = (nextLocation: LocationDescriptor, nextState?: LocationState) => {
     this.pushImpl(nextLocation, nextState);
     this.notify(transitions.show);
   };
@@ -105,9 +101,9 @@ export default class History {
   };
 
   public reset = (
-    nextLocation: LocationDescriptor<S>,
+    nextLocation: LocationDescriptor,
     transition?: ITransitionSpecification,
-    nextState?: S,
+    nextState?: LocationState,
   ) => {
     const location = this.createLocation(nextLocation, nextState);
     this.lastAction = 'REPLACE';
@@ -117,7 +113,7 @@ export default class History {
     this.notify(transition ?? transitions.none);
   };
 
-  public listen(callback: LocationListener<S>) {
+  public listen(callback: LocationListener) {
     this.listeners.push(callback);
     return () => (this.listeners = this.listeners.filter((listener) => listener !== callback));
   }
@@ -162,7 +158,7 @@ export default class History {
     throw Error('Not implemented');
   }
 
-  private pushImpl(nextLocation: LocationDescriptor<S>, nextState?: S) {
+  private pushImpl(nextLocation: LocationDescriptor, nextState?: LocationState) {
     const location = this.createLocation(nextLocation, nextState);
     this.lastAction = 'PUSH';
     this.index += 1;
@@ -185,7 +181,10 @@ export default class History {
     this.listeners.forEach((listener) => listener(this.location, this.action, transition));
   }
 
-  private createLocation(location: LocationDescriptor<S>, state?: S): Location<S> {
+  private createLocation(
+    location: LocationDescriptor,
+    state?: LocationState,
+  ): Location<LocationState> {
     if (typeof location === 'string') {
       return this.createLocationFromString(location, state);
     } else if ('routePath' in location) {
@@ -195,18 +194,18 @@ export default class History {
         pathname: location.pathname ?? this.location.pathname,
         search: location.search ?? '',
         hash: location.hash ?? '',
-        state: location.state,
+        state: location.state ?? { scrollPosition: [0, 0], expandedSections: {} },
         key: location.key ?? this.getRandomKey(),
       };
     }
   }
 
-  private createLocationFromString(path: string, state?: S): Location<S> {
+  private createLocationFromString(path: string, state?: LocationState): Location<LocationState> {
     return {
       pathname: path,
       search: '',
       hash: '',
-      state,
+      state: state ?? { scrollPosition: [0, 0], expandedSections: {} },
       key: this.getRandomKey(),
     };
   }
@@ -217,5 +216,5 @@ export default class History {
 }
 
 export function useHistory(): History {
-  return useReactRouterHistory() as History;
+  return useReactRouterHistory<LocationState>() as History;
 }
