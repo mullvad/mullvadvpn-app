@@ -54,6 +54,10 @@ final class TunnelMonitor: PingerDelegate {
         /// Initialized and doing nothing.
         case stopped
 
+        /// Preparing to start.
+        /// Intermediate state before recieving the first path update.
+        case pendingStart
+
         /// Establishing connection.
         case connecting
 
@@ -167,7 +171,7 @@ final class TunnelMonitor: PingerDelegate {
                     return maxEstablishTimeout
                 }
 
-            case .connected, .waitingConnectivity, .stopped:
+            case .pendingStart, .connected, .waitingConnectivity, .stopped:
                 return pingTimeout
             }
         }
@@ -305,6 +309,7 @@ final class TunnelMonitor: PingerDelegate {
         }
 
         self.probeAddress = probeAddress
+        state.connectionState = .pendingStart
 
         let pathMonitor = NWPathMonitor()
         pathMonitor.pathUpdateHandler = { [weak self] path in
@@ -312,16 +317,6 @@ final class TunnelMonitor: PingerDelegate {
         }
         pathMonitor.start(queue: internalQueue)
         self.pathMonitor = pathMonitor
-
-        if isNetworkPathReachable(pathMonitor.currentPath) {
-            logger.debug("Start monitoring connection.")
-
-            startMonitoring()
-        } else {
-            logger.debug("Wait for network to become reachable before starting monitoring.")
-
-            state.connectionState = .waitingConnectivity
-        }
     }
 
     private func stopNoQueue(forRestart: Bool = false) {
@@ -423,7 +418,7 @@ final class TunnelMonitor: PingerDelegate {
                 case .connecting, .connected:
                     self.startConnectivityCheckTimer()
 
-                case .stopped, .waitingConnectivity:
+                case .pendingStart, .stopped, .waitingConnectivity:
                     break
                 }
             }
@@ -445,9 +440,18 @@ final class TunnelMonitor: PingerDelegate {
         let isReachable = isNetworkPathReachable(networkPath)
 
         switch (isReachable, state.connectionState) {
+        case (true, .pendingStart):
+            logger.debug("Start monitoring connection.")
+            startMonitoring()
+            sendDelegateNetworkStatusChange(isReachable)
+
+        case (false, .pendingStart):
+            logger.debug("Wait for network to become reachable before starting monitoring.")
+            state.connectionState = .waitingConnectivity
+            sendDelegateNetworkStatusChange(isReachable)
+
         case (true, .waitingConnectivity):
             logger.debug("Network is reachable. Resume monitoring.")
-
             startMonitoring()
             sendDelegateNetworkStatusChange(isReachable)
 
@@ -552,7 +556,7 @@ final class TunnelMonitor: PingerDelegate {
         case .connecting, .connected:
             startConnectivityCheckTimer()
 
-        case .stopped, .waitingConnectivity:
+        case .pendingStart, .stopped, .waitingConnectivity:
             break
         }
     }
@@ -564,7 +568,7 @@ final class TunnelMonitor: PingerDelegate {
         case .connecting, .connected:
             stopConnectivityCheckTimer()
 
-        case .stopped, .waitingConnectivity:
+        case .pendingStart, .stopped, .waitingConnectivity:
             break
         }
     }
