@@ -86,7 +86,7 @@ const config = {
     icon: distAssets('icon-macos.icns'),
     extendInfo: {
       LSUIElement: true,
-      NSUserNotificationAlertStyle: 'alert',
+      NSUserNotificationAlertStyle: 'banner',
     },
     extraResources: [
       { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad')), to: '.' },
