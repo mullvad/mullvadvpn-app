@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { messages, relayLocations } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
+import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
@@ -133,8 +133,8 @@ export default function Connect() {
   }, [mapCenter, showMarkerOrSpinner, markerStyle, zoomLevel]);
 
   const onSelectLocation = useCallback(() => {
-    history.show(RoutePath.selectLocation);
-  }, [history.show]);
+    history.push(RoutePath.selectLocation, { transition: transitions.show });
+  }, [history.push]);
 
   const selectedRelayName = useMemo(() => getRelayName(relaySettings, relayLocations), [
     relaySettings,

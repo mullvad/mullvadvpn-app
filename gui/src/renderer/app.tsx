@@ -182,9 +182,7 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
     });
 
-    IpcRendererEventChannel.navigation.listenReset(() =>
-      this.history.dismiss(true, transitions.none),
-    );
+    IpcRendererEventChannel.navigation.listenReset(() => this.history.pop(true));
 
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
@@ -342,7 +340,7 @@ export default class AppRenderer {
           actions.account.loginTooManyDevices(error);
           this.loginState = 'too many devices';
 
-          this.history.reset(RoutePath.tooManyDevices, transitions.push);
+          this.history.reset(RoutePath.tooManyDevices, { transition: transitions.push });
         } catch (e) {
           const error = e as Error;
           log.error('Failed to fetch device list');
@@ -362,7 +360,7 @@ export default class AppRenderer {
 
   public logout = async (transition = transitions.dismiss) => {
     try {
-      this.history.reset(RoutePath.login, transition);
+      this.history.reset(RoutePath.login, { transition });
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
       const error = e as Error;
@@ -651,7 +649,7 @@ export default class AppRenderer {
 
         const transition =
           navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
-        this.history.reset(nextPath, transition);
+        this.history.reset(nextPath, { transition });
       }
     }
   }

@@ -27,7 +27,7 @@ export function useOnSelectExitLocation() {
         throw new Error('relayLocation should never be undefiend');
       }
 
-      history.dismiss();
+      history.pop();
       const relayUpdate = RelaySettingsBuilder.normal()
         .location.fromRaw(relayLocation.value)
         .build();
