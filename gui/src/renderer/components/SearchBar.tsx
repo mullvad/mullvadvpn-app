@@ -89,7 +89,7 @@ export default function SearchBar(props: ISearchBarProps) {
 
   useEffect(() => {
     if (!props.disableAutoFocus) {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     }
   }, []);
 
