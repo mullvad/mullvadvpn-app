@@ -13,14 +13,27 @@ public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
     case wireguard(error: String)
 
     /// Failure that indicates settings need migration.
-    case settingsMigration
+    case readConfiguration
 
     public var errorDescription: String? {
         switch self {
         case let .wireguard(error):
             return error
-        case .settingsMigration:
+        case .readConfiguration:
             return "Failure to read settings."
+        }
+    }
+
+    public static func == (lhs: PacketTunnelErrorWrapper, rhs: PacketTunnelErrorWrapper) -> Bool {
+        switch (lhs, rhs) {
+        case (.readConfiguration, .readConfiguration):
+            return true
+
+        case let (.wireguard(error: lhsError), .wireguard(error: rhsError)):
+            return lhsError == rhsError
+
+        default:
+            return false
         }
     }
 }
