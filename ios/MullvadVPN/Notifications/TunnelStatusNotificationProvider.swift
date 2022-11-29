@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider,
     TunnelObserver
@@ -42,8 +43,13 @@ class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationP
 
     private func handleTunnelStatus(_ tunnelStatus: TunnelStatus) {
         let invalidateForTunnelError = updateLastTunnelError(
-            tunnelStatus.packetTunnelStatus
-                .lastError?.localizedDescription
+            tunnelStatus.packetTunnelStatus.lastErrors.first(where: {
+                if case .wireguard = $0 {
+                    return true
+                }
+
+                return false
+            })?.localizedDescription
         )
         let invalidateForManagerError = updateTunnelManagerError(tunnelStatus.state)
         let invalidateForConnectivity = updateConnectivity(tunnelStatus.state)
