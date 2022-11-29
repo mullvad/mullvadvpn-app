@@ -11,6 +11,8 @@ on:
             - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
             - android/gradle/verification-metadata.xml
             - android/gradle/wrapper/gradle-wrapper.properties
+            - build-containers/mullvad-app-container-signing.asc
+            - build-containers/build-and-publish.sh
     workflow_dispatch:
 jobs:
     verify-signatures:
