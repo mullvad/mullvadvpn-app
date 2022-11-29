@@ -205,8 +205,8 @@ pub type MonitorHandle = BroadcastListener;
 pub async fn spawn_monitor(
     sender: UnboundedSender<bool>,
     route_manager_handle: RouteManagerHandle,
-    power_mgmt_rx: PowerManagementListener,
 ) -> Result<MonitorHandle, Error> {
+    let power_mgmt_rx = crate::window::PowerManagementListener::new();
     BroadcastListener::start(sender, route_manager_handle, power_mgmt_rx).await
 }
 

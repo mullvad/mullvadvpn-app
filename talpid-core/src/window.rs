@@ -162,7 +162,7 @@ impl PowerManagementListener {
             if message == WM_POWERBROADCAST {
                 if let Some(event) = PowerManagementEvent::try_from_winevent(wparam) {
                     if tx.send(event).is_err() {
-                        log::debug!("Stopping power management event monitor");
+                        log::error!("Stopping power management event monitor");
                         unsafe { PostQuitMessage(0) };
                         return 0;
                     }
