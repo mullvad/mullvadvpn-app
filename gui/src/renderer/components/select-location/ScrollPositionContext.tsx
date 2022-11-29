@@ -17,6 +17,7 @@ interface ScrollPositionContext {
   spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView>;
   saveScrollPosition: () => void;
   resetScrollPositions: () => void;
+  scrollIntoView: (rect: DOMRect) => void;
 }
 
 type ScrollPosition = [number, number];
@@ -58,6 +59,10 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     }
   }, [locationType]);
 
+  const scrollIntoView = useCallback((rect: DOMRect) => {
+    scrollViewRef.current?.scrollIntoView(rect);
+  }, []);
+
   const value = useMemo(
     () => ({
       scrollPositions,
@@ -66,6 +71,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       spacePreAllocationViewRef,
       saveScrollPosition,
       resetScrollPositions,
+      scrollIntoView,
     }),
     [saveScrollPosition, resetScrollPositions],
   );
