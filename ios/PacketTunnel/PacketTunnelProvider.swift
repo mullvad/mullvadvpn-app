@@ -45,7 +45,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var numberOfFailedAttempts: UInt = 0
 
     /// Last runtime error.
-    private var lastError: PacketTunnelErrorWrapper?
+    private var lastErrors: [PacketTunnelErrorWrapper] = []
 
     /// Relay cache.
     private let relayCache = RelayCache(
@@ -87,7 +87,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
-            lastError: lastError,
+            lastErrors: lastErrors,
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
@@ -180,24 +180,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
 
             tunnelConfiguration = try makeConfiguration(initialRelay)
-
-            // Releasing last error
-            if let lastError = lastError, case .settingsMigration = lastError {
-                self.lastError = nil
-            }
-
-        } catch is DecodingError, is SettingsMigrationError {
-            lastError = .settingsMigration
-            startEmptyTunnel(completionHandler: completionHandler)
-
-            return
         } catch {
             providerLogger.error(
                 error: error,
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
-            completionHandler(error)
+            if !lastErrors.contains(.readConfiguration) {
+                lastErrors.append(.readConfiguration)
+            }
+
+            startEmptyTunnel(completionHandler: completionHandler)
             return
         }
 
@@ -253,10 +246,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                         self?.isConnected = true
                         completionHandler(nil)
                     }
-
-                    self.tunnelMonitor.start(
-                        probeAddress: IPv4Address("0.0.0.0/0")!
-                    )
                 }
             }
         }
@@ -499,7 +488,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
                 if let error = error {
-                    self.lastError = .wireguard(error: error.localizedDescription)
+                    let wrappedError: PacketTunnelErrorWrapper = .wireguard(
+                        error: error
+                            .localizedDescription
+                    )
+
+                    if let index = self.lastErrors.firstIndex(where: { $0 == wrappedError }) {
+                        self.lastErrors[index] = wrappedError
+                    } else {
+                        self.lastErrors.append(.wireguard(error: error.localizedDescription))
+                    }
                 }
 
                 if let error = error {
