@@ -1,5 +1,3 @@
-#[cfg(target_os = "windows")]
-use crate::window::PowerManagementListener;
 use futures::channel::mpsc::UnboundedSender;
 #[cfg(any(target_os = "linux", target_os = "windows"))]
 use talpid_routing::RouteManagerHandle;
@@ -47,7 +45,6 @@ pub async fn spawn_monitor(
     #[cfg(any(target_os = "linux", target_os = "windows"))] route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-    #[cfg(target_os = "windows")] power_mgmt_rx: PowerManagementListener,
 ) -> Result<MonitorHandle, Error> {
     let monitor = if !*FORCE_DISABLE_OFFLINE_MONITOR {
         Some(
@@ -59,8 +56,6 @@ pub async fn spawn_monitor(
                 fwmark,
                 #[cfg(target_os = "android")]
                 android_context,
-                #[cfg(target_os = "windows")]
-                power_mgmt_rx,
             )
             .await?,
         )
