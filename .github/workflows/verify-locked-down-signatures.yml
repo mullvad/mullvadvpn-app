@@ -13,6 +13,8 @@ on:
             - android/gradle/wrapper/gradle-wrapper.properties
             - build-containers/mullvad-app-container-signing.asc
             - build-containers/build-and-publish.sh
+            - dist-assets/desktop-container-image-tag.txt
+            - dist-assets/android-container-image-tag.txt
     workflow_dispatch:
 jobs:
     verify-signatures:
