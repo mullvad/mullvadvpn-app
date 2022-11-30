@@ -45,8 +45,8 @@ jobs:
         - name: Use default container image and resolve digest
           if: "${{ github.event.inputs.override_container_image == '' }}"
           run: |
-            digest="$(cat ./dist-assets/android-container-image-digest.txt)"
-            echo "inner_container_image=ghcr.io/mullvad/mullvadvpn-app-build-android@sha256:$digest" >> $GITHUB_ENV
+            image_tag="$(cat ./building/android-container-image-tag.txt)"
+            echo "inner_container_image=ghcr.io/mullvad/mullvadvpn-app-build-android:$image_tag" >> $GITHUB_ENV
 
         outputs:
           container_image: "${{ env.inner_container_image }}"
