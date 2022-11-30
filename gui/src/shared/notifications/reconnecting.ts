@@ -4,6 +4,7 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -20,6 +21,8 @@ export class ReconnectingNotificationProvider
     return {
       message: messages.pgettext('notifications', 'Reconnecting'),
       severity: SystemNotificationSeverityType.info,
+      category: SystemNotificationCategory.tunnelState,
+      replaceByCategory: true,
     };
   }
 

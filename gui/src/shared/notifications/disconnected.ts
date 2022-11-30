@@ -2,6 +2,7 @@ import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
 import {
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -21,6 +22,8 @@ export class DisconnectedNotificationProvider implements SystemNotificationProvi
     return {
       message: messages.pgettext('notifications', 'Disconnected and unsecure'),
       severity: SystemNotificationSeverityType.info,
+      category: SystemNotificationCategory.tunnelState,
+      replaceByCategory: true,
     };
   }
 }

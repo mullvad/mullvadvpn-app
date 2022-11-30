@@ -14,6 +14,10 @@ export enum SystemNotificationSeverityType {
   high,
 }
 
+export enum SystemNotificationCategory {
+  tunnelState,
+}
+
 interface NotificationProvider {
   mayDisplay(): boolean;
 }
@@ -21,6 +25,8 @@ interface NotificationProvider {
 export interface SystemNotification {
   message: string;
   severity: SystemNotificationSeverityType;
+  category?: SystemNotificationCategory;
+  replaceByCategory?: boolean;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
   action?: NotificationAction;
