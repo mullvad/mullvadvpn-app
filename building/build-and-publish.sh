@@ -7,6 +7,8 @@
 set -eu
 
 CONTAINER_SIGNING_KEY_FINGERPRINT=1E551687D67F5FD820BEF2C4D7C17F87A0D3D215
+REGISTRY_HOST="ghcr.io"
+REGISTRY_ORG="mullvad"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -18,13 +20,13 @@ tag="$(git rev-parse --short HEAD)"
 
 case ${1-:""} in
     linux)
-        container_name="ghcr.io/mullvad/mullvadvpn-app-build"
+        container_name="mullvadvpn-app-build"
         containerfile_path="$SCRIPT_DIR/Dockerfile"
         container_context_dir="$REPO_DIR"
         container_image_tag_path="$SCRIPT_DIR/linux-container-image-tag.txt"
     ;;
     android)
-        container_name="ghcr.io/mullvad/mullvadvpn-app-build-android"
+        container_name="mullvadvpn-app-build-android"
         containerfile_path="$REPO_DIR/android/docker/Dockerfile"
         container_context_dir="$REPO_DIR/android/docker/"
         container_image_tag_path="$SCRIPT_DIR/android-container-image-tag.txt"
@@ -33,11 +35,12 @@ case ${1-:""} in
         log_error "Invalid platform. Specify 'linux' or 'android' as first argument"
         exit 1
 esac
+full_container_name="$REGISTRY_HOST/$REGISTRY_ORG/$container_name"
 
-log_header "Building $container_name tagged as '$tag' and 'latest'"
+log_header "Building $full_container_name tagged as '$tag' and 'latest'"
 podman build -f "$containerfile_path" "$container_context_dir" --no-cache \
-    -t "$container_name:$tag" \
-    -t "$container_name:latest"
+    -t "$full_container_name:$tag" \
+    -t "$full_container_name:latest"
 
 # Temporary directory to store image digest and signature in.
 # This is a hack since two consecutive `podman push` seems
@@ -50,23 +53,23 @@ function delete_tmp_signature_dir {
 }
 trap 'delete_tmp_signature_dir' EXIT
 
-log_header "Pushing $container_name:latest"
-podman push "$container_name:latest" \
+log_header "Pushing $full_container_name:latest"
+podman push "$full_container_name:latest" \
     --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
     --digestfile "$tmp_signature_dir/digest_latest"
 
 digest=$(cat "$tmp_signature_dir/digest_latest")
 log_success "Pushed image with digest $digest"
 # Backup the signature so we can restore it after the second podman push later
-signature_dir="$SCRIPT_DIR/sigstore/mullvad/mullvadvpn-app-build@${digest/:/=}"
+signature_dir="$SCRIPT_DIR/sigstore/$REGISTRY_ORG/$container_name@${digest/:/=}"
 if [[ -f "$signature_dir/signature-2" ]]; then
     log_error "Did not expect $signature_dir/signature-2 to exist"
     exit 1
 fi
 cp "$signature_dir/signature-1" "$tmp_signature_dir/signature-2"
 
-log_header "Pushing $container_name:$tag"
-podman push "$container_name:$tag" \
+log_header "Pushing $full_container_name:$tag"
+podman push "$full_container_name:$tag" \
     --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
     --digestfile "$tmp_signature_dir/digest_$tag"
 
@@ -86,7 +89,7 @@ GPG_TTY=$(tty) git commit -S -m "Updating build container for $1 to $tag"
 
 log_success "***********************"
 log_success ""
-log_success "Done building and pushing $container_name with tags '$tag' and 'latest'"
+log_success "Done building and pushing $full_container_name with tags '$tag' and 'latest'"
 log_success "Make sure to push the changes to git"
 log_success ""
 log_success "***********************"
