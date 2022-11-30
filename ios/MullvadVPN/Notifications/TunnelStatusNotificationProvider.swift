@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadTypes
 
 class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider,
     TunnelObserver
