@@ -13,7 +13,7 @@ on:
             - android/gradle/wrapper/gradle-wrapper.properties
             - building/build-and-publish.sh
             - building/mullvad-app-container-signing.asc
-            - building/desktop-container-image-tag.txt
+            - building/linux-container-image-tag.txt
             - building/android-container-image-tag.txt
     workflow_dispatch:
 jobs:
