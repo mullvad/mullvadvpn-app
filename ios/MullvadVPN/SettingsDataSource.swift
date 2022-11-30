@@ -98,7 +98,11 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
 
         if interactor.deviceState.isLoggedIn {
             newSnapshot.appendSections([.main])
-            newSnapshot.appendItems([.account, .preferences, .shortcuts], in: .main)
+            newSnapshot.appendItems([.account, .preferences], in: .main)
+
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                newSnapshot.appendItems([.shortcuts], in: .main)
+            }
         }
 
         newSnapshot.appendSections([.version, .problemReport])

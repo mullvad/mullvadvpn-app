@@ -28,13 +28,13 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>INIntentsRestrictedWhileLocked</key>
+	<key>INIntentsRestrictedWhileLocked~iphone</key>
 	<array>
 		<string>StartVPNIntent</string>
 		<string>StopVPNIntent</string>
 		<string>ReconnectVPNIntent</string>
 	</array>
-	<key>INIntentsSupported</key>
+	<key>INIntentsSupported~iphone</key>
 	<array>
 		<string>StartVPNIntent</string>
 		<string>StopVPNIntent</string>
@@ -44,7 +44,7 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSUserActivityTypes</key>
+	<key>NSUserActivityTypes~iphone</key>
 	<array>
 		<string>StartVPNIntent</string>
 		<string>StopVPNIntent</string>
@@ -54,6 +54,11 @@
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<true/>
+	</dict>
+	<key>UIApplicationSceneManifest~ipad</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
 	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
