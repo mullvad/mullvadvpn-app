@@ -6,6 +6,7 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -42,6 +43,8 @@ export class ConnectingNotificationProvider
       return {
         message,
         severity: SystemNotificationSeverityType.low,
+        category: SystemNotificationCategory.tunnelState,
+        replaceByCategory: true,
       };
     } else {
       return undefined;

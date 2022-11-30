@@ -7,6 +7,7 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -35,6 +36,8 @@ export class BlockWhenDisconnectedNotificationProvider
     return {
       message,
       severity: SystemNotificationSeverityType.info,
+      category: SystemNotificationCategory.tunnelState,
+      replaceByCategory: true,
     };
   }
 
