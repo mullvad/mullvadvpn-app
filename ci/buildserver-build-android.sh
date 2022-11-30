@@ -59,7 +59,7 @@ build_ref() {
   git clean -df
 
   echo "Building Android app"
-  ./build-apk.sh --app-bundle || return 0
+  ./building/containerized-build.sh android --app-bundle || return 0
 
   # If there is a tag for this commit then we append that to the produced artifacts
   # A version suffix should only be created if there is a tag for this commit and it is not a release build
