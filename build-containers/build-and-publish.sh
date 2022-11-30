@@ -16,12 +16,12 @@ tag="$(git rev-parse --short HEAD)"
 case ${1-:""} in
     desktop)
         container_name="ghcr.io/mullvad/mullvadvpn-app-build:$tag"
-        containerfile_dir="."
+        container_context_dir="."
         container_image_tag_path="dist-assets/desktop-container-image-tag.txt"
     ;;
     android)
         container_name="ghcr.io/mullvad/mullvadvpn-app-build-android:$tag"
-        containerfile_dir="android/docker/"
+        container_context_dir="android/docker/"
         container_image_tag_path="dist-assets/android-container-image-tag.txt"
     ;;
     *)
@@ -30,7 +30,7 @@ case ${1-:""} in
 esac
 
 log_header "Building container $container_name"
-podman build "$containerfile_dir" -t "$container_name"
+podman build "$container_context_dir" -t "$container_name"
 
 log_header "Pushing container $container_name"
 podman push --sign-by 1E551687D67F5FD820BEF2C4D7C17F87A0D3D215 "$container_name"
