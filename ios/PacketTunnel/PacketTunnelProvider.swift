@@ -446,6 +446,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     {
         let tunnelSettings = try SettingsManager.readSettings()
         let deviceState = try SettingsManager.readDeviceState()
+
+        readConfigurationError = nil
+
         let selectorResult: RelaySelectorResult
 
         switch nextRelay {
