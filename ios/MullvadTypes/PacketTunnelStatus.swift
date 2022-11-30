@@ -42,6 +42,7 @@ public struct PacketTunnelStatus: Codable, Equatable {
 
     /// Last performed device check.
     public var deviceCheck: DeviceCheck?
+
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
