@@ -18,7 +18,7 @@
 # patch for a given go version can be identified by checking the wireguard-android
 # repo: https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go.
 # It's also important to keep the go path in sync.
-FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:b539c83c4336246fef1c324242b49b0fd35fb0839dffd2b9c9fc8361e629a40c
+FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:14a54cbfd1b432010fa5b5bb3b868e6f8f1317b3f2620aa357c4a16340af4310
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
