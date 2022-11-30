@@ -12,7 +12,7 @@ public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
     /// Failure that indicates wire guard errors.
     case wireguard(error: String)
 
-    /// Failure that indicates settings need migration.
+    /// Failure to read stored settings.
     case readConfiguration
 
     public var errorDescription: String? {
