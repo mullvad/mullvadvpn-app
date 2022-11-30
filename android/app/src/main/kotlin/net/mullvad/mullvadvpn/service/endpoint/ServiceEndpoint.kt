@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import android.os.DeadObjectException
 import android.os.Looper
+import android.os.Message
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,17 +91,12 @@ class ServiceEndpoint(
 
     internal fun sendEvent(event: Event) {
         synchronized(this) {
-            val deadListeners = mutableSetOf<Int>()
 
             for ((id, listener) in listeners) {
-                try {
-                    listener.send(event.message)
-                } catch (_: DeadObjectException) {
-                    deadListeners.add(id)
+                if (!trySendEventToListener(event.message, listener)) {
+                    listeners.remove(id)
                 }
             }
-
-            deadListeners.forEach { listeners.remove(it) }
         }
     }
 
@@ -147,8 +143,13 @@ class ServiceEndpoint(
                 initialEvents.add(Event.VpnPermissionRequest)
             }
 
+            var isSendEventsFailed = false
             initialEvents.forEach { event ->
-                listener.send(event.message)
+                isSendEventsFailed =
+                    isSendEventsFailed or !trySendEventToListener(event.message, listener)
+            }
+            if (isSendEventsFailed) {
+                listeners.remove(listenerId)
             }
         }
     }
@@ -165,5 +166,17 @@ class ServiceEndpoint(
         listenerIdCounter += 1
 
         return listenerId
+    }
+
+    private fun trySendEventToListener(
+        message: Message,
+        listener: Messenger
+    ): Boolean {
+        return try {
+            listener.send(message)
+            true
+        } catch (_: DeadObjectException) {
+            false
+        }
     }
 }
