@@ -43,7 +43,6 @@ podman build "$container_context_dir" --no-cache \
 tmp_signature_dir=$(mktemp -d)
 
 function delete_tmp_signature_dir {
-    log_info "Removing $tmp_signature_dir"
     rm -rf "$tmp_signature_dir"
 }
 trap 'delete_tmp_signature_dir' EXIT
