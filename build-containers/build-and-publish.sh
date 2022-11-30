@@ -47,7 +47,7 @@ function delete_tmp_signature_dir {
 }
 trap 'delete_tmp_signature_dir' EXIT
 
-log_header "Pushing $container_name:latest'"
+log_header "Pushing $container_name:latest"
 podman push "$container_name:latest" \
     --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
     --digestfile "$tmp_signature_dir/digest_latest"
