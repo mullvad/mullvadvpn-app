@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import android.content.Context
-import android.os.DeadObjectException
 import android.os.Looper
+import android.os.Message
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -17,7 +17,10 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.util.Intermittent
+import net.mullvad.mullvadvpn.util.trySend
 import net.mullvad.talpid.ConnectivityListener
+
+const val SHOULD_LOG_DEAD_OBJECT_EXCEPTION = true
 
 class ServiceEndpoint(
     looper: Looper,
@@ -90,17 +93,16 @@ class ServiceEndpoint(
 
     internal fun sendEvent(event: Event) {
         synchronized(this) {
-            val deadListeners = mutableSetOf<Int>()
 
             for ((id, listener) in listeners) {
-                try {
-                    listener.send(event.message)
-                } catch (_: DeadObjectException) {
-                    deadListeners.add(id)
+                if (!listener.trySend(
+                        event.message,
+                        SHOULD_LOG_DEAD_OBJECT_EXCEPTION
+                    )
+                ) {
+                    listeners.remove(id)
                 }
             }
-
-            deadListeners.forEach { listeners.remove(it) }
         }
     }
 
@@ -147,8 +149,14 @@ class ServiceEndpoint(
                 initialEvents.add(Event.VpnPermissionRequest)
             }
 
-            initialEvents.forEach { event ->
-                listener.send(event.message)
+            if (initialEvents.any { event ->
+                !listener.trySend(
+                        event.message,
+                        SHOULD_LOG_DEAD_OBJECT_EXCEPTION
+                    )
+            }
+            ) {
+                listeners.remove(listenerId)
             }
         }
     }
@@ -165,5 +173,12 @@ class ServiceEndpoint(
         listenerIdCounter += 1
 
         return listenerId
+    }
+
+    private fun trySendEventToListener(
+        message: Message,
+        listener: Messenger
+    ): Boolean {
+        return listener.trySend(message, false)
     }
 }
