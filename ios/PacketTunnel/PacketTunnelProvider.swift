@@ -45,7 +45,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var numberOfFailedAttempts: UInt = 0
 
     /// Last runtime error.
-    private var lastErrors: [PacketTunnelErrorWrapper] = []
+    private var lastError: PacketTunnelErrorWrapper?
+
+    /// Failure to read stored configurations.
+    private var readConfigurationError: PacketTunnelErrorWrapper?
 
     /// Relay cache.
     private let relayCache = RelayCache(
@@ -87,7 +90,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
-            lastErrors: lastErrors,
+            lastErrors: [lastError, readConfigurationError].compactMap { $0 },
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
@@ -186,9 +189,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
-            if !lastErrors.contains(.readConfiguration) {
-                lastErrors.append(.readConfiguration)
-            }
+            readConfigurationError = .readConfiguration
 
             startEmptyTunnel(completionHandler: completionHandler)
             return
@@ -497,11 +498,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                             .localizedDescription
                     )
 
-                    if let index = self.lastErrors.firstIndex(where: { $0 == wrappedError }) {
-                        self.lastErrors[index] = wrappedError
-                    } else {
-                        self.lastErrors.append(.wireguard(error: error.localizedDescription))
-                    }
+                    self.lastError = wrappedError
                 }
 
                 if let error = error {
