@@ -4,6 +4,7 @@ import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
 import {
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -32,6 +33,8 @@ export class ConnectedNotificationProvider implements SystemNotificationProvider
       return {
         message,
         severity: SystemNotificationSeverityType.low,
+        category: SystemNotificationCategory.tunnelState,
+        replaceByCategory: true,
       };
     } else {
       return undefined;

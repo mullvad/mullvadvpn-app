@@ -28,8 +28,8 @@ export interface NotificationControllerDelegate {
 export default class NotificationController {
   private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
   private reconnecting = false;
-  private presentedNotifications: { [key: string]: boolean } = {};
-  private pendingNotifications: Notification[] = [];
+  private previousNotifications: { [key: string]: boolean } = {};
+  private activeNotifications: Notification[] = [];
   private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
 
@@ -91,7 +91,7 @@ export default class NotificationController {
   }
 
   public cancelPendingNotifications() {
-    for (const notification of this.pendingNotifications) {
+    for (const notification of this.activeNotifications) {
       notification.close();
     }
   }
@@ -109,7 +109,7 @@ export default class NotificationController {
       this.evaluateNotification(systemNotification, isWindowVisible, areSystemNotificationsEnabled)
     ) {
       const notification = this.createNotification(systemNotification);
-      this.addPendingNotification(notification);
+      this.addActiveNotification(notification);
       notification.show();
 
       return notification;
@@ -188,19 +188,13 @@ export default class NotificationController {
     }
   }
 
-  private addPendingNotification(notification: Notification) {
-    notification.on('close', () => {
-      this.removePendingNotification(notification);
-    });
-
-    this.pendingNotifications.push(notification);
+  private addActiveNotification(notification: Notification) {
+    notification.on('close', () => this.removeActiveNotification(notification));
+    this.activeNotifications.push(notification);
   }
 
-  private removePendingNotification(notification: Notification) {
-    const index = this.pendingNotifications.indexOf(notification);
-    if (index !== -1) {
-      this.pendingNotifications.splice(index, 1);
-    }
+  private removeActiveNotification(notification: Notification) {
+    this.activeNotifications = this.activeNotifications.filter((value) => value !== notification);
   }
 
   private evaluateNotification(
@@ -223,7 +217,7 @@ export default class NotificationController {
   }
 
   private suppressDueToAlreadyPresented(notification: SystemNotification) {
-    const presented = this.presentedNotifications;
+    const presented = this.previousNotifications;
     if (notification.presentOnce?.value) {
       if (presented[notification.presentOnce.name]) {
         return true;
