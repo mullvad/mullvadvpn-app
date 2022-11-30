@@ -17,25 +17,29 @@ tag="$(git rev-parse --short HEAD)"
 
 case ${1-:""} in
     desktop)
-        container_name="ghcr.io/mullvad/mullvadvpn-app-build:$tag"
+        container_name="ghcr.io/mullvad/mullvadvpn-app-build"
         container_context_dir="."
         container_image_tag_path="dist-assets/desktop-container-image-tag.txt"
     ;;
     android)
-        container_name="ghcr.io/mullvad/mullvadvpn-app-build-android:$tag"
+        container_name="ghcr.io/mullvad/mullvadvpn-app-build-android"
         container_context_dir="android/docker/"
         container_image_tag_path="dist-assets/android-container-image-tag.txt"
     ;;
     *)
-        log_error "Invalid platform. Specify \"desktop\" or \"android\" as first argument"
+        log_error "Invalid platform. Specify 'desktop' or 'android' as first argument"
         exit 1
 esac
 
-log_header "Building container $container_name"
-podman build "$container_context_dir" -t "$container_name"
+log_header "Building container $container_name tagged as '$tag' and 'latest'"
+podman build "$container_context_dir" \
+    --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
+    -t "$container_name:$tag" \
+    -t "$container_name:latest"
 
-log_header "Pushing container $container_name"
-podman push --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT "$container_name"
+log_header "Pushing container $container_name tagged as '$tag' and 'latest'"
+podman push --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT "$container_name:$tag"
+podman push "$container_name:latest"
 
 log_info "Storing container tag to $container_image_tag_path"
 echo "$tag" > "$container_image_tag_path"
@@ -46,7 +50,7 @@ GPG_TTY=$(tty) git commit -S -m "Updating build container for $1 to $tag"
 
 log_success "***********************"
 log_success ""
-log_success "Done building and pushing $container_name"
+log_success "Done building and pushing $container_name with tags '$tag' and 'latest'"
 log_success "Make sure to push the changes to git"
 log_success ""
 log_success "***********************"
