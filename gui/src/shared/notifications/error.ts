@@ -13,6 +13,7 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -47,6 +48,8 @@ export class ErrorNotificationProvider
           this.context.tunnelState.details.blockingError === undefined
             ? SystemNotificationSeverityType.low
             : SystemNotificationSeverityType.high,
+        category: SystemNotificationCategory.tunnelState,
+        replaceByCategory: false,
       };
     } else {
       return undefined;
