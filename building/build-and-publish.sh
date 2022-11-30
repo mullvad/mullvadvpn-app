@@ -9,21 +9,24 @@ set -eu
 CONTAINER_SIGNING_KEY_FINGERPRINT=1E551687D67F5FD820BEF2C4D7C17F87A0D3D215
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR/.."
+REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+cd "$REPO_DIR"
 
-source scripts/utils/log
+source "$REPO_DIR/scripts/utils/log"
 
 tag="$(git rev-parse --short HEAD)"
 
 case ${1-:""} in
     linux)
         container_name="ghcr.io/mullvad/mullvadvpn-app-build"
-        container_context_dir="."
+        containerfile_path="$SCRIPT_DIR/Dockerfile"
+        container_context_dir="$REPO_DIR"
         container_image_tag_path="$SCRIPT_DIR/linux-container-image-tag.txt"
     ;;
     android)
         container_name="ghcr.io/mullvad/mullvadvpn-app-build-android"
-        container_context_dir="android/docker/"
+        containerfile_path="$REPO_DIR/android/docker/Dockerfile"
+        container_context_dir="$REPO_DIR/android/docker/"
         container_image_tag_path="$SCRIPT_DIR/android-container-image-tag.txt"
     ;;
     *)
@@ -32,7 +35,7 @@ case ${1-:""} in
 esac
 
 log_header "Building $container_name tagged as '$tag' and 'latest'"
-podman build -f $SCRIPT_DIR/Dockerfile "$container_context_dir" --no-cache \
+podman build -f "$containerfile_path" "$container_context_dir" --no-cache \
     -t "$container_name:$tag" \
     -t "$container_name:latest"
 
