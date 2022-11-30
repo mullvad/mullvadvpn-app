@@ -13,6 +13,7 @@ import {
   ReconnectingNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from '../shared/notifications/notification';
 
 export interface NotificationSender {
@@ -111,10 +112,6 @@ export default class NotificationController {
       this.addPendingNotification(notification);
       notification.show();
 
-      if (!systemNotification.critical) {
-        setTimeout(() => notification.close(), 4000);
-      }
-
       return notification;
     } else {
       return;
@@ -127,7 +124,8 @@ export default class NotificationController {
       body: systemNotification.message,
       silent: true,
       icon: this.notificationIcon,
-      timeoutType: systemNotification.critical ? 'never' : 'default',
+      timeoutType:
+        systemNotification.severity == SystemNotificationSeverityType.high ? 'never' : 'default',
     });
 
     // Action buttons are only available on macOS.
@@ -137,7 +135,12 @@ export default class NotificationController {
         notification.on('action', () => this.performAction(systemNotification.action));
       }
       notification.on('click', () => this.notificationControllerDelegate.openApp());
-    } else if (!(process.platform === 'win32' && systemNotification.critical)) {
+    } else if (
+      !(
+        process.platform === 'win32' &&
+        systemNotification.severity === SystemNotificationSeverityType.high
+      )
+    ) {
       if (systemNotification.action) {
         notification.on('click', () => this.performAction(systemNotification.action));
       } else {
@@ -208,7 +211,8 @@ export default class NotificationController {
     const suppressDueToDevelopment =
       notification.suppressInDevelopment && process.env.NODE_ENV === 'development';
     const suppressDueToVisibleWindow = isWindowVisible;
-    const suppressDueToPreference = !areSystemNotificationsEnabled && !notification.critical;
+    const suppressDueToPreference =
+      !areSystemNotificationsEnabled && notification.severity > SystemNotificationSeverityType.info;
 
     return (
       !suppressDueToDevelopment &&

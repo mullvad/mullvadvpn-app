@@ -4,6 +4,7 @@ import {
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface InconsistentVersionNotificationContext {
@@ -19,7 +20,7 @@ export class InconsistentVersionNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: messages.pgettext('notifications', 'App is out of sync. Please quit and restart.'),
-      critical: true,
+      severity: SystemNotificationSeverityType.high,
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
     };
