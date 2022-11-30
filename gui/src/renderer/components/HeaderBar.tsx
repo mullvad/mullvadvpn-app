@@ -139,7 +139,7 @@ export function calculateHeaderBarStyle(tunnelState: TunnelState): HeaderBarStyl
     case 'connected':
       return HeaderBarStyle.success;
     case 'error':
-      return !tunnelState.details.blockFailure ? HeaderBarStyle.success : HeaderBarStyle.error;
+      return !tunnelState.details.blockingError ? HeaderBarStyle.success : HeaderBarStyle.error;
     case 'disconnecting':
       switch (tunnelState.details) {
         case 'block':
