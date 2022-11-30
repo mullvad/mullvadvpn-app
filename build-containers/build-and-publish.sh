@@ -6,6 +6,8 @@
 
 set -eu
 
+CONTAINER_SIGNING_KEY_FINGERPRINT=1E551687D67F5FD820BEF2C4D7C17F87A0D3D215
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR/.."
 
@@ -33,7 +35,7 @@ log_header "Building container $container_name"
 podman build "$container_context_dir" -t "$container_name"
 
 log_header "Pushing container $container_name"
-podman push --sign-by 1E551687D67F5FD820BEF2C4D7C17F87A0D3D215 "$container_name"
+podman push --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT "$container_name"
 
 log_info "Storing container tag to $container_image_tag_path"
 echo "$tag" > "$container_image_tag_path"
