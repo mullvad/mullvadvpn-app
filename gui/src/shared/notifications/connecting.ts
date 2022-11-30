@@ -5,7 +5,9 @@ import { TunnelState } from '../daemon-rpc-types';
 import {
   InAppNotification,
   InAppNotificationProvider,
+  SystemNotification,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface ConnectingNotificationContext {
@@ -21,7 +23,7 @@ export class ConnectingNotificationProvider
     return this.context.tunnelState.state === 'connecting' && !this.context.reconnecting;
   }
 
-  public getSystemNotification() {
+  public getSystemNotification(): SystemNotification | undefined {
     if (this.context.tunnelState.state === 'connecting') {
       let message = messages.pgettext('notifications', 'Connecting');
       const location = this.context.tunnelState.details?.location?.hostname;
@@ -39,7 +41,7 @@ export class ConnectingNotificationProvider
 
       return {
         message,
-        critical: false,
+        severity: SystemNotificationSeverityType.low,
       };
     } else {
       return undefined;

@@ -1,6 +1,10 @@
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import { SystemNotificationProvider } from './notification';
+import {
+  SystemNotification,
+  SystemNotificationProvider,
+  SystemNotificationSeverityType,
+} from './notification';
 
 interface DisconnectedNotificationContext {
   tunnelState: TunnelState;
@@ -13,10 +17,10 @@ export class DisconnectedNotificationProvider implements SystemNotificationProvi
   public mayDisplay = () =>
     this.context.tunnelState.state === 'disconnected' && !this.context.blockWhenDisconnected;
 
-  public getSystemNotification() {
+  public getSystemNotification(): SystemNotification | undefined {
     return {
       message: messages.pgettext('notifications', 'Disconnected and unsecure'),
-      critical: false,
+      severity: SystemNotificationSeverityType.info,
     };
   }
 }
