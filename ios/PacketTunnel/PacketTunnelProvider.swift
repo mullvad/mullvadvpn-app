@@ -228,9 +228,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
-        let emptyWGTunnelConfig = TunnelConfiguration.emptyTunnel
+        let emptyTunnelConfiguration = TunnelConfiguration(
+            name: nil,
+            interface: InterfaceConfiguration(privateKey: PrivateKey()),
+            peers: []
+        )
 
-        adapter.start(tunnelConfiguration: emptyWGTunnelConfig) { error in
+        adapter.start(tunnelConfiguration: emptyTunnelConfiguration) { error in
             self.dispatchQueue.async {
                 if let error = error {
                     self.providerLogger.error(
@@ -708,13 +712,4 @@ extension DeviceCheck {
             identifier = UUID()
         }
     }
-}
-
-/// Used for creating an empty tunnel in certain situations.
-extension TunnelConfiguration {
-    fileprivate static let emptyTunnel = TunnelConfiguration(
-        name: nil,
-        interface: InterfaceConfiguration(privateKey: PrivateKey()),
-        peers: []
-    )
 }
