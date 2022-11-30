@@ -41,6 +41,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    auth_failed::AuthFailed,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -1099,7 +1100,7 @@ where
                 } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                     log::debug!("Entering blocking state since the account is out of time");
                     self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
-                        None,
+                        Some(AuthFailed::ExpiredAccount.as_str().to_string()),
                     )))
                 }
             }

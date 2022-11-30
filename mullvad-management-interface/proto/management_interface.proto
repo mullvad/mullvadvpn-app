@@ -126,6 +126,13 @@ message ErrorState {
 		SPLIT_TUNNEL_ERROR = 8;
 	}
 
+	enum AuthFailedError {
+		UNKNOWN = 0;
+		INVALID_ACCOUNT = 1;
+		EXPIRED_ACCOUNT = 2;
+		TOO_MANY_CONNECTIONS = 3;
+	}
+
 	enum GenerationError {
 		NO_MATCHING_RELAY = 0;
 		NO_MATCHING_BRIDGE_RELAY = 1;
@@ -149,7 +156,7 @@ message ErrorState {
 	FirewallPolicyError blocking_error = 2;
 
 	// AUTH_FAILED
-	string auth_fail_reason = 3;
+	AuthFailedError auth_failed_error = 3;
 	// TUNNEL_PARAMETER_ERROR
 	GenerationError parameter_error = 4;
 	// SET_FIREWALL_POLICY_ERROR

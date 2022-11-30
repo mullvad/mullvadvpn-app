@@ -1,66 +1,63 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::fmt;
+use talpid_types::tunnel::ErrorStateCause;
 
-/// Used by frontends to parse [`talpid_types::tunnel::ErrorStateCause::AuthFailed`], which may be
-/// returned in [`talpid_types::tunnel::ErrorStateCause`] when there is a failure to authenticate
+/// Used to parse [`talpid_types::tunnel::ErrorStateCause::AuthFailed`], which may be returned
+/// in [`talpid_types::tunnel::ErrorStateCause`] when there is a failure to authenticate
 /// with a remote server.
 #[derive(Debug)]
-pub struct AuthFailed {
-    reason: AuthFailedInner,
-}
-
-#[derive(Debug)]
-enum AuthFailedInner {
+pub enum AuthFailed {
     InvalidAccount,
     ExpiredAccount,
-    TooManyConnectons,
-    Unknown(String, String),
-}
-
-// These strings should match up with gui/packages/desktop/src/renderer/lib/auth-failure.js
-const INVALID_ACCOUNT_MSG: &str = "You've logged in with an account number that is not valid. Please log out and try another one.";
-const EXPIRED_ACCOUNT_MSG: &str = "You have no more VPN time left on this account. Please log in on our website to buy more credit.";
-const TOO_MANY_CONNECTIONS_MSG: &str = "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.";
-
-impl<'a> From<&'a str> for AuthFailedInner {
-    fn from(reason: &'a str) -> AuthFailedInner {
-        use self::AuthFailedInner::*;
-        match parse_string(reason) {
-            Some(("INVALID_ACCOUNT", _)) => InvalidAccount,
-            Some(("EXPIRED_ACCOUNT", _)) => ExpiredAccount,
-            Some(("TOO_MANY_CONNECTIONS", _)) => TooManyConnectons,
-            Some((unknown_reason, message)) => {
-                log::warn!(
-                    "Received AUTH_FAILED message with unknown reason: {}",
-                    reason
-                );
-                Unknown(unknown_reason.to_string(), message.to_string())
-            }
-            None => {
-                log::warn!("Received invalid AUTH_FAILED message: {}", reason);
-                Unknown("UNKNOWN".to_string(), reason.to_string())
-            }
-        }
-    }
+    TooManyConnections,
+    Unknown,
 }
 
 impl<'a> From<&'a str> for AuthFailed {
     fn from(reason: &'a str) -> AuthFailed {
-        AuthFailed {
-            reason: AuthFailedInner::from(reason),
+        use AuthFailed::*;
+        match parse_string(reason) {
+            Some("INVALID_ACCOUNT") => InvalidAccount,
+            Some("EXPIRED_ACCOUNT") => ExpiredAccount,
+            Some("TOO_MANY_CONNECTIONS") => TooManyConnections,
+            Some(fail_id) => {
+                log::warn!(
+                    "Received AUTH_FAILED message with unknown failure ID: {}",
+                    fail_id
+                );
+                Unknown
+            }
+            None => {
+                log::warn!("Received invalid AUTH_FAILED message: {}", reason);
+                Unknown
+            }
         }
     }
 }
 
-impl fmt::Display for AuthFailed {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use self::AuthFailedInner::*;
-        match self.reason {
-            InvalidAccount => write!(f, "{}", INVALID_ACCOUNT_MSG),
-            ExpiredAccount => write!(f, "{}", EXPIRED_ACCOUNT_MSG),
-            TooManyConnectons => write!(f, "{}", TOO_MANY_CONNECTIONS_MSG),
-            Unknown(_, ref reason) => write!(f, "{}", reason),
+impl AuthFailed {
+    pub fn as_str(&self) -> &'static str {
+        use AuthFailed::*;
+        match self {
+            InvalidAccount => "[INVALID_ACCOUNT]",
+            ExpiredAccount => "[EXPIRED_ACCOUNT]",
+            TooManyConnections => "[TOO_MANY_CONNECTIONS]",
+            Unknown => "[Unknown]",
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct UnexpectedErrorStateCause(());
+
+impl TryFrom<&ErrorStateCause> for AuthFailed {
+    type Error = UnexpectedErrorStateCause;
+
+    fn try_from(cause: &ErrorStateCause) -> Result<Self, Self::Error> {
+        match cause {
+            ErrorStateCause::AuthFailed(Some(reason)) => Ok(AuthFailed::from(reason.as_str())),
+            ErrorStateCause::AuthFailed(None) => Ok(AuthFailed::Unknown),
+            _ => Err(UnexpectedErrorStateCause(())),
         }
     }
 }
@@ -68,16 +65,14 @@ impl fmt::Display for AuthFailed {
 // Expects to take a string like "[INVALID_ACCOUNT] This is not a valid Mullvad account".
 // The example input string would be split into:
 // * "INVALID_ACCOUNT" - the ID of the failure reason.
-// * "This is not a valid Mullvad account" - the human readable message of the failure reason.
+// * "This is not a valid Mullvad account" - human-readable message (ignored).
 // In the case that the message has preceeding whitespace, it will be trimmed.
-fn parse_string(reason: &str) -> Option<(&str, &str)> {
+fn parse_string(reason: &str) -> Option<&str> {
     lazy_static! {
-        static ref REASON_REGEX: Regex = Regex::new(r"^\[(\w+)\]\s*(.*)$").unwrap();
+        static ref REASON_REGEX: Regex = Regex::new(r"^\[(\w+)\]\s*").unwrap();
     }
     let captures = REASON_REGEX.captures(reason)?;
-    let reason = captures.get(1).map(|m| m.as_str())?;
-    let message = captures.get(2).map(|m| m.as_str())?;
-    Some((reason, message))
+    captures.get(1).map(|m| m.as_str())
 }
 
 #[cfg(test)]
@@ -87,15 +82,15 @@ mod tests {
     #[test]
     fn test_parsing() {
         let tests = vec![
-            (Some(("INVALID_ACCOUNT", "This is not a valid Mullvad account" )),
+            (Some("INVALID_ACCOUNT"),
                 "[INVALID_ACCOUNT] This is not a valid Mullvad account"),
-            (Some(("EXPIRED_ACCOUNT", "This account has no time left")),
+            (Some("EXPIRED_ACCOUNT"),
              "[EXPIRED_ACCOUNT] This account has no time left"),
-            (Some(("TOO_MANY_CONNECTIONS", "This Mullvad account is already used by the maximum number of simultaneous connections")),
+            (Some("TOO_MANY_CONNECTIONS"),
             "[TOO_MANY_CONNECTIONS] This Mullvad account is already used by the maximum number of simultaneous connections"),
             (None, "[Incomplete String"),
-            (Some(("REASON_REASON", "")), "[REASON_REASON]"),
-            (Some(("REASON_REASON", "A")), "[REASON_REASON]A"),
+            (Some("REASON_REASON"), "[REASON_REASON]"),
+            (Some("REASON_REASON"), "[REASON_REASON]A"),
             (None, "incomplete]"),
             (None, ""),
         ];
