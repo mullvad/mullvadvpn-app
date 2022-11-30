@@ -78,7 +78,7 @@ log_info "Storing container tag to $container_image_tag_path"
 echo "$tag" > "$container_image_tag_path"
 
 log_header "Commiting signatures and new tag name to git"
-git add "$container_image_tag_path" build-containers/sigstore/mullvad/mullvadvpn-app-build*
+git add "$container_image_tag_path" "$signature_dir"
 GPG_TTY=$(tty) git commit -S -m "Updating build container for $1 to $tag"
 
 log_success "***********************"
