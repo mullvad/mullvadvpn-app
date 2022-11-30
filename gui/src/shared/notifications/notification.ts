@@ -7,13 +7,20 @@ export type NotificationAction = {
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
 
+export enum SystemNotificationSeverityType {
+  info = 0,
+  low,
+  medium,
+  high,
+}
+
 interface NotificationProvider {
   mayDisplay(): boolean;
 }
 
 export interface SystemNotification {
   message: string;
-  critical: boolean;
+  severity: SystemNotificationSeverityType;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
   action?: NotificationAction;

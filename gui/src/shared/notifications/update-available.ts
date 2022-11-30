@@ -7,6 +7,7 @@ import {
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface UpdateAvailableNotificationContext {
@@ -39,7 +40,7 @@ export class UpdateAvailableNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: this.systemMessage(),
-      critical: false,
+      severity: SystemNotificationSeverityType.medium,
       action: {
         type: 'open-url',
         url: this.context.suggestedIsBeta ? links.betaDownload : links.download,

@@ -5,6 +5,7 @@ import {
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface UnsupportedVersionNotificationContext {
@@ -25,7 +26,7 @@ export class UnsupportedVersionNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: this.getMessage(),
-      critical: true,
+      severity: SystemNotificationSeverityType.high,
       action: {
         type: 'open-url',
         url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
