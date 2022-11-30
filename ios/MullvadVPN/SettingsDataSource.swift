@@ -43,7 +43,6 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
     enum Item: String {
         case account
         case preferences
-        case shortcuts
         case version
         case problemReport
         case faq
@@ -98,7 +97,7 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
 
         if interactor.deviceState.isLoggedIn {
             newSnapshot.appendSections([.main])
-            newSnapshot.appendItems([.account, .preferences, .shortcuts], in: .main)
+            newSnapshot.appendItems([.account, .preferences], in: .main)
         }
 
         newSnapshot.appendSections([.version, .problemReport])
@@ -150,23 +149,6 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
                 "PREFERENCES_CELL_LABEL",
                 tableName: "Settings",
                 value: "Preferences",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
-            cell.disclosureType = .chevron
-
-            return cell
-
-        case .shortcuts:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "SHORTCUTS_CELL_LABEL",
-                tableName: "Settings",
-                value: "Shortcuts",
                 comment: ""
             )
             cell.detailTitleLabel.text = nil

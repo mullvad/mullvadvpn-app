@@ -12,7 +12,6 @@ enum SettingsNavigationRoute {
     case root
     case account
     case preferences
-    case shortcuts
     case problemReport
 }
 
@@ -122,9 +121,6 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
             return PreferencesViewController(
                 interactor: interactorFactory.makePreferencesInteractor()
             )
-
-        case .shortcuts:
-            return ShortcutsViewController()
 
         case .problemReport:
             return ProblemReportViewController(
