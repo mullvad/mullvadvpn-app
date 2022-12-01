@@ -86,6 +86,10 @@ object Dependencies {
         const val android = "io.mockk:mockk-android:${Versions.mockk}"
     }
 
+    object Mullvad {
+        const val endpointLib = ":lib:endpoint"
+    }
+
     object Plugin {
         const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:linux"
         const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:osx"
