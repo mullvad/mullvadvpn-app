@@ -25,8 +25,7 @@ import WindowController, { WindowControllerDelegate } from './window-controller'
 const execAsync = promisify(exec);
 
 export interface UserInterfaceDelegate {
-  cancelPendingNotifications(): void;
-  resetTunnelStateAnnouncements(): void;
+  closeActiveNotifications(): void;
   updateAccountData(): void;
   connectTunnel(): void;
   reconnectTunnel(): void;
@@ -319,7 +318,7 @@ export default class UserInterface implements WindowControllerDelegate {
       this.blurNavigationResetScheduler.cancel();
 
       // cancel notifications when window appears
-      this.delegate.cancelPendingNotifications();
+      this.delegate.closeActiveNotifications();
 
       const accountData = this.delegate.getAccountData();
       if (!accountData || closeToExpiry(accountData.expiry, 4) || hasExpired(accountData.expiry)) {
@@ -329,9 +328,6 @@ export default class UserInterface implements WindowControllerDelegate {
 
     this.windowController.window?.on('blur', () => {
       IpcMainEventChannel.window.notifyFocus?.(false);
-
-      // ensure notification guard is reset
-      this.delegate.resetTunnelStateAnnouncements();
     });
 
     // Use hide instead of blur to prevent the navigation reset from happening when bluring an

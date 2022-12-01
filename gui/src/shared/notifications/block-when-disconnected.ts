@@ -37,7 +37,6 @@ export class BlockWhenDisconnectedNotificationProvider
       message,
       severity: SystemNotificationSeverityType.info,
       category: SystemNotificationCategory.tunnelState,
-      replaceByCategory: true,
     };
   }
 
