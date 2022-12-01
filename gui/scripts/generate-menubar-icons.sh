@@ -52,23 +52,74 @@ function generate_ico() {
     local ico_target_path="$2"
 
     local tmp_file_paths=()
+    local notification_icon_tmp_file_paths=()
     for size in 16 32 48; do
-        local png_tmp_path="$TMP_DIR/$size.png"
-        local png8_tmp_path="$TMP_DIR/$size-8.png"
-        local png4_tmp_path="$TMP_DIR/$size-4.png"
+        local padding=$((size / 16))
+        local notification_icon_size=$((size / 2))
+        local png_tmp_path="$TMP_DIR/$size"
 
-        rsvg-convert -o "$png_tmp_path" -w $size -h $size "$svg_source_path"
-        convert -background transparent "$png_tmp_path" -gravity center -extent ${size}x$size \
-            "$png_tmp_path"
+        generate_square "$svg_source_path" "$png_tmp_path.png" \
+            "${png_tmp_path}_notification.png" "$size" "$padding" "$notification_icon_size"
+
         # 4- and 8-bit versions for RDP
-        convert -colors 256 +dither "$png_tmp_path" png8:"$png8_tmp_path"
-        convert -colors 16  +dither "$png8_tmp_path" "$png4_tmp_path"
+        convert -colors 256 +dither "$png_tmp_path.png" png8:"$png_tmp_path-8.png"
+        convert -colors 16  +dither "$png_tmp_path-8.png" "$png_tmp_path-4.png"
 
-        tmp_file_paths+=("$png_tmp_path" "$png8_tmp_path" "$png4_tmp_path")
+        convert -colors 256 +dither "${png_tmp_path}_notification.png" \
+            png8:"${png_tmp_path}_notification-8.png"
+        convert -colors 16  +dither "${png_tmp_path}_notification-8.png" \
+            "${png_tmp_path}_notification-4.png"
+
+        tmp_file_paths+=("$png_tmp_path.png" "$png_tmp_path-8.png" "$png_tmp_path-4.png")
+        notification_icon_tmp_file_paths+=(
+            "${png_tmp_path}_notification.png"
+            "${png_tmp_path}_notification-8.png"
+            "${png_tmp_path}_notification-4.png"
+        )
     done
 
-    convert "${tmp_file_paths[@]}" "${COMPRESSION_OPTIONS[@]}" "$ico_target_path"
+    convert "${tmp_file_paths[@]}" "${COMPRESSION_OPTIONS[@]}" "$ico_target_path.ico"
+    convert "${notification_icon_tmp_file_paths[@]}" "${COMPRESSION_OPTIONS[@]}" \
+        "${ico_target_path}_notification.ico"
+
     rm "${tmp_file_paths[@]}"
+    rm "${notification_icon_tmp_file_paths[@]}"
+}
+
+# Generates pngs both for regular icon and icon with notification symbol
+function generate_rectangle() {
+    local svg_source_path="$1"
+    local png_target_path="$2"
+    local png_notification_target_path="$3"
+    local target_size=$4
+    local target_padding=$5
+    local notification_width=$6
+    local target_size_no_padding=$((target_size - target_padding * 2))
+    local png_tmp_path="$TMP_DIR/tmp.png"
+
+    generate_png "$svg_source_path" "$png_target_path" "$target_size" "$target_padding"
+    append_notification_icon "$png_target_path" "$png_notification_target_path" \
+        "$notification_width"
+
+    rm "$png_tmp_path"
+}
+
+# Generates pngs both for regular icon and icon with notification symbol
+function generate_square() {
+    local svg_source_path="$1"
+    local png_target_path="$2"
+    local png_notification_target_path="$3"
+    local target_size=$4
+    local target_padding=$5
+    local notification_width=$6
+    local target_size_no_padding=$((target_size - target_padding * 2))
+    local png_tmp_path="$TMP_DIR/tmp.png"
+
+    generate_png "$svg_source_path" "$png_target_path" "$target_size" "$target_padding"
+    overlay_notification_icon "$png_target_path" "$png_notification_target_path" \
+        "$notification_width"
+
+    rm "$png_tmp_path"
 }
 
 function generate_png() {
@@ -83,7 +134,37 @@ function generate_png() {
         "$svg_source_path"
     convert -background transparent "$png_tmp_path" -gravity center \
         -extent "${target_size}x$target_size" "${COMPRESSION_OPTIONS[@]}" "$png_target_path"
-    rm "$png_tmp_path"
+}
+
+# Creates a copy of the icon at $source_path and appends the notification symbol to it
+function append_notification_icon() {
+    local source_path="$1"
+    local target_path="$2"
+    local width="$3"
+    local padding="${4:-0}"
+    local size=$((width + 2))
+    local notification_icon_tmp_path="$TMP_DIR/notification.png"
+
+    rsvg-convert -o "$notification_icon_tmp_path" -w $size -h $size \
+        --left "$padding" --page-width $((size + padding)) --page-height $size \
+        "$SVG_DIR/notification.svg"
+    convert -strip -background transparent -colorspace sRGB -gravity center \
+        +append "$source_path" "$notification_icon_tmp_path" "$target_path"
+
+    rm "$notification_icon_tmp_path"
+}
+
+function overlay_notification_icon() {
+    local source_path="$1"
+    local target_path="$2"
+    local size="$3"
+    local notification_icon_tmp_path="$TMP_DIR/notification.png"
+
+    rsvg-convert -o "$notification_icon_tmp_path" -w "$size" -h "$size" "$SVG_DIR/notification.svg"
+    convert -background transparent -composite -colorspace sRGB -gravity SouthEast \
+        "$source_path" "$notification_icon_tmp_path" "$target_path"
+
+    rm "$notification_icon_tmp_path"
 }
 
 function generate() {
@@ -94,29 +175,39 @@ function generate() {
     local black_svg_source_path="$TMP_DIR/black.svg"
     local white_svg_source_path="$TMP_DIR/white.svg"
 
+    local macos_target_base_path="$MACOS_DIR/$icon_name"
+    local linux_target_base_path="$LINUX_DIR/$icon_name"
+    local windows_target_base_path="$WINDOWS_DIR/$icon_name"
+
     sed -E 's/#[0-9a-fA-f]{6}/#000000/g' "$monochrome_svg_source_path" > "$black_svg_source_path"
     sed -E 's/#[0-9a-fA-f]{6}/#FFFFFF/g' "$monochrome_svg_source_path" > "$white_svg_source_path"
 
     # MacOS colored
-    generate_png "$svg_source_path" "$MACOS_DIR/$icon_name.png" 22 3
-    generate_png "$svg_source_path" "$MACOS_DIR/$icon_name@2x.png" 44 6
+    generate_rectangle "$svg_source_path" "$macos_target_base_path.png" \
+        "${macos_target_base_path}_notification.png" 22 3 4
+    generate_rectangle "$svg_source_path" "$macos_target_base_path@2x.png" \
+        "${macos_target_base_path}_notification@2x.png" 44 6 8
 
     # MacOS monochrome
-    generate_png "$black_svg_source_path" "$MACOS_DIR/${icon_name}Template.png" 22 3
-    generate_png "$black_svg_source_path" "$MACOS_DIR/${icon_name}Template@2x.png" 44 6
+    generate_rectangle "$black_svg_source_path" "${macos_target_base_path}Template.png" \
+        "${macos_target_base_path}_notificationTemplate.png" 22 3 4
+    generate_rectangle "$black_svg_source_path" "${macos_target_base_path}Template@2x.png" \
+        "${macos_target_base_path}_notificationTemplate@2x.png" 44 6 8
 
     # Linux colored
-    generate_png "$svg_source_path" "$LINUX_DIR/$icon_name.png" 48 8
+    generate_square "$svg_source_path" "$linux_target_base_path.png" \
+        "${linux_target_base_path}_notification.png" 48 4 24
 
     # Linux white
-    generate_png "$white_svg_source_path" "$LINUX_DIR/${icon_name}_white.png" 48 8
+    generate_square "$white_svg_source_path" "${linux_target_base_path}_white.png" \
+        "${linux_target_base_path}_white_notification.png" 48 4 24
 
     # Windows colored
-    generate_ico "$svg_source_path" "$WINDOWS_DIR/$icon_name.ico"
+    generate_ico "$svg_source_path" "$windows_target_base_path"
 
     # Windows monochrome
-    generate_ico "$white_svg_source_path" "$WINDOWS_DIR/${icon_name}_white.ico"
-    generate_ico "$black_svg_source_path" "$WINDOWS_DIR/${icon_name}_black.ico"
+    generate_ico "$white_svg_source_path" "${windows_target_base_path}_white"
+    generate_ico "$black_svg_source_path" "${windows_target_base_path}_black"
 
     rm "$black_svg_source_path" "$white_svg_source_path"
 }
