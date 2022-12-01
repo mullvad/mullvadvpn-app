@@ -12,6 +12,7 @@ import {
   NotificationAction,
   ReconnectingNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from '../shared/notifications/notification';
@@ -26,6 +27,7 @@ export interface Notification {
 
 export interface NotificationSender {
   notify(notification: SystemNotification): void;
+  closeNotificationsInCategory(category: SystemNotificationCategory): void;
 }
 
 export interface NotificationControllerDelegate {
@@ -96,6 +98,8 @@ export default class NotificationController {
           `Notification providers mayDisplay() returned true but getSystemNotification() returned undefined for ${notificationProvider.constructor.name}`,
         );
       }
+    } else {
+      this.closeNotificationsInCategory(SystemNotificationCategory.tunnelState);
     }
 
     this.reconnecting =
@@ -104,6 +108,14 @@ export default class NotificationController {
 
   public closeActiveNotifications() {
     this.activeNotifications.forEach((notification) => notification.notification.close());
+  }
+
+  public closeNotificationsInCategory(category: SystemNotificationCategory) {
+    this.activeNotifications.forEach((notification) => {
+      if (notification.specification.category === category) {
+        notification.notification.close();
+      }
+    });
   }
 
   public notify(
@@ -141,11 +153,7 @@ export default class NotificationController {
   private notifyImpl(systemNotification: SystemNotification): Notification {
     // Remove notifications in the same category if specified
     if (systemNotification.category !== undefined) {
-      this.activeNotifications.forEach((notification) => {
-        if (notification.specification.category === systemNotification.category) {
-          notification.notification.close();
-        }
-      });
+      this.closeNotificationsInCategory(systemNotification.category);
     }
 
     const notification = this.createNotification(systemNotification);
