@@ -25,7 +25,7 @@ case ${1-:""} in
         container_name="mullvadvpn-app-build"
         container_tag_path="$SCRIPT_DIR/linux-container-image-tag.txt"
         build_script="$REPO_MOUNT_TARGET/build.sh"
-        default_build_flags="--no-docker"
+        default_build_flags=""
         shift 1
     ;;
     android)
