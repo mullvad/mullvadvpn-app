@@ -39,7 +39,6 @@ export default class NotificationController {
   private reconnecting = false;
   private presentedNotifications: { [key: string]: boolean } = {};
   private activeNotifications: Set<Notification> = new Set();
-  private closedNotifications: Set<Notification> = new Set();
   private throttledNotifications: Map<SystemNotification, Scheduler> = new Map();
   private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
@@ -208,13 +207,8 @@ export default class NotificationController {
   }
 
   private addActiveNotification(notification: Notification) {
-    notification.notification.on('close', () => this.removeActiveNotification(notification));
+    notification.notification.on('close', () => this.activeNotifications.delete(notification));
     this.activeNotifications.add(notification);
-  }
-
-  private removeActiveNotification(notification: Notification) {
-    this.activeNotifications.delete(notification);
-    this.closedNotifications.add(notification);
   }
 
   private evaluateNotification(
