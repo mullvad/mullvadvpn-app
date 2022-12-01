@@ -67,10 +67,12 @@ android {
             initWith(buildTypes.getByName("release"))
             isMinifyEnabled = false
             signingConfig = null
+            matchingFallbacks += "release"
         }
 
         create("leakCanary") {
             initWith(buildTypes.getByName("debug"))
+            matchingFallbacks += "debug"
         }
     }
 
@@ -176,6 +178,8 @@ play {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.endpointLib))
+
     implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)
     implementation(Dependencies.AndroidX.appcompat)

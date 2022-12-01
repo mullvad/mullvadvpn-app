@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.test.common"
+    namespace = "net.mullvad.mullvadvpn.lib.endpoint"
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
@@ -23,23 +23,6 @@ android {
     }
 }
 
-androidComponents {
-    beforeVariants { variantBuilder ->
-        variantBuilder.apply {
-            enable = name != "release"
-        }
-    }
-}
-
 dependencies {
-    implementation(project(Dependencies.Mullvad.endpointLib))
-
-    implementation(Dependencies.AndroidX.testCore)
-    implementation(Dependencies.AndroidX.testRunner)
-    implementation(Dependencies.AndroidX.testRules)
-    implementation(Dependencies.AndroidX.testUiAutomator)
-    implementation(Dependencies.junit)
     implementation(Dependencies.Kotlin.stdlib)
-
-    androidTestUtil(Dependencies.AndroidX.testOrchestrator)
 }
