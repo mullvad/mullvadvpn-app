@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.mullvadvpn.lib.endpoint
 
 import android.os.Parcelable
 import java.net.InetSocketAddress
