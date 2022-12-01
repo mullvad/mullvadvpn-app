@@ -2,7 +2,7 @@
 
 Substitute `${repo}` with the actual absolute path to this repository
 
-## Building and publishing a container image
+## Building and publishing a production container image
 
 These instructions describe how to set up the trusted machine that builds, signs and publishes
 the container images to ghcr.io.
@@ -31,6 +31,27 @@ git checkout -b update-build-container
 git push # And create a PR
 ```
 
+## Building and publishing a development image container image
+
+These instructions describe how to set up a development machine to build, sign and publish container
+images. The purpose of this is mainly to verify the `build-and-publish.sh` script as well as the
+built images.
+
+Set the following environment variables to override the default values:
+- `REGISTRY_HOST`
+- `REGISTRY_ORG`
+- `CONTAINER_SIGNING_KEY_FINGERPRINT`
+
+Configure podman to store signatures when building and pushing images (substitute `${testorg}`). `~/.config/containers/registries.d/$testorg.yaml`:
+
+```yml
+docker:
+  ghcr.io/$testorg:
+    sigstore-staging: file://${repo}/building/sigstore
+```
+
+In order to verify the signature of the development images, you'll also need to follow the [pull and
+verification steps](#pulling-verifying-and-using-build-images) with some slight adjustments.
 
 ## Pulling, verifying and using build images
 
