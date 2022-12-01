@@ -11,9 +11,10 @@ REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 cd "$SCRIPT_DIR"
 
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+REPO_MOUNT_TARGET="/build"
 
 image_tag=$(cat "$REPO_DIR"/building/android-container-image-tag.txt)
-build_command="/build/build-apk.sh --no-docker $*"
+build_command="$REPO_MOUNT_TARGET/build-apk.sh --no-docker $*"
 
 printf "Building in $CONTAINER_RUNNER using command: %s\n\n" "$build_command"
-$CONTAINER_RUNNER run --rm -v "$REPO_DIR":/build ghcr.io/mullvad/mullvadvpn-app-build-android:"$image_tag" /bin/bash -c "$build_command"
+$CONTAINER_RUNNER run --rm -v "$REPO_DIR":"$REPO_MOUNT_TARGET" ghcr.io/mullvad/mullvadvpn-app-build-android:"$image_tag" /bin/bash -c "$build_command"
