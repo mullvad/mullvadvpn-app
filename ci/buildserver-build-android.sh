@@ -12,7 +12,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
-UPLOAD_DIR="/home/upload/upload"
+UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 BRANCHES_TO_BUILD=("origin/master")
 TAG_PATTERN_TO_BUILD=("^android/")
@@ -20,7 +20,7 @@ TAG_PATTERN_TO_BUILD=("^android/")
 upload() {
   for f in MullvadVPN-*.{apk,aab}; do
     sha256sum "$f" > "$f.sha256"
-      # Linux is both the build and upload server. Just move directly to target dir
+    # Linux is both the build and upload server. Just move directly to target dir
     mv "$f" "$f.sha256" "$UPLOAD_DIR/"
   done
 }
