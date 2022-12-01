@@ -6,9 +6,9 @@
 
 set -eu
 
-CONTAINER_SIGNING_KEY_FINGERPRINT=1E551687D67F5FD820BEF2C4D7C17F87A0D3D215
-REGISTRY_HOST="ghcr.io"
-REGISTRY_ORG="mullvad"
+CONTAINER_SIGNING_KEY_FINGERPRINT=${CONTAINER_SIGNING_KEY_FINGERPRINT:-"1E551687D67F5FD820BEF2C4D7C17F87A0D3D215"}
+REGISTRY_HOST=${REGISTRY_HOST:-"ghcr.io"}
+REGISTRY_ORG=${REGISTRY_ORG:-"mullvad"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -23,13 +23,13 @@ case ${1-:""} in
         container_name="mullvadvpn-app-build"
         containerfile_path="$SCRIPT_DIR/Dockerfile"
         container_context_dir="$REPO_DIR"
-        container_image_tag_path="$SCRIPT_DIR/linux-container-image-tag.txt"
+        container_image_name_file_path="$SCRIPT_DIR/linux-container-image.txt"
     ;;
     android)
         container_name="mullvadvpn-app-build-android"
         containerfile_path="$REPO_DIR/android/docker/Dockerfile"
         container_context_dir="$REPO_DIR/android/docker/"
-        container_image_tag_path="$SCRIPT_DIR/android-container-image-tag.txt"
+        container_image_name_file_path="$SCRIPT_DIR/android-container-image.txt"
     ;;
     *)
         log_error "Invalid platform. Specify 'linux' or 'android' as first argument"
@@ -80,11 +80,11 @@ fi
 
 cp "$tmp_signature_dir/signature-2" "$signature_dir/"
 
-log_info "Storing container tag to $container_image_tag_path"
-echo "$tag" > "$container_image_tag_path"
+log_info "Storing container image name to $container_image_name_file_path"
+echo "$full_container_name:$tag" > "$container_image_name_file_path"
 
-log_header "Commiting signatures and new tag name to git"
-git add "$container_image_tag_path" "$signature_dir"
+log_header "Commiting signatures and new container image name to git"
+git add "$container_image_name_file_path" "$signature_dir"
 GPG_TTY=$(tty) git commit -S -m "Updating build container for $1 to $tag"
 
 log_success "***********************"
