@@ -20,7 +20,10 @@ import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
 import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
-import { SystemNotification } from '../shared/notifications/notification';
+import {
+  SystemNotification,
+  SystemNotificationCategory,
+} from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
@@ -208,14 +211,6 @@ class ApplicationMain
   };
 
   public isLoggedIn = () => this.account.isLoggedIn();
-
-  public notify = (notification: SystemNotification) => {
-    this.notificationController.notify(
-      notification,
-      this.userInterface?.isWindowVisible() ?? false,
-      this.settings.gui.enableSystemNotifications,
-    );
-  };
 
   public disconnectAndQuit = async () => {
     if (this.daemonRpc.isConnected) {
@@ -913,6 +908,17 @@ class ApplicationMain
       return shell.openExternal(url);
     }
   };
+
+  // NotificationSender
+  public notify = (notification: SystemNotification) => {
+    this.notificationController.notify(
+      notification,
+      this.userInterface?.isWindowVisible() ?? false,
+      this.settings.gui.enableSystemNotifications,
+    );
+  };
+  public closeNotificationsInCategory = (category: SystemNotificationCategory) =>
+    this.notificationController.closeNotificationsInCategory(category);
 
   // UserInterfaceDelegate
   public closeActiveNotifications = () => this.notificationController.closeActiveNotifications();

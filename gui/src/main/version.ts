@@ -5,6 +5,7 @@ import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log from '../shared/logging';
 import {
   InconsistentVersionNotificationProvider,
+  SystemNotificationCategory,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../shared/notifications/notification';
@@ -65,6 +66,8 @@ export default class Version {
     });
     if (notificationProvider.mayDisplay()) {
       this.delegate.notify(notificationProvider.getSystemNotification());
+    } else {
+      this.delegate.closeNotificationsInCategory(SystemNotificationCategory.inconsistentVersion);
     }
 
     // notify renderer
@@ -105,6 +108,8 @@ export default class Version {
     );
     if (notificationProvider) {
       this.delegate.notify(notificationProvider.getSystemNotification());
+    } else {
+      this.delegate.closeNotificationsInCategory(SystemNotificationCategory.newVersion);
     }
 
     IpcMainEventChannel.upgradeVersion.notify?.(upgradeVersion);

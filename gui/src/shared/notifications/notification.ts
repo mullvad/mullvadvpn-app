@@ -17,7 +17,8 @@ export enum SystemNotificationSeverityType {
 export enum SystemNotificationCategory {
   tunnelState,
   expiry,
-  version,
+  newVersion,
+  inconsistentVersion,
 }
 
 interface NotificationProvider {
