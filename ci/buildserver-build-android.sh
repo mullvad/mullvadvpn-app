@@ -4,10 +4,7 @@
 #
 # * Follow the instructions in ../README.md
 # * Import and trust the GPG keys of everyone who the build server should trust code from
-# TODO: Below config is probably not relevant any longer since this script will run on
-# app-build-linux2. However, app-build-linux2 needs access to upload to releases.mullvad.net.
-# * Set up an entry in `~/.ssh/config` for app-build-linux
-# * Add the build servers public ssh key to the upload account on app-build-linux
+# * Ensure that the machine running this script is allowed to upload to releases.mullvad.net.
 
 set -eu
 shopt -s nullglob
@@ -17,7 +14,6 @@ BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
 
-# TODO: Should master still always be built?
 BRANCHES_TO_BUILD=("origin/master")
 TAG_PATTERN_TO_BUILD=("^android/")
 
