@@ -49,7 +49,6 @@ export class ErrorNotificationProvider
             ? SystemNotificationSeverityType.low
             : SystemNotificationSeverityType.high,
         category: SystemNotificationCategory.tunnelState,
-        replaceByCategory: false,
       };
     } else {
       return undefined;

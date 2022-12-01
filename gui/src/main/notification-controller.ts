@@ -1,4 +1,4 @@
-import { app, NativeImage, nativeImage, Notification } from 'electron';
+import { app, NativeImage, nativeImage, Notification as ElectronNotification } from 'electron';
 import os from 'os';
 import path from 'path';
 
@@ -15,6 +15,14 @@ import {
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from '../shared/notifications/notification';
+import { Scheduler } from '../shared/scheduler';
+
+const THROTTLE_DELAY = 500;
+
+export interface Notification {
+  specification: SystemNotification;
+  notification: ElectronNotification;
+}
 
 export interface NotificationSender {
   notify(notification: SystemNotification): void;
@@ -26,10 +34,11 @@ export interface NotificationControllerDelegate {
 }
 
 export default class NotificationController {
-  private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
   private reconnecting = false;
-  private previousNotifications: { [key: string]: boolean } = {};
-  private activeNotifications: Notification[] = [];
+  private presentedNotifications: { [key: string]: boolean } = {};
+  private activeNotifications: Set<Notification> = new Set();
+  private closedNotifications: Set<Notification> = new Set();
+  private throttledNotifications: Map<SystemNotification, Scheduler> = new Map();
   private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
 
@@ -74,11 +83,7 @@ export default class NotificationController {
       const notification = notificationProvider.getSystemNotification();
 
       if (notification) {
-        this.showTunnelStateNotification(
-          notification,
-          isWindowVisible,
-          areSystemNotificationsEnabled,
-        );
+        this.notify(notification, isWindowVisible, areSystemNotificationsEnabled);
       } else {
         log.error(
           `Notification providers mayDisplay() returned true but getSystemNotification() returned undefined for ${notificationProvider.constructor.name}`,
@@ -90,36 +95,66 @@ export default class NotificationController {
       tunnelState.state === 'disconnecting' && tunnelState.details === 'reconnect';
   }
 
-  public cancelPendingNotifications() {
-    for (const notification of this.activeNotifications) {
-      notification.close();
-    }
-  }
-
-  public resetTunnelStateAnnouncements() {
-    this.lastTunnelStateAnnouncement = undefined;
+  public closeActiveNotifications() {
+    this.activeNotifications.forEach((notification) => notification.notification.close());
   }
 
   public notify(
     systemNotification: SystemNotification,
-    isWindowVisible: boolean,
-    areSystemNotificationsEnabled: boolean,
+    windowVisible: boolean,
+    infoNotificationsEnabled: boolean,
   ) {
-    if (
-      this.evaluateNotification(systemNotification, isWindowVisible, areSystemNotificationsEnabled)
-    ) {
-      const notification = this.createNotification(systemNotification);
-      this.addActiveNotification(notification);
-      notification.show();
-
-      return notification;
-    } else {
+    if (!this.evaluateNotification(systemNotification, windowVisible, infoNotificationsEnabled)) {
       return;
+    }
+
+    // Cancel throttled notifications within the same category
+    if (systemNotification.category !== undefined) {
+      this.throttledNotifications.forEach((scheduler, specification) => {
+        if (specification.category === systemNotification.category) {
+          scheduler.cancel();
+          this.throttledNotifications.delete(specification);
+        }
+      });
+    }
+
+    if (systemNotification.throttle) {
+      const scheduler = new Scheduler();
+      scheduler.schedule(() => {
+        this.throttledNotifications.delete(systemNotification);
+        this.notifyImpl(systemNotification);
+      }, THROTTLE_DELAY);
+
+      this.throttledNotifications.set(systemNotification, scheduler);
+    } else {
+      this.notifyImpl(systemNotification);
     }
   }
 
-  private createNotification(systemNotification: SystemNotification) {
-    const notification = new Notification({
+  private notifyImpl(systemNotification: SystemNotification): Notification {
+    // Remove notifications in the same category if specified
+    if (systemNotification.category !== undefined) {
+      this.activeNotifications.forEach((notification) => {
+        if (notification.specification.category === systemNotification.category) {
+          notification.notification.close();
+        }
+      });
+    }
+
+    const notification = this.createNotification(systemNotification);
+    this.addActiveNotification(notification);
+    notification.notification.show();
+
+    // Close notification of low severity automatically
+    if (systemNotification.severity === SystemNotificationSeverityType.info) {
+      setTimeout(() => notification.notification.close(), 4000);
+    }
+
+    return notification;
+  }
+
+  private createNotification(systemNotification: SystemNotification): Notification {
+    const notification = new ElectronNotification({
       title: this.notificationTitle,
       body: systemNotification.message,
       silent: true,
@@ -148,7 +183,7 @@ export default class NotificationController {
       }
     }
 
-    return notification;
+    return { specification: systemNotification, notification };
   }
 
   private performAction(action?: NotificationAction) {
@@ -157,44 +192,14 @@ export default class NotificationController {
     }
   }
 
-  private showTunnelStateNotification(
-    systemNotification: SystemNotification,
-    isWindowVisible: boolean,
-    areSystemNotificationsEnabled: boolean,
-  ) {
-    const message = systemNotification.message;
-    const lastAnnouncement = this.lastTunnelStateAnnouncement;
-    const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
-
-    if (sameAsLastNotification) {
-      return;
-    }
-
-    if (lastAnnouncement) {
-      lastAnnouncement.notification.close();
-    }
-
-    const newNotification = this.notify(
-      systemNotification,
-      isWindowVisible,
-      areSystemNotificationsEnabled,
-    );
-
-    if (newNotification) {
-      this.lastTunnelStateAnnouncement = {
-        body: message,
-        notification: newNotification,
-      };
-    }
-  }
-
   private addActiveNotification(notification: Notification) {
-    notification.on('close', () => this.removeActiveNotification(notification));
-    this.activeNotifications.push(notification);
+    notification.notification.on('close', () => this.removeActiveNotification(notification));
+    this.activeNotifications.add(notification);
   }
 
   private removeActiveNotification(notification: Notification) {
-    this.activeNotifications = this.activeNotifications.filter((value) => value !== notification);
+    this.activeNotifications.delete(notification);
+    this.closedNotifications.add(notification);
   }
 
   private evaluateNotification(
@@ -217,7 +222,7 @@ export default class NotificationController {
   }
 
   private suppressDueToAlreadyPresented(notification: SystemNotification) {
-    const presented = this.previousNotifications;
+    const presented = this.presentedNotifications;
     if (notification.presentOnce?.value) {
       if (presented[notification.presentOnce.name]) {
         return true;

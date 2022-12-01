@@ -4,6 +4,7 @@ import { TunnelState } from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -27,6 +28,7 @@ export class AccountExpiredNotificationProvider implements SystemNotificationPro
   public getSystemNotification(): SystemNotification {
     return {
       message: messages.pgettext('notifications', 'Account is out of time'),
+      category: SystemNotificationCategory.expiry,
       severity: SystemNotificationSeverityType.high,
       presentOnce: { value: true, name: this.constructor.name },
       action: {

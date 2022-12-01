@@ -32,9 +32,8 @@ export class ConnectedNotificationProvider implements SystemNotificationProvider
 
       return {
         message,
-        severity: SystemNotificationSeverityType.low,
+        severity: SystemNotificationSeverityType.info,
         category: SystemNotificationCategory.tunnelState,
-        replaceByCategory: true,
       };
     } else {
       return undefined;

@@ -4,6 +4,7 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from './notification';
@@ -26,6 +27,7 @@ export class UnsupportedVersionNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: this.getMessage(),
+      category: SystemNotificationCategory.version,
       severity: SystemNotificationSeverityType.high,
       action: {
         type: 'open-url',
