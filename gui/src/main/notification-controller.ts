@@ -60,6 +60,13 @@ export default class NotificationController {
     }
   }
 
+  public dispose() {
+    this.throttledNotifications.forEach((scheduler) => scheduler.cancel());
+
+    this.activeNotifications.forEach((notification) => notification.notification.close());
+    this.activeNotifications.clear();
+  }
+
   public notifyTunnelState(
     tunnelState: TunnelState,
     blockWhenDisconnected: boolean,
