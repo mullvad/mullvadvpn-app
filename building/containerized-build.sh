@@ -22,14 +22,12 @@ source "$REPO_DIR/scripts/utils/log"
 case ${1-:""} in
     linux)
         container_image_name=$(cat "$SCRIPT_DIR/linux-container-image.txt")
-        build_script="$REPO_MOUNT_TARGET/build.sh"
-        build_script_args="$*"
+        build_command="$REPO_MOUNT_TARGET/build.sh"
         shift 1
     ;;
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
-        build_script="$REPO_MOUNT_TARGET/build-apk.sh"
-        build_script_args="--no-docker $*"
+        build_command="$REPO_MOUNT_TARGET/build-apk.sh --no-docker"
         shift 1
     ;;
     *)
@@ -37,10 +35,12 @@ case ${1-:""} in
         exit 1
 esac
 
+build_command+=" $*"
+
 log_info ""
 log_info "Runner   : $CONTAINER_RUNNER"
 log_info "Container: $container_image_name"
-log_info "Command  : $build_script $build_script_args"
+log_info "Command  : $build_command"
 log_info ""
 
 "$CONTAINER_RUNNER" run --rm \
@@ -48,4 +48,4 @@ log_info ""
     -v "$CARGO_TARGET_VOLUME_NAME":/root/.cargo/target:Z \
     -v "$CARGO_REGISTRY_VOLUME_NAME":/root/.cargo/registry:Z \
     -v "$GRADLE_CACHE_VOLUME_NAME":/root/.gradle:Z \
-    "$container_image_name" "$build_script" "${build_script_args[@]}"
+    "$container_image_name" bash -c "$build_command"
