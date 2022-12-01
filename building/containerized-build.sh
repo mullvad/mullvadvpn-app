@@ -9,6 +9,9 @@ set -eu
 REGISTRY_HOST="ghcr.io"
 REGISTRY_ORG="mullvad"
 REPO_MOUNT_TARGET="/build"
+CARGO_TARGET_VOLUME_NAME="cargo-target"
+CARGO_REGISTRY_VOLUME_NAME="cargo-registry"
+GRADLE_CACHE_VOLUME_NAME="gradle-cache"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -47,5 +50,8 @@ echo "Command  : $build_command"
 echo ""
 
 "$CONTAINER_RUNNER" run --rm \
-    -v "$REPO_DIR":"$REPO_MOUNT_TARGET" \
+    -v "$REPO_DIR":"$REPO_MOUNT_TARGET":Z \
+    -v "$CARGO_TARGET_VOLUME_NAME":/root/.cargo/target:Z \
+    -v "$CARGO_REGISTRY_VOLUME_NAME":/root/.cargo/registry:Z \
+    -v "$GRADLE_CACHE_VOLUME_NAME":/root/.gradle:Z \
     "$full_container_name_with_tag" /bin/bash -c "$build_command"
