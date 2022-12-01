@@ -16,6 +16,8 @@ export enum SystemNotificationSeverityType {
 
 export enum SystemNotificationCategory {
   tunnelState,
+  expiry,
+  version,
 }
 
 interface NotificationProvider {
@@ -25,8 +27,8 @@ interface NotificationProvider {
 export interface SystemNotification {
   message: string;
   severity: SystemNotificationSeverityType;
-  category?: SystemNotificationCategory;
-  replaceByCategory?: boolean;
+  category: SystemNotificationCategory;
+  throttle?: boolean;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
   action?: NotificationAction;
