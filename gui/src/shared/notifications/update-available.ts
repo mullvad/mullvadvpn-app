@@ -41,7 +41,7 @@ export class UpdateAvailableNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: this.systemMessage(),
-      category: SystemNotificationCategory.version,
+      category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.medium,
       action: {
         type: 'open-url',

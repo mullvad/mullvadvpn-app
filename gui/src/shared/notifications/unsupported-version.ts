@@ -27,7 +27,7 @@ export class UnsupportedVersionNotificationProvider
   public getSystemNotification(): SystemNotification {
     return {
       message: this.getMessage(),
-      category: SystemNotificationCategory.version,
+      category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.high,
       action: {
         type: 'open-url',

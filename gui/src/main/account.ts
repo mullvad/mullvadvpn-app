@@ -1,3 +1,4 @@
+import { closeToExpiry } from '../shared/account-expiry';
 import {
   AccountToken,
   DeviceEvent,
@@ -11,6 +12,7 @@ import log from '../shared/logging';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
+  SystemNotificationCategory,
 } from '../shared/notifications/notification';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
@@ -210,6 +212,9 @@ export default class Account {
         const remainingMilliseconds = new Date(this.accountData.expiry).getTime() - Date.now();
         const delay = Math.min(twelveHours, remainingMilliseconds);
         this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
+      } else if (!closeToExpiry(this.accountData.expiry)) {
+        // If no longer close to expiry, all previous notifications should be closed
+        this.delegate.closeNotificationsInCategory(SystemNotificationCategory.expiry);
       }
     }
   }
