@@ -23,7 +23,6 @@ export class DisconnectedNotificationProvider implements SystemNotificationProvi
       message: messages.pgettext('notifications', 'Disconnected and unsecure'),
       severity: SystemNotificationSeverityType.info,
       category: SystemNotificationCategory.tunnelState,
-      replaceByCategory: true,
     };
   }
 }

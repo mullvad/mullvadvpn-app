@@ -42,9 +42,9 @@ export class ConnectingNotificationProvider
 
       return {
         message,
-        severity: SystemNotificationSeverityType.low,
+        severity: SystemNotificationSeverityType.info,
         category: SystemNotificationCategory.tunnelState,
-        replaceByCategory: true,
+        throttle: true,
       };
     } else {
       return undefined;

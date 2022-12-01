@@ -22,7 +22,7 @@ export class ReconnectingNotificationProvider
       message: messages.pgettext('notifications', 'Reconnecting'),
       severity: SystemNotificationSeverityType.info,
       category: SystemNotificationCategory.tunnelState,
-      replaceByCategory: true,
+      throttle: true,
     };
   }
 

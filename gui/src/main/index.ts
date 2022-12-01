@@ -914,10 +914,7 @@ class ApplicationMain
   };
 
   // UserInterfaceDelegate
-  public cancelPendingNotifications = () =>
-    this.notificationController.cancelPendingNotifications();
-  public resetTunnelStateAnnouncements = () =>
-    this.notificationController.resetTunnelStateAnnouncements();
+  public closeActiveNotifications = () => this.notificationController.closeActiveNotifications();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
   public updateAccountData = () => this.account.updateAccountData();
   public getAccountData = () => this.account.accountData;
