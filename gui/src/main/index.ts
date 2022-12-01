@@ -316,6 +316,7 @@ class ApplicationMain
     log.info('Quit initiated');
 
     this.userInterface?.dispose();
+    this.notificationController.dispose();
 
     // Unsubscribe the event handler
     try {
