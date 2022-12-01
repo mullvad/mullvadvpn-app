@@ -6,15 +6,46 @@
 
 set -eu
 
+REGISTRY_HOST="ghcr.io"
+REGISTRY_ORG="mullvad"
+REPO_MOUNT_TARGET="/build"
+CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 cd "$SCRIPT_DIR"
 
-CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-REPO_MOUNT_TARGET="/build"
+source "$REPO_DIR/scripts/utils/log"
 
-image_tag=$(cat "$REPO_DIR"/building/android-container-image-tag.txt)
-build_command="$REPO_MOUNT_TARGET/build-apk.sh --no-docker $*"
+case ${1-:""} in
+    linux)
+        container_name="mullvadvpn-app-build"
+        container_tag_path="$SCRIPT_DIR/linux-container-image-tag.txt"
+        build_script="$REPO_MOUNT_TARGET/build.sh"
+        default_build_flags="--no-docker"
+        shift 1
+    ;;
+    android)
+        container_name="mullvadvpn-app-build-android"
+        container_tag_path="$SCRIPT_DIR/android-container-image-tag.txt"
+        build_script="$REPO_MOUNT_TARGET/build-apk.sh"
+        default_build_flags="--no-docker"
+        shift 1
+    ;;
+    *)
+        log_error "Invalid platform. Specify 'linux' or 'android' as first argument"
+        exit 1
+esac
 
-printf "Building in $CONTAINER_RUNNER using command: %s\n\n" "$build_command"
-$CONTAINER_RUNNER run --rm -v "$REPO_DIR":"$REPO_MOUNT_TARGET" ghcr.io/mullvad/mullvadvpn-app-build-android:"$image_tag" /bin/bash -c "$build_command"
+full_container_name_with_tag="$REGISTRY_HOST/$REGISTRY_ORG/$container_name:$(cat "$container_tag_path")"
+build_command="$build_script $default_build_flags $*"
+
+echo ""
+echo "Runner   : $CONTAINER_RUNNER"
+echo "Container: $full_container_name_with_tag"
+echo "Command  : $build_command"
+echo ""
+
+"$CONTAINER_RUNNER" run --rm \
+    -v "$REPO_DIR":"$REPO_MOUNT_TARGET" \
+    "$full_container_name_with_tag" /bin/bash -c "$build_command"
