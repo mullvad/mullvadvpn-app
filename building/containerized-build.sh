@@ -54,4 +54,4 @@ echo ""
     -v "$CARGO_TARGET_VOLUME_NAME":/root/.cargo/target:Z \
     -v "$CARGO_REGISTRY_VOLUME_NAME":/root/.cargo/registry:Z \
     -v "$GRADLE_CACHE_VOLUME_NAME":/root/.gradle:Z \
-    "$full_container_name_with_tag" /bin/bash -c "$build_command"
+    "$full_container_name_with_tag" bash -c "$build_command"
