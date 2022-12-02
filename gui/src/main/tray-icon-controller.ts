@@ -10,16 +10,8 @@ const exec = promisify(execAsync);
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
-type IconSets = {
-  regular: NativeImage[];
-  template: NativeImage[];
-  white: NativeImage[];
-  black: NativeImage[];
-};
-
 export default class TrayIconController {
   private animation?: KeyframeAnimation;
-  private iconSets: IconSets = { regular: [], template: [], white: [], black: [] };
   private iconSet: NativeImage[] = [];
 
   constructor(
@@ -27,7 +19,11 @@ export default class TrayIconController {
     private iconTypeValue: TrayIconType,
     private useMonochromaticIconValue: boolean,
   ) {
-    this.loadImages();
+    void this.init();
+  }
+
+  public async init() {
+    this.iconSet = await this.loadImages();
   }
 
   public dispose() {
@@ -42,27 +38,7 @@ export default class TrayIconController {
   }
 
   public async updateTheme() {
-    if (this.useMonochromaticIconValue) {
-      switch (process.platform) {
-        case 'darwin':
-          this.iconSet = this.iconSets.template;
-          break;
-        case 'win32': {
-          if (await this.getSystemUsesLightTheme()) {
-            this.iconSet = this.iconSets.black;
-          } else {
-            this.iconSet = this.iconSets.white;
-          }
-          break;
-        }
-        case 'linux':
-        default:
-          this.iconSet = this.iconSets.white;
-          break;
-      }
-    } else {
-      this.iconSet = this.iconSets.regular;
-    }
+    this.iconSet = await this.loadImages();
 
     if (this.animation === undefined) {
       this.initAnimation();
@@ -108,21 +84,23 @@ export default class TrayIconController {
     }
   };
 
-  private loadImages() {
-    this.iconSets.regular = this.loadImageSet('');
-
+  private async loadImages(): Promise<NativeImage[]> {
     switch (process.platform) {
       case 'darwin':
-        this.iconSets.template = this.loadImageSet('Template');
-        break;
+        return this.useMonochromaticIconValue
+          ? this.loadImageSet('Template')
+          : this.loadImageSet('');
       case 'win32':
-        this.iconSets.white = this.loadImageSet('_white');
-        this.iconSets.black = this.loadImageSet('_black');
-        break;
+        if (this.useMonochromaticIconValue) {
+          return (await this.getSystemUsesLightTheme())
+            ? this.loadImageSet('_black')
+            : this.loadImageSet('_white');
+        } else {
+          return this.loadImageSet('');
+        }
       case 'linux':
       default:
-        this.iconSets.white = this.loadImageSet('_white');
-        break;
+        return this.useMonochromaticIconValue ? this.loadImageSet('_white') : this.loadImageSet('');
     }
   }
 
