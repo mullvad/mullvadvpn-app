@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.mullvad.mullvadvpn.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Required on certain Android versions and/or ABIs
     https://github.com/mockk/mockk/issues/297#issuecomment-641361770 -->
