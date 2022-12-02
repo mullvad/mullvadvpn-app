@@ -13,6 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="$SCRIPT_DIR/upload"
+ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 
 BRANCHES_TO_BUILD=("origin/master")
 TAG_PATTERN_TO_BUILD=("^android/")
@@ -59,7 +60,7 @@ build_ref() {
   git clean -df
 
   echo "Building Android app"
-  ./building/containerized-build.sh android --app-bundle || return 0
+  ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR ./building/containerized-build.sh android --app-bundle || return 0
 
   # If there is a tag for this commit then we append that to the produced artifacts
   # A version suffix should only be created if there is a tag for this commit and it is not a release build
