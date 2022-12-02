@@ -908,6 +908,7 @@ class ApplicationMain
       return shell.openExternal(url);
     }
   };
+  public showNotificationIcon = (value: boolean) => this.userInterface?.showNotificationIcon(value);
 
   // NotificationSender
   public notify = (notification: SystemNotification) => {
@@ -921,7 +922,8 @@ class ApplicationMain
     this.notificationController.closeNotificationsInCategory(category);
 
   // UserInterfaceDelegate
-  public closeActiveNotifications = () => this.notificationController.closeActiveNotifications();
+  public dismissActiveNotifications = () =>
+    this.notificationController.dismissActiveNotifications();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
   public updateAccountData = () => this.account.updateAccountData();
   public getAccountData = () => this.account.accountData;
@@ -951,7 +953,7 @@ class ApplicationMain
 
   // SettingsDelegate
   public handleMonochromaticIconChange = (value: boolean) =>
-    this.userInterface?.setUseMonochromaticTrayIcon(value) ?? Promise.resolve();
+    this.userInterface?.setMonochromaticIcon(value) ?? Promise.resolve();
   public handleUnpinnedWindowChange = () =>
     void this.userInterface?.recreateWindow(
       this.account.isLoggedIn(),
