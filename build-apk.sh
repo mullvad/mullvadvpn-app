@@ -50,7 +50,7 @@ while [ ! -z "${1:-""}" ]; do
 done
 
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
-    if [ ! -f "$SCRIPT_DIR/android/keystore.properties" ]; then
+    if [ ! -f "$SCRIPT_DIR/android/credentials/keystore.properties" ]; then
         echo "ERROR: No keystore.properties file found" >&2
         echo "       Please configure the signing keys as described in the README" >&2
         exit 1

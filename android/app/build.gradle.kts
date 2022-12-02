@@ -16,7 +16,8 @@ val extraAssetsDirectory = "${project.buildDir}/extraAssets"
 val defaultChangeLogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
-val keystorePropertiesFile = file("${rootProject.projectDir}/keystore.properties")
+val credentialsPath = "${rootProject.projectDir}/credentials"
+val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
 val keystoreProperties = Properties()
 
 if (keystorePropertiesFile.exists()) {
@@ -46,10 +47,10 @@ android {
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
             create("release") {
+                storeFile = file("$credentialsPath/app-keys.jks")
+                storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
             }
         }
 
