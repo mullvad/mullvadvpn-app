@@ -17,7 +17,8 @@ export default class TrayIconController {
   constructor(
     private tray: Tray,
     private iconTypeValue: TrayIconType,
-    private useMonochromaticIconValue: boolean,
+    private monochromaticIcon: boolean,
+    private notificationIcon: boolean,
   ) {
     void this.init();
   }
@@ -47,9 +48,14 @@ export default class TrayIconController {
     }
   }
 
-  public async setUseMonochromaticIcon(useMonochromaticIcon: boolean) {
-    this.useMonochromaticIconValue = useMonochromaticIcon;
+  public async setMonochromaticIcon(monochromaticIcon: boolean) {
+    this.monochromaticIcon = monochromaticIcon;
     await this.updateTheme();
+  }
+
+  public showNotificationIcon(notificationIcon: boolean) {
+    this.notificationIcon = notificationIcon;
+    void this.updateTheme();
   }
 
   public animateToIcon(type: TrayIconType) {
@@ -85,22 +91,21 @@ export default class TrayIconController {
   };
 
   private async loadImages(): Promise<NativeImage[]> {
-    switch (process.platform) {
-      case 'darwin':
-        return this.useMonochromaticIconValue
-          ? this.loadImageSet('Template')
-          : this.loadImageSet('');
-      case 'win32':
-        if (this.useMonochromaticIconValue) {
+    const notificationIcon = this.notificationIcon ? '_notification' : '';
+    if (this.monochromaticIcon) {
+      switch (process.platform) {
+        case 'darwin':
+          return this.loadImageSet(`${notificationIcon}Template`);
+        case 'win32':
           return (await this.getSystemUsesLightTheme())
-            ? this.loadImageSet('_black')
-            : this.loadImageSet('_white');
-        } else {
-          return this.loadImageSet('');
-        }
-      case 'linux':
-      default:
-        return this.useMonochromaticIconValue ? this.loadImageSet('_white') : this.loadImageSet('');
+            ? this.loadImageSet(`_black${notificationIcon}`)
+            : this.loadImageSet(`_white${notificationIcon}`);
+        case 'linux':
+        default:
+          return this.loadImageSet(`_white${notificationIcon}`);
+      }
+    } else {
+      return this.loadImageSet(notificationIcon);
     }
   }
 

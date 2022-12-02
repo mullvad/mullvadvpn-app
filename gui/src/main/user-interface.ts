@@ -25,7 +25,7 @@ import WindowController, { WindowControllerDelegate } from './window-controller'
 const execAsync = promisify(exec);
 
 export interface UserInterfaceDelegate {
-  closeActiveNotifications(): void;
+  dismissActiveNotifications(): void;
   updateAccountData(): void;
   connectTunnel(): void;
   reconnectTunnel(): void;
@@ -90,7 +90,7 @@ export default class UserInterface implements WindowControllerDelegate {
     monochromaticIcon: boolean,
   ) {
     const iconType = this.trayIconType(tunnelState, blockWhenDisconnected);
-    this.trayIconController = new TrayIconController(this.tray, iconType, monochromaticIcon);
+    this.trayIconController = new TrayIconController(this.tray, iconType, monochromaticIcon, false);
   }
 
   public async initializeWindow(isLoggedIn: boolean, tunnelState: TunnelState) {
@@ -184,9 +184,11 @@ export default class UserInterface implements WindowControllerDelegate {
   public reloadWindow = () => this.windowController.window?.reload();
   public isWindowVisible = () => this.windowController.isVisible();
   public showWindow = () => this.windowController.show();
-  public updateTrayTheme = () => this.trayIconController?.updateTheme();
-  public setUseMonochromaticTrayIcon = (value: boolean) =>
-    this.trayIconController?.setUseMonochromaticIcon(value);
+  public updateTrayTheme = () => this.trayIconController?.updateTheme() ?? Promise.resolve();
+  public setMonochromaticIcon = (value: boolean) =>
+    this.trayIconController?.setMonochromaticIcon(value);
+  public showNotificationIcon = (value: boolean) =>
+    this.trayIconController?.showNotificationIcon(value);
   public setWindowIcon = (icon: string) => this.windowController.window?.setIcon(icon);
 
   public updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
@@ -318,7 +320,7 @@ export default class UserInterface implements WindowControllerDelegate {
       this.blurNavigationResetScheduler.cancel();
 
       // cancel notifications when window appears
-      this.delegate.closeActiveNotifications();
+      this.delegate.dismissActiveNotifications();
 
       const accountData = this.delegate.getAccountData();
       if (!accountData || closeToExpiry(accountData.expiry, 4) || hasExpired(accountData.expiry)) {
