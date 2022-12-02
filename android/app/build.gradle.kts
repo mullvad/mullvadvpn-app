@@ -25,12 +25,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion(Versions.Android.compileSdkVersion)
+    namespace = "net.mullvad.mullvadvpn"
+    compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
         applicationId = "net.mullvad.mullvadvpn"
-        minSdkVersion(Versions.Android.minSdkVersion)
-        targetSdkVersion(Versions.Android.targetSdkVersion)
+        minSdk = Versions.Android.minSdkVersion
+        targetSdk = Versions.Android.targetSdkVersion
         versionCode = generateVersionCode()
         versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -115,8 +116,12 @@ android {
 
     kotlinOptions {
         jvmTarget = Versions.jvmTarget
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-        // Opt-in option for Koin annotation of KoinComponent.
+        freeCompilerArgs = listOf(
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
+            // Opt-in option for Koin annotation of KoinComponent.
+            "-opt-in=kotlin.RequiresOptIn"
+        )
     }
 
     tasks.withType<com.android.build.gradle.tasks.MergeSourceSetFolders> {
@@ -136,10 +141,16 @@ android {
 
     packagingOptions {
         jniLibs.useLegacyPackaging = true
-
-        // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
-        pickFirst("META-INF/AL2.0")
-        pickFirst("META-INF/LGPL2.1")
+        resources {
+            pickFirsts += setOf(
+                // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                // Fixes packaging error caused by: jetified-junit-*
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
