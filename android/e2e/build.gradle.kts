@@ -7,11 +7,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion(Versions.Android.compileSdkVersion)
+    namespace = "net.mullvad.mullvadvpn.e2e"
+    compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion(Versions.Android.minSdkVersion)
-        targetSdkVersion(Versions.Android.targetSdkVersion)
+        minSdk = Versions.Android.minSdkVersion
+        targetSdk = Versions.Android.targetSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"

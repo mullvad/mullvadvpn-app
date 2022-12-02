@@ -101,7 +101,7 @@ jobs:
             - name: Build Android app
               uses: burrunan/gradle-cache-action@v1
               with:
-                job-id: jdk8
+                job-id: jdk11
                 arguments: assembleDebug
                 gradle-version: wrapper
                 build-root-directory: android
@@ -109,7 +109,7 @@ jobs:
             - name: Run unit tests
               uses: burrunan/gradle-cache-action@v1
               with:
-                job-id: jdk8
+                job-id: jdk11
                 arguments: testDebugUnitTest
                 gradle-version: wrapper
                 build-root-directory: android
@@ -118,7 +118,7 @@ jobs:
             - name: Assemble instrumented test apk
               uses: burrunan/gradle-cache-action@v1
               with:
-                job-id: jdk8
+                job-id: jdk11
                 arguments: assembleAndroidTest
                 gradle-version: wrapper
                 build-root-directory: android
