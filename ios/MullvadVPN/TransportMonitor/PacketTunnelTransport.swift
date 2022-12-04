@@ -16,10 +16,10 @@ final class PacketTunnelTransport: RESTTransport {
         return "packet-tunnel"
     }
 
-    let tunnelManager: TunnelManager
+    let tunnel: Tunnel
 
-    init(tunnelManager: TunnelManager) {
-        self.tunnelManager = tunnelManager
+    init(tunnel: Tunnel) {
+        self.tunnel = tunnel
     }
 
     func sendRequest(
@@ -27,8 +27,7 @@ final class PacketTunnelTransport: RESTTransport {
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) throws -> Cancellable {
         let proxyRequest = try ProxyURLRequest(id: UUID(), urlRequest: request)
-
-        return try tunnelManager.sendRequest(proxyRequest) { result in
+        return tunnel.sendRequest(proxyRequest) { result in
             switch result {
             case .cancelled:
                 completion(nil, nil, URLError(.cancelled))
