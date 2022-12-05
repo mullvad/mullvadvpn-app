@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -33,7 +33,7 @@ class ForegroundNotificationManager(
     private val tunnelStateNotification = TunnelStateNotification(service)
 
     private var loggedIn by observable(false) { _, _, _ ->
-        updater.sendBlocking(UpdaterMessage.UpdateAction())
+        updater.trySendBlocking(UpdaterMessage.UpdateAction())
     }
 
     private val tunnelState
@@ -46,12 +46,12 @@ class ForegroundNotificationManager(
         private set
 
     var lockedToForeground by observable(false) { _, _, _ ->
-        updater.sendBlocking(UpdaterMessage.UpdateNotification())
+        updater.trySendBlocking(UpdaterMessage.UpdateNotification())
     }
 
     init {
         connectionProxy.onStateChange.subscribe(this) { newState ->
-            updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
+            updater.trySendBlocking(UpdaterMessage.NewTunnelState(newState))
         }
 
         intermittentDaemon.registerListener(this) { daemon ->
@@ -66,7 +66,7 @@ class ForegroundNotificationManager(
             }
         }
 
-        updater.sendBlocking(UpdaterMessage.UpdateNotification())
+        updater.trySendBlocking(UpdaterMessage.UpdateNotification())
     }
 
     fun onDestroy() {

@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 
 const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
@@ -42,7 +42,7 @@ class MullvadProblemReport {
     }
 
     fun collect() {
-        commandChannel.sendBlocking(Command.Collect())
+        commandChannel.trySendBlocking(Command.Collect())
     }
 
     suspend fun load(): String {
@@ -56,13 +56,13 @@ class MullvadProblemReport {
     fun send(): Deferred<Boolean> {
         val result = CompletableDeferred<Boolean>()
 
-        commandChannel.sendBlocking(Command.Send(result))
+        commandChannel.trySendBlocking(Command.Send(result))
 
         return result
     }
 
     fun deleteReportFile() {
-        commandChannel.sendBlocking(Command.Delete())
+        commandChannel.trySendBlocking(Command.Delete())
     }
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {

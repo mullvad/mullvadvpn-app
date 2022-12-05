@@ -95,6 +95,7 @@ class RelayListListener(
 
                 return relayList?.findItemForLocation(location, true)
             }
+            else -> { /* NOOP */ }
         }
 
         return null
