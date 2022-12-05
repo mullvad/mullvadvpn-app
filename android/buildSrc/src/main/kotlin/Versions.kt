@@ -44,7 +44,6 @@ object Versions {
         const val aapt = "4.2.2-7147631"
         const val android = "4.2.2"
         const val playPublisher = "2.7.5"
-        const val kotlin = "1.5.32"
         const val dependencyCheck = "6.5.0.1"
         const val gradleVersions = "0.42.0"
     }
