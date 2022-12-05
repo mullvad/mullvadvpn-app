@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
+import android.os.DeadObjectException
 import android.os.Messenger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -43,18 +44,34 @@ class ServiceConnectionDeviceDataSource(
 
     // Async result: Event.DeviceChanged
     fun refreshDevice() {
-        connection.send(Request.RefreshDeviceState.message)
+        try {
+            connection.send(Request.RefreshDeviceState.message)
+        } catch (ex: DeadObjectException) {
+            // inform main controller to recreate connection thread
+        }
     }
 
     fun getDevice() {
-        connection.send(Request.GetDevice.message)
+        try {
+            connection.send(Request.GetDevice.message)
+        } catch (ex: DeadObjectException) {
+            // inform main controller to recreate connection thread
+        }
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
-        connection.send(Request.RemoveDevice(accountToken, deviceId).message)
+        try {
+            connection.send(Request.RemoveDevice(accountToken, deviceId).message)
+        } catch (ex: DeadObjectException) {
+            // inform main controller to recreate connection thread
+        }
     }
 
     fun refreshDeviceList(accountToken: String) {
-        connection.send(Request.GetDeviceList(accountToken).message)
+        try {
+            connection.send(Request.GetDeviceList(accountToken).message)
+        } catch (ex: DeadObjectException) {
+            // inform main controller to recreate connection thread
+        }
     }
 }
