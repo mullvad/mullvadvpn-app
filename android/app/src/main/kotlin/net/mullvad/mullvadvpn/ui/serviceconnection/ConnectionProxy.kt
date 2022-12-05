@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
+import android.os.DeadObjectException
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -34,19 +35,31 @@ class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventD
 
     fun connect() {
         if (anticipateConnectingState()) {
-            connection.send(Request.Connect.message)
+            try {
+                connection.send(Request.Connect.message)
+            } catch (ex: DeadObjectException) {
+                // inform main controller to recreate connection thread
+            }
         }
     }
 
     fun disconnect() {
         if (anticipateReconnectingState()) {
-            connection.send(Request.Disconnect.message)
+            try {
+                connection.send(Request.Disconnect.message)
+            } catch (ex: DeadObjectException) {
+                // inform main controller to recreate connection thread
+            }
         }
     }
 
     fun reconnect() {
         if (anticipateDisconnectingState()) {
-            connection.send(Request.Reconnect.message)
+            try {
+                connection.send(Request.Reconnect.message)
+            } catch (ex: DeadObjectException) {
+                // inform main controller to recreate connection thread
+            }
         }
     }
 
