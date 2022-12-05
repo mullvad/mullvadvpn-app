@@ -90,7 +90,7 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
-        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.Plugin.kotlin}"
+        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
         const val kotlinAndroidId = "kotlin-android"
         const val kotlinParcelizeId = "kotlin-parcelize"
         const val dependencyCheck =
