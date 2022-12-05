@@ -7,7 +7,6 @@
 //
 
 import BackgroundTasks
-import Intents
 import MullvadLogging
 import MullvadREST
 import Operations
@@ -154,19 +153,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         return true
-    }
-
-    func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
-        switch intent {
-        case is StartVPNIntent:
-            return StartVPNIntentHandler(tunnelManager: tunnelManager)
-        case is StopVPNIntent:
-            return StopVPNIntentHandler(tunnelManager: tunnelManager)
-        case is ReconnectVPNIntent:
-            return ReconnectVPNIntentHandler(tunnelManager: tunnelManager)
-        default:
-            return nil
-        }
     }
 
     // MARK: - UISceneSession lifecycle

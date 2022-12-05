@@ -155,8 +155,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             )
         }
 
-        ShortcutsManager.shared.updateVoiceShortcuts()
-
         setShowsPrivacyOverlay(false)
     }
 
