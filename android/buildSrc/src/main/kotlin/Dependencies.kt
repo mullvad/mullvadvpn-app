@@ -29,14 +29,16 @@ object Dependencies {
             "androidx.test.espresso:espresso-contrib:${Versions.AndroidX.espresso}"
         const val testCore =
             "androidx.test:core:${Versions.AndroidX.test}"
+        const val testMonitor =
+            "androidx.test:monitor:${Versions.AndroidX.testMonitor}"
         const val testRunner =
-            "androidx.test:runner:${Versions.AndroidX.test}"
+            "androidx.test:runner:${Versions.AndroidX.testRunner}"
         const val testRules =
             "androidx.test:rules:${Versions.AndroidX.test}"
         const val testUiAutomator =
             "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
         const val testOrchestrator =
-            "androidx.test:orchestrator:${Versions.AndroidX.test}"
+            "androidx.test:orchestrator:${Versions.AndroidX.testOrchestrator}"
     }
 
     object Compose {
