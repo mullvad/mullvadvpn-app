@@ -185,7 +185,7 @@ tasks.create("printVersion") {
 }
 
 play {
-    serviceAccountCredentials = file("play-api-key.json")
+    serviceAccountCredentials.set(file("play-api-key.json"))
 }
 
 dependencies {
