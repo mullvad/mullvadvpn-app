@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import app.cash.turbine.FlowTurbine
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -173,7 +173,7 @@ class LoginViewModelTest {
         verify { mockedAccountRepository.clearAccountHistory() }
     }
 
-    private suspend fun <T> FlowTurbine<T>.skipDefaultItem() where T : Any? {
+    private suspend fun <T> ReceiveTurbine<T>.skipDefaultItem() where T : Any? {
         awaitItem()
     }
 
