@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 
@@ -27,7 +27,7 @@ class AuthTokenCache(endpoint: ServiceEndpoint) {
 
     init {
         endpoint.dispatcher.registerHandler(Request.FetchAuthToken::class) { _ ->
-            requestQueue.sendBlocking(Command.Fetch)
+            requestQueue.trySendBlocking(Command.Fetch)
         }
     }
 

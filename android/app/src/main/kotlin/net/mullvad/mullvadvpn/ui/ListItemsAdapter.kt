@@ -44,7 +44,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         (holder.itemView as ListItemView).update(getItem(position))
-        holder.itemView.listItemListener = listItemListener
+        (holder.itemView as ListItemView).listItemListener = listItemListener
     }
 
     override fun onViewRecycled(holder: ViewHolder) {
