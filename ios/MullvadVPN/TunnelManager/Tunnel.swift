@@ -147,6 +147,16 @@ class Tunnel {
             break
         }
     }
+
+    /// Save the VPN configuration in the tunnel provider (aka Network Extension preferences).
+    func saveToPreferences(completionHandler: ((Error?) -> Void)? = nil) {
+        tunnelProvider.saveToPreferences(completionHandler: completionHandler)
+    }
+
+    /// Load the VPN configuration from the tunnel provider (aka Network Extension preferences).
+    func loadFromPreferences(completionHandler: @escaping ((Error?) -> Void)) {
+        tunnelProvider.loadFromPreferences(completionHandler: completionHandler)
+    }
 }
 
 extension Tunnel: Equatable {
