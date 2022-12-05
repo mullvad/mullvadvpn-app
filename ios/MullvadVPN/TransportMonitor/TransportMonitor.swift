@@ -8,14 +8,16 @@
 
 import Foundation
 import MullvadREST
+import NetworkExtension
 
 class TransportMonitor: TunnelObserver {
     private let tunnelManager: TunnelManager
-    private let packetTunnelTransport: PacketTunnelTransport
+    private var packetTunnelTransport: PacketTunnelTransport!
     private let urlSessionTransport: REST.URLSessionTransport
 
     private let nslock = NSLock()
     private var _transport: RESTTransport?
+    private var vpnStatus: NEVPNStatus?
 
     var transport: RESTTransport? {
         nslock.lock()
@@ -24,14 +26,45 @@ class TransportMonitor: TunnelObserver {
         return _transport
     }
 
-    init(tunnelManager: TunnelManager) {
+    init(tunnelManager: TunnelManager, tunnel: TunnelProviderManagerType?) {
         self.tunnelManager = tunnelManager
 
-        packetTunnelTransport = PacketTunnelTransport(tunnelManager: tunnelManager)
         urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
 
-        tunnelManager.addObserver(self)
+        if let tunnel = tunnel {
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(handleVPNStatusChangeNotification),
+                name: .NEVPNStatusDidChange,
+                object: tunnel.connection
+            )
 
+            packetTunnelTransport = PacketTunnelTransport(
+                tunnel: Tunnel(tunnelProvider: tunnel)
+            )
+
+            vpnStatus = tunnel.connection.status
+        }
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleVPNConfigurationChangeNotification),
+            name: .NEVPNConfigurationChange,
+            object: nil
+        )
+
+        tunnelManager.addObserver(self)
+        setTransports()
+    }
+
+    // MARK: - VPNObserver
+
+    @objc private func handleVPNStatusChangeNotification(_ notification: Notification) {
+        guard let connection = notification.object as? VPNConnectionProtocol else { return }
+
+        vpnStatus = connection.status
+        setTransports()
+    }
+
+    @objc private func handleVPNConfigurationChangeNotification(_ notification: Notification) {
         setTransports()
     }
 
@@ -92,6 +125,10 @@ class TransportMonitor: TunnelObserver {
             return urlSessionTransport
 
         case (.disconnected, _):
+            if let packetTunnelTransport = packetTunnelTransport, vpnStatus == .connecting {
+                return packetTunnelTransport
+            }
+
             return urlSessionTransport
 
         case (.connected, _):
