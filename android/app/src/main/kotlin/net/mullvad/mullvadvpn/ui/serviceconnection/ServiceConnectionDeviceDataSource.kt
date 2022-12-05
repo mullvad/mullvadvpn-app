@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.util.trySend
 
 class ServiceConnectionDeviceDataSource(
     private val connection: Messenger,
@@ -43,18 +44,18 @@ class ServiceConnectionDeviceDataSource(
 
     // Async result: Event.DeviceChanged
     fun refreshDevice() {
-        connection.send(Request.RefreshDeviceState.message)
+        connection.trySend(Request.RefreshDeviceState.message, true)
     }
 
     fun getDevice() {
-        connection.send(Request.GetDevice.message)
+        connection.trySend(Request.GetDevice.message, true)
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
-        connection.send(Request.RemoveDevice(accountToken, deviceId).message)
+        connection.trySend(Request.RemoveDevice(accountToken, deviceId).message, true)
     }
 
     fun refreshDeviceList(accountToken: String) {
-        connection.send(Request.GetDeviceList(accountToken).message)
+        connection.trySend(Request.GetDeviceList(accountToken).message, true)
     }
 }
