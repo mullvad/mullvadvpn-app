@@ -95,8 +95,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(tunnelManager: tunnelManager)
-
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
         simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
@@ -109,6 +107,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupPaymentHandler()
         setupNotificationHandler()
         addApplicationNotifications(application: application)
+
+        let loadVPNConfigurationsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            TunnelProviderManagerType.loadAllFromPreferences { tunnels, error in
+                self.transportMonitor = TransportMonitor(tunnelManager: self.tunnelManager,
+                                                         tunnel: tunnels?.first)
+
+                operation.finish()
+            }
+        }
 
         let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             SettingsManager.migrateStore(with: self.proxyFactory) { error in
@@ -146,10 +153,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     operation.finish()
                 }
             }
+
+        migrateSettingsOperation.addDependency(loadVPNConfigurationsOperation)
+
         loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
 
         operationQueue.addOperations(
-            [migrateSettingsOperation, loadTunnelConfigurationOperation],
+            [loadVPNConfigurationsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
             waitUntilFinished: false
         )
 
