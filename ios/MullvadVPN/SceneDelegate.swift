@@ -988,7 +988,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
                 tableName: "SettingsMigrationUI",
                 value: """
                 The version of settings stored on device is from a newer app than is currently \
-                running. Settings will be reset to defaults.
+                running. Settings will be reset to defaults and device logged out.
                 """,
                 comment: ""
             )
@@ -998,14 +998,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             return NSLocalizedString(
                 "NETWORK_ERROR",
                 tableName: "SettingsMigrationUI",
-                value: "Network error occurred. Settings will be reset to defaults.",
+                value: """
+                Network error occurred. Settings will be reset to defaults and device logged out.
+                """,
                 comment: ""
             )
         } else {
             return NSLocalizedString(
                 "INTERNAL_ERROR",
                 tableName: "SettingsMigrationUI",
-                value: "Internal error occurred. Settings will be reset to defaults.",
+                value: """
+                Internal error occurred. Settings will be reset to defaults and device logged out.
+                """,
                 comment: ""
             )
         }
