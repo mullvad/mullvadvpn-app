@@ -30,17 +30,19 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 ENV SDK_VERSION=platforms;android-33 \
     BUILD_TOOLS_VERSION=build-tools;30.0.2
 
-# SDK tools
-ENV SDK_TOOLS_VERSION=4333796 \
-    SDK_TOOLS_SHA256_CHECKSUM=92ffee5a1d98d856634e8b71132e8a95d96c83a63fde1099be3d86df3106def9
+# Command line tools and checksum from: https://developer.android.com/studio#command-tools
+ENV COMMAND_LINE_TOOLS_VERSION=9123335 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=0bebf59339eaa534f4217f8aa0972d14dc49e7207be225511073c661ae01da0a
 
 # NDK and checksum from: https://github.com/android/ndk/wiki/Unsupported-Downloads
 ENV NDK_VERSION=r20b \
     NDK_SHA1_CHECKSUM=d903fdf077039ad9331fb6c3bee78aa46d45527b \
     MIN_SDK_VERSION=21
 
-ENV ANDROID_HOME=/opt/android
-ENV ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${NDK_VERSION}
+ENV ANDROID_SDK_ROOT=/opt/android
+# ANDROID_HOME is kept for backwards compatibility
+ENV ANDROID_HOME=$ANDROID_SDK_ROOT
+ENV ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/android-ndk-${NDK_VERSION}
 ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
 ENV GRADLE_USER_HOME=/root/.gradle
 
@@ -73,30 +75,28 @@ RUN apt-get update -y && apt-get install -y \
     python \
     software-properties-common \
     unzip \
+    openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
 
-# Install JDK
-COPY adopt-openjdk-apt-key.pgp /tmp/adopt-openjdk-apt-key.pgp
-RUN apt-key add < /tmp/adopt-openjdk-apt-key.pgp && \
-    add-apt-repository -y https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ && \
-    apt-get update && \
-    apt-get install -y adoptopenjdk-8-hotspot && \
-    rm /tmp/adopt-openjdk-apt-key.pgp && rm -rf /var/lib/apt/lists/*
+# Set default java version
+RUN update-alternatives --set java  /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+RUN update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
 
-# Install base Android SDK tools
-RUN curl -sfLo /tmp/sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-${SDK_TOOLS_VERSION}.zip && \
-    echo "$SDK_TOOLS_SHA256_CHECKSUM /tmp/sdk-tools.zip" | sha256sum -c && \
-    mkdir -p $ANDROID_HOME && \
-    unzip -q /tmp/sdk-tools.zip -d $ANDROID_HOME && \
-    rm /tmp/sdk-tools.zip
+# Install Android command line tools
+RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip && \
+    echo "$COMMAND_LINE_TOOLS_SHA256_CHECKSUM /tmp/cmdline-tools.zip" | sha256sum -c && \
+    unzip -q /tmp/cmdline-tools.zip -d /tmp/ && \
+    mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
+    mv /tmp/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
+    rm /tmp/cmdline-tools.zip
 
 # Install Android SDK
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
+RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
 
 # Install Android NDK
 RUN curl -sfLo /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip && \
     echo "$NDK_SHA1_CHECKSUM /tmp/ndk.zip" | sha1sum -c && \
-    unzip -q /tmp/ndk.zip -d $ANDROID_HOME && \
+    unzip -q /tmp/ndk.zip -d $ANDROID_SDK_ROOT && \
     rm /tmp/ndk.zip
 
 # Apply go patch required for Android
