@@ -106,6 +106,8 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 
 dependencies {
     implementation(Dependencies.AndroidX.testCore)
+    // Fixes: https://github.com/android/android-test/issues/1589
+    implementation(Dependencies.AndroidX.testMonitor)
     implementation(Dependencies.AndroidX.testOrchestrator)
     implementation(Dependencies.AndroidX.testRunner)
     implementation(Dependencies.AndroidX.testRules)
