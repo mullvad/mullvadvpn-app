@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.util.Intermittent
 
 private const val RELAYS_FILE = "relays.json"
@@ -28,11 +28,11 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
     val intermittentDaemon = Intermittent<MullvadDaemon>()
 
     fun start() {
-        commandChannel.sendBlocking(Command.START)
+        commandChannel.trySendBlocking(Command.START)
     }
 
     fun stop() {
-        commandChannel.sendBlocking(Command.STOP)
+        commandChannel.trySendBlocking(Command.STOP)
     }
 
     fun onDestroy() {

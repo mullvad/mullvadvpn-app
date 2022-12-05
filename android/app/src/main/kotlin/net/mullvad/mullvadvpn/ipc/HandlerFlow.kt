@@ -8,7 +8,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -30,7 +30,7 @@ class HandlerFlow<T>(
         val extractedData = extractor(message)
 
         try {
-            channel.sendBlocking(extractedData)
+            channel.trySendBlocking(extractedData)
         } catch (exception: Exception) {
             when (exception) {
                 is ClosedSendChannelException, is CancellationException -> {

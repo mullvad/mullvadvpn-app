@@ -141,6 +141,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         when (result) {
             is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
             is VoucherSubmissionResult.Error -> showError(result.error)
+            else -> { /* NOOP */ }
         }
     }
 

@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.util.EventNotifier
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
-    return runCatching { offer(element) }.getOrDefault(false)
+    return runCatching { trySend(element).isSuccess }.getOrDefault(false)
 }
 
 fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {

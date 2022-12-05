@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -46,15 +46,15 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
     }
 
     fun connect() {
-        commandChannel.sendBlocking(Command.CONNECT)
+        commandChannel.trySendBlocking(Command.CONNECT)
     }
 
     fun reconnect() {
-        commandChannel.sendBlocking(Command.RECONNECT)
+        commandChannel.trySendBlocking(Command.RECONNECT)
     }
 
     fun disconnect() {
-        commandChannel.sendBlocking(Command.DISCONNECT)
+        commandChannel.trySendBlocking(Command.DISCONNECT)
     }
 
     fun onDestroy() {

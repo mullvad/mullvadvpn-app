@@ -10,7 +10,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
@@ -62,11 +62,11 @@ class ServiceEndpoint(
     init {
         dispatcher.apply {
             registerHandler(Request.RegisterListener::class) { request ->
-                commands.sendBlocking(Command.RegisterListener(request.listener))
+                commands.trySendBlocking(Command.RegisterListener(request.listener))
             }
 
             registerHandler(Request.UnregisterListener::class) { request ->
-                commands.sendBlocking(Command.UnregisterListener(request.listenerId))
+                commands.trySendBlocking(Command.UnregisterListener(request.listenerId))
             }
         }
     }

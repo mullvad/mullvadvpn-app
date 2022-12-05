@@ -2,7 +2,6 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id(Dependencies.Plugin.androidApplicationId)
@@ -105,7 +104,6 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion = Versions.kotlin
         kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion
     }
 
@@ -115,6 +113,7 @@ android {
     }
 
     kotlinOptions {
+        allWarningsAsErrors = false
         jvmTarget = Versions.jvmTarget
         freeCompilerArgs = listOf(
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
@@ -162,17 +161,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
     skipConfigurations = listOf("lintClassPath")
-}
-
-tasks.withType<KotlinCompile>().all {
-    kotlinOptions {
-        allWarningsAsErrors = false
-
-        kotlinOptions.freeCompilerArgs = listOf(
-            "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
-        )
-    }
 }
 
 tasks.register("copyExtraAssets", Copy::class) {

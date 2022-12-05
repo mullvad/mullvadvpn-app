@@ -53,8 +53,9 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
     private val listItemListener = object : ListItemListener {
         override fun onItemAction(item: ListItemData) {
             when (item.widget) {
-                is ImageState -> toggleExcludeChannel.offer(item)
-                is SwitchState -> toggleSystemAppsVisibility.offer(!item.widget.isChecked)
+                is ImageState -> toggleExcludeChannel.trySend(item)
+                is SwitchState -> toggleSystemAppsVisibility.trySend(!item.widget.isChecked)
+                else -> { /* NOOP */ }
             }
         }
     }
