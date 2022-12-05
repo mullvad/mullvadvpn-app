@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
+import android.os.DeadObjectException
 import android.os.Messenger
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -34,19 +36,31 @@ class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventD
 
     fun connect() {
         if (anticipateConnectingState()) {
-            connection.send(Request.Connect.message)
+            try {
+                connection.send(Request.Connect.message)
+            } catch (ex: DeadObjectException) {
+                Log.e("mullvad", "Unable to send connect message over dead service connection")
+            }
         }
     }
 
     fun disconnect() {
         if (anticipateReconnectingState()) {
-            connection.send(Request.Disconnect.message)
+            try {
+                connection.send(Request.Disconnect.message)
+            } catch (ex: DeadObjectException) {
+                Log.e("mullvad", "Unable to send disconnect message over dead service connection")
+            }
         }
     }
 
     fun reconnect() {
         if (anticipateDisconnectingState()) {
-            connection.send(Request.Reconnect.message)
+            try {
+                connection.send(Request.Reconnect.message)
+            } catch (ex: DeadObjectException) {
+                Log.e("mullvad", "Unable to send reconnect message over dead service connection")
+            }
         }
     }
 
