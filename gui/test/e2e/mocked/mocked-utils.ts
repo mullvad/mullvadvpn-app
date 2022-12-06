@@ -7,8 +7,8 @@ interface StartMockedAppResponse extends StartAppResponse {
   sendMockIpcResponse: SendMockIpcResponse;
 }
 
-export const startAppWithMocking = async (): Promise<StartMockedAppResponse> => {
-  const startAppResult = await startApp('build/test/e2e/setup/main.js');
+export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
+  const startAppResult = await startApp({ args: ['build/test/e2e/setup/main.js'] });
   const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
   const sendMockIpcResponse = generateSendMockIpcResponse(startAppResult.app);
 

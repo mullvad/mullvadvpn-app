@@ -8,12 +8,12 @@ export interface StartAppResponse {
   getByTestId: GetByTestId;
 }
 
-export const startApp = async (mainPath: string): Promise<StartAppResponse> => {
+export const startApp = async (
+  options: Parameters<typeof electron.launch>[0],
+): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
 
-  const app = await electron.launch({
-    args: [mainPath],
-  });
+  const app = await electron.launch(options);
 
   await app.evaluate(({ webContents }) => {
     return new Promise((resolve) => {

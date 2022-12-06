@@ -1,5 +1,5 @@
 import { Page } from 'playwright';
-import { SendMockIpcResponse, startAppWithMocking } from './mocked-utils';
+import { SendMockIpcResponse, startMockedApp } from './mocked-utils';
 import { expect, test } from '@playwright/test';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
@@ -9,7 +9,7 @@ let page: Page;
 let sendMockIpcResponse: SendMockIpcResponse;
 
 test.beforeAll(async () => {
-  ({ page, sendMockIpcResponse } = await startAppWithMocking());
+  ({ page, sendMockIpcResponse } = await startMockedApp());
 });
 
 test.afterAll(async () => {

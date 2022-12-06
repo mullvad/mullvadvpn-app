@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { colors } from '../../../src/config.json';
-import { startAppWithMocking, MockIpcHandle, SendMockIpcResponse } from './mocked-utils';
+import { startMockedApp, MockIpcHandle, SendMockIpcResponse } from './mocked-utils';
 import { ErrorStateCause, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor, getColor } from '../utils';
 
@@ -26,7 +26,7 @@ let mockIpcHandle: MockIpcHandle;
 let sendMockIpcResponse: SendMockIpcResponse;
 
 test.beforeAll(async () => {
-  ({ page, mockIpcHandle, sendMockIpcResponse } = await startAppWithMocking());
+  ({ page, mockIpcHandle, sendMockIpcResponse } = await startMockedApp());
 });
 
 test.afterAll(async () => {
