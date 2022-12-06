@@ -71,6 +71,8 @@
 		06D9845428F99133003AABE9 /* libMullvadLogging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943D628F800C900B0CB5E /* libMullvadLogging.a */; };
 		06D9845A28F9918C003AABE9 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 06D9845928F9918C003AABE9 /* Logging */; };
 		06D9846328F9A049003AABE9 /* libMullvadLogging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943D628F800C900B0CB5E /* libMullvadLogging.a */; };
+		5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */; };
+		5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4B12940A48700C23744 /* TunnelStore.swift */; };
 		5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
 		5807483B27DB8A980020ECBF /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 5807483A27DB8A980020ECBF /* WireGuardKitTypes */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -571,6 +573,8 @@
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
+		5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelConfiguration.swift; sourceTree = "<group>"; };
+		5803B4B12940A48700C23744 /* TunnelStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStore.swift; sourceTree = "<group>"; };
 		58059DDB28465E8F002B1049 /* TransformOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformOperation.swift; sourceTree = "<group>"; };
 		58059DDD28468158002B1049 /* OutputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputOperation.swift; sourceTree = "<group>"; };
 		58059DDF2846823E002B1049 /* ResultOperation+Output.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResultOperation+Output.swift"; sourceTree = "<group>"; };
@@ -1092,6 +1096,8 @@
 				58F2E143276A13F300A79513 /* StartTunnelOperation.swift */,
 				58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */,
 				58E0A98727C8F46300FE6BDD /* Tunnel.swift */,
+				5803B4B12940A48700C23744 /* TunnelStore.swift */,
+				5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */,
 				5875960926F371FC00BF6711 /* Tunnel+Messaging.swift */,
 				58968FAD28743E2000B799DC /* TunnelInteractor.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
@@ -2159,6 +2165,7 @@
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
+				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
@@ -2298,6 +2305,7 @@
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				587EB67027143B6500123C75 /* DataSourceSnapshot.swift in Sources */,
 				580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */,
+				5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */,
 				586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */,
 				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
 			);

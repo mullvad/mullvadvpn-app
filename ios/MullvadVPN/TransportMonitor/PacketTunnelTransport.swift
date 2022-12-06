@@ -11,15 +11,14 @@ import protocol MullvadREST.RESTTransport
 import MullvadTypes
 import TunnelProviderMessaging
 
-final class PacketTunnelTransport: RESTTransport {
+struct PacketTunnelTransport: RESTTransport {
     var name: String {
         return "packet-tunnel"
     }
 
-    let tunnelManager: TunnelManager
-
-    init(tunnelManager: TunnelManager) {
-        self.tunnelManager = tunnelManager
+    let tunnel: Tunnel
+    init(tunnel: Tunnel) {
+        self.tunnel = tunnel
     }
 
     func sendRequest(
@@ -28,7 +27,7 @@ final class PacketTunnelTransport: RESTTransport {
     ) throws -> Cancellable {
         let proxyRequest = try ProxyURLRequest(id: UUID(), urlRequest: request)
 
-        return try tunnelManager.sendRequest(proxyRequest) { result in
+        return tunnel.sendRequest(proxyRequest) { result in
             switch result {
             case .cancelled:
                 completion(nil, nil, URLError(.cancelled))

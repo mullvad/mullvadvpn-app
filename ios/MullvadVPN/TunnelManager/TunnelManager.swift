@@ -50,6 +50,7 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Internal variables
 
     private let application: UIApplication
+    fileprivate let tunnelStore: TunnelStore
     private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
@@ -87,11 +88,13 @@ final class TunnelManager: StorePaymentObserver {
 
     init(
         application: UIApplication,
+        tunnelStore: TunnelStore,
         relayCacheTracker: RelayCacheTracker,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy
     ) {
         self.application = application
+        self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
@@ -536,20 +539,6 @@ final class TunnelManager: StorePaymentObserver {
             },
             completionHandler: completionHandler
         )
-    }
-
-    /// Send URL request via packet tunnel process bypassing VPN.
-    /// This function is primarily used by `PacketTunnelTransport` to go outside of VPN when the
-    /// tunnel is broken.
-    func sendRequest(
-        _ proxyRequest: ProxyURLRequest,
-        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
-    ) throws -> Cancellable {
-        if let tunnel = tunnel {
-            return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
-        } else {
-            throw UnsetTunnelError()
-        }
     }
 
     // MARK: - Tunnel observeration
@@ -1018,6 +1007,14 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     var tunnel: Tunnel? {
         return tunnelManager.tunnel
+    }
+
+    func getPersistentTunnels() -> [Tunnel] {
+        return tunnelManager.tunnelStore.getPersistentTunnels()
+    }
+
+    func createNewTunnel() -> Tunnel {
+        return tunnelManager.tunnelStore.createNewTunnel()
     }
 
     func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool) {
