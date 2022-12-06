@@ -14,6 +14,9 @@ protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
 
     var tunnel: Tunnel? { get }
+
+    func getPersistentTunnels() -> [Tunnel]
+    func createNewTunnel() -> Tunnel
     func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool)
 
     // MARK: - Tunnel status

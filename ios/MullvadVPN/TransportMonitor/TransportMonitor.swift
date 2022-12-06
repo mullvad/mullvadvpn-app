@@ -9,93 +9,42 @@
 import Foundation
 import MullvadREST
 
-class TransportMonitor: TunnelObserver {
+final class TransportMonitor {
     private let tunnelManager: TunnelManager
-    private let packetTunnelTransport: PacketTunnelTransport
+    private let tunnelStore: TunnelStore
     private let urlSessionTransport: REST.URLSessionTransport
 
-    private let nslock = NSLock()
-    private var _transport: RESTTransport?
+    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore) {
+        self.tunnelManager = tunnelManager
+        self.tunnelStore = tunnelStore
+
+        urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
+    }
 
     var transport: RESTTransport? {
-        nslock.lock()
-        defer { nslock.unlock() }
+        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
+            return tunnel.status == .connecting ||
+                tunnel.status == .reasserting ||
+                tunnel.status == .connected
+        }
 
-        return _transport
-    }
-
-    init(tunnelManager: TunnelManager) {
-        self.tunnelManager = tunnelManager
-
-        packetTunnelTransport = PacketTunnelTransport(tunnelManager: tunnelManager)
-        urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
-
-        tunnelManager.addObserver(self)
-
-        setTransports()
-    }
-
-    // MARK: - TunnelObserver
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        setTransports()
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        setTransports()
-    }
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        setTransports()
-    }
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {}
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {}
-
-    // MARK: - Private
-
-    private func setTransports() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        _transport = stateUpdated(
-            tunnelState: tunnelManager.tunnelStatus.state,
-            deviceState: tunnelManager.deviceState
-        )
-    }
-
-    private func stateUpdated(
-        tunnelState: TunnelState,
-        deviceState: DeviceState
-    ) -> RESTTransport {
-        switch (tunnelState, deviceState) {
-        case (.connected, .revoked):
-            return packetTunnelTransport
-
-        case (.pendingReconnect, _):
+        if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
+            return PacketTunnelTransport(tunnel: tunnel)
+        } else {
             return urlSessionTransport
+        }
+    }
 
-        case (.waitingForConnectivity, _):
-            return urlSessionTransport
+    private func shouldByPassVPN(tunnel: Tunnel) -> Bool {
+        switch tunnel.status {
+        case .connected:
+            return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
 
-        case (.connecting, _):
-            return packetTunnelTransport
+        case .connecting, .reasserting:
+            return true
 
-        case (.reconnecting, _):
-            return packetTunnelTransport
-
-        case (.disconnecting, _):
-            return urlSessionTransport
-
-        case (.disconnected, _):
-            return urlSessionTransport
-
-        case (.connected, _):
-            return urlSessionTransport
+        default:
+            return false
         }
     }
 }
