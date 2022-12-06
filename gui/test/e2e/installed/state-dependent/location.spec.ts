@@ -4,6 +4,8 @@ import { Page } from 'playwright';
 import { GetByTestId } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
+// This test expects the daemon to be logged into an account that has time left.
+
 let page: Page;
 let getByTestId: GetByTestId;
 

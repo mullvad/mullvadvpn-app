@@ -12,7 +12,6 @@ export const startApp = async (
   options: Parameters<typeof electron.launch>[0],
 ): Promise<StartAppResponse> => {
   process.env.CI = 'e2e';
-
   const app = await electron.launch(options);
 
   await app.evaluate(({ webContents }) => {
