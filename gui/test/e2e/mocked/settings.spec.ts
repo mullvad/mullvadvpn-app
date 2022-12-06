@@ -1,14 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { SendMockIpcResponse, startAppWithMocking } from './mocked-utils';
+import { SendMockIpcResponse, startMockedApp } from './mocked-utils';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 
 let page: Page;
 let sendMockIpcResponse: SendMockIpcResponse;
 
 test.beforeAll(async () => {
-  ({ page, sendMockIpcResponse } = await startAppWithMocking());
+  ({ page, sendMockIpcResponse } = await startMockedApp());
   await page.click('button[aria-label="Settings"]');
 });
 
