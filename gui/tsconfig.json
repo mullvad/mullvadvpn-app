@@ -17,7 +17,10 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2021",
-    "lib": ["es2021", "dom"],
+    "lib": [
+      "es2021",
+      "dom"
+    ],
     "typeRoots": [
       "./types",
       "node_modules/@types"
@@ -30,6 +33,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "playwright.config.ts",
+    "standalone-tests.ts",
     "scripts/**/*.ts",
     "test/**/*.ts",
     "assets/geo/*.json"

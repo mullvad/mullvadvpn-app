@@ -1,0 +1,15 @@
+{
+  "targets": [
+    "linux-x64",
+    "macos-x64",
+    "win-x64"
+  ],
+  "assets": [
+    "build/test/e2e/utils.js",
+    "build/test/e2e/installed/**/*.js",
+    "node_modules/.bin/playwright",
+    "node_modules/playwright",
+    "node_modules/playwright-core",
+    "node_modules/@playwright/test"
+  ]
+}
