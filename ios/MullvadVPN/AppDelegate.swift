@@ -196,7 +196,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // MARK: - Notifications
 
     @objc private func didBecomeActive(_ notification: Notification) {
-        tunnelManager.refreshTunnelStatus()
         tunnelManager.startPeriodicPrivateKeyRotation()
         relayCacheTracker.startPeriodicUpdates()
         addressCacheTracker.startPeriodicUpdates()

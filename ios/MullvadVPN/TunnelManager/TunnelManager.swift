@@ -100,6 +100,13 @@ final class TunnelManager: StorePaymentObserver {
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification,
+            object: application
+        )
     }
 
     // MARK: - Periodic private key rotation
@@ -243,13 +250,6 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operationQueue.addOperation(loadTunnelOperation)
-    }
-
-    func refreshTunnelStatus() {
-        #if DEBUG
-        logger.debug("Refresh tunnel status due to application becoming active.")
-        #endif
-        _refreshTunnelStatus()
     }
 
     func startTunnel(completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil) {
@@ -652,7 +652,7 @@ final class TunnelManager: StorePaymentObserver {
         // Update the existing state
         if shouldRefreshTunnelState {
             logger.debug("Refresh tunnel status for new tunnel.")
-            _refreshTunnelStatus()
+            refreshTunnelStatus()
         }
     }
 
@@ -774,6 +774,13 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Private methods
 
+    @objc private func applicationDidBecomeActive(_ notification: Notification) {
+        #if DEBUG
+        logger.debug("Refresh tunnel status due to application becoming active.")
+        #endif
+        refreshTunnelStatus()
+    }
+
     fileprivate func selectRelay() throws -> RelaySelectorResult {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
 
@@ -828,7 +835,7 @@ final class TunnelManager: StorePaymentObserver {
         switch tunnelStatus.state {
         case .connecting, .reconnecting:
             logger.debug("Refresh tunnel status due to reconnect.")
-            _refreshTunnelStatus()
+            refreshTunnelStatus()
 
         default:
             break
@@ -858,7 +865,7 @@ final class TunnelManager: StorePaymentObserver {
         statusObserver = nil
     }
 
-    private func _refreshTunnelStatus() {
+    private func refreshTunnelStatus() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -978,7 +985,7 @@ final class TunnelManager: StorePaymentObserver {
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
-            self?._refreshTunnelStatus()
+            self?.refreshTunnelStatus()
         }
         timer.schedule(wallDeadline: .now() + interval, repeating: interval)
         timer.activate()
