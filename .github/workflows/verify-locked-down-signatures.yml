@@ -15,6 +15,7 @@ on:
             - building/mullvad-app-container-signing.asc
             - building/linux-container-image-tag.txt
             - building/android-container-image-tag.txt
+            - building/sigstore/
     workflow_dispatch:
 jobs:
     verify-signatures:
