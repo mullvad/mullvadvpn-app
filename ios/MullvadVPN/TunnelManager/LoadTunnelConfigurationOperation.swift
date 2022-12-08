@@ -22,25 +22,11 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
     }
 
     override func main() {
-        TunnelProviderManagerType.loadAllFromPreferences { tunnels, error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.finish(completion: .failure(error))
-                } else {
-                    self.didLoadVPNConfigurations(tunnels: tunnels)
-                }
-            }
-        }
-    }
-
-    private func didLoadVPNConfigurations(tunnels: [TunnelProviderManagerType]?) {
         let settingsResult = readSettings()
         let deviceStateResult = readDeviceState()
 
-        let tunnel = tunnels?.first.map { tunnelProvider in
-            return Tunnel(tunnelProvider: tunnelProvider)
-        }
-
+        let persistentTunnels = interactor.getPersistentTunnels()
+        let tunnel = persistentTunnels.first
         let settings = settingsResult.flattenValue()
         let deviceState = deviceStateResult.flattenValue()
 

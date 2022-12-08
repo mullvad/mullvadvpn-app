@@ -17,7 +17,7 @@ import RelayCache
 import RelaySelector
 import TunnelProviderMessaging
 
-class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
+final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
     private let urlSession = REST.makeURLSession()
     private var proxiedRequests = [UUID: URLSessionDataTask]()

@@ -21,9 +21,29 @@ protocol TunnelStatusObserver {
 }
 
 /// Tunnel wrapper class.
-class Tunnel {
-    /// Tunnel provider manager.
-    private let tunnelProvider: TunnelProviderManagerType
+final class Tunnel: Equatable {
+    /// Unique identifier assigned to instance at the time of creation.
+    let identifier = UUID()
+
+    #if DEBUG
+    /// System VPN configuration identifier.
+    /// This property performs a private call to obtain system configuration ID so it does not
+    /// guarantee to return anything, also it may not return anything for newly created tunnels.
+    var systemIdentifier: UUID? {
+        let configurationKey = "configuration"
+        let identifierKey = "identifier"
+
+        guard tunnelProvider.responds(to: NSSelectorFromString(configurationKey)),
+              let config = tunnelProvider.value(forKey: configurationKey) as? NSObject,
+              config.responds(to: NSSelectorFromString(identifierKey)),
+              let identifier = config.value(forKey: identifierKey) as? UUID
+        else {
+            return nil
+        }
+
+        return identifier
+    }
+    #endif
 
     /// Tunnel start date.
     ///
@@ -51,10 +71,21 @@ class Tunnel {
         }
     }
 
+    func logFormat() -> String {
+        var s = identifier.uuidString
+        #if DEBUG
+        if let configurationIdentifier = systemIdentifier?.uuidString {
+            s += " (system profile ID: \(configurationIdentifier))"
+        }
+        #endif
+        return s
+    }
+
     private let lock = NSLock()
     private var observerList = ObserverList<TunnelStatusObserver>()
 
     private var _startDate: Date?
+    private let tunnelProvider: TunnelProviderManagerType
 
     init(tunnelProvider: TunnelProviderManagerType) {
         self.tunnelProvider = tunnelProvider
@@ -82,8 +113,22 @@ class Tunnel {
         try session.sendProviderMessage(messageData, responseHandler: responseHandler)
     }
 
+    func setConfiguration(_ configuration: TunnelConfiguration) {
+        configuration.apply(to: tunnelProvider)
+    }
+
     func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
-        tunnelProvider.saveToPreferences(completionHandler: completion)
+        tunnelProvider.saveToPreferences { error in
+            if let error = error {
+                completion(error)
+            } else {
+                // Refresh connection status after saving the tunnel preferences.
+                // Basically it's only necessary to do for new instances of
+                // `NETunnelProviderManager`, but we do that for the existing ones too
+                // for simplicity as it has no side effects.
+                self.tunnelProvider.loadFromPreferences(completionHandler: completion)
+            }
+        }
     }
 
     func removeFromPreferences(completion: @escaping (Error?) -> Void) {
@@ -147,9 +192,7 @@ class Tunnel {
             break
         }
     }
-}
 
-extension Tunnel: Equatable {
     static func == (lhs: Tunnel, rhs: Tunnel) -> Bool {
         return lhs.tunnelProvider == rhs.tunnelProvider
     }

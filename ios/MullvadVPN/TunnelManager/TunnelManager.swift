@@ -50,6 +50,7 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Internal variables
 
     private let application: UIApplication
+    fileprivate let tunnelStore: TunnelStore
     private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
@@ -87,16 +88,25 @@ final class TunnelManager: StorePaymentObserver {
 
     init(
         application: UIApplication,
+        tunnelStore: TunnelStore,
         relayCacheTracker: RelayCacheTracker,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy
     ) {
         self.application = application
+        self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification,
+            object: application
+        )
     }
 
     // MARK: - Periodic private key rotation
@@ -240,13 +250,6 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operationQueue.addOperation(loadTunnelOperation)
-    }
-
-    func refreshTunnelStatus() {
-        #if DEBUG
-        logger.debug("Refresh tunnel status due to application becoming active.")
-        #endif
-        _refreshTunnelStatus()
     }
 
     func startTunnel(completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil) {
@@ -538,20 +541,6 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
-    /// Send URL request via packet tunnel process bypassing VPN.
-    /// This function is primarily used by `PacketTunnelTransport` to go outside of VPN when the
-    /// tunnel is broken.
-    func sendRequest(
-        _ proxyRequest: ProxyURLRequest,
-        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
-    ) throws -> Cancellable {
-        if let tunnel = tunnel {
-            return tunnel.sendRequest(proxyRequest, completionHandler: completionHandler)
-        } else {
-            throw UnsetTunnelError()
-        }
-    }
-
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.
@@ -663,7 +652,7 @@ final class TunnelManager: StorePaymentObserver {
         // Update the existing state
         if shouldRefreshTunnelState {
             logger.debug("Refresh tunnel status for new tunnel.")
-            _refreshTunnelStatus()
+            refreshTunnelStatus()
         }
     }
 
@@ -785,6 +774,13 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Private methods
 
+    @objc private func applicationDidBecomeActive(_ notification: Notification) {
+        #if DEBUG
+        logger.debug("Refresh tunnel status due to application becoming active.")
+        #endif
+        refreshTunnelStatus()
+    }
+
     fileprivate func selectRelay() throws -> RelaySelectorResult {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
 
@@ -839,7 +835,7 @@ final class TunnelManager: StorePaymentObserver {
         switch tunnelStatus.state {
         case .connecting, .reconnecting:
             logger.debug("Refresh tunnel status due to reconnect.")
-            _refreshTunnelStatus()
+            refreshTunnelStatus()
 
         default:
             break
@@ -869,7 +865,7 @@ final class TunnelManager: StorePaymentObserver {
         statusObserver = nil
     }
 
-    private func _refreshTunnelStatus() {
+    private func refreshTunnelStatus() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -989,7 +985,7 @@ final class TunnelManager: StorePaymentObserver {
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
-            self?._refreshTunnelStatus()
+            self?.refreshTunnelStatus()
         }
         timer.schedule(wallDeadline: .now() + interval, repeating: interval)
         timer.activate()
@@ -1018,6 +1014,14 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     var tunnel: Tunnel? {
         return tunnelManager.tunnel
+    }
+
+    func getPersistentTunnels() -> [Tunnel] {
+        return tunnelManager.tunnelStore.getPersistentTunnels()
+    }
+
+    func createNewTunnel() -> Tunnel {
+        return tunnelManager.tunnelStore.createNewTunnel()
     }
 
     func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool) {

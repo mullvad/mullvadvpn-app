@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return operationQueue
     }()
 
+    private(set) var tunnelStore: TunnelStore!
     private(set) var tunnelManager: TunnelManager!
     private(set) var addressCache: REST.AddressCache!
 
@@ -80,8 +81,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             store: addressCache
         )
 
+        tunnelStore = TunnelStore(application: application)
+
         tunnelManager = TunnelManager(
             application: application,
+            tunnelStore: tunnelStore,
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy
@@ -94,7 +98,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(tunnelManager: tunnelManager)
+        transportMonitor = TransportMonitor(tunnelManager: tunnelManager, tunnelStore: tunnelStore)
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
@@ -108,6 +112,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupPaymentHandler()
         setupNotificationHandler()
         addApplicationNotifications(application: application)
+
+        let loadTunnelsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            self.tunnelStore.loadPersistentTunnels { error in
+                if let error = error {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to load persistent tunnels."
+                    )
+                }
+                operation.finish()
+            }
+        }
 
         let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             SettingsManager.migrateStore(with: self.proxyFactory) { error in
@@ -128,6 +144,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
         }
+        migrateSettingsOperation.addDependency(loadTunnelsOperation)
 
         let loadTunnelConfigurationOperation =
             AsyncBlockOperation(dispatchQueue: .main) { operation in
@@ -148,7 +165,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
 
         operationQueue.addOperations(
-            [migrateSettingsOperation, loadTunnelConfigurationOperation],
+            [loadTunnelsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
             waitUntilFinished: false
         )
 
@@ -179,7 +196,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // MARK: - Notifications
 
     @objc private func didBecomeActive(_ notification: Notification) {
-        tunnelManager.refreshTunnelStatus()
         tunnelManager.startPeriodicPrivateKeyRotation()
         relayCacheTracker.startPeriodicUpdates()
         addressCacheTracker.startPeriodicUpdates()
