@@ -45,4 +45,44 @@
         <packageUrl regex="true">^pkg:maven/commons\-.*/commons\-.*@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
+        checks and tracking externally.
+
+        File name: guava-28.2-android.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
+        checks and tracking externally.
+
+        File name: guava-28.2-android.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
+        checks and tracking externally.
+
+        File name: jsoup-1.12.2.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
+        <cve>CVE-2021-37714</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
+        checks and tracking externally.
+
+        File name: jsoup-1.12.2.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
+        <cve>CVE-2022-36033</cve>
+    </suppress>
 </suppressions>
