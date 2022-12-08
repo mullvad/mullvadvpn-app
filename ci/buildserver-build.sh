@@ -124,8 +124,8 @@ build_ref() {
       echo "Building ARM64 installers"
       TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
 
-      echo "Building Android APK"
-      ./build-apk.sh --app-bundle || return 0
+      #echo "Building Android APK"
+      #./build-apk.sh --app-bundle || return 0
       ;;
   esac
 
