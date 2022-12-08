@@ -855,6 +855,7 @@
 	# If $INSTDIR is gone or can be removed, proceed anyway
 	#
 	IfFileExists $INSTDIR\*.* 0 customUnInstallCheck_Done
+	ClearErrors
 	RMDir /r $INSTDIR
 	IfErrors 0 customUnInstallCheck_Done
 
@@ -1086,6 +1087,7 @@
 
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
+	ClearErrors
 	RMDir /r $INSTDIR
 	IfErrors 0 customRemoveFiles_final_cleanup
 
@@ -1138,6 +1140,8 @@
 	${EndIf}
 
 	${UnloadPlugins}
+
+	ClearErrors
 
 	Pop $R0
 	Pop $1
