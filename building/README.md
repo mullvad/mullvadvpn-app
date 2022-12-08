@@ -22,20 +22,24 @@ docker:
     sigstore-staging: file://${repo}/building/sigstore
 ```
 
-Build and publish the container image. Tag it with the github hash of the current commit
+Build and publish the container image. Tag it with the github hash of the current commit.
+This also adds the container GPG signatures to the sigstore and commits that to git.
+The single sigstore addition (signed) commit can be pushed directly to the main branch without PR.
 ```
-git checkout -b update-build-container
-
-./build-and-publish.sh (linux|android)
-
-git push # And create a PR
+./build-and-publish-container-image.sh (linux|android)
+git push # Pushes the new sigstore entry
 ```
+
+When satisfied with how the new image works, the `building/{linux,android}-container-image.txt`
+files can be updated to point to the new image. The tag name of the new image is in the
+commit message for the signed commit where the build server added the sigstore files.
+This update is usually done in a separate PR by a developer
 
 ## Building and publishing a development image container image
 
 These instructions describe how to set up a development machine to build, sign and publish container
-images. The purpose of this is mainly to verify the `build-and-publish.sh` script as well as the
-built images.
+images. The purpose of this is mainly to verify the `build-and-publish-container-image.sh`
+script as well as the built images.
 
 Set the following environment variables to override the default values:
 - `REGISTRY_HOST`
