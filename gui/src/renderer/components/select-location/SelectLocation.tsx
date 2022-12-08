@@ -71,7 +71,7 @@ export default function SelectLocation() {
 
   const [searchValue, setSearchValue] = useState('');
 
-  const onClose = useCallback(() => history.dismiss(), [history]);
+  const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
   const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';

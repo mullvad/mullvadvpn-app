@@ -179,7 +179,7 @@ function useRelayList(
 // Return all RelayLocations that should be expanded
 function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
   const { locationType, searchTerm } = useSelectLocationContext();
-  const { spacePreAllocationViewRef, scrollViewRef } = useScrollPositionContext();
+  const { spacePreAllocationViewRef, scrollIntoView } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
 
@@ -217,7 +217,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
       if (invokedByUser) {
         locationRect.height += expandedContentHeight;
         spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
-        scrollViewRef.current?.scrollIntoView(locationRect);
+        scrollIntoView(locationRect);
       }
     },
     [],

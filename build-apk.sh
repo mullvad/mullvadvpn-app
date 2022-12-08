@@ -21,6 +21,7 @@ CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
+SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
 
 while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -41,6 +42,8 @@ while [ ! -z "${1:-""}" ]; do
         BUILD_BUNDLE="yes"
     elif [[ "${1:-""}" == "--no-docker" ]]; then
         EXTRA_WGGO_ARGS="--no-docker"
+    elif [[ "${1:-""}" == "--skip-stripping" ]]; then
+        SKIP_STRIPPING="yes"
     fi
 
     shift 1
@@ -111,11 +114,10 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
     UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 
-
-    if [[ "$BUILD_TYPE" != "debug" ]]; then
-        $STRIP_TOOL --strip-debug --strip-unneeded -o "$TARGET_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
-    else
+    if [[ "$SKIP_STRIPPING" == "yes" ]]; then
         cp "$UNSTRIPPED_LIB_PATH" "$TARGET_LIB_PATH"
+    else
+        $STRIP_TOOL --strip-debug --strip-unneeded -o "$TARGET_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
     fi
 done
 

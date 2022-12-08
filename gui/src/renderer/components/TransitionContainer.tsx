@@ -91,6 +91,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
 
   private currentContentRef = React.createRef<HTMLDivElement>();
   private nextContentRef = React.createRef<HTMLDivElement>();
+  // The item that should trigger the cycle to finish in onTransitionEnd
+  private transitioningItemRef?: React.RefObject<HTMLDivElement>;
 
   public static getDerivedStateFromProps(props: IProps, state: IState) {
     const candidate = props.children;
@@ -187,12 +189,11 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
-    if (
-      this.isCycling &&
-      (event.target === this.currentContentRef.current ||
-        event.target === this.nextContentRef.current)
-    ) {
-      this.continueCycling();
+    if (this.isCycling && event.target === this.transitioningItemRef?.current) {
+      this.transitioningItemRef = undefined;
+      this.makeNextItemCurrent(() => {
+        this.onFinishCycle();
+      });
     }
   };
 
@@ -203,14 +204,10 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     }
   }
 
-  private finishCycling() {
-    this.isCycling = false;
+  private onFinishCycle() {
     this.props.onTransitionEnd();
+    this.cycleUnguarded();
   }
-
-  private continueCycling = () => {
-    this.makeNextItemCurrent(this.cycleUnguarded);
-  };
 
   private cycleUnguarded = () => {
     const itemQueue = this.state.itemQueue;
@@ -237,11 +234,11 @@ export default class TransitionContainer extends React.Component<IProps, IState>
           break;
 
         default:
-          this.replace(this.cycleUnguarded);
+          this.replace(() => this.onFinishCycle);
           break;
       }
     } else {
-      this.finishCycling();
+      this.isCycling = false;
     }
   };
 
@@ -270,6 +267,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private slideUp(duration: number) {
+    this.transitioningItemRef = this.nextContentRef;
     this.setState((state) => ({
       nextItem: state.itemQueue[0],
       itemQueue: state.itemQueue.slice(1),
@@ -281,6 +279,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private slideDown(duration: number) {
+    this.transitioningItemRef = this.currentContentRef;
     this.setState((state) => ({
       nextItem: state.itemQueue[0],
       itemQueue: state.itemQueue.slice(1),
@@ -292,6 +291,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private push(duration: number) {
+    this.transitioningItemRef = this.nextContentRef;
     this.setState((state) => ({
       nextItem: state.itemQueue[0],
       itemQueue: state.itemQueue.slice(1),
@@ -303,6 +303,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private pop(duration: number) {
+    this.transitioningItemRef = this.currentContentRef;
     this.setState((state) => ({
       nextItem: state.itemQueue[0],
       itemQueue: state.itemQueue.slice(1),

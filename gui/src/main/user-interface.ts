@@ -653,7 +653,7 @@ export default class UserInterface implements WindowControllerDelegate {
         return 'securing';
 
       case 'error':
-        if (!tunnelState.details.blockFailure) {
+        if (!tunnelState.details.blockingError) {
           return 'securing';
         } else {
           return 'unsecured';

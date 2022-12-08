@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -44,7 +42,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
-import org.joda.time.DateTime
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -145,7 +143,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            launchScheduledExpiryCheck()
             launchLocationSubscription()
             launchRelayLocationSubscription()
             launchTunnelStateSubscription()
@@ -153,17 +150,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             launchAccountExpirySubscription()
             launchTunnelInfoExpansionSubscription()
         }
-    }
-
-    private fun CoroutineScope.launchScheduledExpiryCheck() = launch {
-        accountRepository.accountExpiryState
-            .map { state -> state.date() }
-            .collect { expiryDate ->
-                if (expiryDate?.isBeforeNow == true) {
-                    openOutOfTimeScreen()
-                } else if (expiryDate != null)
-                    scheduleNextAccountExpiryCheck(expiryDate)
-            }
     }
 
     private fun CoroutineScope.launchLocationSubscription() = launch {
@@ -235,6 +221,10 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
         actionButton.tunnelState = uiState
         switchLocationButton.tunnelState = uiState
+
+        if (realState.isTunnelErrorStateDueToExpiredAccount()) {
+            openOutOfTimeScreen()
+        }
     }
 
     private fun openSwitchLocationScreen() {
@@ -260,19 +250,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         }
     }
 
-    private fun scheduleNextAccountExpiryCheck(expiration: DateTime) {
-        jobTracker.newBackgroundJob("refetchAccountExpiry") {
-            val millisUntilExpiration = expiration.millis - DateTime.now().millis
-
-            delay(millisUntilExpiration)
-            accountRepository.fetchAccountExpiry()
-
-            // If the account ran out of time but is still connected, fetching the expiry again will
-            // fail. Therefore, after a timeout of 5 seconds the app will assume the account time
-            // really expired and move to the out of time screen. However, if fetching the expiry
-            // succeeds, this job is cancelled and replaced with a new scheduled check.
-            delay(5_000)
-            openOutOfTimeScreen()
-        }
+    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
+        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
+            ?.isCausedByExpiredAccount() ?: false
     }
 }

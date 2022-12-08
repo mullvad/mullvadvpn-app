@@ -11,13 +11,12 @@ import protocol MullvadREST.RESTTransport
 import MullvadTypes
 import TunnelProviderMessaging
 
-final class PacketTunnelTransport: RESTTransport {
+struct PacketTunnelTransport: RESTTransport {
     var name: String {
         return "packet-tunnel"
     }
 
     let tunnel: Tunnel
-
     init(tunnel: Tunnel) {
         self.tunnel = tunnel
     }

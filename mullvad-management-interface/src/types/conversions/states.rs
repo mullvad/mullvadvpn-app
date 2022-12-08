@@ -1,4 +1,6 @@
-use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
+#[cfg(windows)]
+use crate::types::conversions::option_from_proto_string;
+use crate::types::{proto, FromProtobufTypeError};
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
@@ -101,14 +103,14 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
-                        auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
-                            reason,
-                        ) = error_state.cause()
-                        {
-                            reason.clone().unwrap_or_default()
-                        } else {
-                            "".to_string()
-                        },
+                        auth_failed_error: mullvad_types::auth_failed::AuthFailed::try_from(
+                            error_state.cause(),
+                        )
+                        .ok()
+                        .map(|auth_failed| {
+                            i32::from(proto::error_state::AuthFailedError::from(auth_failed))
+                        })
+                        .unwrap_or(0i32),
                         parameter_error:
                             if let talpid_tunnel::ErrorStateCause::TunnelParameterError(reason) =
                                 error_state.cause()
@@ -144,6 +146,42 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
         };
 
         proto::TunnelState { state: Some(state) }
+    }
+}
+
+impl From<mullvad_types::auth_failed::AuthFailed> for proto::error_state::AuthFailedError {
+    fn from(auth_failed: mullvad_types::auth_failed::AuthFailed) -> Self {
+        use mullvad_types::auth_failed::AuthFailed;
+        use proto::error_state;
+        match auth_failed {
+            AuthFailed::InvalidAccount => error_state::AuthFailedError::InvalidAccount,
+            AuthFailed::ExpiredAccount => error_state::AuthFailedError::ExpiredAccount,
+            AuthFailed::TooManyConnections => error_state::AuthFailedError::TooManyConnections,
+            AuthFailed::Unknown => error_state::AuthFailedError::Unknown,
+        }
+    }
+}
+
+fn try_auth_failed_from_i32(
+    auth_failed_error: i32,
+) -> Result<mullvad_types::auth_failed::AuthFailed, FromProtobufTypeError> {
+    proto::error_state::AuthFailedError::from_i32(auth_failed_error)
+        .map(mullvad_types::auth_failed::AuthFailed::from)
+        .ok_or(FromProtobufTypeError::InvalidArgument(
+            "invalid auth failed error",
+        ))
+}
+
+impl From<proto::error_state::AuthFailedError> for mullvad_types::auth_failed::AuthFailed {
+    fn from(auth_failed: proto::error_state::AuthFailedError) -> Self {
+        use mullvad_types::auth_failed::AuthFailed;
+        use proto::error_state;
+        match auth_failed {
+            error_state::AuthFailedError::InvalidAccount => AuthFailed::InvalidAccount,
+            error_state::AuthFailedError::ExpiredAccount => AuthFailed::ExpiredAccount,
+            error_state::AuthFailedError::TooManyConnections => AuthFailed::TooManyConnections,
+            error_state::AuthFailedError::Unknown => AuthFailed::Unknown,
+        }
     }
 }
 
@@ -205,15 +243,16 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     Some(proto::ErrorState {
                         cause,
                         blocking_error,
-                        auth_fail_reason,
+                        auth_failed_error,
                         parameter_error,
                         policy_error,
                     }),
             })) => {
                 let cause = match proto::error_state::Cause::from_i32(cause) {
                     Some(proto::error_state::Cause::AuthFailed) => {
-                        talpid_tunnel::ErrorStateCause::AuthFailed(option_from_proto_string(
-                            auth_fail_reason,
+                        let auth_failed = try_auth_failed_from_i32(auth_failed_error)?;
+                        talpid_tunnel::ErrorStateCause::AuthFailed(Some(
+                            auth_failed.as_str().to_string(),
                         ))
                     }
                     Some(proto::error_state::Cause::Ipv6Unavailable) => {

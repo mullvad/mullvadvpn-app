@@ -51,7 +51,7 @@ export default function NotificationArea(props: IProps) {
       blockWhenDisconnected,
       hasExcludedApps,
     }),
-    new ErrorNotificationProvider({ tunnelState, accountExpiry, hasExcludedApps }),
+    new ErrorNotificationProvider({ tunnelState, hasExcludedApps }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
   ];

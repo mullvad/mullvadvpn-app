@@ -280,7 +280,7 @@ function useFinishedCallback() {
       accountSetupFinished();
     }
 
-    history.reset(RoutePath.main, transitions.push);
+    history.reset(RoutePath.main, { transition: transitions.push });
   }, [isNewAccount, accountSetupFinished, history]);
 
   return callback;

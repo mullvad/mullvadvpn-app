@@ -93,11 +93,11 @@ export default function TooManyDevices() {
 
   const continueLogin = useCallback(() => {
     void login(accountToken);
-    history.reset(RoutePath.login, transitions.pop);
+    history.reset(RoutePath.login, { transition: transitions.pop });
   }, [login, accountToken]);
   const cancel = useCallback(() => {
     cancelLogin();
-    history.reset(RoutePath.login, transitions.pop);
+    history.reset(RoutePath.login, { transition: transitions.pop });
   }, [history.reset, cancelLogin]);
 
   const iconSource = getIconSource(devices);

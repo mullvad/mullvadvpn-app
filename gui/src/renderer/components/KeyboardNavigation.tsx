@@ -20,14 +20,14 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
         const path = location.pathname as RoutePath;
         if (!disableDismissForRoutes.includes(path)) {
           if (event.shiftKey) {
-            history.dismiss(true);
+            history.pop(true);
           } else {
             backAction?.action();
           }
         }
       }
     },
-    [history.dismiss, backAction, location.pathname],
+    [history.pop, backAction, location.pathname],
   );
 
   useEffect(() => {

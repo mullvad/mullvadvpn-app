@@ -58,7 +58,7 @@ describe('History', () => {
   });
 
   it('should go backward to base path', () => {
-    history.dismiss(true);
+    history.pop(true);
     expect(history.location.pathname).to.equal(BASE_PATH);
     expect(history.length).to.equal(1);
   });
@@ -77,7 +77,7 @@ describe('History', () => {
 
     const listenerB = spy();
     history.listen(listenerB);
-    history.dismiss(true);
+    history.pop(true);
     history.push(FIRST_PATH);
 
     expect(listenerA).to.have.been.called.exactly(4);
@@ -92,7 +92,7 @@ describe('History', () => {
 
     const listenerB = spy();
     history.listen(listenerB);
-    history.dismiss(true);
+    history.pop(true);
 
     removeListenerA();
     history.push(FIRST_PATH);

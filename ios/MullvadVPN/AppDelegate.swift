@@ -7,7 +7,6 @@
 //
 
 import BackgroundTasks
-import Intents
 import MullvadLogging
 import MullvadREST
 import Operations
@@ -32,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return operationQueue
     }()
 
+    private(set) var tunnelStore: TunnelStore!
     private(set) var tunnelManager: TunnelManager!
     private(set) var addressCache: REST.AddressCache!
 
@@ -81,8 +81,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             store: addressCache
         )
 
+        tunnelStore = TunnelStore(application: application)
+
         tunnelManager = TunnelManager(
             application: application,
+            tunnelStore: tunnelStore,
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy
@@ -108,10 +111,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupNotificationHandler()
         addApplicationNotifications(application: application)
 
-        let loadVPNConfigurationsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            TunnelProviderManagerType.loadAllFromPreferences { tunnels, error in
-                self.transportMonitor = TransportMonitor(tunnelManager: self.tunnelManager,
-                                                         tunnel: tunnels?.first)
+        let loadTunnelsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            self.tunnelStore.loadPersistentTunnels { error in
+                if let error = error {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to load persistent tunnels."
+                    )
+                }
 
                 operation.finish()
             }
@@ -136,6 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
         }
+        migrateSettingsOperation.addDependency(loadTunnelsOperation)
 
         let loadTunnelConfigurationOperation =
             AsyncBlockOperation(dispatchQueue: .main) { operation in
@@ -153,30 +161,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     operation.finish()
                 }
             }
-
-        migrateSettingsOperation.addDependency(loadVPNConfigurationsOperation)
-
         loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
 
         operationQueue.addOperations(
-            [loadVPNConfigurationsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
+            [loadTunnelsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
             waitUntilFinished: false
         )
 
         return true
-    }
-
-    func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
-        switch intent {
-        case is StartVPNIntent:
-            return StartVPNIntentHandler(tunnelManager: tunnelManager)
-        case is StopVPNIntent:
-            return StopVPNIntentHandler(tunnelManager: tunnelManager)
-        case is ReconnectVPNIntent:
-            return ReconnectVPNIntentHandler(tunnelManager: tunnelManager)
-        default:
-            return nil
-        }
     }
 
     // MARK: - UISceneSession lifecycle
@@ -203,7 +195,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // MARK: - Notifications
 
     @objc private func didBecomeActive(_ notification: Notification) {
-        tunnelManager.refreshTunnelStatus()
         tunnelManager.startPeriodicPrivateKeyRotation()
         relayCacheTracker.startPeriodicUpdates()
         addressCacheTracker.startPeriodicUpdates()
