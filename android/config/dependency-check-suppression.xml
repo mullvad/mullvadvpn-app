@@ -21,4 +21,19 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
         <cve>CVE-2022-3171</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE affects the Apache Commons Net's FTP client that this app doesn't use.
+        https://www.openwall.com/lists/oss-security/2022/12/03/1
+
+        File names:
+        - commons-beanutils-1.9.4.jar
+        - commons-collections-3.2.2.jar
+        - commons-digester-2.1.jar
+        - commons-logging-1.2.jar
+        - commons-validator-1.7.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-.*/commons\-.*@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
 </suppressions>
