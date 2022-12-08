@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress>
-        <notes><![CDATA[
-        This CVE only affect Multiplatform Gradle Projects, which this project is not.
-        ]]></notes>
-        <cve>CVE-2022-24329</cve>
-    </suppress>
+    <!--
+    CVEs in the e2e project are deemed less severe than CVEs in the main projects as CVEs in the e2e
+    project doesn't affect release or debug versions of the app.
+    -->
     <suppress>
         <notes><![CDATA[
         This CVE is a false positive as the description refers to a GO library (github.com/containers/storage).
@@ -30,6 +28,15 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <cve>CVE-2022-3171</cve>
+        <cve>CVE-2022-3509</cve>
+        <cve>CVE-2021-22569</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
         This CVE affects the Apache Commons Net's FTP client that this app doesn't use.
         https://www.openwall.com/lists/oss-security/2022/12/03/1
 
@@ -42,5 +49,46 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/commons\-.*/commons\-.*@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        https://nvd.nist.gov/vuln/detail/CVE-2021-29425
+
+        File name: commons-io-2.4.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <cve>CVE-2021-29425</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty\-.*@.*$</packageUrl>
+        <cve>CVE-2021-37136</cve>
+        <cve>CVE-2021-37137</cve>
+        <cve>CVE-2021-43797</cve>
+        <cve>CVE-2021-21295</cve>
+        <cve>CVE-2021-21409</cve>
+        <cve>CVE-2021-21290</cve>
+        <cve>CVE-2022-24823</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        https://nvd.nist.gov/vuln/detail/CVE-2022-25647
+
+        File name: gson-2.8.6.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
+        <cve>CVE-2022-25647</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        This CVE only affect Multiplatform Gradle Projects, which this project is not.
+        https://nvd.nist.gov/vuln/detail/CVE-2022-24329
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib.*@.*$</packageUrl>
+        <cve>CVE-2022-24329</cve>
     </suppress>
 </suppressions>
