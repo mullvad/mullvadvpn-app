@@ -98,6 +98,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
+        transportMonitor = TransportMonitor(tunnelManager: tunnelManager, tunnelStore: tunnelStore)
+
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
         simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
