@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 
@@ -37,21 +37,21 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
 
         endpoint.dispatcher.apply {
             registerHandler(Request.AddCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(Command.AddDnsServer(request.address))
+                commandChannel.trySendBlocking(Command.AddDnsServer(request.address))
             }
 
             registerHandler(Request.RemoveCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(Command.RemoveDnsServer(request.address))
+                commandChannel.trySendBlocking(Command.RemoveDnsServer(request.address))
             }
 
             registerHandler(Request.ReplaceCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(
+                commandChannel.trySendBlocking(
                     Command.ReplaceDnsServer(request.oldAddress, request.newAddress)
                 )
             }
 
             registerHandler(Request.SetEnableCustomDns::class) { request ->
-                commandChannel.sendBlocking(Command.SetEnabled(request.enable))
+                commandChannel.trySendBlocking(Command.SetEnabled(request.enable))
             }
         }
     }

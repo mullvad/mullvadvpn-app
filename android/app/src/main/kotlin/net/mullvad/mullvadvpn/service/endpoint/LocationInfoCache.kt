@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
@@ -51,12 +51,12 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         when (newState) {
             is TunnelState.Disconnected -> {
                 location = lastKnownRealLocation
-                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
+                fetchRequestChannel.trySendBlocking(RequestFetch.ForRealLocation)
             }
             is TunnelState.Connecting -> location = newState.location
             is TunnelState.Connected -> {
                 location = newState.location
-                fetchRequestChannel.sendBlocking(RequestFetch.ForRelayLocation)
+                fetchRequestChannel.trySendBlocking(RequestFetch.ForRelayLocation)
             }
             is TunnelState.Disconnecting -> {
                 when (newState.actionAfterDisconnect) {
@@ -76,7 +76,7 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
 
         endpoint.connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
-                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
+                fetchRequestChannel.trySendBlocking(RequestFetch.ForRealLocation)
             }
         }
 

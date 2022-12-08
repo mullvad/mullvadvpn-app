@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
@@ -27,7 +27,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
 
     private var selectedRelayLocation by observable<LocationConstraint?>(null) { _, _, _ ->
-        commandChannel.sendBlocking(Command.SetRelayLocation)
+        commandChannel.trySendBlocking(Command.SetRelayLocation)
     }
 
     var relayList by observable<RelayList?>(null) { _, _, relays ->

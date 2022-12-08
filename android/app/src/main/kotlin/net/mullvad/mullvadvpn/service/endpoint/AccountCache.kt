@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
@@ -64,17 +64,17 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
         endpoint.dispatcher.apply {
             registerHandler(Request.CreateAccount::class) { _ ->
-                commandChannel.sendBlocking(Command.CreateAccount)
+                commandChannel.trySendBlocking(Command.CreateAccount)
             }
 
             registerHandler(Request.Login::class) { request ->
                 request.account?.let { account ->
-                    commandChannel.sendBlocking(Command.Login(account))
+                    commandChannel.trySendBlocking(Command.Login(account))
                 }
             }
 
             registerHandler(Request.Logout::class) { _ ->
-                commandChannel.sendBlocking(Command.Logout)
+                commandChannel.trySendBlocking(Command.Logout)
             }
 
             registerHandler(Request.FetchAccountExpiry::class) { _ ->

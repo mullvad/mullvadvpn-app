@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 
@@ -17,7 +17,7 @@ class VoucherRedeemer(private val endpoint: ServiceEndpoint) {
 
     init {
         endpoint.dispatcher.registerHandler(Request.SubmitVoucher::class) { request ->
-            voucherChannel.sendBlocking(request.voucher)
+            voucherChannel.trySendBlocking(request.voucher)
         }
     }
 

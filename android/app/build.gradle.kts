@@ -2,7 +2,6 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id(Dependencies.Plugin.androidApplicationId)
@@ -25,12 +24,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion(Versions.Android.compileSdkVersion)
+    namespace = "net.mullvad.mullvadvpn"
+    compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
         applicationId = "net.mullvad.mullvadvpn"
-        minSdkVersion(Versions.Android.minSdkVersion)
-        targetSdkVersion(Versions.Android.targetSdkVersion)
+        minSdk = Versions.Android.minSdkVersion
+        targetSdk = Versions.Android.targetSdkVersion
         versionCode = generateVersionCode()
         versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -104,7 +104,6 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion = Versions.kotlin
         kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion
     }
 
@@ -114,9 +113,14 @@ android {
     }
 
     kotlinOptions {
+        allWarningsAsErrors = false
         jvmTarget = Versions.jvmTarget
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-        // Opt-in option for Koin annotation of KoinComponent.
+        freeCompilerArgs = listOf(
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
+            // Opt-in option for Koin annotation of KoinComponent.
+            "-opt-in=kotlin.RequiresOptIn"
+        )
     }
 
     tasks.withType<com.android.build.gradle.tasks.MergeSourceSetFolders> {
@@ -136,10 +140,16 @@ android {
 
     packagingOptions {
         jniLibs.useLegacyPackaging = true
-
-        // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
-        pickFirst("META-INF/AL2.0")
-        pickFirst("META-INF/LGPL2.1")
+        resources {
+            pickFirsts += setOf(
+                // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                // Fixes packaging error caused by: jetified-junit-*
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
@@ -151,17 +161,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
     skipConfigurations = listOf("lintClassPath")
-}
-
-tasks.withType<KotlinCompile>().all {
-    kotlinOptions {
-        allWarningsAsErrors = false
-
-        kotlinOptions.freeCompilerArgs = listOf(
-            "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
-        )
-    }
 }
 
 tasks.register("copyExtraAssets", Copy::class) {
@@ -186,7 +185,7 @@ tasks.create("printVersion") {
 }
 
 play {
-    serviceAccountCredentials = file("play-api-key.json")
+    serviceAccountCredentials.set(file("play-api-key.json"))
 }
 
 dependencies {
@@ -229,6 +228,8 @@ dependencies {
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
+    // Fixes: https://github.com/android/android-test/issues/1589
+    debugImplementation(Dependencies.AndroidX.testMonitor)
     debugImplementation(Dependencies.Compose.testManifest)
     androidTestImplementation(Dependencies.AndroidX.espressoContrib)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)

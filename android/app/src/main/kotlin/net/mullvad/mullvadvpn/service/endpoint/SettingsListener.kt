@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
@@ -45,15 +45,15 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
         endpoint.dispatcher.apply {
             registerHandler(Request.SetAllowLan::class) { request ->
-                commandChannel.sendBlocking(Command.SetAllowLan(request.allow))
+                commandChannel.trySendBlocking(Command.SetAllowLan(request.allow))
             }
 
             registerHandler(Request.SetAutoConnect::class) { request ->
-                commandChannel.sendBlocking(Command.SetAutoConnect(request.autoConnect))
+                commandChannel.trySendBlocking(Command.SetAutoConnect(request.autoConnect))
             }
 
             registerHandler(Request.SetWireGuardMtu::class) { request ->
-                commandChannel.sendBlocking(Command.SetWireGuardMtu(request.mtu))
+                commandChannel.trySendBlocking(Command.SetWireGuardMtu(request.mtu))
             }
         }
     }

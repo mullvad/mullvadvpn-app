@@ -29,14 +29,16 @@ object Dependencies {
             "androidx.test.espresso:espresso-contrib:${Versions.AndroidX.espresso}"
         const val testCore =
             "androidx.test:core:${Versions.AndroidX.test}"
+        const val testMonitor =
+            "androidx.test:monitor:${Versions.AndroidX.testMonitor}"
         const val testRunner =
-            "androidx.test:runner:${Versions.AndroidX.test}"
+            "androidx.test:runner:${Versions.AndroidX.testRunner}"
         const val testRules =
             "androidx.test:rules:${Versions.AndroidX.test}"
         const val testUiAutomator =
             "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
         const val testOrchestrator =
-            "androidx.test:orchestrator:${Versions.AndroidX.test}"
+            "androidx.test:orchestrator:${Versions.AndroidX.testOrchestrator}"
     }
 
     object Compose {
@@ -81,16 +83,17 @@ object Dependencies {
     }
 
     object Plugin {
-        const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:linux"
-        const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:osx"
-        const val aaptWindows = "com.android.tools.build:aapt2:${Versions.Plugin.aapt}:windows"
+        const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:linux"
+        const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:osx"
+        const val aaptWindows =
+            "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:windows"
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
         const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
-        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.Plugin.kotlin}"
+        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
         const val kotlinAndroidId = "kotlin-android"
         const val kotlinParcelizeId = "kotlin-parcelize"
         const val dependencyCheck =
