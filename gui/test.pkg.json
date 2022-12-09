@@ -5,6 +5,7 @@
     "win-x64"
   ],
   "assets": [
+    "build/src/config.json",
     "build/test/e2e/utils.js",
     "build/test/e2e/installed/**/*.js",
     "node_modules/.bin/playwright",
