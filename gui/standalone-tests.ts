@@ -21,7 +21,7 @@ function main() {
 
   // Tests need to be run sequentially since they interact with the same daemon instance.
   // Arguments are forwarded to playwright to make it possible to run specific tests.
-  const args = [playwrightBin, 'test', ...process.argv.slice(2)];
+  const args = [playwrightBin, 'test', '--workers', '1', ...process.argv.slice(2)];
   const result = spawnSync(nodeBin, args, { encoding: 'utf8', cwd: tmpDir });
 
   removeTmpDir();
