@@ -47,7 +47,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Last wireguard error.
     private var wgError: PacketTunnelErrorWrapper?
 
-    /// Last runtime error.
+    /// Last tunnel provider error.
     private var tunnelProviderError: PacketTunnelErrorWrapper?
 
     /// Relay cache.
