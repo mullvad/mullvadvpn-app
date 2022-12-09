@@ -497,8 +497,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.dispatchQueue.async {
                 if let error = error {
                     let wrappedError: PacketTunnelErrorWrapper = .wireguard(
-                        error: error
-                            .localizedDescription
+                        error: error.localizedDescription
                     )
 
                     self.lastError = wrappedError
