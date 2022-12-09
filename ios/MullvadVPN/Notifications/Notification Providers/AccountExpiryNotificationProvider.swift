@@ -182,6 +182,6 @@ final class AccountExpiryNotificationProvider: NotificationProvider, SystemNotif
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        invalidate(deviceState: manager.deviceState)
+        invalidate(deviceState: deviceState)
     }
 }
