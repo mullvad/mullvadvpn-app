@@ -10,6 +10,7 @@ import path from 'path';
 const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
 const rootDir = path.join(__dirname, '..');
 const nodeModulesDir = path.join(rootDir, 'node_modules');
+const srcDir = path.join(rootDir, 'build', 'src');
 const testDir = path.join(rootDir, 'build', 'test');
 
 const nodeBin = process.argv[0];
@@ -32,6 +33,7 @@ function extract() {
   removeTmpDir();
   fs.mkdirSync(tmpDir);
 
+  extractDirectory(srcDir);
   extractDirectory(testDir);
   extractDirectory(nodeModulesDir);
 }
