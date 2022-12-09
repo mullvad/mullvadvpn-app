@@ -12,18 +12,27 @@ import UserNotifications
 
 final class NotificationManager: NotificationProviderDelegate {
     private lazy var logger = Logger(label: "NotificationManager")
+    private var _notificationProviders: [NotificationProvider] = []
+    private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
-    var notificationProviders: [NotificationProvider] = [] {
-        didSet {
+    var notificationProviders: [NotificationProvider] {
+        set(newNotificationProviders) {
             dispatchPrecondition(condition: .onQueue(.main))
 
-            for notificationProvider in notificationProviders {
-                notificationProvider.delegate = self
+            for oldNotificationProvider in _notificationProviders {
+                oldNotificationProvider.delegate = nil
             }
+
+            for newNotificationProvider in newNotificationProviders {
+                newNotificationProvider.delegate = self
+            }
+
+            _notificationProviders = newNotificationProviders
+        }
+        get {
+            return _notificationProviders
         }
     }
-
-    private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
     weak var delegate: NotificationManagerDelegate? {
         didSet {
@@ -106,6 +115,14 @@ final class NotificationManager: NotificationProviderDelegate {
             self,
             notifications: newInAppNotificationDescriptors
         )
+    }
+
+    func handleSystemNotificationResponse(_ response: UNNotificationResponse) {
+        for case let notificationProvider as SystemNotificationProvider in notificationProviders {
+            if notificationProvider.handleResponse(response) {
+                return
+            }
+        }
     }
 
     // MARK: - Private

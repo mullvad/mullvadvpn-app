@@ -9,19 +9,19 @@
 import Foundation
 import UserNotifications
 
-let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
 private let defaultTriggerInterval = 3
 
 final class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
     InAppNotificationProvider, TunnelObserver
 {
-    private var accountExpiry: Date?
-
     /// Interval prior to expiry used to calculate when to trigger notifications.
     private let triggerInterval: Int
+    private var accountExpiry: Date?
+
+    var defaultActionHandler: (() -> Void)?
 
     override var identifier: String {
-        return accountExpiryNotificationIdentifier
+        return "net.mullvad.MullvadVPN.AccountExpiryNotification"
     }
 
     init(tunnelManager: TunnelManager, triggerInterval: Int = defaultTriggerInterval) {
@@ -99,6 +99,18 @@ final class AccountExpiryNotificationProvider: NotificationProvider, SystemNotif
     var shouldRemoveDeliveredRequests: Bool {
         // Remove delivered notifications when account expiry is not set (user logged out)
         return shouldRemovePendingOrDeliveredRequests
+    }
+
+    func handleResponse(_ response: UNNotificationResponse) -> Bool {
+        guard response.notification.request.identifier == identifier else {
+            return false
+        }
+
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            defaultActionHandler?()
+        }
+
+        return true
     }
 
     // MARK: - InAppNotificationProvider

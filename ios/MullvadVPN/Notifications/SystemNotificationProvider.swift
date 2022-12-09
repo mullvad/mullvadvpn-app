@@ -19,4 +19,8 @@ protocol SystemNotificationProvider: NotificationProviderProtocol {
 
     /// Whether any delivered requests should be removed.
     var shouldRemoveDeliveredRequests: Bool { get }
+
+    /// Handle system notification response.
+    /// Return `true` if response was handled by this provider, otherwise `false`.
+    func handleResponse(_ response: UNNotificationResponse) -> Bool
 }
