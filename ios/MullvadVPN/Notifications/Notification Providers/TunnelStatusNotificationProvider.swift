@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider,
+final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider,
     TunnelObserver
 {
     private var isWaitingForConnectivity = false

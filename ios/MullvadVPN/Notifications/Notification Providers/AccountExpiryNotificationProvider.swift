@@ -12,7 +12,7 @@ import UserNotifications
 let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
 private let defaultTriggerInterval = 3
 
-class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
+final class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
     InAppNotificationProvider, TunnelObserver
 {
     private var accountExpiry: Date?
@@ -85,7 +85,7 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
-            identifier: accountExpiryNotificationIdentifier,
+            identifier: identifier,
             content: content,
             trigger: trigger
         )

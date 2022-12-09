@@ -8,72 +8,15 @@
 
 import Foundation
 import MullvadLogging
-import UIKit
 import UserNotifications
 
-protocol NotificationManagerDelegate: AnyObject {
-    func notificationManagerDidUpdateInAppNotifications(
-        _ manager: NotificationManager,
-        notifications: [InAppNotificationDescriptor]
-    )
-}
-
-private protocol NotificationProviderDelegate: AnyObject {
-    func notificationProviderDidInvalidate(_ notificationProvider: NotificationProvider)
-}
-
-class NotificationProvider {
-    fileprivate weak var delegate: NotificationProviderDelegate?
-
-    var identifier: String {
-        return "default"
-    }
-
-    func invalidate() {
-        let executor = {
-            self.delegate?.notificationProviderDidInvalidate(self)
-            return
-        }
-
-        if Thread.isMainThread {
-            executor()
-        } else {
-            DispatchQueue.main.async(execute: executor)
-        }
-    }
-}
-
-protocol SystemNotificationProvider {
-    /// Unique provider identifier used to identify requests
-    var identifier: String { get }
-
-    /// Notification request if available, otherwise `nil`
-    var notificationRequest: UNNotificationRequest? { get }
-
-    /// Whether any pending requests should be removed
-    var shouldRemovePendingRequests: Bool { get }
-
-    /// Whether any delivered requests should be removed
-    var shouldRemoveDeliveredRequests: Bool { get }
-}
-
-protocol InAppNotificationProvider {
-    /// Unique provider identifier used to identify notifications
-    var identifier: String { get }
-
-    /// In-app notification descriptor
-    var notificationDescriptor: InAppNotificationDescriptor? { get }
-}
-
-class NotificationManager: NotificationProviderDelegate {
+final class NotificationManager: NotificationProviderDelegate {
     private lazy var logger = Logger(label: "NotificationManager")
 
     var notificationProviders: [NotificationProvider] = [] {
-        willSet {
-            assert(Thread.isMainThread)
-        }
-
         didSet {
+            dispatchPrecondition(condition: .onQueue(.main))
+
             for notificationProvider in notificationProviders {
                 notificationProvider.delegate = self
             }
@@ -83,11 +26,9 @@ class NotificationManager: NotificationProviderDelegate {
     private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
     weak var delegate: NotificationManagerDelegate? {
-        willSet {
-            assert(Thread.isMainThread)
-        }
-
         didSet {
+            dispatchPrecondition(condition: .onQueue(.main))
+
             // Pump in-app notifications when changing delegate.
             if !inAppNotificationDescriptors.isEmpty {
                 delegate?.notificationManagerDidUpdateInAppNotifications(
@@ -103,7 +44,7 @@ class NotificationManager: NotificationProviderDelegate {
     private init() {}
 
     func updateNotifications() {
-        assert(Thread.isMainThread)
+        dispatchPrecondition(condition: .onQueue(.main))
 
         var newSystemNotificationRequests = [UNNotificationRequest]()
         var newInAppNotificationDescriptors = [InAppNotificationDescriptor]()
@@ -133,10 +74,13 @@ class NotificationManager: NotificationProviderDelegate {
         }
 
         let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter
-            .removePendingNotificationRequests(withIdentifiers: pendingRequestIdentifiersToRemove)
-        notificationCenter
-            .removeDeliveredNotifications(withIdentifiers: deliveredRequestIdentifiersToRemove)
+
+        notificationCenter.removePendingNotificationRequests(
+            withIdentifiers: pendingRequestIdentifiersToRemove
+        )
+        notificationCenter.removeDeliveredNotifications(
+            withIdentifiers: deliveredRequestIdentifiersToRemove
+        )
 
         requestNotificationPermissions { granted in
             guard granted else { return }
@@ -146,7 +90,10 @@ class NotificationManager: NotificationProviderDelegate {
                     if let error = error {
                         self.logger.error(
                             error: error,
-                            message: "Failed to add notification request with identifier \(newRequest.identifier)."
+                            message: """
+                            Failed to add notification request with identifier \
+                            \(newRequest.identifier).
+                            """
                         )
                     }
                 }
@@ -170,16 +117,17 @@ class NotificationManager: NotificationProviderDelegate {
         userNotificationCenter.getNotificationSettings { notificationSettings in
             switch notificationSettings.authorizationStatus {
             case .notDetermined:
-                userNotificationCenter
-                    .requestAuthorization(options: authorizationOptions) { granted, error in
-                        if let error = error {
-                            self.logger.error(
-                                error: error,
-                                message: "Failed to obtain user notifications authorization"
-                            )
-                        }
-                        completion(granted)
+                userNotificationCenter.requestAuthorization(
+                    options: authorizationOptions
+                ) { granted, error in
+                    if let error = error {
+                        self.logger.error(
+                            error: error,
+                            message: "Failed to obtain user notifications authorization"
+                        )
                     }
+                    completion(granted)
+                }
 
             case .authorized, .provisional:
                 completion(true)
@@ -203,19 +151,15 @@ class NotificationManager: NotificationProviderDelegate {
             let notificationCenter = UNUserNotificationCenter.current()
 
             if notificationProvider.shouldRemovePendingRequests {
-                notificationCenter
-                    .removePendingNotificationRequests(withIdentifiers: [
-                        notificationProvider
-                            .identifier,
-                    ])
+                notificationCenter.removePendingNotificationRequests(withIdentifiers: [
+                    notificationProvider.identifier,
+                ])
             }
 
             if notificationProvider.shouldRemoveDeliveredRequests {
-                notificationCenter
-                    .removeDeliveredNotifications(withIdentifiers: [
-                        notificationProvider
-                            .identifier,
-                    ])
+                notificationCenter.removeDeliveredNotifications(withIdentifiers: [
+                    notificationProvider.identifier,
+                ])
             }
 
             if let request = notificationProvider.notificationRequest {
@@ -224,10 +168,12 @@ class NotificationManager: NotificationProviderDelegate {
 
                     notificationCenter.add(request) { error in
                         if let error = error {
-                            self.logger
-                                .error(
-                                    "Failed to add notification request with identifier \(request.identifier). Error: \(error.localizedDescription)"
-                                )
+                            self.logger.error(
+                                """
+                                Failed to add notification request with identifier \
+                                \(request.identifier). Error: \(error.localizedDescription)
+                                """
+                            )
                         }
                     }
                 }
