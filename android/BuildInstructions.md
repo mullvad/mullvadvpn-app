@@ -1,150 +1,170 @@
-These instructions are for building the app for Android **under Linux**.
+# Build instructions
 
-# Set up build environment
+This document aims to explain how to build the Mullvad Android app. It's strongly recommended and
+primarily supported to build the app using the provided container, as it ensures the correct build
+environment.
 
-These instructions are probably not complete. If you find something more that needs installing
-on your platform please submit an issue or a pull request.
+## Build with provided container (recommended)
 
-- Docker is required to build `wireguard-go`. Follow the
-  [instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
+This can easily be achieved by running the [containerized-build.sh](../building/containerized-build.sh)
+script, which helps using the correct tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
+by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
+can be used by setting the `CONTAINER_RUNNER` environment variable.
 
-- Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros
-  via the package name `protobuf-compiler`. An additional package might also be required depending
-  on Linux distro:
-  - `protobuf-devel` on Fedora.
-  - `libprotobuf-dev` on Debian/Ubuntu.
+### Debug build
+Run the following command to trigger a full debug build:
+```bash
+../building/containerized-build.sh android --dev-build
+```
 
-- Install `gcc`
+### Release build
+1. Configure a signing key by following [these instructions](#configure-signing-key).
+2. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` enviroment variable to the
+directory configured in step 1:
+```bash
+../building/containerized-build.sh android --app-bundle
+```
 
-## Android toolchain
+## Build without* the provided container (not recommended)
+
+Building without the provided container requires installing multiple Sdk:s and toolchains, and is
+therefore not recommended.
+
+*: A container is still used to build `wireguard-go`.
+
+### Setup build enviroment
+These steps explain how to manually setup the build environment on a Linux system.
+
+#### 1. Install `docker`
+Docker is required to build `wireguard-go`. Follow the installation [instructions](https://docs.docker.com/engine/install/debian/)
+for your distribution.
+
+#### 2. Install `protobuf-compiler`
+Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros via
+the package name `protobuf-compiler`. An additional package might also be required depending on
+Linux distro:
+- `protobuf-devel` on Fedora.
+- `libprotobuf-dev` on Debian/Ubuntu.
+
+#### 3. Install `gcc`
+
+#### 4. Install Android toolchain
 
 - Install the JDK
-
-    ```bash
-    sudo apt install zip openjdk-8-jdk-headless
-    ```
+  ```bash
+  sudo apt install zip openjdk-11-jdk
+  ```
 
 - Install the SDK
 
-    The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
-    This directory should be exported as the `$ANDROID_HOME` environment variable.
+  The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
+  This directory should be exported as the `$ANDROID_HOME` environment variable.
 
-    ```bash
-    cd /opt/android     # Or some other directory to place the Android SDK
-    export ANDROID_HOME=$PWD
+  Note: if `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
+  to the command above.
 
-    wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-    unzip commandlinetools-linux-6609375_latest.zip
-    ./tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0" "platform-tools"
-    ```
+  ```bash
+  cd /opt/android     # Or some other directory to place the Android SDK
+  export ANDROID_HOME=$PWD
 
-    If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
-    to the command above.
+  wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+  unzip commandlinetools-linux-6609375_latest.zip
+  ./tools/bin/sdkmanager "platforms;android-33" "build-tools;30.0.2" "platform-tools"
+  ```
 
 - Install the NDK
 
-    The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
-    completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
-    environment variable.
+  The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
+  completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
+  environment variable.
 
-    ```bash
-    cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
-    wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
-    unzip android-ndk-r20b-linux-x86_64.zip
+  ```bash
+  cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
+  wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
+  unzip android-ndk-r20b-linux-x86_64.zip
 
-    cd android-ndk-r20b
-    export ANDROID_NDK_HOME="$PWD"
-    ```
+  cd android-ndk-r20b
+  export ANDROID_NDK_HOME="$PWD"
+  ```
 
-## Configuring Rust
+#### 5. Install and configure Rust toolchain
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-### Install Rust Android targets
+- Configure Android cross-compilation targets. This can be done by setting the following
+environment variables:
+  ```
+  export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android-ar"
+  export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/arm-linux-androideabi-ar"
+  export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-ar"
+  export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android-ar"
+  export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android21-clang"
+  export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
+  export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
+  export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
+  ```
 
-Some environment variables must be exported so that some Rust dependencies can be
-cross-compiled correctly:
-```
-export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android-ar"
-export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/arm-linux-androideabi-ar"
-export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-ar"
-export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android-ar"
-export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android21-clang"
-export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
-export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
-export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
-```
+- Install Android targets
+  ```bash
+  rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+  ```
 
-```bash
-rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
-```
+- Set up cargo to use the correct linker and archiver
 
-### Set up cargo to use the correct linker and archiver
+  This block assumes you installed everything under `/opt/android`, but you can install it wherever
+  you want as long as the `ANDROID_HOME` variable is set accordingly.
 
-This block assumes you installed everything under `/opt/android`, but you can install it wherever
-you want as long as the `ANDROID_HOME` variable is set accordingly.
+  Add to `~/.cargo/config.toml`:
+  ```
+  [target.aarch64-linux-android]
+  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
+  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
 
-Add to `~/.cargo/config.toml`:
-```
-[target.aarch64-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+  [target.armv7-linux-androideabi]
+  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
 
-[target.armv7-linux-androideabi]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
+  [target.x86_64-linux-android]
+  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
 
-[target.x86_64-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+  [target.i686-linux-android]
+  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
+  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+  ```
 
-[target.i686-linux-android]
-ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
-```
-
-# Building a debug build
-
-Run `build-apk.sh` with `--dev-build` to build the Rust daemon and the UI in debug mode and sign the
-APK with automatically generated debug keys:
+### Debug build
+Run the following command to build a debug build:
 ```bash
 ../build-apk.sh --dev-build
 ```
 
-If the above fails with an error related to compression, try allowing more memory to the JVM:
-```bash
-echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
-./gradlew --stop
-```
-
-# Building a release build
+### Release build
+1. Configure a signing key by following [these instructions](#configure-signing-key).
+2. Move, copy or symlink the directory from step 1 to [./credentials/](./credentials/) (`<repository>/android/credentials/`).
+3. Run the following command to build:
+   ```bash
+   ../build-apk.sh --app-bundle
+   ```
 
 ## Configure signing key
+1. Create a directory to store the signing key, keystore and its configuration:
+   ```
+   export ANDROID_CREDENTIALS_DIR=/tmp/credentials
+   mkdir -p $ANDROID_CREDENTIALS_DIR
+   ```
 
-In order to build release APKs, they need to be signed. First, a signing key must be generated and
-stored in a keystore file. In the example below, the keystore file will be
-`/home/user/app-keys.jks` and will contain a key called `release`.
+2. Generate a key/keystore named `app-keys.jks` in `ANDROID_CREDENTIALS_DIR` and make sure to write
+down the used passwords:
+   ```
+   keytool -genkey -v -keystore $ANDROID_CREDENTIALS_DIR/app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
+   ```
 
-```
-keytool -genkey -v -keystore /home/user/app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
-```
-
-Fill in the requested information to generate the key and the keystore file. Suppose the file was
-protected by a password `keystore-password` and the key with a password `key-password`. This
-information should then be added to the `android/keystore.properties` file:
-
-```
-keyAlias = release
-keyPassword = key-password
-storeFile = /home/user/app-keys.jks
-storePassword = keystore-password
-```
-
-## Building and packaging the app
-
-Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
-build the final APK:
-```bash
-../build-apk.sh
-```
+3. Create a file named `keystore.properties` in `ANDROID_CREDENTIALS_DIR`. Enter the following, but
+replace `key-password` and `keystore-password` with the values from step 2:
+   ```bash
+   keyAlias = release
+   keyPassword = key-password
+   storePassword = keystore-password
+   ```
