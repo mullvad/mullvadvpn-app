@@ -17,6 +17,7 @@ struct PacketTunnelTransport: RESTTransport {
     }
 
     let tunnel: Tunnel
+
     init(tunnel: Tunnel) {
         self.tunnel = tunnel
     }
