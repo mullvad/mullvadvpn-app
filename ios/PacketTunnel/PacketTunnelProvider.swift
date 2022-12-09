@@ -44,11 +44,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Number of consecutive connection failure attempts.
     private var numberOfFailedAttempts: UInt = 0
 
-    /// Last runtime error.
-    private var lastError: PacketTunnelErrorWrapper?
+    /// Last wireguard error.
+    private var wgError: PacketTunnelErrorWrapper?
 
-    /// Failure to read stored configurations.
-    private var readConfigurationError: PacketTunnelErrorWrapper?
+    /// Last runtime error.
+    private var tunnelProviderError: PacketTunnelErrorWrapper?
 
     /// Relay cache.
     private let relayCache = RelayCache(
@@ -90,7 +90,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         return PacketTunnelStatus(
-            lastErrors: [lastError, readConfigurationError].compactMap { $0 },
+            lastErrors: [wgError, tunnelProviderError].compactMap { $0 },
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
@@ -189,7 +189,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
-            readConfigurationError = .readConfiguration
+            tunnelProviderError = .readConfiguration
 
             startEmptyTunnel(completionHandler: completionHandler)
             return
@@ -240,7 +240,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 if let error = error {
                     self.providerLogger.error(
                         error: error,
-                        message: "Failed to start the tunnel."
+                        message: "Failed to start an empty tunnel."
                     )
 
                     completionHandler(error)
@@ -447,7 +447,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let tunnelSettings = try SettingsManager.readSettings()
         let deviceState = try SettingsManager.readDeviceState()
 
-        readConfigurationError = nil
+        tunnelProviderError = nil
 
         let selectorResult: RelaySelectorResult
 
@@ -500,7 +500,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                         error: error.localizedDescription
                     )
 
-                    self.lastError = wrappedError
+                    self.wgError = wrappedError
                 }
 
                 if let error = error {
