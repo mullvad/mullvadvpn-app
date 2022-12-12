@@ -17,8 +17,9 @@ use windows_sys::{
         NetworkManagement::{
             IpHelper::{
                 CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
-                ConvertInterfaceLuidToGuid, CreateUnicastIpAddressEntry, FreeMibTable,
-                GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
+                ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
+                CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
+                GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
                 InitializeUnicastIpAddressEntry, MibAddInstance, NotifyIpInterfaceChange,
                 SetIpInterfaceEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
                 MIB_UNICASTIPADDRESS_TABLE,
@@ -375,6 +376,16 @@ pub fn get_unicast_table(
     unsafe { FreeMibTable(unicast_table as *mut _) };
 
     Ok(unicast_rows)
+}
+
+/// Returns the index of a network interface given its LUID.
+pub fn index_from_luid(luid: &NET_LUID_LH) -> io::Result<u32> {
+    let mut index = 0u32;
+    let status = unsafe { ConvertInterfaceLuidToIndex(luid, &mut index) };
+    if status != NO_ERROR as i32 {
+        return Err(io::Error::from_raw_os_error(status as i32));
+    }
+    Ok(index)
 }
 
 /// Returns the GUID of a network interface given its LUID.

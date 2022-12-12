@@ -20,7 +20,7 @@ mod imp;
 pub use imp::will_use_nm;
 
 #[cfg(windows)]
-#[path = "windows/mod.rs"]
+#[path = "windows.rs"]
 mod imp;
 
 #[cfg(target_os = "android")]
