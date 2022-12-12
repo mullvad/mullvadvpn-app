@@ -8,12 +8,11 @@
 
 import Foundation
 
-final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider,
-    TunnelObserver
-{
+final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var isWaitingForConnectivity = false
     private var packetTunnelError: String?
     private var tunnelManagerError: Error?
+    private var tunnelObserver: TunnelBlockObserver?
 
     override var identifier: String {
         return "net.mullvad.MullvadVPN.TunnelStatusNotificationProvider"
@@ -34,8 +33,20 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     init(tunnelManager: TunnelManager) {
         super.init()
 
-        tunnelManager.addObserver(self)
-        handleTunnelStatus(tunnelManager.tunnelStatus)
+        let tunnelObserver = TunnelBlockObserver(
+            didLoadConfiguration: { [weak self] tunnelManager in
+                self?.handleTunnelStatus(tunnelManager.tunnelStatus)
+            },
+            didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
+                self?.handleTunnelStatus(tunnelStatus)
+            },
+            didFailWithError: { [weak self] tunnelManager, error in
+                self?.tunnelManagerError = error
+            }
+        )
+        self.tunnelObserver = tunnelObserver
+
+        tunnelManager.addObserver(tunnelObserver)
     }
 
     // MARK: - Private
@@ -173,30 +184,5 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 comment: ""
             )
         )
-    }
-
-    // MARK: - TunnelObserver
-
-    func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus) {
-        handleTunnelStatus(tunnelStatus)
-    }
-
-    func tunnelManager(
-        _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
-    ) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        // no-op
-    }
-
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
-        tunnelManagerError = error
     }
 }

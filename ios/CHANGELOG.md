@@ -44,6 +44,7 @@ with the option to buy more time.
 - Improve random port distribution. Should be less biased towards port 53.
 - Fix invalid map camera position during the app launch and keep it up to date when multitasking.
 - Fix animation glitch when expanding partially visible cell in location picker.
+- Periodically refresh account expiry in-app notification.
 
 ## Removed
 - Remove iOS 12 support.

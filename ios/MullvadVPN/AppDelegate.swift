@@ -389,18 +389,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func setupNotificationHandler() {
-        let accountExpiryProvider = AccountExpiryNotificationProvider(tunnelManager: tunnelManager)
-
-        accountExpiryProvider.defaultActionHandler = {
-            let sceneDelegate = UIApplication.shared.connectedScenes
-                .first?.delegate as? SceneDelegate
-
-            sceneDelegate?.showUserAccount()
-        }
-
         NotificationManager.shared.notificationProviders = [
-            accountExpiryProvider,
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
+            AccountExpirySystemNotificationProvider(
+                tunnelManager: tunnelManager,
+                defaultActionHandler: {
+                    let sceneDelegate = UIApplication.shared.connectedScenes
+                        .first?.delegate as? SceneDelegate
+
+                    sceneDelegate?.showUserAccount()
+                }
+            ),
+            AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

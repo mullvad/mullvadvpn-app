@@ -161,7 +161,7 @@ final class NotificationManager: NotificationProviderDelegate {
     // MARK: - NotificationProviderDelegate
 
     func notificationProviderDidInvalidate(_ notificationProvider: NotificationProvider) {
-        assert(Thread.isMainThread)
+        dispatchPrecondition(condition: .onQueue(.main))
 
         // Invalidate system notification
         if let notificationProvider = notificationProvider as? SystemNotificationProvider {
