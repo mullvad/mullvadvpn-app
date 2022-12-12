@@ -8,14 +8,7 @@
 
 import UIKit
 
-struct InAppNotificationDescriptor: Equatable {
-    var identifier: String
-    var style: NotificationBannerStyle
-    var title: String
-    var body: String
-}
-
-class NotificationController: UIViewController {
+final class NotificationController: UIViewController {
     let bannerView: NotificationBannerView = {
         let bannerView = NotificationBannerView()
         bannerView.translatesAutoresizingMaskIntoConstraints = false

@@ -8,22 +8,7 @@
 
 import UIKit
 
-enum NotificationBannerStyle {
-    case success, warning, error
-
-    fileprivate var color: UIColor {
-        switch self {
-        case .success:
-            return UIColor.InAppNotificationBanner.successIndicatorColor
-        case .warning:
-            return UIColor.InAppNotificationBanner.warningIndicatorColor
-        case .error:
-            return UIColor.InAppNotificationBanner.errorIndicatorColor
-        }
-    }
-}
-
-class NotificationBannerView: UIView {
+final class NotificationBannerView: UIView {
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
 
     private let backgroundView: UIVisualEffectView = {
@@ -143,5 +128,18 @@ class NotificationBannerView: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private extension NotificationBannerStyle {
+    var color: UIColor {
+        switch self {
+        case .success:
+            return UIColor.InAppNotificationBanner.successIndicatorColor
+        case .warning:
+            return UIColor.InAppNotificationBanner.warningIndicatorColor
+        case .error:
+            return UIColor.InAppNotificationBanner.errorIndicatorColor
+        }
     }
 }

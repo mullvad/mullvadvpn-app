@@ -9,19 +9,19 @@
 import Foundation
 import UserNotifications
 
-let accountExpiryNotificationIdentifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
 private let defaultTriggerInterval = 3
 
-class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
+final class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificationProvider,
     InAppNotificationProvider, TunnelObserver
 {
-    private var accountExpiry: Date?
-
     /// Interval prior to expiry used to calculate when to trigger notifications.
     private let triggerInterval: Int
+    private var accountExpiry: Date?
+
+    var defaultActionHandler: (() -> Void)?
 
     override var identifier: String {
-        return accountExpiryNotificationIdentifier
+        return "net.mullvad.MullvadVPN.AccountExpiryNotification"
     }
 
     init(tunnelManager: TunnelManager, triggerInterval: Int = defaultTriggerInterval) {
@@ -85,7 +85,7 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
-            identifier: accountExpiryNotificationIdentifier,
+            identifier: identifier,
             content: content,
             trigger: trigger
         )
@@ -99,6 +99,18 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
     var shouldRemoveDeliveredRequests: Bool {
         // Remove delivered notifications when account expiry is not set (user logged out)
         return shouldRemovePendingOrDeliveredRequests
+    }
+
+    func handleResponse(_ response: UNNotificationResponse) -> Bool {
+        guard response.notification.request.identifier == identifier else {
+            return false
+        }
+
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            defaultActionHandler?()
+        }
+
+        return true
     }
 
     // MARK: - InAppNotificationProvider
@@ -170,6 +182,6 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState) {
-        invalidate(deviceState: manager.deviceState)
+        invalidate(deviceState: deviceState)
     }
 }

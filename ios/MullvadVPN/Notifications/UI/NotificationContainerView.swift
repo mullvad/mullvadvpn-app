@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NotificationContainerView: UIView {
+final class NotificationContainerView: UIView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let hitView = super.hitTest(point, with: event)
 
