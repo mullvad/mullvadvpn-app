@@ -51,6 +51,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.
   Previously, the installer would abort.
+- Revert to using netsh for DNS config, as some Windows builds did not deal with changes correctly.
+  `TALPID_DNS_MODULE` can be used to override this.
 
 ### Changed
 - Update Electron from 19.0.13 to 21.1.1.
