@@ -17,6 +17,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
@@ -91,5 +92,50 @@ fun ChangelogDialog(
             dismissOnBackPress = true,
         ),
         backgroundColor = colorResource(id = R.color.darkBlue)
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewChangelogDialogWithSingleShortItem() {
+    ChangelogDialog(
+        changesList = listOf("Item 1"),
+        version = "1111.1",
+        onDismiss = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewChangelogDialogWithTwoLongItems() {
+    val longPreviewText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Feugiat nisl pretium " +
+            "fusce id velit ut."
+
+    ChangelogDialog(
+        changesList = listOf(longPreviewText, longPreviewText),
+        version = "1111.1",
+        onDismiss = {}
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewChangelogDialogWithTenShortItems() {
+    ChangelogDialog(
+        changesList = listOf(
+            "Item 1",
+            "Item 2",
+            "Item 3",
+            "Item 4",
+            "Item 5",
+            "Item 6",
+            "Item 7",
+            "Item 8",
+            "Item 9",
+            "Item 10"
+        ),
+        version = "1111.1",
+        onDismiss = {}
     )
 }
