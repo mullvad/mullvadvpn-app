@@ -215,6 +215,10 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
+    // UI tooling
+    implementation(Dependencies.Compose.uiToolingPreview)
+    debugImplementation(Dependencies.Compose.uiTooling)
+
     // Leak canary
     leakCanaryImplementation(Dependencies.leakCanary)
 
