@@ -6,6 +6,8 @@ import android.widget.ImageButton
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
@@ -19,17 +21,21 @@ class AppInteractor(
     private val device: UiDevice,
     private val targetContext: Context
 ) {
-    fun launch() {
+    fun launch(customApiEndpointConfiguration: CustomApiEndpointConfiguration? = null) {
         device.pressHome()
         // Wait for launcher
         device.wait(
             Until.hasObject(By.pkg(device.launcherPackageName).depth(0)),
             APP_LAUNCH_TIMEOUT
         )
+
         val intent =
             targetContext.packageManager.getLaunchIntentForPackage(MULLVAD_PACKAGE)?.apply {
                 // Clear out any previous instances
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                if (customApiEndpointConfiguration != null) {
+                    putApiEndpointConfigurationExtra(customApiEndpointConfiguration)
+                }
             }
         targetContext.startActivity(intent)
         device.wait(

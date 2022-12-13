@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.test.runner.screenshot.BasicScreenCaptureProcessor
 import androidx.test.runner.screenshot.ScreenCaptureProcessor
 import androidx.test.runner.screenshot.Screenshot
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 
 class CaptureScreenshotOnFailedTestRule(private val logTag: String) : TestWatcher() {
     override fun failed(e: Throwable?, description: Description?) {
