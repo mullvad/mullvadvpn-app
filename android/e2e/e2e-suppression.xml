@@ -25,6 +25,7 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
         <cve>CVE-2022-3171</cve>
+        <cve>CVE-2022-3510</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -33,6 +34,7 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
         <cve>CVE-2022-3171</cve>
         <cve>CVE-2022-3509</cve>
+        <cve>CVE-2022-3510</cve>
         <cve>CVE-2021-22569</cve>
     </suppress>
     <suppress>
