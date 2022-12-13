@@ -6,6 +6,7 @@ object Dependencies {
     const val junit = "junit:junit:${Versions.junit}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
+    const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
 
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
