@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.service
 
 import java.io.File
 import kotlin.properties.Delegates.observable
+import kotlin.reflect.KClass
+import kotlin.reflect.safeCast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -9,14 +11,17 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.util.Intermittent
 
 private const val RELAYS_FILE = "relays.json"
 
-class DaemonInstance(val vpnService: MullvadVpnService) {
-    private enum class Command {
-        START,
-        STOP,
+class DaemonInstance(
+    val vpnService: MullvadVpnService
+) {
+    sealed class Command {
+        data class Start(val apiEndpointConfiguration: ApiEndpointConfiguration) : Command()
+        object Stop : Command()
     }
 
     private val commandChannel = spawnActor()
@@ -27,12 +32,12 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
 
     val intermittentDaemon = Intermittent<MullvadDaemon>()
 
-    fun start() {
-        commandChannel.trySendBlocking(Command.START)
+    fun start(apiEndpointConfiguration: ApiEndpointConfiguration) {
+        commandChannel.trySendBlocking(Command.Start(apiEndpointConfiguration))
     }
 
     fun stop() {
-        commandChannel.trySendBlocking(Command.STOP)
+        commandChannel.trySendBlocking(Command.Stop)
     }
 
     fun onDestroy() {
@@ -46,30 +51,25 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
         prepareFiles()
 
         while (isRunning) {
-            if (!waitForCommand(channel, Command.START)) {
-                break
-            }
-
-            startDaemon()
-
-            isRunning = waitForCommand(channel, Command.STOP)
-
+            val startCommand = waitForCommand(channel, Command.Start::class) ?: break
+            startDaemon(startCommand.apiEndpointConfiguration)
+            isRunning = waitForCommand(channel, Command.Stop::class) is Command.Stop
             stopDaemon()
         }
     }
 
-    private suspend fun waitForCommand(
+    private suspend fun <T : Command> waitForCommand(
         channel: ReceiveChannel<Command>,
-        command: Command
-    ): Boolean {
-        try {
-            while (channel.receive() != command) {
-                // Wait for command
-            }
-
-            return true
+        command: KClass<T>
+    ): T? {
+        return try {
+            var receivedCommand: T?
+            do {
+                receivedCommand = command.safeCast(channel.receive())
+            } while (receivedCommand == null)
+            receivedCommand
         } catch (exception: ClosedReceiveChannelException) {
-            return false
+            null
         }
     }
 
@@ -91,8 +91,10 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
         }
     }
 
-    private suspend fun startDaemon() {
-        val newDaemon = MullvadDaemon(vpnService).apply {
+    private suspend fun startDaemon(
+        apiEndpointConfiguration: ApiEndpointConfiguration
+    ) {
+        val newDaemon = MullvadDaemon(vpnService, apiEndpointConfiguration).apply {
             onDaemonStopped = {
                 intermittentDaemon.spawnUpdate(null)
                 daemon = null

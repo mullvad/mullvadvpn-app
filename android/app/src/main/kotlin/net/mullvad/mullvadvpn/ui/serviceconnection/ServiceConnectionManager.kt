@@ -8,6 +8,9 @@ import android.os.Messenger
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.BuildConfig
+import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.talpid.util.EventNotifier
 
@@ -47,9 +50,17 @@ class ServiceConnectionManager(
         }
     }
 
-    fun bind(vpnPermissionRequestHandler: () -> Unit) {
+    fun bind(
+        vpnPermissionRequestHandler: () -> Unit,
+        apiEndpointConfiguration: ApiEndpointConfiguration?
+    ) {
         this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
         val intent = Intent(context, MullvadVpnService::class.java)
+
+        if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
+            intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
+        }
+
         context.startService(intent)
         context.bindService(intent, serviceConnection, 0)
     }

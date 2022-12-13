@@ -47,6 +47,7 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 
 dependencies {
     implementation(project(Projects.testCommon))
+    implementation(project(Dependencies.Mullvad.endpointLib))
 
     implementation(Dependencies.AndroidX.testCore)
     // Fixes: https://github.com/android/android-test/issues/1589
