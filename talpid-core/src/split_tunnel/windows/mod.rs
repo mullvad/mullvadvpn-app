@@ -725,7 +725,7 @@ impl SplitTunnel {
         });
     }
 
-    /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
+    /// Instructs the driver to redirect connections for sockets bound to 0.0.0.0, ::, or the
     /// tunnel addresses (if any) to the default route.
     pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
         let mut tunnel_ipv4 = None;
@@ -777,7 +777,7 @@ impl SplitTunnel {
         Ok(())
     }
 
-    /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
+    /// Instructs the driver to stop redirecting connections.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
         self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
