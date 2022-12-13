@@ -53,6 +53,8 @@ object Dependencies {
         const val uiController =
             "com.google.accompanist:accompanist-systemuicontroller:${Versions.Compose.uiController}"
         const val ui = "androidx.compose.ui:ui:${Versions.Compose.base}"
+        const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.Compose.base}"
+        const val uiToolingPreview = "androidx.compose.ui:ui-tooling:${Versions.Compose.base}"
     }
 
     object Koin {
