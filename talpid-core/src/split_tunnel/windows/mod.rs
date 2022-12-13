@@ -125,9 +125,19 @@ enum Request {
     Stop,
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
-type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
+type RequestTx = sync_mpsc::Sender<(Request, Option<RequestResponseTx>)>;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+
+impl Request {
+    fn request_name(&self) -> &'static str {
+        match self {
+            Request::SetPaths(_) => "SetPaths",
+            Request::RegisterIps(_) => "RegisterIps",
+            Request::Stop => "Stop",
+        }
+    }
+}
 
 #[derive(Default, PartialEq, Clone)]
 struct InterfaceAddresses {
@@ -452,6 +462,7 @@ impl SplitTunnel {
             let mut previous_addresses = InterfaceAddresses::default();
 
             while let Ok((request, response_tx)) = rx.recv() {
+                let request_name = request.request_name();
                 let response = match request {
                     Request::SetPaths(paths) => {
                         let mut monitored_paths_guard = monitored_paths.lock().unwrap();
@@ -534,21 +545,51 @@ impl SplitTunnel {
                     }
                     Request::Stop => {
                         if let Err(error) = handle.reset().map_err(Error::ResetError) {
-                            let _ = response_tx.send(Err(error));
+                            if let Some(response_tx) = response_tx {
+                                let _ = response_tx.send(Err(error));
+                            } else {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to deinitialize split tunneling"
+                                    )
+                                );
+                            }
                             continue;
                         }
 
                         monitored_paths.lock().unwrap().clear();
                         excluded_processes.write().unwrap().clear();
 
-                        let _ = response_tx.send(Ok(()));
+                        if let Some(response_tx) = response_tx {
+                            let _ = response_tx.send(Ok(()));
+                        }
 
                         // Stop listening to commands
                         break;
                     }
                 };
-                if response_tx.send(response).is_err() {
-                    log::error!("A response could not be sent for a completed request");
+
+                // Handle IOCTL result
+
+                let mut log_response = None;
+                if let Some(response_tx) = response_tx {
+                    if let Err(error) = response_tx.send(response) {
+                        log::error!(
+                            "A response could not be sent for completed request/ioctl: {}",
+                            request_name
+                        );
+                        log_response = Some(error.0);
+                    }
+                } else {
+                    log_response = Some(response);
+                }
+                if let Some(Err(error)) = log_response {
+                    log::error!(
+                        "Request/ioctl failed: {}\n{}",
+                        request_name,
+                        error.display_chain()
+                    );
                 }
             }
 
@@ -606,7 +647,7 @@ impl SplitTunnel {
         let (response_tx, response_rx) = sync_mpsc::channel();
 
         request_tx
-            .send((request, response_tx))
+            .send((request, Some(response_tx)))
             .map_err(|_| Error::SplitTunnelDown)?;
 
         response_rx
@@ -676,7 +717,7 @@ impl SplitTunnel {
 
         let wait_task = move || {
             request_tx
-                .send((request, response_tx))
+                .send((request, Some(response_tx)))
                 .map_err(|_| Error::SplitTunnelDown)?;
             response_rx.recv().map_err(|_| Error::SplitTunnelDown)?
         };
