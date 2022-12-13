@@ -404,6 +404,8 @@ impl ConnectingState {
                 AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
             ),
             Some((TunnelEvent::InterfaceUp(metadata, allowed_tunnel_traffic), _done_tx)) => {
+                // NOTE: It is crucial to set the correct tunnel IP before allowing any traffic into
+                // the tunnel, as leaks into the tunnel are possible otherwise.
                 #[cfg(windows)]
                 if let Err(error) = shared_values
                     .split_tunnel
@@ -544,18 +546,6 @@ impl TunnelState for ConnectingState {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
             Ok(tunnel_parameters) => {
-                #[cfg(windows)]
-                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to reset addresses in split tunnel driver"
-                        )
-                    );
-
-                    return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
-                }
-
                 if let Err(error) = Self::set_firewall_policy(
                     shared_values,
                     &tunnel_parameters,

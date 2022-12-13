@@ -114,6 +114,11 @@ impl ErrorStateCause {
             _ => false,
         }
     }
+
+    #[cfg(target_os = "windows")]
+    pub fn prevents_split_tunneling(&self) -> bool {
+        matches!(self, Self::SplitTunnelError | Self::IsOffline)
+    }
 }
 
 /// Errors that can occur when generating tunnel parameters.

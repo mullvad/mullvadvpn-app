@@ -783,6 +783,12 @@ impl SplitTunnel {
         self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
     }
 
+    /// Returns whether connections are being redirected.
+    pub fn has_tunnel_addresses(&self) -> bool {
+        // NOTE: Relying on assumption that `set_tunnel_addresses` was used here.
+        self._route_change_callback.is_some()
+    }
+
     /// Returns a handle used for interacting with the split tunnel module.
     pub fn handle(&self) -> SplitTunnelHandle {
         SplitTunnelHandle {
