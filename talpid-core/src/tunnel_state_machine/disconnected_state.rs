@@ -51,7 +51,15 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
-        if should_reset_firewall && !shared_values.block_when_disconnected {
+        if shared_values.block_when_disconnected {
+            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+                log::error!(
+                    "{}",
+                    error
+                        .display_chain_with_msg("Failed to reset addresses in split tunnel driver")
+                );
+            }
+        } else if should_reset_firewall {
             if let Err(error) = shared_values.split_tunnel.clear_tunnel_addresses() {
                 log::error!(
                     "{}",
@@ -60,11 +68,6 @@ impl DisconnectedState {
                     )
                 );
             }
-        } else if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to reset addresses in split tunnel driver")
-            );
         }
     }
 

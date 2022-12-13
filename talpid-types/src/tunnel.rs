@@ -111,6 +111,11 @@ impl ErrorStateCause {
     pub fn prevents_filtering_resolver(&self) -> bool {
         matches!(self, Self::SetDnsError)
     }
+
+    #[cfg(target_os = "windows")]
+    pub fn prevents_split_tunneling(&self) -> bool {
+        matches!(self, Self::SplitTunnelError | Self::IsOffline)
+    }
 }
 
 /// Errors that can occur when generating tunnel parameters.
