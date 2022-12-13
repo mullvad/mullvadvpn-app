@@ -291,7 +291,6 @@ impl TunnelStateMachine {
         let split_tunnel = split_tunnel::SplitTunnel::new(
             runtime.clone(),
             args.resource_dir.clone(),
-            args.command_tx.clone(),
             volume_update_rx,
             route_manager
                 .handle()
