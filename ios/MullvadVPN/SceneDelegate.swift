@@ -38,7 +38,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
     private var lastLoginAction: LoginAction?
-    private lazy var accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
+
+    private var accountDataThrottling: AccountDataThrottling?
+    private var deviceDataThrottling: DeviceDataThrottling?
 
     private var outOfTimeTimer: Timer?
 
@@ -92,6 +94,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
         isSceneConfigured = true
 
+        accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
+        deviceDataThrottling = DeviceDataThrottling(tunnelManager: tunnelManager)
+
         rootContainer.delegate = self
         window?.rootViewController = rootContainer
 
@@ -107,7 +112,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         relayCacheTracker.addObserver(self)
         NotificationManager.shared.delegate = self
 
-        accountDataThrottling.requestUpdate(condition: .always)
+        refreshDeviceAndAccountData(forceUpdate: true)
     }
 
     private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
@@ -118,6 +123,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             privacyOverlayWindow?.isHidden = true
             window?.makeKeyAndVisible()
         }
+    }
+
+    private func refreshDeviceAndAccountData(forceUpdate: Bool) {
+        let condition: AccountDataThrottling.Condition =
+            settingsNavController == nil && !forceUpdate
+                ? .whenCloseToExpiryAndBeyond
+                : .always
+
+        accountDataThrottling?.requestUpdate(condition: condition)
+        deviceDataThrottling?.requestUpdate(forceUpdate: forceUpdate)
+    }
+
+    private func resetDeviceAndAccountDataThrottling() {
+        accountDataThrottling?.reset()
+        deviceDataThrottling?.reset()
     }
 
     // MARK: - UIWindowSceneDelegate
@@ -148,11 +168,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         if isSceneConfigured {
-            accountDataThrottling.requestUpdate(
-                condition: settingsNavController == nil
-                    ? .whenCloseToExpiryAndBeyond
-                    : .always
-            )
+            refreshDeviceAndAccountData(forceUpdate: false)
         }
 
         setShowsPrivacyOverlay(false)
@@ -190,7 +206,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             let navController = makeSettingsNavigationController(route: route)
 
             // Refresh account data each time user opens settings
-            accountDataThrottling.requestUpdate(condition: .always)
+            refreshDeviceAndAccountData(forceUpdate: true)
 
             // On iPad the login controller can be presented modally above the root container.
             // in that case we have to use the presented controller to present the next modal.
@@ -734,7 +750,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     ) {
         switch route {
         case .root, .account:
-            accountDataThrottling.requestUpdate(condition: .always)
+            refreshDeviceAndAccountData(forceUpdate: false)
 
         default:
             break
@@ -903,10 +919,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             }
 
         case .loggedOut:
-            accountDataThrottling.reset()
+            resetDeviceAndAccountDataThrottling()
 
         case .revoked:
-            accountDataThrottling.reset()
+            resetDeviceAndAccountDataThrottling()
             showRevokedDeviceView()
         }
     }

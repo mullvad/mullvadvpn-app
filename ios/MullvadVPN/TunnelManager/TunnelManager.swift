@@ -428,10 +428,7 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func updateDeviceData(_ completionHandler: @escaping (OperationCompletion<
-        StoredDeviceData,
-        Error
-    >) -> Void) -> Cancellable {
+    func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {
         let operation = UpdateDeviceDataOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -442,11 +439,12 @@ final class TunnelManager: StorePaymentObserver {
         operation.completionHandler = { [weak self] completion in
             guard let self = self else { return }
 
-            if let error = completion.error {
+            let error = completion.error
+            if let error = error {
                 self.checkIfDeviceRevoked(error)
             }
 
-            completionHandler(completion)
+            completionHandler?(error)
         }
 
         operation.addObserver(
@@ -462,8 +460,6 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operationQueue.addOperation(operation)
-
-        return operation
     }
 
     func rotatePrivateKey(
