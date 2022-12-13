@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 
@@ -34,19 +35,19 @@ class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventD
 
     fun connect() {
         if (anticipateConnectingState()) {
-            connection.send(Request.Connect.message)
+            connection.trySendRequest(Request.Connect, true)
         }
     }
 
     fun disconnect() {
         if (anticipateReconnectingState()) {
-            connection.send(Request.Disconnect.message)
+            connection.trySendRequest(Request.Disconnect, true)
         }
     }
 
     fun reconnect() {
         if (anticipateDisconnectingState()) {
-            connection.send(Request.Reconnect.message)
+            connection.trySendRequest(Request.Reconnect, true)
         }
     }
 
