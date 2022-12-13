@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
@@ -21,7 +22,10 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.talpid.util.EventNotifier
 
-class MullvadDaemon(vpnService: MullvadVpnService) {
+class MullvadDaemon(
+    vpnService: MullvadVpnService,
+    apiEndpointConfiguration: ApiEndpointConfiguration
+) {
     protected var daemonInterfaceAddress = 0L
 
     val onSettingsChange = EventNotifier<Settings?>(null)
@@ -39,8 +43,12 @@ class MullvadDaemon(vpnService: MullvadVpnService) {
 
     init {
         System.loadLibrary("mullvad_jni")
+
         initialize(
-            vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath, null
+            vpnService = vpnService,
+            cacheDirectory = vpnService.cacheDir.absolutePath,
+            resourceDirectory = vpnService.filesDir.absolutePath,
+            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
 
         onSettingsChange.notify(getSettings())
