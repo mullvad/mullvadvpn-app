@@ -6,7 +6,6 @@ mod windows;
 
 use crate::{
     tunnel::TunnelMetadata,
-    tunnel_state_machine::TunnelCommand,
     window::{PowerManagementEvent, PowerManagementListener},
 };
 use futures::channel::{mpsc, oneshot};
@@ -24,7 +23,7 @@ use std::{
     time::Duration,
 };
 use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
-use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
+use talpid_types::ErrorExt;
 use talpid_windows_net::{get_ip_address_for_interface, AddressFamily};
 use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
 
@@ -112,7 +111,6 @@ pub struct SplitTunnel {
     quit_event: Arc<windows::Event>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<CallbackHandle>,
-    daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
     power_mgmt_handle: tokio::task::JoinHandle<()>,
     route_manager: RouteManagerHandle,
@@ -135,6 +133,7 @@ impl Request {
             Request::SetPaths(_) => "SetPaths",
             Request::RegisterIps(_) => "RegisterIps",
             Request::Stop => "Stop",
+            Request::Restart => "Restart",
         }
     }
 }
@@ -190,7 +189,6 @@ impl SplitTunnel {
     pub fn new(
         runtime: tokio::runtime::Handle,
         resource_dir: PathBuf,
-        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         power_mgmt_rx: PowerManagementListener,
         route_manager: RouteManagerHandle,
@@ -212,7 +210,6 @@ impl SplitTunnel {
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
-            daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
             excluded_processes,
             power_mgmt_handle,
@@ -747,7 +744,6 @@ impl SplitTunnel {
         let context_mutex = Arc::new(Mutex::new(
             SplitTunnelDefaultRouteChangeHandlerContext::new(
                 self.request_tx.clone(),
-                self.daemon_tx.clone(),
                 tunnel_ipv4,
                 tunnel_ipv6,
             ),
@@ -772,7 +768,10 @@ impl SplitTunnel {
             .map_err(|_| Error::RegisterRouteChangeCallback)?;
 
         context.initialize_internet_addresses()?;
-        context.register_ips()?;
+        SplitTunnel::send_request_inner(
+            &self.request_tx,
+            Request::RegisterIps(context.addresses.clone()),
+        )?;
         self._route_change_callback = callback;
 
         Ok(())
@@ -817,20 +816,17 @@ impl Drop for SplitTunnel {
 
 struct SplitTunnelDefaultRouteChangeHandlerContext {
     request_tx: RequestTx,
-    pub daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     pub addresses: InterfaceAddresses,
 }
 
 impl SplitTunnelDefaultRouteChangeHandlerContext {
     pub fn new(
         request_tx: RequestTx,
-        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         tunnel_ipv4: Option<Ipv4Addr>,
         tunnel_ipv6: Option<Ipv6Addr>,
     ) -> Self {
         SplitTunnelDefaultRouteChangeHandlerContext {
             request_tx,
-            daemon_tx,
             addresses: InterfaceAddresses {
                 tunnel_ipv4,
                 tunnel_ipv6,
@@ -838,13 +834,6 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
                 internet_ipv6: None,
             },
         }
-    }
-
-    pub fn register_ips(&self) -> Result<(), Error> {
-        SplitTunnel::send_request_inner(
-            &self.request_tx,
-            Request::RegisterIps(self.addresses.clone()),
-        )
     }
 
     pub fn initialize_internet_addresses(&mut self) -> Result<(), Error> {
@@ -897,14 +886,9 @@ fn split_tunnel_default_route_change_handler<'a>(
     // Update the "internet interface" IP when best default route changes
     let mut ctx = ctx_mutex.lock().expect("ST route handler mutex poisoned");
 
-    let daemon_tx = ctx.daemon_tx.upgrade();
-    let maybe_send = move |content| {
-        if let Some(tx) = daemon_tx {
-            let _ = tx.unbounded_send(content);
-        }
-    };
+    let prev_addrs = ctx.addresses.clone();
 
-    let result = match event_type {
+    match event_type {
         Updated(default_route) | UpdatedDetails(default_route) => {
             match get_ip_address_for_interface(address_family, default_route.iface) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
@@ -929,32 +913,29 @@ fn split_tunnel_default_route_change_handler<'a>(
                             "Failed to obtain default route interface address"
                         )
                     );
-                    maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
-                    return;
                 }
             };
-
-            ctx.register_ips()
         }
         // no default route
-        Removed => {
-            match address_family {
-                AddressFamily::Ipv4 => {
-                    ctx.addresses.internet_ipv4 = None;
-                }
-                AddressFamily::Ipv6 => {
-                    ctx.addresses.internet_ipv6 = None;
-                }
+        Removed => match address_family {
+            AddressFamily::Ipv4 => {
+                ctx.addresses.internet_ipv4 = None;
             }
-            ctx.register_ips()
-        }
-    };
+            AddressFamily::Ipv6 => {
+                ctx.addresses.internet_ipv6 = None;
+            }
+        },
+    }
 
-    if let Err(error) = result {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to register new addresses in split tunnel driver")
-        );
-        maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+    if prev_addrs == ctx.addresses {
+        return;
+    }
+
+    if ctx
+        .request_tx
+        .send((Request::RegisterIps(ctx.addresses.clone()), None))
+        .is_err()
+    {
+        log::error!("Split tunnel request thread is down");
     }
 }
