@@ -7,3 +7,6 @@
 [submodule "windows/windows-libraries"]
 	path = windows/windows-libraries
 	url = https://github.com/mullvad/windows-libraries
+[submodule "ci/screenshots"]
+	path = ci/screenshots
+	url = https://github.com/mullvad/mullvadvpn-app-screenshots
