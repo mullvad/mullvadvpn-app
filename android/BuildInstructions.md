@@ -236,3 +236,10 @@ To avoid or override the rust based version generation, the `OVERRIDE_VERSION_CO
 OVERRIDE_VERSION_CODE=123
 OVERRIDE_VERSION_NAME=1.2.3
 ```
+
+### Disable version in-app notifications
+To disable in-app notifications related to the app version during development or testing,
+the `ENABLE_IN_APP_VERSION_NOTIFICATIONS` property can be set in `local.properties`:
+```
+ENABLE_IN_APP_VERSION_NOTIFICATIONS=false
+```

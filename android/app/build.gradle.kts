@@ -160,6 +160,15 @@ android {
             "ALWAYS_SHOW_CHANGELOG",
             alwaysShowChangelog
         )
+
+        val enableInAppVersionNotifications = gradleLocalProperties(rootProject.projectDir)
+            .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
+
+        buildConfigField(
+            "boolean",
+            "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
+            enableInAppVersionNotifications
+        )
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
