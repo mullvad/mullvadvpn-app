@@ -1,14 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/config.json';
-import { startAppWithMocking, MockIpcHandle, SendMockIpcResponse } from './mocked-utils';
+import { startMockedApp, MockIpcHandle, SendMockIpcResponse } from './mocked-utils';
 import { ErrorStateCause, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
-import { getBackgroundColor, getColor } from '../utils';
-
-const UNSECURED_COLOR = colors.red;
-const SECURE_COLOR = colors.green;
-const WHITE_COLOR = colors.white;
+import { assertConnected, assertConnecting, assertDisconnected, assertDisconnecting, assertError } from '../shared/tunnel-state';
 
 const mockLocation: ILocation = {
   country: 'Sweden',
@@ -18,15 +13,12 @@ const mockLocation: ILocation = {
   mullvadExitIp: false,
 };
 
-const getLabel = () => page.locator('span[role="status"]');
-const getHeader = () => page.locator('header');
-
 let page: Page;
 let mockIpcHandle: MockIpcHandle;
 let sendMockIpcResponse: SendMockIpcResponse;
 
 test.beforeAll(async () => {
-  ({ page, mockIpcHandle, sendMockIpcResponse } = await startAppWithMocking());
+  ({ page, mockIpcHandle, sendMockIpcResponse } = await startMockedApp());
 });
 
 test.afterAll(async () => {
@@ -41,24 +33,11 @@ test('App should show disconnected tunnel state', async () => {
     channel: 'location-get',
     response: mockLocation,
   });
-
   await sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'disconnected' },
   });
-
-  const statusLabel = getLabel();
-  await expect(statusLabel).toContainText(/unsecured connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(UNSECURED_COLOR);
-
-  const header = getHeader();
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(UNSECURED_COLOR);
-
-  const button = page.locator('button', { hasText: /secure my connection/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe(SECURE_COLOR);
+  await assertDisconnected(page);
 });
 
 /**
@@ -69,24 +48,11 @@ test('App should show connecting tunnel state', async () => {
     channel: 'location-get',
     response: mockLocation,
   });
-
   await sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'connecting' },
   });
-
-  const statusLabel = getLabel();
-  await expect(statusLabel).toContainText(/creating secure connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(WHITE_COLOR);
-
-  const header = getHeader();
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
-
-  const button = page.locator('button', { hasText: /cancel/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe('rgba(227, 64, 57, 0.6)');
+  await assertConnecting(page);
 });
 
 /**
@@ -110,18 +76,7 @@ test('App should show connected tunnel state', async () => {
     response: { state: 'connected', details: { endpoint, location } },
   });
 
-  const statusLabel = getLabel();
-  await expect(statusLabel).toContainText(/secure connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(SECURE_COLOR);
-
-  const header = getHeader();
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
-
-  const button = page.locator('button', { hasText: /switch location/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe('rgba(255, 255, 255, 0.2)');
+  await assertConnected(page);
 });
 
 /**
@@ -132,22 +87,11 @@ test('App should show disconnecting tunnel state', async () => {
     channel: 'location-get',
     response: mockLocation,
   });
-
   await sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'disconnecting', details: 'nothing' },
   });
-
-  const statusLabel = getLabel();
-  await expect(statusLabel).toBeEmpty();
-
-  const header = getHeader();
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(UNSECURED_COLOR);
-
-  const button = page.locator('button', { hasText: /secure my connection/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe(SECURE_COLOR);
+  await assertDisconnecting(page);
 });
 
 /**
@@ -158,18 +102,9 @@ test('App should show error tunnel state', async () => {
     channel: 'location-get',
     response: mockLocation,
   });
-
   await sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'error', details: { cause: ErrorStateCause.isOffline } },
   });
-
-  const statusLabel = getLabel();
-  await expect(statusLabel).toContainText(/blocked connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(WHITE_COLOR);
-
-  const header = getHeader();
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
+  await assertError(page);
 });
