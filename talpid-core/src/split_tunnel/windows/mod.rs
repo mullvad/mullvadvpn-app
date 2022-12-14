@@ -903,14 +903,6 @@ fn split_tunnel_default_route_change_handler<'a>(
                 },
                 Ok(None) => {
                     log::warn!("Failed to obtain default route interface address");
-                    match address_family {
-                        AddressFamily::Ipv4 => {
-                            ctx.addresses.internet_ipv4 = None;
-                        }
-                        AddressFamily::Ipv6 => {
-                            ctx.addresses.internet_ipv6 = None;
-                        }
-                    }
                 }
                 Err(error) => {
                     log::error!(
