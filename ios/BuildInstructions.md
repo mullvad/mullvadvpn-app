@@ -183,10 +183,7 @@ xcrun altool --store-password-in-keychain-item <KEYCHAIN_ITEM_NAME> \
 Copy template files of Xcode build configuration:
 
 ```
-cp ./ios/Configurations/Base.xcconfig.template ./ios/Configurations/Base.xcconfig
-cp ./ios/Configurations/App.xcconfig.template ./ios/Configurations/App.xcconfig
-cp ./ios/Configurations/PacketTunnel.xcconfig.template ./ios/Configurations/PacketTunnel.xcconfig
-cp ./ios/Configurations/Screenshots.xcconfig.template ./ios/Configurations/Screenshots.xcconfig
+for file in ./ios/Configurations/*.template ; do cp $file ${file//.template/} ; done
 ```
 
 Template files provide our team ID and correct provisioning profiles and generally do not require 

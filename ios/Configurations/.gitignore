@@ -1,4 +1,1 @@
-Base.xcconfig
-App.xcconfig
-PacketTunnel.xcconfig
-Screenshots.xcconfig
+*.xcconfig
