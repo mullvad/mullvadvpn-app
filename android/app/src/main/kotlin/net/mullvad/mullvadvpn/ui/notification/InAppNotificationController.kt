@@ -45,8 +45,10 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
     }
 
     fun notificationChanged(notification: InAppNotification) {
-        if (notification.shouldShow && !activeNotifications.contains(notification)) {
-            activeNotifications.add(notification)
+        if (notification.shouldShow) {
+            if (activeNotifications.contains(notification).not()) {
+                activeNotifications.add(notification)
+            }
         } else {
             activeNotifications.remove(notification)
         }
