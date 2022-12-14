@@ -5,6 +5,9 @@ use mullvad_problem_report::{collect_report, Error};
 use std::{env, path::Path, process};
 use talpid_types::ErrorExt;
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use nix::unistd::{getgid, getuid, setegid, seteuid};
+
 fn main() {
     process::exit(match run() {
         Ok(()) => 0,
@@ -16,6 +19,16 @@ fn main() {
 }
 
 fn run() -> Result<(), Error> {
+    // Drop effective root uid. Keep the real uid so that we
+    // can restore privileges later on.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        let real_uid = getuid();
+        seteuid(real_uid).map_err(Error::SetEffectiveUid)?;
+        let real_gid = getgid();
+        setegid(real_gid).map_err(Error::SetEffectiveGid)?;
+    }
+
     env_logger::init();
     let app = clap::App::new(crate_name!())
         .version(mullvad_version::VERSION)

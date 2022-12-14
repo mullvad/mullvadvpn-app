@@ -1735,6 +1735,7 @@ dependencies = [
  "mullvad-api",
  "mullvad-paths",
  "mullvad-version",
+ "nix 0.23.1",
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
