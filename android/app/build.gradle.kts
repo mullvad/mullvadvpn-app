@@ -37,13 +37,6 @@ android {
         versionName = generateVersionName(localProperties)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val alwaysShowChangelog = localProperties.getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
-        buildConfigField(
-            type = "boolean",
-            name = "ALWAYS_SHOW_CHANGELOG",
-            value = alwaysShowChangelog
-        )
-
         lint {
             lintConfig = file("${rootProject.projectDir}/config/lint.xml")
             baseline = file("lint-baseline.xml")
@@ -156,6 +149,17 @@ android {
                 "META-INF/LICENSE-notice.md"
             )
         }
+    }
+
+    applicationVariants.configureEach {
+        val alwaysShowChangelog = gradleLocalProperties(rootProject.projectDir)
+            .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
+
+        buildConfigField(
+            "boolean",
+            "ALWAYS_SHOW_CHANGELOG",
+            alwaysShowChangelog
+        )
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
