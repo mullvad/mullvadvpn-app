@@ -22,11 +22,11 @@ final class VersionChangeLogReaderOperation: ResultOperation<[String], Error> {
             }
 
             let changes = try String(contentsOf: changesFileURL, encoding: .utf8)
-            // Consider each line as a new entry.
-                .split(separator:"\n")
-            // Remove white spaces.
+                // Consider each line as a new entry.
+                .split(separator: "\n")
+                // Remove white spaces.
                 .map { $0.trimmingCharacters(in: .whitespaces) }
-            // Remove empty entries.
+                // Remove empty entries.
                 .filter { !$0.isEmpty }
 
             finish(completion: .success(changes))

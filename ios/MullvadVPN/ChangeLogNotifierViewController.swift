@@ -32,7 +32,7 @@ final class ChangeLogNotifierViewController: UIViewController, RootContainment {
 
     init(for changes: [String]) {
         self.changes = changes
-        
+
         super.init(nibName: nil, bundle: nil)
     }
 
