@@ -1,6 +1,7 @@
 import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
+import { createGlobalStyle } from 'styled-components';
 
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
 import {
@@ -78,6 +79,12 @@ const SUPPORTED_LOCALE_LIST = [
   { name: '简体中文', code: 'zh-CN' },
   { name: '繁體中文', code: 'zh-TW' },
 ];
+
+const CiStyles = createGlobalStyle({
+  '*': {
+    transitionDuration: '1ms !important',
+  },
+});
 
 export default class AppRenderer {
   private history: History;
@@ -262,21 +269,24 @@ export default class AppRenderer {
 
   public renderView() {
     return (
-      <AppContext.Provider value={{ app: this }}>
-        <Provider store={this.reduxStore}>
-          <Router history={this.history.asHistory}>
-            <ErrorBoundary>
-              <ModalContainer>
-                <KeyboardNavigation>
-                  <AppRouter />
-                  <Changelog />
-                </KeyboardNavigation>
-                {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-              </ModalContainer>
-            </ErrorBoundary>
-          </Router>
-        </Provider>
-      </AppContext.Provider>
+      <>
+        {window.env.e2e && <CiStyles />}
+        <AppContext.Provider value={{ app: this }}>
+          <Provider store={this.reduxStore}>
+            <Router history={this.history.asHistory}>
+              <ErrorBoundary>
+                <ModalContainer>
+                  <KeyboardNavigation>
+                    <AppRouter />
+                    <Changelog />
+                  </KeyboardNavigation>
+                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                </ModalContainer>
+              </ErrorBoundary>
+            </Router>
+          </Provider>
+        </AppContext.Provider>
+      </>
     );
   }
 

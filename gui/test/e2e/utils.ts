@@ -66,8 +66,6 @@ export const nextRouteFactory = (app: ElectronApplication) => {
       });
     });
 
-    // TODO: Disable view transitions and shorten timeout or remove completely.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     return nextRoute;
   };
 };
