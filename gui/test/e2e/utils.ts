@@ -8,6 +8,12 @@ export interface StartAppResponse {
 
 export interface TestUtils {
   getByTestId: (id: string) => Locator;
+  nextRoute: () => Promise<string>;
+}
+
+interface History {
+  entries: Array<{ pathname: string }>;
+  index: number;
 }
 
 export const startApp = async (
@@ -34,11 +40,27 @@ export const startApp = async (
 
   const util = {
     getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
+    nextRoute: nextRouteFactory(app),
   };
 
   return { app, page, util };
 };
 
+export const nextRouteFactory = (app: ElectronApplication) => {
+  return async () => {
+    const nextRoute: string = await app.evaluate(({ ipcMain }) => {
+      return new Promise((resolve) => {
+        ipcMain.once('navigation-setHistory', (_event, history: History) => {
+            resolve(history.entries[history.index].pathname);
+        });
+      });
+    });
+
+    // TODO: Disable view transitions and shorten timeout or remove completely.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return nextRoute;
+  }
+};
 
 const getStyleProperty = (locator: Locator, property: string) => {
   return locator.evaluate(
