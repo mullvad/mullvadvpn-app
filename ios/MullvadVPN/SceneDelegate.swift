@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     SettingsNavigationControllerDelegate, ConnectViewControllerDelegate,
     OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
-    RelayCacheTrackerObserver, SettingsMigrationUIHandler
+    RelayCacheTrackerObserver, SettingsMigrationUIHandler, ChangeLogNotifierUIHandler
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -1028,6 +1028,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
                 """,
                 comment: ""
             )
+        }
+    }
+
+    func showVersionChanges(_ changes: [String]) {
+        let popupController = ChangeLogNotifierViewController(for: changes)
+
+        if let rootViewController = window?.rootViewController {
+            rootViewController.present(popupController, animated: true)
         }
     }
 }
