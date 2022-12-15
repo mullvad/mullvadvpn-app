@@ -1,14 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { SendMockIpcResponse, startMockedApp } from './mocked-utils';
+import { MockedTestUtils, startMockedApp } from './mocked-utils';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 
 let page: Page;
-let sendMockIpcResponse: SendMockIpcResponse;
+let util: MockedTestUtils;
 
 test.beforeAll(async () => {
-  ({ page, sendMockIpcResponse } = await startMockedApp());
+  ({ page, util } = await startMockedApp());
   await page.click('button[aria-label="Settings"]');
 });
 
@@ -35,7 +35,7 @@ test('Account button should be displayed correctly', async () => {
    * 729 days left
    * Add a one-second margin to the test, since it randomly fails in Github Actions otherwise
    */
-  await sendMockIpcResponse<IAccountData>({
+  await util.sendMockIpcResponse<IAccountData>({
     channel: 'account-',
     response: { expiry: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000 - 1000).toISOString() },
   });
@@ -45,7 +45,7 @@ test('Account button should be displayed correctly', async () => {
   /**
    * 2 years left
    */
-  await sendMockIpcResponse<IAccountData>({
+  await util.sendMockIpcResponse<IAccountData>({
     channel: 'account-',
     response: { expiry: new Date(Date.now() + 731 * 24 * 60 * 60 * 1000).toISOString() },
   });
@@ -55,7 +55,7 @@ test('Account button should be displayed correctly', async () => {
   /**
    * Expiry 1 day ago should show 'out of time'
    */
-  await sendMockIpcResponse<IAccountData>({
+  await util.sendMockIpcResponse<IAccountData>({
     channel: 'account-',
     response: { expiry: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
   });

@@ -25,11 +25,11 @@ The app has unit tests and integration tests located in test/:
 The tests in **test/e2e/installed** are run against the already installed app using the currently
 running daemon. It's possible to run these tests on any machine with the app installed by running
 ```
-npm run e2e:installed
+npm run e2e:sequential installed/<test>
 ```
 or without building by running
 ```
-npm run e2e:installed:no-build
+npm run e2e:sequential:no-build installed/<test>
 ```
 
 It is also possible to build these tests along with all its dependencies into an executable that can

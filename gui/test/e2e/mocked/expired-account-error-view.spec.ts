@@ -1,15 +1,15 @@
 import { Page } from 'playwright';
-import { SendMockIpcResponse, startMockedApp } from './mocked-utils';
+import { MockedTestUtils, startMockedApp } from './mocked-utils';
 import { expect, test } from '@playwright/test';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
 import { colors } from '../../../src/config.json';
 
 let page: Page;
-let sendMockIpcResponse: SendMockIpcResponse;
+let util: MockedTestUtils;
 
 test.beforeAll(async () => {
-  ({ page, sendMockIpcResponse } = await startMockedApp());
+  ({ page, util } = await startMockedApp());
 });
 
 test.afterAll(async () => {
@@ -17,7 +17,7 @@ test.afterAll(async () => {
 });
 
 test('App should show Expired Account Error View', async () => {
-  await sendMockIpcResponse<IAccountData>({
+  await util.sendMockIpcResponse<IAccountData>({
     channel: 'account-',
     response: { expiry: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
   });
