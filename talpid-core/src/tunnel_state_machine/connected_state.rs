@@ -141,7 +141,7 @@ impl ConnectedState {
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
-        if let Err(error) = shared_values.dns_monitor.reset() {
+        if let Err(error) = shared_values.dns_monitor.reset_before_interface_removal() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
         }
     }
