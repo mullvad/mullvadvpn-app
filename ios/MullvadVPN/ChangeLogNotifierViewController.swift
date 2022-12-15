@@ -1,5 +1,5 @@
 //
-//  VersionNotifierViewController.swift
+//  ChangeLogNotifierViewController.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-14.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-final class VersionNotifierViewController: UIViewController, RootContainment {
+final class ChangeLogNotifierViewController: UIViewController, RootContainment {
     var preferredHeaderBarPresentation: HeaderBarPresentation {
         return .default
     }
@@ -22,11 +22,19 @@ final class VersionNotifierViewController: UIViewController, RootContainment {
         return .lightContent
     }
 
-    private lazy var contentView: VersionNotifierContentView = {
-        let contentView = VersionNotifierContentView()
+    private lazy var contentView: ChangeLogNotifierContentView = {
+        let contentView = ChangeLogNotifierContentView(frame: view.bounds)
         contentView.translatesAutoresizingMaskIntoConstraints = false
         return contentView
     }()
+
+    private let changes: [String]
+
+    init(for changes: [String]) {
+        self.changes = changes
+        
+        super.init(nibName: nil, bundle: nil)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,8 +54,10 @@ final class VersionNotifierViewController: UIViewController, RootContainment {
             self.dismiss(animated: true)
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.contentView.setChangeDescriptions(["Sajad", "HiSAJDKASHLDJKHASJLKDHAJSKDHLASKJHDJALKSBNDALKSJNDNASDNKASLNJKDNALJSKNDLASNDJLASNDLJANSLDKNASLKJDNASKLNDASKDNASKLDNASJKDNASLK"])
-        }
+        contentView.setChangeDescriptions(changes)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

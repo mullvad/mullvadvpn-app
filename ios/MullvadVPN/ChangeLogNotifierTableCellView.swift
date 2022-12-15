@@ -1,5 +1,5 @@
 //
-//  VersionNotifierTableCellView.swift
+//  ChangeLogNotifierTableCellView.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-14.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class VersionNotifierTableCellView: UITableViewCell {
+final class ChangeLogNotifierTableCellView: UITableViewCell {
     private lazy var dotLabel: UIView = {
         let label = UILabel()
         label.text = "\u{2022}"
@@ -67,7 +67,7 @@ final class VersionNotifierTableCellView: UITableViewCell {
         changeDescriptionLabel.text = change
 
         changeDescriptionLabel.accessibilityIdentifier =
-            "VersionNotifierTableCellView.changeDescriptionLabel" + change
+            "ChangeLogNotifierTableCellView.changeDescriptionLabel" + change
     }
 
     required init?(coder: NSCoder) {

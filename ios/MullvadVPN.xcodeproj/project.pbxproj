@@ -14,9 +14,10 @@
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
 		062B45C228FE980000746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45C128FE97FF00746E77 /* api-ip-address.json */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
-		063B69522949FCE9003AD386 /* VersionNotifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B69512949FCE9003AD386 /* VersionNotifierViewController.swift */; };
-		063B6954294A2773003AD386 /* VersionNotifierTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6953294A2773003AD386 /* VersionNotifierTableCellView.swift */; };
-		063B6956294A279B003AD386 /* VersionNotifierContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6955294A279B003AD386 /* VersionNotifierContentView.swift */; };
+		063B69522949FCE9003AD386 /* ChangeLogNotifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */; };
+		063B6954294A2773003AD386 /* ChangeLogNotifierTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */; };
+		063B6956294A279B003AD386 /* ChangeLogNotifierContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */; };
+		063B6958294B619D003AD386 /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 063B6957294B619D003AD386 /* changes.txt */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		063F026729002768001FA09F /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
 		063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */; };
@@ -546,9 +547,10 @@
 		062B45C128FE97FF00746E77 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
-		063B69512949FCE9003AD386 /* VersionNotifierViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionNotifierViewController.swift; sourceTree = "<group>"; };
-		063B6953294A2773003AD386 /* VersionNotifierTableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionNotifierTableCellView.swift; sourceTree = "<group>"; };
-		063B6955294A279B003AD386 /* VersionNotifierContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionNotifierContentView.swift; sourceTree = "<group>"; };
+		063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierViewController.swift; sourceTree = "<group>"; };
+		063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierTableCellView.swift; sourceTree = "<group>"; };
+		063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierContentView.swift; sourceTree = "<group>"; };
+		063B6957294B619D003AD386 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changes.txt; sourceTree = "<group>"; };
 		063F02732902B63F001FA09F /* RelayCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RelayCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		063F02752902B63F001FA09F /* RelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RelayCache.h; sourceTree = "<group>"; };
 		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
@@ -1350,6 +1352,9 @@
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
+				063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */,
+				063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */,
+				063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */,
 				58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */,
 				58B43C1825F77DB60002C8C3 /* ConnectContentView.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
@@ -1369,9 +1374,6 @@
 				587D96732886D87C00CD8F1C /* DeviceManagementContentView.swift */,
 				5820EDA8288FE064006BF4E4 /* DeviceManagementInteractor.swift */,
 				5893716928817A45004EE76C /* DeviceManagementViewController.swift */,
-				063B69512949FCE9003AD386 /* VersionNotifierViewController.swift */,
-				063B6955294A279B003AD386 /* VersionNotifierContentView.swift */,
-				063B6953294A2773003AD386 /* VersionNotifierTableCellView.swift */,
 				5820EDAA288FF0D2006BF4E4 /* DeviceRowView.swift */,
 				58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */,
 				58B9EB142489139B00095626 /* DisplayChainedError.swift */,
@@ -1536,6 +1538,7 @@
 		58F3C0A824A50C0E003E76BE /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				063B6957294B619D003AD386 /* changes.txt */,
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 			);
 			path = Assets;
@@ -1998,6 +2001,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
+				063B6958294B619D003AD386 /* changes.txt in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
@@ -2236,7 +2240,7 @@
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
-				063B6956294A279B003AD386 /* VersionNotifierContentView.swift in Sources */,
+				063B6956294A279B003AD386 /* ChangeLogNotifierContentView.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				068CE5742927B7A400A068BB /* Migration.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
@@ -2284,7 +2288,7 @@
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
-				063B6954294A2773003AD386 /* VersionNotifierTableCellView.swift in Sources */,
+				063B6954294A2773003AD386 /* ChangeLogNotifierTableCellView.swift in Sources */,
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
 				58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */,
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
@@ -2343,7 +2347,7 @@
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
-				063B69522949FCE9003AD386 /* VersionNotifierViewController.swift in Sources */,
+				063B69522949FCE9003AD386 /* ChangeLogNotifierViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				58421034282E4B1500F24E46 /* TunnelSettingsV2+REST.swift in Sources */,
