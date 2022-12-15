@@ -1,6 +1,6 @@
-import { startApp, StartAppResponse } from '../utils';
+import { startApp } from '../utils';
 
-export const startInstalledApp = async (): Promise<StartAppResponse> => {
+export const startInstalledApp = async (): ReturnType<typeof startApp> => {
   return startApp({ executablePath: getAppInstallPath() });
 }
 

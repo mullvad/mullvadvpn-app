@@ -1,11 +1,13 @@
 import { Locator, Page, _electron as electron, ElectronApplication } from 'playwright';
 
-export type GetByTestId = (id: string) => Locator;
-
 export interface StartAppResponse {
   app: ElectronApplication;
   page: Page;
-  getByTestId: GetByTestId;
+  util: TestUtils;
+}
+
+export interface TestUtils {
+  getByTestId: (id: string) => Locator;
 }
 
 export const startApp = async (
@@ -30,10 +32,13 @@ export const startApp = async (
     console.log(msg.text());
   });
 
-  const getByTestId = (id: string) => page.locator(`data-test-id=${id}`);
+  const util = {
+    getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
+  };
 
-  return { app, page, getByTestId };
+  return { app, page, util };
 };
+
 
 const getStyleProperty = (locator: Locator, property: string) => {
   return locator.evaluate(

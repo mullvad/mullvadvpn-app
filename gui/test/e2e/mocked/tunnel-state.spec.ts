@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { startMockedApp, MockIpcHandle, SendMockIpcResponse } from './mocked-utils';
+import { MockedTestUtils, startMockedApp } from './mocked-utils';
 import { ErrorStateCause, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
 import { assertConnected, assertConnecting, assertDisconnected, assertDisconnecting, assertError } from '../shared/tunnel-state';
 
@@ -14,11 +14,10 @@ const mockLocation: ILocation = {
 };
 
 let page: Page;
-let mockIpcHandle: MockIpcHandle;
-let sendMockIpcResponse: SendMockIpcResponse;
+let util: MockedTestUtils;
 
 test.beforeAll(async () => {
-  ({ page, mockIpcHandle, sendMockIpcResponse } = await startMockedApp());
+  ({ page, util } = await startMockedApp());
 });
 
 test.afterAll(async () => {
@@ -29,11 +28,11 @@ test.afterAll(async () => {
  * Disconnected state
  */
 test('App should show disconnected tunnel state', async () => {
-  await mockIpcHandle<ILocation>({
+  await util.mockIpcHandle<ILocation>({
     channel: 'location-get',
     response: mockLocation,
   });
-  await sendMockIpcResponse<TunnelState>({
+  await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'disconnected' },
   });
@@ -44,11 +43,11 @@ test('App should show disconnected tunnel state', async () => {
  * Connecting state
  */
 test('App should show connecting tunnel state', async () => {
-  await mockIpcHandle<ILocation>({
+  await util.mockIpcHandle<ILocation>({
     channel: 'location-get',
     response: mockLocation,
   });
-  await sendMockIpcResponse<TunnelState>({
+  await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'connecting' },
   });
@@ -60,7 +59,7 @@ test('App should show connecting tunnel state', async () => {
  */
 test('App should show connected tunnel state', async () => {
   const location: ILocation = { ...mockLocation, mullvadExitIp: true };
-  await mockIpcHandle<ILocation>({
+  await util.mockIpcHandle<ILocation>({
     channel: 'location-get',
     response: location,
   });
@@ -71,7 +70,7 @@ test('App should show connected tunnel state', async () => {
     quantumResistant: false,
     tunnelType: 'wireguard',
   };
-  await sendMockIpcResponse<TunnelState>({
+  await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'connected', details: { endpoint, location } },
   });
@@ -83,11 +82,11 @@ test('App should show connected tunnel state', async () => {
  * Disconnecting state
  */
 test('App should show disconnecting tunnel state', async () => {
-  await mockIpcHandle<ILocation>({
+  await util.mockIpcHandle<ILocation>({
     channel: 'location-get',
     response: mockLocation,
   });
-  await sendMockIpcResponse<TunnelState>({
+  await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'disconnecting', details: 'nothing' },
   });
@@ -98,11 +97,11 @@ test('App should show disconnecting tunnel state', async () => {
  * Error state
  */
 test('App should show error tunnel state', async () => {
-  await mockIpcHandle<ILocation>({
+  await util.mockIpcHandle<ILocation>({
     channel: 'location-get',
     response: mockLocation,
   });
-  await sendMockIpcResponse<TunnelState>({
+  await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
     response: { state: 'error', details: { cause: ErrorStateCause.isOffline } },
   });

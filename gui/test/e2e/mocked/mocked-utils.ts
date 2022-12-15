@@ -1,8 +1,12 @@
 import { ElectronApplication } from 'playwright';
 
-import { startApp, StartAppResponse } from '../utils';
+import { startApp, TestUtils } from '../utils';
 
-interface StartMockedAppResponse extends StartAppResponse {
+interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
+  util: MockedTestUtils,
+}
+
+export interface MockedTestUtils extends TestUtils {
   mockIpcHandle: MockIpcHandle;
   sendMockIpcResponse: SendMockIpcResponse;
 }
@@ -14,9 +18,12 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
 
   return {
     ...startAppResult,
-    mockIpcHandle,
-    sendMockIpcResponse,
-  }
+    util: {
+      ...startAppResult.util,
+      mockIpcHandle,
+      sendMockIpcResponse,
+    }
+  };
 };
 
 type MockIpcHandleProps<T> = {
