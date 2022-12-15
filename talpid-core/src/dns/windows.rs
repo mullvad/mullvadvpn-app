@@ -123,6 +123,12 @@ impl super::DnsMonitorT for DnsMonitor {
         }
         Ok(())
     }
+
+    fn reset_before_interface_removal(&mut self) -> Result<(), Self::Error> {
+        // do nothing since the tunnel interface goes away
+        let _ = self.current_index.take();
+        Ok(())
+    }
 }
 
 fn run_netsh_with_timeout(netsh_input: String, timeout: Duration) -> Result<(), Error> {

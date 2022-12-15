@@ -79,6 +79,14 @@ impl DnsMonitor {
         log::info!("Resetting DNS");
         self.inner.reset()
     }
+
+    /// Reset DNS settings to what they were before being set by this instance.
+    /// If the settings only affect a specific interface, this can be a no-op,
+    /// as the interface will be destroyed.
+    pub fn reset_before_interface_removal(&mut self) -> Result<(), Error> {
+        log::info!("Resetting DNS");
+        self.inner.reset_before_interface_removal()
+    }
 }
 
 trait DnsMonitorT: Sized {
@@ -93,4 +101,8 @@ trait DnsMonitorT: Sized {
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
     fn reset(&mut self) -> Result<(), Self::Error>;
+
+    fn reset_before_interface_removal(&mut self) -> Result<(), Self::Error> {
+        self.reset()
+    }
 }
