@@ -8,6 +8,7 @@ export interface StartAppResponse {
 
 export interface TestUtils {
   getByTestId: (id: string) => Locator;
+  currentRoute: () => Promise<void>;
   nextRoute: () => Promise<string>;
 }
 
@@ -38,13 +39,22 @@ export const startApp = async (
     console.log(msg.text());
   });
 
-  const util = {
+  const util: TestUtils = {
     getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
+    currentRoute: currentRouteFactory(app),
     nextRoute: nextRouteFactory(app),
   };
 
   return { app, page, util };
 };
+
+export const currentRouteFactory = (app: ElectronApplication) => {
+  return async () => {
+    return await app.evaluate(({ webContents }) => {
+      return webContents.getAllWebContents()[0].executeJavaScript('window.e2e.location');
+    });
+  };
+}
 
 export const nextRouteFactory = (app: ElectronApplication) => {
   return async () => {
@@ -59,7 +69,7 @@ export const nextRouteFactory = (app: ElectronApplication) => {
     // TODO: Disable view transitions and shorten timeout or remove completely.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return nextRoute;
-  }
+  };
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {
