@@ -19,6 +19,7 @@
 		063B6956294A279B003AD386 /* ChangeLogNotifierContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */; };
 		063B6958294B619D003AD386 /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 063B6957294B619D003AD386 /* changes.txt */; };
 		063B695A294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */; };
+		063B695C294B6A68003AD386 /* VersionChangeLogReaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		063F026729002768001FA09F /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
 		063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */; };
@@ -553,6 +554,7 @@
 		063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierContentView.swift; sourceTree = "<group>"; };
 		063B6957294B619D003AD386 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changes.txt; sourceTree = "<group>"; };
 		063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierUIHandler.swift; sourceTree = "<group>"; };
+		063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionChangeLogReaderOperation.swift; sourceTree = "<group>"; };
 		063F02732902B63F001FA09F /* RelayCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RelayCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		063F02752902B63F001FA09F /* RelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RelayCache.h; sourceTree = "<group>"; };
 		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
@@ -1355,6 +1357,7 @@
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
 				063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */,
+				063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */,
 				063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */,
 				063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */,
 				063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */,
@@ -2331,6 +2334,7 @@
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
+				063B695C294B6A68003AD386 /* VersionChangeLogReaderOperation.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
