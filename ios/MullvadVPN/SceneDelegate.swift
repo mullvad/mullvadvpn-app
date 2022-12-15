@@ -841,6 +841,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     ) -> UIModalPresentationStyle {
         if controller.presentedViewController is RootContainerViewController {
             return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
+        } else if controller.presentedViewController is ChangeLogNotifierViewController {
+            return .formSheet
         } else {
             return .none
         }
@@ -1031,11 +1033,34 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         }
     }
 
+    // MARK: - ChangeLogNotifierUIHandler
+
     func showVersionChanges(_ changes: [String]) {
         let popupController = ChangeLogNotifierViewController(for: changes)
 
-        if let rootViewController = window?.rootViewController {
-            rootViewController.present(popupController, animated: true)
+        popupController.preferredContentSize = CGSize(width: 480, height: 500)
+        popupController.modalPresentationStyle = .formSheet
+        popupController.presentationController?.delegate = self
+        popupController.isModalInPresentation = true
+
+        if popupController.presentingViewController == nil {
+            switch UIDevice.current.userInterfaceIdiom {
+            case .phone:
+                if !rootContainer.viewControllers
+                    .contains(where: { $0 is ChangeLogNotifierViewController })
+                {
+                    rootContainer.present(popupController, animated: true)
+                }
+            case .pad:
+                if !modalRootContainer.viewControllers
+                    .contains(where: { $0 is ChangeLogNotifierViewController })
+                {
+                    presentModalRootContainerIfNeeded(animated: true)
+
+                    modalRootContainer.present(popupController, animated: true)
+                }
+            default: return
+            }
         }
     }
 }
