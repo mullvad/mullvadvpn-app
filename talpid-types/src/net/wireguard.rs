@@ -267,7 +267,7 @@ impl fmt::Display for PublicKey {
 }
 
 /// A WireGuard preshared key (PSK). Used to make the tunnel quantum-resistant.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Zeroize, ZeroizeOnDrop)]
+#[derive(Clone, PartialEq, Eq, Hash, Zeroize, ZeroizeOnDrop)]
 pub struct PresharedKey(Box<[u8; 32]>);
 
 impl PresharedKey {
@@ -282,6 +282,12 @@ impl PresharedKey {
 impl From<Box<[u8; 32]>> for PresharedKey {
     fn from(key: Box<[u8; 32]>) -> PresharedKey {
         PresharedKey(key)
+    }
+}
+
+impl fmt::Debug for PresharedKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", &base64::encode(self.as_bytes()))
     }
 }
 
