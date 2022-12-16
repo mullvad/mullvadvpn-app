@@ -8,14 +8,6 @@
         <notes><![CDATA[
         This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
-        <cve>CVE-2022-3171</cve>
-        <cve>CVE-2022-3510</cve>
-    </suppress>
-    <suppress until="2023-05-01Z">
-        <notes><![CDATA[
-        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
-        ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
         <cve>CVE-2022-3171</cve>
         <cve>CVE-2022-3509</cve>
