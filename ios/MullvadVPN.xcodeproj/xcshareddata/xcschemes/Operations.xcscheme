@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "58E5126428DDF04200B0BCDE"
-               BuildableName = "libOperations.a"
+               BlueprintIdentifier = "58D223A4294C8A480029F5F8"
+               BuildableName = "Operations.framework"
                BlueprintName = "Operations"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
@@ -61,8 +61,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "58E5126428DDF04200B0BCDE"
-            BuildableName = "libOperations.a"
+            BlueprintIdentifier = "58D223A4294C8A480029F5F8"
+            BuildableName = "Operations.framework"
             BlueprintName = "Operations"
             ReferencedContainer = "container:MullvadVPN.xcodeproj">
          </BuildableReference>
