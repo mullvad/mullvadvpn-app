@@ -339,20 +339,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		062B45A528FD4FD500746E77 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadNetworking;
-		};
-		062B45BE28FDA85D00746E77 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadREST;
-		};
 		063F0268290027F8001FA09F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -387,13 +373,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 58CE5E5F224146200008646E;
 			remoteInfo = MullvadVPN;
-		};
-		06799ACF28F98E1D00ACD94E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadNetwork;
 		};
 		06D9844928F99056003AABE9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1625,7 +1604,7 @@
 				06D9844B28F990AB003AABE9 /* WireGuardKitTypes */,
 				06D9845228F99105003AABE9 /* Logging */,
 			);
-			productName = MullvadNetwork;
+			productName = MullvadREST;
 			productReference = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */;
 			productType = "com.apple.product-type.framework";
 		};
