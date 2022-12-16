@@ -6,24 +6,6 @@
     -->
     <suppress until="2023-05-01Z">
         <notes><![CDATA[
-        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
-        <cve>CVE-2022-3171</cve>
-        <cve>CVE-2022-3510</cve>
-    </suppress>
-    <suppress until="2023-05-01Z">
-        <notes><![CDATA[
-        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
-        <cve>CVE-2022-3171</cve>
-        <cve>CVE-2022-3509</cve>
-        <cve>CVE-2022-3510</cve>
-        <cve>CVE-2021-22569</cve>
-    </suppress>
-    <suppress until="2023-05-01Z">
-        <notes><![CDATA[
         This CVE affects the Apache Commons Net's FTP client that this app doesn't use.
         https://www.openwall.com/lists/oss-security/2022/12/03/1
 
