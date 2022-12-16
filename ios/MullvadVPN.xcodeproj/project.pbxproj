@@ -70,6 +70,9 @@
 		068CE5742927B7A400A068BB /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE5732927B7A400A068BB /* Migration.swift */; };
 		068CE5782927BE4800A068BB /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068CE5732927B7A400A068BB /* Migration.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
+		06A2AF39294CBD20002B6BD5 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A2AF38294CBD20002B6BD5 /* FormsheetPresentationController.swift */; };
+		06A2AF3B294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A2AF3A294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift */; };
+		06A2AF3D294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A2AF3C294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		06D47B7B28F98F53008E762C /* libMullvadTypes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581943F128F8014500B0CB5E /* libMullvadTypes.a */; };
 		06D47B7E28F98F53008E762C /* libOperations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E5126528DDF04200B0BCDE /* libOperations.a */; };
@@ -567,6 +570,9 @@
 		068CE56F29278F5300A068BB /* MigrationFromV1ToV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationFromV1ToV2.swift; sourceTree = "<group>"; };
 		068CE5732927B7A400A068BB /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
 		0697D6E628F01513007A9E99 /* TransportMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportMonitor.swift; sourceTree = "<group>"; };
+		06A2AF38294CBD20002B6BD5 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
+		06A2AF3A294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationAnimator.swift; sourceTree = "<group>"; };
+		06A2AF3C294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetTransitioningDelegate.swift; sourceTree = "<group>"; };
 		06AC113628F83FD70037AF9A /* Cancellable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
 		06AC114028F841390037AF9A /* AddressCacheTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCacheTracker.swift; sourceTree = "<group>"; };
 		06AC114128F8413A0037AF9A /* AddressCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressCache.swift; sourceTree = "<group>"; };
@@ -1423,6 +1429,9 @@
 				5878A27C2909657C0096FC88 /* RevokedDeviceInteractor.swift */,
 				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
+				06A2AF3C294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift */,
+				06A2AF3A294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift */,
+				06A2AF38294CBD20002B6BD5 /* FormsheetPresentationController.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
 				5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */,
 				5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */,
@@ -2271,11 +2280,13 @@
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
+				06A2AF3D294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */,
 				5878A279290954790096FC88 /* ConnectInteractor.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
+				06A2AF39294CBD20002B6BD5 /* FormsheetPresentationController.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* StorePaymentManagerDelegate.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,
@@ -2373,6 +2384,7 @@
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
+				06A2AF3B294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* ConnectContentView.swift in Sources */,
