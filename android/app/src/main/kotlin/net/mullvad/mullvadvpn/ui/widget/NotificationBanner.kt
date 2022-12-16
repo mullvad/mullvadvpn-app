@@ -50,9 +50,6 @@ class NotificationBanner : FrameLayout {
     private val animation = ObjectAnimator.ofFloat(this, "translationY", 0.0f).apply {
         addListener(animationListener)
         setDuration(350)
-
-        // Ensure there's time for the layout to finish before making the banner visible
-        setStartDelay(20)
     }
 
     private val container =
