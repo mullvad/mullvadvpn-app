@@ -17,27 +17,14 @@ interface History {
   index: number;
 }
 
-export const startApp = async (
-  options: Parameters<typeof electron.launch>[0],
-): Promise<StartAppResponse> => {
-  process.env.CI = 'e2e';
-  const app = await electron.launch(options);
+type LaunchOptions = Parameters<typeof electron.launch>[0];
 
-  await app.evaluate(({ webContents }) => {
-    return new Promise((resolve) => {
-      webContents.getAllWebContents()[0].on('did-finish-load', resolve);
-    });
-  });
-
+export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
+  const app = await launch(options);
   const page = await app.firstWindow();
 
-  page.on('pageerror', (error) => {
-    console.log(error);
-  });
-
-  page.on('console', (msg) => {
-    console.log(msg.text());
-  });
+  page.on('pageerror', (error) => console.log(error));
+  page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
     getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
@@ -47,6 +34,19 @@ export const startApp = async (
 
   return { app, page, util };
 };
+
+export const launch = async (options: LaunchOptions): Promise<ElectronApplication> => {
+  process.env.CI = 'e2e';
+  const app = await electron.launch(options);
+
+  await app.evaluate(({ webContents }) => {
+    return new Promise((resolve) => {
+      webContents.getAllWebContents()[0].once('did-finish-load', resolve);
+    });
+  });
+
+  return app;
+}
 
 export const currentRouteFactory = (app: ElectronApplication) => {
   return async () => {
