@@ -7,7 +7,6 @@ export interface StartAppResponse {
 }
 
 export interface TestUtils {
-  getByTestId: (id: string) => Locator;
   currentRoute: () => Promise<void>;
   nextRoute: () => Promise<string>;
 }
@@ -27,7 +26,6 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
-    getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
     currentRoute: currentRouteFactory(app),
     nextRoute: nextRouteFactory(app),
   };

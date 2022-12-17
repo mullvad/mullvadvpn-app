@@ -221,7 +221,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
     const city = this.props.city === undefined ? '' : relayLocations.gettext(this.props.city);
     return (
       <LocationRow>
-        <StyledMarquee data-test-id="city">{city}</StyledMarquee>
+        <StyledMarquee data-testid="city">{city}</StyledMarquee>
       </LocationRow>
     );
   }
@@ -231,7 +231,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
       this.props.country === undefined ? '' : relayLocations.gettext(this.props.country);
     return (
       <LocationRow>
-        <StyledMarquee data-test-id="country">{country}</StyledMarquee>
+        <StyledMarquee data-testid="country">{country}</StyledMarquee>
       </LocationRow>
     );
   }
