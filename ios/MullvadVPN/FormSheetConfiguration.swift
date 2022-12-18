@@ -9,19 +9,19 @@
 import UIKit
 
 struct FormSheetConfiguration {
-    var transitioningDelegate: UIViewControllerTransitioningDelegate
+    var transitioningDelegate: UIViewControllerTransitioningDelegate?
     var modalPresentationStyle: UIModalPresentationStyle
     var preferredContentSize: CGSize
-    var presentationControllerDelegate: UIAdaptivePresentationControllerDelegate
+    var presentationDelegate: UIAdaptivePresentationControllerDelegate
     var isModalInPresentation: Bool
-    var popoverPresentationControllerSourceView: UIView?
+    var popoverSourceView: UIView?
 
     func apply(to viewController: UIViewController) {
         viewController.transitioningDelegate = transitioningDelegate
         viewController.modalPresentationStyle = modalPresentationStyle
         viewController.preferredContentSize = preferredContentSize
-        viewController.presentationController?.delegate = presentationControllerDelegate
+        viewController.presentationController?.delegate = presentationDelegate
         viewController.isModalInPresentation = isModalInPresentation
-        viewController.popoverPresentationController?.sourceView = popoverPresentationControllerSourceView
+        viewController.popoverPresentationController?.sourceView = popoverSourceView
     }
 }
