@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     SettingsNavigationControllerDelegate, ConnectViewControllerDelegate,
     OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
-    RelayCacheTrackerObserver, SettingsMigrationUIHandler, ChangeLogNotifierUIHandler
+    RelayCacheTrackerObserver, SettingsMigrationUIHandler, ChangeLogUIHandler
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -67,6 +67,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private var devicesProxy: REST.DevicesProxy {
         return appDelegate.devicesProxy
     }
+
+    /// Transitioning delegate used for presenting change log view controller.
+    private lazy var changeLogFormSheetTransitioningDelegate = FormsheetTransitioningDelegate()
 
     deinit {
         clearOutOfTimeTimer()
@@ -841,8 +844,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     ) -> UIModalPresentationStyle {
         if controller.presentedViewController is RootContainerViewController {
             return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
-        } else if controller.presentedViewController is ChangeLogNotifierViewController {
-            return .formSheet
         } else {
             return .none
         }
@@ -1036,24 +1037,32 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     // MARK: - ChangeLogNotifierUIHandler
 
     func showVersionChanges(_ changes: [String]) {
-        let popupController = ChangeLogNotifierViewController(for: changes)
+        guard isSceneConfigured else { return }
 
-        popupController.preferredContentSize = CGSize(width: 480, height: 500)
-        popupController.modalPresentationStyle = .formSheet
-        popupController.presentationController?.delegate = self
-        popupController.isModalInPresentation = true
+        let popupController = ChangeLogViewController(for: changes)
+
+        let sheetConfig = FormSheetConfiguration(
+            transitioningDelegate: changeLogFormSheetTransitioningDelegate,
+            modalPresentationStyle: .custom,
+            preferredContentSize: CGSize(width: 400, height: 400),
+            presentationDelegate: self,
+            isModalInPresentation: true,
+            popoverSourceView: rootContainer.view
+        )
+
+        sheetConfig.apply(to: popupController)
 
         if popupController.presentingViewController == nil {
             switch UIDevice.current.userInterfaceIdiom {
             case .phone:
                 if !rootContainer.viewControllers
-                    .contains(where: { $0 is ChangeLogNotifierViewController })
+                    .contains(where: { $0 is ChangeLogViewController })
                 {
                     rootContainer.present(popupController, animated: true)
                 }
             case .pad:
                 if !modalRootContainer.viewControllers
-                    .contains(where: { $0 is ChangeLogNotifierViewController })
+                    .contains(where: { $0 is ChangeLogViewController })
                 {
                     presentModalRootContainerIfNeeded(animated: true)
 
