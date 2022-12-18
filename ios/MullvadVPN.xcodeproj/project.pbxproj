@@ -38,6 +38,7 @@
 		06410E08292D117800AFC18C /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E06292D108E00AFC18C /* SettingsStore.swift */; };
 		06410E09292D990C00AFC18C /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		06410E182934F43B00AFC18C /* PacketTunnelErrorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */; };
+		06425363294F2F1500906908 /* ProcessEnvironment+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06425362294F2F1500906908 /* ProcessEnvironment+Extension.swift */; };
 		06425365294F3E1100906908 /* FormSheetConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06425364294F3E1100906908 /* FormSheetConfiguration.swift */; };
 		06425367294F4A4E00906908 /* ChangeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06425366294F4A4E00906908 /* ChangeLog.swift */; };
 		06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */ = {isa = PBXBuildFile; fileRef = 06799ABE28F98E1D00ACD94E /* MullvadREST.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -566,6 +567,7 @@
 		06410E03292D0F7100AFC18C /* SettingsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsParser.swift; sourceTree = "<group>"; };
 		06410E06292D108E00AFC18C /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelErrorWrapper.swift; sourceTree = "<group>"; };
+		06425362294F2F1500906908 /* ProcessEnvironment+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessEnvironment+Extension.swift"; sourceTree = "<group>"; };
 		06425364294F3E1100906908 /* FormSheetConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormSheetConfiguration.swift; sourceTree = "<group>"; };
 		06425366294F4A4E00906908 /* ChangeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLog.swift; sourceTree = "<group>"; };
 		06799AB428F98CE700ACD94E /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
@@ -1434,7 +1436,7 @@
 				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
 				06425364294F3E1100906908 /* FormSheetConfiguration.swift */,
-				06425362294F2F1500906908 /* ProcessEnvironment.swift */,
+				06425362294F2F1500906908 /* ProcessEnvironment+Extension.swift */,
 				06A2AF3C294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift */,
 				06A2AF3A294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift */,
 				06A2AF38294CBD20002B6BD5 /* FormsheetPresentationController.swift */,
@@ -2364,7 +2366,7 @@
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
-				06425363294F2F1500906908 /* ProcessEnvironment.swift in Sources */,
+				06425363294F2F1500906908 /* ProcessEnvironment+Extension.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
