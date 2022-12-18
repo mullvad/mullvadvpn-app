@@ -1,5 +1,5 @@
 //
-//  VersionChangeLogReaderOperation.swift
+//  ReadChangesOperation.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-15.
@@ -12,8 +12,10 @@ import Operations
 /// Change log file name.
 private let fileName = "changes.txt"
 
-final class VersionChangeLogReaderOperation: ResultOperation<[String], Error> {
+final class ReadChangesOperation: ResultOperation<[String], Error> {
     override func main() {
+        dispatchPrecondition(condition: .notOnQueue(.main))
+
         do {
             guard let changesFileURL = Bundle.main.url(forResource: fileName, withExtension: nil)
             else {

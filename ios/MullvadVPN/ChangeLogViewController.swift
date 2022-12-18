@@ -1,5 +1,5 @@
 //
-//  ChangeLogNotifierViewController.swift
+//  ChangeLogViewController.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-14.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-final class ChangeLogNotifierViewController: UIViewController, RootContainment {
+final class ChangeLogViewController: UIViewController, RootContainment {
     var preferredHeaderBarPresentation: HeaderBarPresentation {
         return .default
     }
@@ -22,8 +22,8 @@ final class ChangeLogNotifierViewController: UIViewController, RootContainment {
         return .lightContent
     }
 
-    private lazy var contentView: ChangeLogNotifierContentView = {
-        let contentView = ChangeLogNotifierContentView(frame: view.bounds)
+    private lazy var contentView: ChangeLogContentView = {
+        let contentView = ChangeLogContentView(frame: view.bounds)
         contentView.translatesAutoresizingMaskIntoConstraints = false
         return contentView
     }()
@@ -51,6 +51,7 @@ final class ChangeLogNotifierViewController: UIViewController, RootContainment {
         ])
 
         contentView.continueButtonAction = { [unowned self] in
+            ChangeLog.setShown(true)
             self.dismiss(animated: true)
         }
 

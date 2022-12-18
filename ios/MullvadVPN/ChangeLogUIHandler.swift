@@ -1,5 +1,5 @@
 //
-//  ChangeLogNotifierUIHandler.swift
+//  ChangeLogUIHandler.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-15.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol ChangeLogNotifierUIHandler {
+protocol ChangeLogUIHandler {
     func showVersionChanges(_ changes: [String])
 }

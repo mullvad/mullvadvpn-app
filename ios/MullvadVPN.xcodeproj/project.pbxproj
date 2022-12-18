@@ -14,12 +14,12 @@
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
 		062B45C228FE980000746E77 /* api-ip-address.json in Resources */ = {isa = PBXBuildFile; fileRef = 062B45C128FE97FF00746E77 /* api-ip-address.json */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
-		063B69522949FCE9003AD386 /* ChangeLogNotifierViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */; };
-		063B6954294A2773003AD386 /* ChangeLogNotifierTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */; };
-		063B6956294A279B003AD386 /* ChangeLogNotifierContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */; };
+		063B69522949FCE9003AD386 /* ChangeLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B69512949FCE9003AD386 /* ChangeLogViewController.swift */; };
+		063B6954294A2773003AD386 /* ChangeLogTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6953294A2773003AD386 /* ChangeLogTableCellView.swift */; };
+		063B6956294A279B003AD386 /* ChangeLogContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6955294A279B003AD386 /* ChangeLogContentView.swift */; };
 		063B6958294B619D003AD386 /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 063B6957294B619D003AD386 /* changes.txt */; };
-		063B695A294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */; };
-		063B695C294B6A68003AD386 /* VersionChangeLogReaderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */; };
+		063B695A294B6A15003AD386 /* ChangeLogUIHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B6959294B6A15003AD386 /* ChangeLogUIHandler.swift */; };
+		063B695C294B6A68003AD386 /* ReadChangesOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063B695B294B6A68003AD386 /* ReadChangesOperation.swift */; };
 		063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		063F026729002768001FA09F /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC113628F83FD70037AF9A /* Cancellable.swift */; };
 		063F026A29002E44001FA09F /* IPv4Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */; };
@@ -553,12 +553,12 @@
 		062B45C128FE97FF00746E77 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
 		063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelTransport.swift; sourceTree = "<group>"; };
-		063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierViewController.swift; sourceTree = "<group>"; };
-		063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierTableCellView.swift; sourceTree = "<group>"; };
-		063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierContentView.swift; sourceTree = "<group>"; };
+		063B69512949FCE9003AD386 /* ChangeLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewController.swift; sourceTree = "<group>"; };
+		063B6953294A2773003AD386 /* ChangeLogTableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogTableCellView.swift; sourceTree = "<group>"; };
+		063B6955294A279B003AD386 /* ChangeLogContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogContentView.swift; sourceTree = "<group>"; };
 		063B6957294B619D003AD386 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changes.txt; sourceTree = "<group>"; };
-		063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogNotifierUIHandler.swift; sourceTree = "<group>"; };
-		063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionChangeLogReaderOperation.swift; sourceTree = "<group>"; };
+		063B6959294B6A15003AD386 /* ChangeLogUIHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogUIHandler.swift; sourceTree = "<group>"; };
+		063B695B294B6A68003AD386 /* ReadChangesOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadChangesOperation.swift; sourceTree = "<group>"; };
 		063F02732902B63F001FA09F /* RelayCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RelayCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		063F02752902B63F001FA09F /* RelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RelayCache.h; sourceTree = "<group>"; };
 		06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStore.swift; sourceTree = "<group>"; };
@@ -1364,11 +1364,11 @@
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
-				063B69512949FCE9003AD386 /* ChangeLogNotifierViewController.swift */,
-				063B695B294B6A68003AD386 /* VersionChangeLogReaderOperation.swift */,
-				063B6959294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift */,
-				063B6955294A279B003AD386 /* ChangeLogNotifierContentView.swift */,
-				063B6953294A2773003AD386 /* ChangeLogNotifierTableCellView.swift */,
+				063B69512949FCE9003AD386 /* ChangeLogViewController.swift */,
+				063B695B294B6A68003AD386 /* ReadChangesOperation.swift */,
+				063B6959294B6A15003AD386 /* ChangeLogUIHandler.swift */,
+				063B6955294A279B003AD386 /* ChangeLogContentView.swift */,
+				063B6953294A2773003AD386 /* ChangeLogTableCellView.swift */,
 				58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */,
 				58B43C1825F77DB60002C8C3 /* ConnectContentView.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
@@ -1432,6 +1432,7 @@
 				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
 				06425364294F3E1100906908 /* FormSheetConfiguration.swift */,
+				06425362294F2F1500906908 /* ProcessEnvironment.swift */,
 				06A2AF3C294CBD54002B6BD5 /* FormsheetTransitioningDelegate.swift */,
 				06A2AF3A294CBD35002B6BD5 /* FormsheetPresentationAnimator.swift */,
 				06A2AF38294CBD20002B6BD5 /* FormsheetPresentationController.swift */,
@@ -2258,7 +2259,7 @@
 				58F1311527E0B2AB007AC5BC /* Result+Extensions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
-				063B6956294A279B003AD386 /* ChangeLogNotifierContentView.swift in Sources */,
+				063B6956294A279B003AD386 /* ChangeLogContentView.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				068CE5742927B7A400A068BB /* Migration.swift in Sources */,
 				58CCA010224249A1004F3011 /* ConnectViewController.swift in Sources */,
@@ -2309,7 +2310,7 @@
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
-				063B6954294A2773003AD386 /* ChangeLogNotifierTableCellView.swift in Sources */,
+				063B6954294A2773003AD386 /* ChangeLogTableCellView.swift in Sources */,
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
 				58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */,
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
@@ -2349,7 +2350,7 @@
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
-				063B695C294B6A68003AD386 /* VersionChangeLogReaderOperation.swift in Sources */,
+				063B695C294B6A68003AD386 /* ReadChangesOperation.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
@@ -2360,6 +2361,7 @@
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
+				06425363294F2F1500906908 /* ProcessEnvironment.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
@@ -2369,7 +2371,7 @@
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
-				063B69522949FCE9003AD386 /* ChangeLogNotifierViewController.swift in Sources */,
+				063B69522949FCE9003AD386 /* ChangeLogViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				58421034282E4B1500F24E46 /* TunnelSettingsV2+REST.swift in Sources */,
@@ -2381,7 +2383,7 @@
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
-				063B695A294B6A15003AD386 /* ChangeLogNotifierUIHandler.swift in Sources */,
+				063B695A294B6A15003AD386 /* ChangeLogUIHandler.swift in Sources */,
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,

@@ -1,5 +1,5 @@
 //
-//  ChangeLogNotifierContentView.swift
+//  ChangeLogContentView.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-12-14.
@@ -8,23 +8,23 @@
 
 import UIKit
 
-private let tableViewCellIdentifier = "ChangeLogNotifierTableCell.Identifier"
+private let tableViewCellIdentifier = "ChangeLogTableCell.Identifier"
 
-final class ChangeLogNotifierContentView: UIView, UITableViewDataSource {
+final class ChangeLogContentView: UIView, UITableViewDataSource {
     private var versionChanges: [String] = []
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString(
             "TITLE",
-            tableName: "ChangeLogNotifier",
+            tableName: "ChangeLog",
             value: "App version",
             comment: ""
         )
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 32)
         label.textColor = .white
-        label.accessibilityIdentifier = "ChangeLogNotifierContentView.titleLabel"
+        label.accessibilityIdentifier = "ChangeLogContentView.titleLabel"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -33,14 +33,14 @@ final class ChangeLogNotifierContentView: UIView, UITableViewDataSource {
         let label = UILabel()
         label.text = NSLocalizedString(
             "SUBTITLE",
-            tableName: "ChangeLogNotifier",
+            tableName: "ChangeLog",
             value: "Changes in this version:",
             comment: ""
         )
         label.font = UIFont.boldSystemFont(ofSize: 17)
         label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.accessibilityIdentifier = "ChangeLogNotifierContentView.subtitleLabel"
+        label.accessibilityIdentifier = "ChangeLogContentView.subtitleLabel"
         return label
     }()
 
@@ -48,7 +48,7 @@ final class ChangeLogNotifierContentView: UIView, UITableViewDataSource {
         let tableView = UITableView()
         tableView.dataSource = self
         tableView.register(
-            ChangeLogNotifierTableCellView.self,
+            ChangeLogTableCellView.self,
             forCellReuseIdentifier: tableViewCellIdentifier
         )
         tableView.separatorStyle = .none
@@ -63,12 +63,13 @@ final class ChangeLogNotifierContentView: UIView, UITableViewDataSource {
         button.setTitle(
             NSLocalizedString(
                 "CONTINUE_BUTTON",
-                tableName: "ChangeLogNotifier",
+                tableName: "ChangeLog",
                 value: "Got it!",
                 comment: ""
             ),
             for: .normal
         )
+        button.accessibilityIdentifier = "ChangeLogContentView.continueButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -185,7 +186,7 @@ final class ChangeLogNotifierContentView: UIView, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: tableViewCellIdentifier,
             for: indexPath
-        ) as? ChangeLogNotifierTableCellView else { return UITableViewCell() }
+        ) as? ChangeLogTableCellView else { return UITableViewCell() }
         cell.setChange(versionChanges[indexPath.row])
         return cell
     }
