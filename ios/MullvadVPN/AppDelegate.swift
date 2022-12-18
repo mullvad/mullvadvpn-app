@@ -164,8 +164,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
 
+        let readChangesOperation = ReadChangesOperation(
+            dispatchQueue: .global(qos: .utility),
+            completionQueue: .main
+        ) { result in
+            switch result {
+            case let .success(changes):
+                guard !changes.isEmpty,
+                      let changeLogUIHandler = application.connectedScenes.compactMap({ scene in
+                          return scene.delegate as? ChangeLogUIHandler
+                      }).first
+                else { return }
+
+                changeLogUIHandler.showVersionChanges(changes)
+
+            case let .failure(error):
+                self.logger.error(
+                    error: error,
+                    message: "Failure to present change log popup."
+                )
+
+            case .cancelled: break
+            }
+        }
+
+        let readChangesOperationCondition = BlockCondition { _, completion in
+            let shouldShowChangeLog: Bool = {
+                #if DEBUG
+                return ProcessInfo.shouldShowChangeLog
+                #else
+                return false
+                #endif
+            }()
+
+            completion(!ChangeLog.isShown || shouldShowChangeLog)
+        }
+        readChangesOperation.addCondition(readChangesOperationCondition)
+        readChangesOperation.addDependency(loadTunnelConfigurationOperation)
+
         operationQueue.addOperations(
-            [loadTunnelsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
+            [
+                loadTunnelsOperation,
+                migrateSettingsOperation,
+                loadTunnelConfigurationOperation,
+                readChangesOperation,
+            ],
             waitUntilFinished: false
         )
 
