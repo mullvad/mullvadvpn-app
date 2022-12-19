@@ -51,7 +51,7 @@ final class ChangeLogViewController: UIViewController, RootContainment {
         ])
 
         contentView.continueButtonAction = { [unowned self] in
-            ChangeLog.setShown(true)
+            ChangeLog.setVersion()
             self.dismiss(animated: true)
         }
 
