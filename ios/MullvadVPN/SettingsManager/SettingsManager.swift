@@ -15,6 +15,17 @@ private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
+enum SettingsMigrationResult {
+    /// Nothing to migrate.
+    case nothing
+
+    /// Successfully performed migration.
+    case success
+
+    /// Failure when migrating store.
+    case failure(Error)
+}
+
 enum SettingsManager {
     private static let logger = Logger(label: "SettingsManager")
 
@@ -110,31 +121,35 @@ enum SettingsManager {
 
     /// Migrate settings store if needed.
     ///
-    /// The error returned in `completion` handler is set to `nil` upon success or when no
-    /// migration is not needed.
-    ///
     /// The following types of error are expected to be returned by this method:
     /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
     static func migrateStore(
         with restFactory: REST.ProxyFactory,
-        completion: @escaping (Error?) -> Void
+        completion: @escaping (SettingsMigrationResult) -> Void
     ) {
-        let handleCompletion = { (error: Error?) in
+        let handleCompletion = { (result: SettingsMigrationResult) in
             // Reset store upon failure to migrate settings.
-            if error != nil {
+            if case .failure = result {
                 self.resetStore()
             }
-            completion(error)
+            completion(result)
         }
 
         if let legacySettings = readLegacySettings() {
             migrateLegacySettings(
                 restFactory: restFactory,
-                legacySettings: legacySettings,
-                completion: handleCompletion
-            )
+                legacySettings: legacySettings
+            ) { error in
+                handleCompletion(error.map { .failure($0) } ?? .success)
+            }
         } else {
-            migrateModernSettings(completion: handleCompletion)
+            do {
+                try checkLatestSettingsVersion()
+
+                handleCompletion(.nothing)
+            } catch {
+                handleCompletion(.failure(error))
+            }
         }
     }
 
@@ -171,29 +186,30 @@ enum SettingsManager {
         }
     }
 
-    private static func migrateModernSettings(completion: @escaping (Error?) -> Void) {
+    private static func checkLatestSettingsVersion() throws {
+        let settingsVersion: Int
         do {
             let parser = makeParser()
             let settingsData = try store.read(key: .settings)
-            let settingsVersion = try parser.parseVersion(data: settingsData)
-
-            if settingsVersion != SchemaVersion.current.rawValue {
-                let error = UnsupportedSettingsVersionError(
-                    storedVersion: settingsVersion,
-                    currentVersion: SchemaVersion.current
-                )
-
-                logger.error(error: error, message: "Encountered an unknown version.")
-
-                completion(error)
-            } else {
-                completion(nil)
-            }
+            settingsVersion = try parser.parseVersion(data: settingsData)
         } catch .itemNotFound as KeychainError {
-            completion(nil)
+            return
         } catch {
-            completion(ReadSettingsVersionError(underlyingError: error))
+            throw ReadSettingsVersionError(underlyingError: error)
         }
+
+        guard settingsVersion != SchemaVersion.current.rawValue else {
+            return
+        }
+
+        let error = UnsupportedSettingsVersionError(
+            storedVersion: settingsVersion,
+            currentVersion: SchemaVersion.current
+        )
+
+        logger.error(error: error, message: "Encountered an unknown version.")
+
+        throw error
     }
 
     /// Removes all legacy settings, device state and tunnel settings but keeps the last used

@@ -84,9 +84,6 @@ final class TunnelManager: StorePaymentObserver {
     /// Last processed device check identifier.
     private var lastDeviceCheckIdentifier: UUID?
 
-    /// Flag indicating tunnel reconnected after settings migration.
-    private var reconnectedTunnelAfterMigration = false
-
     // MARK: - Initialization
 
     init(
@@ -696,14 +693,6 @@ final class TunnelManager: StorePaymentObserver {
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
-
-            if newTunnelStatus.packetTunnelStatus.lastErrors.contains(.readConfiguration),
-               !reconnectedTunnelAfterMigration
-            {
-                reconnectTunnel(selectNewRelay: true)
-
-                reconnectedTunnelAfterMigration = true
-            }
 
         case .connected, .waitingForConnectivity:
             // Start polling tunnel status to keep connectivity status up to date.

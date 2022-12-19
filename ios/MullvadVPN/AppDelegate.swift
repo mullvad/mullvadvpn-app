@@ -113,61 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupNotificationHandler()
         addApplicationNotifications(application: application)
 
-        let loadTunnelsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            self.tunnelStore.loadPersistentTunnels { error in
-                if let error = error {
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to load persistent tunnels."
-                    )
-                }
-                operation.finish()
-            }
-        }
-
-        let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
-            SettingsManager.migrateStore(with: self.proxyFactory) { error in
-                guard let error = error else {
-                    operation.finish()
-                    return
-                }
-
-                guard let migrationUIHandler = application.connectedScenes.compactMap({ scene in
-                    return scene.delegate as? SettingsMigrationUIHandler
-                }).first else {
-                    operation.finish()
-                    return
-                }
-
-                migrationUIHandler.showMigrationError(error) {
-                    operation.finish()
-                }
-            }
-        }
-        migrateSettingsOperation.addDependency(loadTunnelsOperation)
-
-        let loadTunnelConfigurationOperation =
-            AsyncBlockOperation(dispatchQueue: .main) { operation in
-                self.tunnelManager.loadConfiguration { error in
-                    // TODO: avoid throwing fatal error and show the problem report UI instead.
-                    if let error = error {
-                        fatalError(error.localizedDescription)
-                    }
-
-                    self.logger.debug("Finished initialization.")
-
-                    NotificationManager.shared.updateNotifications()
-                    self.storePaymentManager.startPaymentQueueMonitoring()
-
-                    operation.finish()
-                }
-            }
-        loadTunnelConfigurationOperation.addDependency(migrateSettingsOperation)
-
-        operationQueue.addOperations(
-            [loadTunnelsOperation, migrateSettingsOperation, loadTunnelConfigurationOperation],
-            waitUntilFinished: false
-        )
+        startInitialization(application: application)
 
         return true
     }
@@ -403,6 +349,81 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
         ]
         UNUserNotificationCenter.current().delegate = self
+    }
+
+    private func startInitialization(application: UIApplication) {
+        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            self.tunnelStore.loadPersistentTunnels { error in
+                if let error = error {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to load persistent tunnels."
+                    )
+                }
+                operation.finish()
+            }
+        }
+
+        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult, Error>(
+            dispatchQueue: .main
+        ) { operation in
+            SettingsManager.migrateStore(with: self.proxyFactory) { migrationResult in
+                let finishHandler = {
+                    operation.finish(completion: .success(migrationResult))
+                }
+
+                guard case let .failure(error) = migrationResult,
+                      let migrationUIHandler = application.connectedScenes.compactMap({ scene in
+                          return scene.delegate as? SettingsMigrationUIHandler
+                      }).first
+                else {
+                    finishHandler()
+                    return
+                }
+
+                migrationUIHandler.showMigrationError(error, completionHandler: finishHandler)
+            }
+        }
+        migrateSettingsOperation.addDependency(loadTunnelStoreOperation)
+
+        let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+            self.tunnelManager.loadConfiguration { error in
+                // TODO: avoid throwing fatal error and show the problem report UI instead.
+                if let error = error {
+                    fatalError(error.localizedDescription)
+                }
+
+                self.logger.debug("Finished initialization.")
+
+                NotificationManager.shared.updateNotifications()
+                self.storePaymentManager.startPaymentQueueMonitoring()
+
+                operation.finish()
+            }
+        }
+        initTunnelManagerOperation.addDependency(migrateSettingsOperation)
+
+        let reconnectTunnelOperation = TransformOperation<SettingsMigrationResult, Void, Error>(
+            dispatchQueue: .main
+        ) { migrationResult in
+            if case .success = migrationResult {
+                self.logger.debug("Reconnect the tunnel after settings migration.")
+
+                self.tunnelManager.reconnectTunnel(selectNewRelay: true)
+            }
+        }
+        reconnectTunnelOperation.inject(from: migrateSettingsOperation)
+        reconnectTunnelOperation.addDependency(initTunnelManagerOperation)
+
+        operationQueue.addOperations(
+            [
+                loadTunnelStoreOperation,
+                migrateSettingsOperation,
+                initTunnelManagerOperation,
+                reconnectTunnelOperation,
+            ],
+            waitUntilFinished: false
+        )
     }
 
     // MARK: - StorePaymentManagerDelegate
