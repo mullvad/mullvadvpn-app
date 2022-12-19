@@ -1034,7 +1034,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         }
     }
 
-    // MARK: - ChangeLogNotifierUIHandler
+    // MARK: - ChangeLogUIHandler
 
     func showVersionChanges(_ changes: [String]) {
         guard isSceneConfigured else { return }
