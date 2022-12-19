@@ -2145,23 +2145,12 @@ mod test {
             config.bridge_state = BridgeState::Auto;
         }
 
-        let mut bridge_was_returned = false;
+        const ATTEMPT_SHOULD_USE_BRIDGE: [bool; 5] = [false, false, false, false, true];
 
-        let (_relay, bridge, _obfs) = relay_selector.get_relay(0).unwrap();
-
-        // First attempt is bridgeless
-        assert!(bridge.is_none());
-
-        // At least some further attempts involve bridges
-        for i in 1..20 {
-            let (_relay, bridge, _obfs) = relay_selector.get_relay(i).unwrap();
-            if bridge.is_some() {
-                bridge_was_returned = true;
-                break;
-            }
+        for (i, should_use_bridge) in ATTEMPT_SHOULD_USE_BRIDGE.iter().enumerate() {
+            let (_relay, bridge, _obfs) = relay_selector.get_relay(i as u32).unwrap();
+            assert_eq!(*should_use_bridge, bridge.is_some());
         }
-
-        assert!(bridge_was_returned);
 
         // Verify that bridges are ignored when tunnel protocol is WireGuard
         {
