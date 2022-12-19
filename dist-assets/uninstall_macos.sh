@@ -30,13 +30,8 @@ sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
 
 echo "Removing fish shell completion symlink ..."
 
-BREW_PREFIX=$(brew --prefix)
-if [[ "$?" -eq 0 ]]; then
-    FISH_COMPLETIONS_PATH="${BREW_PREFIX}/share/fish/vendor_completions.d/mullvad.fish"
-    sudo rm -f "$FISH_COMPLETIONS_PATH"
-fi
-FISH_COMPLETIONS_PATH="/usr/local/share/fish/vendor_completions.d/mullvad.fish"
-sudo rm -f "$FISH_COMPLETIONS_PATH"
+sudo rm -f "/opt/homebrew/share/fish/vendor_completions.d/mullvad.fish"
+sudo rm -f "/usr/local/share/fish/vendor_completions.d/mullvad.fish"
 
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
