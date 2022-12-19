@@ -1,16 +1,16 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { GetByTestId } from '../../utils';
+import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
 // This test expects the daemon to be logged into an account that has time left.
 
 let page: Page;
-let getByTestId: GetByTestId;
+let util: TestUtils;
 
 test.beforeAll(async () => {
-  ({ page, getByTestId } = await startInstalledApp());
+  ({ page, util } = await startInstalledApp());
 });
 
 test.afterAll(async () => {
@@ -18,10 +18,10 @@ test.afterAll(async () => {
 });
 
 test('App should have a country', async () => {
-  const countryLabel = getByTestId('country');
+  const countryLabel = util.getByTestId('country');
   await expect(countryLabel).not.toBeEmpty();
 
-  const cityLabel = getByTestId('city');
+  const cityLabel = util.getByTestId('city');
   const noCityLabel = await cityLabel.count() === 0;
   expect(noCityLabel).toBeTruthy();
 });

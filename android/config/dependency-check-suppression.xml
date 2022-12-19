@@ -17,17 +17,6 @@
 
         File name: protobuf-lite-3.0.1.jar
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-javalite@.*$</packageUrl>
-        <cve>CVE-2022-3171</cve>
-        <cve>CVE-2022-3510</cve>
-    </suppress>
-    <suppress until="2023-05-01Z">
-        <notes><![CDATA[
-        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
-        checks and tracking externally.
-
-        File name: protobuf-lite-3.0.1.jar
-        ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-lite@.*$</packageUrl>
         <cve>CVE-2022-3171</cve>
     </suppress>

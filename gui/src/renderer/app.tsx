@@ -253,6 +253,11 @@ export default class AppRenderer {
       const navigationBase = this.getNavigationBase();
       this.history = new History(navigationBase);
     }
+
+    if (window.env.e2e) {
+      // Make the current location available to the tests if running e2e tests
+      window.e2e = { location: this.history.location.pathname };
+    }
   }
 
   public renderView() {
@@ -507,6 +512,10 @@ export default class AppRenderer {
 
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
+
+    if (window.env.e2e) {
+      window.e2e.location = history.entries[history.index].pathname;
+    }
   }
 
   private isLoggedIn(): boolean {

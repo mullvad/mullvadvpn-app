@@ -18,5 +18,5 @@ test.afterAll(async () => {
 });
 
 test('App should show disconnected tunnel state', async () => {
-  await assertDisconnected(page)
+  await assertDisconnected(page);
 });

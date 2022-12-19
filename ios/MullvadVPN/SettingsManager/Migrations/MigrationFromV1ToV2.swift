@@ -12,7 +12,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 
-class MigrationFromV1ToV2: Migration {
+final class MigrationFromV1ToV2: Migration {
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
 
@@ -108,45 +108,50 @@ class MigrationFromV1ToV2: Migration {
                 device.pubkey == interfaceData.nextPrivateKey?.publicKey
         }
 
-        guard let device = device else {
-            logger.debug(
-                "Failed to match legacy settings against available devices."
-            )
-            return
-        }
+        let newDeviceState: DeviceState
+        if let device = device {
+            logger.debug("Found device matching public key stored in legacy settings.")
 
-        logger.debug("Found device matching public key stored in legacy settings.")
+            // Match private key.
+            let privateKeyWithMetadata: PrivateKeyWithMetadata
+            if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey == device.pubkey {
+                privateKeyWithMetadata = nextKey
+            } else {
+                privateKeyWithMetadata = interfaceData.privateKey
+            }
 
-        // Match private key.
-        let privateKeyWithMetadata: PrivateKeyWithMetadata
-        if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey == device.pubkey {
-            privateKeyWithMetadata = nextKey
-        } else {
-            privateKeyWithMetadata = interfaceData.privateKey
-        }
+            logger.debug("Store new settings...")
 
-        logger.debug("Store new settings...")
-
-        // Create new settings.
-        let newDeviceState = DeviceState.loggedIn(
-            StoredAccountData(
-                identifier: accountData.id,
-                number: settings.accountNumber,
-                expiry: accountData.expiry
-            ),
-            StoredDeviceData(
-                creationDate: device.created,
-                identifier: device.id,
-                name: device.name,
-                hijackDNS: device.hijackDNS,
-                ipv4Address: device.ipv4Address,
-                ipv6Address: device.ipv6Address,
-                wgKeyData: StoredWgKeyData(
-                    creationDate: privateKeyWithMetadata.creationDate,
-                    privateKey: privateKeyWithMetadata.privateKey
+            // Create new settings.
+            newDeviceState = DeviceState.loggedIn(
+                StoredAccountData(
+                    identifier: accountData.id,
+                    number: settings.accountNumber,
+                    expiry: accountData.expiry
+                ),
+                StoredDeviceData(
+                    creationDate: device.created,
+                    identifier: device.id,
+                    name: device.name,
+                    hijackDNS: device.hijackDNS,
+                    ipv4Address: device.ipv4Address,
+                    ipv6Address: device.ipv6Address,
+                    wgKeyData: StoredWgKeyData(
+                        creationDate: privateKeyWithMetadata.creationDate,
+                        privateKey: privateKeyWithMetadata.privateKey
+                    )
                 )
             )
-        )
+        } else {
+            logger.debug(
+                """
+                Failed to find a device matching public key from legacy settings. \
+                Set device state to logged out.
+                """
+            )
+
+            newDeviceState = .loggedOut
+        }
 
         let newSettings = TunnelSettingsV2(
             relayConstraints: tunnelSettings.relayConstraints,

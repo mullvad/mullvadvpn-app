@@ -127,14 +127,10 @@ fn send_problem_report(
     report_path: &Path,
 ) -> Result<(), Error> {
     let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
-    match mullvad_problem_report::send_problem_report(
-        user_email,
-        user_message,
-        report_path,
-        &cache_dir,
-    ) {
-        Ok(()) => println!("Problem report sent"),
-        Err(e) => eprintln!("{}", e.display_chain()),
-    }
-    Ok(())
+    mullvad_problem_report::send_problem_report(user_email, user_message, report_path, &cache_dir)
+        .map(|()| println!("Problem report sent"))
+        .map_err(|error| {
+            eprintln!("{}", error.display_chain());
+            error
+        })
 }

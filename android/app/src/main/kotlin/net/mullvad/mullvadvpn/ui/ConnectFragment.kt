@@ -14,8 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -188,6 +188,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                     Pair(uiState, realState)
                 }
             }
+            // Fix to avoid wrong notification shown due to very frequent tunnel state updates.
+            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
             .collect { (uiState, realState) ->
                 tunnelStateNotification.updateTunnelState(uiState)
                 updateTunnelState(uiState, realState)
@@ -253,5 +255,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
         return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
             ?.isCausedByExpiredAccount() ?: false
+    }
+
+    companion object {
+        const val TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS: Long = 200
     }
 }

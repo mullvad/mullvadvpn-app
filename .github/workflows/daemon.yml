@@ -31,41 +31,55 @@ on:
             - rustfmt.toml
     # Build if requested manually from the Actions tab
     workflow_dispatch:
+      inputs:
+        override_container_image:
+          description: 'Override container image'
+          type: string
+          required: false
 jobs:
+    prepare-linux:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Use custom container image if specified
+          if: "${{ github.event.inputs.override_container_image != '' }}"
+          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+
+        - name: Use default container image and resolve digest
+          if: "${{ github.event.inputs.override_container_image == '' }}"
+          run: |
+            echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+      outputs:
+        container_image: "${{ env.inner_container_image }}"
+
     build-linux:
+        needs: prepare-linux
+        runs-on: ubuntu-latest
+        container:
+          image: "${{ needs.prepare-linux.outputs.container_image }}"
+
         strategy:
             matrix:
                 rust: [stable, beta, nightly]
-
         continue-on-error: true
-        runs-on: ubuntu-latest
         steps:
+            # Fix for HOME path overridden by GH runners when building in containers, see:
+            # https://github.com/actions/runner/issues/863
+            - name: Fix HOME path
+              run: echo "HOME=/root" >> $GITHUB_ENV
+
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Checkout binaries submodule
               run: git submodule update --init --depth=1 dist-assets/binaries
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Install Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                  toolchain: ${{ matrix.rust }}
-                  default: true
-
-            - name: Install Go
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.18.5
-
-            - name: Install build dependencies
-              run: |
-                sudo apt-get update
-                sudo apt-get install libdbus-1-dev
+            # The container image already has rustup and Rust, but only the stable toolchain
+            - name: Install Rust toolchain
+              run: rustup default ${{ matrix.rust }}
 
             - name: Build and test crates
               run: ./ci/check-rust.sh
