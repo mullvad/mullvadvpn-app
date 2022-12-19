@@ -219,7 +219,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "SHOW_CHANGELOG"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
