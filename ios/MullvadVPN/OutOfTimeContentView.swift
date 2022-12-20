@@ -137,7 +137,9 @@ class OutOfTimeContentView: UIView {
     }
 
     func setBodyLabelText(_ text: String) {
-        bodyLabel.attributedText = NSAttributedString(markdownString: text,
-                                                      font: UIFont.systemFont(ofSize: 17))
+        bodyLabel.attributedText = NSAttributedString(
+            markdownString: text,
+            font: UIFont.systemFont(ofSize: 17)
+        )
     }
 }
