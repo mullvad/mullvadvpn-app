@@ -150,7 +150,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             contentView.bodyLabel.text = NSLocalizedString(
                 "OUT_OF_TIME_BODY_DISCONNECTED",
                 tableName: "OutOfTime",
-                value: "You have no more VPN time left on this account. Either buy credit on our website or redeem a voucher.",
+                value: "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add 30 days time** button below.",
                 comment: ""
             )
         }
