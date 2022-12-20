@@ -40,7 +40,7 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         }
     }
 
-    private enum Section: Hashable {
+    private enum Section: String, Hashable {
         case mullvadDNS
         case customDNS
     }
@@ -54,6 +54,27 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
+
+        var accessibilityIdentifier: String {
+            switch self {
+            case .blockAdvertising:
+                return "blockAdvertising"
+            case .blockTracking:
+                return "blockTracking"
+            case .blockMalware:
+                return "blockMalware"
+            case .blockGambling:
+                return "blockGambling"
+            case .blockAdultContent:
+                return "blockAdultContent"
+            case .useCustomDNS:
+                return "useCustomDNS"
+            case .addDNSServer:
+                return "addDNSServer"
+            case let .dnsServer(uuid):
+                return "dnsServer(\(uuid.uuidString))"
+            }
+        }
 
         static func isDNSServerItem(_ item: Item) -> Bool {
             if case .dnsServer = item {
@@ -156,8 +177,12 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = snapshot.itemForIndexPath(indexPath)!
+        let cell = dequeueCellForItem(item, in: tableView, at: indexPath)
 
-        return dequeueCellForItem(item, in: tableView, at: indexPath)
+        let section = snapshot.section(at: indexPath.section)!
+        cell.accessibilityIdentifier = "\(section.rawValue).\(item.accessibilityIdentifier)"
+
+        return cell
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -228,11 +253,9 @@ class PreferencesDataSource: NSObject, UITableViewDataSource, UITableViewDelegat
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView
-            .dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifiers.spacer
-                    .rawValue
-            )
+        return tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+        )
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
