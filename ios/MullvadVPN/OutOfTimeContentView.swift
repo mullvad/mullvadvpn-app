@@ -34,7 +34,7 @@ class OutOfTimeContentView: UIView {
         label.text = NSLocalizedString(
             "OUT_OF_TIME_BODY",
             tableName: "OutOfTime",
-            value: "You have no more VPN time left on this account. Either buy credit on our website or redeem a voucher.",
+            value: "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the Add 30 days time button below.",
             comment: ""
         )
         label.font = UIFont.systemFont(ofSize: 17)
