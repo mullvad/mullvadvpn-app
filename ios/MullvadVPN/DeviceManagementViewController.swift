@@ -180,7 +180,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             format: NSLocalizedString(
                 "DELETE_ALERT_TITLE",
                 tableName: "DeviceManagement",
-                value: "Are you sure you want to log out of %@?",
+                value: "Are you sure you want to log %@ out?",
                 comment: ""
             ), deviceName
         )
