@@ -140,18 +140,22 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         contentView.disconnectButton.alpha = tunnelState.isSecured ? 1 : 0
 
         if tunnelState.isSecured {
-            contentView.bodyLabel.text = NSLocalizedString(
-                "OUT_OF_TIME_BODY_CONNECTED",
-                tableName: "OutOfTime",
-                value: "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.",
-                comment: ""
+            contentView.setBodyLabelText(
+                NSLocalizedString(
+                    "OUT_OF_TIME_BODY_CONNECTED",
+                    tableName: "OutOfTime",
+                    value: "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.",
+                    comment: ""
+                )
             )
         } else {
-            contentView.bodyLabel.text = NSLocalizedString(
-                "OUT_OF_TIME_BODY_DISCONNECTED",
-                tableName: "OutOfTime",
-                value: "You have no more VPN time left on this account. Either buy credit on our website or redeem a voucher.",
-                comment: ""
+            contentView.setBodyLabelText(
+                NSLocalizedString(
+                    "OUT_OF_TIME_BODY_DISCONNECTED",
+                    tableName: "OutOfTime",
+                    value: "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add 30 days time** button below.",
+                    comment: ""
+                )
             )
         }
 
