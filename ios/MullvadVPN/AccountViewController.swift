@@ -267,57 +267,9 @@ class AccountViewController: UIViewController {
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    private func showLogoutConfirmation(animated: Bool, completion: @escaping (Bool) -> Void) {
-        let alertController = UIAlertController(
-            title: NSLocalizedString(
-                "LOGOUT_CONFIRMATION_ALERT_TITLE",
-                tableName: "Account",
-                value: "Log out",
-                comment: ""
-            ),
-            message: NSLocalizedString(
-                "LOGOUT_CONFIRMATION_ALERT_MESSAGE",
-                tableName: "Account",
-                value: "Are you sure you want to log out?\n\nThis will erase the account number from this device. It is not possible for us to recover it for you. Make sure you have your account number saved somewhere, to be able to log back in.",
-                comment: ""
-            ),
-            preferredStyle: .alert
-        )
+    // MARK: - Actions
 
-        alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "LOGOUT_CONFIRMATION_ALERT_CANCEL_ACTION",
-                    tableName: "Account",
-                    value: "Cancel",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { alertAction in
-                    completion(false)
-                }
-            )
-        )
-
-        alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "LOGOUT_CONFIRMATION_ALERT_YES_ACTION",
-                    tableName: "Account",
-                    value: "Log out",
-                    comment: ""
-                ),
-                style: .destructive,
-                handler: { alertAction in
-                    completion(true)
-                }
-            )
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
-    private func confirmLogout() {
+    @objc private func doLogout() {
         let message = NSLocalizedString(
             "LOGGING_OUT_ALERT_TITLE",
             tableName: "Account",
@@ -338,16 +290,6 @@ class AccountViewController: UIViewController {
                         self.delegate?.accountViewControllerDidLogout(self)
                     }
                 }
-            }
-        }
-    }
-
-    // MARK: - Actions
-
-    @objc private func doLogout() {
-        showLogoutConfirmation(animated: true) { confirmed in
-            if confirmed {
-                self.confirmLogout()
             }
         }
     }
