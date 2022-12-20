@@ -397,9 +397,9 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     private func setMapRegion(_ region: MKCoordinateRegion, animated: Bool) {
-        contentView.mapView.setRegion(region, animated: animated)
         isAnimatingMap = true
         targetRegion = region
+        contentView.mapView.setRegion(region, animated: animated)
     }
 
     private func addNotificationController() {
