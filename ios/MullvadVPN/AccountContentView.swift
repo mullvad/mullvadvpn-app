@@ -12,6 +12,7 @@ class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "PurchaseButton"
         return button
     }()
 
