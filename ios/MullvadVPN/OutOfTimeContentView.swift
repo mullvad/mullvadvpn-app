@@ -29,15 +29,8 @@ class OutOfTimeContentView: UIView {
         return label
     }()
 
-    lazy var bodyLabel: UILabel = {
+    private lazy var bodyLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString(
-            "OUT_OF_TIME_BODY",
-            tableName: "OutOfTime",
-            value: "You have no more VPN time left on this account. Either buy credit on our website or redeem a voucher.",
-            comment: ""
-        )
-        label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .white
         label.numberOfLines = 0
         return label
@@ -111,11 +104,9 @@ class OutOfTimeContentView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-// MARK: - Private Functions
+    // MARK: - Private Functions
 
-private extension OutOfTimeContentView {
     func setUpSubviews() {
         addSubview(topStackView)
         addSubview(bottomStackView)
@@ -143,5 +134,12 @@ private extension OutOfTimeContentView {
                 equalTo: layoutMarginsGuide.bottomAnchor
             ),
         ])
+    }
+
+    func setBodyLabelText(_ text: String) {
+        bodyLabel.attributedText = NSAttributedString(
+            markdownString: text,
+            font: UIFont.systemFont(ofSize: 17)
+        )
     }
 }
