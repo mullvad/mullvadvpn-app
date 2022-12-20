@@ -31,6 +31,9 @@ erase_simulator(true)
 # Disable concurrent simulators to prevent too many WireGuard public keys error
 concurrent_simulators(false)
 
+# Stop right away on first error.
+stop_after_first_error(true)
+
 # Hide simulator window
 headless(true)
 
