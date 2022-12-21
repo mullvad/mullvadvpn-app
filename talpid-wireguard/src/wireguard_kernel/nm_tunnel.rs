@@ -121,7 +121,7 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
 
     wireguard_config.insert("mtu".into(), Variant(Box::new(config.mtu as u32)));
     if let Some(fwmark) = config.fwmark {
-        wireguard_config.insert("fwmark".into(), Variant(Box::new(fwmark as u32)));
+        wireguard_config.insert("fwmark".into(), Variant(Box::new(fwmark)));
     }
     wireguard_config.insert("peer-routes".into(), Variant(Box::new(false)));
     wireguard_config.insert(
