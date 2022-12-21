@@ -200,7 +200,7 @@ fn read_config() -> Result<Config> {
 
     let contents = fs::read_to_string(RESOLV_CONF_PATH)
         .map_err(|e| Error::ReadResolvConf(RESOLV_CONF_PATH, e))?;
-    let config = Config::parse(&contents).map_err(|e| Error::Parse(RESOLV_CONF_PATH, e))?;
+    let config = Config::parse(contents).map_err(|e| Error::Parse(RESOLV_CONF_PATH, e))?;
 
     Ok(config)
 }
@@ -220,7 +220,7 @@ fn restore_from_backup() -> Result<()> {
         Ok(backup) => {
             log::info!("Restoring DNS state from backup");
             let config =
-                Config::parse(&backup).map_err(|e| Error::Parse(RESOLV_CONF_BACKUP_PATH, e))?;
+                Config::parse(backup).map_err(|e| Error::Parse(RESOLV_CONF_BACKUP_PATH, e))?;
 
             write_config(&config)?;
 

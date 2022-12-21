@@ -523,9 +523,7 @@ fn collect_variants(
         }
     }
 
-    Ok(variant_map
-        .into_iter()
-        .map(|(_, variant)| variant)
+    Ok(variant_map.into_values()
         .collect())
 }
 

@@ -91,7 +91,7 @@ fn main() {
             .unwrap()
             .to_str()
             .unwrap();
-        let destination_dir = resources_dir.join(&android_locale_directory(locale));
+        let destination_dir = resources_dir.join(android_locale_directory(locale));
 
         if !destination_dir.exists() {
             fs::create_dir(&destination_dir).expect("Failed to create Android locale directory");
