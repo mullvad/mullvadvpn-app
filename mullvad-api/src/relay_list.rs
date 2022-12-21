@@ -116,9 +116,7 @@ impl ServerRelayList {
             openvpn: openvpn.extract_relays(&mut countries),
             wireguard: wireguard.extract_relays(&mut countries),
             bridge: bridge.extract_relays(&mut countries),
-            countries: countries
-                .into_iter()
-                .map(|(_key, country)| country)
+            countries: countries.into_values()
                 .collect(),
         }
     }

@@ -32,10 +32,10 @@ fn main() {
     let android_product_version = get_product_version(Target::Android);
 
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    fs::write(out_dir.join("product-version.txt"), &product_version).unwrap();
+    fs::write(out_dir.join("product-version.txt"), product_version).unwrap();
     fs::write(
         out_dir.join("android-product-version.txt"),
-        &android_product_version,
+        android_product_version,
     )
     .unwrap();
 }
