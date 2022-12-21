@@ -8,7 +8,10 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.model.CustomDnsOptions
+import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.model.DnsState
 
 class CustomDns(private val endpoint: ServiceEndpoint) {
     private sealed class Command {
@@ -29,9 +32,9 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
     init {
         endpoint.settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
-                enabled = dnsOptions.custom
+                enabled = dnsOptions.state == DnsState.Custom
                 dnsServers.clear()
-                dnsServers.addAll(dnsOptions.addresses)
+                dnsServers.addAll(dnsOptions.customOptions.addresses)
             }
         }
 
@@ -106,8 +109,11 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun changeDnsOptions(enable: Boolean) {
-        val options = DnsOptions(enable, dnsServers)
-
+        val options = DnsOptions(
+            state = if (enable) DnsState.Custom else DnsState.Default,
+            customOptions = CustomDnsOptions(dnsServers),
+            defaultOptions = DefaultDnsOptions()
+        )
         daemon.await().setDnsOptions(options)
     }
 }

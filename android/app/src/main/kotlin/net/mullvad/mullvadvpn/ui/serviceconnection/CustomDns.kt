@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.os.Messenger
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(private val connection: Messenger, private val settingsListener: SettingsListener) {
@@ -13,8 +14,8 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
                 synchronized(this) {
-                    onEnabledChanged.notifyIfChanged(dnsOptions.custom)
-                    onDnsServersChanged.notifyIfChanged(dnsOptions.addresses)
+                    onEnabledChanged.notifyIfChanged(dnsOptions.state == DnsState.Custom)
+                    onDnsServersChanged.notifyIfChanged(dnsOptions.customOptions.addresses)
                 }
             }
         }
