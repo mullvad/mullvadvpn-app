@@ -7,12 +7,15 @@ ROOT_DIR = File.dirname(SCRIPT_DIR)
 
 # assets catalogue root
 XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Assets.xcassets")
-XCASSETS_APPICON_DIR = File.join(XCASSETS_DIR, "AppIcon.appiconset")
 
 # graphical assets sources
 APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-square.svg")
 GRAPHICAL_ASSETS_DIR = File.join(ROOT_DIR, "gui/assets/images")
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
+
+# app icon output
+XCASSETS_APPICON_PATH = File.join(XCASSETS_DIR, "AppIcon.appiconset/AppIcon.png")
+XCASSETS_APPICON_SIZE = 1024
 
 # graphical assets to import
 GRAPHICAL_ASSETS = [
@@ -43,39 +46,6 @@ GRAPHICAL_ASSETS = [
 RESIZE_ASSETS = {
    "icon-tick.svg" => ["icon-tick-sml.svg", 16, 16],
 }
-
-# App icon sizes
-APP_ICON_SIZES = [
-  # iphone-notification 20pt at 2x, 3x
-  ["AppIconPhoneNotification", 20, 2, 3],
-
-  # iphone-settings at 29pt, 2x, 3x
-  ["AppIconPhoneSettings", 29, 2, 3],
-
-  # iphone-spotlight at 40pt, 2x, 3x
-  ["AppIconPhoneSpotlight", 40, 2, 3],
-
-  # iphone-app at 60pt, 2x, 3x
-  ["AppIconPhone", 60, 2, 3],
-
-  # ipad-notifications at 20pt, 1x, 2x
-  ["AppIconPadNotifications", 20, 1, 2],
-
-  # ipad-settings at 29pt, 1x, 2x
-  ["AppIconPadSettings", 29, 1, 2],
-
-  # ipad-spotlight at 40pt, 1x, 2x
-  ["AppIconPadSpotlight", 40, 1, 2],
-
-  # ipad-app at 76pt, 1x, 2x
-  ["AppIconPad", 76, 1, 2],
-
-  # ipad-pro-app at 83.5pt, 2x
-  ["AppIconPadPro", 83.5, 2],
-
-  # appstore-ios (marketing) at 1024pt, 1x
-  ["AppStoreIosMarketing", 1024, 1],
-]
 
 # Additional assets generated from SVG -> vector PDF
 ADDITIONAL_ASSETS = [
@@ -136,16 +106,9 @@ def generate_resized_assets()
 end
 
 def genereate_app_icon()
-  for (icon_name, nominal_size, *retina_scales) in APP_ICON_SIZES do
-    for retina_scale in retina_scales do
-      scale_suffix = retina_scale_suffix(retina_scale)
-      output_file = File.join(XCASSETS_APPICON_DIR, "#{icon_name}#{scale_suffix}.png")
-      actual_size = (nominal_size * retina_scale).to_i
-
-      puts "Generate #{icon_name}: #{nominal_size} (#{retina_scale}x) -> #{output_file}"
-      system("rsvg-convert", "--width=#{actual_size}", "--height=#{actual_size}", "--format=png", APPICON_PATH, "--output", output_file)
-    end
-  end
+  image_name = File.basename(XCASSETS_APPICON_PATH, ".png")
+  puts "Generate #{image_name} -> #{XCASSETS_APPICON_PATH}"
+  system("rsvg-convert", "--width=#{XCASSETS_APPICON_SIZE}", "--height=#{XCASSETS_APPICON_SIZE}", "--format=png", APPICON_PATH, "--output", XCASSETS_APPICON_PATH)
 end
 
 def generate_additional_assets()
