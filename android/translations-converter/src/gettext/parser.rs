@@ -523,8 +523,7 @@ fn collect_variants(
         }
     }
 
-    Ok(variant_map.into_values()
-        .collect())
+    Ok(variant_map.into_values().collect())
 }
 
 /// Parsing errors.
