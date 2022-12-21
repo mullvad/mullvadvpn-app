@@ -152,7 +152,7 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
+            cell.accessibilityIdentifier = "PreferencesCell"
             cell.disclosureType = .chevron
 
             return cell
@@ -227,11 +227,9 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView
-            .dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifier.spacer
-                    .rawValue
-            )
+        return tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
+        )
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {

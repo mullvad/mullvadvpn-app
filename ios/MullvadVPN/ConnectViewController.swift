@@ -368,17 +368,16 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         let markerOffset = locationMarkerOffset()
         let region = computeCoordinateRegion(center: coordinate, offset: markerOffset)
 
-        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
+        if let targetRegion = targetRegion, targetRegion.isApproximatelyEqualTo(region) {
             if isAnimatingMap {
                 mapRegionAnimationDidEnd = animationDidEnd
             } else {
                 animationDidEnd?()
             }
-            return
+        } else {
+            mapRegionAnimationDidEnd = animationDidEnd
+            setMapRegion(region, animated: animated)
         }
-
-        mapRegionAnimationDidEnd = animationDidEnd
-        setMapRegion(region, animated: animated)
     }
 
     private func unsetLocation(animated: Bool) {
@@ -390,17 +389,17 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
         mapRegionAnimationDidEnd = nil
 
-        if targetRegion?.isApproximatelyEqualTo(region) ?? false {
+        if let targetRegion = targetRegion, targetRegion.isApproximatelyEqualTo(region) {
             return
+        } else {
+            setMapRegion(region, animated: animated)
         }
-
-        setMapRegion(region, animated: animated)
     }
 
     private func setMapRegion(_ region: MKCoordinateRegion, animated: Bool) {
-        contentView.mapView.setRegion(region, animated: animated)
         isAnimatingMap = true
         targetRegion = region
+        contentView.mapView.setRegion(region, animated: animated)
     }
 
     private func addNotificationController() {
