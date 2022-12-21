@@ -155,31 +155,33 @@ jobs:
                 path: |
                   ~/.android/avd/*
                   ~/.android/adb*
-                key: emulator-api-29
+                key: emulator-api-33
 
             - name: Create avd and generate snapshot
               uses: reactivecircus/android-emulator-runner@v2
               if: steps.avd-cache.outputs.cache-hit != 'true'
               with:
                 force-avd-creation: false
-                api-level: 29
+                api-level: 33
+                target: google_apis
                 arch: x86_64
                 emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
                 disable-animations: true
                 profile: pixel
                 script: echo "Generated AVD snapshot for caching."
               env:
-                API_LEVEL: 29
+                API_LEVEL: 33
 
             - name: Run Android instrumented tests
               uses: reactivecircus/android-emulator-runner@v2
               with:
                 force-avd-creation: false
-                api-level: 29
+                api-level: 33
+                target: google_apis
                 arch: x86_64
                 emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
                 disable-animations: true
                 profile: pixel
                 script: ./ci/run-android-instrumented-tests.sh $(pwd)
               env:
-                API_LEVEL: 29
+                API_LEVEL: 33
