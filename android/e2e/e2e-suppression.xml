@@ -16,7 +16,7 @@
     </suppress>
     <suppress until="2023-05-01Z">
         <notes><![CDATA[
-        This CVE affects the Apache Commons Net's FTP client that this app doesn't use.
+        These CVEs affects the Apache Commons Net's FTP client that this app doesn't use.
         https://www.openwall.com/lists/oss-security/2022/12/03/1
 
         File names:
@@ -41,7 +41,7 @@
     </suppress>
     <suppress until="2023-05-01Z">
         <notes><![CDATA[
-        This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
+        These CVEs are tracked externally and is therefore suppressed in the automatic audit checks.
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/io\.netty/netty\-.*@.*$</packageUrl>
         <cve>CVE-2021-37136</cve>
@@ -51,6 +51,7 @@
         <cve>CVE-2021-21409</cve>
         <cve>CVE-2021-21290</cve>
         <cve>CVE-2022-24823</cve>
+        <cve>CVE-2022-41881</cve>
         <cve>CVE-2022-41915</cve>
     </suppress>
     <suppress until="2023-05-01Z">
