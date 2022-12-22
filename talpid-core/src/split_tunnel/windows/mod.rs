@@ -183,13 +183,18 @@ impl SplitTunnel {
     pub fn new(
         runtime: tokio::runtime::Handle,
         resource_dir: PathBuf,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         route_manager: RouteManagerHandle,
     ) -> Result<Self, Error> {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
-        let (request_tx, handle) =
-            Self::spawn_request_thread(resource_dir, volume_update_rx, excluded_processes.clone())?;
+        let (request_tx, handle) = Self::spawn_request_thread(
+            resource_dir,
+            daemon_tx,
+            volume_update_rx,
+            excluded_processes.clone(),
+        )?;
 
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
@@ -406,6 +411,7 @@ impl SplitTunnel {
 
     fn spawn_request_thread(
         resource_dir: PathBuf,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
@@ -533,6 +539,20 @@ impl SplitTunnel {
                     }
                 } else {
                     log_response = Some(response);
+
+                    if let Some(daemon_tx) = daemon_tx.upgrade() {
+                        log::debug!(
+                            "Entering error state due to failed request/ioctl: {}",
+                            request_name
+                        );
+                        daemon_tx.unbounded_send(TunnelCommand::Block(
+                            ErrorStateCause::SplitTunnelError,
+                        ));
+                    } else {
+                        log::error!(
+                            "Cannot handle failed request since tunnel state machine is down"
+                        );
+                    }
                 }
                 if let Some(Err(error)) = log_response {
                     log::error!(
