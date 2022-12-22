@@ -1,5 +1,6 @@
 use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::Constraint;
+use mullvad_types::relay_constraints::{Constraint, RelaySettingsUpdate};
+use talpid_types::net::TunnelType;
 
 impl TryFrom<&proto::WireguardConstraints>
     for mullvad_types::relay_constraints::WireguardConstraints
@@ -125,6 +126,78 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     },
                 ))
             }
+        }
+    }
+}
+
+impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
+    fn from(relay_settings_update: RelaySettingsUpdate) -> Self {
+        match relay_settings_update {
+            RelaySettingsUpdate::Normal(constraints) => proto::RelaySettingsUpdate {
+                r#type: Some(proto::relay_settings_update::Type::Normal(
+                    proto::NormalRelaySettingsUpdate {
+                        location: constraints.location.map(proto::RelayLocation::from),
+                        providers: constraints
+                            .providers
+                            .map(|constraint| proto::ProviderUpdate {
+                                providers: convert_providers_constraint(&constraint),
+                            }),
+                        ownership: constraints
+                            .ownership
+                            .map(|ownership| proto::OwnershipUpdate {
+                                ownership: i32::from(convert_ownership_constraint(&ownership)),
+                            }),
+                        tunnel_type: constraints.tunnel_protocol.map(|protocol| {
+                            proto::TunnelTypeUpdate {
+                                tunnel_type: match protocol {
+                                    Constraint::Any => None,
+                                    Constraint::Only(protocol) => {
+                                        Some(proto::TunnelTypeConstraint {
+                                            tunnel_type: i32::from(match protocol {
+                                                TunnelType::Wireguard => {
+                                                    proto::TunnelType::Wireguard
+                                                }
+                                                TunnelType::OpenVpn => proto::TunnelType::Openvpn,
+                                            }),
+                                        })
+                                    }
+                                },
+                            }
+                        }),
+                        wireguard_constraints: constraints.wireguard_constraints.map(
+                            |wireguard_constraints| proto::WireguardConstraints {
+                                port: u32::from(wireguard_constraints.port.unwrap_or(0)),
+                                ip_version: wireguard_constraints
+                                    .ip_version
+                                    .option()
+                                    .map(proto::IpVersion::from)
+                                    .map(proto::IpVersionConstraint::from),
+                                use_multihop: wireguard_constraints.use_multihop,
+                                entry_location: wireguard_constraints
+                                    .entry_location
+                                    .option()
+                                    .map(proto::RelayLocation::from),
+                            },
+                        ),
+                        openvpn_constraints: constraints.openvpn_constraints.map(
+                            |openvpn_constraints| proto::OpenvpnConstraints {
+                                port: openvpn_constraints
+                                    .port
+                                    .option()
+                                    .map(proto::TransportPort::from),
+                            },
+                        ),
+                    },
+                )),
+            },
+            RelaySettingsUpdate::CustomTunnelEndpoint(endpoint) => proto::RelaySettingsUpdate {
+                r#type: Some(proto::relay_settings_update::Type::Custom(
+                    proto::CustomRelaySettings {
+                        host: endpoint.host.to_string(),
+                        config: Some(proto::ConnectionConfig::from(endpoint.config)),
+                    },
+                )),
+            },
         }
     }
 }
