@@ -16,4 +16,4 @@ android_container_image_name=$(cat "../../building/android-container-image.txt")
 podman run --rm -it \
     -v ../..:/build:Z \
     "$android_container_image_name" \
-    android/gradlew -q -p android -M sha256 assembleAndroidTest
+    android/gradlew -q -p android -M sha256 assemble assembleAndroidTest
