@@ -101,7 +101,7 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
     skipConfigurations = listOf("lintClassPath")
-    suppressionFile = "$projectDir/e2e-suppression.xml"
+    suppressionFile = "$projectDir/../test-suppression.xml"
 }
 
 dependencies {
