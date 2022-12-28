@@ -79,11 +79,11 @@ dependencies {
     implementation(Dependencies.AndroidX.testCore)
     // Fixes: https://github.com/android/android-test/issues/1589
     implementation(Dependencies.AndroidX.testMonitor)
-    implementation(Dependencies.AndroidX.testOrchestrator)
     implementation(Dependencies.AndroidX.testRunner)
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.androidVolley)
-    implementation(Dependencies.junit)
     implementation(Dependencies.Kotlin.stdlib)
+
+    androidTestUtil(Dependencies.AndroidX.testOrchestrator)
 }
