@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.test.e2e
 
+import android.Manifest
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
@@ -22,10 +24,16 @@ abstract class EndToEndTest {
     @JvmField
     val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
+    @Rule
+    @JvmField
+    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+
     lateinit var device: UiDevice
     lateinit var targetContext: Context
     lateinit var app: AppInteractor
-    lateinit var web: WebViewInteractor
     lateinit var validTestAccountToken: String
     lateinit var invalidTestAccountToken: String
 

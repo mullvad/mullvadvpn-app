@@ -43,6 +43,7 @@ android {
 
         testInstrumentationRunnerArguments += mutableMapOf<String, String>().apply {
             put("clearPackageData", "true")
+            put("useTestStorageService", "true")
             addOptionalPropertyAsArgument("valid_test_account_token")
             addOptionalPropertyAsArgument("invalid_test_account_token")
         }
@@ -59,39 +60,6 @@ android {
 
     kotlinOptions {
         jvmTarget = Versions.jvmTarget
-    }
-}
-
-val localScreenshotPath = "$buildDir/reports/androidTests/connected/screenshots"
-val deviceScreenshotPath = "/sdcard/Pictures/Screenshots"
-
-tasks.register("createDeviceScreenshotDir", Exec::class) {
-    executable = android.adbExecutable.toString()
-    args = listOf("shell", "mkdir", "-p", deviceScreenshotPath)
-}
-
-tasks.register("createLocalScreenshotDir", Exec::class) {
-    executable = "mkdir"
-    args = listOf("-p", localScreenshotPath)
-}
-
-tasks.register("clearDeviceScreenshots", Exec::class) {
-    executable = android.adbExecutable.toString()
-    args = listOf("shell", "rm", "-r", deviceScreenshotPath)
-}
-
-tasks.register("fetchScreenshots", Exec::class) {
-    executable = android.adbExecutable.toString()
-    args = listOf("pull", "$deviceScreenshotPath/.", localScreenshotPath)
-
-    dependsOn(tasks.getByName("createLocalScreenshotDir"))
-    finalizedBy(tasks.getByName("clearDeviceScreenshots"))
-}
-
-tasks.whenTaskAdded {
-    if (name == "connectedDebugAndroidTest") {
-        dependsOn(tasks.getByName("createDeviceScreenshotDir"))
-        finalizedBy(tasks.getByName("fetchScreenshots"))
     }
 }
 
