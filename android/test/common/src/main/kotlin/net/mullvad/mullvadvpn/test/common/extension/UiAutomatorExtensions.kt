@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.common.extension
 
+import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
@@ -31,6 +32,30 @@ fun UiDevice.findObjectWithTimeout(
     } catch (e: NullPointerException) {
         throw IllegalArgumentException(
             "No matches for selector within timeout ($timeout): $selector"
+        )
+    }
+}
+
+fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove(
+    timeout: Long = DEFAULT_INTERACTION_TIMEOUT
+) {
+    if (Build.VERSION.SDK_INT < 31) {
+        // Skipping as notification permissions are not shown.
+        return
+    }
+
+    val selector = By.text("Allow")
+
+    wait(
+        Until.hasObject(selector),
+        timeout
+    )
+
+    try {
+        findObjectWithTimeout(selector).click()
+    } catch (e: IllegalArgumentException) {
+        throw IllegalArgumentException(
+            "Failed to allow notification permission within timeout ($timeout)"
         )
     }
 }
