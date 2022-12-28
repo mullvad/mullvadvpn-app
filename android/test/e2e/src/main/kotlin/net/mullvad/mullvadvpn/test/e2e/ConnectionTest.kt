@@ -4,6 +4,7 @@ import androidx.test.uiautomator.By
 import junit.framework.Assert.assertEquals
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.interactor.WebViewInteractor
+import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -13,6 +14,10 @@ class ConnectionTest : EndToEndTest() {
     @Rule
     @JvmField
     val cleanupAccountTestRule = CleanupAccountTestRule()
+
+    @Rule
+    @JvmField
+    val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
     @Test
     fun testConnectAndVerifyWithConnectionCheck() {
