@@ -3,9 +3,10 @@ package net.mullvad.mullvadvpn.test.e2e
 import androidx.test.uiautomator.By
 import junit.framework.Assert.assertEquals
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import net.mullvad.mullvadvpn.test.e2e.interactor.WebViewInteractor
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
+import net.mullvad.mullvadvpn.test.e2e.misc.ConnCheckState
+import net.mullvad.mullvadvpn.test.e2e.misc.SimpleMullvadHttpClient
 import org.junit.Rule
 import org.junit.Test
 
@@ -28,10 +29,10 @@ class ConnectionTest : EndToEndTest() {
         device.findObjectWithTimeout(By.text("Secure my connection")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
         device.findObjectWithTimeout(By.text("SECURE CONNECTION"))
-        val expected = WebViewInteractor.ConnCheckState(true, app.extractIpAddress())
+        val expected = ConnCheckState(true, app.extractIpAddress())
 
         // Then
-        val result = web.launchAndExtractConnCheckState()
+        val result = SimpleMullvadHttpClient(targetContext).runConnectionCheck()
         assertEquals(expected, result)
     }
 }
