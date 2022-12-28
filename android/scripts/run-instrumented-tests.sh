@@ -33,6 +33,12 @@ while [[ "$#" -gt 0 ]]; do
             -e valid_test_account_token $VALID_TEST_ACCOUNT_TOKEN \
             -e invalid_test_account_token $INVALID_TEST_ACCOUNT_TOKEN"
             ;;
+        mockapi)
+            TEST_TYPE="mockapi"
+            USE_ORCHESTRATOR="true"
+            TEST_PACKAGE="net.mullvad.mullvadvpn.test.$TEST_TYPE"
+            TEST_APK="$APK_BASE_DIR/test/$TEST_TYPE/build/outputs/apk/debug/$TEST_TYPE-debug.apk"
+            ;;
         *)
             echo "Unknown argument: $1"
             exit 1
@@ -42,11 +48,11 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ -z ${TEST_TYPE-} ]]; then
-    echo "Missing test type argument. Should be one of: app, e2e"
+    echo "Missing test type argument. Should be one of: app, e2e, mockapi"
     exit 1
 fi
 
-if [[ "${ORCHESTRATOR_APK_PATH-}" == "true" ]]; then
+if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
     if [[ -z ${ORCHESTRATOR_APK_PATH-} ]]; then
         echo "The variable ORCHESTRATOR_APK_PATH is not set."
         exit 1
