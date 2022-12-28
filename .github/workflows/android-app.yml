@@ -147,6 +147,7 @@ jobs:
             - uses: actions/download-artifact@v3
               with:
                 name: apks
+                path: android/app/build/outputs/apk
 
             - name: AVD cache
               uses: actions/cache@v3
@@ -182,6 +183,6 @@ jobs:
                 emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
                 disable-animations: true
                 profile: pixel
-                script: ./ci/run-android-instrumented-tests.sh $(pwd)
+                script: ./android/scripts/run-instrumented-tests.sh app
               env:
                 API_LEVEL: 33
