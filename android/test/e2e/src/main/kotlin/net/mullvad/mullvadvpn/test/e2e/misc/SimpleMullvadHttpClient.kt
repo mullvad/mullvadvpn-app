@@ -10,6 +10,7 @@ import com.android.volley.toolbox.RequestFuture
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import org.json.JSONArray
 import org.json.JSONObject
@@ -70,6 +71,22 @@ class SimpleMullvadHttpClient(context: Context) {
             "$DEVICE_LIST_URL/$deviceId",
             token = token
         )
+    }
+
+    fun runConnectionCheck(): ConnCheckState? {
+        return sendSimpleSynchronousRequestString(
+            Request.Method.GET,
+            CONN_CHECK_URL
+        )
+            ?.let { respose ->
+                JSONObject(respose)
+            }
+            ?.let { json ->
+                ConnCheckState(
+                    isConnected = json.getBoolean("mullvad_exit_ip"),
+                    ipAddress = json.getString("ip")
+                )
+            }
     }
 
     private fun sendSimpleSynchronousRequest(

@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_TOKEN_ARGUM
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
-import net.mullvad.mullvadvpn.test.e2e.interactor.WebViewInteractor
 import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -50,11 +49,6 @@ abstract class EndToEndTest {
         app = AppInteractor(
             device,
             targetContext
-        )
-
-        web = WebViewInteractor(
-            targetContext,
-            device
         )
     }
 }
