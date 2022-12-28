@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.test.common.constant.WEB_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import org.junit.Test
 
@@ -16,6 +17,9 @@ class WebLinkTest : EndToEndTest() {
         app.clickListItemByText("FAQs & Guides")
 
         // Then
-        device.findObjectWithTimeout(By.text("Mullvad help center"))
+        device.findObjectWithTimeout(
+            selector = By.text("Mullvad help center"),
+            timeout = WEB_TIMEOUT
+        )
     }
 }
