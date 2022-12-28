@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
 import net.mullvad.mullvadvpn.test.common.constant.SETTINGS_COG_ID
 import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_INFO_ID
 import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_OUT_ADDRESS_ID
+import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AppInteractor(
@@ -46,6 +47,7 @@ class AppInteractor(
 
     fun launchAndEnsureLoggedIn(accountToken: String) {
         launch()
+        device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
         attemptLogin(accountToken)
         ensureLoggedIn()
     }
