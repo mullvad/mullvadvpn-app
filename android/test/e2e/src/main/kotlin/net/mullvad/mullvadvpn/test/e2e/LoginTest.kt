@@ -4,6 +4,7 @@ import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
 import junit.framework.Assert.assertNotNull
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
 import org.junit.Rule
@@ -24,6 +25,7 @@ class LoginTest : EndToEndTest() {
 
         // When
         app.launch()
+        device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
         app.attemptLogin(invalidDummyAccountToken)
 
         // Then
