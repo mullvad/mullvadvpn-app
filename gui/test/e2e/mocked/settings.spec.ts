@@ -9,7 +9,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
-  await page.click('button[aria-label="Settings"]');
+  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
 });
 
 test.afterAll(async () => {

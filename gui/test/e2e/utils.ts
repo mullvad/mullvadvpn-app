@@ -8,7 +8,7 @@ export interface StartAppResponse {
 
 export interface TestUtils {
   currentRoute: () => Promise<void>;
-  nextRoute: () => Promise<string>;
+  waitForNavigation: (initiateNavigation?: () => Promise<void> | void) =>  Promise<string>;
 }
 
 interface History {
@@ -16,7 +16,7 @@ interface History {
   index: number;
 }
 
-type LaunchOptions = Parameters<typeof electron.launch>[0];
+type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
 
 export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
   const app = await launch(options);
@@ -27,7 +27,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
   const util: TestUtils = {
     currentRoute: currentRouteFactory(app),
-    nextRoute: nextRouteFactory(app),
+    waitForNavigation: waitForNavigationFactory(app, page),
   };
 
   return { app, page, util };
@@ -46,7 +46,7 @@ export const launch = async (options: LaunchOptions): Promise<ElectronApplicatio
   return app;
 }
 
-export const currentRouteFactory = (app: ElectronApplication) => {
+const currentRouteFactory = (app: ElectronApplication) => {
   return async () => {
     return await app.evaluate(({ webContents }) => {
       return webContents.getAllWebContents()[0].executeJavaScript('window.e2e.location');
@@ -54,20 +54,41 @@ export const currentRouteFactory = (app: ElectronApplication) => {
   };
 }
 
-export const nextRouteFactory = (app: ElectronApplication) => {
-  return async () => {
-    const nextRoute: string = await app.evaluate(({ ipcMain }) => {
-      return new Promise((resolve) => {
-        ipcMain.once('navigation-setHistory', (_event, history: History) => {
-            resolve(history.entries[history.index].pathname);
-        });
+const waitForNavigationFactory = (
+  app: ElectronApplication,
+  page: Page,
+) => {
+  return async (initiateNavigation?: () => Promise<void> | void) => {
+    const [route] = await Promise.all([
+      waitForNextRoute(app),
+      initiateNavigation?.(),
+    ]);
+
+    // Wait for view corresponding to new route to appear
+    await page.getByTestId(route).isVisible();
+
+    const transitionContents = page.getByTestId('transition-content');
+    let  transitionContentsCount;
+    do {
+      if (transitionContentsCount !== undefined) {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+
+      transitionContentsCount = await transitionContents.count();
+    } while (transitionContentsCount !== 1);
+
+    return route;
+  };
+};
+
+const waitForNextRoute = async (app: ElectronApplication): Promise<string> => {
+  return await app.evaluate(({ ipcMain }) => {
+    return new Promise((resolve) => {
+      ipcMain.once('navigation-setHistory', (_event, history: History) => {
+          resolve(history.entries[history.index].pathname);
       });
     });
-
-    // TODO: Disable view transitions and shorten timeout or remove completely.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return nextRoute;
-  };
+  });
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {

@@ -8,7 +8,7 @@ import { startInstalledApp } from '../installed-utils';
 let page: Page;
 
 test.beforeAll(async () => {
-  ({ page, util } = await startInstalledApp());
+  ({ page } = await startInstalledApp());
 });
 
 test.afterAll(async () => {
