@@ -22,6 +22,9 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const app = await launch(options);
   const page = await app.firstWindow();
 
+  // Wait for initial navigation to finish
+  await waitForNoTransition(page);
+
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
@@ -69,20 +72,22 @@ const waitForNavigationFactory = (
 
     // Wait for view corresponding to new route to appear
     await page.getByTestId(route).isVisible();
-
-    // Wait until there's only one transitionContents
-    const transitionContents = page.getByTestId('transition-content');
-    let  transitionContentsCount;
-    do {
-      if (transitionContentsCount !== undefined) {
-        await new Promise((resolve) => setTimeout(resolve, 5));
-      }
-
-      transitionContentsCount = await transitionContents.count();
-    } while (transitionContentsCount !== 1);
+    await waitForNoTransition(page);
 
     return route;
   };
+};
+
+const waitForNoTransition = async (page: Page) => {
+  // Wait until there's only one transitionContents
+  let  transitionContentsCount;
+  do {
+    if (transitionContentsCount !== undefined) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+
+    transitionContentsCount = await page.getByTestId('transition-content').count();
+  } while (transitionContentsCount !== 1);
 };
 
 // Returns the route when it changes
