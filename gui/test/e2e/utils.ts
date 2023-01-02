@@ -58,7 +58,10 @@ const waitForNavigationFactory = (
   app: ElectronApplication,
   page: Page,
 ) => {
+  // Wait for navigation animation to finish. A function can be provided that initiates the
+  // navigation, e.g. clicks a button.
   return async (initiateNavigation?: () => Promise<void> | void) => {
+    // Wait for route to change after optionally initiating the navigation.
     const [route] = await Promise.all([
       waitForNextRoute(app),
       initiateNavigation?.(),
@@ -67,6 +70,7 @@ const waitForNavigationFactory = (
     // Wait for view corresponding to new route to appear
     await page.getByTestId(route).isVisible();
 
+    // Wait until there's only one transitionContents
     const transitionContents = page.getByTestId('transition-content');
     let  transitionContentsCount;
     do {
@@ -81,6 +85,7 @@ const waitForNavigationFactory = (
   };
 };
 
+// Returns the route when it changes
 const waitForNextRoute = async (app: ElectronApplication): Promise<string> => {
   return await app.evaluate(({ ipcMain }) => {
     return new Promise((resolve) => {
