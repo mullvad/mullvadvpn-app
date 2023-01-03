@@ -42,7 +42,10 @@ export const launch = async (options: LaunchOptions): Promise<ElectronApplicatio
 
   await app.evaluate(({ webContents }) => {
     return new Promise((resolve) => {
-      webContents.getAllWebContents()[0].once('did-finish-load', resolve);
+      webContents.getAllWebContents()
+          // Select window that isn't devtools
+          .find((webContents) => webContents.getURL().startsWith('file://'))!
+          .once('did-finish-load', resolve);
     });
   });
 
@@ -52,7 +55,10 @@ export const launch = async (options: LaunchOptions): Promise<ElectronApplicatio
 const currentRouteFactory = (app: ElectronApplication) => {
   return async () => {
     return await app.evaluate(({ webContents }) => {
-      return webContents.getAllWebContents()[0].executeJavaScript('window.e2e.location');
+      return webContents.getAllWebContents()
+          // Select window that isn't devtools
+          .find((webContents) => webContents.getURL().startsWith('file://'))!
+          .executeJavaScript('window.e2e.location');
     });
   };
 }
