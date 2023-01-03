@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
+### Removed
+#### macOS
+- Remove ⌘Q shortcut.
+
 ### Fixed
 - When a country is selected, and the constraints only match relays that are not included on the
   country level, select those relays anyway.
