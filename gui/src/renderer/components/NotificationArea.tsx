@@ -73,11 +73,18 @@ export default function NotificationArea(props: IProps) {
 
     if (notification) {
       return (
-        <NotificationBanner className={props.className}>
-          <NotificationIndicator type={notification.indicator} />
+        <NotificationBanner className={props.className} data-test-id="notificationBanner">
+          <NotificationIndicator
+            type={notification.indicator}
+            data-test-id="notificationIndicator"
+          />
           <NotificationContent role="status" aria-live="polite">
-            <NotificationTitle>{notification.title}</NotificationTitle>
-            <NotificationSubtitle>{notification.subtitle}</NotificationSubtitle>
+            <NotificationTitle data-test-id="notificationTitle">
+              {notification.title}
+            </NotificationTitle>
+            <NotificationSubtitle data-test-id="notificationSubTitle">
+              {notification.subtitle}
+            </NotificationSubtitle>
           </NotificationContent>
           {notification.action && <NotificationActionWrapper action={notification.action} />}
         </NotificationBanner>
