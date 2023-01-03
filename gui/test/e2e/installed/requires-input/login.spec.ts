@@ -26,7 +26,7 @@ test('App should go from login view to main view when daemon logs in', async () 
   expect(await util.currentRoute()).toEqual(RoutePath.login);
 
   // Waiting for the daemon to log in
-  expect(await util.nextRoute()).toEqual(RoutePath.main);
+  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
 
   await assertDisconnected(page);
 });

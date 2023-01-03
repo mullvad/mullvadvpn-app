@@ -59,7 +59,7 @@ export default function AppRouter() {
   return (
     <Focus ref={focusRef}>
       <TransitionContainer onTransitionEnd={onNavigation} {...transition}>
-        <TransitionView viewId={currentLocation.key || ''}>
+        <TransitionView viewId={currentLocation.key || ''} routePath={history.location.pathname}>
           <Switch key={currentLocation.key} location={currentLocation}>
             <Route exact path={RoutePath.launch} component={Launch} />
             <Route exact path={RoutePath.login} component={LoginPage} />

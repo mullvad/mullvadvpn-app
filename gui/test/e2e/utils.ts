@@ -7,9 +7,8 @@ export interface StartAppResponse {
 }
 
 export interface TestUtils {
-  getByTestId: (id: string) => Locator;
   currentRoute: () => Promise<void>;
-  nextRoute: () => Promise<string>;
+  waitForNavigation: (initiateNavigation?: () => Promise<void> | void) =>  Promise<string>;
 }
 
 interface History {
@@ -17,59 +16,95 @@ interface History {
   index: number;
 }
 
-export const startApp = async (
-  options: Parameters<typeof electron.launch>[0],
-): Promise<StartAppResponse> => {
-  process.env.CI = 'e2e';
-  const app = await electron.launch(options);
+type LaunchOptions = NonNullable<Parameters<typeof electron.launch>[0]>;
 
-  await app.evaluate(({ webContents }) => {
-    return new Promise((resolve) => {
-      webContents.getAllWebContents()[0].on('did-finish-load', resolve);
-    });
-  });
-
+export const startApp = async (options: LaunchOptions): Promise<StartAppResponse> => {
+  const app = await launch(options);
   const page = await app.firstWindow();
 
-  page.on('pageerror', (error) => {
-    console.log(error);
-  });
+  // Wait for initial navigation to finish
+  await waitForNoTransition(page);
 
-  page.on('console', (msg) => {
-    console.log(msg.text());
-  });
+  page.on('pageerror', (error) => console.log(error));
+  page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
-    getByTestId: (id: string) => page.locator(`data-test-id=${id}`),
     currentRoute: currentRouteFactory(app),
-    nextRoute: nextRouteFactory(app),
+    waitForNavigation: waitForNavigationFactory(app, page),
   };
 
   return { app, page, util };
 };
 
-export const currentRouteFactory = (app: ElectronApplication) => {
+export const launch = async (options: LaunchOptions): Promise<ElectronApplication> => {
+  process.env.CI = 'e2e';
+  const app = await electron.launch(options);
+
+  await app.evaluate(({ webContents }) => {
+    return new Promise((resolve) => {
+      webContents.getAllWebContents()
+          // Select window that isn't devtools
+          .find((webContents) => webContents.getURL().startsWith('file://'))!
+          .once('did-finish-load', resolve);
+    });
+  });
+
+  return app;
+}
+
+const currentRouteFactory = (app: ElectronApplication) => {
   return async () => {
     return await app.evaluate(({ webContents }) => {
-      return webContents.getAllWebContents()[0].executeJavaScript('window.e2e.location');
+      return webContents.getAllWebContents()
+          // Select window that isn't devtools
+          .find((webContents) => webContents.getURL().startsWith('file://'))!
+          .executeJavaScript('window.e2e.location');
     });
   };
 }
 
-export const nextRouteFactory = (app: ElectronApplication) => {
-  return async () => {
-    const nextRoute: string = await app.evaluate(({ ipcMain }) => {
-      return new Promise((resolve) => {
-        ipcMain.once('navigation-setHistory', (_event, history: History) => {
-            resolve(history.entries[history.index].pathname);
-        });
+const waitForNavigationFactory = (
+  app: ElectronApplication,
+  page: Page,
+) => {
+  // Wait for navigation animation to finish. A function can be provided that initiates the
+  // navigation, e.g. clicks a button.
+  return async (initiateNavigation?: () => Promise<void> | void) => {
+    // Wait for route to change after optionally initiating the navigation.
+    const [route] = await Promise.all([
+      waitForNextRoute(app),
+      initiateNavigation?.(),
+    ]);
+
+    // Wait for view corresponding to new route to appear
+    await page.getByTestId(route).isVisible();
+    await waitForNoTransition(page);
+
+    return route;
+  };
+};
+
+const waitForNoTransition = async (page: Page) => {
+  // Wait until there's only one transitionContents
+  let  transitionContentsCount;
+  do {
+    if (transitionContentsCount !== undefined) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+
+    transitionContentsCount = await page.getByTestId('transition-content').count();
+  } while (transitionContentsCount !== 1);
+};
+
+// Returns the route when it changes
+const waitForNextRoute = async (app: ElectronApplication): Promise<string> => {
+  return await app.evaluate(({ ipcMain }) => {
+    return new Promise((resolve) => {
+      ipcMain.once('navigation-setHistory', (_event, history: History) => {
+          resolve(history.entries[history.index].pathname);
       });
     });
-
-    // TODO: Disable view transitions and shorten timeout or remove completely.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return nextRoute;
-  };
+  });
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {

@@ -6,6 +6,7 @@ import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
   viewId: string;
+  routePath: string;
   children?: React.ReactNode;
 }
 
@@ -47,25 +48,28 @@ export const StyledTransitionContainer = styled.div(
   }),
 );
 
-export const StyledTransitionContent = styled.div({}, (props: { transition?: IItemStyle }) => {
-  const x = `${props.transition?.x ?? 0}%`;
-  const y = `${props.transition?.y ?? 0}%`;
-  const duration = props.transition?.duration ?? 450;
+export const StyledTransitionContent = styled.div.attrs({ 'data-testid': 'transition-content' })(
+  {},
+  (props: { transition?: IItemStyle }) => {
+    const x = `${props.transition?.x ?? 0}%`;
+    const y = `${props.transition?.y ?? 0}%`;
+    const duration = props.transition?.duration ?? 450;
 
-  return {
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: props.transition?.inFront ? 1 : 0,
-    willChange: 'transform',
-    transform: `translate3d(${x}, ${y}, 0)`,
-    transition: `transform ${duration}ms ease-in-out`,
-  };
-});
+    return {
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      zIndex: props.transition?.inFront ? 1 : 0,
+      willChange: 'transform',
+      transform: `translate3d(${x}, ${y}, 0)`,
+      transition: `transform ${duration}ms ease-in-out`,
+    };
+  },
+);
 
 export const StyledTransitionView = styled.div({
   display: 'flex',
@@ -77,7 +81,11 @@ export const StyledTransitionView = styled.div({
 
 export class TransitionView extends React.Component<ITransitioningViewProps> {
   public render() {
-    return <StyledTransitionView>{this.props.children}</StyledTransitionView>;
+    return (
+      <StyledTransitionView data-testid={this.props.routePath}>
+        {this.props.children}
+      </StyledTransitionView>
+    );
   }
 }
 

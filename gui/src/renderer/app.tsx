@@ -780,6 +780,9 @@ export default class AppRenderer {
 
         switch (this.loginState) {
           case 'none':
+            reduxAccount.loggedIn(accountToken, device);
+            this.resetNavigation();
+            break;
           case 'logging in':
             reduxAccount.loggedIn(accountToken, device);
 
@@ -792,10 +795,6 @@ export default class AppRenderer {
           case 'creating account':
             reduxAccount.accountCreated(accountToken, device, new Date().toISOString());
             break;
-        }
-
-        if (this.loginState !== 'logging in' && this.loginState !== 'creating account') {
-          this.resetNavigation();
         }
         break;
       }

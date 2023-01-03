@@ -55,13 +55,17 @@ type SendMockIpcResponseProps<T> = {
   response: T;
 };
 
-export type SendMockIpcResponse = ReturnType<typeof generateMockIpcHandle>;
+export type SendMockIpcResponse = ReturnType<typeof generateSendMockIpcResponse>;
 
 export const generateSendMockIpcResponse = (electronApp: ElectronApplication) => {
   return async <T>({ channel, response }: SendMockIpcResponseProps<T>) => {
     await electronApp.evaluate(
       ({ webContents }, { channel, response }) => {
-        webContents.getAllWebContents()[0].send(channel, response);
+        webContents
+          .getAllWebContents()
+          // Select window that isn't devtools
+          .find((webContents) => webContents.getURL().startsWith('file://'))!
+          .send(channel, response);
       },
       { channel, response },
     );

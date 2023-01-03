@@ -140,7 +140,6 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
-    // @ts-ignore
     const filePath = path.resolve(path.join(__dirname, '../../../src/renderer/index.html'));
     await window.loadFile(filePath);
 
