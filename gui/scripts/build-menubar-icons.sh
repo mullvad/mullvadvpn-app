@@ -15,7 +15,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-MENUBAR_ICONS_DIR="../assets/images/menubar icons"
+MENUBAR_ICONS_DIR="../assets/images/menubar-icons"
 
 SVG_DIR="$MENUBAR_ICONS_DIR/svg"
 MACOS_DIR="$MENUBAR_ICONS_DIR/darwin"

@@ -51,4 +51,4 @@ tests are depending on the daemon already being in a specific state and will fai
 ## Other READMEs
 - [scripts/README.md](scripts/README.md)
 - [locales/README.md](locales/README.md)
-- [assets/images/menubar icons/README.md](assets/images/menubar%20icons/README.md)
+- [assets/images/menubar-icons/README.md](assets/images/menubar-icons/README.md)
