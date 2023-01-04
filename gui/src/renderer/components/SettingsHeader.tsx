@@ -18,7 +18,9 @@ export const ContentWrapper = styled.div({
   },
 });
 
-export const HeaderTitle = styled.span(hugeText);
+export const HeaderTitle = styled.span(hugeText, {
+  wordWrap: 'break-word',
+});
 export const HeaderSubTitle = styled.span(tinyText, {
   color: colors.white60,
 });

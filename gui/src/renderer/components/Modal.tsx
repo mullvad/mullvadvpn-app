@@ -108,7 +108,7 @@ const ModalAlertContainer = styled.div({
   flexDirection: 'column',
   flex: 1,
   justifyContent: 'center',
-  padding: '26px 14px 14px',
+  padding: '14px',
 });
 
 const StyledModalAlert = styled.div({}, (props: { visible: boolean; closing: boolean }) => {

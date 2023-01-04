@@ -54,7 +54,7 @@ const StyledTitle = styled.span(bigText, {
 
 const StyledLabel = styled.span({
   fontFamily: 'Open Sans',
-  fontSize: '13px',
+  fontSize: '12px',
   fontWeight: 600,
   lineHeight: '20px',
   color: colors.white,
