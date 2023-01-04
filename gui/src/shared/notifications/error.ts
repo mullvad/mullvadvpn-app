@@ -84,19 +84,19 @@ function getMessage(errorState: ErrorState): string {
         case 'win32':
           return messages.pgettext(
             'notifications',
-            'Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support.',
+            'Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report.',
           );
         case 'linux':
           return messages.pgettext(
             'notifications',
-            'Unable to block all network traffic. Try updating your kernel or contact support.',
+            'Unable to block all network traffic. Try updating your kernel or send a problem report.',
           );
       }
     }
 
     return messages.pgettext(
       'notifications',
-      'Unable to block all network traffic. Please troubleshoot or contact support.',
+      'Unable to block all network traffic. Please troubleshoot or send a problem report.',
     );
   } else {
     switch (errorState.cause) {
@@ -121,7 +121,7 @@ function getMessage(errorState: ErrorState): string {
           default:
             return messages.pgettext(
               'auth-failure',
-              'Unable to authenticate account. Please contact support.',
+              'Unable to authenticate account. Please send a problem report.',
             );
         }
       case ErrorStateCause.ipv6Unavailable:
@@ -147,12 +147,12 @@ function getMessage(errorState: ErrorState): string {
       case ErrorStateCause.setDnsError:
         return messages.pgettext(
           'notifications',
-          'Unable to set system DNS server. Please contact support.',
+          'Unable to set system DNS server. Please send a problem report.',
         );
       case ErrorStateCause.startTunnelError:
         return messages.pgettext(
           'notifications',
-          'Unable to start tunnel connection. Please contact support.',
+          'Unable to start tunnel connection. Please send a problem report.',
         );
       case ErrorStateCause.tunnelParameterError:
         return getTunnelParameterMessage(errorState.parameterError);
@@ -164,7 +164,7 @@ function getMessage(errorState: ErrorState): string {
       case ErrorStateCause.splitTunnelError:
         return messages.pgettext(
           'notifications',
-          'Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support.',
+          'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
         );
     }
   }
