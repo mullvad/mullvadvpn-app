@@ -325,7 +325,7 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
+msgid "Unable to authenticate account. Please send a problem report."
 msgstr ""
 
 msgctxt "auth-failure"
@@ -792,19 +792,19 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
 msgstr ""
 
 msgctxt "notifications"
@@ -812,11 +812,11 @@ msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
+msgid "Unable to set system DNS server. Please send a problem report."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
+msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr ""
 
 msgctxt "notifications"
@@ -1078,14 +1078,14 @@ msgstr ""
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
+msgid "Please send a problem report."
 msgstr ""
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
+msgid "Please try again or send a problem report."
 msgstr ""
 
 #. Error message showed in a dialog when an application failes to launch.

@@ -60,7 +60,7 @@ export async function launchApplication(
           error:
             // TRANSLATORS: This error message is shown if the user tries to launch an app that
             // TRANSLATORS: doesn't exist.
-            messages.pgettext('split-tunneling-view', 'Please try again or contact support.'),
+            messages.pgettext('split-tunneling-view', 'Please try again or send a problem report.'),
         });
       }
     });
@@ -72,7 +72,7 @@ export async function launchApplication(
         resolve({
           error:
             // TRANSLATORS: This error message is shown if an application failes during startup.
-            messages.pgettext('split-tunneling-view', 'Please try again or contact support.'),
+            messages.pgettext('split-tunneling-view', 'Please try again or send a problem report.'),
         });
       } else {
         resolve({ success: true });
@@ -93,7 +93,7 @@ async function getLaunchCommand(app: ILinuxSplitTunnelingApplication | string): 
       throw new Error(
         // TRANSLATORS: This error message is shown if the user tries to launch a Linux desktop
         // TRANSLATORS: entry file that doesn't contain the required 'Exec' value.
-        messages.pgettext('split-tunneling-view', 'Please contact support.'),
+        messages.pgettext('split-tunneling-view', 'Please send a problem report.'),
       );
     }
   } else {
