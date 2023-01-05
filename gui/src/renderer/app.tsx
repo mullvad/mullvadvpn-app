@@ -33,6 +33,7 @@ import AppRouter from './components/AppRouter';
 import { Changelog } from './components/Changelog';
 import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
+import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
@@ -264,17 +265,19 @@ export default class AppRenderer {
     return (
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
-          <Router history={this.history.asHistory}>
-            <ErrorBoundary>
-              <ModalContainer>
-                <KeyboardNavigation>
-                  <AppRouter />
-                  <Changelog />
-                </KeyboardNavigation>
-                {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-              </ModalContainer>
-            </ErrorBoundary>
-          </Router>
+          <Lang>
+            <Router history={this.history.asHistory}>
+              <ErrorBoundary>
+                <ModalContainer>
+                  <KeyboardNavigation>
+                    <AppRouter />
+                    <Changelog />
+                  </KeyboardNavigation>
+                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                </ModalContainer>
+              </ErrorBoundary>
+            </Router>
+          </Lang>
         </Provider>
       </AppContext.Provider>
     );
