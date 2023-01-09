@@ -34,13 +34,13 @@ const Body = styled.div({
   display: 'flex',
   flexDirection: 'column',
   padding: `0 ${measurements.viewMargin}`,
-  marginTop: '176px',
-  flex: 1,
+  minHeight: '170px',
 });
 
 const Wrapper = styled.div({
   display: 'flex',
   flexDirection: 'column',
+  justifyContent: 'end',
   flex: 1,
 });
 
