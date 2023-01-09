@@ -33,7 +33,7 @@ const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
   ':hover': {
     backgroundColor: props.tintColor,
   },
-  [`${CellButton}:not(:disabled):hover &`]: {
+  [`${CellButton}:not(:disabled):hover &&`]: {
     backgroundColor: props.tintHoverColor,
   },
 }));
