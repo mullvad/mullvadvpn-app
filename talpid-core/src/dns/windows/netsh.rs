@@ -1,3 +1,4 @@
+use crate::dns::DnsMonitorT;
 use std::{
     ffi::OsString,
     io::{self, Write},
@@ -60,7 +61,7 @@ pub struct DnsMonitor {
     current_index: Option<u32>,
 }
 
-impl super::DnsMonitorT for DnsMonitor {
+impl DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new() -> Result<Self, Error> {
