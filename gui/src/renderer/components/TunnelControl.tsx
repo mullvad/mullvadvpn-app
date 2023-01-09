@@ -34,7 +34,7 @@ const Body = styled.div({
   display: 'flex',
   flexDirection: 'column',
   padding: `0 ${measurements.viewMargin}`,
-  minHeight: '170px',
+  minHeight: '185px',
 });
 
 const Wrapper = styled.div({
