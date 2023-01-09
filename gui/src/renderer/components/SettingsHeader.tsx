@@ -20,6 +20,7 @@ export const ContentWrapper = styled.div({
 
 export const HeaderTitle = styled.span(hugeText, {
   wordWrap: 'break-word',
+  hyphens: 'auto',
 });
 export const HeaderSubTitle = styled.span(tinyText, {
   color: colors.white60,
