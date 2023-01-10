@@ -33,7 +33,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         val contentValues = createBaseScreenshotContentValues()
 
         getInstrumentation().uiAutomation.takeScreenshot().apply {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 writeToMediaStore(
                     contentValues = contentValues,
                     contentResolver = contentResolver,
