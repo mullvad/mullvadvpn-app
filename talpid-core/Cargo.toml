@@ -34,7 +34,7 @@ talpid-wireguard = { path = "../talpid-wireguard" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4.21"
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio = { version = "1.23.1", features = ["process", "rt-multi-thread", "fs"] }
 rand = "0.8.5"
 shadowsocks-service = { version = "1.14.3", default-features = false, features = ["local", "stream-cipher"] }
 
@@ -132,4 +132,4 @@ tonic-build = { version = "0.8", default-features = false, features = ["transpor
 tempfile = "3.0"
 quickcheck = "1.0"
 quickcheck_macros = "1.0"
-tokio = { version = "1", features = [ "test-util" ] }
+tokio = { version = "1.23.1", features = [ "test-util" ] }

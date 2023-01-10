@@ -14,11 +14,11 @@ talpid-types = { path = "../talpid-types" }
 tonic = "0.8"
 prost = "0.11"
 tower = "0.4"
-tokio = "1"
+tokio = "1.23.1"
 classic-mceliece-rust = { version = "2.0.0", features = ["mceliece460896f"] }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["rt-multi-thread"] }
+tokio = { version = "1.23.1", features = ["rt-multi-thread"] }
 
 [build-dependencies]
 tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }

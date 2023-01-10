@@ -28,7 +28,7 @@ mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
+tokio = { version = "1.23.1", features =  [ "rt-multi-thread" ] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "3.0" }
