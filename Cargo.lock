@@ -3201,7 +3201,6 @@ dependencies = [
  "uuid",
  "which",
  "widestring 1.0.2",
- "winapi",
  "windows-sys 0.42.0",
  "winreg",
 ]
@@ -3255,7 +3254,6 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "widestring 1.0.2",
- "winapi",
  "windows-sys 0.42.0",
 ]
 
