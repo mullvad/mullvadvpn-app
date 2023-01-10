@@ -128,13 +128,19 @@ See [this](Release.md) for instructions on how to make a new release.
     that will be receiving relay traffic, and `src_valid_mark` is not set to `1`, the daemon will
     not be able to receive relay traffic.
 
-* `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration on Linux.
+* `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration.
   By default this is automatically detected, but you can set it to one of the options below to
-  choose a specific method:
+  choose a specific method.
+
+  * Linux
     * `"static-file"`: change the `/etc/resolv.conf` file directly
     * `"resolvconf"`: use the `resolvconf` program
     * `"systemd"`: use systemd's `resolved` service through DBus
     * `"network-manager"`: use `NetworkManager` service through DBus
+
+  * Windows
+    * `netsh`: use the `netsh` program
+    * `tcpip`: set TCP/IP parameters in the registry
 
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
    WireGuard on Linux.
