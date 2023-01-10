@@ -75,4 +75,24 @@
         <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
         <cve>CVE-2022-36033</cve>
     </suppress>
+    <suppress until="2023-06-01Z">
+        <notes><![CDATA[
+        This CVE is limited to processing of screenshots, which this app doesn't use.
+        https://nvd.nist.gov/vuln/detail/CVE-2021-4277
+
+        File name: legacy-support-core-utils-1.0.0.aar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/androidx\.legacy/legacy\-support\-core\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
+    <suppress until="2023-06-01Z">
+        <notes><![CDATA[
+        This CVE is limited to processing of screenshots, which this app doesn't use.
+        https://nvd.nist.gov/vuln/detail/CVE-2021-4277
+
+        File name: leakcanary-android-utils-2.10.aar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.leakcanary/leakcanary\-android\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
 </suppressions>
