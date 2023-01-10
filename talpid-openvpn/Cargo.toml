@@ -42,7 +42,6 @@ which = { version = "4.0", default-features = false }
 [target.'cfg(windows)'.dependencies]
 widestring = "1.0"
 winreg = { version = "0.7", features = ["transactions"] }
-winapi = { version = "0.3.6", features = ["ws2def"] }
 talpid-windows-net = { path = "../talpid-windows-net" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
