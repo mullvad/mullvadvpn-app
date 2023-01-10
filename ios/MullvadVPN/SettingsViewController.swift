@@ -7,16 +7,17 @@
 //
 
 import Foundation
-import SafariServices
 import UIKit
 
 protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
+    func settingsViewController(
+        _ controller: SettingsViewController,
+        didRequestRoutePresentation route: SettingsNavigationRoute
+    )
 }
 
-class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
-    SFSafariViewControllerDelegate
-{
+class SettingsViewController: UITableViewController, SettingsDataSourceDelegate {
     weak var delegate: SettingsViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -71,29 +72,9 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
         _ dataSource: SettingsDataSource,
         didSelectItem item: SettingsDataSource.Item
     ) {
-        if let route = item.navigationRoute {
-            let settingsNavigationController = navigationController as? SettingsNavigationController
+        guard let route = item.navigationRoute else { return }
 
-            settingsNavigationController?.navigate(to: route, animated: true)
-        } else if case .faq = item {
-            let safariViewController = SFSafariViewController(
-                url: ApplicationConfiguration
-                    .faqAndGuidesURL
-            )
-            safariViewController.delegate = self
-
-            present(safariViewController, animated: true)
-        }
-    }
-
-    // MARK: - SFSafariViewControllerDelegate
-
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: true)
-    }
-
-    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: false)
+        delegate?.settingsViewController(self, didRequestRoutePresentation: route)
     }
 }
 
@@ -109,7 +90,7 @@ extension SettingsDataSource.Item {
         case .problemReport:
             return .problemReport
         case .faq:
-            return nil
+            return .faq
         }
     }
 }

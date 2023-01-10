@@ -15,7 +15,7 @@ import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDelegate,
     RootContainerViewControllerDelegate, LoginViewControllerDelegate,
-    DeviceManagementViewControllerDelegate, SettingsNavigationControllerDelegate,
+    DeviceManagementViewControllerDelegate, SettingsNavigationCoordinatorDelegate,
     OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
     RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
     RelayCacheTrackerObserver, SettingsMigrationUIHandler
@@ -39,7 +39,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private var splitViewController: CustomSplitViewController?
     private var selectLocationViewController: SelectLocationViewController?
     private var tunnelViewController: TunnelViewController?
-    private weak var settingsNavController: SettingsNavigationController?
+
+    private lazy var settingsNavigationCoordinator: SettingsNavigationCoordinator = {
+        let coordinator = SettingsNavigationCoordinator(
+            interactorFactory: SettingsInteractorFactory(
+                storePaymentManager: storePaymentManager,
+                tunnelManager: tunnelManager,
+                apiProxy: apiProxy
+            )
+        )
+        coordinator.delegate = self
+        return coordinator
+    }()
+
     private var lastLoginAction: LoginAction?
 
     private var accountDataThrottling: AccountDataThrottling?
@@ -130,7 +142,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private func refreshDeviceAndAccountData(forceUpdate: Bool) {
         let condition: AccountDataThrottling.Condition =
-            settingsNavController == nil && !forceUpdate
+            !settingsNavigationCoordinator.isPresented && !forceUpdate
                 ? .whenCloseToExpiryAndBeyond
                 : .always
 
@@ -220,26 +232,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         navigateTo route: SettingsNavigationRoute?,
         animated: Bool
     ) {
-        // Check if settings controller is already presented.
-        if let settingsNavController = settingsNavController {
-            settingsNavController.navigate(to: route ?? .root, animated: animated)
-        } else {
-            let navController = makeSettingsNavigationController(route: route)
+        // On iPad the login controller can be presented modally above the root container.
+        // in that case we have to use the presented controller to present the next modal.
+        let presentingController = controller.presentedViewController ?? controller
 
-            // Refresh account data each time user opens settings
-            refreshDeviceAndAccountData(forceUpdate: true)
-
-            // On iPad the login controller can be presented modally above the root container.
-            // in that case we have to use the presented controller to present the next modal.
-            if let presentedController = controller.presentedViewController {
-                presentedController.present(navController, animated: true)
-            } else {
-                controller.present(navController, animated: true)
-            }
-
-            // Save the reference for later.
-            settingsNavController = navController
-        }
+        settingsNavigationCoordinator.present(
+            route: route,
+            from: presentingController,
+            animated: animated
+        )
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
@@ -403,32 +404,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         }
     }
 
-    private func makeSettingsNavigationController(route: SettingsNavigationRoute?)
-        -> SettingsNavigationController
-    {
-        let navController = SettingsNavigationController(
-            interactorFactory: SettingsInteractorFactory(
-                storePaymentManager: storePaymentManager,
-                tunnelManager: tunnelManager,
-                apiProxy: apiProxy
-            )
-        )
-        navController.settingsDelegate = self
-
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            navController.preferredContentSize = CGSize(width: 480, height: 568)
-            navController.modalPresentationStyle = .formSheet
-        }
-
-        navController.presentationController?.delegate = navController
-
-        if let route = route {
-            navController.navigate(to: route, animated: false)
-        }
-
-        return navController
-    }
-
     private func makeOutOfTimeViewController() -> OutOfTimeViewController {
         let viewController = OutOfTimeViewController(
             interactor: OutOfTimeInteractor(
@@ -529,14 +504,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         tunnelViewController?.setMainContentHidden(!show, animated: animated)
     }
 
-    private func showLoginViewAfterLogout(dismissController: UIViewController?) {
+    private func showLoginViewAfterLogout(presentedCoordinator: SettingsNavigationCoordinator?) {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
             let loginController = rootContainer.viewControllers.first as? LoginViewController
             loginController?.reset()
 
             rootContainer.popToRootViewController(animated: false)
-            dismissController?.dismiss(animated: true)
+            presentedCoordinator?.dismiss(animated: true)
 
         case .pad:
             let loginController = modalRootContainer.viewControllers.first as? LoginViewController
@@ -549,8 +524,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             modalRootContainer.popToRootViewController(animated: false)
             showSplitViewMaster(false, animated: true)
 
-            if let dismissController = dismissController {
-                dismissController.dismiss(animated: true, completion: didDismissSourceController)
+            if let presentedCoordinator = presentedCoordinator {
+                presentedCoordinator.dismiss(animated: true, completion: didDismissSourceController)
             } else {
                 didDismissSourceController()
             }
@@ -613,11 +588,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
             modalRootContainer.setViewControllers(viewControllers, animated: isModalRootPresented)
 
-            if let settingsNavController = settingsNavController {
-                settingsNavController.dismiss(animated: true, completion: didDismissSettings)
-            } else {
-                didDismissSettings()
-            }
+            settingsNavigationCoordinator.dismiss(
+                animated: true,
+                completion: didDismissSettings
+            )
 
         default:
             fatalError()
@@ -766,29 +740,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         }
     }
 
-    // MARK: - SettingsNavigationControllerDelegate
+    // MARK: - SettingsNavigationCoordinatorDelegate
 
-    func settingsNavigationController(
-        _ controller: SettingsNavigationController,
-        willNavigateTo route: SettingsNavigationRoute
+    func settingsNavigationCoordinator(
+        _ coordinator: SettingsNavigationCoordinator,
+        willNavigateFrom source: SettingsNavigationRoute?,
+        to destination: SettingsNavigationRoute
     ) {
-        switch route {
-        case .root, .account:
-            refreshDeviceAndAccountData(forceUpdate: false)
-
-        default:
-            break
+        if destination == .root || destination == .account {
+            refreshDeviceAndAccountData(forceUpdate: source == nil)
         }
     }
 
-    func settingsNavigationController(
-        _ controller: SettingsNavigationController,
+    func settingsNavigationCoordinator(
+        _ coordinator: SettingsNavigationCoordinator,
         didFinishWithReason reason: SettingsDismissReason
     ) {
-        if case .userLoggedOut = reason {
-            showLoginViewAfterLogout(dismissController: controller)
+        if reason == .userLoggedOut {
+            showLoginViewAfterLogout(presentedCoordinator: coordinator)
         } else {
-            controller.dismiss(animated: true)
+            coordinator.dismiss(animated: true)
         }
     }
 
@@ -833,7 +804,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController) {
         tunnelManager.unsetAccount { [weak self] in
-            self?.showLoginViewAfterLogout(dismissController: nil)
+            self?.showLoginViewAfterLogout(presentedCoordinator: nil)
         }
     }
 
