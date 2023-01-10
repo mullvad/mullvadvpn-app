@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -34,6 +33,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
@@ -103,7 +103,11 @@ open class MainActivity : FragmentActivity() {
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
-        serviceConnectionManager.bind(vpnPermissionRequestHandler = ::requestVpnPermission)
+
+        serviceConnectionManager.bind(
+            vpnPermissionRequestHandler = ::requestVpnPermission,
+            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {

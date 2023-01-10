@@ -12,7 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.di.vpnServiceModule
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.DefaultApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
@@ -64,11 +68,15 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
+    private var apiEndpointConfiguration: ApiEndpointConfiguration =
+        DefaultApiEndpointConfiguration()
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
         loadKoinModules(vpnServiceModule)
+
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -97,14 +105,6 @@ class MullvadVpnService : TalpidVpnService() {
             endpoint.accountCache
         )
 
-        daemonInstance.apply {
-            intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
-                handleDaemonInstance(daemon)
-            }
-
-            start()
-        }
-
         // Remove any leftover tunnel state persistence data
         getSharedPreferences("tunnel_state", MODE_PRIVATE)
             .edit()
@@ -114,6 +114,21 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Starting service")
+
+        if (BuildConfig.DEBUG) {
+            intent?.getApiEndpointConfigurationExtras()?.let {
+                apiEndpointConfiguration = it
+            }
+        }
+
+        daemonInstance.apply {
+            intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
+                handleDaemonInstance(daemon)
+            }
+
+            start(apiEndpointConfiguration)
+        }
+
         val startResult = super.onStartCommand(intent, flags, startId)
         var quitCommand = false
 
@@ -231,7 +246,7 @@ class MullvadVpnService : TalpidVpnService() {
 
             daemonInstance.apply {
                 stop()
-                start()
+                start(apiEndpointConfiguration)
             }
         } else {
             Log.d(TAG, "Ignoring restart because onDestroy has executed")

@@ -6,6 +6,7 @@ object Dependencies {
     const val junit = "junit:junit:${Versions.junit}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
+    const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
 
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
@@ -86,6 +87,10 @@ object Dependencies {
         const val android = "io.mockk:mockk-android:${Versions.mockk}"
     }
 
+    object Mullvad {
+        const val endpointLib = ":lib:endpoint"
+    }
+
     object Plugin {
         const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:linux"
         const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:osx"
@@ -93,6 +98,7 @@ object Dependencies {
             "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:windows"
         const val android = "com.android.tools.build:gradle:${Versions.Plugin.android}"
         const val androidApplicationId = "com.android.application"
+        const val androidLibraryId = "com.android.library"
         const val androidTestId = "com.android.test"
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"

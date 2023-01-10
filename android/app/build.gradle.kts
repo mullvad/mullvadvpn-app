@@ -67,10 +67,12 @@ android {
             initWith(buildTypes.getByName("release"))
             isMinifyEnabled = false
             signingConfig = null
+            matchingFallbacks += "release"
         }
 
         create("leakCanary") {
             initWith(buildTypes.getByName("debug"))
+            matchingFallbacks += "debug"
         }
     }
 
@@ -83,19 +85,6 @@ android {
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
             jniLibs.srcDirs(extraJniDirectory)
-            java.srcDirs("src/main/kotlin/")
-        }
-
-        getByName("debug") {
-            java.srcDirs("src/debug/kotlin/")
-        }
-
-        getByName("test") {
-            java.srcDirs("src/test/kotlin/")
-        }
-
-        getByName("androidTest") {
-            java.srcDirs("src/androidTest/kotlin/")
         }
     }
 
@@ -189,6 +178,8 @@ play {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.endpointLib))
+
     implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)
     implementation(Dependencies.AndroidX.appcompat)
