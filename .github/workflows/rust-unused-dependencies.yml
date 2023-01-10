@@ -55,33 +55,12 @@ jobs:
               shell: bash
               run: source env.sh && cargo +nightly udeps --workspace
 
-    cargo-udeps-macos:
-        runs-on: macos-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+    cargo-udeps:
+        strategy:
+            matrix:
+                os: [macos-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Install Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                  toolchain: nightly
-                  default: true
-                  profile: minimal
-
-            - uses: taiki-e/install-action@v2
-              with:
-                tool: cargo-udeps
-
-            - name: Check for unused dependencies
-              run: cargo +nightly udeps --workspace
-
-    cargo-udeps-windows:
-        runs-on: windows-latest
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
