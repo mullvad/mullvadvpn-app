@@ -86,9 +86,6 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v3
 
-            - name: Checkout submodules
-              run: git submodule update --init --depth=1
-
             - name: Install Protoc
               uses: arduino/setup-protoc@v1
               with:
