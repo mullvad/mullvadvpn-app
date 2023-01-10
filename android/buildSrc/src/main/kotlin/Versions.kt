@@ -50,7 +50,7 @@ object Versions {
         const val android = "7.3.1"
         const val androidAapt = "$android-8691043"
         const val playPublisher = "3.7.0"
-        const val dependencyCheck = "7.4.0"
+        const val dependencyCheck = "7.4.4"
         const val gradleVersions = "0.44.0"
     }
 }
