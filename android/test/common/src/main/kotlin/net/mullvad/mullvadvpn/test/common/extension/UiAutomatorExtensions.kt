@@ -39,7 +39,7 @@ fun UiDevice.findObjectWithTimeout(
 fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ) {
-    if (Build.VERSION.SDK_INT < 31) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
         // Skipping as notification permissions are not shown.
         return
     }
