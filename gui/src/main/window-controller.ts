@@ -318,10 +318,7 @@ export default class WindowController {
       case 'win32':
         // On Windows the app height ends up slightly lower than we set it to if running in unpinned
         // mode and the app becomes a tiny bit taller when pinned to task bar.
-        return unpinnedWindow ? contentHeight + 19 : contentHeight - 1;
-      case 'linux':
-        // On Linux the app ends up slightly lower than we set it to.
-        return contentHeight - 25;
+        return unpinnedWindow ? contentHeight + 25 : contentHeight;
       default:
         return contentHeight;
     }
