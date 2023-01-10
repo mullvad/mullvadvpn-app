@@ -16,10 +16,10 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDelegate,
     UIAdaptivePresentationControllerDelegate, RootContainerViewControllerDelegate,
     LoginViewControllerDelegate, DeviceManagementViewControllerDelegate,
-    SettingsNavigationControllerDelegate, ConnectViewControllerDelegate,
-    OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
-    RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
-    RelayCacheTrackerObserver, SettingsMigrationUIHandler
+    SettingsNavigationControllerDelegate, OutOfTimeViewControllerDelegate,
+    SelectLocationViewControllerDelegate, RevokedDeviceViewControllerDelegate,
+    NotificationManagerDelegate, TunnelObserver, RelayCacheTrackerObserver,
+    SettingsMigrationUIHandler
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -35,7 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private var splitViewController: CustomSplitViewController?
     private var selectLocationViewController: SelectLocationViewController?
-    private var connectController: ConnectViewController?
+    private var tunnelViewController: TunnelViewController?
     private weak var settingsNavController: SettingsNavigationController?
     private var lastLoginAction: LoginAction?
 
@@ -138,6 +138,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     private func resetDeviceAndAccountDataThrottling() {
         accountDataThrottling?.reset()
         deviceDataThrottling?.reset()
+    }
+
+    private func showSelectLocationController() {
+        let contentController = makeSelectLocationController()
+        contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(handleDismissSelectLocationController(_:))
+        )
+
+        let navController = SelectLocationNavigationController(contentController: contentController)
+        rootContainer.present(navController, animated: true)
+
+        selectLocationViewController = contentController
+    }
+
+    @objc private func handleDismissSelectLocationController(_ sender: Any) {
+        selectLocationViewController?.dismiss(animated: true)
     }
 
     // MARK: - UIWindowSceneDelegate
@@ -255,7 +273,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private func setupPadUI() {
         let selectLocationController = makeSelectLocationController()
-        let connectController = makeConnectViewController()
+        let tunnelController = makeTunnelViewController()
 
         let splitViewController = CustomSplitViewController()
         splitViewController.delegate = self
@@ -264,11 +282,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             .maximumSplitViewSidebarWidthFraction
         splitViewController.primaryEdge = .trailing
         splitViewController.dividerColor = UIColor.MainSplitView.dividerColor
-        splitViewController.viewControllers = [selectLocationController, connectController]
+        splitViewController.viewControllers = [selectLocationController, tunnelController]
 
         selectLocationViewController = selectLocationController
         self.splitViewController = splitViewController
-        self.connectController = connectController
+        tunnelViewController = tunnelController
 
         rootContainer.setViewControllers([splitViewController], animated: false)
         showSplitViewMaster(tunnelManager.deviceState.isLoggedIn, animated: false)
@@ -354,9 +372,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
             switch self.tunnelManager.deviceState {
             case .loggedIn:
-                let connectController = self.makeConnectViewController()
-                self.connectController = connectController
-                viewControllers.append(connectController)
+                let tunnelViewController = self.makeTunnelViewController()
+                self.tunnelViewController = tunnelViewController
+                viewControllers.append(tunnelViewController)
 
             case .loggedOut:
                 break
@@ -417,13 +435,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         return viewController
     }
 
-    private func makeConnectViewController() -> ConnectViewController {
-        let connectController = ConnectViewController(
-            interactor: ConnectInteractor(tunnelManager: tunnelManager)
-        )
-        connectController.delegate = self
-
-        return connectController
+    private func makeTunnelViewController() -> TunnelViewController {
+        let interactor = TunnelViewControllerInteractor(tunnelManager: tunnelManager)
+        let tunnelViewController = TunnelViewController(interactor: interactor)
+        tunnelViewController.shouldShowSelectLocationPicker = { [weak self] in
+            self?.showSelectLocationController()
+        }
+        return tunnelViewController
     }
 
     private func makeSelectLocationController() -> SelectLocationViewController {
@@ -503,7 +521,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
     private func showSplitViewMaster(_ show: Bool, animated: Bool) {
         splitViewController?.preferredDisplayMode = show ? .allVisible : .primaryHidden
-        connectController?.setMainContentHidden(!show, animated: animated)
+        tunnelViewController?.setMainContentHidden(!show, animated: animated)
     }
 
     private func showLoginViewAfterLogout(dismissController: UIViewController?) {
@@ -672,10 +690,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            let connectController = makeConnectViewController()
-            self.connectController = connectController
+            let tunnelViewController = makeTunnelViewController()
+            self.tunnelViewController = tunnelViewController
             var viewControllers = rootContainer.viewControllers
-            viewControllers.append(connectController)
+            viewControllers.append(tunnelViewController)
             rootContainer.setViewControllers(viewControllers, animated: true)
             handleExpiredAccount()
         case .pad:
@@ -768,33 +786,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         }
     }
 
-    // MARK: - ConnectViewControllerDelegate
-
-    func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController) {
-        let contentController = makeSelectLocationController()
-        contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDismissSelectLocationController(_:))
-        )
-
-        let navController = SelectLocationNavigationController(contentController: contentController)
-        rootContainer.present(navController, animated: true)
-
-        selectLocationViewController = contentController
-    }
-
-    @objc private func handleDismissSelectLocationController(_ sender: Any) {
-        selectLocationViewController?.dismiss(animated: true)
-    }
-
     // MARK: - NotificationManagerDelegate
 
     func notificationManagerDidUpdateInAppNotifications(
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
-        connectController?.notificationController.setNotifications(notifications, animated: true)
+        tunnelViewController?.notificationController.setNotifications(notifications, animated: true)
     }
 
     // MARK: - SelectLocationViewControllerDelegate
@@ -953,7 +951,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         -> UIViewController?
     {
         // Set the connect controller as primary when collapsing the split view
-        return connectController
+        return tunnelViewController
     }
 
     func splitViewController(

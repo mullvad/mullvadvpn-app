@@ -1,5 +1,5 @@
 //
-//  ConnectInteractor.swift
+//  TunnelViewControllerInteractor.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 26/10/2022.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class ConnectInteractor {
+final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
 

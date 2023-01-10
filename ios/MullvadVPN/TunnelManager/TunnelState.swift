@@ -89,6 +89,17 @@ enum TunnelState: Equatable, CustomStringConvertible {
             return false
         }
     }
+
+    var relay: PacketTunnelRelay? {
+        switch self {
+        case let .connected(relay), let .reconnecting(relay):
+            return relay
+        case let .connecting(relay):
+            return relay
+        case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect:
+            return nil
+        }
+    }
 }
 
 /// A enum that describes the action to perform after disconnect.

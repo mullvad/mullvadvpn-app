@@ -181,10 +181,10 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     ) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        coordinator.animate { context in
-            if let indexPath = self.dataSource?.indexPathForSelectedRelay() {
-                self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
-            }
+        coordinator.animate(alongsideTransition: nil) { context in
+            guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
+
+            self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
         }
     }
 
