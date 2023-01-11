@@ -8,47 +8,78 @@ on:
     # Check if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
-    cargo-udeps:
-        # TODO: This does not capture and alert about platform specific dependencies on non-linux
-        # Since `cargo-udeps` seem to go pretty far with the compiling, i guess we need
-        # to run separate runners with different OSes to capture this aspect.
+    prepare-linux:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Use custom container image if specified
+          if: "${{ github.event.inputs.override_container_image != '' }}"
+          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+
+        - name: Use default container image and resolve digest
+          if: "${{ github.event.inputs.override_container_image == '' }}"
+          run: |
+            echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+      outputs:
+        container_image: "${{ env.inner_container_image }}"
+
+    cargo-udeps-linux:
+        needs: prepare-linux
         runs-on: ubuntu-latest
+        container:
+          image: "${{ needs.prepare-linux.outputs.container_image }}"
+
         steps:
-            - uses: actions/checkout@v3
+            # Fix for HOME path overridden by GH runners when building in containers, see:
+            # https://github.com/actions/runner/issues/863
+            - name: Fix HOME path
+              run: echo "HOME=/root" >> $GITHUB_ENV
+
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
             - name: Checkout binaries submodule
               run: git submodule update --init --depth=1 dist-assets/binaries
 
-            - name: Install build dependencies
-              run: |
-                sudo apt-get update
-                sudo apt-get install libdbus-1-dev
+            - name: Install nighly Rust toolchain
+              run: rustup default nightly
 
-            # cargo-udeps can compile on stable, but not run on stable.
-            # So we need a nighly toolchain. But `rust-cache@v1` keys
-            # the cache on the rustc version. So if we just use `nightly`
-            # the cache will be lost every day. To mitigate this we lock
-            # it to a specific nightly. Obviously we have to bump this from
-            # time to time or when `cargo-udeps` release a version incompatible
-            # with our nightly version.
-            - name: Install Rust
-              uses: actions-rs/toolchain@v1.0.6
+            - uses: taiki-e/install-action@v2
               with:
-                toolchain: nightly-2022-07-01
-                profile: minimal
-                default: true
+                tool: cargo-udeps
 
-            - uses: Swatinem/rust-cache@v1
+            - name: Check for unused dependencies
+              shell: bash
+              run: source env.sh && cargo +nightly udeps --workspace
 
-            - name: Install cargo-udeps
-              run: cargo install cargo-udeps
+    cargo-udeps:
+        strategy:
+            matrix:
+                os: [macos-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v1
               with:
                   repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+            - name: Install Rust
+              uses: actions-rs/toolchain@v1.0.6
+              with:
+                  toolchain: nightly
+                  default: true
+                  profile: minimal
+
+            - uses: taiki-e/install-action@v2
+              with:
+                tool: cargo-udeps
+
             - name: Check for unused dependencies
-              run: |
-                source env.sh
-                cargo udeps --workspace --all-targets
+              run: cargo +nightly udeps --workspace
