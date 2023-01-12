@@ -57,6 +57,7 @@ locked_down_paths=$(\
     | awk '{print $2}')
 
 unsigned_commits_exist=0
+
 for locked_path in $locked_down_paths; do
     locked_path_commit_hashes=$(git rev-list --oneline "$whitelisted_commit"..HEAD \
         "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
