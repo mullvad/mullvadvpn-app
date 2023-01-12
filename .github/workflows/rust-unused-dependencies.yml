@@ -8,29 +8,25 @@ on:
     # Check if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
-    prepare-linux:
+    prepare-containers:
       runs-on: ubuntu-latest
       steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
+        - uses: actions/checkout@v3
 
-        - name: Use custom container image if specified
-          if: "${{ github.event.inputs.override_container_image != '' }}"
-          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
-
-        - name: Use default container image and resolve digest
-          if: "${{ github.event.inputs.override_container_image == '' }}"
+        - name: Fetch container image names
           run: |
-            echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+            echo "inner_container_image_linux=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+            echo "inner_container_image_android=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
 
       outputs:
-        container_image: "${{ env.inner_container_image }}"
+        container_image_linux: "${{ env.inner_container_image_linux }}"
+        container_image_android: "${{ env.inner_container_image_android }}"
 
     cargo-udeps-linux:
-        needs: prepare-linux
+        needs: prepare-containers
         runs-on: ubuntu-latest
         container:
-          image: "${{ needs.prepare-linux.outputs.container_image }}"
+          image: "${{ needs.prepare-containers.outputs.container_image_linux }}"
 
         steps:
             # Fix for HOME path overridden by GH runners when building in containers, see:
@@ -44,7 +40,7 @@ jobs:
             - name: Checkout binaries submodule
               run: git submodule update --init --depth=1 dist-assets/binaries
 
-            - name: Install nighly Rust toolchain
+            - name: Install nightly Rust toolchain
               run: rustup default nightly
 
             - uses: taiki-e/install-action@v2
@@ -54,6 +50,33 @@ jobs:
             - name: Check for unused dependencies
               shell: bash
               run: source env.sh && cargo +nightly udeps --workspace
+
+    cargo-udeps-android:
+        needs: prepare-containers
+        runs-on: ubuntu-latest
+        container:
+          image: "${{ needs.prepare-containers.outputs.container_image_android }}"
+
+        steps:
+            # Fix for HOME path overridden by GH runners when building in containers, see:
+            # https://github.com/actions/runner/issues/863
+            - name: Fix HOME path
+              run: echo "HOME=/root" >> $GITHUB_ENV
+
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Install nightly Rust toolchain
+              run: |
+                rustup default nightly
+                rustup target add aarch64-linux-android --toolchain nightly
+
+            - uses: taiki-e/install-action@v2
+              with:
+                tool: cargo-udeps
+
+            - name: Check for unused dependencies
+              run: cargo +nightly udeps --target aarch64-linux-android --package mullvad-jni
 
     cargo-udeps:
         strategy:
