@@ -23,10 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
-#### MacOS
+### Fixed
+#### macOS
 - Improved reliability of the connectivity check workaround by adding an extra captive portal check
-  domain
+  domain.
+- Show "Mullvad VPN" in the Login Items UI instead of "Amagicom AB".
 
 
 ## [2023.1-beta1] - 2023-01-26
