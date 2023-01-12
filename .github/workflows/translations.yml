@@ -14,14 +14,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Setup volta
               uses: volta-cli/action@v4
 
             - name: Get npm cache directory path
               id: npm-cache-dir-path
-              run: echo "::set-output name=dir::$(npm config get cache)"
+              run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
 
             - name: Cache npm dependencies
               uses: actions/cache@v3
@@ -36,10 +36,7 @@ jobs:
               run: npm ci
 
             - name: Install nightly Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                toolchain: stable
-                default: true
+              run: curl https://sh.rustup.rs -sSf | sh -s -- -y
 
             - name: Verify translations
               run: scripts/localization verify
