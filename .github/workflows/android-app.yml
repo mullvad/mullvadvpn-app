@@ -2,24 +2,17 @@ name: Android - Build and test
 on:
     # Build whenever a file that affects Android is changed in a pull request
     pull_request:
-        paths:
-            - .github/workflows/android-app.yml
-            - android/**
-            - mullvad-api/**
-            - mullvad-daemon/**
-            - mullvad-jni/**
-            - mullvad-paths/**
-            - mullvad-problem-report/**
-            - mullvad-types/**
-            - talpid-core/**
-            - talpid-platform-metadata/**
-            - talpid-types/**
-            - talpid-types/**
-            - wireguard/**
-            - Cargo.toml
-            - build-apk.sh
-            - update-api-metadata.sh
-            - update-version-metadata.sh
+        paths-ignore:
+            - audits/**
+            - ci/**
+            - docs/**
+            - graphics/**
+            - gui/**
+            - ios/**
+            - scripts/**
+            - windows/**
+            - '**/**.md'
+
     # Build if requested manually from the Actions tab
     workflow_dispatch:
       inputs:
