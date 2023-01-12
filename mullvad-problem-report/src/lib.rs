@@ -77,6 +77,14 @@ pub enum Error {
 
     #[error(display = "Unable to find cache directory")]
     ObtainCacheDirectory(#[error(source)] mullvad_paths::Error),
+
+    #[cfg(unix)]
+    #[error(display = "Unable to set effective uid")]
+    SetEffectiveUid(#[error(source)] nix::Error),
+
+    #[cfg(unix)]
+    #[error(display = "Unable to set effective gid")]
+    SetEffectiveGid(#[error(source)] nix::Error),
 }
 
 /// These are errors that can happen during problem report collection.
@@ -312,6 +320,27 @@ async fn send_problem_report_inner(
             .await,
     );
 
+    // Restore root uid temporarily to get through the firewall.
+    run_elevated(send_report_with_retries(
+        api_client,
+        metadata,
+        user_email,
+        user_message,
+        report_content,
+    ))
+    .await?
+}
+
+// Make multiple attempts to send the problem report.
+// NOTE: This function is effectively root on Linux, so take care to
+// avoid privilege escalation.
+async fn send_report_with_retries(
+    api_client: mullvad_api::ProblemReportProxy,
+    metadata: BTreeMap<String, String>,
+    user_email: &str,
+    user_message: &str,
+    report_content: &str,
+) -> Result<(), Error> {
     for _attempt in 0..MAX_SEND_ATTEMPTS {
         match api_client
             .problem_report(user_email, user_message, report_content, &metadata)
@@ -334,6 +363,22 @@ async fn send_problem_report_inner(
         }
     }
     Err(Error::SendFailedTooManyTimes)
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+async fn run_elevated<R>(f: impl std::future::Future<Output = R>) -> Result<R, Error> {
+    use nix::unistd::{getuid, seteuid, Uid};
+    let real_uid = getuid();
+    seteuid(Uid::from_raw(0)).map_err(Error::SetEffectiveUid)?;
+    let f_result = f.await;
+    seteuid(real_uid).map_err(Error::SetEffectiveUid)?;
+    Ok(f_result)
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+async fn run_elevated<R>(f: impl std::future::Future<Output = R>) -> Result<R, Error> {
+    // this is a no-op on non-nix platforms
+    Ok(f.await)
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {

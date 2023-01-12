@@ -28,6 +28,9 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 [target.'cfg(target_os = "android")'.dependencies]
 duct = "0.13"
 
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+nix = "0.23"
+
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
