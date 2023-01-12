@@ -16,7 +16,7 @@ talpid-types = { path = "../talpid-types" }
 futures = "0.3.15"
 tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 duct = "0.13"
 nix = "0.23"
 

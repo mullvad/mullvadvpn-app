@@ -13,13 +13,10 @@ err-derive = "0.3.1"
 futures = "0.3.15"
 ipnetwork = "0.16"
 log = "0.4"
-talpid-types = { path = "../talpid-types" }
 tokio = { version = "1.8", features = ["process", "rt-multi-thread"] }
 
-
-[target.'cfg(target_os = "android")'.dependencies]
-jnix = { version = "0.5", features = ["derive"] }
-
+[target.'cfg(not(target_os="android"))'.dependencies]
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"

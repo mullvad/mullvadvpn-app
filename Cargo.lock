@@ -3238,7 +3238,6 @@ dependencies = [
  "err-derive",
  "futures",
  "ipnetwork",
- "jnix",
  "lazy_static",
  "libc",
  "log",

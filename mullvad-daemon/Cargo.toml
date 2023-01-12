@@ -10,7 +10,6 @@ publish = false
 [dependencies]
 cfg-if = "1.0"
 chrono = { version = "0.4.19", features = ["serde"] }
-clap = { version = "3.0", features = ["cargo"] }
 err-derive = "0.3.1"
 fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
@@ -18,7 +17,6 @@ ipnetwork = "0.16"
 lazy_static = "1.0"
 libc = "0.2"
 log = "0.4"
-log-panics = "2.0.0"
 parking_lot = "0.11"
 rand = "0.8.5"
 regex = "1.0"
@@ -28,7 +26,6 @@ tokio = { version = "1.8", features =  ["fs", "io-util", "rt-multi-thread", "syn
 tokio-stream = "0.1"
 uuid = { version = "0.8", features = ["v4"] }
 
-mullvad-paths = { path = "../mullvad-paths" }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
@@ -39,7 +36,10 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
+clap = { version = "3.0", features = ["cargo"] }
+log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
+mullvad-paths = { path = "../mullvad-paths" }
 
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
