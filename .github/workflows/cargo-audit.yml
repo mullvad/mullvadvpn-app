@@ -1,36 +1,36 @@
+---
 name: Rust - Audit dependencies
 on:
-    pull_request:
-        paths:
-            - .github/workflows/cargo-audit.yml
-            - '**/*.rs'
-            - Cargo.lock
-    # Check if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/cargo-audit.yml
+      - '**/*.rs'
+      - Cargo.lock
+  workflow_dispatch:
 jobs:
-    audit:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install cargo-audit
-              uses: actions-rs/install@v0.1.2
-              with:
-                  crate: cargo-audit
-                  version: latest
+      - name: Install cargo-audit
+        uses: actions-rs/install@v0.1.2
+        with:
+          crate: cargo-audit
+          version: latest
 
-            - name: Audit
-              # RUSTSEC-2020-0071: Ignore the time segfault CVE since there are no known
-              # good workarounds, and we want logs etc to be in local time.
-              # RUSTSEC-2021-0145: The vulnerability affects custom global allocators,
-              # so it should be safe to ignore it. Stop ignoring the warning once
-              # atty has been replaced in clap and env_logger:
-              # https://github.com/clap-rs/clap/pull/4249
-              # https://github.com/rust-cli/env_logger/pull/246
-              run: cargo audit --ignore RUSTSEC-2020-0071 --ignore RUSTSEC-2021-0145
+      - name: Audit
+        # RUSTSEC-2020-0071: Ignore the time segfault CVE since there are no known
+        # good workarounds, and we want logs etc to be in local time.
+        # RUSTSEC-2021-0145: The vulnerability affects custom global allocators,
+        # so it should be safe to ignore it. Stop ignoring the warning once
+        # atty has been replaced in clap and env_logger:
+        # https://github.com/clap-rs/clap/pull/4249
+        # https://github.com/rust-cli/env_logger/pull/246
+        run: cargo audit --ignore RUSTSEC-2020-0071 --ignore RUSTSEC-2021-0145
