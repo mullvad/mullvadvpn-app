@@ -8,9 +8,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-clap = { version = "3.0", features = ["cargo"] }
 dirs-next = "2.0"
-env_logger = "0.8.2"
 err-derive = "0.3.1"
 lazy_static = "1.0"
 log = "0.4"
@@ -24,10 +22,12 @@ mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
+[target.'cfg(not(target_os="android"))'.dependencies]
+clap = { version = "3.0", features = ["cargo"] }
+env_logger = "0.8.2"
 
 [target.'cfg(target_os = "android")'.dependencies]
 duct = "0.13"
-
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

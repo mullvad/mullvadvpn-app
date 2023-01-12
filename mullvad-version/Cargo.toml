@@ -13,5 +13,5 @@ what version string a build should have. This crate is responsible for computing
 and other formats.
 """
 
-[dependencies]
+[target.'cfg(not(target_os="android"))'.dependencies]
 regex = "1.6.0"
