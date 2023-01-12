@@ -66,9 +66,6 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v3
 
-            - name: Checkout binaries submodule
-              run: git submodule update --init --depth=1 dist-assets/binaries
-
             - name: Install nighly Rust toolchain
               run: |
                 rustup default nightly
