@@ -25,11 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var simulatorTunnelProviderHost: SimulatorTunnelProviderHost?
     #endif
 
-    private let operationQueue: AsyncOperationQueue = {
-        let operationQueue = AsyncOperationQueue()
-        operationQueue.maxConcurrentOperationCount = 1
-        return operationQueue
-    }()
+    private let operationQueue = AsyncOperationQueue.makeSerial()
 
     private(set) var tunnelStore: TunnelStore!
     private(set) var tunnelManager: TunnelManager!

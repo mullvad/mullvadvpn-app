@@ -39,11 +39,7 @@ final class AddressCacheTracker {
     private var timer: DispatchSourceTimer?
 
     /// Operation queue.
-    private let operationQueue: AsyncOperationQueue = {
-        let operationQueue = AsyncOperationQueue()
-        operationQueue.maxConcurrentOperationCount = 1
-        return operationQueue
-    }()
+    private let operationQueue = AsyncOperationQueue.makeSerial()
 
     /// Lock used for synchronizing member access.
     private let nslock = NSLock()

@@ -13,12 +13,7 @@ public final class AlertPresenter {
     static let alertControllerDidDismissNotification = Notification
         .Name("UIAlertControllerDidDismiss")
 
-    private let operationQueue: OperationQueue = {
-        let operationQueue = AsyncOperationQueue()
-        operationQueue.name = "AlertPresenterQueue"
-        operationQueue.maxConcurrentOperationCount = 1
-        return operationQueue
-    }()
+    private let operationQueue = AsyncOperationQueue.makeSerial()
 
     private static let initClass: Void = {
         /// Swizzle `viewDidDisappear` on `UIAlertController` in order to be able to
