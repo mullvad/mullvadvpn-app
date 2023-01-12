@@ -1,14 +1,15 @@
+---
 name: Bidirectional Unicode scan
 on: [pull_request, workflow_dispatch]
 jobs:
-    build-linux:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Checkout submodules
-              run: git submodule update --init
+      - name: Checkout submodules
+        run: git submodule update --init
 
-            - name: Scan for code points
-              run: ./ci/check-trojan-source.sh .
+      - name: Scan for code points
+        run: ./ci/check-trojan-source.sh .

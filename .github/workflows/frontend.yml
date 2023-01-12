@@ -1,64 +1,63 @@
+---
 name: Desktop frontend
 on:
-    # Build whenever a file that affects the frontend is changed in a pull request
-    pull_request:
-        paths:
-            - .github/workflows/frontend.yml
-            - gui/**
-            - mullvad-management-interface/proto/**
-    # Build if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/frontend.yml
+      - gui/**
+      - mullvad-management-interface/proto/**
+  workflow_dispatch:
 
 jobs:
-    check-frontend:
-        strategy:
-            matrix:
-                os: [ubuntu-latest, windows-latest]
+  check-frontend:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Setup volta
-              uses: volta-cli/action@v4
+      - name: Setup volta
+        uses: volta-cli/action@v4
 
-            - name: Get npm cache directory path
-              id: npm-cache-dir-path
-              shell: bash # To ensure that Windows correctly ouputs the cache path
-              run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
+      - name: Get npm cache directory path
+        id: npm-cache-dir-path
+        shell: bash  # To ensure that Windows correctly ouputs the cache path
+        run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
 
-            - name: Cache npm dependencies
-              uses: actions/cache@v3
-              with:
-                path: ${{ steps.npm-cache-dir-path.outputs.dir }}
-                key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                  ${{ runner.os }}-npm-
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.npm-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-            - name: Install dependencies
-              working-directory: gui
-              run: npm ci
+      - name: Install dependencies
+        working-directory: gui
+        run: npm ci
 
-            - name: Check formatting
-              if: matrix.os == 'ubuntu-latest'
-              working-directory: gui
-              run: npm run lint
+      - name: Check formatting
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: gui
+        run: npm run lint
 
-            - name: Build
-              working-directory: gui
-              run: npm run build
+      - name: Build
+        working-directory: gui
+        run: npm run build
 
-            - name: Run headless test Linux
-              if: runner.os == 'Linux'
-              working-directory: gui
-              run: xvfb-run -a npm test
+      - name: Run headless test Linux
+        if: runner.os == 'Linux'
+        working-directory: gui
+        run: xvfb-run -a npm test
 
-            - name: Run headless test Windows
-              if: runner.os != 'Linux'
-              working-directory: gui
-              run: npm test
+      - name: Run headless test Windows
+        if: runner.os != 'Linux'
+        working-directory: gui
+        run: npm test
 
-            - name: Run Playwright tests
-              working-directory: gui
-              run: npm run e2e:no-build
+      - name: Run Playwright tests
+        working-directory: gui
+        run: npm run e2e:no-build

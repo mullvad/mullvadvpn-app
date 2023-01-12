@@ -1,24 +1,23 @@
+---
 name: Rust - Supply chain
 on:
-    # Check whenever a file that affects Rust and its dependencies is changed in a pull request
-    pull_request:
-        paths:
-            - .github/workflows/rust-supply-chain.yml
-            - deny.toml
-            - '**/Cargo.toml'
-            - Cargo.lock
-            - '**/*.rs'
-    # Check if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/rust-supply-chain.yml
+      - deny.toml
+      - '**/Cargo.toml'
+      - Cargo.lock
+      - '**/*.rs'
+  workflow_dispatch:
 jobs:
-    check-supply-chain:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+  check-supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Run cargo deny
-              uses: EmbarkStudios/cargo-deny-action@v1
-              with:
-                log-level: warn
-                command: check all
+      - name: Run cargo deny
+        uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          log-level: warn
+          command: check all

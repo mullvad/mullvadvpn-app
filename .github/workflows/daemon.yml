@@ -1,168 +1,171 @@
+---
 name: Daemon+CLI - Build and test
 on:
-    # Build whenever a file that affects a Rust crate is changed in a pull request
-    pull_request:
-        paths-ignore:
-            - '**/*.md'
-            - .github/workflows/android*.yml
-            - .github/workflows/frontend.yml
-            - .github/workflows/ios.yml
-            - .github/workflows/rustfmt.yml
-            - .github/workflows/translations.yml
-            - android/**
-            - audits/**
-            - ci/buildserver-*
-            - ci/ci-*
-            - dist-assets/**
-            - docs/**
-            - graphics/**
-            - gui/**
-            - ios/**
-            - mullvad-jni/**
-            - scripts/**
-            - '.*ignore'
-            - .editorconfig
-            - .gitattributes
-            - Dockerfile
-            - build.sh
-            - build-apk.sh
-            - integration-tests.sh
-            - prepare-release.sh
-            - rustfmt.toml
-    # Build if requested manually from the Actions tab
-    workflow_dispatch:
-      inputs:
-        override_container_image:
-          description: 'Override container image'
-          type: string
-          required: false
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - .github/workflows/android*.yml
+      - .github/workflows/frontend.yml
+      - .github/workflows/ios.yml
+      - .github/workflows/rustfmt.yml
+      - .github/workflows/translations.yml
+      - android/**
+      - audits/**
+      - ci/buildserver-*
+      - ci/ci-*
+      - dist-assets/**
+      - docs/**
+      - graphics/**
+      - gui/**
+      - ios/**
+      - mullvad-jni/**
+      - scripts/**
+      - .*ignore
+      - .editorconfig
+      - .gitattributes
+      - Dockerfile
+      - build.sh
+      - build-apk.sh
+      - integration-tests.sh
+      - prepare-release.sh
+      - rustfmt.toml
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
 jobs:
-    prepare-linux:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
+  prepare-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-        - name: Use custom container image if specified
-          if: "${{ github.event.inputs.override_container_image != '' }}"
-          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
 
-        - name: Use default container image and resolve digest
-          if: "${{ github.event.inputs.override_container_image == '' }}"
-          run: |
-            echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
 
-      outputs:
-        container_image: "${{ env.inner_container_image }}"
+    outputs:
+      container_image: ${{ env.inner_container_image }}
 
-    build-linux:
-        needs: prepare-linux
-        runs-on: ubuntu-latest
-        container:
-          image: "${{ needs.prepare-linux.outputs.container_image }}"
+  build-linux:
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
 
-        strategy:
-            matrix:
-                rust: [stable, beta, nightly]
-        continue-on-error: true
-        steps:
-            # Fix for HOME path overridden by GH runners when building in containers, see:
-            # https://github.com/actions/runner/issues/863
-            - name: Fix HOME path
-              run: echo "HOME=/root" >> $GITHUB_ENV
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
 
-            - name: Checkout repository
-              uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Checkout binaries submodule
-              run: git submodule update --init --depth=1 dist-assets/binaries
+      - name: Checkout binaries submodule
+        run: git submodule update --init --depth=1 dist-assets/binaries
 
-            # The container image already has rustup and Rust, but only the stable toolchain
-            - name: Install Rust toolchain
-              run: rustup default ${{ matrix.rust }}
+      # The container image already has rustup and Rust, but only the stable toolchain
+      - name: Install Rust toolchain
+        run: rustup default ${{ matrix.rust }}
 
-            - name: Build and test crates
-              run: ./ci/check-rust.sh
+      - name: Build and test crates
+        run: ./ci/check-rust.sh
 
-    build-macos:
-        runs-on: macos-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                  toolchain: stable
-                  default: true
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
 
-            - name: Install Go
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.18.5
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.5
 
-            - name: Build and test crates
-              run: ./ci/check-rust.sh
+      - name: Build and test crates
+        run: ./ci/check-rust.sh
 
-    build-windows:
-        runs-on: windows-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-            - name: Checkout submodules
-              run: git submodule update --init --depth=1
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1
 
-            - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Calculate Windows libraries cache hash
-              id: windows-modules-hash
-              shell: bash
-              run: |
-                hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' | xargs sha1sum | sha1sum | cut -d" " -f1)"
-                echo "::set-output name=hash::$hash"
+      - name: Calculate Windows libraries cache hash
+        id: windows-modules-hash
+        shell: bash
+        run: |
+          hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
+            | xargs sha1sum \
+            | sha1sum \
+            | cut -d" " -f1)"
+          echo "::set-output name=hash::$hash"
 
-            - name: Cache Windows libraries
-              uses: actions/cache@v2
-              id: cache-windows-modules
-              with:
-                path: |
-                  ./windows/*/bin/x64-*/*.dll
-                  ./windows/*/bin/x64-*/*.lib
-                  !./windows/*/bin/x64-*/libcommon.lib
-                  !./windows/*/bin/x64-*/libshared.lib
-                  !./windows/*/bin/x64-*/libwfp.lib
-                key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
+      - name: Cache Windows libraries
+        uses: actions/cache@v2
+        id: cache-windows-modules
+        with:
+          path: |
+            ./windows/*/bin/x64-*/*.dll
+            ./windows/*/bin/x64-*/*.lib
+            !./windows/*/bin/x64-*/libcommon.lib
+            !./windows/*/bin/x64-*/libshared.lib
+            !./windows/*/bin/x64-*/libwfp.lib
+          key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
 
-            - name: Install Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                  toolchain: stable
-                  default: true
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
 
-            - name: Install Go
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.18.5
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.5
 
-            - name: Install msbuild
-              uses: microsoft/setup-msbuild@v1.0.2
-              with:
-                  vs-version: 16
+      - name: Install msbuild
+        uses: microsoft/setup-msbuild@v1.0.2
+        with:
+          vs-version: 16
 
-            - name: Build Windows modules
-              if: steps.cache-windows-modules.outputs.cache-hit != 'true'
-              shell: bash
-              run: ./build-windows-modules.sh
+      - name: Build Windows modules
+        if: steps.cache-windows-modules.outputs.cache-hit != 'true'
+        shell: bash
+        run: ./build-windows-modules.sh
 
-            - name: Build and test crates
-              shell: bash
-              run: ./ci/check-rust.sh
+      - name: Build and test crates
+        shell: bash
+        run: ./ci/check-rust.sh

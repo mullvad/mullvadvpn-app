@@ -1,188 +1,191 @@
+---
 name: Android - Build and test
 on:
-    # Build whenever a file that affects Android is changed in a pull request
-    pull_request:
-        paths:
-            - .github/workflows/android-app.yml
-            - android/**
-            - mullvad-api/**
-            - mullvad-daemon/**
-            - mullvad-jni/**
-            - mullvad-paths/**
-            - mullvad-problem-report/**
-            - mullvad-types/**
-            - talpid-core/**
-            - talpid-platform-metadata/**
-            - talpid-types/**
-            - talpid-types/**
-            - wireguard/**
-            - Cargo.toml
-            - build-apk.sh
-            - update-api-metadata.sh
-            - update-version-metadata.sh
-    # Build if requested manually from the Actions tab
-    workflow_dispatch:
-      inputs:
-        override_container_image:
-          description: 'Override container image'
-          type: string
-          required: false
-    # Build if master is updated to ensure up-to-date caches are available
-    push:
-      branches:
-        - master
+  pull_request:
+    paths:
+      - .github/workflows/android-app.yml
+      - android/**
+      - mullvad-api/**
+      - mullvad-daemon/**
+      - mullvad-jni/**
+      - mullvad-paths/**
+      - mullvad-problem-report/**
+      - mullvad-types/**
+      - talpid-core/**
+      - talpid-platform-metadata/**
+      - talpid-types/**
+      - talpid-types/**
+      - wireguard/**
+      - Cargo.toml
+      - build-apk.sh
+      - update-api-metadata.sh
+      - update-version-metadata.sh
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+  # Build if master is updated to ensure up-to-date caches are available
+  push:
+    branches: [master]
 jobs:
-    prepare:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-        - name: Use custom container image if specified
-          if: "${{ github.event.inputs.override_container_image != '' }}"
-          run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> $GITHUB_ENV
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
 
-        - name: Use default container image and resolve digest
-          if: "${{ github.event.inputs.override_container_image == '' }}"
-          run: |
-            echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
 
-        outputs:
-          container_image: "${{ env.inner_container_image }}"
+    outputs:
+      container_image: ${{ env.inner_container_image }}
 
-    build:
-        needs: prepare
-        runs-on: ubuntu-latest
-        container:
-          image: "${{ needs.prepare.outputs.container_image }}"
-        steps:
-            # Fix for HOME path overridden by GH runners when building in containers, see:
-            # https://github.com/actions/runner/issues/863
-            - name: Fix HOME path
-              run: echo "HOME=/root" >> $GITHUB_ENV
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
 
-            - name: Checkout repository
-              uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Calculate native lib cache hash
-              id: native-lib-cache-hash
-              shell: bash
-              run: |
-                non_android_hash="$(git grep --cached -l '' -- ':!android/' | xargs -d '\n' sha1sum | sha1sum | awk '{print $1}')"
-                echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
+      - name: Calculate native lib cache hash
+        id: native-lib-cache-hash
+        shell: bash
+        run: |
+          non_android_hash="$(git grep --cached -l '' -- ':!android/' \
+            | xargs -d '\n' sha1sum \
+            | sha1sum \
+            | awk '{print $1}')"
+          echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
-            - name: Cache native libraries
-              uses: actions/cache@v3
-              id: cache-native-libs
-              with:
-                path: |
-                  ./android/app/build/extraJni
-                  ./dist-assets/relays.json
-                  ./dist-assets/api-ip-address.txt
-                key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
+      - name: Cache native libraries
+        uses: actions/cache@v3
+        id: cache-native-libs
+        with:
+          path: |
+            ./android/app/build/extraJni
+            ./dist-assets/relays.json
+            ./dist-assets/api-ip-address.txt
+          key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash}}
 
-            - name: Build native libraries
-              if: steps.cache-native-libs.outputs.cache-hit != 'true'
-              env:
-                RUSTFLAGS: --deny warnings
-                ABI: x86_64
-                TARGET: x86_64-linux-android
-                BUILD_TYPE: debug
-              run: |
-                ARCHITECTURES="$ABI"
-                UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
-                STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
-                NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
-                ./wireguard/build-wireguard-go.sh --android --no-docker
-                cargo build --target $TARGET --verbose --package mullvad-jni
-                cargo run --bin relay_list > dist-assets/relays.json
-                $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+      - name: Build native libraries
+        if: steps.cache-native-libs.outputs.cache-hit != 'true'
+        env:
+          RUSTFLAGS: --deny warnings
+          ABI: x86_64
+          TARGET: x86_64-linux-android
+          BUILD_TYPE: debug
+        run: |
+          ARCHITECTURES="$ABI"
+          UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+          STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
+          NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
+          ./wireguard/build-wireguard-go.sh --android --no-docker
+          cargo build --target $TARGET --verbose --package mullvad-jni
+          cargo run --bin relay_list > dist-assets/relays.json
+          $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
-            - name: Build Android app
-              uses: burrunan/gradle-cache-action@v1
-              with:
-                job-id: jdk11
-                arguments: assembleDebug
-                gradle-version: wrapper
-                build-root-directory: android
+      - name: Build Android app
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk11
+          arguments: assembleDebug
+          gradle-version: wrapper
+          build-root-directory: android
 
-            - name: Run unit tests
-              uses: burrunan/gradle-cache-action@v1
-              with:
-                job-id: jdk11
-                arguments: testDebugUnitTest
-                gradle-version: wrapper
-                build-root-directory: android
-                execution-only-caches: true
+      - name: Run unit tests
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk11
+          arguments: testDebugUnitTest
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
 
-            - name: Assemble instrumented test apk
-              uses: burrunan/gradle-cache-action@v1
-              with:
-                job-id: jdk11
-                arguments: assembleAndroidTest
-                gradle-version: wrapper
-                build-root-directory: android
-                execution-only-caches: true
+      - name: Assemble instrumented test apk
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk11
+          arguments: assembleAndroidTest
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
 
-            - name: Upload apks
-              uses: actions/upload-artifact@v3
-              with:
-                name: apks
-                path: android/app/build/outputs/apk
-                if-no-files-found: error
-                retention-days: 1
+      - name: Upload apks
+        uses: actions/upload-artifact@v3
+        with:
+          name: apks
+          path: android/app/build/outputs/apk
+          if-no-files-found: error
+          retention-days: 1
 
-    instrumented-tests:
-        name: Instrumented tests
-        runs-on: macos-latest
-        timeout-minutes: 30
-        needs:
-          - build
-        strategy:
-            fail-fast: false
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+  instrumented-tests:
+    name: Instrumented tests
+    runs-on: macos-latest
+    timeout-minutes: 30
+    needs: [build]
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - uses: actions/download-artifact@v3
-              with:
-                name: apks
-                path: android/app/build/outputs/apk
+      - uses: actions/download-artifact@v3
+        with:
+          name: apks
+          path: android/app/build/outputs/apk
 
-            - name: AVD cache
-              uses: actions/cache@v3
-              id: avd-cache
-              with:
-                path: |
-                  ~/.android/avd/*
-                  ~/.android/adb*
-                key: emulator-api-33
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: emulator-api-33
 
-            - name: Create avd and generate snapshot
-              uses: reactivecircus/android-emulator-runner@v2
-              if: steps.avd-cache.outputs.cache-hit != 'true'
-              with:
-                force-avd-creation: false
-                api-level: 33
-                target: google_apis
-                arch: x86_64
-                emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-                disable-animations: true
-                profile: pixel
-                script: echo "Generated AVD snapshot for caching."
-              env:
-                API_LEVEL: 33
+      - name: Create avd and generate snapshot
+        uses: reactivecircus/android-emulator-runner@v2
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        with:
+          force-avd-creation: false
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+            -camera-back none
+          disable-animations: true
+          profile: pixel
+          script: echo "Generated AVD snapshot for caching."
+        env:
+          API_LEVEL: 33
 
-            - name: Run Android instrumented tests
-              uses: reactivecircus/android-emulator-runner@v2
-              with:
-                force-avd-creation: false
-                api-level: 33
-                target: google_apis
-                arch: x86_64
-                emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-                disable-animations: true
-                profile: pixel
-                script: ./android/scripts/run-instrumented-tests.sh app
-              env:
-                API_LEVEL: 33
+      - name: Run Android instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          force-avd-creation: false
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect
+            -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          profile: pixel
+          script: ./android/scripts/run-instrumented-tests.sh app
+        env:
+          API_LEVEL: 33

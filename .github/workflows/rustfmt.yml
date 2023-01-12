@@ -1,29 +1,27 @@
+---
 name: Rust - Check formatting
 on:
-    # Check whenever a file that affects Rust formatting is changed in a pull request
-    pull_request:
-        paths:
-            - .github/workflows/rustfmt.yml
-            - rustfmt.toml
-            - '**/*.rs'
-    # Check if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/rustfmt.yml
+      - rustfmt.toml
+      - '**/*.rs'
+  workflow_dispatch:
 jobs:
-    check-formatting:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-            - name: Install nightly Rust
-              uses: actions-rs/toolchain@v1.0.6
-              with:
-                toolchain: nightly
-                components: rustfmt
-                default: true
+      - name: Install nightly Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: nightly
+          components: rustfmt
+          default: true
 
-            - name: Check formatting
-              run: |
-                rustfmt --version
-                cargo fmt -- --check --unstable-features
-
+      - name: Check formatting
+        run: |-
+          rustfmt --version
+          cargo fmt -- --check --unstable-features
