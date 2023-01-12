@@ -41,6 +41,9 @@ DAEMON_PLIST=$(cat <<-EOM
                         <integer>1024</integer>
                 </dict>
 
+                <key>AssociatedBundleIdentifiers</key>
+                <string>net.mullvad.vpn</string>
+
                 <key>StandardErrorPath</key>
                 <string>$LOG_DIR/stderr.log</string>
         </dict>
