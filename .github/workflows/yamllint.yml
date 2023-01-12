@@ -1,0 +1,17 @@
+---
+name: YAML linting
+on:
+  pull_request:
+    paths:
+      - .github/workflows/yamllint.yml
+      - .yamllint
+      - '**/**.yml'
+      - '**/**.yaml'
+  workflow_dispatch:
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt-get install yamllint
+      - run: yamllint .
