@@ -51,9 +51,13 @@ jobs:
           go-version: 1.18.5
 
       - name: Prepare iOS simulator
+        # yamllint disable rule:line-length
         run: |
           sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+          sudo ln -s \
+            /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime \
+            /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+        # yamllint enable rule:line-length
 
       - name: Configure Xcode project
         run: |
