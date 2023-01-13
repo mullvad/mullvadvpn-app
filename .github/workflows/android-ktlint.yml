@@ -1,25 +1,21 @@
+---
 name: Android - Kotlin linter
 on:
-    # Run linter whenever a Kotlin file changes
-    pull_request:
-        paths:
-            - .github/workflows/android-ktlint.yml
-            - android/**/*.kt
-    # Run linter if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths: [.github/workflows/android-ktlint.yml, android/**/*.kt]
+  workflow_dispatch:
 jobs:
-    ktlint:
-        runs-on: ubuntu-latest
-        steps:
-            # Checkout repository
-            - uses: actions/checkout@v3
+  ktlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-            # Install Ktlint
-            - uses: nbadal/action-ktlint-setup@v1
-              with:
-                  ktlint_version: 0.45.1
+      - name: Install Ktlint
+        uses: nbadal/action-ktlint-setup@v1
+        with:
+          ktlint_version: 0.45.1
 
-            # Check formatting
-            - run: |
-                cd android
-                ktlint -a
+      - name: Check formatting
+        run: |-
+          cd android
+          ktlint -a

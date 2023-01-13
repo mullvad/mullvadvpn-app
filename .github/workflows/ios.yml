@@ -1,92 +1,96 @@
+---
 name: iOS app
 on:
-    pull_request:
-        paths:
-            - ".github/workflows/ios.yml"
-            - "ios/.swiftformat"
-            - "ios/**/*.swift"
-    # Build if requested manually from the Actions tab
-    workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/ios.yml
+      - ios/.swiftformat
+      - ios/**/*.swift
+  workflow_dispatch:
 jobs:
-    check-formatting:
-        name: Check formatting
-        runs-on: macos-11
-        steps:
-            - name: Install SwiftFormat
-              run: |
-                brew update
-                brew upgrade swiftformat
+  check-formatting:
+    name: Check formatting
+    runs-on: macos-11
+    steps:
+      - name: Install SwiftFormat
+        run: |
+          brew update
+          brew upgrade swiftformat
 
-            - name: Checkout repository
-              uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Check formatting
-              run: |
-                swiftformat --version
-                swiftformat --lint .
+      - name: Check formatting
+        run: |
+          swiftformat --version
+          swiftformat --lint .
 
-    test:
-        name: Unit tests
-        runs-on: macos-11
-        env:
-            SOURCE_PACKAGES_PATH: .spm
-        steps:
-            - name: Install xcbeautify
-              run: brew install xcbeautify
+  test:
+    name: Unit tests
+    runs-on: macos-11
+    env:
+      SOURCE_PACKAGES_PATH: .spm
+    steps:
+      - name: Install xcbeautify
+        run: brew install xcbeautify
 
-            - name: Checkout repository
-              uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Configure cache
-              uses: actions/cache@v3
-              with:
-                path: ios/${{ env.SOURCE_PACKAGES_PATH }}
-                key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
-                restore-keys: |
-                  ${{ runner.os }}-spm-
+      - name: Configure cache
+        uses: actions/cache@v3
+        with:
+          path: ios/${{ env.SOURCE_PACKAGES_PATH }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
-            - name: Setup go-lang
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.18.5
+      - name: Setup go-lang
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.5
 
-            - name: Prepare iOS simulator
-              run: |
-                  sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-                  sudo ln -s /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+      - name: Prepare iOS simulator
+        # yamllint disable rule:line-length
+        run: |
+          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+          sudo ln -s \
+            /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime \
+            /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
+        # yamllint enable rule:line-length
 
-            - name: Configure Xcode project
-              run: |
-                  cp Base.xcconfig.template Base.xcconfig
-                  cp App.xcconfig.template App.xcconfig
-                  cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
-                  cp Screenshots.xcconfig.template Screenshots.xcconfig
-              working-directory: ios/Configurations
+      - name: Configure Xcode project
+        run: |
+          cp Base.xcconfig.template Base.xcconfig
+          cp App.xcconfig.template App.xcconfig
+          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
+          cp Screenshots.xcconfig.template Screenshots.xcconfig
+        working-directory: ios/Configurations
 
-            - name: Convert Package.resolved v2 -> v1
-              run: |
-                  jq '{
-                    "object": {
-                      "pins": .pins | map({
-                        "package": .identity,
-                        "repositoryURL": .location,
-                        "state": .state
-                      })
-                    },
-                    "version": 1
-                  }' Package.resolved > Package.resolved.out
-                  mv Package.resolved.out Package.resolved
-              working-directory: ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
+      - name: Convert Package.resolved v2 -> v1
+        run: |
+          jq '{
+            "object": {
+              "pins": .pins | map({
+                "package": .identity,
+                "repositoryURL": .location,
+                "state": .state
+              })
+            },
+            "version": 1
+          }' Package.resolved > Package.resolved.out
+          mv Package.resolved.out Package.resolved
+        working-directory: ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
 
-            - name: Run tests
-              run: |
-                  set -o pipefail && xcodebuild test \
-                      -project MullvadVPN.xcodeproj \
-                      -scheme MullvadVPN \
-                      -skip-testing:MullvadVPNScreenshots \
-                      -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
-                      -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
-                      CODE_SIGN_IDENTITY="" \
-                      CODE_SIGNING_REQUIRED=NO \
-                      ONLY_ACTIVE_ARCH=YES | xcbeautify
-              working-directory: ios
+      - name: Run tests
+        run: |
+          set -o pipefail && xcodebuild test \
+              -project MullvadVPN.xcodeproj \
+              -scheme MullvadVPN \
+              -skip-testing:MullvadVPNScreenshots \
+              -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
+              -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              ONLY_ACTIVE_ARCH=YES | xcbeautify
+        working-directory: ios
