@@ -10,21 +10,23 @@ const exec = promisify(execAsync);
 
 export type TrayIconType = 'unsecured' | 'securing' | 'secured';
 
+type IconParameters = { monochromatic: boolean; notification: boolean };
+
 export default class TrayIconController {
   private animation?: KeyframeAnimation;
   private iconSet: NativeImage[] = [];
+  private iconParameters: IconParameters;
+
+  private updateThrottlePromise?: Promise<void>;
 
   constructor(
     private tray: Tray,
     private iconTypeValue: TrayIconType,
-    private monochromaticIcon: boolean,
-    private notificationIcon: boolean,
+    monochromaticIcon: boolean,
+    notificationIcon: boolean,
   ) {
-    void this.init();
-  }
-
-  public async init() {
-    this.iconSet = await this.loadImages();
+    this.iconParameters = { monochromatic: monochromaticIcon, notification: notificationIcon };
+    void this.updateTheme();
   }
 
   public dispose() {
@@ -38,24 +40,25 @@ export default class TrayIconController {
     return this.iconTypeValue;
   }
 
-  public async updateTheme() {
-    this.iconSet = await this.loadImages();
+  public updateTheme(): Promise<void> {
+    // For some reason the icon doesn't update if the iconSet is changed to quickly. Adding a
+    // throttle fixes this issue.
+    this.updateThrottlePromise ??= new Promise((resolve) => {
+      setTimeout(() => {
+        this.updateThrottlePromise = undefined;
+        void this.updateThemeImpl().then(resolve);
+      }, 200);
+    });
 
-    if (this.animation === undefined) {
-      this.initAnimation();
-    } else if (!this.animation.isRunning) {
-      this.animation.play({ end: this.targetFrame() });
-    }
+    return this.updateThrottlePromise;
   }
 
-  public async setMonochromaticIcon(monochromaticIcon: boolean) {
-    this.monochromaticIcon = monochromaticIcon;
-    await this.updateTheme();
+  public setMonochromaticIcon(monochromaticIcon: boolean) {
+    void this.updateIconParameters({ monochromatic: monochromaticIcon });
   }
 
   public showNotificationIcon(notificationIcon: boolean) {
-    this.notificationIcon = notificationIcon;
-    void this.updateTheme();
+    void this.updateIconParameters({ notification: notificationIcon });
   }
 
   public animateToIcon(type: TrayIconType) {
@@ -69,6 +72,30 @@ export default class TrayIconController {
     const frame = this.targetFrame();
 
     animation.play({ end: frame });
+  }
+
+  private async updateThemeImpl() {
+    const systemUsesLightTheme = await this.getSystemUsesLightTheme();
+    this.iconSet = this.loadImages(systemUsesLightTheme);
+
+    if (this.animation === undefined) {
+      this.initAnimation();
+    } else if (!this.animation.isRunning) {
+      this.animation.play({ end: this.targetFrame() });
+    }
+  }
+
+  // This function uses a promise as a lock to prevent multiple simultaneous updates
+  private updateIconParameters(parameters: Partial<IconParameters>) {
+    if (
+      (parameters.monochromatic !== undefined &&
+        parameters.monochromatic !== this.iconParameters.monochromatic) ||
+      (parameters.notification !== undefined &&
+        parameters.notification !== this.iconParameters.notification)
+    ) {
+      this.iconParameters = { ...this.iconParameters, ...parameters };
+      void this.updateTheme();
+    }
   }
 
   private initAnimation() {
@@ -90,14 +117,14 @@ export default class TrayIconController {
     }
   };
 
-  private async loadImages(): Promise<NativeImage[]> {
-    const notificationIcon = this.notificationIcon ? '_notification' : '';
-    if (this.monochromaticIcon) {
+  private loadImages(systemUsesLightTheme?: boolean): NativeImage[] {
+    const notificationIcon = this.iconParameters.notification ? '_notification' : '';
+    if (this.iconParameters.monochromatic) {
       switch (process.platform) {
         case 'darwin':
           return this.loadImageSet(`${notificationIcon}Template`);
         case 'win32':
-          return (await this.getSystemUsesLightTheme())
+          return systemUsesLightTheme
             ? this.loadImageSet(`_black${notificationIcon}`)
             : this.loadImageSet(`_white${notificationIcon}`);
         case 'linux':
@@ -121,6 +148,10 @@ export default class TrayIconController {
   }
 
   private async getSystemUsesLightTheme(): Promise<boolean | undefined> {
+    if (process.platform !== 'win32') {
+      return undefined;
+    }
+
     try {
       // This registry entry contains information about the tray background color. This is
       // needed to decide between white and black icons.
