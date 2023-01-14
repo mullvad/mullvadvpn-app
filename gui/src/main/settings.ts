@@ -9,7 +9,7 @@ import GuiSettings from './gui-settings';
 import { IpcMainEventChannel } from './ipc-event-channel';
 
 export interface SettingsDelegate {
-  handleMonochromaticIconChange(value: boolean): Promise<void>;
+  handleMonochromaticIconChange(value: boolean): void;
   handleUnpinnedWindowChange(): void;
 }
 
@@ -139,9 +139,9 @@ export default class Settings implements Readonly<ISettings> {
   }
 
   private registerGuiSettingsListener() {
-    this.guiSettings.onChange = async (newState, oldState) => {
+    this.guiSettings.onChange = (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
-        await this.delegate.handleMonochromaticIconChange(newState.monochromaticIcon);
+        this.delegate.handleMonochromaticIconChange(newState.monochromaticIcon);
       }
 
       if (newState.autoConnect !== oldState.autoConnect) {
