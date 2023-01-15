@@ -232,7 +232,7 @@ function packWin() {
     targets: builder.Platform.WINDOWS.createTarget(),
     config: {
       ...config,
-      asarUnpack: ['build/assets/images/menubar icons/win32/lock-*.ico'],
+      asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         return true;

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script generates the PNG/ICO menubar icons from the SVG files in `/menubar-icons/svg/`.
+# Please see /menubar-icons/README.md for more information.
+
 set -eu
 
 if ! command -v convert > /dev/null; then
@@ -15,7 +18,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-MENUBAR_ICONS_DIR="../assets/images/menubar icons"
+MENUBAR_ICONS_DIR="../assets/images/menubar-icons"
 
 SVG_DIR="$MENUBAR_ICONS_DIR/svg"
 MACOS_DIR="$MENUBAR_ICONS_DIR/darwin"
@@ -23,8 +26,26 @@ WINDOWS_DIR="$MENUBAR_ICONS_DIR/win32"
 LINUX_DIR="$MENUBAR_ICONS_DIR/linux"
 TMP_DIR=$(mktemp -d)
 
-COMPRESSION_OPTIONS="-define png:compression-filter=5 -define png:compression-level=9 \
-    -define png:compression-strategy=1 -define png:exclude-chunk=all -strip"
+COMPRESSION_OPTIONS=(
+    -define png:compression-filter=5
+    -define png:compression-level=9
+    -define png:compression-strategy=1
+    -define png:exclude-chunk=all
+    -strip
+)
+
+function main() {
+    mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR"
+
+    for frame in {1..9}; do
+        generate "lock-$frame" "lock-$frame"
+    done
+    # The monochrome source svg differs from the colored one. The red circle is a hole in the monochrome
+    # one. "lock-10_mono.svg" is the same icon but with a hole instead of a circle.
+    generate lock-10 lock-10_mono
+
+    rmdir "$TMP_DIR"
+}
 
 function generate_ico() {
     local svg_source_path="$1"
@@ -46,7 +67,7 @@ function generate_ico() {
         tmp_file_paths+=("$png_tmp_path" "$png8_tmp_path" "$png4_tmp_path")
     done
 
-    convert "${tmp_file_paths[@]}" $COMPRESSION_OPTIONS "$ico_target_path"
+    convert "${tmp_file_paths[@]}" "${COMPRESSION_OPTIONS[@]}" "$ico_target_path"
     rm "${tmp_file_paths[@]}"
 }
 
@@ -55,13 +76,13 @@ function generate_png() {
     local png_target_path="$2"
     local target_size=$3
     local target_padding=$4
-    local target_size_no_padding=$[$target_size - $target_padding * 2]
+    local target_size_no_padding=$((target_size - target_padding * 2))
     local png_tmp_path="$TMP_DIR/tmp.png"
 
     rsvg-convert -o "$png_tmp_path" -w $target_size_no_padding -h $target_size_no_padding \
         "$svg_source_path"
     convert -background transparent "$png_tmp_path" -gravity center \
-        -extent ${target_size}x$target_size $COMPRESSION_OPTIONS "$png_target_path"
+        -extent "${target_size}x$target_size" "${COMPRESSION_OPTIONS[@]}" "$png_target_path"
     rm "$png_tmp_path"
 }
 
@@ -93,21 +114,12 @@ function generate() {
     # Windows colored
     generate_ico "$svg_source_path" "$WINDOWS_DIR/$icon_name.ico"
 
-    # Windows white
+    # Windows monochrome
     generate_ico "$white_svg_source_path" "$WINDOWS_DIR/${icon_name}_white.ico"
     generate_ico "$black_svg_source_path" "$WINDOWS_DIR/${icon_name}_black.ico"
 
     rm "$black_svg_source_path" "$white_svg_source_path"
 }
 
-mkdir -p "$MACOS_DIR" "$WINDOWS_DIR" "$LINUX_DIR"
-
-for frame in {1..9}; do
-    generate lock-$frame lock-$frame
-done
-# The monochrome source svg differs from the colored one. The red circle is a hole in the monochrome
-# one. "lock-10_mono.svg" is the same icon but with a hole instead of a circle.
-generate lock-10 lock-10_mono
-
-rmdir "$TMP_DIR"
+main
 

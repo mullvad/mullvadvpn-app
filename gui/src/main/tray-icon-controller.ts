@@ -132,7 +132,7 @@ export default class TrayIconController {
   }
 
   private getImagePath(frame: number, suffix?: string) {
-    const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar icons'));
+    const basePath = path.resolve(path.join(__dirname, '../../assets/images/menubar-icons'));
     const extension = process.platform === 'win32' ? 'ico' : 'png';
     return path.join(basePath, process.platform, `lock-${frame}${suffix}.${extension}`);
   }
