@@ -775,6 +775,10 @@ msgid "Disconnected and unsecure"
 msgstr ""
 
 msgctxt "notifications"
+msgid "Lockdown mode active, connection blocked"
+msgstr ""
+
+msgctxt "notifications"
 msgid "No servers in your selected location match your settings."
 msgstr ""
 
