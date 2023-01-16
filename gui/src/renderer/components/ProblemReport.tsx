@@ -451,7 +451,7 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
         // No-op
       }
     }
-  }, [email, sendState]);
+  }, [email, sendReport, sendState]);
 
   /**
    * Save the form whenever email or message gets updated
