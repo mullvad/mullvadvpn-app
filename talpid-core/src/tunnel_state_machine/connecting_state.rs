@@ -40,6 +40,8 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 #[cfg(target_os = "windows")]
 const MAX_ADAPTER_FAIL_RETRIES: u32 = 4;
 
+const INITIAL_ALLOWED_TUNNEL_TRAFFIC: AllowedTunnelTraffic = AllowedTunnelTraffic::None;
+
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
     tunnel_events: TunnelEventsReceiver,
@@ -208,7 +210,7 @@ impl ConnectingState {
             tunnel_events: event_rx.fuse(),
             tunnel_parameters: parameters,
             tunnel_metadata: None,
-            allowed_tunnel_traffic: AllowedTunnelTraffic::None,
+            allowed_tunnel_traffic: INITIAL_ALLOWED_TUNNEL_TRAFFIC,
             tunnel_close_event: tunnel_close_event_rx.fuse(),
             tunnel_close_tx,
             retry_attempt,
@@ -441,7 +443,15 @@ impl ConnectingState {
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
             )),
-            Some((TunnelEvent::Down, _)) => SameState(self.into()),
+            Some((TunnelEvent::Down, _)) => {
+                // It is important to reset this before the tunnel device is down,
+                // or else commands that reapply the firewall rules will fail since
+                // they refer to a non-existent device.
+                self.allowed_tunnel_traffic = INITIAL_ALLOWED_TUNNEL_TRAFFIC;
+                self.tunnel_metadata = None;
+
+                SameState(self.into())
+            }
             None => {
                 // The channel was closed
                 log::debug!("The tunnel disconnected unexpectedly");
