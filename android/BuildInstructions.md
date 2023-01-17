@@ -168,3 +168,22 @@ replace `key-password` and `keystore-password` with the values from step 2:
    keyPassword = key-password
    storePassword = keystore-password
    ```
+
+## Gradle dependency metadata verification lockfile
+This lockfile helps ensuring the integrity of the gradle dependencies in the project.
+
+### Update lockfile
+When adding or updating dependencies, it's necessary to also update the lockfile. This can be done
+in the following way:
+
+1. Run update script (requires `podman`):
+   ```bash
+   ./scripts/update-lockfile.sh
+   ```
+2. Check diff before committing.
+
+### Disable during development
+This is easiest done by temporarily removing the lockfile:
+```bash
+rm ./gradle/verification-metadata.xml
+```
