@@ -253,7 +253,7 @@ enum SendTunnelProviderMessageError: LocalizedError, WrappingError {
     case timeout
 
     /// System error.
-    case system(Swift.Error)
+    case system(Error)
 
     var errorDescription: String? {
         switch self {
