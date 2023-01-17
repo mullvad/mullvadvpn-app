@@ -117,7 +117,7 @@ impl RouteManagerHandle {
                 response_tx,
             ))
             .map_err(|_| Error::RouteManagerDown)?;
-        response_rx.await.map_err(|_| Error::ManagerChannelDown)?
+        Ok(response_rx.await.map_err(|_| Error::ManagerChannelDown)?)
     }
 
     /// Applies the given routes while the route manager is running.
@@ -143,7 +143,7 @@ pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
     ClearRoutes,
-    RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<Result<CallbackHandle>>),
+    RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<CallbackHandle>),
     Shutdown,
 }
 
@@ -180,7 +180,7 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            result_rx.await.map_err(|_| Error::ManagerChannelDown)?
+            Ok(result_rx.await.map_err(|_| Error::ManagerChannelDown)?)
         } else {
             Err(Error::RouteManagerDown)
         }
