@@ -179,6 +179,13 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
 
         self.center = center
 
+        logger.debug(
+            """
+            Set map region to: (\(region.center.latitude), \(region.center.longitude), \
+            \(region.span.latitudeDelta), \(region.span.longitudeDelta))
+            """
+        )
+
         // Map view does not call delegate methods when attempting to set the same region.
         mapView.setRegion(region, animated: animated)
 
@@ -247,6 +254,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     ) -> MKCoordinateRegion {
         // Map view center lies within layout margins frame.
         let mapViewLayoutFrame = mapView.layoutMarginsGuide.layoutFrame
+        guard mapViewLayoutFrame.width > 0 else { return region }
 
         // MKMapView.convert(_:toRectTo:) returns CGRect scaled to the zoom level derived from
         // currently set region.
