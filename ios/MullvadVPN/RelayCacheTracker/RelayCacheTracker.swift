@@ -32,11 +32,7 @@ final class RelayCacheTracker {
     private let nslock = NSLock()
 
     /// Internal operation queue.
-    private let operationQueue: OperationQueue = {
-        let operationQueue = AsyncOperationQueue()
-        operationQueue.maxConcurrentOperationCount = 1
-        return operationQueue
-    }()
+    private let operationQueue = AsyncOperationQueue.makeSerial()
 
     /// A timer source used for periodic updates.
     private var timerSource: DispatchSourceTimer?

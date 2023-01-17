@@ -16,11 +16,7 @@ private let geoJSONSourceFileName = "countries.geo.json"
 
 final class MapViewController: UIViewController, MKMapViewDelegate {
     private let logger = Logger(label: "MapViewController")
-    private let animationQueue: AsyncOperationQueue = {
-        let animationQueue = AsyncOperationQueue()
-        animationQueue.maxConcurrentOperationCount = 1
-        return animationQueue
-    }()
+    private let animationQueue = AsyncOperationQueue.makeSerial()
 
     private let locationMarker = MKPointAnnotation()
     private var willChangeRegion = false

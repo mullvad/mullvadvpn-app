@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class AsyncOperationQueue: OperationQueue {
+public final class AsyncOperationQueue: OperationQueue {
     override public func addOperation(_ operation: Operation) {
         if let operation = operation as? AsyncOperation {
             let categories = operation.conditions
@@ -41,6 +41,12 @@ public class AsyncOperationQueue: OperationQueue {
                 operation.waitUntilFinished()
             }
         }
+    }
+
+    public static func makeSerial() -> AsyncOperationQueue {
+        let queue = AsyncOperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        return queue
     }
 }
 
