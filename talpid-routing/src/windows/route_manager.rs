@@ -458,18 +458,15 @@ impl RouteManagerInternal {
         Ok(())
     }
 
-    pub fn register_default_route_changed_callback(
-        &self,
-        callback: Callback,
-    ) -> Result<CallbackHandle> {
+    pub fn register_default_route_changed_callback(&self, callback: Callback) -> CallbackHandle {
         let (nonce, callbacks) = &mut *self.callbacks.lock().unwrap();
         let old_nonce = *nonce;
         callbacks.insert(old_nonce, callback);
         *nonce = nonce.wrapping_add(1);
-        Ok(CallbackHandle {
+        CallbackHandle {
             nonce: old_nonce,
             callbacks: self.callbacks.clone(),
-        })
+        }
     }
 
     fn default_route_change<'a>(
