@@ -203,7 +203,7 @@ class AccountViewController: UIViewController {
                 value: "Cannot complete the purchase",
                 comment: ""
             ),
-            message: error.errorChainDescription,
+            message: error.displayErrorDescription,
             preferredStyle: .alert
         )
 
@@ -229,7 +229,7 @@ class AccountViewController: UIViewController {
                 value: "Cannot restore purchases",
                 comment: ""
             ),
-            message: error.errorChainDescription,
+            message: error.displayErrorDescription,
             preferredStyle: .alert
         )
         alertController.addAction(

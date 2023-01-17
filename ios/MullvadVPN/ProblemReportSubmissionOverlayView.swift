@@ -96,7 +96,7 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return combinedAttributedString
 
             case let .failure(error):
-                return error.errorChainDescription.flatMap { NSAttributedString(string: $0) }
+                return error.displayErrorDescription.flatMap { NSAttributedString(string: $0) }
             }
         }
     }
