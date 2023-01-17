@@ -1137,6 +1137,7 @@
 				5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */,
 				58900D0228BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift */,
 				06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */,
+				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -1336,7 +1337,6 @@
 				5898D28A29017BD400EB5EBA /* TunnelProviderMessaging */,
 				589A455328E094B300565204 /* OperationsTests */,
 				58CE5E7A224146470008646E /* PacketTunnel */,
-				58D223D6294C8E5E0029F5F8 /* MullvadTypes */,
 				58CE5E61224146200008646E /* Products */,
 				584F991F2902CBDD001F858D /* Frameworks */,
 			);
@@ -1539,14 +1539,6 @@
 				58059DDB28465E8F002B1049 /* TransformOperation.swift */,
 			);
 			path = Operations;
-			sourceTree = "<group>";
-		};
-		58D223D6294C8E5E0029F5F8 /* MullvadTypes */ = {
-			isa = PBXGroup;
-			children = (
-				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
-			);
-			path = MullvadTypes;
 			sourceTree = "<group>";
 		};
 		58D223F4294C8FF00029F5F8 /* MullvadLogging */ = {
