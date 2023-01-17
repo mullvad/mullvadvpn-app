@@ -15,7 +15,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc, Arc, Mutex, RwLock, Weak,
+        mpsc as sync_mpsc, Arc, Mutex, MutexGuard, RwLock, Weak,
     },
     time::Duration,
 };
@@ -639,7 +639,7 @@ impl SplitTunnel {
 
         self._route_change_callback = None;
         let moved_context_mutex = context_mutex.clone();
-        let mut context = context_mutex.lock().unwrap();
+        let context = context_mutex.lock().unwrap();
         let callback = self
             .runtime
             .block_on(
@@ -655,11 +655,23 @@ impl SplitTunnel {
             .map(Some)
             .map_err(|_| Error::RegisterRouteChangeCallback)?;
 
-        context.initialize_internet_addresses()?;
-        context.register_ips()?;
+        Self::init_context(context)?;
         self._route_change_callback = callback;
 
         Ok(())
+    }
+
+    fn init_context(
+        mut context: MutexGuard<'_, SplitTunnelDefaultRouteChangeHandlerContext>,
+    ) -> Result<(), Error> {
+        // NOTE: This should remain a separate function. Dropping the context after `callback`
+        // causes a deadlock if `split_tunnel_default_route_change_handler` is called at the same
+        // time (i.e. if a route change has occurred), since it waits on the context and
+        // `CallbackHandle::drop` also waits for `split_tunnel_default_route_change_handler`
+        // to complete.
+
+        context.initialize_internet_addresses()?;
+        context.register_ips()
     }
 
     /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
