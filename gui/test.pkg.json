@@ -1,9 +1,4 @@
 {
-  "targets": [
-    "linux-x64",
-    "macos-x64",
-    "win-x64"
-  ],
   "assets": [
     "build/src/config.json",
     "build/test/e2e/utils.js",
