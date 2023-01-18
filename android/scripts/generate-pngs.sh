@@ -10,9 +10,9 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-ICON_SVG_PATH="../graphics/icon.svg"
+ICON_SVG_PATH="../../graphics/icon.svg"
 # Icons used for notification and quick settings tile
-BLACK_MONO_ICON_PATH="../graphics/icon-mono.svg"
+BLACK_MONO_ICON_PATH="../../graphics/icon-mono.svg"
 
 # The following helper function converts an SVG image into a PNG image for a specific DPI
 #
@@ -62,7 +62,7 @@ function convert_image() {
     local dpi="$(echo "$dpi_config" | cut -f1 -d'-')"
     local size="$(echo "$dpi_config" | cut -f2 -d'-')"
 
-    local dpi_dir="./app/src/main/res/${destination_dir}-${dpi}"
+    local dpi_dir="../app/src/main/res/${destination_dir}-${dpi}"
 
     echo "$source_image -> ($size x $size) ${dpi_dir}/${destination_image}.png"
     mkdir -p "$dpi_dir"
