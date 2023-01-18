@@ -210,7 +210,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                 value: "Cannot complete the purchase",
                 comment: ""
             ),
-            message: error.errorChainDescription,
+            message: error.displayErrorDescription,
             preferredStyle: .alert
         )
 
@@ -236,7 +236,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                 value: "Cannot restore purchases",
                 comment: ""
             ),
-            message: error.errorChainDescription,
+            message: error.displayErrorDescription,
             preferredStyle: .alert
         )
 

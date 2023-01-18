@@ -29,11 +29,11 @@ extension REST {
 
         public var errorDescription: String? {
             switch self {
-            case let .createURLRequest(error):
-                return "Failure to create URL request: \(error.localizedDescription)."
+            case .createURLRequest:
+                return "Failure to create URL request."
 
-            case let .network(error):
-                return "Network error: \(error.localizedDescription)."
+            case .network:
+                return "Network error."
 
             case let .unhandledResponse(statusCode, serverResponse):
                 var str = "Failure to handle server response: HTTP/\(statusCode)."
@@ -48,11 +48,11 @@ extension REST {
 
                 return str
 
-            case let .decodeResponse(error):
-                return "Failure to decode URL response data: \(error.localizedDescription)."
+            case .decodeResponse:
+                return "Failure to decode response."
 
-            case let .transport(error):
-                return "Transport error: \(error.localizedDescription)."
+            case .transport:
+                return "Transport error."
             }
         }
 

@@ -110,7 +110,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Swift.Error>) -> Void
+        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
         let operation = ProductsRequestOperation(

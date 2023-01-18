@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadTypes
 import Operations
 import UIKit
 
@@ -392,7 +393,7 @@ private extension LoginState {
             }
 
         case let .failure(error):
-            return error.localizedDescription
+            return (error as? DisplayError)?.displayErrorDescription ?? error.localizedDescription
 
         case let .success(method):
             switch method {
