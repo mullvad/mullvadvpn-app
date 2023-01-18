@@ -57,6 +57,6 @@ pub enum TunnelEvent {
     InterfaceUp(TunnelMetadata, AllowedTunnelTraffic),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
-    /// Sent when the tunnel goes down.
+    /// Sent when the tunnel goes down, but before destroying the tunnel device.
     Down,
 }

@@ -639,10 +639,11 @@ impl WireguardMonitor {
 
         let _ = self.pinger_stop_sender.send(());
 
-        self.stop_tunnel();
-
         self.runtime
             .block_on((self.event_callback)(TunnelEvent::Down));
+
+        self.stop_tunnel();
+
         wait_result
     }
 
