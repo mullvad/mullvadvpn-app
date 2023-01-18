@@ -12,7 +12,7 @@ cd "$SCRIPT_DIR"
 
 ICON_SVG_PATH="../../graphics/icon.svg"
 # Icons used for notification and quick settings tile
-BLACK_MONO_ICON_PATH="../../graphics/icon-mono.svg"
+BLACK_MONO_ICON_PATH="../../graphics/icon-shaved.svg"
 
 # The following helper function converts an SVG image into a PNG image for a specific DPI
 #
