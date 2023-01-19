@@ -5,6 +5,12 @@ content of this directory, the Android project also relies on [wireguard-go](../
 [mullvad-daemon](../mullvad-daemon/) which are both bundled as shared libraries into the assembled
 APK.
 
+The app is available for download on
+[our website](https://mullvad.net/download/android/),
+[GitHub Releases](https://github.com/mullvad/mullvadvpn-app/releases),
+[F-Droid](https://f-droid.org/packages/net.mullvad.mullvadvpn/) and
+[Google Play](https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn).
+
 ## Quick start
 
 ### Browsing the source code
