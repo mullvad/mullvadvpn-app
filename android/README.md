@@ -1,9 +1,9 @@
 # Mullvad VPN Android app
 
 This directory contains the Android project as well as related files and information. Apart from the
-content of this directory, the Android project also relies on [wireguard-go](../wireguard/) and the
-[mullvad-daemon](../mullvad-daemon/) which are both bundled as shared libraries into the assembled
-APK.
+content of this directory, the Android project also relies on building [wireguard-go](../wireguard/)
+and the [mullvad-daemon](../mullvad-daemon/) which are both bundled as shared libraries into the
+assembled APK.
 
 The app is available for download on
 [our website](https://mullvad.net/download/android/),
