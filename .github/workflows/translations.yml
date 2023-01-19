@@ -35,7 +35,7 @@ jobs:
         working-directory: gui
         run: npm ci
 
-      - name: Install nightly Rust
+      - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
