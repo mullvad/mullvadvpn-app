@@ -32,10 +32,12 @@ protocol SettingsNavigationControllerDelegate: AnyObject {
     )
 }
 
-class SettingsNavigationController: CustomNavigationController, SettingsViewControllerDelegate,
-    AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate
+class SettingsNavigationController: UINavigationController, SettingsViewControllerDelegate,
+    AccountViewControllerDelegate, UIAdaptivePresentationControllerDelegate,
+    UINavigationControllerDelegate
 {
     private let interactorFactory: SettingsInteractorFactory
+    private var currentRoutes: [SettingsNavigationRoute] = [.root]
 
     weak var settingsDelegate: SettingsNavigationControllerDelegate?
 
@@ -56,17 +58,26 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
 
         // Navigation controller ignores `prefersLargeTitles` when using `setViewControllers()`.
         pushViewController(makeViewController(for: .root), animated: false)
+
+        delegate = self
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func willPop(navigationItem: UINavigationItem) {
-        let index = viewControllers.firstIndex { $0.navigationItem == navigationItem }
+    // MARK: - UINavigationControllerDelegate
 
-        if viewControllers.count > 1, index == 1 {
-            settingsDelegate?.settingsNavigationController(self, willNavigateTo: .root)
+    func navigationController(
+        _ navigationController: UINavigationController,
+        willShow viewController: UIViewController,
+        animated: Bool
+    ) {
+        let newRoutes = viewControllers.compactMap { route(for: $0) }
+
+        if currentRoutes != newRoutes, let nextRoute = newRoutes.last {
+            currentRoutes = newRoutes
+            settingsDelegate?.settingsNavigationController(self, willNavigateTo: nextRoute)
         }
     }
 
@@ -95,8 +106,13 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
         let nextViewController = makeViewController(for: route)
 
         if let rootController = viewControllers.first, viewControllers.count > 1 {
-            setViewControllers([rootController, nextViewController], animated: animated)
+            let newChildren = [rootController, nextViewController]
+            let newRoutes = newChildren.compactMap { self.route(for: $0) }
+
+            currentRoutes = newRoutes
+            setViewControllers(newChildren, animated: animated)
         } else {
+            currentRoutes.append(route)
             pushViewController(nextViewController, animated: animated)
         }
     }
@@ -126,6 +142,21 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
             return ProblemReportViewController(
                 interactor: interactorFactory.makeProblemReportInteractor()
             )
+        }
+    }
+
+    private func route(for viewController: UIViewController) -> SettingsNavigationRoute? {
+        switch viewController {
+        case is SettingsViewController:
+            return .root
+        case is AccountViewController:
+            return .account
+        case is PreferencesViewController:
+            return .preferences
+        case is ProblemReportViewController:
+            return .problemReport
+        default:
+            return nil
         }
     }
 

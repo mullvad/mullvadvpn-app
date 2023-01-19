@@ -11,7 +11,7 @@ import MullvadTypes
 import Operations
 import UIKit
 
-class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
+final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private let interactor: ProblemReportInteractor
 
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
@@ -629,6 +629,10 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         validateForm()
     }
 
+    private func setPopGestureEnabled(_ isEnabled: Bool) {
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = isEnabled
+    }
+
     private func clearPersistentViewModel() {
         Self.persistentViewModel = ViewModel()
     }
@@ -684,14 +688,16 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         }
     }
 
-    // MARK: - Input fields' notifications
+    // MARK: - Input fields notifications
 
     @objc private func messageTextViewDidBeginEditing() {
         setDescriptionFieldExpanded(true)
+        setPopGestureEnabled(false)
     }
 
     @objc private func messageTextViewDidEndEditing() {
         setDescriptionFieldExpanded(false)
+        setPopGestureEnabled(true)
     }
 
     @objc private func messageTextViewDidChange() {
@@ -704,27 +710,16 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     // MARK: - UITextFieldDelegate
 
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        setPopGestureEnabled(false)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        setPopGestureEnabled(true)
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         messageTextView.becomeFirstResponder()
         return false
-    }
-
-    // MARK: - ConditionalNavigation
-
-    func shouldPopNavigationItem(
-        _ navigationItem: UINavigationItem,
-        trigger: NavigationPopTrigger
-    ) -> Bool {
-        switch trigger {
-        case .interactiveGesture:
-            // Disable swipe when editing
-            return !emailTextField.isFirstResponder && !messageTextView.isFirstResponder
-
-        case .backButton:
-            // Dismiss the keyboard to fix a visual glitch when moving back to the previous
-            // controller
-            view.endEditing(true)
-            return true
-        }
     }
 }

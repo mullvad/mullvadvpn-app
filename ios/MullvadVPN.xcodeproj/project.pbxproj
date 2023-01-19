@@ -86,7 +86,6 @@
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
-		58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB625138B88005D0BB5 /* CustomNavigationController.swift */; };
 		582A8A3A28BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */; };
 		582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
 		582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */; };
@@ -680,7 +679,6 @@
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
-		58293FB625138B88005D0BB5 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
 		582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedWidthIntegerArithmeticsTests.swift; sourceTree = "<group>"; };
 		582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountTokenInput.swift; sourceTree = "<group>"; };
 		582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTokenInputTests.swift; sourceTree = "<group>"; };
@@ -1400,7 +1398,6 @@
 				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
-				58293FB625138B88005D0BB5 /* CustomNavigationController.swift */,
 				5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */,
 				58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */,
 				58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */,
@@ -2424,7 +2421,6 @@
 				584EBDBD2747C98F00A0C9FD /* NSAttributedString+Markdown.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
-				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
