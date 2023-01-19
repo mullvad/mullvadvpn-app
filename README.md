@@ -391,7 +391,7 @@ gui/scripts/build-logo-icons.sh
 
 Generate android icons
 ```bash
-android/generate-pngs.sh
+android/scripts/generate-pngs.sh
 ```
 
 Generate iOS icon and assets
