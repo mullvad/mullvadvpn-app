@@ -107,4 +107,5 @@ jobs:
           tool: cargo-udeps
 
       - name: Check for unused dependencies
-        run: cargo udeps --workspace
+        shell: bash
+        run: cargo +$RUST_NIGHTLY_TOOLCHAIN udeps --workspace
