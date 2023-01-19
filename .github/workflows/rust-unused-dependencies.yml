@@ -7,6 +7,8 @@ on:
       - '**/*.rs'
       - '**/Cargo.toml'
   workflow_dispatch:
+env:
+  RUST_NIGHTLY_TOOLCHAIN: nightly-2023-01-13
 jobs:
   prepare-containers:
     runs-on: ubuntu-latest
@@ -41,7 +43,7 @@ jobs:
         run: git submodule update --init --depth=1 dist-assets/binaries
 
       - name: Install nightly Rust toolchain
-        run: rustup default nightly
+        run: rustup default $RUST_NIGHTLY_TOOLCHAIN
 
       - uses: taiki-e/install-action@v2
         with:
@@ -49,7 +51,7 @@ jobs:
 
       - name: Check for unused dependencies
         shell: bash
-        run: source env.sh && cargo +nightly udeps --workspace
+        run: source env.sh && cargo udeps --workspace
 
   cargo-udeps-android:
     needs: prepare-containers
@@ -68,15 +70,15 @@ jobs:
 
       - name: Install nightly Rust toolchain
         run: |
-          rustup default nightly
-          rustup target add aarch64-linux-android --toolchain nightly
+          rustup default $RUST_NIGHTLY_TOOLCHAIN
+          rustup target add aarch64-linux-android
 
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-udeps
 
       - name: Check for unused dependencies
-        run: cargo +nightly udeps --target aarch64-linux-android --package mullvad-jni
+        run: cargo udeps --target aarch64-linux-android --package mullvad-jni
 
   cargo-udeps:
     strategy:
@@ -96,7 +98,7 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
-          toolchain: nightly
+          toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
           default: true
           profile: minimal
 
@@ -105,4 +107,5 @@ jobs:
           tool: cargo-udeps
 
       - name: Check for unused dependencies
-        run: cargo +nightly udeps --workspace
+        shell: bash
+        run: cargo udeps --workspace
