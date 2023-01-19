@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - .github/workflows/cargo-audit.yml
-      - '**/*.rs'
       - Cargo.lock
   workflow_dispatch:
 jobs:
