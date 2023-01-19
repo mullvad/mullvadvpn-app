@@ -1,10 +1,25 @@
 # Mullvad VPN Android app
 
-This directory contains the files specific to the Android app.
+This directory contains the Android project as well as related files and information. Apart from the
+content of this directory, the Android project also relies on [wireguard-go](../wireguard/) and the
+[mullvad-daemon](../mullvad-daemon/) which are both bundled as shared libraries into the assembled
+APK.
 
-## Building the app
+## Quick start
 
-See the [build instructions](BuildInstructions.md) for help building the app.
+### Browsing the source code
+
+The content in this directory (`<repository-root>/android`) follows a standard Android project
+structure and can therefore be opened in Android Studio or any other IDE or editor of your choice.
+
+### Building the app
+
+The easiest and recommended way to build the Android project including the `mullvad-daemon` and
+`wireguard-go` is to use the following command (which requires `podman`):
+```
+../building/containerized-build.sh android --dev-build
+```
+See the [build instructions](BuildInstructions.md) for further information.
 
 ## Translations / Localization
 
