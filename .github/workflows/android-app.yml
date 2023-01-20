@@ -3,23 +3,20 @@ name: Android - Build and test
 on:
   pull_request:
     paths:
-      - .github/workflows/android-app.yml
-      - android/**
-      - mullvad-api/**
-      - mullvad-daemon/**
-      - mullvad-jni/**
-      - mullvad-paths/**
-      - mullvad-problem-report/**
-      - mullvad-types/**
-      - talpid-core/**
-      - talpid-platform-metadata/**
-      - talpid-types/**
-      - talpid-types/**
-      - wireguard/**
-      - Cargo.toml
-      - build-apk.sh
-      - update-api-metadata.sh
-      - update-version-metadata.sh
+      - '**'
+      - '!.github/workflows/**'
+      - '.github/workflows/android-app.yml'
+      - '!audits/**'
+      - '!ci/**'
+      - '!dist-assets/**'
+      - '!docs/**'
+      - '!graphics/**'
+      - '!gui/**'
+      - '!ios/**'
+      - '!scripts/**'
+      - '!windows/**'
+      - '!**/**.md'
+
   workflow_dispatch:
     inputs:
       override_container_image:
