@@ -2,33 +2,27 @@
 name: Daemon+CLI - Build and test
 on:
   pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - .github/workflows/android*.yml
-      - .github/workflows/frontend.yml
-      - .github/workflows/ios.yml
-      - .github/workflows/rustfmt.yml
-      - .github/workflows/translations.yml
-      - android/**
-      - audits/**
-      - ci/buildserver-*
-      - ci/ci-*
-      - dist-assets/**
-      - docs/**
-      - graphics/**
-      - gui/**
-      - ios/**
-      - mullvad-jni/**
-      - scripts/**
-      - .*ignore
-      - .editorconfig
-      - .gitattributes
-      - Dockerfile
-      - build.sh
-      - build-apk.sh
-      - integration-tests.sh
-      - prepare-release.sh
-      - rustfmt.toml
+    paths:
+      - '**'
+      - '!**/**.md'
+      - '!.github/workflows/**'
+      - '.github/workflows/daemon.yml'
+      - '!android/**'
+      - '!audits/**'
+      - '!build-apk.sh'
+      - '!build.sh'
+      - '!clippy.toml'
+      - '!deny.toml'
+      - '!docs/**'
+      - '!graphics/**'
+      - '!gui/**'
+      - '!ios/**'
+      - '!scripts/**'
+      - '!.*ignore'
+      - '!prepare-release.sh'
+      - '!rustfmt.toml'
+      - '!.yamllint'
+
   workflow_dispatch:
     inputs:
       override_container_image:
