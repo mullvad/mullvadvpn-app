@@ -14,12 +14,11 @@ import RelayCache
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDelegate,
-    UIAdaptivePresentationControllerDelegate, RootContainerViewControllerDelegate,
-    LoginViewControllerDelegate, DeviceManagementViewControllerDelegate,
-    SettingsNavigationControllerDelegate, OutOfTimeViewControllerDelegate,
-    SelectLocationViewControllerDelegate, RevokedDeviceViewControllerDelegate,
-    NotificationManagerDelegate, TunnelObserver, RelayCacheTrackerObserver,
-    SettingsMigrationUIHandler
+    RootContainerViewControllerDelegate, LoginViewControllerDelegate,
+    DeviceManagementViewControllerDelegate, SettingsNavigationControllerDelegate,
+    OutOfTimeViewControllerDelegate, SelectLocationViewControllerDelegate,
+    RevokedDeviceViewControllerDelegate, NotificationManagerDelegate, TunnelObserver,
+    RelayCacheTrackerObserver, SettingsMigrationUIHandler
 {
     private let logger = Logger(label: "SceneDelegate")
 
@@ -32,6 +31,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     // Modal root container is used on iPad to present login, TOS, revoked device, device management
     // view controllers above `rootContainer` which only contains split controller.
     private lazy var modalRootContainer = RootContainerViewController()
+    private lazy var modalRootAdaptivePresentationDelegate = ModalRootAdaptivePresentationDelegate(
+        parentRootContainer: rootContainer,
+        modalRootContainer: modalRootContainer
+    )
 
     private var splitViewController: CustomSplitViewController?
     private var selectLocationViewController: SelectLocationViewController?
@@ -300,23 +303,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
 
             switch self.tunnelManager.deviceState {
             case .loggedIn:
-                let didDismissModalRoot = {
-                    self.handleExpiredAccount()
-                }
-
                 self.modalRootContainer.setViewControllers(
                     viewControllers,
                     animated: self.isModalRootPresented && animated
                 )
 
                 // Dismiss modal root container if needed before proceeding.
-                if self.isModalRootPresented {
-                    self.modalRootContainer.dismiss(
-                        animated: animated,
-                        completion: didDismissModalRoot
-                    )
-                } else {
-                    didDismissModalRoot()
+                self.dismissModalRootContainerIfNeeded(animated: animated) {
+                    self.handleExpiredAccount()
                 }
                 return
 
@@ -350,13 +344,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     }
 
     private func presentModalRootContainerIfNeeded(animated: Bool) {
+        guard !isModalRootPresented else { return }
+
         modalRootContainer.preferredContentSize = CGSize(width: 480, height: 600)
-        modalRootContainer.modalPresentationStyle = .formSheet
-        modalRootContainer.presentationController?.delegate = self
+        modalRootContainer.presentationController?.delegate = modalRootAdaptivePresentationDelegate
         modalRootContainer.isModalInPresentation = true
 
-        if modalRootContainer.presentingViewController == nil {
-            rootContainer.present(modalRootContainer, animated: animated)
+        rootContainer.present(modalRootContainer, animated: animated)
+    }
+
+    private func dismissModalRootContainerIfNeeded(
+        animated: Bool,
+        completion: @escaping () -> Void
+    ) {
+        guard isModalRootPresented else {
+            completion()
+            return
+        }
+
+        modalRootContainer.dismiss(animated: animated) {
+            self.modalRootAdaptivePresentationDelegate.finishPresentation()
+            completion()
         }
     }
 
@@ -678,7 +686,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
         lastLoginAction = nil
 
         // Move the settings button back into header bar
-        rootContainer.removeSettingsButtonFromPresentationContainer()
         setEnableSettingsButton(isEnabled: true, from: controller)
 
         let relayConstraints = tunnelManager.settings.relayConstraints
@@ -696,12 +703,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             viewControllers.append(tunnelViewController)
             rootContainer.setViewControllers(viewControllers, animated: true)
             handleExpiredAccount()
+
         case .pad:
             showSplitViewMaster(true, animated: true)
 
-            controller.dismiss(animated: true) {
+            dismissModalRootContainerIfNeeded(animated: true) {
                 self.handleExpiredAccount()
             }
+
         default:
             fatalError()
         }
@@ -828,64 +837,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     func revokedDeviceControllerDidRequestLogout(_ controller: RevokedDeviceViewController) {
         tunnelManager.unsetAccount { [weak self] in
             self?.showLoginViewAfterLogout(dismissController: nil)
-        }
-    }
-
-    // MARK: - UIAdaptivePresentationControllerDelegate
-
-    func adaptivePresentationStyle(
-        for controller: UIPresentationController,
-        traitCollection: UITraitCollection
-    ) -> UIModalPresentationStyle {
-        if controller.presentedViewController is RootContainerViewController {
-            return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
-        } else {
-            return .none
-        }
-    }
-
-    func presentationController(
-        _ presentationController: UIPresentationController,
-        willPresentWithAdaptiveStyle style: UIModalPresentationStyle,
-        transitionCoordinator: UIViewControllerTransitionCoordinator?
-    ) {
-        let actualStyle: UIModalPresentationStyle
-
-        // When adaptive presentation is not changing, the `style` is set to `.none`
-        if case .none = style {
-            actualStyle = presentationController.presentedViewController.modalPresentationStyle
-        } else {
-            actualStyle = style
-        }
-
-        // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
-        if let wrapper = presentationController
-            .presentedViewController as? RootContainerViewController
-        {
-            wrapper.setOverrideHeaderBarHidden(actualStyle == .formSheet, animated: false)
-        }
-
-        guard actualStyle == .formSheet else {
-            // Move the settings button back into header bar
-            rootContainer.removeSettingsButtonFromPresentationContainer()
-
-            return
-        }
-
-        // Add settings button into the modal container to make it accessible by user
-        if let transitionCoordinator = transitionCoordinator {
-            transitionCoordinator.animate { context in
-                self.rootContainer.addSettingsButtonToPresentationContainer(context.containerView)
-            }
-        } else if let containerView = presentationController.containerView {
-            rootContainer.addSettingsButtonToPresentationContainer(containerView)
-        } else {
-            logger.warning(
-                """
-                Cannot obtain the containerView for presentation controller when presenting with \
-                adaptive style \(actualStyle.rawValue) and missing transition coordinator.
-                """
-            )
         }
     }
 
