@@ -26,7 +26,7 @@ const config = {
   compression: noCompression ? 'store' : 'normal',
   extraResources: [
     { from: distAssets('ca.crt'), to: '.' },
-    { from: root('build/relays.json'), to: '.' },
+    { from: buildAssets('relays.json'), to: '.' },
     { from: root('CHANGELOG.md'), to: '.' },
   ],
 
@@ -99,8 +99,8 @@ const config = {
       },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
-      { from: distAssets('shell-completions/_mullvad'), to: '.' },
-      { from: distAssets('shell-completions/mullvad.fish'), to: '.' },
+      { from: buildAssets('shell-completions/_mullvad'), to: '.' },
+      { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
     ],
   },
 
@@ -142,7 +142,7 @@ const config = {
         to: '.',
       },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
-      { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
+      { from: buildAssets('lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'), to: '.' },
       {
@@ -190,10 +190,10 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      distAssets('shell-completions/mullvad.bash') +
+      buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
-      distAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
-      distAssets('shell-completions/mullvad.fish') +
+      buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
+      buildAssets('shell-completions/mullvad.fish') +
         '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
@@ -215,10 +215,10 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      distAssets('shell-completions/mullvad.bash') +
+      buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
-      distAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
-      distAssets('shell-completions/mullvad.fish') +
+      buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
+      buildAssets('shell-completions/mullvad.fish') +
         '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
@@ -369,6 +369,10 @@ function packLinux() {
       },
     },
   });
+}
+
+function buildAssets(relativePath) {
+  return path.join(path.resolve(__dirname, '../../build'), relativePath);
 }
 
 function distAssets(relativePath) {
