@@ -77,7 +77,6 @@ jobs:
           path: |
             ./android/app/build/extraJni
             ./build/relays.json
-            ./dist-assets/api-ip-address.txt
           key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash}}
 
       - name: Build native libraries
