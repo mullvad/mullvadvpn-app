@@ -26,7 +26,7 @@ const config = {
   compression: noCompression ? 'store' : 'normal',
   extraResources: [
     { from: distAssets('ca.crt'), to: '.' },
-    { from: distAssets('relays.json'), to: '.' },
+    { from: root('build/relays.json'), to: '.' },
     { from: root('CHANGELOG.md'), to: '.' },
   ],
 
