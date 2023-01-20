@@ -153,7 +153,7 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 }
 
 tasks.register("copyExtraAssets", Copy::class) {
-    from("$repoRootPath/dist-assets")
+    from("$repoRootPath/build")
     include("relays.json")
     into(extraAssetsDirectory)
 }

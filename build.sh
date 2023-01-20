@@ -325,7 +325,7 @@ if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
 fi
 
 log_info "Updating relays.json..."
-cargo run --bin relay_list "${CARGO_ARGS[@]}" > dist-assets/relays.json
+cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 
 log_header "Installing JavaScript dependencies"
