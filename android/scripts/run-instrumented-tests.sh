@@ -69,6 +69,9 @@ LOG_FILE_PATH="/tmp/$LOG_FILE_NAME"
 echo "Starting instrumented tests of type: $TEST_TYPE"
 echo ""
 
+echo "### Clean up previous logs ###"
+rm "$LOG_FILE_PATH"
+
 echo "### Ensure that packages are not previously installed ###"
 adb uninstall net.mullvad.mullvadvpn || echo "App package not installed"
 adb uninstall "$TEST_PACKAGE" || echo "Test package not installed"
