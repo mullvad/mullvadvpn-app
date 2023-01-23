@@ -115,7 +115,7 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
-      - name: Assemble instrumented test apk
+      - name: Assemble instrumented test apk (app)
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk11
@@ -124,11 +124,22 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
+      - name: Assemble instrumented test apk (mockapi)
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk11
+          arguments: :test:mockapi:assemble
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
+
       - name: Upload apks
         uses: actions/upload-artifact@v3
         with:
           name: apks
-          path: android/app/build/outputs/apk
+          path: |
+            android/app/build/outputs/apk
+            android/test/mockapi/build/outputs/apk
           if-no-files-found: error
           retention-days: 1
 
@@ -139,6 +150,8 @@ jobs:
     needs: [build]
     strategy:
       fail-fast: false
+      matrix:
+        test-type: [app, mockapi]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -146,8 +159,11 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: apks
-          path: android/app/build/outputs/apk
+          path: android
 
       - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
-        run: ./android/scripts/run-instrumented-tests.sh app
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+        run: |
+          ./android/scripts/run-instrumented-tests.sh ${{ matrix.test-type }}
