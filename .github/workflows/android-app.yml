@@ -94,7 +94,7 @@ jobs:
           STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
           NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
           ./wireguard/build-wireguard-go.sh --android --no-docker
-          cargo build --target $TARGET --verbose --package mullvad-jni
+          cargo build --target $TARGET --verbose --package mullvad-jni --features api-override
           cargo run --bin relay_list > build/relays.json
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
