@@ -24,6 +24,7 @@ class LoginMockApiTest : MockApiTest() {
 
         // Act
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
+        app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
         // Assert
@@ -43,6 +44,7 @@ class LoginMockApiTest : MockApiTest() {
         // Act
         app.launch(endpoint)
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
+        app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
         // Assert
@@ -62,6 +64,7 @@ class LoginMockApiTest : MockApiTest() {
         // Act
         app.launch(endpoint)
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
+        app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
         // Assert

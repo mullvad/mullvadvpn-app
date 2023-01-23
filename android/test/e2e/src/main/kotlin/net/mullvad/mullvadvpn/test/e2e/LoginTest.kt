@@ -26,6 +26,7 @@ class LoginTest : EndToEndTest() {
         // When
         app.launch()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
+        app.waitForLoginPrompt()
         app.attemptLogin(invalidDummyAccountToken)
 
         // Then
