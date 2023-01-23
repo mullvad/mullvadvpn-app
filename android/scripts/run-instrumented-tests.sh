@@ -5,8 +5,14 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
+
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
 LOG_FAILURE_MESSAGE="FAILURES!!!"
+DEFAULT_ORCHESTRATOR_APK_PATH=/tmp/orchestrator.apk
+ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.4.2/orchestrator-1.4.2.apk
+DEFAULT_TEST_SERVICES_APK_PATH=/tmp/test-services.apk
+TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.4.2/test-services-1.4.2.apk
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -52,25 +58,33 @@ if [[ -z ${TEST_TYPE-} ]]; then
     exit 1
 fi
 
-if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
-    if [[ -z ${ORCHESTRATOR_APK_PATH-} ]]; then
-        echo "The variable ORCHESTRATOR_APK_PATH is not set."
-        exit 1
-    fi
-    if [[ -z ${TEST_SERVICES_APK_PATH-} ]]; then
-        echo "The variable TEST_SERVICES_APK_PATH is not set."
-        exit 1
-    fi
-fi
-
-LOG_FILE_NAME="mullvad-$TEST_TYPE.txt"
-LOG_FILE_PATH="/tmp/$LOG_FILE_NAME"
-
-echo "Starting instrumented tests of type: $TEST_TYPE"
+echo "Preparing to run tests of type: $TEST_TYPE"
 echo ""
 
-echo "### Clean up previous logs ###"
-rm "$LOG_FILE_PATH"
+echo "### Cleaning up old logs ###"
+LOG_FILE_NAME="mullvad-$TEST_TYPE.txt"
+LOG_FILE_PATH="/tmp/$LOG_FILE_NAME"
+echo ""
+
+if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
+    if [[ "${AUTO_FETCH_TEST_HELPER_APKS-}" == "true" ]]; then
+        echo "### Fetching orchestrator and test services apks ###"
+        ORCHESTRATOR_APK_PATH=$DEFAULT_ORCHESTRATOR_APK_PATH
+        TEST_SERVICES_APK_PATH=$DEFAULT_TEST_SERVICES_APK_PATH
+        curl -sL "$ORCHESTRATOR_URL" -o "$ORCHESTRATOR_APK_PATH"
+        curl -sL "$TEST_SERVICES_URL" -o "$TEST_SERVICES_APK_PATH"
+        echo ""
+    else
+        if [[ -z ${ORCHESTRATOR_APK_PATH-} ]]; then
+            echo "The variable ORCHESTRATOR_APK_PATH is not set."
+            exit 1
+        fi
+        if [[ -z ${TEST_SERVICES_APK_PATH-} ]]; then
+            echo "The variable TEST_SERVICES_APK_PATH is not set."
+            exit 1
+        fi
+    fi
+fi
 
 echo "### Ensure that packages are not previously installed ###"
 adb uninstall net.mullvad.mullvadvpn || echo "App package not installed"
@@ -79,11 +93,16 @@ adb uninstall androidx.test.services || echo "Test services package not installe
 adb uninstall androidx.test.orchestrator || echo "Test orchestrator package not installed"
 echo ""
 
+echo "Starting instrumented tests of type: $TEST_TYPE"
+echo ""
+
 echo "### Install packages ###"
 adb install -t "$APK_BASE_DIR/app/build/outputs/apk/debug/app-debug.apk"
 adb install "$TEST_APK"
 if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
+    echo "Using ORCHESTRATOR_APK_PATH: $ORCHESTRATOR_APK_PATH"
     adb install "$ORCHESTRATOR_APK_PATH"
+    echo "Using TEST_SERVICES_APK_PATH: $TEST_SERVICES_APK_PATH"
     adb install "$TEST_SERVICES_APK_PATH"
 fi
 echo ""
