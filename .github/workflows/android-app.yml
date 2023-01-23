@@ -167,3 +167,12 @@ jobs:
           AUTO_FETCH_TEST_HELPER_APKS: true
         run: |
           ./android/scripts/run-instrumented-tests.sh ${{ matrix.test-type }}
+
+      - name: Upload instrumentation report (${{ matrix.test-type }})
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-report
+          path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
+          if-no-files-found: ignore
+          retention-days: 1

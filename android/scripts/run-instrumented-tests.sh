@@ -58,12 +58,20 @@ if [[ -z ${TEST_TYPE-} ]]; then
     exit 1
 fi
 
+LOCAL_TMP_REPORT_PATH="/tmp/mullvad-$TEST_TYPE-instrumentation-report"
+INSTRUMENTATION_LOG_FILE_PATH="$LOCAL_TMP_REPORT_PATH/instrumentation-log.txt"
+LOGCAT_FILE_PATH="$LOCAL_TMP_REPORT_PATH/logcat.txt"
+LOCAL_SCREENSHOT_PATH="$LOCAL_TMP_REPORT_PATH/screenshots"
+DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
+
 echo "Preparing to run tests of type: $TEST_TYPE"
 echo ""
 
-echo "### Cleaning up old logs ###"
-LOG_FILE_NAME="mullvad-$TEST_TYPE.txt"
-LOG_FILE_PATH="/tmp/$LOG_FILE_NAME"
+echo "### Ensure clean report structure ###"
+rm -rf "$LOCAL_TMP_REPORT_PATH" || echo "No report path"
+adb logcat --clear
+adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
+mkdir "$LOCAL_TMP_REPORT_PATH"
 echo ""
 
 if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
@@ -121,7 +129,7 @@ else
     am instrument -w \
     $TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner"
 fi
-adb shell "$INSTRUMENTATION_COMMAND" | tee "$LOG_FILE_PATH"
+adb shell "$INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
 
 echo "### Ensure that packages are uninstalled ###"
@@ -132,8 +140,11 @@ adb uninstall androidx.test.orchestrator || echo "Test orchestrator package not 
 echo ""
 
 echo "### Checking logs for failures ###"
-if grep -q "$LOG_FAILURE_MESSAGE" "$LOG_FILE_PATH"; then
+if grep -q "$LOG_FAILURE_MESSAGE" "$INSTRUMENTATION_LOG_FILE_PATH"; then
     echo "One or more tests failed, see logs for more details."
+    echo "Collecting report..."
+    adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
+    adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
 else
     echo "No failures!"
