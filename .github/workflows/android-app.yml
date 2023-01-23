@@ -28,6 +28,7 @@ on:
     branches: [master]
 jobs:
   prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +48,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   build:
+    name: Build app and run unit tests
     needs: prepare
     runs-on: ubuntu-latest
     container:
@@ -131,7 +133,7 @@ jobs:
           retention-days: 1
 
   instrumented-tests:
-    name: Instrumented tests
+    name: Run instrumented tests
     runs-on: [self-hosted, android-emulator]
     timeout-minutes: 30
     needs: [build]
@@ -146,6 +148,6 @@ jobs:
           name: apks
           path: android/app/build/outputs/apk
 
-      - name: Run Android instrumented tests
+      - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
         run: ./android/scripts/run-instrumented-tests.sh app
