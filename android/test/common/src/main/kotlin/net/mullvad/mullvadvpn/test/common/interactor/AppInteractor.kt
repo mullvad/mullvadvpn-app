@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
 import net.mullvad.mullvadvpn.test.common.constant.SETTINGS_COG_ID
@@ -53,7 +54,6 @@ class AppInteractor(
     }
 
     fun attemptLogin(accountToken: String) {
-        device.findObjectWithTimeout(By.text("Login"))
         val loginObject = device.findObjectWithTimeout(By.clazz("android.widget.EditText"))
             .apply { text = accountToken }
         loginObject.parent.findObject(By.clazz(ImageButton::class.java)).click()
@@ -81,6 +81,12 @@ class AppInteractor(
 
     fun clickActionButtonByText(text: String) {
         device.findObjectWithTimeout(By.text(text)).click()
+    }
+
+    fun waitForLoginPrompt(
+        timeout: Long = LOGIN_PROMPT_TIMEOUT
+    ) {
+        device.findObjectWithTimeout(By.text("Login"), timeout)
     }
 
     private fun String.extractIpAddress(): String {
