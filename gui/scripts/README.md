@@ -1,7 +1,18 @@
 This is a folder with the supporting scripts written in Python 3, node, bash.
 
+## Logo icons
 
-## Dependency installation notes
+The logo icons used in the desktop app are generated from the source SVGs in `/graphics/`. To update
+all these icons when the source SVGs change, perform the following steps:
+1. Create the macOS icons by inserting the updated `/graphics/icon-square.svg` into Apple's macOS
+icon template available at https://developer.apple.com/design/resources/.
+1. Save the icons to `/graphics/macOS/`
+1. Run `scripts/build-logo-icons.sh`
+
+
+## Maps and location translations
+
+### Dependency installation notes
 
 1. Install GDAL/OGR dependencies, which are required by Fiona python package.
    
@@ -20,7 +31,7 @@ This is a folder with the supporting scripts written in Python 3, node, bash.
    https://www.gnu.org/software/gettext/
 
 
-## Geo data installation notes
+### Geo data installation notes
 
 Go to http://www.naturalearthdata.com/downloads/50m-cultural-vectors/ and
 download ZIP files with the following shapes:
@@ -52,7 +63,7 @@ unzip ne_50m_admin_1_states_provinces_lines.zip -d ne_50m_admin_1_states_provinc
 unzip ne_10m_populated_places.zip -d ne_10m_populated_places/
 ```
 
-## Geo data extraction notes
+### Geo data extraction notes
 
 Run the following script to produce a TopoJSON data used by the app:
 
@@ -68,7 +79,7 @@ npm exec ts-node prepare-rtree.ts
 
 At this point all of the data should be saved in `gui/scripts/out` folder.
 
-## App integration notes
+### App integration notes
 
 Once you've extracted all the geo data, run the integration script that will
 copy all files ignoring intermediate ones into the `gui/assets/geo` folder:
@@ -77,7 +88,7 @@ copy all files ignoring intermediate ones into the `gui/assets/geo` folder:
 python3 integrate-into-app.py
 ```
 
-## Locking Python dependencies
+### Locking Python dependencies
 
 1. Freeze dependencies:
 
