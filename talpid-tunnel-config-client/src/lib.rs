@@ -59,22 +59,27 @@ const CLASSIC_MCELIECE_VARIANT: &str = "Classic-McEliece-460896f";
 pub async fn push_pq_key(
     service_address: IpAddr,
     wg_pubkey: PublicKey,
-) -> Result<(PrivateKey, PresharedKey), Error> {
-    let wg_psk_privkey = PrivateKey::new_from_random();
+    wg_psk_pubkey: PublicKey,
+) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
 
-    let mut client = new_client(service_address).await?;
+    dbg!("Pushing PQ key to: {}", service_address);
+    let client = new_client(service_address).await;
+    dbg!(&client);
+    let mut client = client?;
     let response = client
         .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
-            wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
+            wg_psk_pubkey: wg_psk_pubkey.as_bytes().to_vec(),
             kem_pubkeys: vec![proto::KemPubkeyExperimentalV1 {
                 algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
                 key_data: cme_kem_pubkey.as_array().to_vec(),
             }],
         })
         .await
-        .map_err(Error::GrpcError)?;
+        .map_err(Error::GrpcError);
+    dbg!(&response);
+    let response = response?;
 
     let ciphertexts = response.into_inner().ciphertexts;
     // Unpack the ciphertexts into one per KEM without needing to access them by index.
@@ -100,7 +105,7 @@ pub async fn push_pq_key(
         xor_assign(&mut psk_data, shared_secret.as_array());
     }
 
-    Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
+    Ok(PresharedKey::from(psk_data))
 }
 
 /// Performs `dst = dst ^ src`.
