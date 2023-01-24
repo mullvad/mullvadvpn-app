@@ -14,6 +14,7 @@ pub mod exception_logging;
 mod geoip;
 pub mod logging;
 #[cfg(target_os = "macos")]
+#[allow(dead_code)]
 mod macos;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;

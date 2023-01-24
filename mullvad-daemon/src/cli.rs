@@ -7,6 +7,7 @@ pub struct Config {
     pub log_stdout_timestamps: bool,
     pub run_as_service: bool,
     pub register_service: bool,
+    pub query_service: bool,
     #[cfg(target_os = "linux")]
     pub initialize_firewall_and_exit: bool,
 }
@@ -35,6 +36,7 @@ pub fn create_config() -> Config {
         cfg!(target_os = "linux") && matches.is_present("initialize-early-boot-firewall");
     let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
     let register_service = cfg!(windows) && matches.is_present("register_service");
+    let query_service = cfg!(target_os = "macos") && matches.is_present("query_service");
 
     Config {
         #[cfg(target_os = "linux")]
@@ -44,6 +46,7 @@ pub fn create_config() -> Config {
         log_stdout_timestamps,
         run_as_service,
         register_service,
+        query_service,
     }
 }
 
@@ -109,6 +112,14 @@ fn create_app() -> App<'static> {
             Arg::new("initialize-early-boot-firewall")
                 .long("initialize-early-boot-firewall")
                 .help("Initialize firewall to be used during early boot and exit"),
+        )
+    }
+
+    if cfg!(target_os = "macos") {
+        app = app.arg(
+            Arg::new("query_service")
+                .long("query-service")
+                .help("Checks the status of the launch daemon"),
         )
     }
     app
