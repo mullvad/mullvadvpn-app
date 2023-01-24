@@ -27,7 +27,6 @@
 /dist-assets/talpid_openvpn_plugin.dll
 /dist-assets/openvpn
 /dist-assets/openvpn.exe
-/dist-assets/shell-completions/
 /dist-assets/aarch64-apple-darwin/
 /dist-assets/x86_64-apple-darwin/
 /windows/version.h
