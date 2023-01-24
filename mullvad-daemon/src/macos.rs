@@ -88,3 +88,67 @@ fn test_unknown_group() {
     let group_err = get_group_id(unknown_group).unwrap_err();
     assert!(group_err.kind() == io::ErrorKind::NotFound)
 }
+
+type SEL = libc::intptr_t;
+type Id = libc::intptr_t;
+
+const DAEMON_PLIST_PATH: &[u8] = b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0";
+
+#[link(name = "ServiceManagement", kind = "framework")]
+extern "C" {}
+
+#[repr(C)]
+#[derive(Debug)]
+struct NSOperatingSystemVersion {
+    major_version: libc::c_ulong,
+    minor_version: libc::c_ulong,
+    patch_version: libc::c_ulong,
+}
+
+/// Authorization status of the Mullvad daemon.
+#[repr(i32)]
+pub enum LaunchDaemonStatus {
+    Ok = 0,
+    NotFound = 1,
+    NotAuthorized = 2,
+    Unknown = 3,
+}
+
+/// Return whether the daemon is available, not found, or is not authorized.
+/// NOTE: On macos < 13, this function always returns `LaunchDaemonStatus::Ok`.
+pub fn get_launch_daemon_status() -> LaunchDaemonStatus {
+    use objc::*;
+    type Id = *mut objc::runtime::Object;
+
+    let proc_info: Id = unsafe { msg_send![class!(NSProcessInfo), processInfo] };
+    let os_version: NSOperatingSystemVersion =
+        unsafe { msg_send![proc_info, operatingSystemVersion] };
+
+    if os_version.major_version < 13 {
+        return LaunchDaemonStatus::Ok;
+    }
+
+    let nsstr_inst: Id = unsafe { msg_send![class!(NSString), alloc] };
+    let nsstr_inst: Id = unsafe { msg_send![nsstr_inst, initWithUTF8String: DAEMON_PLIST_PATH] };
+
+    let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
+    let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
+
+    let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
+
+    let status: libc::c_long =
+        unsafe { msg_send![class!(SMAppService), statusForLegacyURL: nsurl_inst] };
+
+    let _: libc::c_void = unsafe { msg_send![nsurl_inst, release] };
+
+    match status {
+        // SMAppServiceStatusNotRegistered | SMAppServiceStatusNotFound
+        0 | 3 => LaunchDaemonStatus::NotFound,
+        // SMAppServiceStatusEnabled
+        1 => LaunchDaemonStatus::Ok,
+        // SMAppServiceStatusRequiresApproval
+        2 => LaunchDaemonStatus::NotAuthorized,
+        // Unknown status
+        _ => LaunchDaemonStatus::Unknown,
+    }
+}
