@@ -7,23 +7,21 @@ on:
       - rustfmt.toml
       - '**/*.rs'
   workflow_dispatch:
-env:
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2023-01-13
 jobs:
   check-formatting:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install nightly Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
-          toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
+          toolchain: stable
           components: rustfmt
           default: true
 
       - name: Check formatting
         run: |-
           rustfmt --version
-          cargo fmt -- --check --unstable-features
+          cargo fmt -- --check
