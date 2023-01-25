@@ -22,7 +22,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     private var willChangeRegion = false
     private var regionDidChangeCompletion: (() -> Void)?
     private let mapView = MKMapView()
-
+    private var isFirstLayoutPass = true
     private var center: CLLocationCoordinate2D?
     var alignmentView: UIView?
 
@@ -60,6 +60,15 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         coordinator.animate(alongsideTransition: nil, completion: { context in
             self.recomputeVisibleRegion(animated: context.isAnimated)
         })
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if isFirstLayoutPass {
+            isFirstLayoutPass = false
+            recomputeVisibleRegion(animated: false)
+        }
     }
 
     // MARK: - Public
@@ -179,13 +188,6 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
 
         self.center = center
 
-        logger.debug(
-            """
-            Set map region to: (\(region.center.latitude), \(region.center.longitude), \
-            \(region.span.latitudeDelta), \(region.span.longitudeDelta))
-            """
-        )
-
         // Map view does not call delegate methods when attempting to set the same region.
         mapView.setRegion(region, animated: animated)
 
@@ -254,7 +256,10 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     ) -> MKCoordinateRegion {
         // Map view center lies within layout margins frame.
         let mapViewLayoutFrame = mapView.layoutMarginsGuide.layoutFrame
-        guard mapViewLayoutFrame.width > 0 else { return region }
+
+        guard mapViewLayoutFrame.width > 0, mapView.frame.width > 0,
+              region.span.longitudeDelta > 0,
+              mapView.region.span.longitudeDelta > 0 else { return region }
 
         // MKMapView.convert(_:toRectTo:) returns CGRect scaled to the zoom level derived from
         // currently set region.
@@ -272,6 +277,10 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         let offsetRegionRect = regionRect.offsetBy(dx: horizontalOffset, dy: verticalOffset)
         let offsetRegion = mapView.convert(offsetRegionRect, toRegionFrom: mapView)
 
-        return offsetRegion
+        if CLLocationCoordinate2DIsValid(offsetRegion.center) {
+            return offsetRegion
+        } else {
+            return region
+        }
     }
 }
