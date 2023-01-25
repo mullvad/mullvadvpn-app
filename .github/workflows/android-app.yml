@@ -48,7 +48,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   build:
-    name: Build and run unit tests
+    name: Build app and run unit tests
     needs: prepare
     runs-on: ubuntu-latest
     container:
