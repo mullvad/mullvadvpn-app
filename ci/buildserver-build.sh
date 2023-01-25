@@ -17,7 +17,6 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
-PDB_DIR="$SCRIPT_DIR/pdb"
 UPLOAD_DIR="/home/upload/upload"
 
 BRANCHES_TO_BUILD=("origin/master")
@@ -43,35 +42,33 @@ EOF
 }
 
 upload() {
-  for f in MullvadVPN-*.{deb,rpm,exe,pkg,apk,aab}; do
-    sha256sum "$f" > "$f.sha256"
-    case "$(uname -s)" in
-      # Linux is both the build and upload server. Just move directly to target dir
-      Linux*)
-        mv "$f" "$f.sha256" "$UPLOAD_DIR/"
-        ;;
-      # Other platforms need to transfer their artifacts to the Linux build machine.
-      Darwin*|MINGW*|MSYS_NT*)
+  version=$1
+  target=$(rustc -vV | sed -n 's|host: ||p')
+
+  files=( *"$version"* )
+  f_checksums="$version+$target.sha256"
+  sha256sum "${files[@]}" > "$f_checksums"
+
+  case "$(uname -s)" in
+    # Linux is both the build and upload server. Just move directly to target dir
+    Linux*)
+      mv "${files[@]}" "$f_checksums" "$UPLOAD_DIR/"
+      ;;
+    # Other platforms need to transfer their artifacts to the Linux build machine.
+    Darwin*|MINGW*|MSYS_NT*)
+      for f in "${files[@]}"; do
         upload_sftp "$f" || return 1
-        upload_sftp "$f.sha256" || return 1
-        ;;
-    esac
-  done
-}
-
-upload_pdb() {
-  current_hash=$1
-  f="pdb-$current_hash.tar.xz"
-
-  sha256sum "$f" > "$f.sha256"
-  upload_sftp "$f" || return 1
-  upload_sftp "$f.sha256" || return 1
+      done
+      upload_sftp "$f_checksums" || return 1
+      ;;
+  esac
 }
 
 build_ref() {
   ref=$1
   tag=${2:-""}
 
+  version="$(cargo run -q --bin mullvad-version)"
   current_hash="$(git rev-parse $ref^{commit})"
   if [ -f "$LAST_BUILT_DIR/$current_hash" ]; then
     # This commit has already been built
@@ -118,7 +115,7 @@ build_ref() {
         ./target/release/mullvad-daemon.pdb \
         ./target/release/mullvad.pdb \
         ./target/release/mullvad-problem-report.pdb \
-        -iname "*.pdb" | tar -cJf $PDB_DIR/pdb-$current_hash.tar.xz -T -
+        -iname "*.pdb" | tar -cJf dist/pdb-$version.tar.xz -T -
       ;;
     Linux*)
       echo "Building ARM64 installers"
@@ -144,12 +141,7 @@ build_ref() {
       popd
   fi
 
-  (cd dist/ && upload) || return 0
-  case "$(uname -s)" in
-    MINGW*|MSYS_NT*)
-      (cd "$PDB_DIR" && upload_pdb $current_hash) || return 0
-    ;;
-  esac
+  (cd dist/ && upload "$version") || return 0
   touch "$LAST_BUILT_DIR/$current_hash"
   echo "Successfully finished build at $(date)"
 }
