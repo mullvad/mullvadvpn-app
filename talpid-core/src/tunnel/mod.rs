@@ -145,16 +145,7 @@ impl TunnelMonitor {
             config,
             // TODO: We only need to use a bool here, the actual public key can be found in the
             // peers list
-            if params.options.use_pq_safe_psk {
-                let mut keys = vec![];
-                keys.push(params.connection.peer.public_key.clone());
-                if let Some(exit_peer) = &params.connection.exit_peer {
-                    keys.push(exit_peer.public_key.clone());
-                }
-                Some(keys)
-            } else {
-                None
-            },
+            params.options.use_pq_safe_psk,
             log.as_deref(),
             args,
         )?;
