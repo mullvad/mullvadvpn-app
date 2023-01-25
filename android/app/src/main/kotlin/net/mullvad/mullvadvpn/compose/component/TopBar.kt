@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,11 +70,9 @@ fun TopBar(
                 }
         )
 
-        Icon(
+        Image(
             painter = painterResource(R.drawable.icon_settings),
             contentDescription = stringResource(id = R.string.settings),
-            tint = Color.White,
-
             modifier = Modifier
                 .clickable { onSettingsClicked() }
                 .fillMaxHeight()
