@@ -63,9 +63,7 @@ pub async fn push_pq_key(
 ) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
 
-    dbg!("Pushing PQ key to: {}", service_address);
     let client = new_client(service_address).await;
-    dbg!(&client);
     let mut client = client?;
     let response = client
         .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
@@ -78,7 +76,6 @@ pub async fn push_pq_key(
         })
         .await
         .map_err(Error::GrpcError);
-    dbg!(&response);
     let response = response?;
 
     let ciphertexts = response.into_inner().ciphertexts;
