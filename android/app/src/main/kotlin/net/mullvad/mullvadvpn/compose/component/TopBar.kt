@@ -54,9 +54,8 @@ fun TopBar(
                 .width(44.dp)
                 .height(44.dp)
                 .constrainAs(logo) {
+                    centerVerticallyTo(parent)
                     start.linkTo(parent.start, margin = 16.dp)
-                    top.linkTo(parent.top, margin = 12.dp)
-                    bottom.linkTo(parent.bottom, margin = 12.dp)
                 }
         )
 
@@ -67,8 +66,8 @@ fun TopBar(
             color = colorResource(id = R.color.white80),
             modifier = Modifier
                 .constrainAs(appName) {
-                    start.linkTo(logo.end, margin = 9.dp)
-                    top.linkTo(parent.top, margin = 12.dp)
+                    centerVerticallyTo(parent)
+                    start.linkTo(logo.end, margin = 8.dp)
                 }
         )
 
