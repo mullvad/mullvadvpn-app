@@ -60,7 +60,7 @@ fn create_wireguard_mtu_subcommand() -> clap::App<'static> {
 
 fn create_wireguard_quantum_resistant_tunnel_subcommand() -> clap::App<'static> {
     clap::App::new("quantum-resistant-tunnel")
-        .about("EXPERIMENTAL: Enables quantum-resistant PSK exchange in the tunnel")
+        .about("Controls the quantum-resistant PSK exchange in the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::App::new("get"))
         .subcommand(clap::App::new("set").arg(clap::Arg::new("policy").required(true)))
