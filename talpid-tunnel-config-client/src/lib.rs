@@ -1,5 +1,5 @@
 use std::{fmt, net::IpAddr};
-use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
+use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 use tonic::transport::Channel;
 
 mod classic_mceliece;
