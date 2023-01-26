@@ -1,4 +1,4 @@
-//! A server implementation of the tuncfg PskExchangeExperimentalV1 RPC to test
+//! A server implementation of the tuncfg PskExchangeV1 RPC to test
 //! the client side implementation.
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -8,8 +8,7 @@ mod proto {
 use classic_mceliece_rust::{PublicKey, CRYPTO_PUBLICKEYBYTES};
 use proto::{
     post_quantum_secure_server::{PostQuantumSecure, PostQuantumSecureServer},
-    PskRequestExperimentalV0, PskRequestExperimentalV1, PskResponseExperimentalV0,
-    PskResponseExperimentalV1,
+    PskRequestV1, PskResponseV1,
 };
 use talpid_types::net::wireguard::PresharedKey;
 
@@ -20,17 +19,10 @@ pub struct PostQuantumSecureImpl {}
 
 #[tonic::async_trait]
 impl PostQuantumSecure for PostQuantumSecureImpl {
-    async fn psk_exchange_experimental_v0(
+    async fn psk_exchange_v1(
         &self,
-        _request: Request<PskRequestExperimentalV0>,
-    ) -> Result<Response<PskResponseExperimentalV0>, Status> {
-        unimplemented!("Use V1 instead");
-    }
-
-    async fn psk_exchange_experimental_v1(
-        &self,
-        request: Request<PskRequestExperimentalV1>,
-    ) -> Result<Response<PskResponseExperimentalV1>, Status> {
+        request: Request<PskRequestV1>,
+    ) -> Result<Response<PskResponseV1>, Status> {
         let mut rng = rand::thread_rng();
         let request = request.into_inner();
 
@@ -45,7 +37,7 @@ impl PostQuantumSecure for PostQuantumSecureImpl {
         for kem_pubkey in request.kem_pubkeys {
             println!("\tKEM algorithm: {}", kem_pubkey.algorithm_name);
             let (ciphertext, shared_secret) = match kem_pubkey.algorithm_name.as_str() {
-                "Classic-McEliece-460896f" => {
+                "Classic-McEliece-460896f-round3" => {
                     let key_data: [u8; CRYPTO_PUBLICKEYBYTES] =
                         kem_pubkey.key_data.as_slice().try_into().unwrap();
                     let public_key = PublicKey::from(&key_data);
@@ -72,7 +64,7 @@ impl PostQuantumSecure for PostQuantumSecureImpl {
         let psk = PresharedKey::from(psk_data);
         println!("psk: {psk:?}");
         println!("==============================================");
-        Ok(Response::new(PskResponseExperimentalV1 { ciphertexts }))
+        Ok(Response::new(PskResponseV1 { ciphertexts }))
     }
 }
 
