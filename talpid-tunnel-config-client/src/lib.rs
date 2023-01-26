@@ -54,7 +54,11 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 /// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
 /// keys than the larger variants, and is considered safe.
-const CLASSIC_MCELIECE_VARIANT: &str = "Classic-McEliece-460896f";
+const CLASSIC_MCELIECE_VARIANT: &str = "Classic-McEliece-460896f-round3";
+
+/// Use the strongest variant of Kyber. It is fast and the keys are small, so there is no practical
+/// benefit of going with anything lower.
+const KYBER_VARIANT: &str = "Kyber1024";
 
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
 /// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
@@ -70,16 +74,16 @@ pub async fn push_pq_key(
 
     let mut client = new_client(service_address).await?;
     let response = client
-        .psk_exchange_experimental_v1(proto::PskRequestExperimentalV1 {
+        .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
             kem_pubkeys: vec![
-                proto::KemPubkeyExperimentalV1 {
+                proto::KemPubkeyV1 {
                     algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
                     key_data: cme_kem_pubkey.as_array().to_vec(),
                 },
-                proto::KemPubkeyExperimentalV1 {
-                    algorithm_name: "Kyber1024".to_owned(),
+                proto::KemPubkeyV1 {
+                    algorithm_name: KYBER_VARIANT.to_owned(),
                     key_data: kyber_keypair.public.to_vec(),
                 },
             ],

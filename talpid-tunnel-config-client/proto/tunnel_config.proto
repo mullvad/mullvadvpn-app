@@ -5,11 +5,6 @@ option go_package = "github.com/mullvad/wg-manager/server/tuncfg";
 package tunnel_config;
 
 service PostQuantumSecure {
-  // PskExchangeExperimentalV0 uses the common API defined by LibOQS.  See:
-  // https://github.com/open-quantum-safe/liboqs
-  // This endpoint is deprecated in favor for `PskExchangeExperimentalV1`. Please use that instead.
-  rpc PskExchangeExperimentalV0(PskRequestExperimentalV0) returns (PskResponseExperimentalV0) {}
-
   // Allows deriving a preshared key (PSK) using one or multiple PQ-secure key-encapsulation
   // mechanisms (KEM). The preshared key is added to WireGuard's preshared-key field in a new
   // ephemeral peer (PQ-peer). This makes the tunnel resistant towards attacks using
@@ -71,35 +66,20 @@ service PostQuantumSecure {
   // Mixing with XOR (A = B ^ C) is fine since nothing about A is revealed even if one of B or C
   // is known. Both B *and* C must be known to compute any bit in A. This means all involved
   // KEM algorithms must be broken before the PSK can be computed by an attacker.
-  rpc PskExchangeExperimentalV1(PskRequestExperimentalV1) returns (PskResponseExperimentalV1) {}
+  rpc PskExchangeV1(PskRequestV1) returns (PskResponseV1) {}
 }
 
-message PskRequestExperimentalV0 {
+message PskRequestV1 {
   bytes wg_pubkey = 1;
   bytes wg_psk_pubkey = 2;
-  KemPubkeyExperimentalV0 kem_pubkey = 3;
+  repeated KemPubkeyV1 kem_pubkeys = 3;
 }
 
-message KemPubkeyExperimentalV0 {
+message KemPubkeyV1 {
   string algorithm_name = 1;
   bytes key_data = 2;
 }
 
-message PskResponseExperimentalV0 {
-  bytes ciphertext = 1;
-}
-
-message PskRequestExperimentalV1 {
-  bytes wg_pubkey = 1;
-  bytes wg_psk_pubkey = 2;
-  repeated KemPubkeyExperimentalV1 kem_pubkeys = 3;
-}
-
-message KemPubkeyExperimentalV1 {
-  string algorithm_name = 1;
-  bytes key_data = 2;
-}
-
-message PskResponseExperimentalV1 {
+message PskResponseV1 {
   repeated bytes ciphertexts = 1;
 }
