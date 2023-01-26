@@ -26,9 +26,14 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add quit button to tray context menu on Linux and Window.
 - Add search bar to location list in desktop app.
+- Add Kyber1024 KEM algorithm into the Post-Quantum secure key exchange algorithm
 
 #### Windows
 - Remove all settings when the app is uninstalled silently.
+
+### Changed
+- Update the Post-Quantum secure key exchange gRPC client to use the stabilized
+  `PskExchangeV1` endpoint
 
 ### Removed
 #### macOS
