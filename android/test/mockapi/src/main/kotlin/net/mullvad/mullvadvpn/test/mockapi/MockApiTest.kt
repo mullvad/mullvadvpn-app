@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
@@ -56,6 +57,7 @@ abstract class MockApiTest {
         )
 
         mockWebServer.start()
+        Log.d(LOG_TAG, "Mocked web server started using port: ${mockWebServer.port}")
         endpoint = createEndpoint(mockWebServer.port)
     }
 
