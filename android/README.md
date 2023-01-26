@@ -36,3 +36,7 @@ the tool used to sync translations between the Android and Desktop apps.
 
 [gui-locales-readme]: ../gui/locales/README.md
 [translations-converter-readme]: ./translations-converter/README.md
+
+## Icons and assets
+
+For a general overview of icons and graphics read [the graphics readme](../graphics/README.md).

@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 
-# Icon guidlines for MacOS:
+# This script creates the macOS .icns from the icons in /graphics/macOS/ which need to be updated
+# first if the source SVGs have been updated. More info about how to update them can be found in
+# the readme.
+#
+# Icon guidlines for macOS:
 # https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon/
+#
+# Icon templates for macOS:
+# https://developer.apple.com/design/resources/
 #
 # Icon guidlines for Windows:
 # https://docs.microsoft.com/en-us/windows/uwp/design/style/app-icons-and-logos#target-size-app-icon-assets
 # https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-icons
+
+echo "Press enter to continue if you've followed the instructions in graphics/README.md"
+read -r
 
 set -eu
 
@@ -23,6 +33,8 @@ if ! command -v iconutil > /dev/null; then
     echo >&2 "iconutil is required to run this script"
     exit 1
 fi
+
+
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
