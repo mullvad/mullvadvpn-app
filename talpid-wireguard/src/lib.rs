@@ -387,6 +387,7 @@ impl WireguardMonitor {
                 }
             }
 
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
             // TODO: Why is this not allowed? Not sure, but it isn't.
             //let tun_config = Self::patch_allowed_ips(&config, psk_negotiation);
             let set_config_future = tunnel
@@ -399,6 +400,9 @@ impl WireguardMonitor {
                     .map_err(Error::TunnelError)
                     .map_err(CloseMsg::SetupError)?;
             }
+
+            let allowed_traffic = AllowedTunnelTraffic::All;
+            (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic)).await;
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
