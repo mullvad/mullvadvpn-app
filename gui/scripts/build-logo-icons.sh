@@ -14,7 +14,7 @@
 # https://docs.microsoft.com/en-us/windows/uwp/design/style/app-icons-and-logos#target-size-app-icon-assets
 # https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-icons
 
-echo "Press enter to continue if you've followed the instructions in gui/scripts/README.md"
+echo "Press enter to continue if you've followed the instructions in graphics/README.md"
 read -r
 
 set -eu

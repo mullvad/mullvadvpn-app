@@ -104,3 +104,14 @@ and save the output into `requirements.txt`.
 ```
 hashin --python 3.7 --verbose --update-all
 ```
+
+## Icons and assets
+
+For a general overview of icons and graphics read [the graphics readme](../graphics/README.md).
+
+To copy graphical assets from the desktop GUI and generate iOS assets, run:
+```bash
+ios/convert-assets.rb --app-icon
+ios/convert-assets.rb --import-desktop-assets
+ios/convert-assets.rb --additional-assets
+```

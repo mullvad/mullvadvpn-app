@@ -1,14 +1,5 @@
 This is a folder with the supporting scripts written in Python 3, node, bash.
 
-## Logo icons
-
-The logo icons used in the desktop app are generated from the source SVGs in `/graphics/`. To update
-all these icons when the source SVGs change, perform the following steps:
-1. Create the macOS icons by inserting the updated `/graphics/icon-square.svg` into Apple's macOS
-icon template available at https://developer.apple.com/design/resources/.
-1. Save the icons to `/graphics/macOS/`
-1. Run `scripts/build-logo-icons.sh`
-
 
 ## Maps and location translations
 

@@ -375,38 +375,7 @@ The GUI has a specific settings file that is configured for each user. The path 
 
 ## Icons
 
-Icons such as the logo and menubar icons are automatically generated. The source files are:
-| Path | Usage |
-|------|-------|
-| `graphics/icon.svg` | The logo icon used for e.g. application icon and in app logo |
-| `graphics/icon-mono.svg` | The logo icon used for the android notification icon |
-| `graphics/icon-square.svg` | Logo icon used to generate the iOS application icon |
-| `gui/assets/images/*.svg` | Icons used to generate iOS icons and used in the desktop app |
-| `gui/assets/images/menubar icons/svg/*.svg` | The frames for the menubar icon |
-
-Generate desktop icon by running
-```bash
-gui/scripts/build-logo-icons.sh
-```
-
-Generate android icons
-```bash
-android/scripts/generate-pngs.sh
-```
-
-Generate iOS icon and assets
-```bash
-ios/convert-assets.rb --app-icon
-ios/convert-assets.rb --import-desktop-assets
-ios/convert-assets.rb --additional-assets
-```
-
-Generate desktop menubar icons
-```bash
-gui/scripts/build-menubar-icons.sh
-```
-
-The menubar icons are described futher [here](./gui/assets/images/menubar%20icons/README.md).
+See [graphics README](graphics/README.md) for information about icons.
 
 ## Locales and translations
 
