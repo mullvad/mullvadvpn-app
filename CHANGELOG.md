@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2023.1-beta1] - 2023-01-26
 ### Added
 - Add quit button to tray context menu on Linux and Window.
 - Add search bar to location list in desktop app.
@@ -30,9 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove all settings when the app is uninstalled silently.
 
-### Removed
-#### macOS
-- Remove ⌘Q shortcut.
+### Changed
+- Update Electron from 19.0.13 to 21.1.1.
 
 ### Fixed
 - When a country is selected, and the constraints only match relays that are not included on the
@@ -48,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Remove last filesystem dependency of early boot blocking unit.
 - Ensure RPM package removes all application directories when uninstalled.
+- Fix architecture field for ARM RPM builds so the app installs on Fedora based distros.
 
 #### Windows
 - Ignore adapters that have no valid GUID when removing obsolete Wintun interfaces during install.
@@ -56,8 +59,9 @@ Line wrap the file at 100 chars.                                              Th
   `TALPID_DNS_MODULE` can be used to override this.
 - Fix deadlock that could occur when the default route changed while initializing split tunneling.
 
-### Changed
-- Update Electron from 19.0.13 to 21.1.1.
+### Removed
+#### macOS
+- Remove ⌘Q shortcut.
 
 ### Security
 #### Windows
