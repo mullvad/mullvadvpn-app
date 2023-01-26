@@ -28,6 +28,7 @@ on:
     branches: [master]
 jobs:
   prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +48,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   build:
+    name: Build app and run unit tests
     needs: prepare
     runs-on: ubuntu-latest
     container:
@@ -92,7 +94,7 @@ jobs:
           STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
           NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-strip"
           ./wireguard/build-wireguard-go.sh --android --no-docker
-          cargo build --target $TARGET --verbose --package mullvad-jni
+          cargo build --target $TARGET --verbose --package mullvad-jni --features api-override
           cargo run --bin relay_list > build/relays.json
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
@@ -113,7 +115,7 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
-      - name: Assemble instrumented test apk
+      - name: Assemble instrumented test apk (app)
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk11
@@ -122,21 +124,34 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
+      - name: Assemble instrumented test apk (mockapi)
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk11
+          arguments: :test:mockapi:assemble
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
+
       - name: Upload apks
         uses: actions/upload-artifact@v3
         with:
           name: apks
-          path: android/app/build/outputs/apk
+          path: |
+            android/app/build/outputs/apk
+            android/test/mockapi/build/outputs/apk
           if-no-files-found: error
           retention-days: 1
 
   instrumented-tests:
-    name: Instrumented tests
+    name: Run instrumented tests
     runs-on: [self-hosted, android-emulator]
     timeout-minutes: 30
     needs: [build]
     strategy:
       fail-fast: false
+      matrix:
+        test-type: [app, mockapi]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -144,8 +159,20 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: apks
-          path: android/app/build/outputs/apk
+          path: android
 
-      - name: Run Android instrumented tests
+      - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
-        run: ./android/scripts/run-instrumented-tests.sh app
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+        run: |
+          ./android/scripts/run-instrumented-tests.sh ${{ matrix.test-type }}
+
+      - name: Upload instrumentation report (${{ matrix.test-type }})
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-report
+          path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
+          if-no-files-found: ignore
+          retention-days: 1

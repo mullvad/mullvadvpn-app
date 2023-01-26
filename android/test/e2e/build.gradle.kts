@@ -43,7 +43,6 @@ android {
 
         testInstrumentationRunnerArguments += mutableMapOf<String, String>().apply {
             put("clearPackageData", "true")
-            put("useTestStorageService", "true")
             addOptionalPropertyAsArgument("valid_test_account_token")
             addOptionalPropertyAsArgument("invalid_test_account_token")
         }
