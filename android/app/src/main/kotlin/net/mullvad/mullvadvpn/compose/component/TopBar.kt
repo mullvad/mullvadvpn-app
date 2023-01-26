@@ -16,11 +16,19 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
+
+@Preview
+@Composable
+fun PreviewTopBar() {
+    TopBar(
+        backgroundColor = colorResource(R.color.blue),
+        onSettingsClicked = {}
+    )
+}
 
 @Composable
 fun TopBar(
@@ -44,29 +52,26 @@ fun TopBar(
                 .width(44.dp)
                 .height(44.dp)
                 .constrainAs(logo) {
+                    centerVerticallyTo(parent)
                     start.linkTo(parent.start, margin = 16.dp)
-                    top.linkTo(parent.top, margin = 12.dp)
-                    bottom.linkTo(parent.bottom, margin = 12.dp)
-                }
-        )
-
-        CapsText(
-            text = stringResource(id = R.string.app_name),
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            color = colorResource(id = R.color.white80),
-            modifier = Modifier
-                .constrainAs(appName) {
-                    start.linkTo(logo.end, margin = 9.dp)
-                    top.linkTo(parent.top, margin = 12.dp)
                 }
         )
 
         Icon(
+            painter = painterResource(id = R.drawable.logo_text),
+            tint = colorResource(id = R.color.white80),
+            contentDescription = null, // No meaningful user info or action.
+            modifier = Modifier
+                .height(16.dp)
+                .constrainAs(appName) {
+                    centerVerticallyTo(parent)
+                    start.linkTo(logo.end, margin = 8.dp)
+                }
+        )
+
+        Image(
             painter = painterResource(R.drawable.icon_settings),
             contentDescription = stringResource(id = R.string.settings),
-            tint = Color.White,
-
             modifier = Modifier
                 .clickable { onSettingsClicked() }
                 .fillMaxHeight()
