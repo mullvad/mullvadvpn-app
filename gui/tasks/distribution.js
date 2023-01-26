@@ -332,6 +332,10 @@ function packLinux() {
     config.rpm.fpm.unshift('--rpm-compression', 'none');
   }
 
+  if (targets && targets === 'aarch64-unknown-linux-gnu') {
+      config.rpm.fpm.unshift('--architecture', 'aarch64')
+  }
+
   return builder.build({
     targets: builder.Platform.LINUX.createTarget(),
     config: {
