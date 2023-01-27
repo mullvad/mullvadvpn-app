@@ -116,6 +116,10 @@ msgstr "ကလိဗ်လန့် ၊ အိုဟိုင်းယိုး"
 msgid "Copenhagen"
 msgstr "ကိုပင်ဟေဂင်"
 
+#. HR
+msgid "Croatia"
+msgstr ""
+
 #. CZ
 msgid "Czech Republic"
 msgstr "ချက်သမ္မတနိုင်ငံ"
@@ -388,6 +392,10 @@ msgstr "ရီဂါ"
 msgid "Romania"
 msgstr "ရိုမေးနီးယား"
 
+#. IT ROM
+msgid "Rome"
+msgstr ""
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "ဆော့တ်လိတ်ခ်စီးတီး၊ ယူတာ"
@@ -528,7 +536,10 @@ msgstr "ဝါရှင်တန်ဒီစီ"
 msgid "Wien"
 msgstr "ဗင်း"
 
+#. HR ZAG
+msgid "Zagreb"
+msgstr ""
+
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-

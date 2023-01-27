@@ -106,6 +106,10 @@ msgstr ""
 msgid "Copenhagen"
 msgstr ""
 
+#. HR
+msgid "Croatia"
+msgstr ""
+
 #. CZ
 msgid "Czech Republic"
 msgstr ""
@@ -378,6 +382,10 @@ msgstr ""
 msgid "Romania"
 msgstr ""
 
+#. IT ROM
+msgid "Rome"
+msgstr ""
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr ""
@@ -516,6 +524,10 @@ msgstr ""
 
 #. AT VIE
 msgid "Wien"
+msgstr ""
+
+#. HR ZAG
+msgid "Zagreb"
 msgstr ""
 
 #. CH ZRH
