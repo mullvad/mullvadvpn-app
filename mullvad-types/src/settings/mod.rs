@@ -204,9 +204,10 @@ pub struct TunnelOptions {
     pub generic: GenericTunnelOptions,
     /// DNS options.
     pub dns_options: DnsOptions,
+    pub trusted_dns_options: TrustedDnsOptions,
 }
 
-pub use dns::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
+pub use dns::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, TrustedDnsOptions, DnsState};
 
 impl Default for TunnelOptions {
     fn default() -> Self {
@@ -221,6 +222,7 @@ impl Default for TunnelOptions {
                 enable_ipv6: cfg!(target_os = "android"),
             },
             dns_options: DnsOptions::default(),
+            trusted_dns_options: TrustedDnsOptions::default(),
         }
     }
 }

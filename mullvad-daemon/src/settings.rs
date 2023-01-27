@@ -2,7 +2,7 @@
 use futures::TryFutureExt;
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
-    settings::{DnsOptions, Settings},
+    settings::{DnsOptions, TrustedDnsOptions, Settings},
     wireguard::RotationInterval,
 };
 use rand::Rng;
@@ -266,6 +266,12 @@ impl SettingsPersister {
     pub async fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.dns_options, options);
+        self.update(should_save).await
+    }
+
+    pub async fn set_trusted_dns_options(&mut self, options: TrustedDnsOptions) -> Result<bool, Error> {
+        let should_save =
+            Self::update_field(&mut self.settings.tunnel_options.trusted_dns_options, options);
         self.update(should_save).await
     }
 
