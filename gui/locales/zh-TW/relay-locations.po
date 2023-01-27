@@ -116,6 +116,10 @@ msgstr "俄亥俄州，克利夫蘭"
 msgid "Copenhagen"
 msgstr "哥本哈根"
 
+#. HR
+msgid "Croatia"
+msgstr ""
+
 #. CZ
 msgid "Czech Republic"
 msgstr "捷克共和國"
@@ -388,6 +392,10 @@ msgstr "里加"
 msgid "Romania"
 msgstr "羅馬尼亞"
 
+#. IT ROM
+msgid "Rome"
+msgstr ""
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "猶他州，鹽湖城"
@@ -528,7 +536,10 @@ msgstr "華盛頓特區"
 msgid "Wien"
 msgstr "維也納"
 
+#. HR ZAG
+msgid "Zagreb"
+msgstr ""
+
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
-

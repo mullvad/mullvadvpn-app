@@ -116,6 +116,10 @@ msgstr "클리블랜드, OH"
 msgid "Copenhagen"
 msgstr "코펜하겐"
 
+#. HR
+msgid "Croatia"
+msgstr "크로아티아"
+
 #. CZ
 msgid "Czech Republic"
 msgstr "체코"
@@ -388,6 +392,10 @@ msgstr "리가"
 msgid "Romania"
 msgstr "루마니아"
 
+#. IT ROM
+msgid "Rome"
+msgstr "로마"
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "솔트레이크시티, UT"
@@ -528,7 +536,10 @@ msgstr "워싱턴 DC"
 msgid "Wien"
 msgstr "빈"
 
+#. HR ZAG
+msgid "Zagreb"
+msgstr "자그레브"
+
 #. CH ZRH
 msgid "Zurich"
 msgstr "취리히"
-

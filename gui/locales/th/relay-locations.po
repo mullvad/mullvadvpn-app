@@ -116,6 +116,10 @@ msgstr "คลีฟแลนด์ รัฐโอไฮโอ"
 msgid "Copenhagen"
 msgstr "โคเปนเฮเกน"
 
+#. HR
+msgid "Croatia"
+msgstr ""
+
 #. CZ
 msgid "Czech Republic"
 msgstr "สาธารณรัฐเช็ก"
@@ -388,6 +392,10 @@ msgstr "รีกา"
 msgid "Romania"
 msgstr "โรมาเนีย"
 
+#. IT ROM
+msgid "Rome"
+msgstr ""
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "ซอลต์เลกซิตี รัฐยูทาห์"
@@ -528,7 +536,10 @@ msgstr "วอชิงตัน ดี.ซี."
 msgid "Wien"
 msgstr "วีน"
 
+#. HR ZAG
+msgid "Zagreb"
+msgstr ""
+
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
-
