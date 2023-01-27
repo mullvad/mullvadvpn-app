@@ -334,7 +334,10 @@ impl WireguardMonitor {
                     let mut entry_tun_config = config.clone();
                     // Here we know there are exactly 2 peers, the last one is the exit
                     entry_tun_config.peers.pop();
-                    entry_tun_config.peers.get_mut(0).expect("entry peer not found")
+                    entry_tun_config
+                        .peers
+                        .get_mut(0)
+                        .expect("entry peer not found")
                         .allowed_ips
                         .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 0).unwrap());
 
@@ -344,10 +347,24 @@ impl WireguardMonitor {
                         TransportProtocol::Tcp,
                     ));
                     let close_obfs_sender = close_obfs_sender.clone();
-                    let entry_config = Self::reconfigure_tunnel(&tunnel, entry_tun_config, args.on_event.clone(), allowed_traffic, &iface_name, obfuscator.clone(), close_obfs_sender).await?;
-                    entry_psk =
-                        Some(Self::perform_psk_negotiation(args.retry_attempt, &entry_config, wg_psk_privkey.as_ref().unwrap().public_key())
-                        .await?);
+                    let entry_config = Self::reconfigure_tunnel(
+                        &tunnel,
+                        entry_tun_config,
+                        args.on_event.clone(),
+                        allowed_traffic,
+                        &iface_name,
+                        obfuscator.clone(),
+                        close_obfs_sender,
+                    )
+                    .await?;
+                    entry_psk = Some(
+                        Self::perform_psk_negotiation(
+                            args.retry_attempt,
+                            &entry_config,
+                            wg_psk_privkey.as_ref().unwrap().public_key(),
+                        )
+                        .await?,
+                    );
                     log::debug!("Successfully exchanged PSK with entry peer");
                 }
 
@@ -356,12 +373,23 @@ impl WireguardMonitor {
                 // Set up tunnel to exit and exchange psk
                 let exit_config = Self::patch_allowed_ips(&config, psk_negotiation);
 
-                let allowed_traffic = AllowedTunnelTraffic::All;
                 let close_obfs_sender = close_obfs_sender.clone();
-                let exit_config = Self::reconfigure_tunnel(&tunnel, exit_config.into_owned(), args.on_event.clone(), allowed_traffic, &iface_name, obfuscator.clone(), close_obfs_sender).await?;
-                let exit_psk =
-                    Self::perform_psk_negotiation(args.retry_attempt, &exit_config, wg_psk_privkey.public_key())
-                    .await?;
+                let exit_config = Self::reconfigure_tunnel(
+                    &tunnel,
+                    exit_config.into_owned(),
+                    args.on_event.clone(),
+                    AllowedTunnelTraffic::All,
+                    &iface_name,
+                    obfuscator.clone(),
+                    close_obfs_sender,
+                )
+                .await?;
+                let exit_psk = Self::perform_psk_negotiation(
+                    args.retry_attempt,
+                    &exit_config,
+                    wg_psk_privkey.public_key(),
+                )
+                .await?;
 
                 log::debug!("Successfully exchanged PSK with gateway peer");
 
@@ -377,8 +405,16 @@ impl WireguardMonitor {
                 }
             }
 
-            let allowed_traffic = AllowedTunnelTraffic::All;
-            let config = Self::reconfigure_tunnel(&tunnel, config, args.on_event.clone(), allowed_traffic, &iface_name, obfuscator, close_obfs_sender).await?;
+            let config = Self::reconfigure_tunnel(
+                &tunnel,
+                config,
+                args.on_event.clone(),
+                AllowedTunnelTraffic::All,
+                &iface_name,
+                obfuscator,
+                close_obfs_sender,
+            )
+            .await?;
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
