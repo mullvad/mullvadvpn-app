@@ -2308,6 +2308,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32b79004a05337e54e8ffc0ec7470e40fa26eca6fe182968ec2b803247f2283c"
 dependencies = [
  "rand_core 0.6.4",
+ "zeroize",
 ]
 
 [[package]]
@@ -3304,6 +3305,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
+ "zeroize",
 ]
 
 [[package]]

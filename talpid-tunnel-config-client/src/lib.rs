@@ -1,6 +1,7 @@
 use std::{fmt, net::IpAddr};
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tonic::transport::Channel;
+use zeroize::Zeroize;
 
 mod classic_mceliece;
 mod kyber;
@@ -14,8 +15,14 @@ mod proto {
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
-    InvalidCiphertextLength { actual: usize, expected: usize },
-    InvalidCiphertextCount { actual: usize },
+    InvalidCiphertextLength {
+        algorithm: &'static str,
+        actual: usize,
+        expected: usize,
+    },
+    InvalidCiphertextCount {
+        actual: usize,
+    },
     FailedDecapsulateKyber(kyber::KyberError),
 }
 
@@ -25,9 +32,13 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
-            InvalidCiphertextLength { actual, expected } => write!(
+            InvalidCiphertextLength {
+                algorithm,
+                actual,
+                expected,
+            } => write!(
                 f,
-                "Expected a ciphertext of length {expected}, got {actual} bytes"
+                "Expected a {expected} bytes ciphertext for {algorithm}, got {actual} bytes"
             ),
             InvalidCiphertextCount { actual } => {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
@@ -52,14 +63,6 @@ type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureCl
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
-/// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
-/// keys than the larger variants, and is considered safe.
-const CLASSIC_MCELIECE_VARIANT: &str = "Classic-McEliece-460896f-round3";
-
-/// Use the strongest variant of Kyber. It is fast and the keys are small, so there is no practical
-/// benefit of going with anything lower.
-const KYBER_VARIANT: &str = "Kyber1024";
-
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
 /// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
 /// which can then be used to establish a PQ-safe tunnel to the relay.
@@ -79,11 +82,11 @@ pub async fn push_pq_key(
             wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
             kem_pubkeys: vec![
                 proto::KemPubkeyV1 {
-                    algorithm_name: CLASSIC_MCELIECE_VARIANT.to_owned(),
+                    algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
                     key_data: cme_kem_pubkey.as_array().to_vec(),
                 },
                 proto::KemPubkeyV1 {
-                    algorithm_name: KYBER_VARIANT.to_owned(),
+                    algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
                     key_data: kyber_keypair.public.to_vec(),
                 },
             ],
@@ -105,28 +108,23 @@ pub async fn push_pq_key(
 
     // Decapsulate Classic McEliece and mix into PSK
     {
-        let ciphertext_array =
-            <[u8; classic_mceliece::CRYPTO_CIPHERTEXTBYTES]>::try_from(cme_ciphertext.as_slice())
-                .map_err(|_| Error::InvalidCiphertextLength {
-                actual: cme_ciphertext.len(),
-                expected: classic_mceliece::CRYPTO_CIPHERTEXTBYTES,
-            })?;
-        let ciphertext = classic_mceliece::Ciphertext::from(ciphertext_array);
-        let shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, &ciphertext);
+        let mut shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, cme_ciphertext)?;
         xor_assign(&mut psk_data, shared_secret.as_array());
+
+        // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop. But doing it explicitly
+        // provides a stronger guarantee that it's not accidentally removed.
+        shared_secret.zeroize();
     }
     // Decapsulate Kyber and mix into PSK
     {
-        let ciphertext_array = <[u8; kyber::KYBER_CIPHERTEXTBYTES]>::try_from(
-            kyber_ciphertext.as_slice(),
-        )
-        .map_err(|_| Error::InvalidCiphertextLength {
-            actual: kyber_ciphertext.len(),
-            expected: kyber::KYBER_CIPHERTEXTBYTES,
-        })?;
-        let shared_secret = kyber::decapsulate(kyber_keypair.secret, ciphertext_array)
-            .map_err(Error::FailedDecapsulateKyber)?;
+        let mut shared_secret = kyber::decapsulate(kyber_keypair.secret, kyber_ciphertext)?;
         xor_assign(&mut psk_data, &shared_secret);
+
+        // The shared secret is sadly stored in an array on the stack. So we can't get any
+        // guarantees that it's not copied around on the stack. The best we can do here
+        // is to zero out the version we have and hope the compiler optimizes out copies.
+        // https://github.com/Argyle-Software/kyber/issues/59
+        shared_secret.zeroize();
     }
 
     Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
