@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { colors } from '../../config.json';
 import { measurements, tinyText } from './common-styles';
@@ -8,6 +8,7 @@ import ImageView from './ImageView';
 import { Container, Footer, Header, Layout } from './Layout';
 import * as AppButton from './AppButton';
 import { messages } from '../../shared/gettext';
+import { useAppContext } from '../context';
 
 const StyledContainer = styled(Container)({
   flex: 1,
@@ -62,6 +63,7 @@ const Subtitle = styled.span({
 
 interface ErrorViewProps {
   settingsUnavailable?: boolean;
+  showSettingsFooter?: boolean;
   children: React.ReactNode | React.ReactNode[];
 }
 
@@ -75,23 +77,36 @@ export default class ErrorView extends React.Component<ErrorViewProps> {
           <Title height={18} source="logo-text" />
           <Subtitle role="alert">{this.props.children}</Subtitle>
         </StyledContainer>
-        {this.createFooter()}
+        <SettingsFooter show={this.props.showSettingsFooter} />
       </Layout>
     );
   }
+}
 
-  private createFooter() {
-    return (
-      <StyledFooter show={true}>
-        <StyledSystemSettingsContainer>
-          <StyledLaunchFooterPrompt>
-            {messages.pgettext('launch-view', 'Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting.')}
-          </StyledLaunchFooterPrompt>
-          <AppButton.BlueButton>
-            {messages.gettext('Go to System Settings')}
-          </AppButton.BlueButton>
-        </StyledSystemSettingsContainer>
-      </StyledFooter>
-    );
-  }
+interface ISettingsFooterProps {
+  show?: boolean;
+}
+
+function SettingsFooter(props: ISettingsFooterProps) {
+  const { queryDaemonStatus } = useAppContext();
+
+  const openSettings = useCallback(async () => {
+    await queryDaemonStatus();
+  }, []);
+
+  return (
+    <StyledFooter show={props.show ? props.show : false}>
+      <StyledSystemSettingsContainer>
+        <StyledLaunchFooterPrompt>
+          {messages.pgettext(
+            'launch-view',
+            'Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting.',
+          )}
+        </StyledLaunchFooterPrompt>
+        <AppButton.BlueButton onClick={openSettings}>
+          {messages.gettext('Go to System Settings')}
+        </AppButton.BlueButton>
+      </StyledSystemSettingsContainer>
+    </StyledFooter>
+  );
 }
