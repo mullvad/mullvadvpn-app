@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
@@ -68,6 +69,13 @@ export default class UserInterface implements WindowControllerDelegate {
       });
       this.browsingFiles = false;
       return response;
+    });
+
+    IpcMainEventChannel.app.handleShowLaunchDaemonSettings(async () => {
+      return new Promise((resolve, _reject) => {
+        exec('open -W x-apple.systempreferences:com.apple.LoginItems-Settings.extension');
+        resolve();
+      });
     });
   }
 
