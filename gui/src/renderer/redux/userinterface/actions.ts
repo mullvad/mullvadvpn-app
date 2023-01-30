@@ -30,6 +30,11 @@ export interface ISetConnectedToDaemon {
   connectedToDaemon: boolean;
 }
 
+export interface ISetDaemonAllowed {
+  type: 'SET_DAEMON_ALLOWED';
+  daemonAllowed: boolean;
+}
+
 export interface ISetChangelog {
   type: 'SET_CHANGELOG';
   changelog: IChangelog;
@@ -52,6 +57,7 @@ export type UserInterfaceAction =
   | ISetWindowFocusedAction
   | ISetMacOsScrollbarVisibility
   | ISetConnectedToDaemon
+  | ISetDaemonAllowed
   | ISetChangelog
   | ISetForceShowChanges
   | ISetIsPerformingPostUpgrade;
@@ -99,6 +105,13 @@ function setConnectedToDaemon(connectedToDaemon: boolean): ISetConnectedToDaemon
   };
 }
 
+function setDaemonAllowed(daemonAllowed: boolean): ISetDaemonAllowed {
+  return {
+    type: 'SET_DAEMON_ALLOWED',
+    daemonAllowed,
+  };
+}
+
 function setChangelog(changelog: IChangelog): ISetChangelog {
   return {
     type: 'SET_CHANGELOG',
@@ -127,6 +140,7 @@ export default {
   setWindowFocused,
   setMacOsScrollbarVisibility,
   setConnectedToDaemon,
+  setDaemonAllowed,
   setChangelog,
   setForceShowChanges,
   setIsPerformingPostUpgrade,
