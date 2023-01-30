@@ -57,6 +57,7 @@ export interface IAppStateSnapshot {
   tunnelState: TunnelState;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
+  daemonAllowed?: boolean;
   deviceState?: DeviceState;
   relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;
@@ -124,6 +125,7 @@ export const ipcSchema = {
   },
   daemon: {
     isPerformingPostUpgrade: notifyRenderer<boolean>(),
+    daemonAllowed: notifyRenderer<boolean>(),
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
   },
@@ -141,6 +143,7 @@ export const ipcSchema = {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
+    showLaunchDaemonSettings: invoke<void, void>(),
   },
   location: {
     get: invoke<void, ILocation>(),

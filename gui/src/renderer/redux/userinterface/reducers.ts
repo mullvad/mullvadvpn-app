@@ -9,6 +9,7 @@ export interface IUserInterfaceReduxState {
   windowFocused: boolean;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   connectedToDaemon: boolean;
+  daemonAllowed?: boolean;
   changelog: IChangelog;
   forceShowChanges: boolean;
   isPerformingPostUpgrade: boolean;
@@ -20,6 +21,7 @@ const initialState: IUserInterfaceReduxState = {
   windowFocused: false,
   macOsScrollbarVisibility: undefined,
   connectedToDaemon: false,
+  daemonAllowed: undefined,
   changelog: [],
   forceShowChanges: false,
   isPerformingPostUpgrade: false,
@@ -47,6 +49,9 @@ export default function (
 
     case 'SET_CONNECTED_TO_DAEMON':
       return { ...state, connectedToDaemon: action.connectedToDaemon };
+
+    case 'SET_DAEMON_ALLOWED':
+      return { ...state, daemonAllowed: action.daemonAllowed };
 
     case 'SET_CHANGELOG':
       return {

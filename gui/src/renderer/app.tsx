@@ -125,6 +125,10 @@ export default class AppRenderer {
       this.setIsPerformingPostUpgrade(isPerformingPostUpgrade);
     });
 
+    IpcRendererEventChannel.daemon.listenDaemonAllowed((daemonAllowed) => {
+      this.reduxActions.userInterface.setDaemonAllowed(daemonAllowed);
+    });
+
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
       this.setAccountExpiry(newAccountData?.expiry);
     });
@@ -203,6 +207,10 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
+
+    if (initialState.daemonAllowed !== undefined) {
+      this.reduxActions.userInterface.setDaemonAllowed(initialState.daemonAllowed);
+    }
 
     if (initialState.deviceState) {
       const deviceState = initialState.deviceState;
@@ -470,6 +478,10 @@ export default class AppRenderer {
     void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
   }
 
+  public async showLaunchDaemonSettings() {
+    await IpcRendererEventChannel.app.showLaunchDaemonSettings();
+  }
+
   public async sendProblemReport(
     email: string,
     message: string,
@@ -617,6 +629,7 @@ export default class AppRenderer {
   private onDaemonConnected() {
     this.connectedToDaemon = true;
     this.reduxActions.userInterface.setConnectedToDaemon(true);
+    this.reduxActions.userInterface.setDaemonAllowed(true);
     this.resetNavigation();
   }
 
