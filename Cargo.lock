@@ -383,9 +383,9 @@ dependencies = [
 
 [[package]]
 name = "classic-mceliece-rust"
-version = "2.0.0"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0022efd83c4782eb5db72d205319ecf145ae0c8f5f55987538510f0c24b39991"
+checksum = "45ce62f72a15a9071f83c5084bdf0af4e8cbf31431e79eb4a5509a2f7fe7fe5d"
 dependencies = [
  "rand 0.8.5",
  "sha3",
