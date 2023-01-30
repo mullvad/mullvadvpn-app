@@ -155,7 +155,7 @@ impl Formatter {
         message: &fmt::Arguments<'_>,
         record: &log::Record<'_>,
     ) {
-        let message = escape_newlines(format!("{}", message));
+        let message = escape_newlines(format!("{message}"));
 
         out.finish(format_args!(
             "{}[{}][{}] {}",

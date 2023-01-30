@@ -44,7 +44,7 @@ impl Command for Status {
         let state = rpc.get_tunnel_state(()).await?.into_inner();
 
         if debug {
-            println!("Tunnel state: {:#?}", state);
+            println!("Tunnel state: {state:#?}");
         } else {
             let state = TunnelState::try_from(state).expect("invalid tunnel state");
             format::print_state(&state, verbose);
@@ -64,7 +64,7 @@ impl Command for Status {
                             TunnelState::try_from(new_state).expect("invalid tunnel state");
 
                         if debug {
-                            println!("New tunnel state: {:#?}", new_state);
+                            println!("New tunnel state: {new_state:#?}");
                         } else {
                             format::print_state(&new_state, verbose);
                         }
@@ -80,27 +80,27 @@ impl Command for Status {
                     }
                     EventType::Settings(settings) => {
                         if debug {
-                            println!("New settings: {:#?}", settings);
+                            println!("New settings: {settings:#?}");
                         }
                     }
                     EventType::RelayList(relay_list) => {
                         if debug {
-                            println!("New relay list: {:#?}", relay_list);
+                            println!("New relay list: {relay_list:#?}");
                         }
                     }
                     EventType::VersionInfo(app_version_info) => {
                         if debug {
-                            println!("New app version info: {:#?}", app_version_info);
+                            println!("New app version info: {app_version_info:#?}");
                         }
                     }
                     EventType::Device(device) => {
                         if debug {
-                            println!("Device event: {:#?}", device);
+                            println!("Device event: {device:#?}");
                         }
                     }
                     EventType::RemoveDevice(device) => {
                         if debug {
-                            println!("Remove device event: {:#?}", device);
+                            println!("Remove device event: {device:#?}");
                         }
                     }
                 }
@@ -124,10 +124,10 @@ async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
         }
     };
     if let Some(ipv4) = location.ipv4 {
-        println!("IPv4: {}", ipv4);
+        println!("IPv4: {ipv4}");
     }
     if let Some(ipv6) = location.ipv6 {
-        println!("IPv6: {}", ipv6);
+        println!("IPv6: {ipv6}");
     }
 
     println!(

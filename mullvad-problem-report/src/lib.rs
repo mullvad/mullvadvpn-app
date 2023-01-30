@@ -467,7 +467,7 @@ impl ProblemReport {
         }
         // Write empty line to separate metadata from first log
         write_line!(output)?;
-        for &(ref label, ref content) in &self.logs {
+        for (label, content) in &self.logs {
             write_line!(output, "{}", LOG_DELIMITER)?;
             write_line!(output, "Log: {}", label)?;
             write_line!(output, "{}", LOG_DELIMITER)?;
@@ -533,7 +533,7 @@ fn build_mac_regex() -> String {
 
     // five pairs of two hexadecimal chars followed by colon or dash
     // followed by a pair of hexadecimal chars
-    format!("(?:{0}[:-]){{5}}({0})", octet)
+    format!("(?:{octet}[:-]){{5}}({octet})")
 }
 
 fn build_ipv4_regex() -> String {
@@ -549,52 +549,37 @@ fn build_ipv4_regex() -> String {
     let above_0 = "0?[0-9][0-9]?";
 
     // matches 0-255, except 127
-    let first_octet = format!(
-        "(?:{}|{}|{}|{})",
-        above_250, above_200, above_100_not_127, above_0
-    );
+    let first_octet = format!("(?:{above_250}|{above_200}|{above_100_not_127}|{above_0})");
 
     // matches 0-255
-    let ip_octet = format!("(?:{}|{}|{}|{})", above_250, above_200, above_100, above_0);
+    let ip_octet = format!("(?:{above_250}|{above_200}|{above_100}|{above_0})");
 
-    format!("(?:{0}\\.{1}\\.{1}\\.{1})", first_octet, ip_octet)
+    format!("(?:{first_octet}\\.{ip_octet}\\.{ip_octet}\\.{ip_octet})")
 }
 
 fn build_ipv6_regex() -> String {
     // Regular expression obtained from:
     // https://stackoverflow.com/a/17871737
     let ipv4_segment = "(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
-    let ipv4_address = format!("({0}\\.){{3,3}}{0}", ipv4_segment);
+    let ipv4_address = format!("({ipv4_segment}\\.){{3,3}}{ipv4_segment}");
 
     let ipv6_segment = "[0-9a-fA-F]{1,4}";
 
-    let long = format!("({0}:){{7,7}}{0}", ipv6_segment);
-    let compressed_1 = format!("({0}:){{1,7}}:", ipv6_segment);
-    let compressed_2 = format!("({0}:){{1,6}}:{0}", ipv6_segment);
-    let compressed_3 = format!("({0}:){{1,5}}(:{0}){{1,2}}", ipv6_segment);
-    let compressed_4 = format!("({0}:){{1,4}}(:{0}){{1,3}}", ipv6_segment);
-    let compressed_5 = format!("({0}:){{1,3}}(:{0}){{1,4}}", ipv6_segment);
-    let compressed_6 = format!("({0}:){{1,2}}(:{0}){{1,5}}", ipv6_segment);
-    let compressed_7 = format!("{0}:((:{0}){{1,6}})", ipv6_segment);
-    let compressed_8 = format!(":((:{0}){{1,7}}|:)", ipv6_segment);
+    let long = format!("({ipv6_segment}:){{7,7}}{ipv6_segment}");
+    let compressed_1 = format!("({ipv6_segment}:){{1,7}}:");
+    let compressed_2 = format!("({ipv6_segment}:){{1,6}}:{ipv6_segment}");
+    let compressed_3 = format!("({ipv6_segment}:){{1,5}}(:{ipv6_segment}){{1,2}}");
+    let compressed_4 = format!("({ipv6_segment}:){{1,4}}(:{ipv6_segment}){{1,3}}");
+    let compressed_5 = format!("({ipv6_segment}:){{1,3}}(:{ipv6_segment}){{1,4}}");
+    let compressed_6 = format!("({ipv6_segment}:){{1,2}}(:{ipv6_segment}){{1,5}}");
+    let compressed_7 = format!("{ipv6_segment}:((:{ipv6_segment}){{1,6}})");
+    let compressed_8 = format!(":((:{ipv6_segment}){{1,7}}|:)");
     let link_local = "[Ff][Ee]80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}";
-    let ipv4_mapped = format!("::([fF]{{4}}(:0{{1,4}}){{0,1}}:){{0,1}}{}", ipv4_address);
-    let ipv4_embedded = format!("({0}:){{1,4}}:{1}", ipv6_segment, ipv4_address);
+    let ipv4_mapped = format!("::([fF]{{4}}(:0{{1,4}}){{0,1}}:){{0,1}}{ipv4_address}");
+    let ipv4_embedded = format!("({ipv6_segment}:){{1,4}}:{ipv4_address}");
 
     format!(
-        "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}",
-        long,
-        link_local,
-        ipv4_mapped,
-        ipv4_embedded,
-        compressed_8,
-        compressed_7,
-        compressed_6,
-        compressed_5,
-        compressed_4,
-        compressed_3,
-        compressed_2,
-        compressed_1,
+        "{long}|{link_local}|{ipv4_mapped}|{ipv4_embedded}|{compressed_8}|{compressed_7}|{compressed_6}|{compressed_5}|{compressed_4}|{compressed_3}|{compressed_2}|{compressed_1}",
     )
 }
 
@@ -701,7 +686,7 @@ mod tests {
 
     fn assert_redacts(input: &str) {
         let report = ProblemReport::new(vec![]);
-        let actual = report.redact(&format!("pre {} post", input));
+        let actual = report.redact(&format!("pre {input} post"));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
@@ -733,11 +718,7 @@ mod tests {
             if key == "id" {
                 assert_ne!(parsed_value, value, "id not supposed to match");
             } else {
-                assert_eq!(
-                    parsed_value, value,
-                    "value for key '{}' does not match",
-                    key
-                );
+                assert_eq!(parsed_value, value, "value for key '{key}' does not match");
             }
         }
     }

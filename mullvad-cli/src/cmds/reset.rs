@@ -31,7 +31,7 @@ impl Reset {
         loop {
             let mut buf = String::new();
             if let Err(e) = stdin().read_line(&mut buf) {
-                eprintln!("Couldn't read from STDIN: {}", e);
+                eprintln!("Couldn't read from STDIN: {e}");
                 return false;
             }
             match buf.trim() {

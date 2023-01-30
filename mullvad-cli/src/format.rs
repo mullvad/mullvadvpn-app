@@ -58,14 +58,14 @@ fn format_relay_connection(
                 city: Some(city),
                 ..
             }) => {
-                format!("{exit} in {}, {}", city, country)
+                format!("{exit} in {city}, {country}")
             }
             Some(GeoIpLocation {
                 country,
                 city: None,
                 ..
             }) => {
-                format!("{exit} in {}", country)
+                format!("{exit} in {country}")
             }
             None => exit,
         }
@@ -163,7 +163,7 @@ fn print_error_state(error_state: &ErrorState) {
     match error_state.cause() {
         #[cfg(target_os = "linux")]
         cause @ talpid_types::tunnel::ErrorStateCause::SetFirewallPolicyError(_) => {
-            println!("Blocked: {}", cause);
+            println!("Blocked: {cause}");
             println!("Your kernel might be terribly out of date or missing nftables");
         }
         talpid_types::tunnel::ErrorStateCause::AuthFailed(Some(auth_failed)) => {
@@ -172,7 +172,7 @@ fn print_error_state(error_state: &ErrorState) {
                 get_auth_failed_message(AuthFailed::from(auth_failed.as_str()))
             );
         }
-        cause => println!("Blocked: {}", cause),
+        cause => println!("Blocked: {cause}"),
     }
 }
 

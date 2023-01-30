@@ -58,7 +58,7 @@ impl DevicesProxy {
             let response = rest::send_json_request(
                 &factory,
                 service,
-                &format!("{}/devices", ACCOUNTS_URL_PREFIX),
+                &format!("{ACCOUNTS_URL_PREFIX}/devices"),
                 Method::POST,
                 &submission,
                 Some((access_proxy, account)),
@@ -108,7 +108,7 @@ impl DevicesProxy {
             let response = rest::send_request(
                 &factory,
                 service,
-                &format!("{}/devices/{}", ACCOUNTS_URL_PREFIX, id),
+                &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"),
                 Method::GET,
                 Some((access_proxy, account)),
                 &[StatusCode::OK],
@@ -129,7 +129,7 @@ impl DevicesProxy {
             let response = rest::send_request(
                 &factory,
                 service,
-                &format!("{}/devices", ACCOUNTS_URL_PREFIX),
+                &format!("{ACCOUNTS_URL_PREFIX}/devices"),
                 Method::GET,
                 Some((access_proxy, account)),
                 &[StatusCode::OK],
@@ -151,7 +151,7 @@ impl DevicesProxy {
             let response = rest::send_request(
                 &factory,
                 service,
-                &format!("{}/devices/{}", ACCOUNTS_URL_PREFIX, id),
+                &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"),
                 Method::DELETE,
                 Some((access_proxy, account)),
                 &[StatusCode::NO_CONTENT],
@@ -184,7 +184,7 @@ impl DevicesProxy {
             let response = rest::send_json_request(
                 &factory,
                 service,
-                &format!("{}/devices/{}/pubkey", ACCOUNTS_URL_PREFIX, id),
+                &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}/pubkey"),
                 Method::PUT,
                 &req_body,
                 Some((access_proxy, account)),

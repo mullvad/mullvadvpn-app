@@ -69,8 +69,7 @@ impl ApiConnectionMode {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg(&format!(
-                        "Failed to deserialize \"{}\"",
-                        CURRENT_CONFIG_FILENAME
+                        "Failed to deserialize \"{CURRENT_CONFIG_FILENAME}\""
                     ))
                 );
                 io::Error::new(io::ErrorKind::Other, "deserialization failed")

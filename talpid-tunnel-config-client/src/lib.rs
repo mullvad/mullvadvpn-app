@@ -22,7 +22,7 @@ impl std::fmt::Display for Error {
         use Error::*;
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
-            GrpcError(status) => write!(f, "RPC failed: {}", status),
+            GrpcError(status) => write!(f, "RPC failed: {status}"),
             InvalidCiphertextLength { actual, expected } => write!(
                 f,
                 "Expected a ciphertext of length {expected}, got {actual} bytes"

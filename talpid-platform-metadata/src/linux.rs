@@ -14,7 +14,7 @@ pub fn version() -> String {
         })
     });
 
-    format!("Linux {}", version)
+    format!("Linux {version}")
 }
 
 pub fn short_version() -> String {
@@ -22,7 +22,7 @@ pub fn short_version() -> String {
         parse_lsb_release().unwrap_or_else(|| String::from("[Failed to detect version]"))
     });
 
-    format!("Linux {}", version)
+    format!("Linux {version}")
 }
 
 fn read_os_release_file_short() -> Option<String> {
@@ -33,7 +33,7 @@ fn read_os_release_file_short() -> Option<String> {
     if let Some(os_name) = os_name {
         if os_name != "NixOS" {
             if let Some(os_version_id) = os_version_id {
-                return Some(format!("{} {}", os_name, os_version_id));
+                return Some(format!("{os_name} {os_version_id}"));
             }
         }
     }

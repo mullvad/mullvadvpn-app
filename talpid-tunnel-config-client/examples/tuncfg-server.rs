@@ -57,14 +57,14 @@ impl PostQuantumSecure for PostQuantumSecureImpl {
             };
 
             ciphertexts.push(ciphertext);
-            println!("\tshared secret: {:?}", shared_secret);
+            println!("\tshared secret: {shared_secret:?}");
             for (psk_byte, shared_secret_byte) in psk_data.iter_mut().zip(shared_secret.iter()) {
                 *psk_byte ^= shared_secret_byte;
             }
         }
 
         let psk = PresharedKey::from(psk_data);
-        println!("psk: {:?}", psk);
+        println!("psk: {psk:?}");
         println!("==============================================");
         Ok(Response::new(PskResponseExperimentalV1 { ciphertexts }))
     }

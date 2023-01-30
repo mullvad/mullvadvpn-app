@@ -651,7 +651,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         log::debug!("Writing credentials to {}", temp_file.as_ref().display());
         let mut file = fs::File::create(&temp_file)?;
         Self::set_user_pass_file_permissions(&file)?;
-        write!(file, "{}\n{}\n", username, password)?;
+        write!(file, "{username}\n{password}\n")?;
         Ok(temp_file)
     }
 
@@ -1076,9 +1076,9 @@ mod event_server {
     {
         let uuid = uuid::Uuid::new_v4().to_string();
         let ipc_path = if cfg!(windows) {
-            format!("//./pipe/talpid-openvpn-{}", uuid)
+            format!("//./pipe/talpid-openvpn-{uuid}")
         } else {
-            format!("/tmp/talpid-openvpn-{}", uuid)
+            format!("/tmp/talpid-openvpn-{uuid}")
         };
 
         let endpoint = IpcEndpoint::new(ipc_path.clone());

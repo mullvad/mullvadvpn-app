@@ -20,7 +20,7 @@ pub fn parse_ip_addr(bytes: &[u8]) -> Result<IpAddr, DecodeError> {
         Ok(IpAddr::from(ipv6_bytes))
     } else {
         log::error!("Expected either 4 or 16 bytes, got {} bytes", bytes.len());
-        Err(format!("Invalid bytes for IP address: {:?}", bytes).into())
+        Err(format!("Invalid bytes for IP address: {bytes:?}").into())
     }
 }
 
@@ -31,7 +31,7 @@ pub fn parse_wg_key(buffer: &[u8]) -> Result<[u8; 32], DecodeError> {
             key.clone_from_slice(buffer);
             Ok(key)
         }
-        anything_else => Err(format!("Unexpected length of key: {}", anything_else).into()),
+        anything_else => Err(format!("Unexpected length of key: {anything_else}").into()),
     }
 }
 
@@ -61,7 +61,7 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
             Ok(InetAddr::V6(*sockaddr))
         },
         unexpected_addr_family => {
-            Err(format!("Unexpected address family: {}", unexpected_addr_family).into())
+            Err(format!("Unexpected address family: {unexpected_addr_family}").into())
         }
     }
 }
@@ -80,7 +80,7 @@ pub fn parse_timespec(buffer: &[u8]) -> Result<TimeSpec, DecodeError> {
 
 pub fn parse_cstring(buffer: &[u8]) -> Result<CString, DecodeError> {
     Ok(CStr::from_bytes_with_nul(buffer)
-        .map_err(|err| format!("{}", err))?
+        .map_err(|err| format!("{err}"))?
         .into())
 }
 

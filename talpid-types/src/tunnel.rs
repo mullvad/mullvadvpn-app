@@ -181,7 +181,7 @@ impl fmt::Display for ErrorStateCause {
                     FirewallPolicyError::Locked(Some(value)) => {
                         write!(f, "{}: {} (pid {})", err, value.name, value.pid)
                     }
-                    _ => write!(f, "{}", err),
+                    _ => write!(f, "{err}"),
                 };
             }
             SetDnsError => "Failed to set system DNS server",
@@ -199,7 +199,7 @@ impl fmt::Display for ErrorStateCause {
             }
             StartTunnelError => "Failed to start connection to remote server",
             TunnelParameterError(ref err) => {
-                return write!(f, "Failure to generate tunnel parameters: {}", err);
+                return write!(f, "Failure to generate tunnel parameters: {err}");
             }
             IsOffline => "This device is offline, no tunnels can be established",
             #[cfg(target_os = "android")]
@@ -208,6 +208,6 @@ impl fmt::Display for ErrorStateCause {
             SplitTunnelError => "The split tunneling module reported an error",
         };
 
-        write!(f, "{}", description)
+        write!(f, "{description}")
     }
 }

@@ -144,15 +144,15 @@ impl PartialOrd for ParsedAppVersion {
 impl ToString for ParsedAppVersion {
     fn to_string(&self) -> String {
         match self {
-            Self::Stable(year, version) => format!("{}.{}", year, version),
+            Self::Stable(year, version) => format!("{year}.{version}"),
             Self::Beta(year, version, beta_version) => {
-                format!("{}.{}-beta{}", year, version, beta_version)
+                format!("{year}.{version}-beta{beta_version}")
             }
             Self::Dev(year, version, beta_version, hash) => {
                 if let Some(beta_version) = beta_version {
-                    format!("{}.{}-beta{}-dev-{}", year, version, beta_version, hash)
+                    format!("{year}.{version}-beta{beta_version}-dev-{hash}")
                 } else {
-                    format!("{}.{}-dev-{}", year, version, hash)
+                    format!("{year}.{version}-dev-{hash}")
                 }
             }
         }

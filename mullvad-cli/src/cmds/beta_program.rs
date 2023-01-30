@@ -34,7 +34,7 @@ impl Command for BetaProgram {
                 } else {
                     "off"
                 };
-                println!("Beta program: {}", enabled_str);
+                println!("Beta program: {enabled_str}");
                 Ok(())
             }
             Some(("set", matches)) => {
@@ -50,7 +50,7 @@ impl Command for BetaProgram {
                 let mut rpc = new_rpc_client().await?;
                 rpc.set_show_beta_releases(enable).await?;
 
-                println!("Beta program: {}", enable_str);
+                println!("Beta program: {enable_str}");
                 Ok(())
             }
             _ => {

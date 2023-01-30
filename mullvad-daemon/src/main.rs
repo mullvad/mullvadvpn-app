@@ -24,7 +24,7 @@ const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 fn main() {
     let config = cli::get_config();
     let log_dir = init_daemon_logging(config).unwrap_or_else(|error| {
-        eprintln!("{}", error);
+        eprintln!("{error}");
         std::process::exit(1)
     });
 
@@ -122,7 +122,7 @@ async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<
     if config.initialize_firewall_and_exit {
         return crate::early_boot_firewall::initialize_firewall()
             .await
-            .map_err(|err| format!("{}", err));
+            .map_err(|err| format!("{err}"));
     }
     run_standalone(log_dir).await
 }

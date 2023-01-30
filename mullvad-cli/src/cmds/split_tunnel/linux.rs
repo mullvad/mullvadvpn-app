@@ -71,7 +71,7 @@ impl SplitTunnel {
                 println!("Excluded PIDs:");
 
                 while let Some(pid) = pids_stream.message().await? {
-                    println!("    {}", pid);
+                    println!("    {pid}");
                 }
 
                 Ok(())
