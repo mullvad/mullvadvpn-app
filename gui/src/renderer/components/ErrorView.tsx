@@ -1,14 +1,14 @@
-import styled from 'styled-components';
 import React, { useCallback } from 'react';
+import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { messages } from '../../shared/gettext';
+import { useAppContext } from '../context';
+import * as AppButton from './AppButton';
 import { measurements, tinyText } from './common-styles';
 import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Footer, Header, Layout } from './Layout';
-import * as AppButton from './AppButton';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
 
 const StyledContainer = styled(Container)({
   flex: 1,
