@@ -24,7 +24,7 @@
     <color name="red40">#66E34039</color>
     <color name="yellow">#FFD323</color>
     <color name="textInputBorder">#234161</color>
-    <color name="ic_launcher_background">@color/darkBlue</color>
+    <color name="icon_background">@color/darkBlue</color>
     <!-- Switch Colors -->
     <color name="switch_thumb_fill_checked">@color/green</color>
     <color name="switch_thumb_fill_unchecked">@color/red</color>
