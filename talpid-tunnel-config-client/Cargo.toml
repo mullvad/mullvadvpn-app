@@ -15,7 +15,9 @@ tonic = "0.8"
 prost = "0.11"
 tower = "0.4"
 tokio = "1"
-classic-mceliece-rust = { version = "2.0.0", features = ["mceliece460896f"] }
+classic-mceliece-rust = { version = "2.0.0", features = ["mceliece460896f", "zeroize"] }
+pqc_kyber = { version = "0.4.0", features = ["std", "kyber1024", "zeroize"] }
+zeroize = "1.5.7"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread"] }

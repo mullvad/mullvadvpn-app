@@ -23,6 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add Kyber1024 KEM algorithm into the Post-Quantum secure key exchange algorithm. This means the
+  Quantum-resistant-tunnels feature now mixes both Classic McEliece and Kyber for added protection.
+
+### Changed
+- Update the Post-Quantum secure key exchange gRPC client to use the stabilized
+  `PskExchangeV1` endpoint
+
 ### Fixed
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
