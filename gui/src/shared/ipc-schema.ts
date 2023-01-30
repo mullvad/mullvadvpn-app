@@ -124,6 +124,7 @@ export const ipcSchema = {
   },
   daemon: {
     isPerformingPostUpgrade: notifyRenderer<boolean>(),
+    daemonAllowed: notifyRenderer<boolean>(),
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
   },
