@@ -474,7 +474,8 @@ export default class AppRenderer {
     void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
   }
 
-  public async queryDaemonStatus(): Promise<void> {
+  public async showLaunchDaemonSettings() {
+    await IpcRendererEventChannel.app.showLaunchDaemonSettings();
   }
 
   public async sendProblemReport(

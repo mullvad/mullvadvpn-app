@@ -88,10 +88,10 @@ interface ISettingsFooterProps {
 }
 
 function SettingsFooter(props: ISettingsFooterProps) {
-  const { queryDaemonStatus } = useAppContext();
+  const { showLaunchDaemonSettings } = useAppContext();
 
   const openSettings = useCallback(async () => {
-    await queryDaemonStatus();
+    await showLaunchDaemonSettings();
   }, []);
 
   return (
