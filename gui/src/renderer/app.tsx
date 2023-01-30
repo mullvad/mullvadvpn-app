@@ -125,6 +125,10 @@ export default class AppRenderer {
       this.setIsPerformingPostUpgrade(isPerformingPostUpgrade);
     });
 
+    IpcRendererEventChannel.daemon.listenDaemonAllowed((daemonAllowed) => {
+      this.reduxActions.userInterface.setDaemonAllowed(daemonAllowed);
+    });
+
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
       this.setAccountExpiry(newAccountData?.expiry);
     });
