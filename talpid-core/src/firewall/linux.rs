@@ -579,6 +579,11 @@ impl<'a> PolicyBatch<'a> {
                         AllowedTunnelTraffic::Only(endpoint) => {
                             self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint)?;
                         }
+                        AllowedTunnelTraffic::Many(endpoints) => {
+                            for endpoint in endpoints {
+                                self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint)?;
+                            }
+                        }
                     }
                     if *allow_lan {
                         self.add_block_cve_2019_14899(tunnel);
