@@ -285,14 +285,18 @@ pub enum AllowedTunnelTraffic {
     None,
     All,
     Only(Endpoint),
+    Many(Vec<Endpoint>),
 }
 
 impl fmt::Display for AllowedTunnelTraffic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match *self {
+        match self {
             AllowedTunnelTraffic::None => "None".fmt(f),
             AllowedTunnelTraffic::All => "All".fmt(f),
             AllowedTunnelTraffic::Only(endpoint) => endpoint.fmt(f),
+            AllowedTunnelTraffic::Many(endpoints) => {
+                f.write_fmt(format_args!("{:?}", &endpoints))
+            }
         }
     }
 }

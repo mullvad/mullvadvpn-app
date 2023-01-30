@@ -374,11 +374,32 @@ impl WireguardMonitor {
                 let exit_config = Self::patch_allowed_ips(&config, psk_negotiation);
 
                 let close_obfs_sender = close_obfs_sender.clone();
+
+                let mut allowed_traffic = vec![
+                    Endpoint::new(
+                        config.ipv4_gateway,
+                        talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                        TransportProtocol::Tcp,
+                    ),
+                ];
+                if config.peers.len() > 1 {
+                    // NOTE: We need to let traffic meant for the exit IP through the firewall. This
+                    // should not allow any non-PQ traffic to leak since you can only reach the
+                    // exit peer with these rules and not the broader internet.
+                    allowed_traffic.push(
+                        Endpoint::from_socket_address(
+                            config.peers[1].endpoint,
+                            TransportProtocol::Udp,
+                        ),
+                    );
+                }
+                let allowed_traffic = AllowedTunnelTraffic::Many(allowed_traffic);
+
                 let exit_config = Self::reconfigure_tunnel(
                     &tunnel,
                     exit_config.into_owned(),
                     args.on_event.clone(),
-                    AllowedTunnelTraffic::All,
+                    allowed_traffic,
                     &iface_name,
                     obfuscator.clone(),
                     close_obfs_sender,
@@ -476,6 +497,8 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
+    /// Reconfigures the tunnel to use the provided config while potentially modifying the config
+    /// and restarting the obfuscation provider. Returns the used config.
     async fn reconfigure_tunnel<
         F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
