@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { app, nativeTheme, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
@@ -45,6 +45,7 @@ import NotificationController, {
   NotificationSender,
 } from './notification-controller';
 import * as problemReport from './problem-report';
+import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, {
@@ -88,6 +89,7 @@ class ApplicationMain
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
+  private daemonAllowed?: boolean;
   private quitInitiated = false;
 
   private tunnelStateExpectation?: Expectation;
@@ -384,6 +386,8 @@ class ApplicationMain
       systemPreferences.subscribeNotification('AppleShowScrollBarsSettingChanged', async () => {
         await this.updateMacOsScrollbarVisibility();
       });
+
+      await this.checkMacOsLaunchDaemon();
     }
 
     this.userInterface = new UserInterface(
@@ -591,6 +595,9 @@ class ApplicationMain
     } else {
       log.info('Disconnected from the daemon');
     }
+    if (process.platform === 'darwin') {
+      void this.checkMacOsLaunchDaemon();
+    }
   };
 
   private connectToDaemon() {
@@ -677,6 +684,7 @@ class ApplicationMain
       tunnelState: this.tunnelState.tunnelState,
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
+      daemonAllowed: this.daemonAllowed,
       deviceState: this.account.deviceState,
       relayList: this.relayList,
       currentVersion: this.version.currentVersion,
@@ -873,6 +881,31 @@ class ApplicationMain
 
   private shouldShowWindowOnStart(): boolean {
     return this.settings.gui.unpinnedWindow && !this.settings.gui.startMinimized;
+  }
+
+  private checkMacOsLaunchDaemon(): Promise<void> {
+    const daemonBin = resolveBin('mullvad-daemon');
+    const args = ['--launch-daemon-status'];
+    return new Promise((resolve, _reject) => {
+      execFile(daemonBin, args, { windowsHide: true }, (error, stdout, stderr) => {
+        if (error) {
+          if (error.code === 2) {
+            IpcMainEventChannel.daemon.notifyDaemonAllowed?.(false);
+            this.daemonAllowed = false;
+          } else {
+            log.error(
+              `Error while checking launch daemon authorization status.
+                Stdout: ${stdout.toString()}
+                Stderr: ${stderr.toString()}`,
+            );
+          }
+        } else {
+          IpcMainEventChannel.daemon.notifyDaemonAllowed?.(true);
+          this.daemonAllowed = true;
+        }
+        resolve();
+      });
+    });
   }
 
   private async updateMacOsScrollbarVisibility(): Promise<void> {
