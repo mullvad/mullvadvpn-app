@@ -21,6 +21,6 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("private key: {:?}", private_key);
-    println!("psk: {:?}", psk);
+    println!("private key: {private_key:?}");
+    println!("psk: {psk:?}");
 }

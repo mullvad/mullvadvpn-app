@@ -21,20 +21,20 @@ pub trait ErrorExt {
 
 impl<E: Error> ErrorExt for E {
     fn display_chain(&self) -> String {
-        let mut s = format!("Error: {}", self);
+        let mut s = format!("Error: {self}");
         let mut source = self.source();
         while let Some(error) = source {
-            write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
+            write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
             source = error.source();
         }
         s
     }
 
     fn display_chain_with_msg(&self, msg: &str) -> String {
-        let mut s = format!("Error: {}\nCaused by: {}", msg, self);
+        let mut s = format!("Error: {msg}\nCaused by: {self}");
         let mut source = self.source();
         while let Some(error) = source {
-            write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
+            write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
             source = error.source();
         }
         s

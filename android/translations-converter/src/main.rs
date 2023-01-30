@@ -130,7 +130,7 @@ fn main() {
             &template_path,
             missing_translations
                 .into_iter()
-                .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
+                .inspect(|(missing_translation, id)| println!("  {id}: {missing_translation}"))
                 .map(|(id, _)| gettext::MsgEntry {
                     id: gettext::MsgString::from_unescaped(&id),
                     value: gettext::MsgString::empty().into(),

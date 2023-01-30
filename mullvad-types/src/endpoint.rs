@@ -34,7 +34,7 @@ impl MullvadEndpoint {
         match self {
             Self::Wireguard(endpoint) => endpoint,
             other => {
-                panic!("Expected WireGuard enum variant but got {:?}", other);
+                panic!("Expected WireGuard enum variant but got {other:?}");
             }
         }
     }

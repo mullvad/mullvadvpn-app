@@ -12,7 +12,7 @@ async fn main() {
     println!("endpoint() returns {:?}", obfuscator.endpoint());
 
     if let Err(err) = obfuscator.run().await {
-        println!("obfuscator.run() failed: {:?}", err);
+        println!("obfuscator.run() failed: {err:?}");
     }
 }
 

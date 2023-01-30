@@ -350,7 +350,7 @@ impl Relay {
 
     fn validate_wireguard_key(key_str: &str) -> [u8; 32] {
         let key_bytes = base64::decode(key_str.trim()).unwrap_or_else(|e| {
-            eprintln!("Failed to decode wireguard key: {}", e);
+            eprintln!("Failed to decode wireguard key: {e}");
             std::process::exit(1);
         });
 

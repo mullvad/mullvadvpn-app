@@ -91,7 +91,7 @@ impl Display for StringResources {
         writeln!(formatter, "<resources>")?;
 
         for string in &self.entries {
-            writeln!(formatter, "    {}", string)?;
+            writeln!(formatter, "    {string}")?;
         }
 
         writeln!(formatter, "</resources>")

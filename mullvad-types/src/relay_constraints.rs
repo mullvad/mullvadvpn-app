@@ -151,7 +151,7 @@ impl fmt::Display for RelaySettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             RelaySettings::CustomTunnelEndpoint(endpoint) => {
-                write!(f, "custom endpoint {}", endpoint)
+                write!(f, "custom endpoint {endpoint}")
             }
             RelaySettings::Normal(constraints) => constraints.fmt(f),
         }
@@ -258,7 +258,7 @@ impl fmt::Display for RelayConstraints {
         match self.ownership {
             Constraint::Any => Ok(()),
             Constraint::Only(ref constraint) => {
-                write!(f, " and {}", constraint)
+                write!(f, " and {constraint}")
             }
         }
     }
@@ -414,9 +414,9 @@ impl fmt::Display for Providers {
         write!(f, "provider(s) ")?;
         for (i, provider) in self.providers.iter().enumerate() {
             if i == 0 {
-                write!(f, "{}", provider)?;
+                write!(f, "{provider}")?;
             } else {
-                write!(f, ", {}", provider)?;
+                write!(f, ", {provider}")?;
             }
         }
         Ok(())
@@ -426,10 +426,10 @@ impl fmt::Display for Providers {
 impl fmt::Display for LocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            LocationConstraint::Country(country) => write!(f, "country {}", country),
-            LocationConstraint::City(country, city) => write!(f, "city {}, {}", city, country),
+            LocationConstraint::Country(country) => write!(f, "country {country}"),
+            LocationConstraint::City(country, city) => write!(f, "city {city}, {country}"),
             LocationConstraint::Hostname(country, city, hostname) => {
-                write!(f, "city {}, {}, hostname {}", city, country, hostname)
+                write!(f, "city {city}, {country}, hostname {hostname}")
             }
         }
     }
@@ -454,7 +454,7 @@ impl fmt::Display for OpenVpnConstraints {
             Constraint::Only(port) => {
                 match port.port {
                     Constraint::Any => write!(f, "any port")?,
-                    Constraint::Only(port) => write!(f, "port {}", port)?,
+                    Constraint::Only(port) => write!(f, "port {port}")?,
                 }
                 write!(f, "/{}", port.protocol)
             }
@@ -476,17 +476,17 @@ impl fmt::Display for WireguardConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {}", port)?,
+            Constraint::Only(port) => write!(f, "port {port}")?,
         }
         write!(f, " over ")?;
         match self.ip_version {
             Constraint::Any => write!(f, "IPv4 or IPv6")?,
-            Constraint::Only(protocol) => write!(f, "{}", protocol)?,
+            Constraint::Only(protocol) => write!(f, "{protocol}")?,
         }
         if self.use_multihop {
             match &self.entry_location {
                 Constraint::Any => write!(f, " (via any location)"),
-                Constraint::Only(location) => write!(f, " (via {})", location),
+                Constraint::Only(location) => write!(f, " (via {location})"),
             }
         } else {
             Ok(())
@@ -533,7 +533,7 @@ impl fmt::Display for Udp2TcpObfuscationSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.port {
             Constraint::Any => write!(f, "any port"),
-            Constraint::Only(port) => write!(f, "port {}", port),
+            Constraint::Only(port) => write!(f, "port {port}"),
         }
     }
 }
@@ -571,7 +571,7 @@ impl fmt::Display for BridgeConstraints {
         match self.ownership {
             Constraint::Any => Ok(()),
             Constraint::Only(ref constraint) => {
-                write!(f, " and {}", constraint)
+                write!(f, " and {constraint}")
             }
         }
     }

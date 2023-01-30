@@ -16,10 +16,10 @@ fn main() {
         "windows" => "",
         #[cfg(windows)]
         "windows" => "dylib",
-        _ => panic!("Unsupported platform: {}", target_os),
+        _ => panic!("Unsupported platform: {target_os}"),
     };
 
-    println!("cargo:rustc-link-lib{}=wg", link_type);
+    println!("cargo:rustc-link-lib{link_type}=wg");
 }
 
 fn declare_libs_dir(base: &str) {

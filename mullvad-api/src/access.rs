@@ -102,7 +102,7 @@ impl AccessTokenProxy {
 
         let rest_request = self
             .factory
-            .post_json(&format!("{}/token", AUTH_URL_PREFIX), &request)?;
+            .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?;
         let response = service.request(rest_request).await?;
         let response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
         rest::deserialize_body(response).await

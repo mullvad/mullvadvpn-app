@@ -487,7 +487,7 @@ impl Parser {
 /// by extracting the index (1), and then extracting the message string by skipping the separator
 /// (`] "`).
 fn extract_plural_variant(index_and_string: &str) -> Result<(usize, MsgString), Error> {
-    let recreate_line = || format!("msgstr[{}\"", index_and_string);
+    let recreate_line = || format!("msgstr[{index_and_string}\"");
 
     let parts: Vec<_> = index_and_string.splitn(2, "] \"").collect();
 
@@ -530,26 +530,26 @@ fn collect_variants(
 #[derive(Clone, Debug, Display, Error, Eq, PartialEq)]
 pub enum Error {
     /// An unexpected line was read while parsing.
-    #[display(fmt = "Unexpected line parsing gettext messages: {}", _0)]
+    #[display(fmt = "Unexpected line parsing gettext messages: {_0}")]
     UnexpectedLine(#[error(not(source))] String),
 
     /// Input uses an unrecognized plural forumal.
-    #[display(fmt = "Input uses an unrecognized formula for the plural form: {}", _0)]
+    #[display(fmt = "Input uses an unrecognized formula for the plural form: {_0}")]
     UnrecognizedPluralFormula(#[error(not(source))] String),
 
     /// Input ended with an incomplete entry.
-    #[display(fmt = "Input ended with an incomplete gettext entry with ID: {}", _0)]
+    #[display(fmt = "Input ended with an incomplete gettext entry with ID: {_0}")]
     IncompleteEntry(#[error(not(source))] MsgString),
 
     /// Plural entry definition is missing a plural variant.
-    #[display(fmt = "Plural entry is missing a plural variant: {}", _0)]
+    #[display(fmt = "Plural entry is missing a plural variant: {_0}")]
     IncompletePluralEntry(#[error(not(source))] MsgString),
 
     /// Plural variant is invalid.
-    #[display(fmt = "Plural variant line is invalid: {}", _0)]
+    #[display(fmt = "Plural variant line is invalid: {_0}")]
     InvalidPluralVariant(#[error(not(source))] String),
 
     /// Plural variant index was not parsable.
-    #[display(fmt = "Plural variant line contains an invalid index: {}", _0)]
+    #[display(fmt = "Plural variant line contains an invalid index: {_0}")]
     InvalidPluralIndex(#[error(not(source))] String),
 }

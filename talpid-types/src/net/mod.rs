@@ -121,7 +121,7 @@ impl fmt::Display for TunnelType {
             TunnelType::OpenVpn => "OpenVPN",
             TunnelType::Wireguard => "WireGuard",
         };
-        write!(f, "{}", tunnel)
+        write!(f, "{tunnel}")
     }
 }
 
@@ -159,10 +159,10 @@ impl fmt::Display for TunnelEndpoint {
             }
             TunnelType::Wireguard => {
                 if let Some(ref entry_endpoint) = self.entry_endpoint {
-                    write!(f, " via {}", entry_endpoint)?;
+                    write!(f, " via {entry_endpoint}")?;
                 }
                 if let Some(ref obfuscation) = self.obfuscation {
-                    write!(f, " via {}", obfuscation)?;
+                    write!(f, " via {obfuscation}")?;
                 }
             }
         }

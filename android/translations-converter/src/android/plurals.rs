@@ -104,7 +104,7 @@ impl Display for PluralResources {
         writeln!(formatter, "<resources>")?;
 
         for entry in &self.entries {
-            write!(formatter, "{}", entry)?;
+            write!(formatter, "{entry}")?;
         }
 
         writeln!(formatter, "</resources>")
@@ -116,7 +116,7 @@ impl Display for PluralResource {
         writeln!(formatter, r#"    <plurals name="{}">"#, self.name)?;
 
         for item in &self.items {
-            writeln!(formatter, "        {}", item)?;
+            writeln!(formatter, "        {item}")?;
         }
 
         writeln!(formatter, "    </plurals>")
@@ -143,6 +143,6 @@ impl Display for PluralQuantity {
             PluralQuantity::Other => "other",
         };
 
-        write!(formatter, "{}", quantity)
+        write!(formatter, "{quantity}")
     }
 }

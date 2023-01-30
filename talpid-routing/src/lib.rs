@@ -170,11 +170,11 @@ impl Node {
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ip) = &self.ip {
-            write!(f, "{}", ip)?;
+            write!(f, "{ip}")?;
         }
         if let Some(device) = &self.device {
             let extra_space = if self.ip.is_some() { " " } else { "" };
-            write!(f, "{}dev {}", extra_space, device)?;
+            write!(f, "{extra_space}dev {device}")?;
         }
         Ok(())
     }

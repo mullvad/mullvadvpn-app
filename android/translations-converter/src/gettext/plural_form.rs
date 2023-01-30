@@ -46,5 +46,5 @@ impl FromStr for PluralForm {
 ///
 /// The formula could be an invalid formula, or support for it hasn't been added yet.
 #[derive(Clone, Debug, Display, Error)]
-#[display(fmt = "Unsupported plural formula: {}", _0)]
+#[display(fmt = "Unsupported plural formula: {_0}")]
 pub struct UnsupportedPluralFormulaError(#[error(not(source))] String);

@@ -54,17 +54,17 @@ fn main() {
         Err(Error::InvalidArguments) => {
             let mut args = env::args();
             let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
-            eprintln!("Usage: {} COMMAND [ARGS]", program);
+            eprintln!("Usage: {program} COMMAND [ARGS]");
             std::process::exit(1);
         }
         Err(e) => {
-            let mut s = format!("{}", e);
+            let mut s = format!("{e}");
             let mut source = e.source();
             while let Some(error) = source {
-                write!(&mut s, "\nCaused by: {}", error).expect("formatting failed");
+                write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
                 source = error.source();
             }
-            eprintln!("{}", s);
+            eprintln!("{s}");
 
             std::process::exit(1);
         }

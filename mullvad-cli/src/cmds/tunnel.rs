@@ -319,7 +319,7 @@ impl Tunnel {
         match tunnel_options.wireguard.unwrap().rotation_interval {
             Some(interval) => {
                 let hours = duration_hours(&Duration::try_from(interval).unwrap());
-                println!("Rotation interval: {} hour(s)", hours);
+                println!("Rotation interval: {hours} hour(s)");
             }
             None => println!(
                 "Rotation interval: default ({} hours)",
@@ -337,7 +337,7 @@ impl Tunnel {
                 .expect("Failed to convert rotation interval to prost_types::Duration"),
         )
         .await?;
-        println!("Set key rotation interval: {} hour(s)", rotate_interval);
+        println!("Set key rotation interval: {rotate_interval} hour(s)");
         Ok(())
     }
 

@@ -43,7 +43,7 @@ where
             Err(_) => {
                 return Err(io::Error::new(
                     ErrorKind::InvalidInput,
-                    format!("invalid hostname \"{}\"", domain),
+                    format!("invalid hostname \"{domain}\""),
                 ));
             }
         };

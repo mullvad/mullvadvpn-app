@@ -63,7 +63,7 @@ async fn send_location_request_internal(
 }
 
 fn log_network_error(err: Error, version: &'static str) {
-    let err_message = &format!("Unable to fetch {} GeoIP location", version);
+    let err_message = &format!("Unable to fetch {version} GeoIP location");
     match err {
         Error::HyperError(hyper_err) if hyper_err.is_connect() => {
             if let Some(cause) = hyper_err.into_cause() {

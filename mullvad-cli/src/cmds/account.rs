@@ -123,7 +123,7 @@ impl Account {
         rpc.login_account(token.clone())
             .await
             .map_err(map_device_error)?;
-        println!("Mullvad account \"{}\" set", token);
+        println!("Mullvad account \"{token}\" set");
         Ok(())
     }
 
@@ -161,7 +161,7 @@ impl Account {
                         inner_device.created.with_timezone(&chrono::Local)
                     );
                     for port in inner_device.ports {
-                        println!("Device port    : {}", port);
+                        println!("Device port    : {port}");
                     }
                 }
                 let expiry = rpc
@@ -175,10 +175,10 @@ impl Account {
                 );
             }
             State::LoggedOut => {
-                println!("{}", NOT_LOGGED_IN_MESSAGE);
+                println!("{NOT_LOGGED_IN_MESSAGE}");
             }
             State::Revoked => {
-                println!("{}", REVOKED_MESSAGE);
+                println!("{REVOKED_MESSAGE}");
             }
         }
 
@@ -212,7 +212,7 @@ impl Account {
                     device.created.with_timezone(&chrono::Local)
                 );
                 for port in device.ports {
-                    println!("Port      : {}", port);
+                    println!("Port      : {port}");
                 }
             } else {
                 println!("{}", device.pretty_name());

@@ -328,7 +328,7 @@ impl RestRequest {
     pub fn set_auth(&mut self, auth: Option<String>) -> Result<()> {
         let header = match auth {
             Some(auth) => Some(
-                HeaderValue::from_str(&format!("Bearer {}", auth))
+                HeaderValue::from_str(&format!("Bearer {auth}"))
                     .map_err(Error::InvalidHeaderError)?,
             ),
             None => None,

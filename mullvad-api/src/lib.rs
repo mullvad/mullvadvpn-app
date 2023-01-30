@@ -130,7 +130,7 @@ impl ApiEndpoint {
             match env::var(key) {
                 Ok(v) => Some(v),
                 Err(env::VarError::NotPresent) => None,
-                Err(env::VarError::NotUnicode(_)) => panic!("{} does not contain valid UTF-8", key),
+                Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
             }
         }
 
@@ -394,7 +394,7 @@ impl AccountsProxy {
             let response = rest::send_request(
                 &factory,
                 service,
-                &format!("{}/accounts/me", ACCOUNTS_URL_PREFIX),
+                &format!("{ACCOUNTS_URL_PREFIX}/accounts/me"),
                 Method::GET,
                 Some((access_proxy, account)),
                 &[StatusCode::OK],
@@ -416,7 +416,7 @@ impl AccountsProxy {
         let response = rest::send_request(
             &self.handle.factory,
             service,
-            &format!("{}/accounts", ACCOUNTS_URL_PREFIX),
+            &format!("{ACCOUNTS_URL_PREFIX}/accounts"),
             Method::POST,
             None,
             &[StatusCode::CREATED],
@@ -447,7 +447,7 @@ impl AccountsProxy {
             let response = rest::send_json_request(
                 &factory,
                 service,
-                &format!("{}/submit-voucher", APP_URL_PREFIX),
+                &format!("{APP_URL_PREFIX}/submit-voucher"),
                 Method::POST,
                 &submission,
                 Some((access_proxy, account_token)),
@@ -475,7 +475,7 @@ impl AccountsProxy {
             let response = rest::send_request(
                 &factory,
                 service,
-                &format!("{}/www-auth-token", APP_URL_PREFIX),
+                &format!("{APP_URL_PREFIX}/www-auth-token"),
                 Method::POST,
                 Some((access_proxy, account)),
                 &[StatusCode::OK],
@@ -523,7 +523,7 @@ impl ProblemReportProxy {
         let request = rest::send_json_request(
             &self.handle.factory,
             service,
-            &format!("{}/problem-report", APP_URL_PREFIX),
+            &format!("{APP_URL_PREFIX}/problem-report"),
             Method::POST,
             &report,
             None,
@@ -573,7 +573,7 @@ impl AppVersionProxy {
     ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
-        let path = format!("{}/releases/{}/{}", APP_URL_PREFIX, platform, app_version);
+        let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
         let request = self.handle.factory.request(&path, Method::GET);
 
         async move {
@@ -603,7 +603,7 @@ impl ApiProxy {
         let response = rest::send_request(
             &self.handle.factory,
             service,
-            &format!("{}/api-addrs", APP_URL_PREFIX),
+            &format!("{APP_URL_PREFIX}/api-addrs"),
             Method::GET,
             None,
             &[StatusCode::OK],

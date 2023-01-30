@@ -650,7 +650,9 @@ mod test {
         let (_tx, rx) = mpsc::channel();
         let pinger = MockPinger::default();
         let now = Instant::now();
-        let start = now - (BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10));
+        let start = now
+            .checked_sub((BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10)))
+            .unwrap();
         let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
 
         // Mock the state - connectivity has been established
@@ -668,7 +670,7 @@ mod test {
         let (_tx, rx) = mpsc::channel();
         let pinger = MockPinger::default();
         let now = Instant::now();
-        let start = now - Duration::from_secs(1);
+        let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
 
         assert!(!monitor.check_connectivity(now).unwrap())
@@ -682,7 +684,7 @@ mod test {
         let (_tx, rx) = mpsc::channel();
         let pinger = MockPinger::default();
         let now = Instant::now();
-        let start = now - Duration::from_secs(1);
+        let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
 
         // Mock the state - connectivity has been established
@@ -701,7 +703,7 @@ mod test {
         let (stop_tx, stop_rx) = mpsc::channel();
         std::thread::spawn(move || {
             let now = Instant::now();
-            let start = now - Duration::from_secs(1);
+            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
             let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
 
             let start_result = monitor.establish_connectivity(0);
@@ -755,7 +757,7 @@ mod test {
         let (_stop_tx, stop_rx) = mpsc::channel();
         std::thread::spawn(move || {
             let now = Instant::now();
-            let start = now - Duration::from_secs(1);
+            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
             let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
             let start_result = monitor.establish_connectivity(0);
             result_tx.send(start_result).unwrap();
@@ -794,7 +796,7 @@ mod test {
         let (_stop_tx, stop_rx) = mpsc::channel();
         std::thread::spawn(move || {
             let now = Instant::now();
-            let start = now - Duration::from_secs(1);
+            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
             let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
 
             const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;

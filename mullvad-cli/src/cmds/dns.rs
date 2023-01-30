@@ -172,7 +172,7 @@ impl Dns {
             DnsState::Custom => {
                 println!("Custom DNS: yes\nServers:");
                 for server in &options.custom_options.addresses {
-                    println!("{}", server);
+                    println!("{server}");
                 }
             }
         }

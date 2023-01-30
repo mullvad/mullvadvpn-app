@@ -229,7 +229,7 @@ impl Bridge {
                 }
             },
             BridgeSettings::Normal(constraints) => {
-                println!("Bridge constraints: {}", constraints)
+                println!("Bridge constraints: {constraints}")
             }
         };
         Ok(())

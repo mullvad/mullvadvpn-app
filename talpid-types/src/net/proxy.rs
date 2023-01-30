@@ -16,7 +16,7 @@ impl fmt::Display for ProxyType {
             ProxyType::Shadowsocks => "Shadowsocks",
             ProxyType::Custom => "custom bridge",
         };
-        write!(f, "{}", bridge)
+        write!(f, "{bridge}")
     }
 }
 

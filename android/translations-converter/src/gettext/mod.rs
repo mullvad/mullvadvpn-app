@@ -38,12 +38,12 @@ pub fn append_to_template(
         writeln!(writer, r#"msgid "{}""#, entry.id)?;
 
         match entry.value {
-            MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{}""#, value)?,
+            MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{value}""#)?,
             MsgValue::Plural { plural_id, values } => {
-                writeln!(writer, r#"msgid_plural "{}""#, plural_id)?;
+                writeln!(writer, r#"msgid_plural "{plural_id}""#)?;
 
                 for (index, value) in values.into_iter().enumerate() {
-                    writeln!(writer, r#"msgstr[{}] "{}""#, index, value)?;
+                    writeln!(writer, r#"msgstr[{index}] "{value}""#)?;
                 }
             }
         }

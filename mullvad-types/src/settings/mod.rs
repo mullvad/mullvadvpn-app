@@ -44,8 +44,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
             v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
             v => Err(serde::de::Error::custom(format!(
-                "{} is not a valid SettingsVersion",
-                v
+                "{v} is not a valid SettingsVersion"
             ))),
         }
     }
