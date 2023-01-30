@@ -142,6 +142,7 @@ export const ipcSchema = {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
+    showLaunchDaemonSettings: invoke<void, void>(),
   },
   location: {
     get: invoke<void, ILocation>(),
