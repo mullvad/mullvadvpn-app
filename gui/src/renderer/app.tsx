@@ -617,6 +617,7 @@ export default class AppRenderer {
   private onDaemonConnected() {
     this.connectedToDaemon = true;
     this.reduxActions.userInterface.setConnectedToDaemon(true);
+    this.reduxActions.userInterface.setDaemonAllowed(true);
     this.resetNavigation();
   }
 
