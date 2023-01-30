@@ -651,7 +651,7 @@ mod test {
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now
-            .checked_sub((BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10)))
+            .checked_sub(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10))
             .unwrap();
         let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
 
