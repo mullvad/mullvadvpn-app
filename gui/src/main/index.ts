@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { app, nativeTheme, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
@@ -45,6 +45,7 @@ import NotificationController, {
   NotificationSender,
 } from './notification-controller';
 import * as problemReport from './problem-report';
+import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, {
@@ -384,6 +385,8 @@ class ApplicationMain
       systemPreferences.subscribeNotification('AppleShowScrollBarsSettingChanged', async () => {
         await this.updateMacOsScrollbarVisibility();
       });
+
+      await this.checkMacOsLaunchDaemon();
     }
 
     this.userInterface = new UserInterface(
@@ -590,6 +593,9 @@ class ApplicationMain
       }
     } else {
       log.info('Disconnected from the daemon');
+    }
+    if (process.platform === 'darwin') {
+      void this.checkMacOsLaunchDaemon();
     }
   };
 
@@ -873,6 +879,31 @@ class ApplicationMain
 
   private shouldShowWindowOnStart(): boolean {
     return this.settings.gui.unpinnedWindow && !this.settings.gui.startMinimized;
+  }
+
+  private checkMacOsLaunchDaemon(): Promise<void> {
+    const daemonBin = resolveBin('mullvad-daemon');
+    const args = ['--query-service'];
+    return new Promise((resolve, reject) => {
+      execFile(daemonBin, args, { windowsHide: true }, (error, stdout, stderr) => {
+        if (error) {
+          if (error.code === 2) {
+            IpcMainEventChannel.daemon.notifyDaemonAllowed?.(false);
+            resolve();
+            return;
+          }
+          log.error(
+            `Error while checking launch daemon authorization status.
+              Stdout: ${stdout.toString()}
+              Stderr: ${stderr.toString()}`,
+          );
+          reject();
+        } else {
+          IpcMainEventChannel.daemon.notifyDaemonAllowed?.(true);
+          reject();
+        }
+      });
+    });
   }
 
   private async updateMacOsScrollbarVisibility(): Promise<void> {
