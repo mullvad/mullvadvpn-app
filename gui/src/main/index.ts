@@ -89,6 +89,7 @@ class ApplicationMain
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
+  private daemonAllowed?: boolean;
   private quitInitiated = false;
 
   private tunnelStateExpectation?: Expectation;
@@ -683,6 +684,7 @@ class ApplicationMain
       tunnelState: this.tunnelState.tunnelState,
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
+      daemonAllowed: this.daemonAllowed,
       deviceState: this.account.deviceState,
       relayList: this.relayList,
       currentVersion: this.version.currentVersion,
@@ -884,24 +886,24 @@ class ApplicationMain
   private checkMacOsLaunchDaemon(): Promise<void> {
     const daemonBin = resolveBin('mullvad-daemon');
     const args = ['--query-service'];
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       execFile(daemonBin, args, { windowsHide: true }, (error, stdout, stderr) => {
         if (error) {
           if (error.code === 2) {
             IpcMainEventChannel.daemon.notifyDaemonAllowed?.(false);
-            resolve();
-            return;
+            this.daemonAllowed = false;
+          } else {
+            log.error(
+              `Error while checking launch daemon authorization status.
+                Stdout: ${stdout.toString()}
+                Stderr: ${stderr.toString()}`,
+            );
           }
-          log.error(
-            `Error while checking launch daemon authorization status.
-              Stdout: ${stdout.toString()}
-              Stderr: ${stderr.toString()}`,
-          );
-          reject();
         } else {
           IpcMainEventChannel.daemon.notifyDaemonAllowed?.(true);
-          reject();
+          this.daemonAllowed = true;
         }
+        resolve();
       });
     });
   }
