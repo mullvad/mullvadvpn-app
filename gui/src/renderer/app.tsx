@@ -470,6 +470,9 @@ export default class AppRenderer {
     void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
   }
 
+  public async queryDaemonStatus(): Promise<void> {
+  }
+
   public async sendProblemReport(
     email: string,
     message: string,
