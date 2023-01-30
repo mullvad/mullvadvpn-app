@@ -57,6 +57,7 @@ export interface IAppStateSnapshot {
   tunnelState: TunnelState;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
+  daemonAllowed?: boolean;
   deviceState?: DeviceState;
   relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;

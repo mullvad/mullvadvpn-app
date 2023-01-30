@@ -208,6 +208,10 @@ export default class AppRenderer {
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
 
+    if (initialState.daemonAllowed !== undefined) {
+      this.reduxActions.userInterface.setDaemonAllowed(initialState.daemonAllowed);
+    }
+
     if (initialState.deviceState) {
       const deviceState = initialState.deviceState;
       this.handleDeviceEvent(
