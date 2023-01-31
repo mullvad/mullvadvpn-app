@@ -18,6 +18,7 @@ pub struct PluralResources {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PluralResource {
     /// The plural resource ID.
+    #[serde(rename = "@name")]
     pub name: String,
 
     /// The items of the plural resource, one for each quantity variant.
@@ -31,6 +32,7 @@ pub struct PluralResource {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PluralVariant {
     /// The quantity for this variant to be used.
+    #[serde(rename = "@quantity")]
     pub quantity: PluralQuantity,
 
     /// The string value

@@ -18,9 +18,11 @@ pub struct StringResources {
 #[derive(Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
 pub struct StringResource {
     /// The string resource ID.
+    #[serde(rename = "@name")]
     pub name: String,
 
     /// If the string should be translated or not.
+    #[serde(rename = "@translatable")]
     #[serde(default = "default_translatable")]
     pub translatable: bool,
 
@@ -143,7 +145,7 @@ mod tests {
         ]);
 
         let deserialized: StringResources =
-            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+            quick_xml::de::from_str(xml_input).expect("malformed XML in test input");
 
         assert_eq!(deserialized, expected);
     }
@@ -182,7 +184,7 @@ mod tests {
         ]);
 
         let deserialized: StringResources =
-            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+            quick_xml::de::from_str(xml_input).expect("malformed XML in test input");
 
         assert_eq!(deserialized, expected);
     }

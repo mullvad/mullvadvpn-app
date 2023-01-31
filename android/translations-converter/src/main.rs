@@ -39,6 +39,7 @@ use crate::normalize::Normalize;
 use std::{
     collections::HashMap,
     fs::{self, File},
+    io::BufReader,
     path::Path,
 };
 
@@ -48,7 +49,8 @@ fn main() {
     let strings_file = File::open(resources_dir.join("values/strings.xml"))
         .expect("Failed to open string resources file");
     let string_resources: android::StringResources =
-        serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
+        quick_xml::de::from_reader(BufReader::new(strings_file))
+            .expect("Failed to read string resources file");
 
     let known_strings: HashMap<_, _> = string_resources
         .into_iter()
@@ -58,7 +60,8 @@ fn main() {
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
         .expect("Failed to open plurals resources file");
     let plural_resources: android::PluralResources =
-        serde_xml_rs::from_reader(plurals_file).expect("Failed to read plural resources file");
+        quick_xml::de::from_reader(BufReader::new(plurals_file))
+            .expect("Failed to read plural resources file");
 
     let known_plurals: HashMap<_, _> = plural_resources
         .iter()
