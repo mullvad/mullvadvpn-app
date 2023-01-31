@@ -24,7 +24,7 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 clap = { version = "3.0", features = ["cargo"] }
-env_logger = "0.8.2"
+env_logger = "0.10.0"
 
 [target.'cfg(target_os = "android")'.dependencies]
 duct = "0.13"
