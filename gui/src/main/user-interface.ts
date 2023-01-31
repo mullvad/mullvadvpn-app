@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
+import { promisify } from 'util';
 
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
@@ -20,6 +21,8 @@ import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController, { WindowControllerDelegate } from './window-controller';
+
+const execAsync = promisify(exec);
 
 export interface UserInterfaceDelegate {
   cancelPendingNotifications(): void;
@@ -72,10 +75,13 @@ export default class UserInterface implements WindowControllerDelegate {
     });
 
     IpcMainEventChannel.app.handleShowLaunchDaemonSettings(async () => {
-      return new Promise((resolve, _reject) => {
-        exec('open -W x-apple.systempreferences:com.apple.LoginItems-Settings.extension');
-        resolve();
-      });
+      try {
+        await execAsync(
+          'open -W x-apple.systempreferences:com.apple.LoginItems-Settings.extension',
+        );
+      } catch (error) {
+        log.error(`Failed to open launch daemon settings: ${error}`);
+      }
     });
   }
 
