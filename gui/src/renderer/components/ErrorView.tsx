@@ -1,46 +1,25 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import * as AppButton from './AppButton';
-import { measurements, tinyText } from './common-styles';
+import { measurements } from './common-styles';
 import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Footer, Header, Layout } from './Layout';
+import { Container, Header, Layout } from './Layout';
 
 const StyledContainer = styled(Container)({
   flex: 1,
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: '-150px',
+  justifyContent: 'end',
 });
 
-const StyledFooter = styled(Footer)({}, (props: { show: boolean }) => ({
-  backgroundColor: colors.blue,
-  padding: '12px',
-  position: 'absolute',
-  bottom: 0,
-  transform: `translateY(${props.show ? 0 : 100}%)`,
-  transition: 'transform 250ms ease-in-out',
-}));
-
-const StyledSystemSettingsContainer = styled.div({
+const StyledContent = styled.div({
   display: 'flex',
-  flexDirection: 'column',
   flex: 1,
-  alignSelf: 'start',
-  backgroundColor: colors.darkBlue,
-  borderRadius: '8px',
-  margin: 0,
-  padding: '16px',
-});
-
-const StyledLaunchFooterPrompt = styled.span(tinyText, {
-  color: colors.white,
-  margin: '9px 0 20px 0',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'end',
 });
 
 const Logo = styled(ImageView)({
@@ -61,52 +40,31 @@ const Subtitle = styled.span({
   textAlign: 'center',
 });
 
+const StyledFooterContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'end',
+  minHeight: '241px',
+});
+
 interface ErrorViewProps {
   settingsUnavailable?: boolean;
-  showSettingsFooter?: boolean;
+  footer?: React.ReactNode | React.ReactNode[];
   children: React.ReactNode | React.ReactNode[];
 }
 
-export default class ErrorView extends React.Component<ErrorViewProps> {
-  public render() {
-    return (
-      <Layout>
-        <Header>{!this.props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
-        <StyledContainer>
+export default function ErrorView(props: ErrorViewProps) {
+  return (
+    <Layout>
+      <Header>{!props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
+      <StyledContainer>
+        <StyledContent>
           <Logo height={106} width={106} source="logo-icon" />
           <Title height={18} source="logo-text" />
-          <Subtitle role="alert">{this.props.children}</Subtitle>
-        </StyledContainer>
-        <SettingsFooter show={this.props.showSettingsFooter} />
-      </Layout>
-    );
-  }
-}
-
-interface ISettingsFooterProps {
-  show?: boolean;
-}
-
-function SettingsFooter(props: ISettingsFooterProps) {
-  const { showLaunchDaemonSettings } = useAppContext();
-
-  const openSettings = useCallback(async () => {
-    await showLaunchDaemonSettings();
-  }, []);
-
-  return (
-    <StyledFooter show={props.show ? props.show : false}>
-      <StyledSystemSettingsContainer>
-        <StyledLaunchFooterPrompt>
-          {messages.pgettext(
-            'launch-view',
-            'Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting.',
-          )}
-        </StyledLaunchFooterPrompt>
-        <AppButton.BlueButton onClick={openSettings}>
-          {messages.gettext('Go to System Settings')}
-        </AppButton.BlueButton>
-      </StyledSystemSettingsContainer>
-    </StyledFooter>
+          <Subtitle role="alert">{props.children}</Subtitle>
+        </StyledContent>
+        <StyledFooterContainer>{props.footer}</StyledFooterContainer>
+      </StyledContainer>
+    </Layout>
   );
 }
