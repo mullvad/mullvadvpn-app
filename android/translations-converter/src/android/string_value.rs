@@ -197,7 +197,7 @@ mod tests {
             parameters %2$s %d %1$d</root>"#;
 
         let deserialized: Wrapper =
-            serde_xml_rs::from_str(serialized_input).expect("Mal-formed serialized input");
+            quick_xml::de::from_str(serialized_input).expect("Mal-formed serialized input");
 
         let expected = StringValue(
             r#"A multi-line string value with \"quotes\" and parameters %2$s %d %1$d"#.to_owned(),

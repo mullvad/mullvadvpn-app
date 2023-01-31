@@ -12,4 +12,4 @@ htmlize = "0.5"
 lazy_static = "1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
-serde-xml-rs = "0.4"
+quick-xml = { version = "0.27.1", features = ["serialize"] }
