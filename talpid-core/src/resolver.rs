@@ -281,7 +281,7 @@ mod test {
         super::start_resolver().await.unwrap()
     }
 
-    async fn get_test_resolver(port: u16) -> trust_dns_server::resolver::TokioAsyncResolver {
+    fn get_test_resolver(port: u16) -> trust_dns_server::resolver::TokioAsyncResolver {
         let resolver_config = ResolverConfig::from_parts(
             None,
             vec![],
@@ -294,7 +294,7 @@ mod test {
     fn test_successful_lookup() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         let handle = rt.block_on(start_resolver());
-        let test_resolver = rt.block_on(get_test_resolver(handle.listening_port()));
+        let test_resolver = get_test_resolver(handle.listening_port());
 
         let captive_portal_domain = LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
         let resolver_result = rt.block_on(async move {
@@ -310,7 +310,7 @@ mod test {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
-        let test_resolver = rt.block_on(get_test_resolver(handle.listening_port()));
+        let test_resolver = get_test_resolver(handle.listening_port());
 
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
