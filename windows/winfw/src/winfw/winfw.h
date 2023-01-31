@@ -59,13 +59,15 @@ enum WinFwAllowedTunnelTrafficType : uint8_t
 {
 	None,
 	All,
-	Only
+	Only,
+    Many
 };
 
 typedef struct tag_WinFwAllowedTunnelTraffic
 {
 	WinFwAllowedTunnelTrafficType type;
-	WinFwEndpoint *endpoint;
+	WinFwEndpoint *endpoints;
+    uint32_t endpointsLength;
 }
 WinFwAllowedTunnelTraffic;
 

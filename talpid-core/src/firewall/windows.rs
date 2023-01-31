@@ -169,23 +169,34 @@ impl Firewall {
         };
 
         let allowed_tun_ip;
-        let allowed_tunnel_endpoint =
-            if let AllowedTunnelTraffic::Only(endpoint) = allowed_tunnel_traffic {
+        let allowed_tunnel_endpoints = match allowed_tunnel_traffic {
+            AllowedTunnelTraffic::Only(endpoint) => {
                 allowed_tun_ip = widestring_ip(endpoint.address.ip());
-                Some(WinFwEndpoint {
+                Some(vec![WinFwEndpoint {
                     ip: allowed_tun_ip.as_ptr(),
                     port: endpoint.address.port(),
                     protocol: WinFwProt::from(endpoint.protocol),
-                })
-            } else {
-                None
-            };
+                }])
+            }
+            AllowedTunnelTraffic::Many(endpoints) => {
+                Some(endpoints.into_iter().map(|endpoint| {
+                    let allowed_tun_ip = widestring_ip(endpoint.address.ip());
+                    WinFwEndpoint {
+                        ip: allowed_tun_ip.as_ptr(),
+                        port: endpoint.address.port(),
+                        protocol: WinFwProt::from(endpoint.protocol),
+                    }
+                }).collect());
+            }
+            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => None,
+        };
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            endpoint: allowed_tunnel_endpoint
+            endpoints: allowed_tunnel_endpoints
                 .as_ref()
-                .map(|ep| ep as *const _)
+                .map(|eps| eps.to_ptr())
                 .unwrap_or(ptr::null()),
+            endpoints_length: allowed_tunnel_endpoints.map(|eps| eps.len()).unwrap_or(0),
         };
 
         unsafe {
@@ -439,7 +450,8 @@ mod winfw {
     #[repr(C)]
     pub struct WinFwAllowedTunnelTraffic {
         pub type_: WinFwAllowedTunnelTrafficType,
-        pub endpoint: *const WinFwEndpoint,
+        pub endpoints: *const WinFwEndpoint,
+        pub endpoints_length: usize,
     }
 
     #[repr(u8)]
@@ -448,6 +460,7 @@ mod winfw {
         None,
         All,
         Only,
+        Many,
     }
 
     impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
@@ -456,6 +469,7 @@ mod winfw {
                 AllowedTunnelTraffic::None => WinFwAllowedTunnelTrafficType::None,
                 AllowedTunnelTraffic::All => WinFwAllowedTunnelTrafficType::All,
                 AllowedTunnelTraffic::Only(..) => WinFwAllowedTunnelTrafficType::Only,
+                AllowedTunnelTraffic::Many(..) => WinFwAllowedTunnelTrafficType::Many,
             }
         }
     }
