@@ -298,8 +298,7 @@ mod test {
 
         let captive_portal_domain = LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
         let resolver_result = rt.block_on(async move {
-            let dns_request =
-                test_resolver.lookup(captive_portal_domain, RecordType::A, Default::default());
+            let dns_request = test_resolver.lookup(captive_portal_domain, RecordType::A);
 
             dns_request.await
         });
@@ -316,7 +315,7 @@ mod test {
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
             test_resolver
-                .lookup(captive_portal_domain, RecordType::A, Default::default())
+                .lookup(captive_portal_domain, RecordType::A)
                 .await
         });
         assert!(
