@@ -147,6 +147,9 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+msgid "Go to System Settings"
+msgstr ""
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr ""
@@ -617,6 +620,10 @@ msgstr ""
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr ""
 
 #. This is a warning message shown when the app is blocking the users
