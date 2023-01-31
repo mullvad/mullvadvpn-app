@@ -186,7 +186,7 @@ impl Firewall {
                         port: endpoint.address.port(),
                         protocol: WinFwProt::from(endpoint.protocol),
                     }
-                }).collect());
+                }).collect())
             }
             AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => None,
         };
