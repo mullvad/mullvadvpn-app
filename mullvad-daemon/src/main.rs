@@ -15,8 +15,7 @@ mod cli;
 mod early_boot_firewall;
 mod exception_logging;
 #[cfg(target_os = "macos")]
-#[allow(dead_code)]
-mod macos;
+mod launch_daemon;
 #[cfg(windows)]
 mod system_service;
 
@@ -138,7 +137,7 @@ async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<
 #[cfg(target_os = "macos")]
 async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     if config.query_service {
-        std::process::exit(crate::macos::get_launch_daemon_status() as i32);
+        std::process::exit(launch_daemon::get_launch_daemon_status() as i32);
     }
     run_standalone(log_dir).await
 }
