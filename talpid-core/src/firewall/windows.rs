@@ -194,7 +194,7 @@ impl Firewall {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
             endpoints: allowed_tunnel_endpoints
                 .as_ref()
-                .map(|eps| eps.to_ptr())
+                .map(|eps| eps.as_ptr())
                 .unwrap_or(ptr::null()),
             endpoints_length: allowed_tunnel_endpoints.map(|eps| eps.len()).unwrap_or(0),
         };
