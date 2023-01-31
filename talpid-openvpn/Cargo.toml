@@ -11,11 +11,11 @@ publish = false
 [dependencies]
 bitflags = "1.2"
 async-trait = "0.1"
-atty = "0.2"
 cfg-if = "1.0"
 duct = "0.13"
 err-derive = "0.3.1"
 futures = "0.3.15"
+is-terminal = "0.4.2"
 lazy_static = "1.0"
 log = "0.4"
 os_pipe = "0.9"

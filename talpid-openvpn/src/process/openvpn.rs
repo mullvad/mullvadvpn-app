@@ -1,7 +1,6 @@
 use duct;
 
 use super::stoppable_process::StoppableProcess;
-use atty;
 use os_pipe::{pipe, PipeWriter};
 use parking_lot::Mutex;
 use shell_escape;
@@ -388,11 +387,13 @@ pub struct OpenVpnProcHandle {
 impl OpenVpnProcHandle {
     /// Constructor for a new openvpn proc handle
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
-        if !atty::is(atty::Stream::Stdout) {
+        use is_terminal::IsTerminal;
+
+        if !std::io::stdout().is_terminal() {
             cmd = cmd.stdout_null();
         }
 
-        if !atty::is(atty::Stream::Stderr) {
+        if !std::io::stderr().is_terminal() {
             cmd = cmd.stderr_null();
         }
 
