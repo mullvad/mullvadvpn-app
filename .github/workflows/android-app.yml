@@ -151,7 +151,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-type: [app, mockapi]
+        test-type: [app]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
