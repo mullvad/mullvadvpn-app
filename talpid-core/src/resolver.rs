@@ -30,7 +30,16 @@ use trust_dns_server::{
 };
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::AAAA, RecordType::CNAME];
-const CAPTIVE_PORTAL_DOMAIN: &str = "captive.apple.com";
+const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
+
+lazy_static::lazy_static! {
+    static ref ALLOWED_DOMAINS: Vec<LowerName> =
+        CAPTIVE_PORTAL_DOMAINS
+            .iter()
+            .map(|domain| LowerName::from(Name::from_str(domain).unwrap()))
+            .collect();
+}
+
 const TTL_SECONDS: u32 = 3;
 /// An IP address to be used in the DNS response to the captive domain query. The address itself
 /// belongs to the documentation range so should never be reachable.
@@ -166,9 +175,7 @@ impl FilteringResolver {
     /// Determines whether a DNS query is allowable. Currently, this implies that the query is
     /// either a `A`, `AAAA` or a `CNAME` query for `captive.apple.com`.
     fn allow_query(&self, query: &LowerQuery) -> bool {
-        let captive_apple_com: LowerName =
-            LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
-        ALLOWED_RECORD_TYPES.contains(&query.query_type()) && query.name() == &captive_apple_com
+        ALLOWED_RECORD_TYPES.contains(&query.query_type()) && ALLOWED_DOMAINS.contains(query.name())
     }
 }
 
