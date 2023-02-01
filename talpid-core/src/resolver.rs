@@ -175,7 +175,10 @@ impl FilteringResolver {
     /// Determines whether a DNS query is allowable. Currently, this implies that the query is
     /// either a `A`, `AAAA` or a `CNAME` query for `captive.apple.com`.
     fn allow_query(&self, query: &LowerQuery) -> bool {
-        ALLOWED_RECORD_TYPES.contains(&query.query_type()) && ALLOWED_DOMAINS.contains(query.name())
+        let result = ALLOWED_RECORD_TYPES.contains(&query.query_type())
+            && ALLOWED_DOMAINS.contains(query.name());
+        log::debug!("query {query:?} allowed - {result}");
+        result
     }
 }
 
@@ -303,13 +306,13 @@ mod test {
         let handle = rt.block_on(start_resolver());
         let test_resolver = get_test_resolver(handle.listening_port());
 
-        let captive_portal_domain = LowerName::from(Name::from_str(CAPTIVE_PORTAL_DOMAIN).unwrap());
-        let resolver_result = rt.block_on(async move {
-            test_resolver
-                .lookup(captive_portal_domain, RecordType::A)
-                .await
-        });
-        resolver_result.expect("Failed to resolve test domain");
+        rt.block_on(async move {
+            for domain in &*ALLOWED_DOMAINS {
+                test_resolver.lookup(domain, RecordType::A).await?;
+            }
+            Ok::<(), trust_dns_server::resolver::error::ResolveError>(())
+        })
+        .expect("Resolution of domains failed");
     }
 
     #[test]
