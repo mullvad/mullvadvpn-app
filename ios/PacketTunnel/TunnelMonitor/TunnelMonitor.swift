@@ -329,6 +329,9 @@ final class TunnelMonitor: PingerDelegate {
         }
 
         let currentPathFetch = DispatchWorkItem { [weak self] in
+            self?.logger.debug(
+                "Pick current path from path monitor since there was no update within \(currentPathFetchDelay) ms."
+            )
             self?.handleNetworkPathUpdate(pathMonitor.currentPath)
         }
 
