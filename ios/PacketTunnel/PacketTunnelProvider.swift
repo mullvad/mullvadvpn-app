@@ -45,10 +45,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var numberOfFailedAttempts: UInt = 0
 
     /// Last wireguard error.
-    private var wgError: PacketTunnelErrorWrapper?
+    private var wgError: WireGuardAdapterError?
 
-    /// Last tunnel provider error.
-    private var tunnelProviderError: PacketTunnelErrorWrapper?
+    /// Last configuration read error.
+    private var configurationError: Error?
 
     /// Relay cache.
     private let relayCache = RelayCache(
@@ -89,8 +89,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
+        let errors: [PacketTunnelErrorWrapper?] = [
+            wgError.flatMap { PacketTunnelErrorWrapper(error: $0) },
+            configurationError.flatMap { PacketTunnelErrorWrapper(error: $0) },
+        ]
+
         return PacketTunnelStatus(
-            lastErrors: [wgError, tunnelProviderError].compactMap { $0 },
+            lastErrors: errors.compactMap { $0 },
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
             tunnelRelay: selectorResult?.packetTunnelRelay
@@ -189,7 +194,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
-            tunnelProviderError = .readConfiguration
+            configurationError = error
 
             startEmptyTunnel(completionHandler: completionHandler)
             return
@@ -446,9 +451,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     {
         let tunnelSettings = try SettingsManager.readSettings()
         let deviceState = try SettingsManager.readDeviceState()
-
-        tunnelProviderError = nil
-
         let selectorResult: RelaySelectorResult
 
         switch nextRelay {
@@ -474,11 +476,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let tunnelConfiguration: PacketTunnelConfiguration
         do {
             tunnelConfiguration = try makeConfiguration(nextRelay)
+            configurationError = nil
         } catch {
             providerLogger.error(
                 error: error,
                 message: "Failed produce new configuration."
             )
+
+            configurationError = error
+
             completionHandler?()
             return
         }
@@ -496,11 +502,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
                 if let error = error {
-                    let wrappedError: PacketTunnelErrorWrapper = .wireguard(
-                        error: error.localizedDescription
-                    )
-
-                    self.wgError = wrappedError
+                    self.wgError = error
                 }
 
                 if let error = error {
@@ -709,6 +711,27 @@ extension DeviceCheck {
 
         if shouldChangeIdentifier {
             identifier = UUID()
+        }
+    }
+}
+
+extension PacketTunnelErrorWrapper {
+    init?(error: Error) {
+        switch error {
+        case let error as WireGuardAdapterError:
+            self = .wireguard(error.localizedDescription)
+
+        case is UnsupportedSettingsVersionError:
+            self = .configuration(.outdatedSchema)
+
+        case is ReadSettingsVersionError:
+            self = .configuration(.readFailure)
+
+        case is NoRelaysSatisfyingConstraintsError:
+            self = .configuration(.noRelaysSatisfyingConstraints)
+
+        default:
+            return nil
         }
     }
 }
