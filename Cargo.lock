@@ -3134,7 +3134,6 @@ name = "talpid-core"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "atty",
  "bitflags",
  "byteorder",
  "cfg-if",
@@ -3215,13 +3214,13 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "atty",
  "bitflags",
  "byteorder",
  "cfg-if",
  "duct",
  "err-derive",
  "futures",
+ "is-terminal",
  "lazy_static",
  "log",
  "os_pipe",
