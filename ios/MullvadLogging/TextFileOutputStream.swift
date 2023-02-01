@@ -29,12 +29,12 @@ class TextFileOutputStream: TextOutputStream {
         }
     }
 
-    convenience init(
+    init?(
         fileURL: URL,
         createFile: Bool,
         filePermissions: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
         encoding: String.Encoding = .utf8
-    ) throws {
+    ) {
         var oflag: Int32 = O_WRONLY
         var mode: mode_t = .zero
         if createFile {
@@ -42,15 +42,28 @@ class TextFileOutputStream: TextOutputStream {
             mode = filePermissions
         }
 
-        let fd = fileURL.path.withCString { path in
-            return Darwin.open(path, oflag, mode)
+        let queue = queue
+        let writer = fileURL.path.withCString { filePathPointer in
+            return DispatchIO(
+                type: .stream,
+                path: filePathPointer,
+                oflag: oflag,
+                mode: mode,
+                queue: queue,
+                cleanupHandler: { errno in
+                    if errno != 0 {
+                        print("TextFileOutputStream: closed channel with error: \(errno)")
+                    }
+                }
+            )
         }
 
-        guard fd != -1 else {
-            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .ELAST)
+        if let writer = writer {
+            self.writer = writer
+            self.encoding = encoding
+        } else {
+            return nil
         }
-
-        self.init(fileDescriptor: fd, encoding: encoding)
     }
 
     deinit {

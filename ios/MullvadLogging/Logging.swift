@@ -20,6 +20,12 @@ public struct MissingSharedContainerError: LocalizedError {
     }
 }
 
+public struct OpenFileStreamError: LocalizedError {
+    public var errorDescription: String? {
+        return "Failed to open file stream."
+    }
+}
+
 public struct LoggerBuilder {
     private(set) var logRotationErrors: [Error] = []
     private var outputs: [LoggerOutput] = []
@@ -51,9 +57,11 @@ public struct LoggerBuilder {
             logRotationErrors.append(error)
         }
 
-        let outputStream = try TextFileOutputStream(fileURL: logFileURL, createFile: true)
-
-        outputs.append(.fileOutput(outputStream))
+        if let outputStream = TextFileOutputStream(fileURL: logFileURL, createFile: true) {
+            outputs.append(.fileOutput(outputStream))
+        } else {
+            throw OpenFileStreamError()
+        }
     }
 
     public mutating func addOSLogOutput(subsystem: String) {
