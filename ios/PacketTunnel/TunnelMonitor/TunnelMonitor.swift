@@ -45,8 +45,12 @@ private let connectivityCheckInterval: TimeInterval = 1
 private let inboundTrafficTimeout: TimeInterval = 5
 
 /// Traffic timeout applied when both tx/rx counters remain stale, i.e no traffic flowing.
-/// Ping is issued after that timeout is exceeded.s
+/// Ping is issued after that timeout is exceeded.
 private let trafficTimeout: TimeInterval = 120
+
+/// Interval to wait before picking the current path from path monitor in anticipation that path
+/// monitor will likely post a path update before this interval is exceeded.
+private let currentPathFetchDelay: TimeInterval = 500
 
 final class TunnelMonitor: PingerDelegate {
     /// Connection state.
@@ -223,6 +227,7 @@ final class TunnelMonitor: PingerDelegate {
 
     private let pinger: Pinger
     private var pathMonitor: NWPathMonitor?
+    private var currentPathFetch: DispatchWorkItem?
     private var timer: DispatchSourceTimer?
 
     private var state = State()
@@ -313,10 +318,30 @@ final class TunnelMonitor: PingerDelegate {
 
         let pathMonitor = NWPathMonitor()
         pathMonitor.pathUpdateHandler = { [weak self] path in
-            self?.handleNetworkPathUpdate(path)
+            guard let self = self else { return }
+
+            if let currentPathFetch = self.currentPathFetch {
+                currentPathFetch.cancel()
+                self.currentPathFetch = nil
+            }
+
+            self.handleNetworkPathUpdate(path)
         }
-        pathMonitor.start(queue: internalQueue)
+
+        let currentPathFetch = DispatchWorkItem { [weak self] in
+            self?.handleNetworkPathUpdate(pathMonitor.currentPath)
+        }
+
+        self.currentPathFetch = currentPathFetch
         self.pathMonitor = pathMonitor
+
+        // Pick current path after delay, because in path monitor may not have current path
+        // available immediately.
+        internalQueue.asyncAfter(
+            wallDeadline: .now() + currentPathFetchDelay,
+            execute: currentPathFetch
+        )
+        pathMonitor.start(queue: internalQueue)
     }
 
     private func stopNoQueue(forRestart: Bool = false) {
@@ -329,6 +354,9 @@ final class TunnelMonitor: PingerDelegate {
         }
 
         probeAddress = nil
+
+        currentPathFetch?.cancel()
+        currentPathFetch = nil
 
         pathMonitor?.cancel()
         pathMonitor = nil
