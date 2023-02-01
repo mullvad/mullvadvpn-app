@@ -43,7 +43,7 @@ class TextFileOutputStream: TextOutputStream {
         }
 
         let queue = queue
-        let writer = fileURL.path.withCString { filePathPointer -> DispatchIO? in
+        let writer = fileURL.path.withCString { filePathPointer in
             return DispatchIO(
                 type: .stream,
                 path: filePathPointer,
@@ -72,16 +72,15 @@ class TextFileOutputStream: TextOutputStream {
 
     func write(_ string: String) {
         string.data(using: encoding)?.withUnsafeBytes { bytes in
-            writer
-                .write(
-                    offset: .zero,
-                    data: DispatchData(bytes: bytes),
-                    queue: queue
-                ) { done, data, errno in
-                    if errno != 0 {
-                        print("TextFileOutputStream: write error: \(errno)")
-                    }
+            writer.write(
+                offset: .zero,
+                data: DispatchData(bytes: bytes),
+                queue: queue
+            ) { done, data, errno in
+                if errno != 0 {
+                    print("TextFileOutputStream: write error: \(errno)")
                 }
+            }
         }
     }
 }
