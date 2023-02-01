@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
@@ -10,8 +11,15 @@ const StyledContainer = styled(Container)({
   flex: 1,
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: '-150px',
+  justifyContent: 'end',
+});
+
+const StyledContent = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'end',
 });
 
 const Logo = styled(ImageView)({
@@ -32,8 +40,16 @@ const Subtitle = styled.span({
   textAlign: 'center',
 });
 
+const StyledFooterContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'end',
+  minHeight: '241px',
+});
+
 interface ErrorViewProps {
   settingsUnavailable?: boolean;
+  footer?: React.ReactNode | React.ReactNode[];
   children: React.ReactNode | React.ReactNode[];
 }
 
@@ -42,9 +58,12 @@ export default function ErrorView(props: ErrorViewProps) {
     <Layout>
       <Header>{!props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
       <StyledContainer>
-        <Logo height={106} width={106} source="logo-icon" />
-        <Title height={18} source="logo-text" />
-        <Subtitle role="alert">{props.children}</Subtitle>
+        <StyledContent>
+          <Logo height={106} width={106} source="logo-icon" />
+          <Title height={18} source="logo-text" />
+          <Subtitle role="alert">{props.children}</Subtitle>
+        </StyledContent>
+        <StyledFooterContainer>{props.footer}</StyledFooterContainer>
       </StyledContainer>
     </Layout>
   );
