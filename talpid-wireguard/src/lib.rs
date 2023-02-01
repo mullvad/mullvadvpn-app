@@ -339,7 +339,7 @@ impl WireguardMonitor {
                         .get_mut(0)
                         .expect("entry peer not found")
                         .allowed_ips
-                        .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 0).unwrap());
+                        .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
                     let allowed_traffic = AllowedTunnelTraffic::Only(Endpoint::new(
                         config.ipv4_gateway,
