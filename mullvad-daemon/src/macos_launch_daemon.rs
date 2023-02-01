@@ -67,6 +67,8 @@ fn get_os_version() -> NSOperatingSystemVersion {
 /// Returns an `NSURL` instance for `DAEMON_PLIST_PATH`.
 fn daemon_plist_url() -> Object {
     /// Path to the plist that defines the Mullvad launch daemon.
+    /// It must be kept in sync with the path defined in
+    /// `dist-assets/pkg-scripts/postinstall`.
     const DAEMON_PLIST_PATH: &CStr = unsafe {
         CStr::from_bytes_with_nul_unchecked(b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0")
     };

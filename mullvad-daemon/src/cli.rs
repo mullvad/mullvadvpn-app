@@ -7,6 +7,7 @@ pub struct Config {
     pub log_stdout_timestamps: bool,
     pub run_as_service: bool,
     pub register_service: bool,
+    #[cfg(target_os = "macos")]
     pub launch_daemon_status: bool,
     #[cfg(target_os = "linux")]
     pub initialize_firewall_and_exit: bool,
@@ -36,8 +37,8 @@ pub fn create_config() -> Config {
         cfg!(target_os = "linux") && matches.is_present("initialize-early-boot-firewall");
     let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
     let register_service = cfg!(windows) && matches.is_present("register_service");
-    let launch_daemon_status =
-        cfg!(target_os = "macos") && matches.is_present("launch_daemon_status");
+    #[cfg(target_os = "macos")]
+    let launch_daemon_status = matches.is_present("launch_daemon_status");
 
     Config {
         #[cfg(target_os = "linux")]
@@ -47,6 +48,7 @@ pub fn create_config() -> Config {
         log_stdout_timestamps,
         run_as_service,
         register_service,
+        #[cfg(target_os = "macos")]
         launch_daemon_status,
     }
 }
