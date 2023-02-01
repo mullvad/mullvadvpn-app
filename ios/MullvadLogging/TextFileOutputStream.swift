@@ -29,12 +29,12 @@ class TextFileOutputStream: TextOutputStream {
         }
     }
 
-    init?(
+    convenience init(
         fileURL: URL,
         createFile: Bool,
         filePermissions: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
         encoding: String.Encoding = .utf8
-    ) {
+    ) throws {
         var oflag: Int32 = O_WRONLY
         var mode: mode_t = .zero
         if createFile {
@@ -42,28 +42,15 @@ class TextFileOutputStream: TextOutputStream {
             mode = filePermissions
         }
 
-        let queue = queue
-        let writer = fileURL.path.withCString { filePathPointer -> DispatchIO? in
-            return DispatchIO(
-                type: .stream,
-                path: filePathPointer,
-                oflag: oflag,
-                mode: mode,
-                queue: queue,
-                cleanupHandler: { errno in
-                    if errno != 0 {
-                        print("TextFileOutputStream: closed channel with error: \(errno)")
-                    }
-                }
-            )
+        let fd = fileURL.path.withCString { path in
+            return Darwin.open(path, oflag, mode)
         }
 
-        if let writer = writer {
-            self.writer = writer
-            self.encoding = encoding
-        } else {
-            return nil
+        guard fd != -1 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .ELAST)
         }
+
+        self.init(fileDescriptor: fd, encoding: encoding)
     }
 
     deinit {
@@ -72,16 +59,15 @@ class TextFileOutputStream: TextOutputStream {
 
     func write(_ string: String) {
         string.data(using: encoding)?.withUnsafeBytes { bytes in
-            writer
-                .write(
-                    offset: .zero,
-                    data: DispatchData(bytes: bytes),
-                    queue: queue
-                ) { done, data, errno in
-                    if errno != 0 {
-                        print("TextFileOutputStream: write error: \(errno)")
-                    }
+            writer.write(
+                offset: .zero,
+                data: DispatchData(bytes: bytes),
+                queue: queue
+            ) { done, data, errno in
+                if errno != 0 {
+                    print("TextFileOutputStream: write error: \(errno)")
                 }
+            }
         }
     }
 }
