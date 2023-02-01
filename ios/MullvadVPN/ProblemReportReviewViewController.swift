@@ -12,14 +12,6 @@ class ProblemReportReviewViewController: UIViewController {
     private var textView = UITextView()
     private let reportString: String
 
-    private var dismissButtonItem: UIBarButtonItem {
-        return UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDismissButton(_:))
-        )
-    }
-
     init(reportString: String) {
         self.reportString = reportString
         super.init(nibName: nil, bundle: nil)
@@ -38,7 +30,20 @@ class ProblemReportReviewViewController: UIViewController {
             value: "App logs",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = dismissButtonItem
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(handleDismissButton(_:))
+        )
+
+        #if DEBUG
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .action,
+            target: self,
+            action: #selector(share(_:))
+        )
+        #endif
 
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.text = reportString
@@ -71,4 +76,15 @@ class ProblemReportReviewViewController: UIViewController {
     @objc func handleDismissButton(_ sender: Any) {
         dismiss(animated: true)
     }
+
+    #if DEBUG
+    @objc func share(_ sender: Any) {
+        let activityController = UIActivityViewController(
+            activityItems: [reportString],
+            applicationActivities: nil
+        )
+
+        present(activityController, animated: true)
+    }
+    #endif
 }
