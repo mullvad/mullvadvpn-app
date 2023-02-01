@@ -9,31 +9,36 @@
 import Foundation
 
 public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
-    /// Failure that indicates wire guard errors.
-    case wireguard(error: String)
+    public enum ConfigurationFailureCause: Codable, Equatable {
+        /// Settings schema is outdated.
+        case outdatedSchema
+
+        /// No relay satisfying constraints.
+        case noRelaysSatisfyingConstraints
+
+        /// Read error.
+        case readFailure
+    }
+
+    /// Failure that indicates WireGuard errors.
+    case wireguard(_ errorDescription: String)
 
     /// Failure to read stored settings.
-    case readConfiguration
+    case configuration(ConfigurationFailureCause)
 
     public var errorDescription: String? {
         switch self {
         case let .wireguard(error):
             return error
-        case .readConfiguration:
-            return "Failure to read settings."
-        }
-    }
-
-    public static func == (lhs: PacketTunnelErrorWrapper, rhs: PacketTunnelErrorWrapper) -> Bool {
-        switch (lhs, rhs) {
-        case (.readConfiguration, .readConfiguration):
-            return true
-
-        case let (.wireguard(error: lhsError), .wireguard(error: rhsError)):
-            return lhsError == rhsError
-
-        default:
-            return false
+        case let .configuration(cause):
+            switch cause {
+            case .outdatedSchema:
+                return "Settings schema is outdated."
+            case .readFailure:
+                return "Failure to read VPN configuration."
+            case .noRelaysSatisfyingConstraints:
+                return "No relays satisfying constraints."
+            }
         }
     }
 }
