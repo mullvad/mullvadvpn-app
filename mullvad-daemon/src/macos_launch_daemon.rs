@@ -5,12 +5,27 @@
 //! must be checked so that the user can be directed to approve the launch
 //! daemon in the system settings.
 
+use objc::{class, msg_send, sel, sel_impl};
+use std::ffi::CStr;
+
+type Id = *mut objc::runtime::Object;
+
 /// Path to the plist that defines the Mullvad launch daemon.
-const DAEMON_PLIST_PATH: &[u8] = b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0";
+const DAEMON_PLIST_PATH: &CStr = unsafe {
+    CStr::from_bytes_with_nul_unchecked(b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0")
+};
 
 // Framework that contains `SMAppService`.
 #[link(name = "ServiceManagement", kind = "framework")]
 extern "C" {}
+
+/// Errors that can happen when using the OpenVPN tunnel.
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Expected a valid URL/path for the plist.
+    #[error(display = "Invalid URL")]
+    MalformedUrl,
+}
 
 /// Returned by `[NSProcessInfo operatingSystemVersion]`. Contains the current
 #[repr(C)]
@@ -33,34 +48,16 @@ pub enum LaunchDaemonStatus {
 /// Return whether the daemon is running, not found, or is not authorized.
 /// NOTE: On macos < 13, this function always returns `LaunchDaemonStatus::Ok`.
 pub fn get_status() -> LaunchDaemonStatus {
-    use objc::*;
-    type Id = *mut objc::runtime::Object;
-
-    // Check what the current macOS version is.
     // `SMAppService` does not exist if the major version is less than 13.
-
-    let proc_info: Id = unsafe { msg_send![class!(NSProcessInfo), processInfo] };
-    let os_version: NSOperatingSystemVersion =
-        unsafe { msg_send![proc_info, operatingSystemVersion] };
-
-    if os_version.major_version < 13 {
+    if get_os_version().major_version < 13 {
         return LaunchDaemonStatus::Ok;
     }
+    get_status_for_url(&nsurl_from_str(DAEMON_PLIST_PATH).expect("invalid plist path"))
+}
 
-    // Call [sm_app_service statusForLegacyURL: daemon_plist]
-
-    let nsstr_inst: Id = unsafe { msg_send![class!(NSString), alloc] };
-    let nsstr_inst: Id = unsafe { msg_send![nsstr_inst, initWithUTF8String: DAEMON_PLIST_PATH] };
-
-    let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
-    let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
-
-    let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
-
+fn get_status_for_url(url: &Object) -> LaunchDaemonStatus {
     let status: libc::c_long =
-        unsafe { msg_send![class!(SMAppService), statusForLegacyURL: nsurl_inst] };
-
-    let _: libc::c_void = unsafe { msg_send![nsurl_inst, release] };
+        unsafe { msg_send![class!(SMAppService), statusForLegacyURL: url.0] };
 
     match status {
         // SMAppServiceStatusNotRegistered | SMAppServiceStatusNotFound
@@ -71,5 +68,38 @@ pub fn get_status() -> LaunchDaemonStatus {
         2 => LaunchDaemonStatus::NotAuthorized,
         // Unknown status
         _ => LaunchDaemonStatus::Unknown,
+    }
+}
+
+fn get_os_version() -> NSOperatingSystemVersion {
+    // the object is lazily instantiated, so we don't release it
+    let proc_info: Id = unsafe { msg_send![class!(NSProcessInfo), processInfo] };
+    unsafe { msg_send![proc_info, operatingSystemVersion] }
+}
+
+/// Returns an `NSURL` object given a null-terminated UTF-8 string.
+/// Fails if `url` is not a valid path or URL.
+fn nsurl_from_str(url: &CStr) -> Result<Object, Error> {
+    let nsstr_inst: Id = unsafe { msg_send![class!(NSString), alloc] };
+    let nsstr_inst: Id = unsafe { msg_send![nsstr_inst, initWithUTF8String: url.as_ptr()] };
+
+    let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
+    let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
+
+    let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
+
+    if nsurl_inst == std::ptr::null_mut() {
+        return Err(Error::MalformedUrl);
+    }
+
+    Ok(Object(nsstr_inst))
+}
+
+/// Calls `[self.0 release]` when the wrapped instance is dropped.
+struct Object(Id);
+
+impl Drop for Object {
+    fn drop(&mut self) {
+        let _: libc::c_void = unsafe { msg_send![self.0, release] };
     }
 }
