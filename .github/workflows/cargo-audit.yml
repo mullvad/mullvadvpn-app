@@ -34,9 +34,12 @@ jobs:
       - name: Audit
         # RUSTSEC-2020-0071: Ignore the time segfault CVE since there are no known
         # good workarounds, and we want logs etc to be in local time.
+        #
         # RUSTSEC-2021-0145: The vulnerability affects custom global allocators,
         # so it should be safe to ignore it. Stop ignoring the warning once
-        # atty has been replaced in clap and env_logger:
+        # atty has been replaced in clap (when we upgrade to clap 4):
         # https://github.com/clap-rs/clap/pull/4249
-        # https://github.com/rust-cli/env_logger/pull/246
-        run: cargo audit --ignore RUSTSEC-2020-0071 --ignore RUSTSEC-2021-0145
+        run: |
+          cargo audit --deny warnings \
+            --ignore RUSTSEC-2020-0071 \
+            --ignore RUSTSEC-2021-0145
