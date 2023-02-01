@@ -239,9 +239,9 @@ bool FwContext::applyPolicyConnecting
 			{
                 for (int i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
                     const auto endpoint = std::make_optional(baseline::PermitVpnTunnel::Endpoint{
-                            wfp::IpAddress(allowedTunnelTraffic.endpoints[i]->ip),
-                            allowedTunnelTraffic.endpoints[i]->port,
-                            allowedTunnelTraffic.endpoints[i]->protocol
+                            wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
+                            allowedTunnelTraffic.endpoints[i].port,
+                            allowedTunnelTraffic.endpoints[i].protocol
                             });
                     ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
                                 *tunnelInterfaceAlias,
