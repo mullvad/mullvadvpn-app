@@ -194,6 +194,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
+            /*
+              We use default data protection level which locks keychain and file system access
+              until device is first unlocked.
+
+              However iOS starts packet tunnel on boot and unfortunately we do not have access to
+              UIApplication.isProtectedDataAvailable nor associated delegate methods that would
+              tell us when data protection is being lifted.
+
+              Exit immediately and pass the underlying error to completion handler to tell iOS to
+              restart the tunnel later on.
+             */
+            if let error = error as? ReadSettingsVersionError,
+               error.underlyingError as? KeychainError == KeychainError.interactionNotAllowed
+            {
+                completionHandler(error.underlyingError)
+                return
+            }
+
             configurationError = error
 
             startEmptyTunnel(completionHandler: completionHandler)
