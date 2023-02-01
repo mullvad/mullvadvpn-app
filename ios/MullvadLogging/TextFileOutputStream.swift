@@ -11,7 +11,7 @@ import Foundation
 class TextFileOutputStream: TextOutputStream {
     private let writer: DispatchIO
     private let encoding: String.Encoding
-    private let queue = DispatchQueue.global(qos: .utility)
+    private let queue = DispatchQueue(label: "TextFileOutputStream", qos: .utility)
 
     class func standardOutputStream(encoding: String.Encoding = .utf8) -> TextFileOutputStream {
         return TextFileOutputStream(
