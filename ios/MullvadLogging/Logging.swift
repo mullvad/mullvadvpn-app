@@ -9,71 +9,92 @@
 import Foundation
 @_exported import Logging
 
-public func initLoggingSystem(
-    bundleIdentifier: String,
-    applicationGroupIdentifier: String,
-    metadata: Logger.Metadata? = nil
-) {
-    let containerURL = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: applicationGroupIdentifier
-    )!
-    let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
-    let logFileName = "\(bundleIdentifier).log"
-    let logFileURL = logsDirectoryURL.appendingPathComponent(logFileName)
+private enum LoggerOutput {
+    case fileOutput(_ fileOutput: TextOutputStream)
+    case osLogOutput(_ subsystem: String)
+}
 
-    // Create Logs folder within container if it doesn't exist
-    try? FileManager.default.createDirectory(
-        at: logsDirectoryURL,
-        withIntermediateDirectories: false,
-        attributes: nil
-    )
-
-    // Rotate log
-    var logRotationError: Error?
-    do {
-        try LogRotation.rotateLog(
-            logsDirectory: logsDirectoryURL,
-            logFileName: logFileName
-        )
-    } catch {
-        logRotationError = error
+public struct MissingSharedContainerError: LocalizedError {
+    public var errorDescription: String? {
+        return "Cannot obtain shared container URL."
     }
+}
 
-    // Create an array of log output streams
-    var streams: [TextOutputStream] = []
-
-    // Create output stream to file
-    if let fileLogStream = TextFileOutputStream(fileURL: logFileURL, createFile: true) {
-        streams.append(fileLogStream)
+public struct OpenFileStreamError: LocalizedError {
+    public var errorDescription: String? {
+        return "Failed to open file stream."
     }
+}
 
-    // Configure Logging system
-    LoggingSystem.bootstrap { label -> LogHandler in
-        var logHandlers: [LogHandler] = []
+public struct LoggerBuilder {
+    private(set) var logRotationErrors: [Error] = []
+    private var outputs: [LoggerOutput] = []
 
-        #if DEBUG
-        logHandlers.append(OSLogHandler(subsystem: bundleIdentifier, category: label))
-        #endif
+    public var metadata: Logger.Metadata = [:]
 
-        if !streams.isEmpty {
-            logHandlers.append(CustomFormatLogHandler(label: label, streams: streams))
+    public init() {}
+
+    public mutating func addFileOutput(securityGroupIdentifier: String, basename: String) throws {
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: securityGroupIdentifier
+        ) else {
+            throw MissingSharedContainerError()
         }
 
-        if logHandlers.isEmpty {
-            return SwiftLogNoOpLogHandler()
+        let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
+        let logFileName = "\(basename).log"
+        let logFileURL = logsDirectoryURL.appendingPathComponent(logFileName, isDirectory: false)
+
+        try? FileManager.default.createDirectory(
+            at: logsDirectoryURL,
+            withIntermediateDirectories: false,
+            attributes: nil
+        )
+
+        do {
+            try LogRotation.rotateLog(logsDirectory: logsDirectoryURL, logFileName: logFileName)
+        } catch {
+            logRotationErrors.append(error)
+        }
+
+        if let outputStream = TextFileOutputStream(fileURL: logFileURL, createFile: true) {
+            outputs.append(.fileOutput(outputStream))
         } else {
-            var multiplex = MultiplexLogHandler(logHandlers)
-            if let metadata = metadata {
-                multiplex.metadata = metadata
-            }
-            return multiplex
+            throw OpenFileStreamError()
         }
     }
 
-    if let logRotationError = logRotationError {
-        Logger(label: "LogRotation").error(
-            error: logRotationError,
-            message: "Failed to rotate log"
-        )
+    public mutating func addOSLogOutput(subsystem: String) {
+        outputs.append(.osLogOutput(subsystem))
+    }
+
+    public func install() {
+        LoggingSystem.bootstrap { label -> LogHandler in
+            let logHandlers: [LogHandler] = outputs.map { output in
+                switch output {
+                case let .fileOutput(stream):
+                    return CustomFormatLogHandler(label: label, streams: [stream])
+
+                case let .osLogOutput(subsystem):
+                    return OSLogHandler(subsystem: subsystem, category: label)
+                }
+            }
+
+            if logHandlers.isEmpty {
+                return SwiftLogNoOpLogHandler()
+            } else {
+                var multiplex = MultiplexLogHandler(logHandlers)
+                multiplex.metadata = metadata
+                return multiplex
+            }
+        }
+
+        if !logRotationErrors.isEmpty {
+            let rotationLogger = Logger(label: "LogRotation")
+
+            for error in logRotationErrors {
+                rotationLogger.error(error: error, message: "Failed to rotate log")
+            }
+        }
     }
 }
