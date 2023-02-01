@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+#### MacOS
+- Improved reliability of the connectivity check workaround by adding an extra captive portal check
+  domain
+
 
 ## [2023.1-beta1] - 2023-01-26
 ### Added
