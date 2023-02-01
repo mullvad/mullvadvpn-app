@@ -21,6 +21,7 @@ public struct KeychainError: LocalizedError, Equatable {
 
     public static let duplicateItem = KeychainError(code: errSecDuplicateItem)
     public static let itemNotFound = KeychainError(code: errSecItemNotFound)
+    public static let interactionNotAllowed = KeychainError(code: errSecInteractionNotAllowed)
 
     public static func == (lhs: KeychainError, rhs: KeychainError) -> Bool {
         return lhs.code == rhs.code
