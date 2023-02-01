@@ -103,16 +103,23 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     override init() {
+        var loggerBuilder = LoggerBuilder()
+
         let pid = ProcessInfo.processInfo.processIdentifier
+        loggerBuilder.metadata["pid"] = .string("\(pid)")
 
-        var metadata = Logger.Metadata()
-        metadata["pid"] = .string("\(pid)")
+        let bundleIdentifier = Bundle.main.bundleIdentifier!
 
-        initLoggingSystem(
-            bundleIdentifier: Bundle.main.bundleIdentifier!,
-            applicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
-            metadata: metadata
+        try? loggerBuilder.addFileOutput(
+            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
+            basename: bundleIdentifier
         )
+
+        #if DEBUG
+        loggerBuilder.addOSLogOutput(subsystem: bundleIdentifier)
+        #endif
+
+        loggerBuilder.install()
 
         providerLogger = Logger(label: "PacketTunnelProvider")
         tunnelLogger = Logger(label: "WireGuard")
