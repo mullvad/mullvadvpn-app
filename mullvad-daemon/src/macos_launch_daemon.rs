@@ -10,22 +10,9 @@ use std::ffi::CStr;
 
 type Id = *mut objc::runtime::Object;
 
-/// Path to the plist that defines the Mullvad launch daemon.
-const DAEMON_PLIST_PATH: &CStr = unsafe {
-    CStr::from_bytes_with_nul_unchecked(b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0")
-};
-
 // Framework that contains `SMAppService`.
 #[link(name = "ServiceManagement", kind = "framework")]
 extern "C" {}
-
-/// Errors that can happen when using the OpenVPN tunnel.
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    /// Expected a valid URL/path for the plist.
-    #[error(display = "Invalid URL")]
-    MalformedUrl,
-}
 
 /// Returned by `[NSProcessInfo operatingSystemVersion]`. Contains the current
 #[repr(C)]
@@ -52,7 +39,7 @@ pub fn get_status() -> LaunchDaemonStatus {
     if get_os_version().major_version < 13 {
         return LaunchDaemonStatus::Ok;
     }
-    get_status_for_url(&nsurl_from_str(DAEMON_PLIST_PATH).expect("invalid plist path"))
+    get_status_for_url(&nsurl_from_str())
 }
 
 fn get_status_for_url(url: &Object) -> LaunchDaemonStatus {
@@ -77,22 +64,25 @@ fn get_os_version() -> NSOperatingSystemVersion {
     unsafe { msg_send![proc_info, operatingSystemVersion] }
 }
 
-/// Returns an `NSURL` object given a null-terminated UTF-8 string.
-/// Fails if `url` is not a valid path or URL.
-fn nsurl_from_str(url: &CStr) -> Result<Object, Error> {
+/// Returns an `NSURL` instance for `DAEMON_PLIST_PATH`.
+fn nsurl_from_str() -> Object {
+    /// Path to the plist that defines the Mullvad launch daemon.
+    const DAEMON_PLIST_PATH: &CStr = unsafe {
+        CStr::from_bytes_with_nul_unchecked(b"/Library/LaunchDaemons/net.mullvad.daemon.plist\0")
+    };
+
     let nsstr_inst: Id = unsafe { msg_send![class!(NSString), alloc] };
-    let nsstr_inst: Id = unsafe { msg_send![nsstr_inst, initWithUTF8String: url.as_ptr()] };
+    let nsstr_inst: Id =
+        unsafe { msg_send![nsstr_inst, initWithUTF8String: DAEMON_PLIST_PATH.as_ptr()] };
 
     let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
     let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
 
     let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
 
-    if nsurl_inst == std::ptr::null_mut() {
-        return Err(Error::MalformedUrl);
-    }
+    assert!(!nsurl_inst.is_null());
 
-    Ok(Object(nsstr_inst))
+    Object(nsurl_inst)
 }
 
 /// Calls `[self.0 release]` when the wrapped instance is dropped.
