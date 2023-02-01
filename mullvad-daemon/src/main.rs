@@ -56,7 +56,7 @@ fn init_daemon_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> 
     }
 
     #[cfg(target_os = "macos")]
-    if config.query_service {
+    if config.launch_daemon_status {
         return Ok(None);
     }
 
@@ -136,7 +136,7 @@ async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<
 
 #[cfg(target_os = "macos")]
 async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    if config.query_service {
+    if config.launch_daemon_status {
         std::process::exit(macos_launch_daemon::get_status() as i32);
     }
     run_standalone(log_dir).await

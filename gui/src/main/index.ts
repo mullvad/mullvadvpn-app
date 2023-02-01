@@ -885,7 +885,7 @@ class ApplicationMain
 
   private checkMacOsLaunchDaemon(): Promise<void> {
     const daemonBin = resolveBin('mullvad-daemon');
-    const args = ['--query-service'];
+    const args = ['--launch-daemon-status'];
     return new Promise((resolve, _reject) => {
       execFile(daemonBin, args, { windowsHide: true }, (error, stdout, stderr) => {
         if (error) {
