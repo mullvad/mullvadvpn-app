@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
+#### macOS
+- Detect whether users need to approve the launch daemon in the Login Items UI.
+
 
 ## [2023.1-beta1] - 2023-01-26
 ### Added
