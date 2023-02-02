@@ -75,7 +75,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         }
 
         advancedMenu = view.findViewById<NavigateCell>(R.id.advanced).apply {
-            targetFragment = AdvancedFragment::class
+            targetFragment = AdvancedSettingFragment::class
         }
 
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
