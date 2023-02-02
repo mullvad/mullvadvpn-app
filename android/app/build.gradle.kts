@@ -216,6 +216,10 @@ dependencies {
     implementation(Dependencies.Compose.uiToolingPreview)
     debugImplementation(Dependencies.Compose.uiTooling)
 
+
+    // Compose collapsing toolbar
+    implementation(Dependencies.Compose.composeCollapsingToolbar)
+
     // Leak canary
     leakCanaryImplementation(Dependencies.leakCanary)
 
