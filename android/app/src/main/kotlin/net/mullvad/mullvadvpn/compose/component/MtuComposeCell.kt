@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.viewmodel.CellUiState
 
 private const val MIN_MTU_VALUE = 1280
 private const val MAX_MTU_VALUE = 1420
@@ -37,7 +36,7 @@ private const val MAX_MTU_VALUE = 1420
 @Preview
 @Composable
 fun MtuComposeCellPreview() {
-//    MtuComposeCell("1300", {})
+    MtuComposeCell("1300", {}, {})
 }
 
 var tmpp = MutableStateFlow("")
@@ -67,7 +66,6 @@ fun MtuComposeCell(
             },
             subtitle = { MtuSubtitle(subtitleModifier) },
             subtitleModifier = subtitleModifier,
-            uiState = CellUiState.MTUCellUiState()
         )
     }
 }
