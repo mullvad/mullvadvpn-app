@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID
+import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -23,7 +24,7 @@ class MockApiDispatcher : Dispatcher() {
     private var cachedPubKeyFromAppUnderTest: String? = null
 
     override fun dispatch(request: RecordedRequest): MockResponse {
-        Log.d("mullvad", "Request: $request")
+        Log.d(LOG_TAG, "Request: $request (body=${request.body.peek().readUtf8()})")
         return when (request.path) {
             AUTH_TOKEN_URL_PATH -> handleLoginRequest(request.body)
             DEVICES_URL_PATH -> {
@@ -36,6 +37,8 @@ class MockApiDispatcher : Dispatcher() {
             "$DEVICES_URL_PATH/$DUMMY_ID" -> handleDeviceInfoRequest()
             ACCOUNT_URL_PATH -> handleAccountInfoRequest()
             else -> MockResponse().setResponseCode(404)
+        }.also { response ->
+            Log.d(LOG_TAG, "Response: $response (body=${response.getBody()?.peek()?.readUtf8()})")
         }
     }
 
@@ -53,6 +56,10 @@ class MockApiDispatcher : Dispatcher() {
                     ).toString()
                 )
         } else {
+            Log.e(
+                LOG_TAG,
+                "Unexpected account token (expected=$expectedAccountToken was=$accountToken)"
+            )
             MockResponse().setResponseCode(400)
         }
     }
