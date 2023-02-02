@@ -44,6 +44,7 @@ object Versions {
         const val material = "1.3.1"
         const val uiController = "0.28.0"
         const val viewModelLifecycle = "2.5.1"
+        const val composeCollapsingToolbar = "2.3.5"
     }
 
     object Plugin {
