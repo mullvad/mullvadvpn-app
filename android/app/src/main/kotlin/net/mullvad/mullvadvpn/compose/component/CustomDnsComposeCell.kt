@@ -1,21 +1,10 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,33 +13,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.viewmodel.CellUiState
 
 @Preview
 @Composable
 fun CustomDnsComposeCellPreview() {
     CustomDnsComposeCell(
         checkboxDefaultState = true,
-        onToggle = {},
-        dnsList = emptyList()
+        onToggle = {}
     )
 }
 
 @Composable
 fun CustomDnsComposeCell(
     checkboxDefaultState: Boolean,
-    onToggle: (Boolean) -> Unit,
-    dnsList: List<String>
+    onToggle: (Boolean) -> Unit
 ) {
 
     val titleModifier = Modifier
     val bodyViewModifier = Modifier
     val expandableViewModifier = Modifier
     val subtitleModifier = Modifier
-    var expanded by remember { mutableStateOf(checkboxDefaultState) }
 
     BaseCell(
         title = { CustomDnsCellTitle(modifier = titleModifier) },
@@ -58,22 +42,13 @@ fun CustomDnsComposeCell(
             CustomDnsCellView(
                 switchTriggered = {
                     onToggle(it)
-                    expanded = it
                 },
-                defaultValue = expanded,
+                isToggled = checkboxDefaultState,
                 modifier = bodyViewModifier
             )
         },
-        expandableContent = {
-            CustomDnsCellExpandable(
-                dnsList = dnsList,
-                expanded = expanded,
-                modifier = expandableViewModifier
-            )
-        },
-        subtitle = { CustomDnsCellSubtitle(subtitleModifier) },
-        subtitleModifier = subtitleModifier,
-        uiState = CellUiState.CustomDNSCellUiState()
+//        onCellClicked = { onToggle(!checkboxDefaultState) },
+        subtitleModifier = subtitleModifier
     )
 }
 
@@ -96,7 +71,7 @@ fun CustomDnsCellTitle(
 @Composable
 fun CustomDnsCellView(
     switchTriggered: (Boolean) -> Unit,
-    defaultValue: Boolean = false,
+    isToggled: Boolean,
     modifier: Modifier
 ) {
     Row(
@@ -105,45 +80,16 @@ fun CustomDnsCellView(
             .wrapContentHeight()
     ) {
         // Declaring a boolean value for storing checked state
-        val mCheckedState = remember { mutableStateOf(defaultValue) }
+        // TODO: remove all logical states from Views
+//        val mCheckedState = remember { mutableStateOf(isToggled) }
 
         CellSwitch(
-            checked = mCheckedState.value,
+            checked = isToggled,
             onCheckedChange = {
-                mCheckedState.value = it
+//                mCheckedState.value = it
                 switchTriggered(it)
             },
         )
-    }
-}
-
-@Composable
-fun CustomDnsCellExpandable(dnsList: List<String>?, expanded: Boolean, modifier: Modifier) {
-    Column(modifier = modifier) {
-        Divider()
-        AnimatedVisibility(
-            visible = expanded,
-        ) {
-            Column {
-
-                dnsList?.let {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(((dnsList.size * 53) + 52).dp)
-                    ) {
-
-                        items(it.size) { index ->
-                            DnsCell(DnsCellUiState(it[index]), Modifier.statusBarsPadding()) {}
-                            Divider()
-                        }
-                        item {
-                            DnsCell(DnsCellUiState())
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
