@@ -94,6 +94,7 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                         exit_peer: None,
                         ipv4_gateway,
                         ipv6_gateway,
+                        quantum_resistant: config.quantum_resistant,
                         #[cfg(target_os = "linux")]
                         fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                     },
@@ -146,6 +147,7 @@ impl From<mullvad_types::ConnectionConfig> for proto::ConnectionConfig {
                             .as_ref()
                             .map(|address| address.to_string())
                             .unwrap_or_default(),
+                        quantum_resistant: config.quantum_resistant,
                     })
                 }
             }),

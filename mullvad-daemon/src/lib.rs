@@ -226,7 +226,7 @@ pub enum DaemonCommand {
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
-    SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, bool),
+    SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, Option<bool>),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Toggle macOS network check leak
@@ -1005,8 +1005,9 @@ where
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
-            SetQuantumResistantTunnel(tx, enable_pq) => {
-                self.on_set_quantum_resistant_tunnel(tx, enable_pq).await
+            SetQuantumResistantTunnel(tx, quantum_resistant_state) => {
+                self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
+                    .await
             }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
@@ -2020,11 +2021,11 @@ where
     async fn on_set_quantum_resistant_tunnel(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        use_pq_safe_psk: bool,
+        quantum_resistant: Option<bool>,
     ) {
         let save_result = self
             .settings
-            .set_quantum_resistant_tunnel(use_pq_safe_psk)
+            .set_quantum_resistant_tunnel(quantum_resistant)
             .await;
         match save_result {
             Ok(settings_changed) => {

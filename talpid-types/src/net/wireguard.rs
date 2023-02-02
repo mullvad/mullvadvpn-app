@@ -30,6 +30,7 @@ pub struct ConnectionConfig {
     /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,
+    pub quantum_resistant: bool,
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
 }
@@ -87,8 +88,6 @@ pub struct TunnelOptions {
         jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
     )]
     pub mtu: Option<u16>,
-    /// Obtain a PSK using the relay config client.
-    pub use_pq_safe_psk: bool,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
     #[serde(default = "default_wgnt_setting")]
@@ -106,7 +105,6 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         Self {
             mtu: None,
-            use_pq_safe_psk: false,
             #[cfg(windows)]
             use_wireguard_nt: default_wgnt_setting(),
         }

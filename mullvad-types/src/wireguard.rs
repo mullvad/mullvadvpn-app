@@ -124,6 +124,8 @@ impl Default for RotationInterval {
 pub struct TunnelOptions {
     #[serde(flatten)]
     pub options: wireguard::TunnelOptions,
+    /// Obtain a PSK using the relay config client.
+    pub quantum_resistant: Option<bool>,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub rotation_interval: Option<RotationInterval>,
