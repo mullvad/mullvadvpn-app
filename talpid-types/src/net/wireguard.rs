@@ -1,7 +1,5 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
 use ipnetwork::IpNetwork;
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
@@ -13,7 +11,7 @@ use zeroize::{Zeroize, ZeroizeOnDrop};
 
 /// Tunnel parameters required to start a `WireguardMonitor`.
 /// See [`crate::net::TunnelParameters`].
-#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
@@ -73,44 +71,15 @@ pub struct TunnelConfig {
 }
 
 /// Options in [`TunnelParameters`] that apply to any WireGuard connection.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(
-    target_os = "android",
-    jnix(package = "net.mullvad.talpid.net.wireguard")
-)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
-    )]
     pub mtu: Option<u16>,
-    /// Obtain a PSK using the relay config client.
-    pub use_pq_safe_psk: bool,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
-    #[serde(default = "default_wgnt_setting")]
-    #[serde(rename = "wireguard_nt")]
     pub use_wireguard_nt: bool,
-}
-
-#[cfg(windows)]
-fn default_wgnt_setting() -> bool {
-    true
-}
-
-#[allow(clippy::derivable_impls)]
-impl Default for TunnelOptions {
-    fn default() -> Self {
-        Self {
-            mtu: None,
-            use_pq_safe_psk: false,
-            #[cfg(windows)]
-            use_wireguard_nt: default_wgnt_setting(),
-        }
-    }
+    /// Perform PQ-safe PSK exchange when connecting
+    pub quantum_resistant: bool,
 }
 
 /// Wireguard x25519 private key

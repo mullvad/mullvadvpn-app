@@ -229,7 +229,7 @@ class AdvancedFragment : BaseFragment() {
 
     private fun updateUi(settings: Settings) {
         if (this::wireguardMtuInput.isInitialized && wireguardMtuInput.hasFocus == false) {
-            wireguardMtuInput.value = settings.tunnelOptions.wireguard.options.mtu
+            wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
         }
     }
 

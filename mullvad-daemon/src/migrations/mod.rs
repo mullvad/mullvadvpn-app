@@ -50,6 +50,7 @@ mod v2;
 mod v3;
 mod v4;
 mod v5;
+mod v6;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -95,7 +96,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Returns whether there is any background work remaining.
 #[derive(Clone)]
-pub(crate) struct MigrationComplete(Arc<AtomicBool>);
+pub struct MigrationComplete(Arc<AtomicBool>);
 
 impl MigrationComplete {
     pub fn new(state: bool) -> Self {
@@ -112,12 +113,9 @@ impl MigrationComplete {
 }
 
 /// Contains discarded data that may be useful for later work.
-pub(crate) type MigrationData = v5::MigrationData;
+pub type MigrationData = v5::MigrationData;
 
-pub(crate) async fn migrate_all(
-    cache_dir: &Path,
-    settings_dir: &Path,
-) -> Result<Option<MigrationData>> {
+pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option<MigrationData>> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -149,6 +147,7 @@ pub(crate) async fn migrate_all(
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     let migration_data = v5::migrate(&mut settings)?;
+    v6::migrate(&mut settings)?;
 
     if settings == old_settings {
         // Nothing changed
