@@ -249,16 +249,11 @@ impl SettingsPersister {
 
     pub async fn set_quantum_resistant_tunnel(
         &mut self,
-        use_pq_safe_psk: bool,
+        quantum_resistant: Option<bool>,
     ) -> Result<bool, Error> {
         let should_save = Self::update_field(
-            &mut self
-                .settings
-                .tunnel_options
-                .wireguard
-                .options
-                .use_pq_safe_psk,
-            use_pq_safe_psk,
+            &mut self.settings.tunnel_options.wireguard.quantum_resistant,
+            quantum_resistant,
         );
         self.update(should_save).await
     }
