@@ -211,6 +211,8 @@ impl InnerParametersGenerator {
                     obfuscator: obfuscator_relay,
                 });
 
+                const DEFAULT_QUANTUM_RESISTANT_STATE: bool = false;
+
                 Ok(wireguard::TunnelParameters {
                     connection: wireguard::ConnectionConfig {
                         tunnel,
@@ -218,6 +220,11 @@ impl InnerParametersGenerator {
                         exit_peer: endpoint.exit_peer,
                         ipv4_gateway: endpoint.ipv4_gateway,
                         ipv6_gateway: Some(endpoint.ipv6_gateway),
+                        quantum_resistant: self
+                            .tunnel_options
+                            .wireguard
+                            .quantum_resistant
+                            .unwrap_or(DEFAULT_QUANTUM_RESISTANT_STATE),
                         #[cfg(target_os = "linux")]
                         fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                     },
