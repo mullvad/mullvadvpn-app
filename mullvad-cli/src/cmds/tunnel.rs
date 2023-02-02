@@ -222,10 +222,10 @@ impl Tunnel {
 
     async fn process_wireguard_quantum_resistant_tunnel_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        if tunnel_options.wireguard.unwrap().use_pq_safe_psk {
-            println!("enabled");
-        } else {
-            println!("disabled");
+        match tunnel_options.wireguard.unwrap().quantum_resistant {
+            Some(types::QuantumResistantConstraint { state: true }) => println!("enabled"),
+            Some(types::QuantumResistantConstraint { state: false }) => println!("disabled"),
+            None => println!("default"),
         }
         Ok(())
     }
@@ -233,10 +233,10 @@ impl Tunnel {
     async fn process_wireguard_quantum_resistant_tunnel_set(
         matches: &clap::ArgMatches,
     ) -> Result<()> {
-        let use_pq_safe_psk = matches.value_of("policy").unwrap() == "on";
+        let quantum_resistant = matches.value_of("policy").unwrap() == "on";
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?;
-        if use_pq_safe_psk {
+        if quantum_resistant {
             let multihop_is_enabled = settings
                 .into_inner()
                 .relay_settings
@@ -256,7 +256,7 @@ impl Tunnel {
                 ));
             }
         }
-        rpc.set_quantum_resistant_tunnel(use_pq_safe_psk).await?;
+        rpc.set_quantum_resistant_tunnel(quantum_resistant).await?;
         println!("Updated quantum resistant tunnel setting");
         Ok(())
     }

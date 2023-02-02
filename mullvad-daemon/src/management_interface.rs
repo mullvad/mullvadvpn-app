@@ -346,10 +346,20 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn set_quantum_resistant_tunnel(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enable = request.into_inner();
-        log::debug!("set_quantum_resistant_tunnel({})", enable);
+        let state = request.into_inner();
+        log::debug!("set_quantum_resistant_tunnel({})", state);
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, enable))?;
+        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, Some(state)))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_settings_error)
+    }
+
+    async fn reset_quantum_resistant_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("reset_quantum_resistant_tunnel");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, None))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)

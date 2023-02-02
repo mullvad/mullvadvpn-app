@@ -37,7 +37,7 @@ impl TunnelParameters {
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
-                quantum_resistant: params.options.use_pq_safe_psk,
+                quantum_resistant: params.connection.quantum_resistant,
                 endpoint: params
                     .connection
                     .get_exit_endpoint()

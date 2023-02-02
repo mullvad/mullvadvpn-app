@@ -213,6 +213,7 @@ impl Default for TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions {
                 options: net::wireguard::TunnelOptions::default(),
+                quantum_resistant: None,
                 rotation_interval: None,
             },
             generic: GenericTunnelOptions {

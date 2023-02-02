@@ -342,6 +342,8 @@ impl Relay {
                             .as_ref()
                             .map(|addr| addr.to_string())
                             .unwrap_or_default(),
+                        // NOTE: Quantum resistant tunnels are always disabled for custom relays.
+                        quantum_resistant: false,
                     },
                 )),
             }),
@@ -593,7 +595,7 @@ impl Relay {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
             let use_multihop = wireguard_constraints.entry_location.is_some();
             if use_multihop {
-                let use_pq_safe_psk = rpc
+                let quantum_resistant = rpc
                     .get_settings(())
                     .await?
                     .into_inner()
@@ -601,8 +603,8 @@ impl Relay {
                     .unwrap()
                     .wireguard
                     .unwrap()
-                    .use_pq_safe_psk;
-                if use_pq_safe_psk {
+                    .quantum_resistant;
+                if quantum_resistant == Some(types::QuantumResistantConstraint { state: true }) {
                     return Err(Error::CommandFailed(
                         "Quantum resistant tunnels do not work when multihop is enabled",
                     ));
