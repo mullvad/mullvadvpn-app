@@ -39,7 +39,6 @@ fun NavigationComposeCell(
             bodyView()
         },
         subtitle = null,
-        uiState = null
     )
 }
 
