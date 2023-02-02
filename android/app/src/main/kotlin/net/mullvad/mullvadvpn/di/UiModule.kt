@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
@@ -19,12 +20,14 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
+import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -54,6 +57,7 @@ val uiModule = module {
     }
 
     single { ServiceConnectionManager(androidContext()) }
+    single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }
 
@@ -65,6 +69,7 @@ val uiModule = module {
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
+    single { SettingsRepository(get()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
@@ -78,6 +83,12 @@ val uiModule = module {
             get(),
             BuildConfig.VERSION_CODE,
             BuildConfig.ALWAYS_SHOW_CHANGELOG
+        )
+    }
+    viewModel {
+        AdvancedSettingViewModel(
+            repository = get(),
+            inetAddressValidator = get()
         )
     }
 }

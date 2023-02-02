@@ -17,12 +17,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
+
+@Preview
+@Composable
+fun TopBarPreview() {
+    CollapsingTopBar(
+        backgroundColor = MullvadDarkBlue,
+        onBackClicked = {},
+        title = stringResource(id = R.string.settings_advanced),
+        progress = 1.0f,
+        backTitle = stringResource(id = R.string.settings),
+        modifier = Modifier
+    )
+}
 
 @Composable
 fun CollapsingTopBar(
@@ -37,7 +53,7 @@ fun CollapsingTopBar(
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
-            .height(92.dp)
+            .height(104.dp)
             .background(backgroundColor)
     )
 
@@ -79,7 +95,7 @@ fun CollapsingTopBar(
             textAlign = TextAlign.End
         ),
         modifier = modifier
-            .padding(start = 22.dp, top = 12.dp, bottom = 12.dp),
+            .padding(start = 22.dp, top = (12 + (48 - 12) * progress).dp, bottom = 12.dp),
         fontSize = (20 + (30 - 20) * progress).sp
     )
 }

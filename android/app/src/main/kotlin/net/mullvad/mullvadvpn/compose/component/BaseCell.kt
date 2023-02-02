@@ -16,6 +16,7 @@ import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -24,14 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.viewmodel.CellUiState
 
 @Preview
 @Composable
 fun BaeCellUsagePreview() {
 
     Column(Modifier.background(MullvadDarkBlue)) {
-//        MtuComposeCell("", {})
+        MtuComposeCell("", {}, {})
 
         Spacer(
             modifier = Modifier
@@ -42,11 +42,9 @@ fun BaeCellUsagePreview() {
         NavigationComposeCell(title = stringResource(id = R.string.split_tunneling)) {
         }
 
-        val list = ArrayList<String>()
         CustomDnsComposeCell(
             checkboxDefaultState = true,
-            onToggle = {},
-            dnsList = list,
+            onToggle = {}
         )
     }
 }
@@ -64,10 +62,8 @@ fun BaseCell(
     subtitle: @Composable (() -> Unit)? = null,
     subtitleModifier: Modifier = Modifier,
 
-    uiState: CellUiState?,
-) {
+    ) {
     val cellHeight = dimensionResource(id = R.dimen.cell_height)
-    val cellInnerSpacing = dimensionResource(id = R.dimen.cell_inner_spacing)
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
 //    var expanded by remember { mutableStateOf(true) }
@@ -81,6 +77,7 @@ fun BaseCell(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cellHeight)
+                .background(colorResource(id = R.color.blue))
         ) {
             val (clickReceiver, contentContainer) = createRefs()
 
@@ -120,18 +117,6 @@ fun BaseCell(
                     }
             ) {
                 // Cell title
-                if (uiState?.showWarning == true) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_alert),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(
-                                end = cellInnerSpacing,
-                            )
-                            .wrapContentWidth()
-                            .fillMaxHeight()
-                    )
-                }
                 title()
 
                 Spacer(modifier = Modifier.weight(1.0f))

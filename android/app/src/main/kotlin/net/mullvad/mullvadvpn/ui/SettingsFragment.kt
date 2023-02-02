@@ -32,7 +32,9 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
+import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
 
@@ -40,6 +42,10 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
     private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
     private val serviceConnectionManager: ServiceConnectionManager by inject()
+
+
+
+    private val advancesSettingViewModel by viewModel<AdvancedSettingViewModel>()
 
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
@@ -75,7 +81,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         }
 
         advancedMenu = view.findViewById<NavigateCell>(R.id.advanced).apply {
-            targetFragment = AdvancedFragment::class
+            targetFragment = AdvancedSettingFragment::class
         }
 
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
