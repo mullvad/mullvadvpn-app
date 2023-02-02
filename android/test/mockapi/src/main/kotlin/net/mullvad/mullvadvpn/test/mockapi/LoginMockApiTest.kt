@@ -2,10 +2,9 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
-import java.time.OffsetDateTime
-import java.time.temporal.ChronoUnit
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -17,8 +16,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountToken = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountToken = null
-            accountExpiry =
-                OffsetDateTime.now().plusDays(1).truncatedTo(ChronoUnit.SECONDS)
+            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
         }
         app.launch(endpoint)
 
@@ -37,8 +35,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountToken = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountToken = validAccountToken
-            accountExpiry =
-                OffsetDateTime.now().plusDays(1).truncatedTo(ChronoUnit.SECONDS)
+            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
         }
 
         // Act
@@ -57,8 +54,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountToken = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountToken = validAccountToken
-            accountExpiry =
-                OffsetDateTime.now().minusDays(1).truncatedTo(ChronoUnit.SECONDS)
+            accountExpiry = currentUtcTimeWithOffsetZero().minusDays(1)
         }
 
         // Act
