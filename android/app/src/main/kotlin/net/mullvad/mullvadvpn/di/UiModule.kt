@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
@@ -19,12 +20,14 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
+import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -57,6 +60,8 @@ val uiModule = module {
     single { androidContext().resources }
     single { androidContext().assets }
 
+    single { InetAddressValidator.getInstance() }
+
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
 
     single { AccountExpiryNotification(get()) }
@@ -65,6 +70,7 @@ val uiModule = module {
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
+    single { SettingsRepository(get()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
@@ -80,6 +86,7 @@ val uiModule = module {
             BuildConfig.ALWAYS_SHOW_CHANGELOG
         )
     }
+    viewModel { AdvancedSettingViewModel(get(), get()) }
 }
 
 const val APPS_SCOPE = "APPS_SCOPE"
