@@ -10,6 +10,9 @@ import Foundation
 
 public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
     public enum ConfigurationFailureCause: Codable, Equatable {
+        /// Device is locked.
+        case deviceLocked
+
         /// Settings schema is outdated.
         case outdatedSchema
 
@@ -32,6 +35,8 @@ public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
             return error
         case let .configuration(cause):
             switch cause {
+            case .deviceLocked:
+                return "Device is locked."
             case .outdatedSchema:
                 return "Settings schema is outdated."
             case .readFailure:

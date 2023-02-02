@@ -18,6 +18,9 @@ import RelaySelector
 import TunnelProviderMessaging
 import WireGuardKit
 
+/// Restart interval (in seconds) for the tunnel that failed to start early on.
+private let tunnelStartupFailureRestartInterval: TimeInterval = 2
+
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Tunnel provider logger.
     private let providerLogger: Logger
@@ -50,6 +53,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Last configuration read error.
     private var configurationError: Error?
 
+    /// Repeating timer used for restarting the tunnel if it had failed during the startup sequence.
+    private var tunnelStartupFailureRecoveryTimer: DispatchSourceTimer?
+
     /// Relay cache.
     private let relayCache = RelayCache(
         securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
@@ -67,10 +73,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// A system completion handler passed from startTunnel and saved for later use once the
     /// connection is established.
     private var startTunnelCompletionHandler: (() -> Void)?
-
-    /// A completion handler passed during reassertion and saved for later use once the connection
-    /// is reestablished.
-    private var reassertTunnelCompletionHandler: (() -> Void)?
 
     /// Tunnel monitor.
     private var tunnelMonitor: TunnelMonitor!
@@ -201,27 +203,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 message: "Failed to read tunnel configuration when starting the tunnel."
             )
 
-            /*
-              We use default data protection level which locks keychain and file system access
-              until device is first unlocked.
-
-              However iOS starts packet tunnel on boot and unfortunately we do not have access to
-              UIApplication.isProtectedDataAvailable nor associated delegate methods that would
-              tell us when data protection is being lifted.
-
-              Exit immediately and pass the underlying error to completion handler to tell iOS to
-              restart the tunnel later on.
-             */
-            if let error = error as? ReadSettingsVersionError,
-               error.underlyingError as? KeychainError == KeychainError.interactionNotAllowed
-            {
-                completionHandler(error.underlyingError)
-                return
-            }
-
             configurationError = error
 
             startEmptyTunnel(completionHandler: completionHandler)
+            beginTunnelStartupFailureRecovery()
             return
         }
 
@@ -258,34 +243,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
     }
 
-    private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
-        let emptyTunnelConfiguration = TunnelConfiguration(
-            name: nil,
-            interface: InterfaceConfiguration(privateKey: PrivateKey()),
-            peers: []
-        )
-
-        adapter.start(tunnelConfiguration: emptyTunnelConfiguration) { error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to start an empty tunnel."
-                    )
-
-                    completionHandler(error)
-                } else {
-                    self.providerLogger.debug("Started an empty tunnel.")
-
-                    self.startTunnelCompletionHandler = { [weak self] in
-                        self?.isConnected = true
-                        completionHandler(nil)
-                    }
-                }
-            }
-        }
-    }
-
     override func stopTunnel(
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
@@ -293,11 +250,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Stop the tunnel: \(reason)")
 
         dispatchQueue.async {
+            self.cancelTunnelStartupFailureRecovery()
             self.tunnelMonitor.stop()
             self.checkDeviceStateTask?.cancel()
             self.checkDeviceStateTask = nil
             self.startTunnelCompletionHandler = nil
-            self.reassertTunnelCompletionHandler = nil
         }
 
         adapter.stop { error in
@@ -415,9 +372,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         startTunnelCompletionHandler?()
         startTunnelCompletionHandler = nil
 
-        reassertTunnelCompletionHandler?()
-        reassertTunnelCompletionHandler = nil
-
         numberOfFailedAttempts = 0
 
         checkDeviceStateTask?.cancel()
@@ -443,7 +397,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         providerLogger.debug("Recover connection. Picking next relay...")
 
-        reconnectTunnel(to: .automatic, completionHandler: completionHandler)
+        reconnectTunnel(to: .automatic) { _ in
+            completionHandler()
+        }
     }
 
     func tunnelMonitor(
@@ -461,6 +417,62 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     // MARK: - Private
+
+    private func beginTunnelStartupFailureRecovery() {
+        let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
+        timer.setEventHandler { [weak self] in
+            guard let self = self else { return }
+
+            self.providerLogger.debug("Restart the tunnel that had startup failure.")
+            self.reconnectTunnel(to: .automatic) { [weak self] error in
+                if error == nil {
+                    self?.cancelTunnelStartupFailureRecovery()
+                }
+            }
+        }
+
+        timer.schedule(
+            wallDeadline: .now() + tunnelStartupFailureRestartInterval,
+            repeating: tunnelStartupFailureRestartInterval
+        )
+        timer.activate()
+
+        tunnelStartupFailureRecoveryTimer?.cancel()
+        tunnelStartupFailureRecoveryTimer = timer
+    }
+
+    private func cancelTunnelStartupFailureRecovery() {
+        tunnelStartupFailureRecoveryTimer?.cancel()
+        tunnelStartupFailureRecoveryTimer = nil
+    }
+
+    private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
+        let emptyTunnelConfiguration = TunnelConfiguration(
+            name: nil,
+            interface: InterfaceConfiguration(privateKey: PrivateKey()),
+            peers: []
+        )
+
+        adapter.start(tunnelConfiguration: emptyTunnelConfiguration) { error in
+            self.dispatchQueue.async {
+                if let error = error {
+                    self.providerLogger.error(
+                        error: error,
+                        message: "Failed to start an empty tunnel."
+                    )
+
+                    completionHandler(error)
+                } else {
+                    self.providerLogger.debug("Started an empty tunnel.")
+
+                    self.startTunnelCompletionHandler = { [weak self] in
+                        self?.isConnected = true
+                        completionHandler(nil)
+                    }
+                }
+            }
+        }
+    }
 
     private func setReconnecting(_ reconnecting: Bool) {
         // Raise reasserting flag, but only if tunnel has already moved to connected state once.
@@ -494,7 +506,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
     }
 
-    private func reconnectTunnel(to nextRelay: NextRelay, completionHandler: (() -> Void)? = nil) {
+    private func reconnectTunnel(
+        to nextRelay: NextRelay,
+        completionHandler: ((Error?) -> Void)? = nil
+    ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         // Read tunnel configuration.
@@ -505,12 +520,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         } catch {
             providerLogger.error(
                 error: error,
-                message: "Failed produce new configuration."
+                message: "Failed to produce new configuration."
             )
 
             configurationError = error
 
-            completionHandler?()
+            completionHandler?(error)
             return
         }
 
@@ -528,9 +543,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.dispatchQueue.async {
                 if let error = error {
                     self.wgError = error
-                }
-
-                if let error = error {
                     self.providerLogger.error(
                         error: error,
                         message: "Failed to update WireGuard configuration."
@@ -542,17 +554,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     self.providerLogger.debug(
                         "Reset tunnel relay to \(oldSelectorResult?.relay.hostname ?? "none")."
                     )
-                    self.reassertTunnelCompletionHandler = nil
                     self.setReconnecting(false)
-
-                    completionHandler?()
                 } else {
-                    self.reassertTunnelCompletionHandler = completionHandler
-
                     self.tunnelMonitor.start(
                         probeAddress: tunnelConfiguration.selectorResult.endpoint.ipv4Gateway
                     )
                 }
+                completionHandler?(error)
             }
         }
     }
@@ -749,8 +757,15 @@ extension PacketTunnelErrorWrapper {
         case is UnsupportedSettingsVersionError:
             self = .configuration(.outdatedSchema)
 
-        case is ReadSettingsVersionError:
-            self = .configuration(.readFailure)
+        case let keychainError as KeychainError where keychainError == .interactionNotAllowed:
+            self = .configuration(.deviceLocked)
+
+        case let error as ReadSettingsVersionError:
+            if case KeychainError.interactionNotAllowed = error.underlyingError as? KeychainError {
+                self = .configuration(.deviceLocked)
+            } else {
+                self = .configuration(.readFailure)
+            }
 
         case is NoRelaysSatisfyingConstraintsError:
             self = .configuration(.noRelaysSatisfyingConstraints)
