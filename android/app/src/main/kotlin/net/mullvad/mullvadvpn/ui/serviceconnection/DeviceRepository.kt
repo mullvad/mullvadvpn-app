@@ -30,9 +30,6 @@ class DeviceRepository(
         .flatMapLatest { state ->
             if (state is ServiceConnectionState.ConnectedReady) {
                 state.container.deviceDataSource.deviceStateUpdates
-                    .onStart {
-                        state.container.deviceDataSource.getDevice()
-                    }
             } else {
                 flowOf(DeviceState.Unknown)
             }

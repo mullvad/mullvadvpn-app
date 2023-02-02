@@ -17,6 +17,7 @@ class ServiceConnectionDeviceDataSource(
             trySend(event.newState)
         }
         dispatcher.registerHandler(Event.DeviceStateEvent::class, handler)
+        connection.trySendRequest(Request.GetDevice, false)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
         }

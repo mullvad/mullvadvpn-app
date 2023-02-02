@@ -43,9 +43,6 @@ class AccountRepository(
         .flatMapReadyConnectionOrDefault(flowOf()) { state ->
             state.container.accountDataSource.accountExpiry
         }
-        .onStart {
-            fetchAccountExpiry()
-        }
         .stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
