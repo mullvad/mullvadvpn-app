@@ -5,4 +5,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.talpid.net.wireguard.TunnelOptions as TalpidWireguardTunnelOptions
 
 @Parcelize
-data class WireguardTunnelOptions(val options: TalpidWireguardTunnelOptions) : Parcelable
+data class WireguardTunnelOptions(
+    val options: TalpidWireguardTunnelOptions,
+    val quantumResistant: Boolean?
+) : Parcelable
