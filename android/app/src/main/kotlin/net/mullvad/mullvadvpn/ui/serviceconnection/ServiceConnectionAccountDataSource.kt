@@ -26,6 +26,7 @@ class ServiceConnectionAccountDataSource(
             trySend(event.expiry)
         }
         dispatcher.registerHandler(Event.AccountExpiryEvent::class, handler)
+        connection.send(Request.FetchAccountExpiry.message)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
         }
