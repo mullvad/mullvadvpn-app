@@ -58,6 +58,8 @@ object Dependencies {
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.Compose.base}"
         const val uiToolingPreview =
             "androidx.compose.ui:ui-tooling-preview:${Versions.Compose.base}"
+
+        const val composeCollapsingToolbar = "me.onebone:toolbar-compose:${Versions.Compose.composeCollapsingToolbar}"
     }
 
     object Koin {
