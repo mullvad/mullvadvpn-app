@@ -22,11 +22,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 
 @Composable
@@ -122,4 +124,100 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
         },
         backgroundColor = colorResource(id = R.color.darkBlue)
     )
+}
+
+@Preview
+@Composable
+fun PreviewShowConfirmLocalDnsScreen() {
+//    ShowConfirmLocalDnsScreen(AdvancedSettingViewModel(),"aaa")
+}
+
+@Composable
+fun ShowConfirmLocalDnsScreen(
+    viewModel: AdvancedSettingViewModel,
+    localDns: String?
+) {
+    localDns?.let {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.clearEnteredDns()
+            },
+            title = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(top = 0.dp)
+                        .fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_alert),
+                        contentDescription = "Remove",
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                    )
+                }
+            },
+            text = {
+                Text(
+                    text = stringResource(id = R.string.confirm_local_dns),
+                    modifier = Modifier,
+                    color = colorResource(id = R.color.white60)
+                )
+            },
+            buttons = {
+                Column(
+                    Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .height(dimensionResource(id = R.dimen.button_height))
+                            .defaultMinSize(
+                                minWidth = 0.dp,
+                                minHeight = dimensionResource(id = R.dimen.button_height)
+                            )
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.red),
+                            contentColor = Color.White
+                        ),
+                        onClick = {
+                            viewModel.addDns(localDns)
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.add_anyway),
+                            fontSize = 18.sp
+                        )
+                    }
+                    Button(
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier
+                            .focusOrder(FocusRequester())
+                            .padding(top = 16.dp)
+                            .height(dimensionResource(id = R.dimen.button_height))
+                            .defaultMinSize(
+                                minWidth = 0.dp,
+                                minHeight = dimensionResource(id = R.dimen.button_height)
+                            )
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.blue),
+                            contentColor = Color.White
+                        ),
+                        onClick = {
+                            viewModel.clearEnteredDns()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.back),
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            },
+            backgroundColor = colorResource(id = R.color.darkBlue)
+        )
+    }
 }
