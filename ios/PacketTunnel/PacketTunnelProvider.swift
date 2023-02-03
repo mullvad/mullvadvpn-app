@@ -348,6 +348,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 let task = self.proxiedRequests.removeValue(forKey: id)
 
                 task?.cancel()
+                completionHandler?(nil)
             }
         }
     }
