@@ -24,7 +24,7 @@ public enum PacketTunnelErrorWrapper: Codable, Equatable, LocalizedError {
     }
 
     /// Failure that indicates WireGuard errors.
-    case wireguard(_ errorDescription: String)
+    case wireguard(String)
 
     /// Failure to read stored settings.
     case configuration(ConfigurationFailureCause)
