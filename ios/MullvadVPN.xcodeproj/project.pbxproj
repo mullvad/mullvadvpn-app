@@ -274,7 +274,7 @@
 		58D223F9294C8FF00029F5F8 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		58D223FA294C8FF10029F5F8 /* MullvadLogging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E128F8010300B0CB5E /* Error+LogFormat.swift */; };
-		58D223FF294C90050029F5F8 /* TextFileOutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943DE28F8010300B0CB5E /* TextFileOutputStream.swift */; };
+		58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */; };
 		58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E428F8010400B0CB5E /* OSLogHandler.swift */; };
 		58D22401294C90050029F5F8 /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */; };
 		58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581943E028F8010300B0CB5E /* Logger+Errors.swift */; };
@@ -659,7 +659,7 @@
 		581813A428E09DE2002817DE /* BlockCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockCondition.swift; sourceTree = "<group>"; };
 		581813A628E09DF2002817DE /* MutuallyExclusive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutuallyExclusive.swift; sourceTree = "<group>"; };
 		581943DD28F8010300B0CB5E /* LogRotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogRotation.swift; sourceTree = "<group>"; };
-		581943DE28F8010300B0CB5E /* TextFileOutputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFileOutputStream.swift; sourceTree = "<group>"; };
+		581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogFileOutputStream.swift; sourceTree = "<group>"; };
 		581943DF28F8010300B0CB5E /* Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		581943E028F8010300B0CB5E /* Logger+Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Logger+Errors.swift"; sourceTree = "<group>"; };
 		581943E128F8010300B0CB5E /* Error+LogFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Error+LogFormat.swift"; sourceTree = "<group>"; };
@@ -1561,7 +1561,7 @@
 				581943DF28F8010300B0CB5E /* Logging.swift */,
 				581943DD28F8010300B0CB5E /* LogRotation.swift */,
 				581943E428F8010400B0CB5E /* OSLogHandler.swift */,
-				581943DE28F8010300B0CB5E /* TextFileOutputStream.swift */,
+				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -2545,7 +2545,7 @@
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
 				58D22403294C90050029F5F8 /* Logging.swift in Sources */,
 				58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */,
-				58D223FF294C90050029F5F8 /* TextFileOutputStream.swift in Sources */,
+				58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */,
 				58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */,
 				58D22405294C90050029F5F8 /* LogRotation.swift in Sources */,
 				58D22401294C90050029F5F8 /* CustomFormatLogHandler.swift in Sources */,
