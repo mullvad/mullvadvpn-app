@@ -57,7 +57,7 @@ pub struct MigrationData {
 ///
 /// The ability to disable WireGuard multihop while preserving the entry location was added.
 /// So a new field, `use_multihop` is introduced. We want this to default to `true` iff:
-///  * `use_mulithop` was not present in the settings
+///  * `use_multihop` was not present in the settings
 ///  * A multihop entry location had been previously specified.
 ///
 /// It is also no longer valid to have `entry_location` set to null. So remove the field if it
@@ -72,6 +72,9 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
     if !version_matches(settings) {
         return Ok(None);
     }
+
+    log::info!("Migrating settings format to V6");
+
     if let Some(wireguard_constraints) = get_wireguard_constraints(settings) {
         if let Some(location) = wireguard_constraints.get("entry_location") {
             if wireguard_constraints.get("use_multihop").is_none() {
