@@ -64,18 +64,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
 
-    /// URL session used for proxy requests.
-    private let urlSession = REST.makeURLSession()
-
-    /// List of all proxied network requests bypassing VPN.
-    private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
-
     /// A system completion handler passed from startTunnel and saved for later use once the
     /// connection is established.
     private var startTunnelCompletionHandler: (() -> Void)?
 
     /// Tunnel monitor.
     private var tunnelMonitor: TunnelMonitor!
+
+    /// Request proxy used to perform URLRequests bypassing VPN.
+    private let urlRequestProxy: URLRequestProxy
 
     /// Account data request proxy
     private let accountsProxy: REST.AccountsProxy
@@ -130,6 +127,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
             isReadOnly: true
         )!
+
+        let urlSession = REST.makeURLSession()
         let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { () -> RESTTransport? in
@@ -137,6 +136,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             },
             addressCache: addressCache
         )
+
+        urlRequestProxy = URLRequestProxy(urlSession: urlSession, dispatchQueue: dispatchQueue)
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
@@ -314,40 +315,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 completionHandler?(response)
 
             case let .sendURLRequest(proxyRequest):
-                let task = self.urlSession
-                    .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
-                        guard let self = self else { return }
-
-                        self.dispatchQueue.async {
-                            self.proxiedRequests.removeValue(forKey: proxyRequest.id)
-
-                            var reply: Data?
-                            do {
-                                let response = ProxyURLResponse(
-                                    data: data,
-                                    response: response,
-                                    error: error
-                                )
-                                reply = try TunnelProviderReply(response).encode()
-                            } catch {
-                                self.providerLogger.error(
-                                    error: error,
-                                    message: "Failed to encode ProxyURLResponse."
-                                )
-                            }
-
-                            completionHandler?(reply)
-                        }
+                self.urlRequestProxy.sendRequest(proxyRequest) { response in
+                    var reply: Data?
+                    do {
+                        reply = try TunnelProviderReply(response).encode()
+                    } catch {
+                        self.providerLogger.error(
+                            error: error,
+                            message: "Failed to encode ProxyURLResponse."
+                        )
                     }
-
-                self.proxiedRequests[proxyRequest.id] = task
-
-                task.resume()
+                    completionHandler?(reply)
+                }
 
             case let .cancelURLRequest(id):
-                let task = self.proxiedRequests.removeValue(forKey: id)
-
-                task?.cancel()
+                self.urlRequestProxy.cancelRequest(identifier: id)
                 completionHandler?(nil)
             }
         }
