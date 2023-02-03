@@ -50,6 +50,7 @@ mod v2;
 mod v3;
 mod v4;
 mod v5;
+mod v6;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -149,6 +150,7 @@ pub(crate) async fn migrate_all(
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     let migration_data = v5::migrate(&mut settings).await?;
+    v6::migrate(&mut settings)?;
 
     if settings == old_settings {
         // Nothing changed
