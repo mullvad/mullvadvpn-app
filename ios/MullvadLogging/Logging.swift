@@ -10,19 +10,13 @@ import Foundation
 @_exported import Logging
 
 private enum LoggerOutput {
-    case fileOutput(_ fileOutput: TextOutputStream)
+    case fileOutput(_ fileOutput: LogFileOutputStream)
     case osLogOutput(_ subsystem: String)
 }
 
 public struct MissingSharedContainerError: LocalizedError {
     public var errorDescription: String? {
         return "Cannot obtain shared container URL."
-    }
-}
-
-public struct OpenFileStreamError: LocalizedError {
-    public var errorDescription: String? {
-        return "Failed to open file stream."
     }
 }
 
@@ -57,11 +51,7 @@ public struct LoggerBuilder {
             logRotationErrors.append(error)
         }
 
-        if let outputStream = TextFileOutputStream(fileURL: logFileURL, createFile: true) {
-            outputs.append(.fileOutput(outputStream))
-        } else {
-            throw OpenFileStreamError()
-        }
+        outputs.append(.fileOutput(LogFileOutputStream(fileURL: logFileURL)))
     }
 
     public mutating func addOSLogOutput(subsystem: String) {
