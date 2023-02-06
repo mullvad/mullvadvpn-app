@@ -13,7 +13,6 @@ pub enum MullvadEndpoint {
 pub struct MullvadWireguardEndpoint {
     pub peer: wireguard::PeerConfig,
     pub exit_peer: Option<wireguard::PeerConfig>,
-    pub quantum_resistant: bool,
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Ipv6Addr,
 }

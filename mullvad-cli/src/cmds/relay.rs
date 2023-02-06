@@ -173,13 +173,6 @@ impl Command for Relay {
                                             .takes_value(true),
                                     )
                                     .arg(
-                                        clap::Arg::new("quantum resistant")
-                                            .help("Enable quantum safe PSK exchange.")
-                                            .long("quantum-resistant")
-                                            .possible_values(["any", "on", "off"])
-                                            .takes_value(true),
-                                    )
-                                    .arg(
                                         clap::Arg::new("entry location")
                                             .help("Entry endpoint to use. This can be 'any', 'none', or \
                                                    any location that is valid with 'set location', \
@@ -601,28 +594,23 @@ impl Relay {
         if let Some(entry) = matches.values_of("entry location") {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
             let use_multihop = wireguard_constraints.entry_location.is_some();
+            if use_multihop {
+                let quantum_resistant = rpc
+                    .get_settings(())
+                    .await?
+                    .into_inner()
+                    .tunnel_options
+                    .unwrap()
+                    .wireguard
+                    .unwrap()
+                    .quantum_resistant;
+                if quantum_resistant == Some(types::QuantumResistantConstraint { state: true }) {
+                    return Err(Error::CommandFailed(
+                        "Quantum resistant tunnels do not work when multihop is enabled",
+                    ));
+                }
+            }
             wireguard_constraints.use_multihop = use_multihop;
-        }
-        if let Some(constraint) = matches.value_of("quantum resistant") {
-            let quantum_resistant = match constraint {
-                "on" => Some(types::QuantumResistantConstraint { state: true }),
-                "off" => Some(types::QuantumResistantConstraint { state: false }),
-                "any" => None,
-                _ => unreachable!("invalid quantum resistant state"),
-            };
-            wireguard_constraints.quantum_resistant = quantum_resistant;
-        }
-
-        if wireguard_constraints.use_multihop
-            && matches!(
-                wireguard_constraints.quantum_resistant,
-                Some(types::QuantumResistantConstraint { state: true })
-            )
-        {
-            // TODO: Remove when multihop PQ tunnels are supported
-            return Err(Error::CommandFailed(
-                "Quantum resistant tunnels do not work when multihop is enabled",
-            ));
         }
 
         self.update_constraints(types::RelaySettingsUpdate {

@@ -25,10 +25,6 @@ impl TryFrom<&proto::WireguardConstraints>
             },
             None => None,
         };
-        let quantum_resistant = constraints
-            .quantum_resistant
-            .as_ref()
-            .map(|constraint| constraint.state);
 
         Ok(mullvad_constraints::WireguardConstraints {
             port: if constraints.port == 0 {
@@ -37,7 +33,6 @@ impl TryFrom<&proto::WireguardConstraints>
                 Constraint::Only(constraints.port as u16)
             },
             ip_version: Constraint::from(ip_version),
-            quantum_resistant: Constraint::from(quantum_resistant),
             use_multihop: constraints.use_multihop,
             entry_location: constraints
                 .entry_location
@@ -177,10 +172,6 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
                                     .option()
                                     .map(proto::IpVersion::from)
                                     .map(proto::IpVersionConstraint::from),
-                                quantum_resistant: wireguard_constraints
-                                    .quantum_resistant
-                                    .option()
-                                    .map(|state| proto::QuantumResistantConstraint { state }),
                                 use_multihop: wireguard_constraints.use_multihop,
                                 entry_location: wireguard_constraints
                                     .entry_location
@@ -441,11 +432,6 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .option()
                             .map(proto::IpVersion::from)
                             .map(proto::IpVersionConstraint::from),
-                        quantum_resistant: constraints
-                            .wireguard_constraints
-                            .quantum_resistant
-                            .option()
-                            .map(|state| proto::QuantumResistantConstraint { state }),
                         use_multihop: constraints.wireguard_constraints.use_multihop,
                         entry_location: constraints
                             .wireguard_constraints

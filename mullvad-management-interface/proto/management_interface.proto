@@ -43,6 +43,8 @@ service ManagementService {
 	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc SetQuantumResistantTunnel(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc ResetQuantumResistantTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
 
 	// Account management
@@ -397,9 +399,8 @@ message IpVersionConstraint {
 message WireguardConstraints {
 	uint32 port = 1;
 	IpVersionConstraint ip_version = 2;
-	QuantumResistantConstraint quantum_resistant = 3;
-	bool use_multihop = 4;
-	RelayLocation entry_location = 5;
+	bool use_multihop = 3;
+	RelayLocation entry_location = 4;
 }
 
 message CustomRelaySettings {
@@ -450,6 +451,7 @@ message TunnelOptions {
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
 		bool use_wireguard_nt = 3;
+		QuantumResistantConstraint quantum_resistant = 4;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;
