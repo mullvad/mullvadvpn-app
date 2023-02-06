@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
+use mullvad_types::settings::SettingsVersion;
 
 // ======================================================
 // Section for vendoring types and values that
@@ -14,9 +14,8 @@ use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 /// When further migrations are needed, add them here and if they are not backwards
 /// compatible then create v7 and "close" this migration for further modification.
 ///
-/// The `use_pq_safe_psk` tunnel option is replaced by `quantum_resistant` relay
-/// constraint, which is optional. `false` is mapped to `Constraint::Any`.
-/// `true` is mapped to `Constraint::Only(true)`.
+/// The `use_pq_safe_psk` tunnel option is replaced by `quantum_resistant`, which
+/// is optional. `false` is mapped to `None`. `true` is mapped to `Some(true)`.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -37,30 +36,19 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 fn get_wireguard_tunnel_options(
     settings: &mut serde_json::Value,
 ) -> Option<&mut serde_json::Value> {
-    if let Some(tunnel_options) = settings.get_mut("tunnel_options") {
-        return tunnel_options.get_mut("wireguard");
-    }
-    None
-}
-
-fn get_wireguard_relay_settings(
-    settings: &mut serde_json::Value,
-) -> Option<&mut serde_json::Value> {
-    if let Some(relay_options) = settings.get_mut("relay_settings") {
-        return relay_options.get_mut("wireguard");
+    if let Some(relay_settings) = settings.get_mut("tunnel_options") {
+        return relay_settings.get_mut("wireguard");
     }
     None
 }
 
 fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
-    let mut new_pq_constraint = None;
-
     if let Some(tunnel_options) = get_wireguard_tunnel_options(settings) {
         if let Some(psk_setting) = tunnel_options.get_mut("use_pq_safe_psk") {
             if let Some(true) = psk_setting.as_bool() {
-                new_pq_constraint = Some(Constraint::Only(true));
+                tunnel_options["quantum_resistant"] = serde_json::Value::Bool(true);
             } else {
-                new_pq_constraint = Some(Constraint::Any);
+                tunnel_options["quantum_resistant"] = serde_json::Value::Null;
             }
         }
         tunnel_options
@@ -68,13 +56,6 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
             .ok_or(Error::NoMatchingVersion)?
             .remove("use_pq_safe_psk");
     }
-
-    if let Some(pq_constraint) = new_pq_constraint {
-        if let Some(wg_settings) = get_wireguard_relay_settings(settings) {
-            wg_settings["quantum_resistant"] = serde_json::json!(pq_constraint);
-        }
-    }
-
     Ok(())
 }
 
@@ -180,8 +161,7 @@ mod test {
         "port": "any",
         "ip_version": "any",
         "use_multihop": true,
-        "entry_location": "any",
-        "quantum_resistant": "any"
+        "entry_location": "any"
       },
       "openvpn_constraints": {
         "port": {
@@ -219,7 +199,8 @@ mod test {
       "rotation_interval": {
           "secs": 86400,
           "nanos": 0
-      }
+      },
+      "quantum_resistant": null
     },
     "generic": {
       "enable_ipv6": false
@@ -263,10 +244,6 @@ mod test {
                 "wireguard": {
                     "use_pq_safe_psk": false
                 }
-            },
-            "tunnel_options": {
-                "wireguard": {
-                }
             }
         }
         "#,
@@ -278,10 +255,6 @@ mod test {
             r#"
         {
             "tunnel_options": {
-                "wireguard": {
-                }
-            },
-            "relay_settings": {
                 "wireguard": {
                     "quantum_resistant": null
                 }
@@ -304,10 +277,6 @@ mod test {
                 "wireguard": {
                     "use_pq_safe_psk": true
                 }
-            },
-            "relay_settings": {
-                "wireguard": {
-                }
             }
         }
         "#,
@@ -320,13 +289,7 @@ mod test {
         {
             "tunnel_options": {
                 "wireguard": {
-                }
-            },
-            "relay_settings": {
-                "wireguard": {
-                    "quantum_resistant": {
-                        "only": true
-                    }
+                    "quantum_resistant": true
                 }
             }
         }
