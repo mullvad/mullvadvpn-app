@@ -305,6 +305,7 @@
 		58D22422294C921B0029F5F8 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		58D22426294C92750029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; platformFilter = ios; };
 		58D22435294C975B0029F5F8 /* Operations.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223A5294C8A480029F5F8 /* Operations.framework */; platformFilter = ios; };
+		58D229B8298D1FE200BB5A2D /* URLRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */; };
 		58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */; };
 		58E0729D28814AAE008902F8 /* PacketTunnelConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0729C28814AAE008902F8 /* PacketTunnelConfiguration.swift */; };
 		58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */; };
@@ -854,6 +855,7 @@
 		58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadTypes.h; sourceTree = "<group>"; };
 		58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadLogging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58D223F5294C8FF00029F5F8 /* MullvadLogging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadLogging.h; sourceTree = "<group>"; };
+		58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxy.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManager.swift; sourceTree = "<group>"; };
 		58DF5B732851FF3F00E92647 /* InputOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputOperation.swift; sourceTree = "<group>"; };
 		58DF5B752852108E00E92647 /* InputInjectionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputInjectionBuilder.swift; sourceTree = "<group>"; };
@@ -1244,6 +1246,7 @@
 				5898D2AD290185D200EB5EBA /* ProxyURLResponse.swift */,
 				585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */,
 				5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */,
+				58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */,
 			);
 			path = TunnelProviderMessaging;
 			sourceTree = "<group>";
@@ -2228,6 +2231,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58D229B8298D1FE200BB5A2D /* URLRequestProxy.swift in Sources */,
 				5898D29129017C3100EB5EBA /* TunnelProviderMessage.swift in Sources */,
 				5898D29029017BEE00EB5EBA /* PacketTunnelOptions.swift in Sources */,
 				5898D2AE290185D200EB5EBA /* ProxyURLResponse.swift in Sources */,
