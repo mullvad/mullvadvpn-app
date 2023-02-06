@@ -587,23 +587,13 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         if config.use_wireguard_nt {
-            match wireguard_nt::WgNtTunnel::start_tunnel(
+            log::debug!("Using WireGuardNT");
+            return wireguard_nt::WgNtTunnel::start_tunnel(
                 config,
                 log_path,
                 resource_dir,
                 setup_done_tx.clone(),
-            ) {
-                Ok(tunnel) => {
-                    log::debug!("Using WireGuardNT");
-                    return Ok(Box::new(tunnel));
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-                    );
-                }
-            }
+            );
         }
 
         #[cfg(any(target_os = "linux", windows))]
