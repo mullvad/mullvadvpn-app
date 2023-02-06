@@ -54,9 +54,16 @@ final class ModalRootAdaptivePresentationDelegate: NSObject,
         self.modalRootContainer = modalRootContainer
 
         super.init()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(dismissalTransitionDidEnd(_:)),
+            name: UIPresentationController.dismissalTransitionDidEndNotification,
+            object: modalRootContainer
+        )
     }
 
-    func finishPresentation() {
+    private func finishPresentation() {
         parentRootContainer.removeSettingsButtonFromPresentationContainer()
     }
 
@@ -64,11 +71,7 @@ final class ModalRootAdaptivePresentationDelegate: NSObject,
         for controller: UIPresentationController,
         traitCollection: UITraitCollection
     ) -> UIModalPresentationStyle {
-        if controller.presentedViewController is RootContainerViewController {
-            return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
-        } else {
-            return .none
-        }
+        return traitCollection.horizontalSizeClass == .regular ? .formSheet : .fullScreen
     }
 
     func presentationController(
@@ -107,6 +110,18 @@ final class ModalRootAdaptivePresentationDelegate: NSObject,
 
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         finishPresentation()
+    }
+
+    @objc private func dismissalTransitionDidEnd(_ notification: Notification) {
+        guard let isCompleted = notification
+            .userInfo?[
+                UIPresentationController
+                    .dismissalTransitionDidEndCompletedUserInfoKey
+            ] as? NSNumber else { return }
+
+        if isCompleted.boolValue {
+            finishPresentation()
+        }
     }
 }
 

@@ -362,10 +362,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
             return
         }
 
-        modalRootContainer.dismiss(animated: animated) {
-            self.modalRootAdaptivePresentationDelegate.finishPresentation()
-            completion()
-        }
+        modalRootContainer.dismiss(animated: animated, completion: completion)
     }
 
     private var isModalRootPresented: Bool {

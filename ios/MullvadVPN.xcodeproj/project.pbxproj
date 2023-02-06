@@ -100,6 +100,7 @@
 		58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */; };
 		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		58421034282E4B1500F24E46 /* TunnelSettingsV2+REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421033282E4B1500F24E46 /* TunnelSettingsV2+REST.swift */; };
+		584555F42991176200DD0657 /* UIPresentationController+Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584555F32991176200DD0657 /* UIPresentationController+Private.swift */; };
 		584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584592602639B4A200EF967F /* TermsOfServiceContentView.swift */; };
 		5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
 		5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
@@ -698,6 +699,7 @@
 		5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAccountDataOperation.swift; sourceTree = "<group>"; };
 		58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateDeviceDataOperation.swift; sourceTree = "<group>"; };
 		58421033282E4B1500F24E46 /* TunnelSettingsV2+REST.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelSettingsV2+REST.swift"; sourceTree = "<group>"; };
+		584555F32991176200DD0657 /* UIPresentationController+Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIPresentationController+Private.swift"; sourceTree = "<group>"; };
 		584592602639B4A200EF967F /* TermsOfServiceContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceContentView.swift; sourceTree = "<group>"; };
 		5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsRequestOperation.swift; sourceTree = "<group>"; };
 		5846227026E229F20035F7C2 /* StoreSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscription.swift; sourceTree = "<group>"; };
@@ -1496,6 +1498,7 @@
 				58E11187292FA11F009FCA84 /* SettingsMigrationUIHandler.swift */,
 				58A8EE592976BFBB009C0F8D /* SKError+Localized.swift */,
 				58ACA9EC2979569500B5825C /* ModalRootAdaptivePresentationDelegate.swift */,
+				584555F32991176200DD0657 /* UIPresentationController+Private.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -2373,6 +2376,7 @@
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
 				587EB6742714520600123C75 /* PreferencesDataSourceDelegate.swift in Sources */,
+				584555F42991176200DD0657 /* UIPresentationController+Private.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
