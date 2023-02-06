@@ -91,7 +91,7 @@ function getMessage(errorState: ErrorState): string {
         case 'win32':
           return messages.pgettext(
             'notifications',
-            'Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report.',
+            'Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report.',
           );
         case 'linux':
           return messages.pgettext(
@@ -141,7 +141,7 @@ function getMessage(errorState: ErrorState): string {
           case 'win32':
             return messages.pgettext(
               'notifications',
-              'Unable to apply firewall rules. Try disabling any third-party antivirus or security software.',
+              'Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software.',
             );
           case 'linux':
             return messages.pgettext(
@@ -184,7 +184,7 @@ function getTunnelParameterMessage(error: TunnelParameterError): string {
     case TunnelParameterError.noMatchingRelay:
       return messages.pgettext(
         'notifications',
-        'No servers in your selected location match your settings.',
+        'No servers match your settings, try changing server or other settings.',
       );
     case TunnelParameterError.noWireguardKey:
       return sprintf(
