@@ -4,7 +4,7 @@
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
-#include <optional>
+#include <vector>
 
 namespace rules::baseline
 {
@@ -21,7 +21,7 @@ public:
 
 	PermitVpnTunnel(
 		const std::wstring &tunnelInterfaceAlias,
-		const std::optional<Endpoint> &onlyEndpoint
+		const std::vector<Endpoint> &endpoints
 	);
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
@@ -29,7 +29,7 @@ public:
 private:
 
 	const std::wstring m_tunnelInterfaceAlias;
-	const std::optional<Endpoint> m_tunnelOnlyEndpoint;
+	const std::vector<Endpoint> m_tunnelEndpoint;
 };
 
 }
