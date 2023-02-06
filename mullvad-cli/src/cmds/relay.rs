@@ -342,8 +342,6 @@ impl Relay {
                             .as_ref()
                             .map(|addr| addr.to_string())
                             .unwrap_or_default(),
-                        // NOTE: Quantum resistant tunnels are always disabled for custom relays.
-                        quantum_resistant: false,
                     },
                 )),
             }),
