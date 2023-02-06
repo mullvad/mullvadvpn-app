@@ -23,7 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2023.1-beta2] - 2023-02-06
 ### Fixed
+- Fix sorting of devices in the "too many devices"-view to properly sort on device creation time.
+
 #### macOS
 - Improved reliability of the connectivity check workaround by adding an extra captive portal check
   domain.
