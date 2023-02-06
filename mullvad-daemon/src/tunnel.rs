@@ -4,7 +4,7 @@ use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
+    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions, DEFAULT_QUANTUM_RESISTANT_STATE,
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::{
@@ -210,8 +210,6 @@ impl InnerParametersGenerator {
                     wg_exit: relay.clone(),
                     obfuscator: obfuscator_relay,
                 });
-
-                const DEFAULT_QUANTUM_RESISTANT_STATE: bool = false;
 
                 Ok(wireguard::TunnelParameters {
                     connection: wireguard::ConnectionConfig {
