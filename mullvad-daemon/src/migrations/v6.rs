@@ -24,11 +24,11 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     migrate_pq_setting(settings)?;
 
     // TODO
-    //log::info!("Migrating settings format to V7");
+    // log::info!("Migrating settings format to V7");
 
     // Note: Not incrementing the version number yet, since this migration is still open
     // for future modification.
-    //settings["settings_version"] = serde_json::json!(SettingsVersion::V7);
+    // settings["settings_version"] = serde_json::json!(SettingsVersion::V7);
 
     Ok(())
 }

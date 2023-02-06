@@ -6,6 +6,9 @@ use serde::{Deserialize, Deserializer, Serialize};
 use std::{convert::TryFrom, fmt, time::Duration};
 use talpid_types::net::wireguard;
 
+/// Whether to enable or disable quantum resistance by default
+pub const DEFAULT_QUANTUM_RESISTANT_STATE: bool = false;
+
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
@@ -114,7 +117,7 @@ impl Default for RotationInterval {
     }
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
@@ -122,13 +125,52 @@ impl Default for RotationInterval {
     jnix(class_name = "net.mullvad.mullvadvpn.model.WireguardTunnelOptions")
 )]
 pub struct TunnelOptions {
-    #[serde(flatten)]
-    pub options: wireguard::TunnelOptions,
+    /// MTU for the wireguard tunnel
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
+    )]
+    pub mtu: Option<u16>,
+    /// Temporary switch for wireguard-nt
+    #[cfg(windows)]
+    #[serde(default = "default_wgnt_setting")]
+    #[serde(rename = "wireguard_nt")]
+    pub use_wireguard_nt: bool,
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: Option<bool>,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub rotation_interval: Option<RotationInterval>,
+}
+
+#[cfg(windows)]
+fn default_wgnt_setting() -> bool {
+    true
+}
+
+impl Default for TunnelOptions {
+    fn default() -> Self {
+        TunnelOptions {
+            mtu: None,
+            quantum_resistant: None,
+            #[cfg(windows)]
+            use_wireguard_nt: default_wgnt_setting(),
+            rotation_interval: None,
+        }
+    }
+}
+
+impl From<TunnelOptions> for wireguard::TunnelOptions {
+    fn from(options: TunnelOptions) -> Self {
+        Self {
+            mtu: options.mtu,
+            #[cfg(windows)]
+            use_wireguard_nt: options.use_wireguard_nt,
+            quantum_resistant: options
+                .quantum_resistant
+                .unwrap_or(DEFAULT_QUANTUM_RESISTANT_STATE),
+        }
+    }
 }
 
 /// Represents a published public key
