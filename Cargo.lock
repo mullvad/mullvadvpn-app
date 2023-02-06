@@ -2065,6 +2065,7 @@ dependencies = [
  "mullvad-version",
  "nix 0.23.1",
  "objc",
+ "once_cell",
  "parking_lot",
  "rand 0.8.5",
  "regex",
