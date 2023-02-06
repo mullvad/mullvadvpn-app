@@ -300,14 +300,16 @@ bool FwContext::applyPolicyConnected
 		));
 	}
 
+    std::vector<baseline::PermitVpnTunnel::Endpoint> emptyEndpoints;
+
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 		tunnelInterfaceAlias,
-		std::nullopt
+        emptyEndpoints
 	));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 		tunnelInterfaceAlias,
-		std::nullopt
+        emptyEndpoints
 	));
 
 	const auto status = applyRuleset(ruleset);
