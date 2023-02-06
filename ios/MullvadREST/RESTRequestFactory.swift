@@ -113,16 +113,10 @@ extension REST {
         }
 
         mutating func setAuthorization(_ authorization: REST.Authorization) {
-            let value: String
-            switch authorization {
-            case let .accountNumber(accountNumber):
-                value = "Token \(accountNumber)"
-
-            case let .accessToken(accessToken):
-                value = "Bearer \(accessToken)"
-            }
-
-            restRequest.urlRequest.addValue(value, forHTTPHeaderField: HTTPHeader.authorization)
+            restRequest.urlRequest.addValue(
+                "Bearer \(authorization)",
+                forHTTPHeaderField: HTTPHeader.authorization
+            )
         }
 
         func getRequest() -> REST.Request {

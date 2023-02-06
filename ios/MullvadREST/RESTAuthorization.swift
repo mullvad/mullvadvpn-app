@@ -17,10 +17,7 @@ protocol RESTAuthorizationProvider {
 }
 
 extension REST {
-    enum Authorization {
-        case accountNumber(String)
-        case accessToken(String)
-    }
+    typealias Authorization = String
 
     struct AccessTokenProvider: RESTAuthorizationProvider {
         private let accessTokenManager: AccessTokenManager
@@ -43,7 +40,7 @@ extension REST {
                 retryStrategy: retryStrategy
             ) { operationCompletion in
                 completion(operationCompletion.map { tokenData in
-                    return .accessToken(tokenData.accessToken)
+                    return tokenData.accessToken
                 })
             }
         }
