@@ -12,8 +12,8 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
 extension REST {
-    public final class APIProxy: Proxy<ProxyConfiguration> {
-        public init(configuration: ProxyConfiguration) {
+    public final class APIProxy: Proxy<AuthProxyConfiguration> {
+        public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "APIProxy",
                 configuration: configuration,
@@ -114,22 +114,27 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping CompletionHandler<CreateApplePaymentResponse>
         ) -> Cancellable {
-            let requestHandler = AnyRequestHandler { endpoint in
-                var requestBuilder = try self.requestFactory
-                    .createRequestBuilder(
+            let requestHandler = AnyRequestHandler(
+                createURLRequest: { endpoint, authorization in
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
                         endpoint: endpoint,
                         method: .post,
                         pathTemplate: "create-apple-payment"
                     )
-                requestBuilder.setAuthorization(.accountNumber(accountNumber))
+                    requestBuilder.setAuthorization(authorization)
 
-                let body = CreateApplePaymentRequest(
-                    receiptString: receiptString
+                    let body = CreateApplePaymentRequest(
+                        receiptString: receiptString
+                    )
+                    try requestBuilder.setHTTPBody(value: body)
+
+                    return requestBuilder.getRequest()
+                },
+                authorizationProvider: createAuthorizationProvider(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
                 )
-                try requestBuilder.setHTTPBody(value: body)
-
-                return requestBuilder.getRequest()
-            }
+            )
 
             let responseHandler =
                 AnyResponseHandler { response, data -> ResponseHandlerResult<CreateApplePaymentResponse> in
