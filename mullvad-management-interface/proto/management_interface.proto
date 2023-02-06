@@ -430,7 +430,6 @@ message ConnectionConfig {
 		PeerConfig peer = 2;
 		string ipv4_gateway = 3;
 		string ipv6_gateway = 4;
-		bool quantum_resistant = 5;
 	}
 
 	oneof config {
