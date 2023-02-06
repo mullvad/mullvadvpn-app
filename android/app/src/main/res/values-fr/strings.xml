@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="allow_lan_footer">Autorise l\'accès aux autres appareils sur le même réseau pour partager, imprimer, etc.</string>
+    <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à une autre application</string>
     <string name="app_version">Version de l\'application</string>
     <string name="auth_failed">Connexion au compte échouée.</string>
     <string name="auto_connect">Connexion automatique</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
+    <string name="privacy_policy">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
+    <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>
+    <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>

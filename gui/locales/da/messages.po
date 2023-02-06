@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s blev tilføjet, konto betalt indtil %(expiry)s."
@@ -124,6 +124,9 @@ msgstr "OPRETTER KVANTESIKKER FORBINDELSE"
 msgid "CREATING SECURE CONNECTION"
 msgstr "OPRETTER SIKKER FORBINDELSE"
 
+msgid "Custom"
+msgstr "Brugerdefineret"
+
 msgid "Default"
 msgstr "Standard"
 
@@ -132,6 +135,9 @@ msgstr "Deaktiver"
 
 msgid "Disconnect"
 msgstr "Afbryd forbindelse"
+
+msgid "Disconnect & quit"
+msgstr "Afbryd og afslut"
 
 msgid "Disconnected"
 msgstr "Afbrudt"
@@ -176,6 +182,9 @@ msgstr "mindre end et minut siden"
 msgid "Next"
 msgstr "Næste"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "Intet resultat for <b>%(searchTerm)s</b>."
+
 msgid "Off"
 msgstr "Fra"
 
@@ -188,8 +197,14 @@ msgstr "Åbn URL"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTESIKKER FORBINDELSE"
 
+msgid "Quit"
+msgstr "Afslut"
+
 msgid "Reconnect"
 msgstr "Genopret forbindelse"
+
+msgid "Search for..."
+msgstr "Søg efter..."
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILSLUTNING"
@@ -206,6 +221,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Denne indstilling øger latensen. Brug den kun, hvis det er nødvendigt."
+
+msgid "Try a different search."
+msgstr "Prøv en anden søgning."
 
 msgid "UDP"
 msgstr "UDP"
@@ -317,8 +335,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "For mange samtidige forbindelser på denne konto. Afbryd en anden enhed, eller prøv at oprette forbindelse igen snart."
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "Kunne ikke godkende konto. Kontakt support."
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "Kan ikke godkende konto. Indsend en problemrapport."
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -784,32 +802,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "Kan ikke anvende firewallregler. Prøv at opdatere din kerne."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller kontakt support."
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "Kan ikke blokere al netværkstrafik. Prøv at deaktivere antivirus- eller sikkerhedssoftware fra tredjepart, eller kontakt support."
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "Kan ikke blokere al netværkstrafik. Prøv at deaktivere antivirus- eller sikkerhedssoftware fra tredjepart, eller indsend en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "Kan ikke blokere al netværkstrafik. Prøv at opdatere din kerne, eller kontakt support."
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "Kan ikke blokere al netværkstrafik. Prøv at opdatere din kerne, eller indsend en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "Kan ikke kommunikere med Mullvad-kernedriveren. Prøv at oprette forbindelse igen eller kontakt support."
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "Kan ikke kommunikere med Mullvad-kernedriveren. Prøv at oprette forbindelse igen, eller indsend en problemrapport."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger."
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "Kan ikke indstille systemets DNS-server. Kontakt support."
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "Kan ikke indstille systemets DNS-server. Indsend en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "Kan ikke starte tunnelforbindelse. Kontakt support."
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "Kan ikke starte tunnelforbindelse. Indsend en problemrapport."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -979,11 +997,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Udbydere: %(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Vælg placering"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Appen vælger en tilfældig broserver, men jo tættere servere er på dig, jo større er sandsynligheden."
@@ -1012,10 +1025,6 @@ msgstr "App-version"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "TID UDLØBET"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "Luk app"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1065,10 +1074,6 @@ msgid "Excluded apps"
 msgstr "Ekskluderede apps"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "Filtrer..."
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Find en anden app"
 
@@ -1080,26 +1085,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Start"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "Intet resultat for <b>%(searchTerm)s</b>."
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "Kontakt support."
+msgid "Please send a problem report."
+msgstr "Indsend en problemrapport."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "Prøv igen, eller kontakt support."
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "Prøv en anden søgning."
+msgid "Please try again or send a problem report."
+msgstr "Prøv igen, eller indsend en problemrapport."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1301,6 +1298,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Tilføj alligevel"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "Annoncer"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "Voksenindhold"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv."
@@ -1317,33 +1324,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Opret automatisk forbindelse til en server, når appen starter."
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "Bloker annoncer"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "Bloker voksenindhold"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "Bloker hasardspil"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "Bloker malware"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "Bloker trackere"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "Deaktiver <b>%(customDnsFeatureName)s</b> nedenfor for at aktivere disse indstillinger."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "Deaktiver alle indholdsblokkere for at aktivere denne indstilling."
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "Deaktiver alle <b>DNS-indholdsblokkere</b> ovenfor for at aktivere denne indstilling."
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS-indholdsblokkere"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1365,6 +1364,11 @@ msgstr "Aktiver for at tilføje mindst én DNS-server."
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "Indtast IP"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "Hasardspil"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1388,6 +1392,11 @@ msgstr "Lokal netværksdeling"
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "Lockdown-tilstand"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "Malware"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1417,6 +1426,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "Denne indbyggede funktion forhindrer din trafik i at lække uden for VPN-tunnelen, hvis dit netværk pludselig holder op med at fungere, eller hvis tunnelen svigter, gør den dette ved at blokere din trafik, indtil forbindelsen er genetableret."
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "Dette kan forårsage problemer på visse websteder, tjenester og programmer."
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "Trackere"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnelprotokol"
 
@@ -1430,32 +1448,12 @@ msgid "VPN settings"
 msgstr "VPN-indstillinger"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Advarsel: Dette er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse."
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Advarsel: Malware-blokkeren er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse."
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "Advarsel: Dette kan forårsage problemer på visse websteder, tjenester og programmer."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "Når den er aktiveret, forhindrer denne funktion enheden i at kontakte visse domæner, der er kendt for at indeholde malware."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "Når den er aktiveret, forhindrer denne funktion enheden i at kontakte bestemte domæner, der vides at spore brugere."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "Når den er aktiveret, forhindrer denne funktion enheden i at kontakte visse kendte annoncedomæner."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "Når den er aktiveret, forhindrer denne funktion enheden i at kontakte bestemte websteder og tjenester, der er kendt for at være vært for voksenindhold."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "Når den er aktiveret, forhindrer denne funktion enheden i at kontakte bestemte websteder og tjenester, der er kendt for at være vært for indhold med hasardspil."
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1507,10 +1505,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Indstil %(wireguard)s MTU-værdi. Gyldigt område: %(min)d - %(max)d."
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Den automatiske indstilling vælger tilfældigt fra en lang række porte."
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor."
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %(portRanges)s."
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1545,17 +1546,17 @@ msgstr "Avancerede indstillinger"
 msgid "All applications"
 msgstr "Alle applikationer"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "Er du sikker på, at du vil logge ud af <b>%s</b>?"
+msgid "Always-on VPN assigned to other app"
+msgstr "Altid-til VPN tildelt en anden app"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "Altid-til VPN er måske aktiveret for en anden app"
 
 msgid "Blocking all connections"
 msgstr "Blokerer alle forbindelser"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierede Mullvad-kontonummer til udklipsholder"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "Kopierede offentlig WireGuard-nøgle til udklipsholder"
 
 msgid "Copied to clipboard"
 msgstr "Kopieret til udklipsholder"
@@ -1584,9 +1585,6 @@ msgstr "Kunne ikke blokere al netværkstrafik. Løs problemet selv, eller rappor
 msgid "Failed to fetch list of devices"
 msgstr "Kunne ikke hente listen over enheder"
 
-msgid "Failed to generate a key"
-msgstr "Kunne ikke generere en nøgle"
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr "Kunne ikke fortolke værtsnavnet på den tilpassede server"
 
@@ -1596,29 +1594,11 @@ msgstr "Kunne ikke indstille systemets DNS-server"
 msgid "Failed to start tunnel connection"
 msgstr "Kunne ikke starte tunnelforbindelsen"
 
-msgid "Generate key"
-msgstr "Generer nøgle"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Hvis du logger på, ophæves blokeringen af internettet på denne enhed."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installer Mullvad VPN (%s) for at holde dig opdateret"
-
-msgid "Key generated"
-msgstr "Nøgle genereret"
-
-msgid "Key is invalid"
-msgstr "Nøglen er ugyldig"
-
-msgid "Key is valid"
-msgstr "Nøglen er gyldig"
-
-msgid "Key verification failed"
-msgstr "Nøglebekræftelse mislykkedes"
-
-msgid "Manage keys"
-msgstr "Administrer nøgler"
 
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
@@ -1632,14 +1612,8 @@ msgstr "Ingen relæserver matcher de aktuelle indstillinger"
 msgid "Preferences"
 msgstr "Indstillinger"
 
-msgid "Public key"
-msgstr "Offentlig nøgle"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "Genopretter forbindelse med ny WireGuard-nøgle..."
-
-msgid "Regenerate key"
-msgstr "Gendan nøgle"
+msgid "Privacy policy"
+msgstr "Fortrolighedspolitik"
 
 msgid "Secured"
 msgstr "Sikret"
@@ -1668,14 +1642,17 @@ msgstr "Denne enhed er offline, ingen tunneler kan etableres"
 msgid "Toggle VPN"
 msgstr "Slå VPN til/fra"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "For mange WireGuard-nøgler er registreret til kontoen"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for <b>%s</b>."
 
 msgid "Unsecured"
 msgstr "Ikke sikret"
 
 msgid "Update available, download to remain safe."
 msgstr "Opdatering tilgængelig, download den for at forblive sikker."
+
+msgid "VPN permission error"
+msgstr "VPN-tilladelsesfejl"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen."
@@ -1686,29 +1663,14 @@ msgstr "VPN-tunnelstatus"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger."
 
-msgid "Verify key"
-msgstr "Bekræft nøgle"
-
 msgid "Virtual adapter error"
 msgstr "Fejl ved virtuel adapter"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Når du er tilsluttet, maskeres din virkelige placering med en privat og sikker placering i den valgte region."
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "WireGuard-fejl"
-
-msgid "WireGuard key"
-msgstr "WireGuard-nøgle"
-
-msgid "WireGuard public key"
-msgstr "Offentlig WireGuard-nøgle"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "DU LÆKKER MÅSKE NETVÆRKSTRAFIK"
@@ -1718,9 +1680,6 @@ msgstr "Du kører en ikke-understøttet appversion."
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Du kører en ikke-understøttet appversion. Opgrader til %s nu for at styrke din sikkerhed"
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "Du har for mange aktive enheder. Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende alias under enhedens kontoindstillinger."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
