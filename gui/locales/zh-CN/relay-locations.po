@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -115,6 +115,10 @@ msgstr "俄亥俄州克里夫兰"
 #. DK CPH
 msgid "Copenhagen"
 msgstr "哥本哈根"
+
+#. HR
+msgid "Croatia"
+msgstr "克罗地亚"
 
 #. CZ
 msgid "Czech Republic"
@@ -388,6 +392,10 @@ msgstr "里加"
 msgid "Romania"
 msgstr "罗马尼亚"
 
+#. IT ROM
+msgid "Rome"
+msgstr "罗马"
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "犹他州盐湖城"
@@ -527,6 +535,10 @@ msgstr "华盛顿特区"
 #. AT VIE
 msgid "Wien"
 msgstr "维也纳"
+
+#. HR ZAG
+msgid "Zagreb"
+msgstr "萨格勒布"
 
 #. CH ZRH
 msgid "Zurich"

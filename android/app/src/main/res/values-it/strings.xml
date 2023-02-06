@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
     <string name="all_applications">Tutte le applicazioni</string>
     <string name="allow_lan_footer">Consenti l\'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro.</string>
+    <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per &lt;b&gt;%1$s&lt;/b&gt; prima di utilizzare Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_title">VPN sempre attiva assegnata a un\'altra app</string>
     <string name="app_version">Versione app</string>
     <string name="auth_failed">Autenticazione account non riuscita.</string>
     <string name="auto_connect">Connessione automatica</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="port_removal_notice">Questa operazione eliminerà tutte le porte inoltrate. Le impostazioni locali verranno salvate.</string>
+    <string name="privacy_policy">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
     <string name="reconnecting">Riconnessione</string>
     <string name="redeem">Riscatta</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Errore scheda virtuale</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
+    <string name="vpn_permission_error_notification_message">La VPN sempre attiva potrebbe essere abilitata per un\'altra app</string>
+    <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>

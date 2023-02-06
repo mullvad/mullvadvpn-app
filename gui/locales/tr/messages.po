@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -124,6 +124,9 @@ msgstr "KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR"
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 
+msgid "Custom"
+msgstr "Özel"
+
 msgid "Default"
 msgstr "Varsayılan"
 
@@ -132,6 +135,9 @@ msgstr "Devre dışı bırak"
 
 msgid "Disconnect"
 msgstr "Bağlantıyı Kes"
+
+msgid "Disconnect & quit"
+msgstr "Bağlantıyı kes ve çık"
 
 msgid "Disconnected"
 msgstr "Bağlantı kesildi"
@@ -176,6 +182,9 @@ msgstr "bir dakikadan az"
 msgid "Next"
 msgstr "Sonraki"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "<b>%(searchTerm)s</b> için sonuç bulunamadı."
+
 msgid "Off"
 msgstr "Kapalı"
 
@@ -188,8 +197,14 @@ msgstr "URL'yi aç"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI"
 
+msgid "Quit"
+msgstr "Çık"
+
 msgid "Reconnect"
 msgstr "Yeniden Bağlan"
+
+msgid "Search for..."
+msgstr "Ara..."
 
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
@@ -206,6 +221,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
+
+msgid "Try a different search."
+msgstr "Farklı bir arama deneyin."
 
 msgid "UDP"
 msgstr "UDP"
@@ -317,8 +335,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "Bu hesabın çok fazla eş zamanlı bağlantısı var. Diğer cihazlardan bir tanesinin bağlantısını kesin veya kısa süre sonra tekrar bağlanmayı deneyin."
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "Hesabın kimliği doğrulanamıyor. Lütfen destek ekibiyle iletişime geçin."
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin."
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -411,7 +429,7 @@ msgstr "Süre bilgisi ekleyerek internete erişmek için \"Kilitleme modu\" seç
 
 msgctxt "connect-view"
 msgid "You’re all set!"
-msgstr "Hazırsınız!"
+msgstr "Artık hazırsınız!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -443,7 +461,7 @@ msgstr "Çıkış"
 #. %(deviceName)s - The name of the device to log out.
 msgctxt "device-management"
 msgid "Are you sure you want to log <b>%(deviceName)s</b> out?"
-msgstr "<b>%(deviceName)s</b> adlı cihazın oturumunu kapatmak istediğinizden emin misiniz?"
+msgstr "<b>%(deviceName)s</b> adlı cihazdan çıkış yapmak istediğinizden emin misiniz?"
 
 #. Button for continuing login process.
 msgctxt "device-management"
@@ -784,32 +802,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. İşletim sistemi çekirdeğinizi güncellemeyi deneyin."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya destek ekibiyle iletişime geçin."
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin veya destek ekibiyle iletişime geçin."
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin ya da bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "Tüm ağ trafiği engellenemiyor. İşletim sistemi çekirdeğinizi güncellemeyi deneyin veya destek ekibiyle iletişime geçin."
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "Tüm ağ trafiği engellenemiyor. İşletim sistemi çekirdeğinizi güncellemeyi deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor. Yeniden bağlanmayı deneyin veya destek ile iletişime geçin."
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor. Yeniden bağlanmayı deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin."
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "Sistem DNS sunucusu ayarlanamıyor. Lütfen destek ekibiyle iletişime geçin."
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "Tünel bağlantısı başlatılamıyor. Lütfen destek ekibiyle iletişime geçin."
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -979,11 +997,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Hizmet sağlayıcılar: %(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Konum seçin"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Uygulama rastgele bir köprü sunucusu seçer, ancak sunucular size ne kadar yakınsa seçilme olasılığı da o kadar fazladır."
@@ -1012,10 +1025,6 @@ msgstr "Uygulama sürümü"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "SÜRE DOLDU"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "Uygulamadan çık"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1065,10 +1074,6 @@ msgid "Excluded apps"
 msgstr "Hariç tutulan uygulamalar"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "Filtrele..."
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Başka bir uygulama bul"
 
@@ -1080,26 +1085,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Başlat"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "<b>%(searchTerm)s</b> için sonuç yok."
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "Lütfen destek ile iletişime geçin."
+msgid "Please send a problem report."
+msgstr "Lütfen bir hata raporu gönderin."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "Lütfen tekrar deneyin veya destek ekibiyle iletişime geçin."
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "Farklı bir arama yapmayı deneyin."
+msgid "Please try again or send a problem report."
+msgstr "Lütfen tekrar deneyin veya bir hata raporu gönderin."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1183,7 +1180,7 @@ msgstr "Beta sürümde bu seçenek kullanılamaz."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
+msgstr "Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
 
 msgctxt "support-view"
 msgid "Try again"
@@ -1301,6 +1298,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Yine de ekle"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "Reklamlar"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "Yetişkinlere özel içerik"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir."
@@ -1317,33 +1324,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Uygulama başladığında bir sunucuya otomatik olarak bağlan."
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "Reklamları engelle"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "Yetişkinlere özel içerikleri engelle"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "Kumar içeriklerini engelle"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "Kötü amaçlı yazılımları engelle"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "İzleyicileri engelle"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "Bu ayarları etkinleştirmek için aşağıdaki <b>%(customDnsFeatureName)s</b> seçeneğini devre dışı bırakın."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "Bu ayarı etkinleştirmek için tüm içerik engelleyicileri devre dışı bırakın."
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "Bu ayarı etkinleştirmek için yukarıdaki tüm <b>DNS içerik engelleyicileri</b> devre dışı bırakın."
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS içerik engelleyiciler"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1365,6 +1364,11 @@ msgstr "En az bir DNS sunucusu eklemek için etkinleştirin."
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "IP'yi girin"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "Kumar"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1388,6 +1392,11 @@ msgstr "Yerel ağ paylaşımı"
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "Kilitleme modu"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "Kötü amaçlı yazılım"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1417,6 +1426,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "Bu dahili özellik, ağ bağlantınız aniden kesilirse veya tünelle ilgili bir sorun meydana gelirse ağ trafiğinizin VPN tünelinin dışına sızmasını önler ve bağlantınız yeniden kurulana kadar ağ trafiğinizi engeller."
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir."
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "İzleyiciler"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tünel protokolü"
 
@@ -1430,32 +1448,12 @@ msgid "VPN settings"
 msgstr "VPN ayarları"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Uyarı: Bu özellik bir virüsten koruma yazılımı değildir, sadece ek bir koruma düzeyidir. Virüsten koruma yazılımı olarak kullanılmamalıdır."
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır."
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "Uyarı: Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "Bu özellik etkinleştirildiğinde, cihazın kötü amaçlı yazılım barındırdığı bilinen belirli alan adlarıyla iletişim kurması engellenecektir."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "Bu özellik etkinleştirildiğinde, cihazın kullanıcıları takip ettiği bilinen belirli alan adlarıyla iletişim kurması engellenecektir."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "Bu özellik etkinleştirildiğinde, cihazın bilinen belirli reklam alanlarıyla iletişim kurması engellenecektir."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "Bu özellik etkinleştirildiğinde, cihazın yetişkinlere özel içerik barındırdığı bilinen belirli web siteleri ve hizmetlerle iletişim kurması engellenecektir."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "Bu özellik etkinleştirildiğinde, cihazın kumar içeriği barındırdığı bilinen belirli web siteler ve hizmetlerle iletişim kurması engellenecektir."
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1507,10 +1505,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "%(wireguard)s MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Otomatik ayar, çeşitli bağlantı noktaları arasından rastgele seçim yapacaktır."
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar."
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %(portRanges)s."
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1545,17 +1546,17 @@ msgstr "Gelişmiş"
 msgid "All applications"
 msgstr "Tüm uygulamalar"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "<b>%s</b> adlı cihazın oturumunu kapatmak istediğinizden emin misiniz?"
+msgid "Always-on VPN assigned to other app"
+msgstr "Her zaman açık VPN başka bir uygulamaya atandı"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 
 msgid "Blocking all connections"
 msgstr "Tüm bağlantılar engelleniyor"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad hesap numarası panoya kopyalandı"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "WireGuard genel anahtarı panoya kopyalandı"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
@@ -1584,9 +1585,6 @@ msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya b
 msgid "Failed to fetch list of devices"
 msgstr "Cihaz listesi alınamadı"
 
-msgid "Failed to generate a key"
-msgstr "Anahtar oluşturulamadı"
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr "Özel sunucu ana bilgisayar adı çözülemiyor"
 
@@ -1596,29 +1594,11 @@ msgstr "Sistem DNS sunucusu ayarlanamıyor"
 msgid "Failed to start tunnel connection"
 msgstr "Tünel bağlantısı başlatılamıyor"
 
-msgid "Generate key"
-msgstr "Anahtar oluştur"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Giriş yapmak bu cihazdaki internet engelini kaldıracaktır."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN (%s) yükleyin"
-
-msgid "Key generated"
-msgstr "Anahtar oluşturuldu"
-
-msgid "Key is invalid"
-msgstr "Anahtar geçersiz"
-
-msgid "Key is valid"
-msgstr "Anahtar geçerli"
-
-msgid "Key verification failed"
-msgstr "Anahtar doğrulanamadı"
-
-msgid "Manage keys"
-msgstr "Anahtarları yönet"
 
 msgid "Mullvad account number"
 msgstr "Mullvad hesap numarası"
@@ -1632,14 +1612,8 @@ msgstr "Geçerli ayarlarla eşleşen aktarma sunucusu yok"
 msgid "Preferences"
 msgstr "Tercihler"
 
-msgid "Public key"
-msgstr "Ortak anahtar"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "Yeni WireGuard anahtarıyla yeniden bağlanılıyor..."
-
-msgid "Regenerate key"
-msgstr "Yeniden anahtar oluştur"
+msgid "Privacy policy"
+msgstr "Gizlilik politikası"
 
 msgid "Secured"
 msgstr "Güvenli"
@@ -1668,14 +1642,17 @@ msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
 msgid "Toggle VPN"
 msgstr "VPN'i aç/kapat"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "Çok fazla WireGuard anahtarı hesaba kayıtlı"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce lütfen Her zaman açık VPN'i <b>%s</b> için devre dışı bırakın."
 
 msgid "Unsecured"
 msgstr "Güvenli değil"
 
 msgid "Update available, download to remain safe."
 msgstr "Güncelleme mevcut, güvende kalmak için güncellemeyi indirin."
+
+msgid "VPN permission error"
+msgstr "VPN izin hatası"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin."
@@ -1686,29 +1663,14 @@ msgstr "VPN tüneli durumu"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin."
 
-msgid "Verify key"
-msgstr "Anahtarı doğrula"
-
 msgid "Virtual adapter error"
 msgstr "Sanal adaptör hatası"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Bağlıyken gerçek konumunuz, seçilen bölgedeki özel ve gizli bir konumla maskelenir."
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "WireGuard hatası"
-
-msgid "WireGuard key"
-msgstr "WireGuard anahtarı"
-
-msgid "WireGuard public key"
-msgstr "WireGuard ortak anahtarı"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
@@ -1718,9 +1680,6 @@ msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi korumak için lütfen hemen %s sürümüne yükseltin"
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "Çok fazla etkin cihazınız var. Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili takma adı cihazın Hesap ayarları altında bulabilirsiniz."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

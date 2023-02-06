@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
+    <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
+    <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="app_version">Appversie</string>
     <string name="auth_failed">Met welke TCP-poort mory het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="auto_connect">Automatisch verbinden</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
+    <string name="privacy_policy">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Fout virtuele adapter</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
+    <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>
+    <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>

@@ -12,6 +12,8 @@
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="allow_lan_footer">ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များ ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။</string>
+    <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
+    <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြားအက်ပ်တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
     <string name="auth_failed">အကောင့် စစ်မှန်ကြောင်း သက်သေပြမှု မအောင်မြင်ပါ။</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
@@ -88,6 +90,7 @@
     <string name="login_fail_description">အကောင့်နံပါတ် မှားယွင်းနေပါသည်</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
     <string name="login_title">ဝင်ရန်</string>
+    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
@@ -102,6 +105,7 @@
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="port_removal_notice">၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။</string>
+    <string name="privacy_policy">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
     <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>
@@ -146,6 +150,8 @@
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
+    <string name="vpn_permission_error_notification_message">အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်</string>
+    <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d ။</string>

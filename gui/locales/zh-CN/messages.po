@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -113,6 +113,9 @@ msgstr "正在创建量子安全连接"
 msgid "CREATING SECURE CONNECTION"
 msgstr "正在创建安全连接"
 
+msgid "Custom"
+msgstr "自定义"
+
 msgid "Default"
 msgstr "默认"
 
@@ -121,6 +124,9 @@ msgstr "禁用"
 
 msgid "Disconnect"
 msgstr "断开连接"
+
+msgid "Disconnect & quit"
+msgstr "断开连接并退出"
 
 msgid "Disconnected"
 msgstr "已断开连接"
@@ -165,6 +171,9 @@ msgstr "不到 1 分钟前"
 msgid "Next"
 msgstr "下一步"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "没有关于<b>%(searchTerm)s</b>的结果。"
+
 msgid "Off"
 msgstr "关"
 
@@ -177,8 +186,14 @@ msgstr "打开网址"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子安全连接"
 
+msgid "Quit"
+msgstr "退出"
+
 msgid "Reconnect"
 msgstr "重新连接"
+
+msgid "Search for..."
+msgstr "搜索…"
 
 msgid "SECURE CONNECTION"
 msgstr "安全连接"
@@ -195,6 +210,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "此设置会增大延迟。仅在需要时使用。"
+
+msgid "Try a different search."
+msgstr "尝试其他搜索词。"
 
 msgid "UDP"
 msgstr "UDP"
@@ -306,8 +324,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "此帐户的同步连接数过多。请断开另一个设备或者稍后再次尝试连接。"
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "无法验证帐户。请联系技术支持。"
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "无法验证帐户。请发送问题报告。"
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -773,32 +791,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "无法应用防火墙规则。请尝试更新您的内核。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "无法阻止所有网络流量。请排除故障或联系技术支持。"
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "无法阻止所有网络流量。请排查问题或发送问题报告。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "无法阻止所有网络流量。请尝试禁用任何第三方防病毒软件或安全软件，或者联系技术支持。"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "无法阻止所有网络流量。请尝试禁用任何第三方防病毒软件或安全软件，或者发送问题报告。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "无法阻止所有网络流量。请尝试更新您的内核或联系技术支持。"
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "无法阻止所有网络流量。请尝试更新您的内核或发送问题报告。"
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "无法与 Mullvad 内核驱动程序通信。请尝试重新连接或者联系支持团队。"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "无法与 Mullvad 内核驱动程序通信。请尝试重新连接或发送问题报告。"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "无法解析自定义隧道的主机。请尝试更改您的设置。"
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "无法设置系统 DNS 服务器。请联系技术支持。"
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "无法设置系统 DNS 服务器。请发送问题报告。"
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "无法启动隧道连接。请联系技术支持。"
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "无法启动隧道连接。请发送问题报告。"
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -968,11 +986,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "提供商：%(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "选择位置"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "应用会随机选择一个桥接服务器，但服务器离您越近，被选中的概率就越高。"
@@ -1001,10 +1014,6 @@ msgstr "应用版本"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "已没有时间"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "退出应用"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1054,10 +1063,6 @@ msgid "Excluded apps"
 msgstr "排除的应用"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "筛选…"
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "查找其他应用"
 
@@ -1069,26 +1074,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "启动"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "<b>%(searchTerm)s</b>没有任何结果。"
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "请联系支持。"
+msgid "Please send a problem report."
+msgstr "请发送问题报告。"
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "请重试或联系支持。"
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "尝试其他搜索词。"
+msgid "Please try again or send a problem report."
+msgstr "请重试或发送问题报告。"
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1172,7 +1169,7 @@ msgstr "使用测试版本时此选项不可用。"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "为了更有效地帮助您，您应用的日志文件将附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。"
+msgstr "为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。"
 
 msgctxt "support-view"
 msgid "Try again"
@@ -1290,6 +1287,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "仍然添加"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "广告"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "成人内容"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "允许访问同一个网络上的其他设备以进行共享和打印等。"
@@ -1306,33 +1313,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "在应用启动时自动连接到服务器。"
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "屏蔽广告"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "屏蔽成人内容"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "屏蔽赌博"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "屏蔽恶意软件"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "屏蔽跟踪广告代码"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "禁用下方的<b>%(customDnsFeatureName)s</b>以激活这些设置。"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "禁用所有内容阻止程序以激活此设置。"
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "禁用上方的所有 <b>DNS 内容阻止程序</b>以激活此设置。"
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS 内容阻止程序"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1354,6 +1353,11 @@ msgstr "启用以添加至少一个 DNS 服务器。"
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "输入 IP"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "博彩"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1377,6 +1381,11 @@ msgstr "本地网络共享"
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "锁定模式"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "恶意软件"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1406,6 +1415,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "如果您的网络突然停止工作或隧道出现故障，此内置功能可防止您的流量泄漏到 VPN 隧道之外，它会阻止您的流量，直到连接重新建立。"
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "这可能会导致某些网站、服务和程序出现问题。"
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "跟踪器"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "隧道协议"
 
@@ -1419,32 +1437,12 @@ msgid "VPN settings"
 msgstr "VPN 设置"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "警告：这并不是且不应被视为防病毒软件，它只是提供了一层额外的保护。"
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "警告：这可能会导致某些网站、服务和程序出现问题。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "启用后，此功能会阻止设备联系某些已知包含恶意软件的域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "启用后，此功能会阻止设备联系某些已知会跟踪用户的域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "启用后，此功能会阻止设备联系某些已知的广告域。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "启用后，此功能会阻止设备联系某些已知包含成人内容的网站和服务。"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "启用后，此功能会阻止设备联系某些已知包含赌博内容的网站和服务。"
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。"
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1496,10 +1494,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "设置 %(wireguard)s MTU 值。值范围：%(min)d - %(max)d。"
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "自动设置将从一系列端口中随机选择。"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "自动设置将从下方显示的有效端口范围中随机选择。"
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "自定义端口可以是有效范围内的任何值：%(portRanges)s。"
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1534,17 +1535,17 @@ msgstr "高级"
 msgid "All applications"
 msgstr "所有应用程序"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "确定要退出<b>%s</b>吗？"
+msgid "Always-on VPN assigned to other app"
+msgstr "“始终启用 VPN”已分配给其他应用"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "可能为另一个应用启用了“始终启用 VPN”"
 
 msgid "Blocking all connections"
 msgstr "正在阻止所有连接"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已将 Mullvad 帐号复制到剪贴板"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "已将 WireGuard 公钥复制到剪贴板"
 
 msgid "Copied to clipboard"
 msgstr "已复制到剪贴板"
@@ -1568,13 +1569,10 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
 
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "无法阻止所有网络流量。请排除故障或向我们报告问题。"
+msgstr "无法阻止所有网络流量。请排查问题或向我们报告问题。"
 
 msgid "Failed to fetch list of devices"
 msgstr "无法获取设备列表"
-
-msgid "Failed to generate a key"
-msgstr "无法生成密钥"
 
 msgid "Failed to resolve the hostname of custom server"
 msgstr "无法解析自定义服务器的主机名"
@@ -1585,29 +1583,11 @@ msgstr "无法设置系统 DNS 服务器"
 msgid "Failed to start tunnel connection"
 msgstr "无法启动隧道连接"
 
-msgid "Generate key"
-msgstr "生成密钥"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "前往登录将在此设备上解除阻止互联网。"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
-
-msgid "Key generated"
-msgstr "已生成密钥"
-
-msgid "Key is invalid"
-msgstr "密钥无效"
-
-msgid "Key is valid"
-msgstr "密钥有效"
-
-msgid "Key verification failed"
-msgstr "密钥验证失败"
-
-msgid "Manage keys"
-msgstr "管理密钥"
 
 msgid "Mullvad account number"
 msgstr "Mullvad 帐号"
@@ -1621,14 +1601,8 @@ msgstr "没有与当前设置匹配的中继服务器"
 msgid "Preferences"
 msgstr "偏好设置"
 
-msgid "Public key"
-msgstr "公钥"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "正在使用新 WireGuard 密钥重新连接…"
-
-msgid "Regenerate key"
-msgstr "重新生成密钥"
+msgid "Privacy policy"
+msgstr "隐私政策"
 
 msgid "Secured"
 msgstr "已受保护"
@@ -1657,14 +1631,17 @@ msgstr "此设备已离线，无法建立隧道"
 msgid "Toggle VPN"
 msgstr "切换 VPN"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "帐户中注册的 WireGuard 密钥过多"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终启用 VPN”。"
 
 msgid "Unsecured"
 msgstr "未受保护"
 
 msgid "Update available, download to remain safe."
 msgstr "有可用更新，请下载以保持安全。"
+
+msgid "VPN permission error"
+msgstr "VPN 权限错误"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "创建隧道时，VPN 权限被拒绝。请尝试重新连接。"
@@ -1675,29 +1652,14 @@ msgstr "VPN 隧道状态"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。"
 
-msgid "Verify key"
-msgstr "验证密钥"
-
 msgid "Virtual adapter error"
 msgstr "虚拟适配器错误"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "连接时，将使用所选区域中一个私密且安全的位置隐藏您的真实位置。"
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "WireGuard 错误"
-
-msgid "WireGuard key"
-msgstr "WireGuard 密钥"
-
-msgid "WireGuard public key"
-msgstr "WireGuard 公钥"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "您的网络流量可能在泄露"
@@ -1707,9 +1669,6 @@ msgstr "您正在运行不受支持的应用版本。"
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "您正在运行不受支持的应用版本。请立即升级到 %s 以确保您的安全"
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "您的有效设备太多。请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应昵称。"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

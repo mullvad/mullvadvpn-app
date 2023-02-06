@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -124,6 +124,9 @@ msgstr "LUODAAN KVANTTISUOJATTU YHTEYS"
 msgid "CREATING SECURE CONNECTION"
 msgstr "LUODAAN SUOJATTU YHTEYS"
 
+msgid "Custom"
+msgstr "Mukautettu"
+
 msgid "Default"
 msgstr "Oletus"
 
@@ -132,6 +135,9 @@ msgstr "Poista käytöstä"
 
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
+
+msgid "Disconnect & quit"
+msgstr "Katkaise yhteys ja sulje"
 
 msgid "Disconnected"
 msgstr "Yhteys katkaistu"
@@ -176,6 +182,9 @@ msgstr "alle minuutti sitten"
 msgid "Next"
 msgstr "Seuraava"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "Ei tuloksia haulle <b>%(searchTerm)s</b>."
+
 msgid "Off"
 msgstr "Pois"
 
@@ -188,8 +197,14 @@ msgstr "Avaa URL"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTTISUOJATTU YHTEYS"
 
+msgid "Quit"
+msgstr "Sulje"
+
 msgid "Reconnect"
 msgstr "Yhdistä uudelleen"
+
+msgid "Search for..."
+msgstr "Hae..."
 
 msgid "SECURE CONNECTION"
 msgstr "SUOJATTU YHTEYS"
@@ -206,6 +221,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Tämä asetus lisää viivettä. Käytä vain tarvittaessa."
+
+msgid "Try a different search."
+msgstr "Kokeile toista hakua."
 
 msgid "UDP"
 msgstr "UDP"
@@ -317,8 +335,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "Tällä tilillä on liian monta samanaikaista yhteyttä. Katkaise toisen laitteen yhteys tai yritä hetken kuluttua uudelleen."
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "Tilin todentaminen ei onnistu. Ota yhteyttä tukeen."
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "Tilin todentaminen ei onnistu. Lähetä ongelmaraportti."
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -784,32 +802,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "Palomuurisääntöjä ei voida soveltaa. Kokeile ytimesi päivittämistä."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai ota yhteyttä tukeen."
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä, tai ota yhteyttä tukeen."
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Kokeile ytimesi päivittämistä tai ota yhteyttä tukeen."
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Kokeile ytimesi päivittämistä tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "Kommunikoiminen Mullvad-ytimen ajurin kanssa ei onnistu. Kokeile muodostaa yhteys uudelleen tai ota yhteyttä tukeen."
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "Kommunikoiminen Mullvad-ytimen ajurin kanssa ei onnistu. Kokeile muodostaa yhteys uudelleen tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi."
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "Järjestelmän DNS-palvelimen asettaminen ei onnistu. Ota yhteyttä tukeen."
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti."
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "Tunneliyhteyden muodostaminen ei onnistu. Ota yhteyttä tukeen."
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -979,11 +997,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Palveluntarjoajat: %(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Valitse sijainti"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Sovellus valitsee satunnaisen siltauspalvelimen, mutta palvelimen valinnan todennäköisyys on sitä suurempi, mitä lähempänä palvelin on sinua."
@@ -1012,10 +1025,6 @@ msgstr "Sovelluksen versio"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "EI KÄYTTÖAIKAA"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "Lopeta"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1065,10 +1074,6 @@ msgid "Excluded apps"
 msgstr "Poissuljetut sovellukset"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "Suodata..."
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Etsi jokin muu sovellus"
 
@@ -1080,26 +1085,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Käynnistä"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "Ei tuloksia haulle <b>%(searchTerm)s</b>."
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "Ota yhteyttä tukeen."
+msgid "Please send a problem report."
+msgstr "Lähetä ongelmaraportti."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "Yritä uudelleen tai ota yhteyttä tukeen."
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "Kokeile toista hakua."
+msgid "Please try again or send a problem report."
+msgstr "Yritä uudelleen tai lähetä ongelmaraportti."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1301,6 +1298,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Lisää silti"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "Mainokset"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "Aikuisille suunnattu sisältö"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille."
@@ -1317,33 +1324,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan."
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "Estä mainokset"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "Estä vain aikuisille suunnattu sisältö"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "Estä uhkapelisisältö"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "Estä haittaohjelmat"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "Estä seurantapalvelimet"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "Ota nämä asetukset käyttöön poistamalla <b>%(customDnsFeatureName)s</b> käytöstä alta."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "Voit ottaa asetuksen käyttöön poistamalla ensin kaikki sisällönestotoiminnot käytöstä."
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "Voit ottaa asetuksen käyttöön poistamalla ensin kaikki <b>DNS-sisällönestotoiminnot</b> käytöstä yltä."
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS-sisällönestotoiminnot"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1365,6 +1364,11 @@ msgstr "Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen."
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "Anna IP-osoite"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "Uhkapelaaminen"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1388,6 +1392,11 @@ msgstr "Paikallisen verkon jakaminen"
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "Lukitustila"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "Haittaohjelmat"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1417,6 +1426,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "Tämä sisäänrakennettu ominaisuus estää liikennettäsi vuotamasta VPN-tunnelin ulkopuolelle, jos verkkosi yhtäkkiä lakkaa toimimasta tai jos tunneli epäonnistuu yhteyden muodostamisessa. Se estää liikenteen, kunnes yhteys on muodostettu uudelleen."
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja ohjelmissa."
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "Seurantapalvelimet"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunneliprotokolla"
 
@@ -1430,32 +1448,12 @@ msgid "VPN settings"
 msgstr "VPN-asetukset"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Varoitus: tämä ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros."
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros."
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "Varoitus: tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja ohjelmissa."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "Kun ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä verkkotunnuksiin, joiden tiedetään isännöivän haittaohjelmia."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "Kun ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä verkkotunnuksiin, joiden tiedetään jäljittävän käyttäjiä."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "Kun ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin mainosverkkotunnuksiin."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "Kun ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkosivustoihin ja palveluihin, joiden tiedetään käsittävän aikuisille suunnattua sisältöä."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "Kun ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkosivustoihin ja palveluihin, joiden tiedetään käsittävän uhkapelisisältöä."
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1507,10 +1505,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Aseta %(wireguard)s MTU -arvo välillä %(min)d–%(max)d."
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Automaattinen asetus valitsee satunnaisesti laajasta määrästä portteja."
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista."
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Mukautettu portti voi olla mikä tahansa sallittu arvo: %(portRanges)s."
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1545,17 +1546,17 @@ msgstr "Lisäasetukset"
 msgid "All applications"
 msgstr "Kaikki sovellukset"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "Haluatko varmasti kirjautua ulos laitteelta <b>%s</b>?"
+msgid "Always-on VPN assigned to other app"
+msgstr "Aina päällä oleva VPN on määritetty toiselle sovellukselle"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle"
 
 msgid "Blocking all connections"
 msgstr "Kaikki yhteydet estetään"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "Julkinen WireGuard-avain kopioitu leikepöydälle"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
@@ -1584,9 +1585,6 @@ msgstr "Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää 
 msgid "Failed to fetch list of devices"
 msgstr "Laiteluettelon nouto epäonnistui"
 
-msgid "Failed to generate a key"
-msgstr "Avaimen luominen epäonnistui"
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr "Mukautetun palvelimen isäntänimen selvittäminen epäonnistui"
 
@@ -1596,29 +1594,11 @@ msgstr "Järjestelmän DNS-palvelimen asettaminen epäonnistui"
 msgid "Failed to start tunnel connection"
 msgstr "Tunneliyhteyden muodostaminen epäonnistui"
 
-msgid "Generate key"
-msgstr "Luo avain"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Asenna Mullvad VPN (%s) pysyäksesi ajan tasalla"
-
-msgid "Key generated"
-msgstr "Avain luotu"
-
-msgid "Key is invalid"
-msgstr "Virheellinen avain"
-
-msgid "Key is valid"
-msgstr "Käypä avain"
-
-msgid "Key verification failed"
-msgstr "Avaimen todentaminen epäonnistui"
-
-msgid "Manage keys"
-msgstr "Hallitse avaimia"
 
 msgid "Mullvad account number"
 msgstr "Mullvad-tilin numero"
@@ -1632,14 +1612,8 @@ msgstr "Mikään välityspalvelin ei vastaa nykyisiä asetuksia"
 msgid "Preferences"
 msgstr "Asetukset"
 
-msgid "Public key"
-msgstr "Julkinen avain"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "Yhdistetään uudelleen uudella WireGuard-avaimella..."
-
-msgid "Regenerate key"
-msgstr "Luo uusi avain"
+msgid "Privacy policy"
+msgstr "Tietosuojakäytäntö"
 
 msgid "Secured"
 msgstr "Suojattu"
@@ -1668,14 +1642,17 @@ msgstr "Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda."
 msgid "Toggle VPN"
 msgstr "Vaihda VPN:ää"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "Tilille on rekisteröity liian monta WireGuard-avainta"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle <b>%s</b> ennen Mullvad VPN:n käyttämistä."
 
 msgid "Unsecured"
 msgstr "Suojaamaton"
 
 msgid "Update available, download to remain safe."
 msgstr "Päivitys saatavilla. Lataa se pysyäksesi suojattuna."
+
+msgid "VPN permission error"
+msgstr "VPN-lupavirhe"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen."
@@ -1686,29 +1663,14 @@ msgstr "VPN-tunnelin tila"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa."
 
-msgid "Verify key"
-msgstr "Todenna avain"
-
 msgid "Virtual adapter error"
 msgstr "Virtuaalisovittimen virhe"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Kun yhteys on muodostettu, yksityinen ja suojattu sijainti valitulta alueelta naamioi todellisen sijaintisi."
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "WireGuard-virhe"
-
-msgid "WireGuard key"
-msgstr "WireGuard-avain"
-
-msgid "WireGuard public key"
-msgstr "Julkinen WireGuard-avain"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
@@ -1718,9 +1680,6 @@ msgstr "Sovellusversiotasi ei tueta."
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %s."
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "Laitteita on liikaa. Kirjaudu ulos vähintään yhdeltä laitteelta poistamalla se alla olevasta luettelosta. Löydät vastaavan laitteen nimikkeen laitteen tiliasetuksista."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

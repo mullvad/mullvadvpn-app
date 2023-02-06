@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s har lagts till. Kontot är betalt till och med %(expiry)s."
@@ -124,6 +124,9 @@ msgstr "SKAPAR KVANTSÄKER ANSLUTNING"
 msgid "CREATING SECURE CONNECTION"
 msgstr "SKAPAR SÄKER ANSLUTNING"
 
+msgid "Custom"
+msgstr "Anpassad"
+
 msgid "Default"
 msgstr "Standard"
 
@@ -132,6 +135,9 @@ msgstr "Inaktivera"
 
 msgid "Disconnect"
 msgstr "Koppla från"
+
+msgid "Disconnect & quit"
+msgstr "Koppla från och avsluta"
 
 msgid "Disconnected"
 msgstr "Frånkopplad"
@@ -176,6 +182,9 @@ msgstr "mindre än en minut sedan"
 msgid "Next"
 msgstr "Nästa"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "Inga resultat för <b>%(searchTerm)s</b>."
+
 msgid "Off"
 msgstr "Av"
 
@@ -188,8 +197,14 @@ msgstr "Öppna URL"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTSÄKER ANSLUTNING"
 
+msgid "Quit"
+msgstr "Avsluta"
+
 msgid "Reconnect"
 msgstr "Återanslut"
+
+msgid "Search for..."
+msgstr "Sök efter …"
 
 msgid "SECURE CONNECTION"
 msgstr "SÄKER ANSLUTNING"
@@ -206,6 +221,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Den här inställningen ökar fördröjningen. Använd bara vid behov."
+
+msgid "Try a different search."
+msgstr "Testa en annan sökning."
 
 msgid "UDP"
 msgstr "UDP"
@@ -317,8 +335,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "Det här kontot har för många samtidiga anslutningar. Koppla från en annan enhet eller försök att ansluta igen inom kort."
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "Det går inte att autentisera kontot. Kontakta supporten."
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "Det går inte att autentisera kontot. Skicka en problemrapport."
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -784,32 +802,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "Det går inte att använda brandväggsregler. Testa att uppdatera din operativsystemkärna."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "Det går inte att blockera all nätverkstrafik. Felsök eller kontakta supporten."
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "Det går inte att blockera all nätverkstrafik. Testa att inaktivera antivirus- eller säkerhetsprogram från tredje part eller kontakta supporten."
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "Det går inte att blockera all nätverkstrafik. Testa att inaktivera antivirus- eller säkerhetsprogram från tredje part eller skicka en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "Det går inte att blockera all nätverkstrafik. Uppdatera din operativsystemkärna eller kontakta supporten."
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "Det går inte att blockera all nätverkstrafik. Testa att uppdatera din kernel eller skicka en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "Det går inte att kommunicera med Mullvads kerneldrivrutin. Testa att ansluta igen eller kontakta supporten."
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "Det går inte att kommunicera med Mullvads kerneldrivrutin. Testa att ansluta igen eller skicka en problemrapport."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna."
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "Det går inte att konfigurera DNS-server. Kontakta supporten."
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "Det går inte att konfigurera DNS-server. Skicka en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "Det går inte att starta tunnelanslutning. Kontakta supporten."
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "Det går inte att starta tunnelanslutning. Skicka en problemrapport."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -979,11 +997,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Leverantörer: %(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "Välj plats"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Appen väljer en slumpmässig bryggserver, men ju närmare servrarna ligger desto större sannolikhet är det att de väljs."
@@ -1012,10 +1025,6 @@ msgstr "Appversion"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "INGEN TID KVAR"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "Avsluta appen"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1065,10 +1074,6 @@ msgid "Excluded apps"
 msgstr "Exkluderade appar"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "Filtrera..."
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Hitta en annan app"
 
@@ -1080,26 +1085,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Starta"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "Inga resultat för <b>%(searchTerm)s</b>."
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "Kontakta supporten."
+msgid "Please send a problem report."
+msgstr "Skicka en problemrapport."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "Försök igen eller kontakta supporten."
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "Testa en annan sökning."
+msgid "Please try again or send a problem report."
+msgstr "Försök igen eller skicka en problemrapport."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1301,6 +1298,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Lägg till ändå"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "Annonser"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "Vuxet innehåll"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Tillåter åtkomst till andra enheter i samma nätverk för delning, utskrift etc."
@@ -1317,33 +1324,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "Anslut automatiskt till en server när appen startas."
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "Blockera annonser"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "Blockera innehåll som är olämpligt för barn"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "Blockera hasardspel"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "Blockera skadlig kod"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "Blockera spårare"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "Inaktivera <b>%(customDnsFeatureName)s</b> nedan för att aktivera dessa inställningar."
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "Inaktivera alla innehållsblockerare för att aktivera den här inställningen."
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "Inaktivera alla <b>DNS-innehållsblockerare</b> ovan för att aktivera den här inställningen."
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS-innehållsblockerare"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1365,6 +1364,11 @@ msgstr "Aktivera för att lägga till minst en DNS-server."
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "Ange IP"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "Hasardspel"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1388,6 +1392,11 @@ msgstr "Lokal nätverksdelning"
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "Låsningsläge"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "Skadlig kod"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1417,6 +1426,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "Den här inbyggda funktionen hindrar din trafik från att läcka utanför VPN-tunneln om ditt nätverk plötsligt slutar fungera eller om tunneln misslyckas. Den gör detta genom att blockera din trafik tills anslutningen återupprättats."
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "Detta kan orsaka problem på vissa webbplatser, tjänster och program."
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "Spårare"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnelprotokoll"
 
@@ -1430,36 +1448,16 @@ msgid "VPN settings"
 msgstr "VPN-inställningar"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "Varning! Det här är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager."
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager."
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "Varning! Detta kan orsaka problem på vissa webbplatser, tjänster och program."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner som är kända för att innehålla skadlig kod."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner som är kända för att spåra användare."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa kända annonsdomäner."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa webbplatser och tjänster som är kända för innehåll som är olämpligt för barn."
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa webbplatser och tjänster som är kända för innehåll som rör hasardspel."
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "När Låsningsläge är aktiverat måste du vara ansluten till en Mullval VPN-server för att kunna nå internet. Om du kopplar från automatiskt eller avslutar appen blockeras din anslutning."
+msgstr "När Låsningsläge är aktiverat måste du vara ansluten till en Mullvad VPN-server för att kunna nå internet. Om du kopplar från automatiskt eller avslutar appen blockeras din anslutning."
 
 #. Title label in navigation bar
 #. Available placeholders:
@@ -1507,10 +1505,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Ange värde för %(wireguard)s MTU. Giltigt intervall: %(min)d–%(max)d."
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Den automatiska inställningen väljer slumpmässigt från en mängd olika portar."
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan."
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %(portRanges)s."
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1545,17 +1546,17 @@ msgstr "Avancerat"
 msgid "All applications"
 msgstr "Alla applikationer"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "Vill du verkligen logga ut från <b>%s</b>?"
+msgid "Always-on VPN assigned to other app"
+msgstr "VPN som alltid är på har tilldelats till annan app"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "VPN som alltid är på kan ha aktiverats för annan app"
 
 msgid "Blocking all connections"
 msgstr "Blockerar alla anslutningar"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierade Mullvad-kontonummer till urklipp"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "Kopierade offentlig nyckel för WireGuard till urklipp"
 
 msgid "Copied to clipboard"
 msgstr "Kopierat till urklipp"
@@ -1584,9 +1585,6 @@ msgstr "Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl pro
 msgid "Failed to fetch list of devices"
 msgstr "Det gick inte att hämta lista med enheter"
 
-msgid "Failed to generate a key"
-msgstr "Det gick inte att generera en nyckel"
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr "Det gick inte att lösa värdnamnet för den anpassade servern"
 
@@ -1596,29 +1594,11 @@ msgstr "Det gick inte att ange systemets DNS-server"
 msgid "Failed to start tunnel connection"
 msgstr "Det gick inte att starta tunnelanslutning"
 
-msgid "Generate key"
-msgstr "Generera nyckel"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Om du loggar in tas blockering av internet bort på den här enheten."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installera Mullvad VPN (%s) för att hålla dig uppdaterad"
-
-msgid "Key generated"
-msgstr "Nyckel har genererats"
-
-msgid "Key is invalid"
-msgstr "Nyckeln är ogiltig"
-
-msgid "Key is valid"
-msgstr "Nyckeln är giltig"
-
-msgid "Key verification failed"
-msgstr "Det gick inte att verifiera nyckel"
-
-msgid "Manage keys"
-msgstr "Hantera nycklar"
 
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
@@ -1632,14 +1612,8 @@ msgstr "Ingen reläserver matchar de aktuella inställningarna"
 msgid "Preferences"
 msgstr "Inställningar"
 
-msgid "Public key"
-msgstr "Offentlig nyckel"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "Återansluter med ny WireGuard-nyckel ..."
-
-msgid "Regenerate key"
-msgstr "Generera om nyckel"
+msgid "Privacy policy"
+msgstr "Sekretesspolicy"
 
 msgid "Secured"
 msgstr "Skyddad"
@@ -1668,14 +1642,17 @@ msgstr "Denna enhet är frånkopplad, inga tunnlar kan skapas"
 msgid "Toggle VPN"
 msgstr "Växla VPN"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "För många WireGuard-nycklar registrerade på kontot"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för <b>%s</b> innan du använder Mullvad VPN."
 
 msgid "Unsecured"
 msgstr "Oskyddad"
 
 msgid "Update available, download to remain safe."
 msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
+
+msgid "VPN permission error"
+msgstr "Behörighetsfel med VPN"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen."
@@ -1686,29 +1663,14 @@ msgstr "VPN-tunnelstatus"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar."
 
-msgid "Verify key"
-msgstr "Verifiera nyckel"
-
 msgid "Virtual adapter error"
 msgstr "Fel med virtuell adapter"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen."
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "WireGuard-fel"
-
-msgid "WireGuard key"
-msgstr "WireGuard-nyckel"
-
-msgid "WireGuard public key"
-msgstr "Offentlig nyckel för WireGuard"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN"
@@ -1718,9 +1680,6 @@ msgstr "Du kör en appversion som inte stöds."
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Du kör en appversion som inte stöds. Uppgradera till %s nu för att garantera din säkerhet"
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "Du har för många aktiva enheter. Logga ut från minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande smeknamn i enhetens kontoinställningar."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
