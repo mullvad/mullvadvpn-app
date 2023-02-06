@@ -707,6 +707,7 @@
 		5846227626E22A7C0035F7C2 /* StorePaymentManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManagerDelegate.swift; sourceTree = "<group>"; };
 		584B17AA27637DE40057F3B8 /* ReconnectTunnelOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconnectTunnelOperation.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
+		584D0111299134AB00531822 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		584D26BE270C550B004EA533 /* AnyIPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddress.swift; sourceTree = "<group>"; };
 		584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStaticTextFooterView.swift; sourceTree = "<group>"; };
 		584D26C3270C855A004EA533 /* PreferencesDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesDataSource.swift; sourceTree = "<group>"; };
@@ -1588,6 +1589,7 @@
 		58ECD29023F178FD004298B6 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
+				584D0111299134AB00531822 /* Version.xcconfig */,
 				5808273928487E3E006B77A4 /* Base.xcconfig */,
 				5808273B284888BC006B77A4 /* App.xcconfig */,
 				5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */,
@@ -2738,7 +2740,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -2752,7 +2753,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).RelayCache";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2762,7 +2762,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -2774,7 +2773,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -2788,7 +2786,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).RelayCache";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2798,7 +2795,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -2810,7 +2806,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -2824,7 +2819,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2833,7 +2827,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -2845,7 +2838,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -2859,7 +2851,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2868,7 +2859,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -2931,14 +2921,13 @@
 		};
 		589A455A28E094B300565204 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -2949,14 +2938,13 @@
 		};
 		589A455B28E094B300565204 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.OperationsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -3125,19 +3113,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2023.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -3149,18 +3134,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = MullvadVPN/MullvadVPN.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MullvadVPN/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2023.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
@@ -3170,7 +3152,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3178,7 +3159,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2023.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/PacketTunnel/ObjCBridgingHeader.h";
@@ -3193,7 +3173,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3201,7 +3180,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2023.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/PacketTunnel/ObjCBridgingHeader.h";
@@ -3250,7 +3228,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3263,7 +3240,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Operations";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3272,7 +3248,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -3284,7 +3259,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3297,7 +3271,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Operations";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3306,7 +3279,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -3318,7 +3290,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3331,7 +3302,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3340,7 +3310,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -3352,7 +3321,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3365,7 +3333,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3374,7 +3341,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -3386,7 +3352,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3399,7 +3364,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3409,7 +3373,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -3421,7 +3384,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CURRENT_PROJECT_VERSION = 4;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
@@ -3434,7 +3396,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3444,7 +3405,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -3478,14 +3438,13 @@
 		};
 		58FBFBED291622580020E046 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -3496,14 +3455,13 @@
 		};
 		58FBFBEE291622580020E046 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CKG9MXH72F;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.MullvadRESTTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
