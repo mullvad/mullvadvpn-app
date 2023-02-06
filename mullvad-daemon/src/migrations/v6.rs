@@ -17,11 +17,11 @@ use mullvad_types::settings::SettingsVersion;
 /// The `use_pq_safe_psk` tunnel option is replaced by `quantum_resistant`, which
 /// is optional. `false` is mapped to `None`. `true` is mapped to `Some(true)`.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
-    migrate_pq_setting(settings)?;
-
     if !version_matches(settings) {
         return Ok(());
     }
+
+    migrate_pq_setting(settings)?;
 
     // TODO
     //log::info!("Migrating settings format to V7");
