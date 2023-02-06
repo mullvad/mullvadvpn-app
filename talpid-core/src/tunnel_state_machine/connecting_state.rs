@@ -38,7 +38,7 @@ pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 #[cfg(target_os = "windows")]
-const MAX_ADAPTER_FAIL_RETRIES: u32 = 4;
+const MAX_RECOVERABLE_FAIL_RETRIES: u32 = 4;
 
 const INITIAL_ALLOWED_TUNNEL_TRAFFIC: AllowedTunnelTraffic = AllowedTunnelTraffic::None;
 
@@ -515,13 +515,14 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 
         #[cfg(windows)]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
+            // This usually occurs when the tunnel interface cannot be created.
             TunnelError::RecoverableStartWireguardError,
-        )) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
+        )) if retry_attempt < MAX_RECOVERABLE_FAIL_RETRIES => true,
 
         #[cfg(windows)]
         tunnel::Error::OpenVpnTunnelMonitoringError(
             talpid_openvpn::Error::WintunCreateAdapterError(_),
-        ) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
+        ) if retry_attempt < MAX_RECOVERABLE_FAIL_RETRIES => true,
 
         _ => false,
     }
