@@ -168,10 +168,12 @@ impl Firewall {
             ptr::null()
         };
 
-        let allowed_tun_ip;
+        // NOTE: Keep the IP in memory until we've applied policy
+        let mut allowed_tun_ip = vec![];
         let allowed_tunnel_endpoints = match allowed_tunnel_traffic {
             AllowedTunnelTraffic::Only(endpoint) => {
-                allowed_tun_ip = widestring_ip(endpoint.address.ip());
+                allowed_tun_ip.push(widestring_ip(endpoint.address.ip()));
+                let allowed_tun_ip = allowed_tun_ip.last().unwrap();
                 Some(vec![WinFwEndpoint {
                     ip: allowed_tun_ip.as_ptr(),
                     port: endpoint.address.port(),
@@ -180,7 +182,8 @@ impl Firewall {
             }
             AllowedTunnelTraffic::Many(endpoints) => {
                 Some(endpoints.into_iter().map(|endpoint| {
-                    let allowed_tun_ip = widestring_ip(endpoint.address.ip());
+                    allowed_tun_ip.push(widestring_ip(endpoint.address.ip()));
+                    let allowed_tun_ip = allowed_tun_ip.last().unwrap();
                     WinFwEndpoint {
                         ip: allowed_tun_ip.as_ptr(),
                         port: endpoint.address.port(),
