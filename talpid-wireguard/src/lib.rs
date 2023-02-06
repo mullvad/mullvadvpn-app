@@ -595,13 +595,7 @@ impl WireguardMonitor {
                 setup_done_tx,
             )
             .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-            .map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-                );
-                Error::TunnelError(TunnelError::from(error))
-            });
+            .map_err(Error::TunnelError);
         }
 
         #[cfg(any(target_os = "linux", windows))]
