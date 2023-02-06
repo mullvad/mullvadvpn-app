@@ -410,6 +410,27 @@ impl WgNtTunnel {
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
+        done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
+    ) -> std::result::Result<Self, super::TunnelError> {
+        Self::start_tunnel_inner(config, log_path, resource_dir, done_tx).map_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+            );
+
+            match error {
+                Error::CreateTunnelDeviceError(_) => {
+                    super::TunnelError::RecoverableStartWireguardError
+                }
+                _ => super::TunnelError::FatalStartWireguardError,
+            }
+        })
+    }
+
+    fn start_tunnel_inner(
+        config: &Config,
+        log_path: Option<&Path>,
+        resource_dir: &Path,
         mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
@@ -447,13 +468,12 @@ impl WgNtTunnel {
                 .await;
         });
 
-        let tunnel = WgNtTunnel {
+        Ok(WgNtTunnel {
             device,
             interface_name,
             setup_handle,
             _logger_handle: logger_handle,
-        };
-        Ok(tunnel)
+        })
     }
 
     fn stop_tunnel(&mut self) {

@@ -587,23 +587,15 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         if config.use_wireguard_nt {
-            match wireguard_nt::WgNtTunnel::start_tunnel(
+            log::debug!("Using WireGuardNT");
+            return wireguard_nt::WgNtTunnel::start_tunnel(
                 config,
                 log_path,
                 resource_dir,
-                setup_done_tx.clone(),
-            ) {
-                Ok(tunnel) => {
-                    log::debug!("Using WireGuardNT");
-                    return Ok(Box::new(tunnel));
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-                    );
-                }
-            }
+                setup_done_tx,
+            )
+            .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
+            .map_err(Error::TunnelError);
         }
 
         #[cfg(any(target_os = "linux", windows))]
@@ -812,14 +804,14 @@ pub(crate) trait Tunnel: Send {
 pub enum TunnelError {
     /// A recoverable error occurred while starting the wireguard tunnel
     ///
-    /// This is an error returned by wireguard-go that indicates that trying to establish the
+    /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again should work normally. The error encountered is known to be sporadic.
     #[error(display = "Recoverable error while starting wireguard tunnel")]
     RecoverableStartWireguardError,
 
     /// An unrecoverable error occurred while starting the wireguard tunnel
     ///
-    /// This is an error returned by wireguard-go that indicates that trying to establish the
+    /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again will likely fail with the same error. An error was encountered during tunnel
     /// configuration which can't be dealt with gracefully.
     #[error(display = "Failed to start wireguard tunnel")]
