@@ -208,13 +208,14 @@ bool FwContext::applyPolicyConnecting
 		{
 			case WinFwAllowedTunnelTrafficType::All:
 			{
+                std::vector<Endpoint> endpoints;
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 					*tunnelInterfaceAlias,
-                    {}
+                    endpoints
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 					*tunnelInterfaceAlias,
-                    {}
+                    endpoints
 				));
 				break;
 			}
