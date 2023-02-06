@@ -240,7 +240,7 @@ bool FwContext::applyPolicyConnecting
 			{
                 // TODO: Check to make sure that many is exactly 2 since we don't support more
                 std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints(allowedTunnelTraffic.endpointsLength);
-                for (int i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
+                for (uint32_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
                     endpoints.emplace_back(baseline::PermitVpnTunnel::Endpoint{
                             wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
                             allowedTunnelTraffic.endpoints[i].port,
