@@ -46,8 +46,10 @@ fn get_wireguard_tunnel_options(
 fn get_wireguard_relay_settings(
     settings: &mut serde_json::Value,
 ) -> Option<&mut serde_json::Value> {
-    if let Some(relay_options) = settings.get_mut("relay_settings") {
-        return relay_options.get_mut("wireguard");
+    if let Some(relay_settings) = settings.get_mut("relay_settings") {
+        if let Some(normal) = relay_settings.get_mut("normal") {
+            return normal.get_mut("wireguard_constraints");
+        }
     }
     None
 }
@@ -72,6 +74,12 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(pq_constraint) = new_pq_constraint {
         if let Some(wg_settings) = get_wireguard_relay_settings(settings) {
             wg_settings["quantum_resistant"] = serde_json::json!(pq_constraint);
+        } else {
+            // This should be because custom tunnels are used. In that case
+            // PQ is disabled anyhow, so this is alright.
+            log::warn!(
+                "Losing quantum resistant setting because relay constraints could not be obtained"
+            );
         }
     }
 
@@ -259,15 +267,17 @@ mod test {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
             r#"
         {
-            "tunnel_options": {
-                "wireguard": {
-                    "use_pq_safe_psk": false
-                }
-            },
-            "tunnel_options": {
-                "wireguard": {
-                }
+          "tunnel_options": {
+            "wireguard": {
+              "use_pq_safe_psk": false
             }
+          },
+          "relay_settings": {
+            "normal": {
+              "wireguard_constraints": {
+              }
+            }
+          }
         }
         "#,
         )
@@ -277,15 +287,17 @@ mod test {
         let expected_settings: serde_json::Value = serde_json::from_str(
             r#"
         {
-            "tunnel_options": {
-                "wireguard": {
-                }
-            },
-            "relay_settings": {
-                "wireguard": {
-                    "quantum_resistant": null
-                }
+          "tunnel_options": {
+            "wireguard": {
             }
+          },
+          "relay_settings": {
+            "normal": {
+              "wireguard_constraints": {
+                "quantum_resistant": "any"
+              }
+            }
+          }
         }
         "#,
         )
@@ -300,15 +312,17 @@ mod test {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
             r#"
         {
-            "tunnel_options": {
-                "wireguard": {
-                    "use_pq_safe_psk": true
-                }
-            },
-            "relay_settings": {
-                "wireguard": {
-                }
+          "tunnel_options": {
+            "wireguard": {
+              "use_pq_safe_psk": true
             }
+          },
+          "relay_settings": {
+            "normal": {
+              "wireguard_constraints": {
+              }
+            }
+          }
         }
         "#,
         )
@@ -318,17 +332,19 @@ mod test {
         let expected_settings: serde_json::Value = serde_json::from_str(
             r#"
         {
-            "tunnel_options": {
-                "wireguard": {
-                }
-            },
-            "relay_settings": {
-                "wireguard": {
-                    "quantum_resistant": {
-                        "only": true
-                    }
-                }
+          "tunnel_options": {
+            "wireguard": {
             }
+          },
+          "relay_settings": {
+            "normal": {
+              "wireguard_constraints": {
+                "quantum_resistant": {
+                  "only": true
+                }
+              }
+            }
+          }
         }
         "#,
         )
