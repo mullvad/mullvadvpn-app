@@ -12,6 +12,8 @@
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
+    <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하십시오.</string>
+    <string name="always_on_vpn_error_notification_title">상시 접속 VPN이 다른 앱에 할당됨</string>
     <string name="app_version">앱 버전</string>
     <string name="auth_failed">계정 인증에 실패했습니다.</string>
     <string name="auto_connect">자동 연결</string>
@@ -88,7 +90,7 @@
     <string name="login_fail_description">유효하지 않은 계정 번호</string>
     <string name="login_fail_title">로그인 실패</string>
     <string name="login_title">로그인</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;을(를) 로그아웃하시겠습니까?</string>
+    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
@@ -103,7 +105,8 @@
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
-    <string name="problem_report_description">효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
+    <string name="privacy_policy">개인정보 보호정책</string>
+    <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
     <string name="reconnecting">다시 연결 중</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">가상 어댑터 오류</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
+    <string name="vpn_permission_error_notification_message">상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다.</string>
+    <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>

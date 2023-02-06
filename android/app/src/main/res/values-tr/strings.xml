@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
+    <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
+    <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="app_version">Uygulama sürümü</string>
     <string name="auth_failed">Hesap kimlik doğrulaması başarısız oldu.</string>
     <string name="auto_connect">Otomatik Bağlan</string>
@@ -88,7 +90,7 @@
     <string name="login_fail_description">Geçersiz hesap numarası</string>
     <string name="login_fail_title">Oturum açma başarısız</string>
     <string name="login_title">Oturum Aç</string>
-    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazın oturumunu kapatmak istediğinizden emin misiniz?</string>
+    <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="max_devices_resolved_description">Artık bu cihazda oturum açmaya devam edebilirsiniz.</string>
     <string name="max_devices_resolved_title">Süper!</string>
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
@@ -103,7 +105,8 @@
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
-    <string name="problem_report_description">Size daha etkin bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
+    <string name="privacy_policy">Gizlilik politikası</string>
+    <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
     <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
+    <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>
+    <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>

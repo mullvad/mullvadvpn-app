@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Compre crédito en nuestro sitio web o canjee un cupón.</string>
     <string name="all_applications">Todas las aplicaciones</string>
     <string name="allow_lan_footer">Permite el acceso a otros dispositivos de la misma red para compartir archivos, imprimir, etc.</string>
+    <string name="always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar la VPN de Mullvad.</string>
+    <string name="always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
     <string name="app_version">Versión de la aplicación</string>
     <string name="auth_failed">Error de autenticación de la cuenta.</string>
     <string name="auto_connect">Conexión automática</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Pagado hasta</string>
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
     <string name="port_removal_notice">Se eliminarán todos los puertos reenviados. La configuración local se guardará.</string>
+    <string name="privacy_policy">Política de privacidad</string>
     <string name="problem_report_description">Para ayudarle de una forma más eficiente, se adjuntará el archivo de registro de la aplicación a este mensaje. Sus datos permanecerán protegidos y privados, ya que se anonimizan antes de enviarse a través de un canal cifrado.</string>
     <string name="reconnecting">Volviendo a establecer la conexión</string>
     <string name="redeem">Canjear</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Error del adaptador virtual</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
+    <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
+    <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>
     <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>

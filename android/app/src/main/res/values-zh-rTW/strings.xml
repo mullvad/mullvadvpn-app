@@ -12,6 +12,8 @@
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="all_applications">所有應用程式</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行共用、列印等。</string>
+    <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
+    <string name="always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
     <string name="app_version">應用程式版本</string>
     <string name="auth_failed">帳戶驗證失敗。</string>
     <string name="auto_connect">自動連線</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="port_removal_notice">這將刪除所有轉送的連接埠。將儲存本機設定。</string>
+    <string name="privacy_policy">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
     <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
+    <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>
+    <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>

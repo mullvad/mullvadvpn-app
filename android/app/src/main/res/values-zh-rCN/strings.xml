@@ -12,6 +12,8 @@
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="all_applications">所有应用程序</string>
     <string name="allow_lan_footer">允许访问同一个网络上的其他设备以进行共享和打印等。</string>
+    <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终启用 VPN”。</string>
+    <string name="always_on_vpn_error_notification_title">“始终启用 VPN”已分配给其他应用</string>
     <string name="app_version">应用版本</string>
     <string name="auth_failed">帐户身份验证失败。</string>
     <string name="auto_connect">自动连接</string>
@@ -58,7 +60,7 @@
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法保护连接</string>
     <string name="exclude_applications">排除的应用程序</string>
-    <string name="failed_to_block_internet">无法阻止所有网络流量。请排除故障或向我们报告问题。</string>
+    <string name="failed_to_block_internet">无法阻止所有网络流量。请排查问题或向我们报告问题。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_fetch_devices">无法获取设备列表</string>
     <string name="failed_to_remove_device">无法移除设备</string>
@@ -103,7 +105,8 @@
     <string name="paid_until">到期时间</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="port_removal_notice">这将删除所有转发的端口。将保存本地设置。</string>
-    <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
+    <string name="privacy_policy">隐私政策</string>
+    <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
     <string name="reconnecting">正在重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>
     <string name="vpn_permission_denied_error">创建隧道时，VPN 权限被拒绝。请尝试重新连接。</string>
+    <string name="vpn_permission_error_notification_message">可能为另一个应用启用了“始终启用 VPN”</string>
+    <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>

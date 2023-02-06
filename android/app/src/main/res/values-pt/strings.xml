@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Compre crédito no nosso sítio da web ou reclame um voucher.</string>
     <string name="all_applications">Todas as aplicações</string>
     <string name="allow_lan_footer">Permite o acesso a outros dispositivos na mesma rede para partilha, impressão, etc.</string>
+    <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_title">VPN sempre ligada atribuída a outra app</string>
     <string name="app_version">Versão da app</string>
     <string name="auth_failed">Erro na autenticação da conta.</string>
     <string name="auto_connect">Ligação automática</string>
@@ -103,7 +105,8 @@
     <string name="paid_until">Pago até</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="port_removal_notice">Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas.</string>
-    <string name="problem_report_description">Para o ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
+    <string name="privacy_policy">Política de privacidade</string>
+    <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
+    <string name="vpn_permission_error_notification_message">A VPN sempre ligada pode estar ativada para outra app</string>
+    <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Definir o valor WireGuard MTU. Intervalo válido: %1$d - %2$d.</string>

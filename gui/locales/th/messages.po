@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -113,6 +113,9 @@ msgstr "กำลังสร้างการเชื่อมต่อคว
 msgid "CREATING SECURE CONNECTION"
 msgstr "กำลังสร้างการเชื่อมต่อที่ปลอดภัย"
 
+msgid "Custom"
+msgstr "กำหนดเอง"
+
 msgid "Default"
 msgstr "ค่าเริ่มต้น"
 
@@ -121,6 +124,9 @@ msgstr "ปิดใช้งาน"
 
 msgid "Disconnect"
 msgstr "ตัดการเชื่อมต่อ"
+
+msgid "Disconnect & quit"
+msgstr "ตัดการเชื่อมต่อและออก"
 
 msgid "Disconnected"
 msgstr "ตัดการเชื่อมต่อแล้ว"
@@ -165,6 +171,9 @@ msgstr "น้อยกว่าหนึ่งนาทีก่อน"
 msgid "Next"
 msgstr "ถัดไป"
 
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "ไม่มีผลลัพธ์สำหรับ <b>%(searchTerm)s</b>"
+
 msgid "Off"
 msgstr "ปิด"
 
@@ -177,8 +186,14 @@ msgstr "Open URL"
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "การเชื่อมต่อควอนตัมที่ปลอดภัย"
 
+msgid "Quit"
+msgstr "ออก"
+
 msgid "Reconnect"
 msgstr "เชื่อมต่อใหม่"
+
+msgid "Search for..."
+msgstr "ค้นหา…"
 
 msgid "SECURE CONNECTION"
 msgstr "การเชื่อมต่อที่ปลอดภัย"
@@ -195,6 +210,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
+
+msgid "Try a different search."
+msgstr "ลองใช้การค้นหาอื่น"
 
 msgid "UDP"
 msgstr "UDP"
@@ -306,8 +324,8 @@ msgid "Too many simultaneous connections on this account. Disconnect another dev
 msgstr "มีการเชื่อมต่อพร้อมกันมากเกินไปบนบัญชีนี้ โปรดตัดการเชื่อมต่อจากอุปกรณ์อีกเครื่อง หรือลองเชื่อมต่อใหม่อีกครั้งในอีกสักครู่"
 
 msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please contact support."
-msgstr "ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดติดต่อฝ่ายสนับสนุน"
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา"
 
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
@@ -773,32 +791,32 @@ msgid "Unable to apply firewall rules. Try updating your kernel."
 msgstr "ไม่สามารถใช้งานกฎไฟร์วอลล์ได้ โปรดลองอัปเดตเคอร์เนลของคุณ"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือติดต่อฝ่ายสนับสนุน"
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สาม หรือติดต่อฝ่ายสนับสนุน"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สาม หรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองอัปเดตเคอร์เนลของคุณ หรือติดต่อฝ่ายสนับสนุน"
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองอัปเดตเคอร์เนลของคุณ หรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
-msgstr "ไม่สามารถสื่อสารกับไดรเวอร์เคอร์เนลของ Mullvad ได้ โปรดลองเชื่อมต่อใหม่หรือติดต่อฝ่ายสนับสนุน"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "ไม่สามารถสื่อสารกับไดรเวอร์เคอร์เนลของ Mullvad ได้ โปรดลองเชื่อมต่อใหม่ หรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
 msgstr "ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ"
 
 msgctxt "notifications"
-msgid "Unable to set system DNS server. Please contact support."
-msgstr "ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดติดต่อฝ่ายสนับสนุน"
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา"
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. Please contact support."
-msgstr "ไม่สามารถเริ่มการเชื่อมต่อช่องทางได้ โปรดติดต่อฝ่ายสนับสนุน"
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดส่งรายงานปัญหา"
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -891,7 +909,7 @@ msgstr "ในการเปิดใช้โหมด บริดจ์ ใ�
 #. available.
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
-msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน <b>โหมด Bridge</b> เป็น <b>อัตโนมัติ</b> หรือ <b>ปิด</b>"
+msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน <b>โหมดบริดจ์</b> เป็น <b>อัตโนมัติ</b> หรือ <b>ปิด</b>"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -968,11 +986,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "ผู้ให้บริการ: %(numberOfProviders)d"
 
-#. Heading in select location view
-msgctxt "select-location-view"
-msgid "Select location"
-msgstr "เลือกตำแหน่งที่ตั้ง"
-
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "แอปจะเลือกเซิร์ฟเวอร์บริดจ์แบบสุ่ม แต่เซิร์ฟเวอร์จะยิ่งมีโอกาสถูกเลือกมากขึ้น หากเซิร์ฟเวอร์ยิ่งอยู่ใกล้คุณ"
@@ -1001,10 +1014,6 @@ msgstr "เวอร์ชันแอป"
 msgctxt "settings-view"
 msgid "OUT OF TIME"
 msgstr "หมดเวลา"
-
-msgctxt "settings-view"
-msgid "Quit app"
-msgstr "ออกจากแอป"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1054,10 +1063,6 @@ msgid "Excluded apps"
 msgstr "แอปที่ยกเว้น"
 
 msgctxt "split-tunneling-view"
-msgid "Filter..."
-msgstr "ตัวกรอง..."
-
-msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "ค้นหาแอปอื่น"
 
@@ -1069,26 +1074,18 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "เปิด"
 
-msgctxt "split-tunneling-view"
-msgid "No result for <b>%(searchTerm)s</b>."
-msgstr "ไม่มีผลลัพธ์สำหรับ <b>%(searchTerm)s</b>"
-
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
-msgid "Please contact support."
-msgstr "โปรดติดต่อฝ่ายสนับสนุน"
+msgid "Please send a problem report."
+msgstr "โปรดส่งรายงานปัญหา"
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
 #. This error message is shown if an application failes during startup.
 msgctxt "split-tunneling-view"
-msgid "Please try again or contact support."
-msgstr "โปรดลองอีกครั้ง หรือติดต่อฝ่ายสนับสนุน"
-
-msgctxt "split-tunneling-view"
-msgid "Try a different search."
-msgstr "ลองใช้การค้นหาอื่น"
+msgid "Please try again or send a problem report."
+msgstr "โปรดลองใหม่อีกครั้ง หรือส่งรายงานปัญหา"
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1172,7 +1169,7 @@ msgstr "ตัวเลือกนี้จะไม่พร้อมใช้
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-msgstr "ไฟล์บันทึกในแอปของคุณจะแนบไปกับข้อความนี้ เพื่อที่เราจะสามารถช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เพราะจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส"
+msgstr "ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส"
 
 msgctxt "support-view"
 msgid "Try again"
@@ -1290,6 +1287,16 @@ msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "เพิ่มต่อไป"
 
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "โฆษณา"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "เนื้อหาสำหรับผู้ใหญ่"
+
 msgctxt "vpn-settings-view"
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ"
@@ -1306,33 +1313,25 @@ msgctxt "vpn-settings-view"
 msgid "Automatically connect to a server when the app launches."
 msgstr "เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป"
 
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
 msgctxt "vpn-settings-view"
-msgid "Block ads"
-msgstr "บล็อกโฆษณา"
-
-msgctxt "vpn-settings-view"
-msgid "Block adult content"
-msgstr "บล็อกเนื้อหาสำหรับผู้ใหญ่"
-
-msgctxt "vpn-settings-view"
-msgid "Block gambling"
-msgstr "บล็อกการพนัน"
-
-msgctxt "vpn-settings-view"
-msgid "Block malware"
-msgstr "บล็อกมัลแวร์"
-
-msgctxt "vpn-settings-view"
-msgid "Block trackers"
-msgstr "บล็อกตัวติดตาม"
+msgid "Disable <b>%(customDnsFeatureName)s</b> below to activate these settings."
+msgstr "ปิดใช้งาน <b>%(customDnsFeatureName)s</b> ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้"
 
 #. This is displayed when either or both of the block ads/trackers settings are
 #. turned on which makes the custom DNS setting disabled.
 #. Available placeholders:
 #. %(preferencesPageName)s - The page title showed on top in the preferences page.
 msgctxt "vpn-settings-view"
-msgid "Disable all content blockers to activate this setting."
-msgstr "ปิดตัวบล็อกเนื้อหาทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "ปิดใช้งาน<b>ตัวบล็อกเนื้อหา DNS</b> ทั้งหมดด้านบน เพื่อเปิดใช้งานการตั้งค่านี้"
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "ตัวบล็อกเนื้อหา DNS"
 
 msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
@@ -1354,6 +1353,11 @@ msgstr "เปิดเพื่อเพิ่มเซิร์ฟเวอร
 msgctxt "vpn-settings-view"
 msgid "Enter IP"
 msgstr "ป้อน IP"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "การพนัน"
 
 #. Description for multihop settings toggle.
 #. Available placeholders:
@@ -1377,6 +1381,11 @@ msgstr "การแชร์ในเครือข่ายท้องถิ
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr "โหมดล็อกดาวน์"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "มัลแวร์"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1406,6 +1415,15 @@ msgid "This built-in feature prevents your traffic from leaking outside of the V
 msgstr "คุณสมบัติในตัวนี้ จะป้องกันไม่ให้การรับส่งข้อมูลของคุณรั่วไหลออกจากอุโมงค์ VPN หากเครือข่ายของคุณหยุดทำงานกะทันหัน หรือหากอุโมงค์ทำงานผิดพลาด โดยคุณสมบัตินี้จะบล็อกการรับส่งข้อมูลของคุณ จนกว่าการเชื่อมต่อจะถูกสร้างขึ้นมาใหม่"
 
 msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and programs."
+msgstr "นี่อาจก่อให้เกิดปัญหากับเว็บไซต์ บริการ และโปรแกรมบางอย่างได้"
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "ตัวติดตาม"
+
+msgctxt "vpn-settings-view"
 msgid "Tunnel protocol"
 msgstr "โพรโทคอลอุโมงค์"
 
@@ -1419,32 +1437,12 @@ msgid "VPN settings"
 msgstr "การตั้งค่า VPN"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
-msgstr "คำเตือน: นี่ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น"
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น"
 
 msgctxt "vpn-settings-view"
-msgid "Warning: This might cause issues on certain websites, services, and programs."
-msgstr "คำเตือน: นี่อาจก่อให้เกิดปัญหากับเว็บไซต์ บริการ และโปรแกรมบางอย่างได้"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to host malware."
-msgstr "เมื่อเปิดใช้งาน คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อกับบางโดเมน ที่เป็นที่ทราบว่ามีการโฮสต์มัลแวร์เอาไว้"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain domains known to track users."
-msgstr "เมื่อเปิดใช้งาน คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อกับบางโดเมน ที่เป็นที่ทราบว่ามีการติดตามผู้ใช้"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain known ad domains."
-msgstr "เมื่อเปิดใช้งาน คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อกับบางโดเมน ที่เป็นที่ทราบว่าเป็นโฆษณา"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host adult content."
-msgstr "เมื่อเปิดใช้งาน คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อกับ เว็บไซต์หรือบริการบางอย่าง ที่เป็นที่ทราบว่ามีการโฮสต์เนื้อหาสำหรับผู้ใหญ่"
-
-msgctxt "vpn-settings-view"
-msgid "When enabled, this feature stops the device from contacting certain websites and services known to host gambling content."
-msgstr "เมื่อเปิดใช้งาน คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อกับ เว็บไซต์หรือบริการบางอย่าง ที่เป็นที่ทราบว่ามีการโฮสต์เนื้อหาการพนัน"
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "ในขณะที่เปิดใช้งานคุณสมบัตินี้ คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ"
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1496,10 +1494,13 @@ msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า %(wireguard)s MTU ช่วงที่ใช้ได้: %(min)d - %(max)d"
 
-#. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากพอร์ตต่างๆ"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง"
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %(portRanges)s"
 
 #. The hint displayed below the WireGuard IP version selector.
 #. Available placeholders:
@@ -1534,17 +1535,17 @@ msgstr "ขั้นสูง"
 msgid "All applications"
 msgstr "แอปพลิเคชันทั้งหมด"
 
-msgid "Are you sure you want to log out of <b>%s</b>?"
-msgstr "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน <b>%s</b>"
+msgid "Always-on VPN assigned to other app"
+msgstr "Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว"
+
+msgid "Always-on VPN might be enabled for another app"
+msgstr "Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น"
 
 msgid "Blocking all connections"
 msgstr "บล็อกการเชื่อมต่อทั้งหมด"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "คัดลอกคีย์สาธารณะของ WireGuard ไปยังคลิปบอร์ดแล้ว"
 
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
@@ -1573,9 +1574,6 @@ msgstr "ไม่สามารถบล็อกการรับส่งข
 msgid "Failed to fetch list of devices"
 msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
 
-msgid "Failed to generate a key"
-msgstr "ไม่สามารถสร้างคีย์ได้"
-
 msgid "Failed to resolve the hostname of custom server"
 msgstr "ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง"
 
@@ -1585,29 +1583,11 @@ msgstr "ไม่สามารถตั้งค่าเซิร์ฟเว
 msgid "Failed to start tunnel connection"
 msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้"
 
-msgid "Generate key"
-msgstr "สร้างคีย์"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ"
-
-msgid "Key generated"
-msgstr "สร้างคีย์แล้ว"
-
-msgid "Key is invalid"
-msgstr "คีย์ไม่ถูกต้อง"
-
-msgid "Key is valid"
-msgstr "คีย์ถูกต้อง"
-
-msgid "Key verification failed"
-msgstr "การตรวจสอบคีย์ล้มเหลว"
-
-msgid "Manage keys"
-msgstr "จัดการคีย์"
 
 msgid "Mullvad account number"
 msgstr "หมายเลขบัญชี Mullvad"
@@ -1621,14 +1601,8 @@ msgstr "ไม่มีเซิร์ฟเวอร์รีเลย์ที
 msgid "Preferences"
 msgstr "การกำหนดค่า"
 
-msgid "Public key"
-msgstr "คีย์สาธารณะ"
-
-msgid "Reconnecting with new WireGuard key..."
-msgstr "กำลังเชื่อมต่ออีกครั้งด้วยคีย์ WireGuard ใหม่..."
-
-msgid "Regenerate key"
-msgstr "สร้างคีย์ใหม่"
+msgid "Privacy policy"
+msgstr "นโยบายความเป็นส่วนตัว"
 
 msgid "Secured"
 msgstr "ปลอดภัย"
@@ -1657,14 +1631,17 @@ msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะน
 msgid "Toggle VPN"
 msgstr "เปิด/ปิด VPN"
 
-msgid "Too many WireGuard keys registered to account"
-msgstr "มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป"
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา <b>%s</b> ก่อนที่จะใช้งาน Mullvad VPN"
 
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"
 
 msgid "Update available, download to remain safe."
 msgstr "มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้"
+
+msgid "VPN permission error"
+msgstr "เกิดข้อผิดพลาดในการอนุญาต VPN"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง"
@@ -1675,29 +1652,14 @@ msgstr "สถานะอุโมงค์ VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง"
 
-msgid "Verify key"
-msgstr "ตรวจสอบคีย์"
-
 msgid "Virtual adapter error"
 msgstr "ข้อผิดพลาดของอะแดปเตอร์เสมือน"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบัง ด้วยตำแหน่งที่ตั้งที่เป็นส่วนตัวและปลอดภัย ในภูมิภาคที่เลือก"
 
-msgid "WireGuard"
-msgstr "WireGuard"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard error"
-msgstr "ข้อผิดพลาด WireGuard"
-
-msgid "WireGuard key"
-msgstr "คีย์ WireGuard"
-
-msgid "WireGuard public key"
-msgstr "คีย์สาธารณะของ WireGuard"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่"
@@ -1707,9 +1669,6 @@ msgstr "คุณกำลังใช้งานเวอร์ชันแอ
 
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน โปรดอัปเกรดเป็นเวอร์ชัน %s ทันที เพื่อให้แน่ใจในความปลอดภัยของคุณ"
-
-msgid "You have too many active devices. Please log out of at least one by removing it from the list below. You can find the corresponding nickname under the device's Account settings."
-msgstr "คุณมีอุปกรณ์ที่ใช้งานอยู่เยอะเกินไป โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่อเล่นที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

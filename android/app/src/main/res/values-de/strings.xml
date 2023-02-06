@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
+    <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
+    <string name="always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="app_version">App-Version</string>
     <string name="auth_failed">Konto-Authentifizierung fehlgeschlagen.</string>
     <string name="auto_connect">Automatische Verbindung</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Bezahlt bis</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="port_removal_notice">Dadurch werden alle weitergeleiteten Ports gelöscht. Die lokalen Einstellungen werden gespeichert.</string>
+    <string name="privacy_policy">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
     <string name="reconnecting">Wiederherstellen der Verbindung</string>
     <string name="redeem">Einlösen</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
+    <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
+    <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d – %2$d.</string>

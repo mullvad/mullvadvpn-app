@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="all_applications">Alle applikasjoner</string>
     <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
+    <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
     <string name="app_version">Appversjon</string>
     <string name="auth_failed">Autentisering av konto mislykket.</string>
     <string name="auto_connect">Automatisk tilkobling</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Betalt fram til</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="port_removal_notice">Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret.</string>
+    <string name="privacy_policy">Retningslinjer for personvern</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
     <string name="reconnecting">Kobler til på nytt</string>
     <string name="redeem">Løs inn</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Virtuell adapterfeil</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
+    <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
+    <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>

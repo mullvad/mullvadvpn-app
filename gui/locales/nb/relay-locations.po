@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -118,7 +118,7 @@ msgstr "København"
 
 #. HR
 msgid "Croatia"
-msgstr ""
+msgstr "Kroatia"
 
 #. CZ
 msgid "Czech Republic"
@@ -394,7 +394,7 @@ msgstr "Romania"
 
 #. IT ROM
 msgid "Rome"
-msgstr ""
+msgstr "Roma"
 
 #. US SLC
 msgid "Salt Lake City, UT"
@@ -538,8 +538,9 @@ msgstr "Wien"
 
 #. HR ZAG
 msgid "Zagreb"
-msgstr ""
+msgstr "Zagreb"
 
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+
