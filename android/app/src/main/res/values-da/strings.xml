@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
+    <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden app</string>
     <string name="app_version">App-version</string>
     <string name="auth_failed">Kontogodkendelse mislykkedes.</string>
     <string name="auto_connect">Auto-tilslutning</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="port_removal_notice">Dette vil slette alle videresendte porte. Lokale indstillinger vil blive gemt.</string>
+    <string name="privacy_policy">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
     <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
+    <string name="vpn_permission_error_notification_message">Altid-til VPN er måske aktiveret for en anden app</string>
+    <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>

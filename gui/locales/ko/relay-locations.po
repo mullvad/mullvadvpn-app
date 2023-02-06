@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -115,6 +115,10 @@ msgstr "클리블랜드, OH"
 #. DK CPH
 msgid "Copenhagen"
 msgstr "코펜하겐"
+
+#. HR
+msgid "Croatia"
+msgstr "크로아티아"
 
 #. CZ
 msgid "Czech Republic"
@@ -388,6 +392,10 @@ msgstr "리가"
 msgid "Romania"
 msgstr "루마니아"
 
+#. IT ROM
+msgid "Rome"
+msgstr "로마"
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "솔트레이크시티, UT"
@@ -527,6 +535,10 @@ msgstr "워싱턴 DC"
 #. AT VIE
 msgid "Wien"
 msgstr "빈"
+
+#. HR ZAG
+msgid "Zagreb"
+msgstr "자그레브"
 
 #. CH ZRH
 msgid "Zurich"

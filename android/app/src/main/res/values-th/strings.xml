@@ -12,6 +12,8 @@
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
+    <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
+    <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="app_version">เวอร์ชันแอป</string>
     <string name="auth_failed">ไม่สามารถรับรองความถูกต้องของบัญชีได้</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
@@ -103,7 +105,8 @@
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="port_removal_notice">นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้</string>
-    <string name="problem_report_description">ไฟล์บันทึกในแอปของคุณจะแนบไปกับข้อความนี้ เพื่อที่เราจะสามารถช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เพราะจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
+    <string name="privacy_policy">นโยบายความเป็นส่วนตัว</string>
+    <string name="problem_report_description">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
     <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="vpn_permission_denied_error">การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง</string>
+    <string name="vpn_permission_error_notification_message">Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น</string>
+    <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>

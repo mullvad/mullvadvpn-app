@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="allow_lan_footer">Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille.</string>
+    <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
+    <string name="always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="app_version">Sovelluksen versio</string>
     <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="port_removal_notice">Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan.</string>
+    <string name="privacy_policy">Tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
     <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
+    <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>
+    <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2022-10-11 11:10\n"
+"PO-Revision-Date: 2023-02-06 12:43\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -115,6 +115,10 @@ msgstr "Cleveland, OH"
 #. DK CPH
 msgid "Copenhagen"
 msgstr "Copenaghen"
+
+#. HR
+msgid "Croatia"
+msgstr "Croazia"
 
 #. CZ
 msgid "Czech Republic"
@@ -388,6 +392,10 @@ msgstr "Riga"
 msgid "Romania"
 msgstr "Romania"
 
+#. IT ROM
+msgid "Rome"
+msgstr "Roma"
+
 #. US SLC
 msgid "Salt Lake City, UT"
 msgstr "Salt Lake City, UT"
@@ -527,6 +535,10 @@ msgstr "Washington DC"
 #. AT VIE
 msgid "Wien"
 msgstr "Vienna"
+
+#. HR ZAG
+msgid "Zagreb"
+msgstr "Zagabria"
 
 #. CH ZRH
 msgid "Zurich"

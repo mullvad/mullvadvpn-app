@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
     <string name="all_applications">Alla applikationer</string>
     <string name="allow_lan_footer">Tillåter åtkomst till andra enheter i samma nätverk för delning, utskrift etc.</string>
+    <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
+    <string name="always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="app_version">Appversion</string>
     <string name="auth_failed">Autentiseringen av kontot misslyckades.</string>
     <string name="auto_connect">Anslut automatiskt</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Betalat till</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="port_removal_notice">Detta tar bort alla vidarebefordrade portar. Lokala inställningar sparas.</string>
+    <string name="privacy_policy">Sekretesspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
     <string name="reconnecting">Återansluter</string>
     <string name="redeem">Lös in</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
+    <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>
+    <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>

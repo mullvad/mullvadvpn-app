@@ -12,6 +12,8 @@
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
     <string name="all_applications">Все приложения</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для передачи данных, печати и т. д.</string>
+    <string name="always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «VPN всегда вкл.» для &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="always_on_vpn_error_notification_title">Опция «VPN всегда вкл.» назначена другому приложению</string>
     <string name="app_version">Версия приложения</string>
     <string name="auth_failed">Ошибка аутентификации учетной записи.</string>
     <string name="auto_connect">Автоподключение</string>
@@ -103,6 +105,7 @@
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="port_removal_notice">Будут удалены все перенаправленные порты. Локальные настройки сохранятся.</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
@@ -147,6 +150,8 @@
     <string name="virtual_adapter_problem">Ошибка виртуального адаптера</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
     <string name="vpn_permission_denied_error">При создании туннеля в доступе к VPN было отказано. Попробуйте подключиться снова.</string>
+    <string name="vpn_permission_error_notification_message">Опцию «VPN всегда вкл.» может быть включена для другого приложения</string>
+    <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
