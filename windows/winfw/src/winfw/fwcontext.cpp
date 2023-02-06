@@ -208,7 +208,7 @@ bool FwContext::applyPolicyConnecting
 		{
 			case WinFwAllowedTunnelTrafficType::All:
 			{
-                std::vector<Endpoint> endpoints;
+                std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints;
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 					*tunnelInterfaceAlias,
                     endpoints
@@ -239,7 +239,7 @@ bool FwContext::applyPolicyConnecting
 			case WinFwAllowedTunnelTrafficType::Many:
 			{
                 // TODO: Check to make sure that many is exactly 2 since we don't support more
-                std::vector<Endpoint> endpoints(allowedTunnelTraffic.endpointsLength);
+                std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints(allowedTunnelTraffic.endpointsLength);
                 for (int i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
                     endpoints.emplace_back(baseline::PermitVpnTunnel::Endpoint{
                             wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
