@@ -164,6 +164,27 @@ pub enum Error {
     InvalidConfigData,
 }
 
+impl From<Error> for super::TunnelError {
+    fn from(error: Error) -> super::TunnelError {
+        match error {
+            Error::DllError(_) => super::TunnelError::FatalStartWireguardError,
+            Error::CreateTunnelDeviceError(_) => super::TunnelError::RecoverableStartWireguardError,
+            Error::ObtainAliasError(_) => super::TunnelError::RecoverableStartWireguardError,
+            Error::InvalidConfigData | Error::GetWireGuardConfigError(_) => {
+                super::TunnelError::GetConfigError
+            }
+            Error::SetWireGuardConfigError(_) => super::TunnelError::SetConfigError,
+            Error::IpInterfacesError(error)
+            | Error::SetTunnelMtuError(error)
+            | Error::EnableTunnelError(error) => super::TunnelError::SetupIpInterfaces(error),
+            Error::InitLoggingError(error) => super::TunnelError::LoggingError(error),
+            Error::UnknownAddressFamily(_)
+            | Error::InvalidAllowedIpCidr
+            | Error::InvalidAllowedIpBits => super::TunnelError::Other,
+        }
+    }
+}
+
 pub struct WgNtTunnel {
     device: Arc<Mutex<Option<WgNtAdapter>>>,
     interface_name: String,

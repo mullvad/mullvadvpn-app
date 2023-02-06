@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
   `PskExchangeV1` endpoint
 
+#### Windows
+- Remove automatic fallback to wireguard-go. This is done as a first step before fully
+  deprecating it on Windows.
+
 ### Fixed
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
