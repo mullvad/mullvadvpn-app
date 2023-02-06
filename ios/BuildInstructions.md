@@ -201,11 +201,8 @@ you do not intend to generate screenshots for the app.
 
 # Automated build and deployment
 
-Build script does not bump the build number, so make sure to do that manually and commit to repo:
-
-```
-agvtool bump
-```
+Build script does not bump the build number, so make sure to edit `Configurations/Version.xcconfig` 
+and commit it back to repo.
 
 1. Run `./ios/build.sh` to build and export the app for upload to AppStore.
 1. Run `./ios/build.sh --deploy` - same as above but also uploads the app to AppStore and 
