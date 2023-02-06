@@ -7,6 +7,7 @@ use mullvad_types::{
     relay_list::{
         OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
     },
+    DEFAULT_QUANTUM_RESISTANT_STATE,
 };
 use rand::{
     seq::{IteratorRandom, SliceRandom},
@@ -212,6 +213,7 @@ pub struct WireguardMatcher {
     pub peer: Option<Relay>,
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub quantum_resistant: Constraint<bool>,
 
     pub data: WireguardEndpointData,
 }
@@ -222,6 +224,7 @@ impl WireguardMatcher {
             peer: None,
             port: constraints.port,
             ip_version: constraints.ip_version,
+            quantum_resistant: constraints.quantum_resistant,
             data,
         }
     }
@@ -253,6 +256,9 @@ impl WireguardMatcher {
         Some(MullvadEndpoint::Wireguard(MullvadWireguardEndpoint {
             peer: peer_config,
             exit_peer: None,
+            quantum_resistant: self
+                .quantum_resistant
+                .unwrap_or(DEFAULT_QUANTUM_RESISTANT_STATE),
             ipv4_gateway: data.ipv4_gateway,
             ipv6_gateway: data.ipv6_gateway,
         }))

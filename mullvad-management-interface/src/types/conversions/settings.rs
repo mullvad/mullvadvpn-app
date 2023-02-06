@@ -86,9 +86,6 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                 use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
                 #[cfg(not(windows))]
                 use_wireguard_nt: false,
-                quantum_resistant: options.wireguard.quantum_resistant.map(|state| proto::QuantumResistantConstraint {
-                    state,
-                }),
             }),
             generic: Some(proto::tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,
@@ -160,9 +157,6 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                         );
                         FromProtobufTypeError::InvalidArgument("invalid rotation interval")
                     })?,
-                quantum_resistant: wireguard_options
-                    .quantum_resistant
-                    .map(|constraint| constraint.state),
             },
             generic: net::GenericTunnelOptions {
                 enable_ipv6: generic_options.enable_ipv6,

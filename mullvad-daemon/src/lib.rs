@@ -225,8 +225,6 @@ pub enum DaemonCommand {
     SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
-    /// Set whether to enable PQ PSK exchange in the tunnel
-    SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, Option<bool>),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Toggle macOS network check leak
@@ -1005,10 +1003,6 @@ where
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
-            SetQuantumResistantTunnel(tx, quantum_resistant_state) => {
-                self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
-                    .await
-            }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
             SetWireguardRotationInterval(tx, interval) => {
@@ -2014,37 +2008,6 @@ where
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
-            }
-        }
-    }
-
-    async fn on_set_quantum_resistant_tunnel(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        quantum_resistant: Option<bool>,
-    ) {
-        let save_result = self
-            .settings
-            .set_quantum_resistant_tunnel(quantum_resistant)
-            .await;
-        match save_result {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
-                if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                        log::info!("Reconnecting because the PQ safety setting changed");
-                        self.reconnect_tunnel();
-                    }
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_quantum_resistant_tunnel response");
             }
         }
     }

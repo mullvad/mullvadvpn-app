@@ -468,6 +468,7 @@ impl fmt::Display for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub quantum_resistant: Constraint<bool>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
 }
