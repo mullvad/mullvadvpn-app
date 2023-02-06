@@ -77,13 +77,13 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                 mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
             }),
             wireguard: Some(proto::tunnel_options::WireguardOptions {
-                mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
+                mtu: u32::from(options.wireguard.mtu.unwrap_or_default()),
                 rotation_interval: options.wireguard.rotation_interval.map(|ivl| {
                     prost_types::Duration::try_from(std::time::Duration::from(ivl))
                         .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.wireguard.rotation_interval")
                 }),
                 #[cfg(windows)]
-                use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
+                use_wireguard_nt: options.wireguard.use_wireguard_nt,
                 #[cfg(not(windows))]
                 use_wireguard_nt: false,
                 quantum_resistant: options.wireguard.quantum_resistant.map(|state| proto::QuantumResistantConstraint {
@@ -137,15 +137,13 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                 },
             },
             wireguard: mullvad_types::wireguard::TunnelOptions {
-                options: net::wireguard::TunnelOptions {
-                    mtu: if wireguard_options.mtu != 0 {
-                        Some(wireguard_options.mtu as u16)
-                    } else {
-                        None
-                    },
-                    #[cfg(windows)]
-                    use_wireguard_nt: wireguard_options.use_wireguard_nt,
+                mtu: if wireguard_options.mtu != 0 {
+                    Some(wireguard_options.mtu as u16)
+                } else {
+                    None
                 },
+                #[cfg(windows)]
+                use_wireguard_nt: wireguard_options.use_wireguard_nt,
                 rotation_interval: wireguard_options
                     .rotation_interval
                     .map(std::time::Duration::try_from)

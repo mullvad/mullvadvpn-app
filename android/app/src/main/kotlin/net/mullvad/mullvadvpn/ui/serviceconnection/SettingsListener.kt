@@ -29,7 +29,7 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
         }
 
     var wireguardMtu: Int?
-        get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.options?.mtu
+        get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
         set(value) {
             connection.send(Request.SetWireGuardMtu(value).message)
         }
