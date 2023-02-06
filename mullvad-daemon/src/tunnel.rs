@@ -1,4 +1,10 @@
-use std::{future::Future, pin::Pin, sync::Arc};
+use std::{
+    future::Future,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    pin::Pin,
+    str::FromStr,
+    sync::Arc,
+};
 
 use tokio::sync::Mutex;
 
@@ -6,6 +12,7 @@ use mullvad_relay_selector::{RelaySelector, SelectedBridge, SelectedObfuscator, 
 use mullvad_types::{
     endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
 };
+use once_cell::sync::Lazy;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::{
     net::{wireguard, TunnelParameters},
@@ -17,6 +24,18 @@ use talpid_types::{
 use talpid_types::net::openvpn;
 
 use crate::device::{AccountManagerHandle, PrivateAccountAndDevice};
+
+/// The IP-addresses that the client uses when it connects to a server that supports the
+/// "Same IP" functionality. This means all clients have the same in-tunnel IP on these
+/// servers. This improves anonymity since the in-tunnel IP will not be unique to a specific
+/// peer.
+static SAME_IP_V4: Lazy<IpAddr> =
+    Lazy::new(|| Ipv4Addr::from_str("10.127.255.254").unwrap().into());
+static SAME_IP_V6: Lazy<IpAddr> = Lazy::new(|| {
+    Ipv6Addr::from_str("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
+        .unwrap()
+        .into()
+});
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -192,13 +211,18 @@ impl InnerParametersGenerator {
                 unreachable!("OpenVPN is not supported on Android");
             }
             MullvadEndpoint::Wireguard(endpoint) => {
+                let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
+                let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
                 let tunnel = wireguard::TunnelConfig {
                     private_key: data.device.wg_data.private_key,
-                    addresses: vec![
-                        data.device.wg_data.addresses.ipv4_address.ip().into(),
-                        data.device.wg_data.addresses.ipv6_address.ip().into(),
-                    ],
+                    addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
                 };
+                // FIXME: Used for debugging purposes during the migration to same IP. Remove when the migration is over.
+                if tunnel_ipv4 == SAME_IP_V4 || tunnel_ipv6 == SAME_IP_V6 {
+                    log::debug!("Same IP is being used");
+                } else {
+                    log::debug!("Same IP is NOT being used");
+                }
 
                 let (obfuscator_relay, obfuscator_config) = match obfuscator {
                     Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
