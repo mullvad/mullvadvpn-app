@@ -134,90 +134,88 @@ fun PreviewShowConfirmLocalDnsScreen() {
 
 @Composable
 fun ShowConfirmLocalDnsScreen(
-    viewModel: AdvancedSettingViewModel,
-    localDns: String?
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    localDns?.let {
-        AlertDialog(
-            onDismissRequest = {
-                viewModel.clearEnteredDns()
-            },
-            title = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        title = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(top = 0.dp)
+                    .fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_alert),
+                    contentDescription = "Remove",
                     modifier = Modifier
-                        .padding(top = 0.dp)
-                        .fillMaxWidth()
+                        .width(50.dp)
+                        .height(50.dp)
+                )
+            }
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.confirm_local_dns),
+                modifier = Modifier,
+                color = colorResource(id = R.color.white60)
+            )
+        },
+        buttons = {
+            Column(
+                Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
+                Button(
+                    modifier = Modifier
+                        .height(dimensionResource(id = R.dimen.button_height))
+                        .defaultMinSize(
+                            minWidth = 0.dp,
+                            minHeight = dimensionResource(id = R.dimen.button_height)
+                        )
+                        .fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = colorResource(id = R.color.red),
+                        contentColor = Color.White
+                    ),
+                    onClick = {
+                        onConfirm()
+                    }
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_alert),
-                        contentDescription = "Remove",
-                        modifier = Modifier
-                            .width(50.dp)
-                            .height(50.dp)
+                    Text(
+                        text = stringResource(id = R.string.add_anyway),
+                        fontSize = 18.sp
                     )
                 }
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.confirm_local_dns),
-                    modifier = Modifier,
-                    color = colorResource(id = R.color.white60)
-                )
-            },
-            buttons = {
-                Column(
-                    Modifier
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                Button(
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier
+                        .focusOrder(FocusRequester())
+                        .padding(top = 16.dp)
+                        .height(dimensionResource(id = R.dimen.button_height))
+                        .defaultMinSize(
+                            minWidth = 0.dp,
+                            minHeight = dimensionResource(id = R.dimen.button_height)
+                        )
+                        .fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = colorResource(id = R.color.blue),
+                        contentColor = Color.White
+                    ),
+                    onClick = {
+                        onDismiss()
+                    }
                 ) {
-                    Button(
-                        modifier = Modifier
-                            .height(dimensionResource(id = R.dimen.button_height))
-                            .defaultMinSize(
-                                minWidth = 0.dp,
-                                minHeight = dimensionResource(id = R.dimen.button_height)
-                            )
-                            .fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(id = R.color.red),
-                            contentColor = Color.White
-                        ),
-                        onClick = {
-                            viewModel.addDns(localDns)
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.add_anyway),
-                            fontSize = 18.sp
-                        )
-                    }
-                    Button(
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .focusOrder(FocusRequester())
-                            .padding(top = 16.dp)
-                            .height(dimensionResource(id = R.dimen.button_height))
-                            .defaultMinSize(
-                                minWidth = 0.dp,
-                                minHeight = dimensionResource(id = R.dimen.button_height)
-                            )
-                            .fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(id = R.color.blue),
-                            contentColor = Color.White
-                        ),
-                        onClick = {
-                            viewModel.clearEnteredDns()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.back),
-                            fontSize = 18.sp
-                        )
-                    }
+                    Text(
+                        text = stringResource(id = R.string.back),
+                        fontSize = 18.sp
+                    )
                 }
-            },
-            backgroundColor = colorResource(id = R.color.darkBlue)
-        )
-    }
+            }
+        },
+        backgroundColor = colorResource(id = R.color.darkBlue)
+    )
 }

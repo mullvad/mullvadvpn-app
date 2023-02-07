@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +25,7 @@ import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragments.SplitTunnelingFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.customDns
@@ -124,7 +127,10 @@ class AdvancedSettingFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AdvancedSettingScreen(
-                    viewModel = advancesSettingViewModel,
+//                    viewModel = advancesSettingViewModel,
+                    uiState = advancesSettingViewModel.uiState.collectAsState().value,
+                    onToggleCustomDns = {advancesSettingViewModel.toggleCustomDns(it)},
+                    onNavigateCellClicked = { onNavigationCellClicked(requireActivity()) },
                     onBackClick = { },
                 )
             }
@@ -197,5 +203,25 @@ class AdvancedSettingFragment : BaseFragment() {
 
     private fun detachBackButtonHandler() {
         requireMainActivity().backButtonHandler = null
+    }
+
+    private fun onNavigationCellClicked(fragmentActivity: FragmentActivity) {
+        val fragment =
+            SplitTunnelingFragment::class.java.getConstructor()
+                .newInstance()
+
+        fragmentActivity.supportFragmentManager
+            ?.beginTransaction()
+            ?.apply {
+                setCustomAnimations(
+                    R.anim.fragment_enter_from_right,
+                    R.anim.fragment_exit_to_left,
+                    R.anim.fragment_half_enter_from_left,
+                    R.anim.fragment_exit_to_right
+                )
+                replace(R.id.main_fragment, fragment)
+                addToBackStack(null)
+                commitAllowingStateLoss()
+            }
     }
 }
