@@ -12,6 +12,7 @@ sealed class Request : Message.RequestMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
+    @Deprecated("Use SetDnsOptions")
     data class AddCustomDnsServer(val address: InetAddress) : Request()
 
     @Parcelize
@@ -69,9 +70,11 @@ sealed class Request : Message.RequestMessage() {
     object ClearAccountHistory : Request()
 
     @Parcelize
+    @Deprecated("Use SetDnsOptions")
     data class RemoveCustomDnsServer(val address: InetAddress) : Request()
 
     @Parcelize
+    @Deprecated("Use SetDnsOptions")
     data class ReplaceCustomDnsServer(
         val oldAddress: InetAddress,
         val newAddress: InetAddress
@@ -84,6 +87,7 @@ sealed class Request : Message.RequestMessage() {
     data class SetAutoConnect(val autoConnect: Boolean) : Request()
 
     @Parcelize
+    @Deprecated("Use SetDnsOptions")
     data class SetEnableCustomDns(val enable: Boolean) : Request()
 
     @Parcelize
