@@ -6,9 +6,6 @@ use serde::{Deserialize, Deserializer, Serialize};
 use std::{convert::TryFrom, fmt, time::Duration};
 use talpid_types::net::wireguard;
 
-/// Whether to enable or disable quantum resistance by default
-pub const DEFAULT_QUANTUM_RESISTANT_STATE: bool = false;
-
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
@@ -16,6 +13,18 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
 } else {
     Duration::from_secs(7 * 24 * 60 * 60)
 };
+
+/// Whether to enable or disable quantum resistant tunnels when the setting
+/// is set to `QuantumResistantState::Auto`.
+const QUANTUM_RESISTANT_AUTO_STATE: bool = false;
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum QuantumResistantState {
+    Auto,
+    On,
+    Off,
+}
 
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -137,7 +146,15 @@ pub struct TunnelOptions {
     #[serde(rename = "wireguard_nt")]
     pub use_wireguard_nt: bool,
     /// Obtain a PSK using the relay config client.
-    pub quantum_resistant: Option<bool>,
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|state| state.map(|state| match state {
+            QuantumResistantState::Auto => None,
+            QuantumResistantState::On => Some(true),
+            QuantumResistantState::Off => Some(false),
+        })")
+    )]
+    pub quantum_resistant: QuantumResistantState,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub rotation_interval: Option<RotationInterval>,
@@ -153,7 +170,7 @@ impl Default for TunnelOptions {
     fn default() -> Self {
         TunnelOptions {
             mtu: None,
-            quantum_resistant: None,
+            quantum_resistant: QuantumResistantState::Auto,
             #[cfg(windows)]
             use_wireguard_nt: default_wgnt_setting(),
             rotation_interval: None,
@@ -167,9 +184,11 @@ impl From<TunnelOptions> for wireguard::TunnelOptions {
             mtu: options.mtu,
             #[cfg(windows)]
             use_wireguard_nt: options.use_wireguard_nt,
-            quantum_resistant: options
-                .quantum_resistant
-                .unwrap_or(DEFAULT_QUANTUM_RESISTANT_STATE),
+            quantum_resistant: match options.quantum_resistant {
+                QuantumResistantState::Auto => QUANTUM_RESISTANT_AUTO_STATE,
+                QuantumResistantState::On => true,
+                QuantumResistantState::Off => false,
+            },
         }
     }
 }
