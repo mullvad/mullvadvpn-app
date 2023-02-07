@@ -148,11 +148,11 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     #[cfg_attr(
         target_os = "android",
-        jnix(map = "|state| state.map(|state| match state {
+        jnix(map = "|state| match state {
             QuantumResistantState::Auto => None,
             QuantumResistantState::On => Some(true),
             QuantumResistantState::Off => Some(false),
-        })")
+        }")
     )]
     pub quantum_resistant: QuantumResistantState,
     /// Interval used for automatic key rotation
