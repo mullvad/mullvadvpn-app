@@ -602,7 +602,11 @@ impl Relay {
                     .wireguard
                     .unwrap()
                     .quantum_resistant;
-                if quantum_resistant == Some(types::QuantumResistantConstraint { state: true }) {
+                if quantum_resistant
+                    == Some(types::QuantumResistantState {
+                        state: i32::from(types::quantum_resistant_state::State::On),
+                    })
+                {
                     return Err(Error::CommandFailed(
                         "Quantum resistant tunnels do not work when multihop is enabled",
                     ));

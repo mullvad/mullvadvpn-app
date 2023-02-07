@@ -86,8 +86,12 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                 use_wireguard_nt: options.wireguard.use_wireguard_nt,
                 #[cfg(not(windows))]
                 use_wireguard_nt: false,
-                quantum_resistant: options.wireguard.quantum_resistant.map(|state| proto::QuantumResistantConstraint {
-                    state,
+                quantum_resistant: options.wireguard.quantum_resistant.map(|state| proto::QuantumResistantState {
+                    state: if state {
+                        i32::from(proto::quantum_resistant_state::State::On)
+                    } else {
+                        i32::from(proto::quantum_resistant_state::State::Off)
+                    },
                 }),
             }),
             generic: Some(proto::tunnel_options::GenericOptions {
@@ -160,7 +164,17 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     })?,
                 quantum_resistant: wireguard_options
                     .quantum_resistant
-                    .map(|constraint| constraint.state),
+                    .map(|state| {
+                        match proto::quantum_resistant_state::State::from_i32(state.state) {
+                            Some(proto::quantum_resistant_state::State::Auto) => Ok(None),
+                            Some(proto::quantum_resistant_state::State::On) => Ok(Some(true)),
+                            Some(proto::quantum_resistant_state::State::Off) => Ok(Some(false)),
+                            None => Err(FromProtobufTypeError::InvalidArgument(
+                                "invalid quantum resistance state",
+                            )),
+                        }
+                    })
+                    .unwrap_or(Ok(None))?,
             },
             generic: net::GenericTunnelOptions {
                 enable_ipv6: generic_options.enable_ipv6,

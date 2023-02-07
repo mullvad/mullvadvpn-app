@@ -345,21 +345,20 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
-    async fn set_quantum_resistant_tunnel(&self, request: Request<bool>) -> ServiceResult<()> {
-        let state = request.into_inner();
-        log::debug!("set_quantum_resistant_tunnel({})", state);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, Some(state)))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
-    }
+    async fn set_quantum_resistant_tunnel(
+        &self,
+        request: Request<types::QuantumResistantState>,
+    ) -> ServiceResult<()> {
+        let state =
+            match types::quantum_resistant_state::State::from_i32(request.into_inner().state) {
+                None | Some(types::quantum_resistant_state::State::Auto) => None,
+                Some(types::quantum_resistant_state::State::On) => Some(true),
+                Some(types::quantum_resistant_state::State::Off) => Some(false),
+            };
 
-    async fn reset_quantum_resistant_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("reset_quantum_resistant_tunnel");
+        log::debug!("set_quantum_resistant_tunnel({state:?})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, None))?;
+        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, state))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
