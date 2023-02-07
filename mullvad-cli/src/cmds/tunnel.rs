@@ -232,8 +232,7 @@ impl Tunnel {
             .wireguard
             .unwrap()
             .quantum_resistant
-            .map(|state| types::quantum_resistant_state::State::from_i32(state.state))
-            .flatten()
+            .and_then(|state| types::quantum_resistant_state::State::from_i32(state.state))
         {
             Some(types::quantum_resistant_state::State::On) => println!("enabled"),
             Some(types::quantum_resistant_state::State::Off) => println!("disabled"),
