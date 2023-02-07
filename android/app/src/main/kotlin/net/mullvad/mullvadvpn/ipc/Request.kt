@@ -4,6 +4,7 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.LocationConstraint
 
 // Requests that the service can handle
@@ -102,6 +103,9 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     data class VpnPermissionResponse(val isGranted: Boolean) : Request()
+
+    @Parcelize
+    data class SetDnsOptions(val dnsOptions: DnsOptions) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"
