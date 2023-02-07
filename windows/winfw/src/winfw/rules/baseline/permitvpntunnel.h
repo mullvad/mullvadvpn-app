@@ -29,7 +29,7 @@ public:
 private:
 
 	const std::wstring m_tunnelInterfaceAlias;
-	const std::vector<Endpoint> m_tunnelEndpoint;
+	const std::vector<Endpoint> m_tunnelEndpoints;
 };
 
 }

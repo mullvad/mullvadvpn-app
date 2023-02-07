@@ -221,7 +221,8 @@ bool FwContext::applyPolicyConnecting
 			}
 			case WinFwAllowedTunnelTrafficType::Only:
 			{
-				const auto onlyEndpoint = std::vector(1, baseline::PermitVpnTunnel::Endpoint{
+                std::vector<baseline::PermitVpnTunnel::Endpoint> onlyEndpoint;
+				onlyEndpoint.emplace_back(baseline::PermitVpnTunnel::Endpoint{
 					wfp::IpAddress(allowedTunnelTraffic.endpoints->ip),
 					allowedTunnelTraffic.endpoints->port,
 					allowedTunnelTraffic.endpoints->protocol
@@ -238,8 +239,10 @@ bool FwContext::applyPolicyConnecting
 			}
 			case WinFwAllowedTunnelTrafficType::Many:
 			{
-                // TODO: Check to make sure that many is exactly 2 since we don't support more
-                std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints(allowedTunnelTraffic.endpointsLength);
+                if (allowedTunnelTraffic.endpointsLength != 2) {
+                    THROW_ERROR("The Many tunnel traffic type currently only supports exactly 2 endpoints");
+                }
+                std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints;
                 for (uint32_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
                     endpoints.emplace_back(baseline::PermitVpnTunnel::Endpoint{
                             wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
