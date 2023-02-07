@@ -868,10 +868,6 @@ pub enum TunnelError {
     /// Failure to set up logging
     #[error(display = "Failed to set up logging")]
     LoggingError(#[error(source)] logging::Error),
-
-    /// Unknown error
-    #[error(display = "An error occurred")]
-    Other,
 }
 
 #[cfg(target_os = "linux")]
