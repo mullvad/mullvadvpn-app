@@ -119,7 +119,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
         let wireguard_options = options
             .wireguard
             .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing openvpn tunnel options",
+                "missing wireguard tunnel options",
             ))?;
         let generic_options = options
             .generic
