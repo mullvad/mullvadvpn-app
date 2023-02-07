@@ -111,6 +111,9 @@ build_ref() {
   ./build.sh "${BUILD_ARGS[@]}" || return 0
   mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir"
 
+  gui/scripts/build-test-executable.sh
+  mv "dist/app-e2e-tests-$version"* "$artifact_dir"
+
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
       echo "Packaging all PDB files..."
@@ -124,6 +127,9 @@ build_ref() {
       echo "Building ARM64 installers"
       TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
       mv dist/*.{deb,rpm} "$artifact_dir"
+
+      gui/scripts/build-test-executable.sh aarch64-unknown-linux-gnu
+      mv "dist/app-e2e-tests-$version"* "$artifact_dir"
       ;;
   esac
 
