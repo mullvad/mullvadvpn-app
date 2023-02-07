@@ -142,7 +142,6 @@ pub struct TunnelOptions {
     pub mtu: Option<u16>,
     /// Temporary switch for wireguard-nt
     #[cfg(windows)]
-    #[serde(default = "default_wgnt_setting")]
     #[serde(rename = "wireguard_nt")]
     pub use_wireguard_nt: bool,
     /// Obtain a PSK using the relay config client.
@@ -160,11 +159,6 @@ pub struct TunnelOptions {
     pub rotation_interval: Option<RotationInterval>,
 }
 
-#[cfg(windows)]
-fn default_wgnt_setting() -> bool {
-    true
-}
-
 #[allow(clippy::derivable_impls)]
 impl Default for TunnelOptions {
     fn default() -> Self {
@@ -172,7 +166,7 @@ impl Default for TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::Auto,
             #[cfg(windows)]
-            use_wireguard_nt: default_wgnt_setting(),
+            use_wireguard_nt: true,
             rotation_interval: None,
         }
     }
