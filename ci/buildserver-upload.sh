@@ -31,13 +31,13 @@ while true; do
     files=$(awk '{print $2}' < "$checksums_path")
     for file in $files; do
       file_upload_dir="$upload_path/$version"
-      if [[ ! $file =~ \.($BUILD_ARTIFACT_EXTENSIONS|asc)$ ]]; then
+      if [[ ! $file == MullvadVPN-* ]]; then
         file_upload_dir="$file_upload_dir/additional-files"
       fi
 
       rsync -av --rsh='ssh -p 1122' "$file" "build@releases.mullvad.net:$file_upload_dir/" || continue
 
-      if [[ $file =~ \.($BUILD_ARTIFACT_EXTENSIONS)$ ]]; then
+      if [[ $file == MullvadVPN-* ]]; then
         rm -f "$file.asc"
         gpg -u A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF --pinentry-mode loopback --sign --armor --detach-sign "$file"
         rsync -av --rsh='ssh -p 1122' "$file.asc" "build@releases.mullvad.net:$file_upload_dir/" || continue
