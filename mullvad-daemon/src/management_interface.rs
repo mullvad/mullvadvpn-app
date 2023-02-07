@@ -18,7 +18,7 @@ use mullvad_types::{
     settings::Settings,
     states::{TargetState, TunnelState},
     version,
-    wireguard::{RotationInterval, RotationIntervalError},
+    wireguard::{QuantumResistantState, RotationInterval, RotationIntervalError},
 };
 use parking_lot::RwLock;
 #[cfg(windows)]
@@ -351,9 +351,11 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         let state =
             match types::quantum_resistant_state::State::from_i32(request.into_inner().state) {
-                None | Some(types::quantum_resistant_state::State::Auto) => None,
-                Some(types::quantum_resistant_state::State::On) => Some(true),
-                Some(types::quantum_resistant_state::State::Off) => Some(false),
+                None | Some(types::quantum_resistant_state::State::Auto) => {
+                    QuantumResistantState::Auto
+                }
+                Some(types::quantum_resistant_state::State::On) => QuantumResistantState::On,
+                Some(types::quantum_resistant_state::State::Off) => QuantumResistantState::Off,
             };
 
         log::debug!("set_quantum_resistant_tunnel({state:?})");

@@ -49,7 +49,7 @@ use mullvad_types::{
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
-    wireguard::{PublicKey, RotationInterval},
+    wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
@@ -226,7 +226,7 @@ pub enum DaemonCommand {
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
-    SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, Option<bool>),
+    SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Toggle macOS network check leak
@@ -2020,7 +2020,7 @@ where
     async fn on_set_quantum_resistant_tunnel(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        quantum_resistant: Option<bool>,
+        quantum_resistant: QuantumResistantState,
     ) {
         let save_result = self
             .settings

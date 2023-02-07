@@ -3,7 +3,7 @@ use futures::TryFutureExt;
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     settings::{DnsOptions, Settings},
-    wireguard::RotationInterval,
+    wireguard::{QuantumResistantState, RotationInterval},
 };
 use rand::Rng;
 #[cfg(target_os = "windows")]
@@ -223,7 +223,7 @@ impl SettingsPersister {
 
     pub async fn set_quantum_resistant_tunnel(
         &mut self,
-        quantum_resistant: Option<bool>,
+        quantum_resistant: QuantumResistantState,
     ) -> Result<bool, Error> {
         let should_save = Self::update_field(
             &mut self.settings.tunnel_options.wireguard.quantum_resistant,

@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::settings::SettingsVersion;
+use mullvad_types::{settings::SettingsVersion, wireguard::QuantumResistantState};
 
 // ======================================================
 // Section for vendoring types and values that
@@ -46,9 +46,10 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(tunnel_options) = get_wireguard_tunnel_options(settings) {
         if let Some(psk_setting) = tunnel_options.get_mut("use_pq_safe_psk") {
             if let Some(true) = psk_setting.as_bool() {
-                tunnel_options["quantum_resistant"] = serde_json::Value::Bool(true);
+                tunnel_options["quantum_resistant"] = serde_json::json!(QuantumResistantState::On);
             } else {
-                tunnel_options["quantum_resistant"] = serde_json::Value::Null;
+                tunnel_options["quantum_resistant"] =
+                    serde_json::json!(QuantumResistantState::Auto);
             }
         }
         tunnel_options
@@ -200,7 +201,7 @@ mod test {
           "secs": 86400,
           "nanos": 0
       },
-      "quantum_resistant": null
+      "quantum_resistant": "auto"
     },
     "generic": {
       "enable_ipv6": false
@@ -256,7 +257,7 @@ mod test {
         {
             "tunnel_options": {
                 "wireguard": {
-                    "quantum_resistant": null
+                    "quantum_resistant": "auto"
                 }
             }
         }
@@ -289,7 +290,7 @@ mod test {
         {
             "tunnel_options": {
                 "wireguard": {
-                    "quantum_resistant": true
+                    "quantum_resistant": "on"
                 }
             }
         }
