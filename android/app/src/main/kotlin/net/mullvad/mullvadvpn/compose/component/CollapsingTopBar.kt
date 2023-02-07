@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
 @Preview
 @Composable
-fun previewTopBar(){
+fun previewTopBar() {
     CollapsingTopBar(
         backgroundColor = MullvadDarkBlue,
         onBackClicked = {},
@@ -38,7 +38,6 @@ fun previewTopBar(){
         backTitle = stringResource(id = R.string.settings),
         scaffoldModifier = Modifier
     )
-
 }
 
 @Composable
@@ -96,7 +95,12 @@ fun CollapsingTopBar(
             textAlign = TextAlign.End
         ),
         modifier = scaffoldModifier
-            .padding(start = 22.dp, end = 22.dp, top = (12 + (48 - 12) * progress).dp, bottom = 12.dp),
+            .padding(
+                start = 22.dp,
+                end = 22.dp,
+                top = (12 + (48 - 12) * progress).dp,
+                bottom = 12.dp
+            ),
         fontSize = (20 + (30 - 20) * progress).sp
     )
 }

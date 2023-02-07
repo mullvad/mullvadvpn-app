@@ -130,6 +130,7 @@ class AdvancedSettingFragment : BaseFragment() {
                 AdvancedSettingScreen(
 //                    viewModel = advancesSettingViewModel,
                     uiState = advancesSettingViewModel.uiState.collectAsState().value,
+                    onDnsCellClicked = { advancesSettingViewModel.setEditDnsIndex(it) },
                     onToggleCustomDns = { advancesSettingViewModel.toggleCustomDns(it) },
                     onNavigateCellClicked = { onNavigationCellClicked(requireActivity()) },
                     onBackClick = { },

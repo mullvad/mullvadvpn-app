@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +35,7 @@ import net.mullvad.mullvadvpn.viewmodel.CellUiState
 fun testUi() {
 
     Column(Modifier.background(MullvadDarkBlue)) {
-//        MtuComposeCell("", {})
+        MtuComposeCell("", {}, {})
 
         Spacer(
             modifier = Modifier
@@ -47,9 +48,8 @@ fun testUi() {
 
         var list = ArrayList<String>()
         CustomDnsComposeCell(
-            checkboxDefaultState = true,
-            onToggle = {},
-            dnsList = list,
+            isEnabled = true,
+            onToggle = {}
         )
     }
 }
@@ -90,6 +90,7 @@ fun BaseCell(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cellHeight)
+                .background(colorResource(id = R.color.blue))
         ) {
             val (clickReceiver, contentContainer) = createRefs()
 

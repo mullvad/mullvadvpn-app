@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,37 +14,83 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.apache.commons.validator.routines.InetAddressValidator
 
+const val NO_EDIT_MODE = -1
+
 sealed interface AdvancedSettingUiState {
+
     val mtu: String?
     val isCustomDnsEnabled: Boolean
+    val customDnsList: List<InetAddress>
+    val editDnsIndex: Int
+
+    fun isInEditMode(address: InetAddress?): Boolean {
+        return address?.let {
+            customDnsList.indexOf(it) == editDnsIndex
+        }
+            ?: run {
+                editDnsIndex == customDnsList.size
+            }
+    }
 
     data class NormalState(
         override val mtu: String,
         override val isCustomDnsEnabled: Boolean,
+        override val customDnsList: List<InetAddress>,
+        override val editDnsIndex: Int = NO_EDIT_MODE
     ) : AdvancedSettingUiState
 
     data class EditMtu(
         override val mtu: String,
         override val isCustomDnsEnabled: Boolean,
+        override val customDnsList: List<InetAddress>,
+        override val editDnsIndex: Int = NO_EDIT_MODE
     ) : AdvancedSettingUiState
+
+    data class InsertLocalDns(
+        override val mtu: String,
+        override val isCustomDnsEnabled: Boolean,
+        override val customDnsList: List<InetAddress>,
+        override val editDnsIndex: Int = NO_EDIT_MODE,
+        val onConfirm: () -> Unit,
+        val onCancel: () -> Unit,
+    ) : AdvancedSettingUiState
+}
+
+enum class SettingScreenState {
+    Normal,
+    EditMtu,
+    ConfirmLocalDns
 }
 
 private data class AdvancedSettingViewModelState(
     val mtuValue: String,
-    val isMtuEditMode: Boolean = false,
+    val mode: SettingScreenState = SettingScreenState.Normal,
     val isCustomDnsEnabled: Boolean,
-    val customDnsList: List<String> = emptyList()
+    val customDnsList: List<InetAddress>,
+    val editDnsIndex: Int = NO_EDIT_MODE,
+    val hasLocalChange: Boolean = false
 ) {
     fun toUiState(): AdvancedSettingUiState {
-        return if (isMtuEditMode) {
-            AdvancedSettingUiState.EditMtu(
+        return when (mode) {
+            SettingScreenState.EditMtu -> AdvancedSettingUiState.EditMtu(
                 mtu = mtuValue,
-                isCustomDnsEnabled = isCustomDnsEnabled
+                isCustomDnsEnabled = isCustomDnsEnabled,
+                customDnsList = customDnsList,
+                editDnsIndex = editDnsIndex
             )
-        } else {
-            AdvancedSettingUiState.NormalState(
+            SettingScreenState.ConfirmLocalDns -> AdvancedSettingUiState.InsertLocalDns(
                 mtu = mtuValue,
-                isCustomDnsEnabled = isCustomDnsEnabled
+                isCustomDnsEnabled = isCustomDnsEnabled,
+                customDnsList = customDnsList,
+                editDnsIndex = editDnsIndex,
+                {}, // add dns to repository
+                {}
+            )
+            else -> AdvancedSettingUiState.NormalState(
+                mtu = mtuValue,
+                isCustomDnsEnabled = isCustomDnsEnabled,
+                customDnsList = customDnsList,
+                editDnsIndex = editDnsIndex
             )
         }
     }
@@ -60,8 +107,9 @@ class AdvancedSettingViewModel(
     private val viewModelState = MutableStateFlow(
         AdvancedSettingViewModelState(
             mtuValue = repository.wireguardMtuString,
-            isMtuEditMode = false,
-            isCustomDnsEnabled = repository.customDns?.isCustomDnsEnabled() ?: false
+            mode = SettingScreenState.Normal,
+            isCustomDnsEnabled = repository.customDns?.isCustomDnsEnabled() ?: false,
+            customDnsList = repository.customDns?.onDnsServersChanged?.latestEvent ?: emptyList()
         )
     )
 
@@ -83,7 +131,7 @@ class AdvancedSettingViewModel(
                 viewModelState.update {
                     it.copy(
                         mtuValue = settings.mtu,
-                        isMtuEditMode = false,
+                        mode = SettingScreenState.Normal,
                         isCustomDnsEnabled = settings.isCustomDnsEnabled
                     )
                 }
@@ -99,7 +147,7 @@ class AdvancedSettingViewModel(
         viewModelState.update {
             it.copy(
                 mtuValue = repository.wireguardMtuString,
-                isMtuEditMode = false,
+                mode = SettingScreenState.Normal,
             )
         }
 
@@ -108,14 +156,33 @@ class AdvancedSettingViewModel(
             viewModelState.update {
                 it.copy(
                     mtuValue = result.toString(),
-                    isMtuEditMode = false,
+                    mode = SettingScreenState.Normal,
                 )
             }
         }
     }
 
-    fun addDns(dns: String) {
+    fun addDnsClicked(addressText: String) {
         viewModelScope.launch(dispatcher) {
+            if (inetAddressValidator.isValid(addressText)) {
+                val address = InetAddress.getByName(addressText)
+                if (!address.isLoopbackAddress()) {
+                    if (shouldShowLocalDnsWarningDialog(address)) {
+                    } else {
+                        viewModelState.value.let {
+                            it.copy(
+                                customDnsList = it.customDnsList.toMutableList()
+                                    .apply {
+                                        add(address)
+                                    },
+                                hasLocalChange = true
+                            )
+
+                            // repository.addDns(address)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -154,17 +221,15 @@ class AdvancedSettingViewModel(
             it in 1280..1420
         } ?: run { true }
     }
-}
 
-sealed class DnsSettingsState {
-    class Normal(var dns: String) : DnsSettingsState()
-    class AddLocalDnsConfirm(var localDns: String) : DnsSettingsState()
+    private fun shouldShowLocalDnsWarningDialog(address: InetAddress): Boolean {
+        val isLocalAddress = address.isLinkLocalAddress() || address.isSiteLocalAddress()
+        return isLocalAddress || !repository.isLocalNetworkSharingEnabled()
+    }
 
-    fun newDns(): String? {
-        return when (this) {
-            is Normal -> (this as? Normal)?.dns
-            is AddLocalDnsConfirm -> (this as? AddLocalDnsConfirm)?.localDns
-            else -> null
+    fun setEditDnsIndex(index: Int) {
+        viewModelState.update {
+            it.copy(editDnsIndex = index)
         }
     }
 }
