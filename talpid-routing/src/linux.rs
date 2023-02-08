@@ -357,7 +357,7 @@ impl RouteManagerImpl {
                     self.process_command(command).await?;
                 },
                 (route_change, _socket) = self.messages.select_next_some().fuse() => {
-                    if let Err(error) = self.process_netlink_message(route_change).await {
+                    if let Err(error) = self.process_netlink_message(route_change) {
                         log::error!("{}", error.display_chain_with_msg("Failed to process netlink message"));
                     }
                 }
@@ -401,7 +401,7 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn process_netlink_message(&mut self, msg: NetlinkMessage<RtnlMessage>) -> Result<()> {
+    fn process_netlink_message(&mut self, msg: NetlinkMessage<RtnlMessage>) -> Result<()> {
         match msg.payload {
             NetlinkPayload::InnerMessage(RtnlMessage::NewLink(new_link)) => {
                 if let Some((idx, name)) = Self::map_interface(new_link) {
