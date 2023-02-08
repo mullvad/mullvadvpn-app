@@ -96,7 +96,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Returns whether there is any background work remaining.
 #[derive(Clone)]
-pub(crate) struct MigrationComplete(Arc<AtomicBool>);
+pub struct MigrationComplete(Arc<AtomicBool>);
 
 impl MigrationComplete {
     pub fn new(state: bool) -> Self {
@@ -113,12 +113,9 @@ impl MigrationComplete {
 }
 
 /// Contains discarded data that may be useful for later work.
-pub(crate) type MigrationData = v5::MigrationData;
+pub type MigrationData = v5::MigrationData;
 
-pub(crate) async fn migrate_all(
-    cache_dir: &Path,
-    settings_dir: &Path,
-) -> Result<Option<MigrationData>> {
+pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option<MigrationData>> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
