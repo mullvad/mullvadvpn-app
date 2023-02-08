@@ -48,7 +48,7 @@ pub enum SelectedObfuscation {
 
 // ======================================================
 
-pub(crate) struct MigrationData {
+pub struct MigrationData {
     pub token: AccountToken,
     pub wg_data: Option<serde_json::Value>,
 }
@@ -68,7 +68,7 @@ pub(crate) struct MigrationData {
 /// Additionally, the WireGuard protocol constraint, if set to be using TCP, is migrated into
 /// having an active Udp2Tcp obfuscator. The protocol constraint is then removed from WireGuard
 /// settings since all WireGuard traffic is UDP.
-pub(crate) async fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>> {
+pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>> {
     if !version_matches(settings) {
         return Ok(None);
     }
