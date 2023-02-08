@@ -187,6 +187,12 @@ impl From<TunnelOptions> for wireguard::TunnelOptions {
     }
 }
 
+impl TunnelOptions {
+    pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
+        wireguard::TunnelOptions::from(self)
+    }
+}
+
 /// Represents a published public key
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]

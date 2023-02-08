@@ -60,7 +60,7 @@ impl CustomTunnelEndpoint {
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
                 connection,
-                options: wireguard::TunnelOptions::from(tunnel_options.wireguard),
+                options: tunnel_options.wireguard.into_talpid_tunnel_options(),
                 generic_options: tunnel_options.generic,
                 obfuscation: None,
             }
