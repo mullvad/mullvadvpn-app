@@ -67,7 +67,7 @@ typedef struct tag_WinFwAllowedTunnelTraffic
 {
 	WinFwAllowedTunnelTrafficType type;
 	WinFwEndpoint *endpoints;
-    uint32_t endpointsLength;
+    size_t endpointsLength;
 }
 WinFwAllowedTunnelTraffic;
 
