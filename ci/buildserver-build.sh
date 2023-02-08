@@ -44,7 +44,7 @@ EOF
 upload() {
   version=$1
 
-  files=( *"$version"* )
+  files=( * )
   checksums_path="$version+$(hostname).sha256"
   sha256sum "${files[@]}" > "$checksums_path"
 
@@ -100,13 +100,17 @@ build_ref() {
   # Make sure we have the latest Rust and Node toolchains before the build
   rustup update
 
+  version="$(cargo run -q --bin mullvad-version)"
+  artifact_dir="dist/$version"
+  mkdir -p "$artifact_dir"
+
   BUILD_ARGS=(--optimize --sign)
   if [[ "$(uname -s)" == "Darwin" ]]; then
     BUILD_ARGS+=(--universal)
   fi
   ./build.sh "${BUILD_ARGS[@]}" || return 0
+  mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir"
 
-  version="$(cargo run -q --bin mullvad-version)"
   case "$(uname -s)" in
     MINGW*|MSYS_NT*)
       echo "Packaging all PDB files..."
@@ -114,14 +118,12 @@ build_ref() {
         ./target/release/mullvad-daemon.pdb \
         ./target/release/mullvad.pdb \
         ./target/release/mullvad-problem-report.pdb \
-        -iname "*.pdb" | tar -cJf dist/pdb-$version.tar.xz -T -
+        -iname "*.pdb" | tar -cJf "$artifact_dir/pdb-$version.tar.xz" -T -
       ;;
     Linux*)
       echo "Building ARM64 installers"
       TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
-
-      #echo "Building Android APK"
-      #./build-apk.sh --app-bundle || return 0
+      mv dist/*.{deb,rpm} "$artifact_dir"
       ;;
   esac
 
@@ -132,15 +134,20 @@ build_ref() {
       version_suffix="+${tag//[^0-9a-z_-]/}"
       # Will only match paths that include *-dev-* which means release builds will not be included
       # Pipes all matching names and their new name to mv
-      pushd dist
-      for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg,.apk,.aab}; do
-          new_file=$(echo $original_file | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|_arm64\.deb|_aarch64\.rpm|\.exe|\.pkg|\.apk|\.aab)$/\1$version_suffix\2/p")
-          mv $original_file $new_file
+      pushd "$artifact_dir"
+      for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg}; do
+          new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|_arm64\.deb|_aarch64\.rpm|\.exe|\.pkg)$/\1$version_suffix\2/p")
+          mv "$original_file" "$new_file"
       done
       popd
+
+      version="$version$version_suffix"
   fi
 
-  (cd dist/ && upload "$version") || return 0
+  (cd "$artifact_dir" && upload "$version") || return 0
+  # shellcheck disable=SC2216
+  yes | rm -r "$artifact_dir"
+
   touch "$LAST_BUILT_DIR/$current_hash"
   echo "Successfully finished build at $(date)"
 }
