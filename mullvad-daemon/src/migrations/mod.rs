@@ -148,7 +148,7 @@ pub(crate) async fn migrate_all(
     account_history::migrate_location(cache_dir, settings_dir).await;
     account_history::migrate_formats(settings_dir, &mut settings).await?;
 
-    let migration_data = v5::migrate(&mut settings).await?;
+    let migration_data = v5::migrate(&mut settings)?;
 
     if settings == old_settings {
         // Nothing changed

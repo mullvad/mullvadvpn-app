@@ -460,6 +460,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         Ok(monitor)
     }
 
+    #[cfg_attr(not(windows), allow(clippy::unused_async))]
     async fn prepare_process(
         cmd: C,
         #[cfg(windows)] wintun: Arc<Box<dyn WintunContext>>,
