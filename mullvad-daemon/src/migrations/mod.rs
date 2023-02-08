@@ -157,12 +157,7 @@ pub(crate) async fn migrate_all(
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::Serialize)?;
 
-    let mut options = fs::OpenOptions::new();
-    #[cfg(unix)]
-    {
-        options.mode(0o600);
-    }
-    let mut file = options
+    let mut file = fs::OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
