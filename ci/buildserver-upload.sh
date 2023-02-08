@@ -41,9 +41,12 @@ while true; do
         rsync -av --rsh='ssh -p 1122' "$file.asc" "build@releases.mullvad.net:$file_upload_dir/" || continue
         rm -f "$file.asc"
       fi
+
+      # shellcheck disable=SC2216
+      yes | rm "$file"
     done
 
     # shellcheck disable=SC2216
-    yes | rm "${files[@]}" "$checksums_path"
+    yes | rm "$checksums_path"
   done
 done
