@@ -856,8 +856,7 @@ where
         &mut self,
         tunnel_state_transition: TunnelStateTransition,
     ) {
-        self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition)
-            .await;
+        self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition);
         self.device_checker
             .handle_state_transition(&tunnel_state_transition);
 
@@ -923,12 +922,12 @@ where
         self.event_listener.notify_new_state(tunnel_state);
     }
 
-    async fn reset_rpc_sockets_on_tunnel_state_transition(
+    fn reset_rpc_sockets_on_tunnel_state_transition(
         &mut self,
         tunnel_state_transition: &TunnelStateTransition,
     ) {
         match (&self.tunnel_state, &tunnel_state_transition) {
-            // only reset the API sockets if when connected or leaving the connected state
+            // Only reset the API sockets when entering or leaving the connected state
             (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
                 self.api_handle.service().reset();
             }
@@ -1017,7 +1016,7 @@ where
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
-            IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx).await,
+            IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
@@ -1204,7 +1203,7 @@ where
         Self::oneshot_send(tx, self.tunnel_state.clone(), "current state");
     }
 
-    async fn on_is_performing_post_upgrade(&self, tx: oneshot::Sender<bool>) {
+    fn on_is_performing_post_upgrade(&self, tx: oneshot::Sender<bool>) {
         let performing_post_upgrade = !self.migration_complete.is_complete();
         Self::oneshot_send(tx, performing_post_upgrade, "performing post upgrade");
     }
@@ -1923,7 +1922,7 @@ where
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
                         .set_config(new_selector_config(&self.settings, &self.app_version_info));
-                    if let Err(error) = self.api_handle.service().next_api_endpoint().await {
+                    if let Err(error) = self.api_handle.service().next_api_endpoint() {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
                     self.reconnect_tunnel();

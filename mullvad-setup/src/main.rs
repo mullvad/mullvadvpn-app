@@ -105,7 +105,7 @@ async fn main() {
         Some(("remove-device", _)) => remove_device().await,
         Some(("is-older-version", sub_matches)) => {
             let old_version = sub_matches.value_of("OLDVERSION").unwrap();
-            match is_older_version(old_version).await {
+            match is_older_version(old_version) {
                 // Returning exit status
                 Ok(status) => process::exit(status as i32),
                 Err(error) => Err(error),
@@ -120,7 +120,7 @@ async fn main() {
     }
 }
 
-async fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
+fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
     let parsed_version =
         ParsedAppVersion::from_str(old_version).map_err(|_| Error::ParseVersionStringError)?;
 

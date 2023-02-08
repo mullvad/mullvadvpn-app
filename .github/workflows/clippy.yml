@@ -37,4 +37,4 @@ jobs:
         run: |-
           export RUSTFLAGS="--deny warnings"
           source env.sh
-          time cargo clippy --locked --verbose
+          time cargo clippy --locked -- -W clippy::unused_async

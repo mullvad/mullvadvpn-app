@@ -274,7 +274,7 @@ impl RequestServiceHandle {
     }
 
     /// Forcibly update the connection mode.
-    pub async fn next_api_endpoint(&self) -> Result<()> {
+    pub fn next_api_endpoint(&self) -> Result<()> {
         self.tx
             .unbounded_send(RequestCommand::NextApiConfig)
             .map_err(|_| Error::SendError)
