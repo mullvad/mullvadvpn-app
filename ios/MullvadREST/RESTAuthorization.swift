@@ -22,40 +22,28 @@ extension REST {
     struct AccessTokenProvider: RESTAuthorizationProvider {
         private let accessTokenManager: AccessTokenManager
         private let accountNumber: String
-        private let retryStrategy: REST.RetryStrategy
 
-        init(
-            accessTokenManager: AccessTokenManager,
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy
-        ) {
+        init(accessTokenManager: AccessTokenManager, accountNumber: String) {
             self.accessTokenManager = accessTokenManager
             self.accountNumber = accountNumber
-            self.retryStrategy = retryStrategy
         }
 
         func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable {
-            return accessTokenManager.getAccessToken(
-                accountNumber: accountNumber,
-                retryStrategy: retryStrategy
-            ) { operationCompletion in
-                completion(operationCompletion.map { tokenData in
-                    return tokenData.accessToken
-                })
-            }
+            return accessTokenManager
+                .getAccessToken(accountNumber: accountNumber) { operationCompletion in
+                    completion(operationCompletion.map { tokenData in
+                        return tokenData.accessToken
+                    })
+                }
         }
     }
 }
 
 extension REST.Proxy where ConfigurationType == REST.AuthProxyConfiguration {
-    func createAuthorizationProvider(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy
-    ) -> RESTAuthorizationProvider {
+    func createAuthorizationProvider(accountNumber: String) -> RESTAuthorizationProvider {
         return REST.AccessTokenProvider(
             accessTokenManager: configuration.accessTokenManager,
-            accountNumber: accountNumber,
-            retryStrategy: retryStrategy
+            accountNumber: accountNumber
         )
     }
 }

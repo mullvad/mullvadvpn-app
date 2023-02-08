@@ -53,10 +53,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler =
@@ -104,10 +101,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler = REST.defaultResponseHandler(
@@ -146,10 +140,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler = REST.defaultResponseHandler(
@@ -196,10 +187,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler =
@@ -268,10 +256,7 @@ extension REST {
 
                     return urlRequest
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler = REST.defaultResponseHandler(

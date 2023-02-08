@@ -130,10 +130,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(
-                    accountNumber: accountNumber,
-                    retryStrategy: .default
-                )
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
             )
 
             let responseHandler =
