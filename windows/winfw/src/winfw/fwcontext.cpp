@@ -239,8 +239,8 @@ bool FwContext::applyPolicyConnecting
 			}
 			case WinFwAllowedTunnelTrafficType::Many:
 			{
-                if (allowedTunnelTraffic.endpointsLength != 2) {
-                    THROW_ERROR("The Many tunnel traffic type currently only supports exactly 2 endpoints");
+                if (allowedTunnelTraffic.endpointsLength > 2) {
+                    THROW_ERROR("The Many tunnel traffic type currently only supports up to 2 endpoints");
                 }
                 std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints;
                 for (uint32_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
