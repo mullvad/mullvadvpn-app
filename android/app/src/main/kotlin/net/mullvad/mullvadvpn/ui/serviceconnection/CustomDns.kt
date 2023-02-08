@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.os.Messenger
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
+import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(private val connection: Messenger, private val settingsListener: SettingsListener) {
@@ -55,6 +57,10 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
 
     fun removeDnsServer(server: InetAddress) {
         connection.send(Request.RemoveCustomDnsServer(server).message)
+    }
+
+    fun setDnsOptions(dnsOptions: DnsOptions) {
+        connection.trySendRequest(Request.SetDnsOptions(dnsOptions), false)
     }
 
     fun onDestroy() {

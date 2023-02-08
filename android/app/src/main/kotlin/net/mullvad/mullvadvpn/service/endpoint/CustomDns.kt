@@ -15,10 +15,16 @@ import net.mullvad.mullvadvpn.model.DnsState
 
 class CustomDns(private val endpoint: ServiceEndpoint) {
     private sealed class Command {
+        @Deprecated("Use SetDnsOptions")
         class AddDnsServer(val server: InetAddress) : Command()
+        @Deprecated("Use SetDnsOptions")
         class RemoveDnsServer(val server: InetAddress) : Command()
+        @Deprecated("Use SetDnsOptions")
         class ReplaceDnsServer(val oldServer: InetAddress, val newServer: InetAddress) : Command()
+        @Deprecated("Use SetDnsOptions")
         class SetEnabled(val enabled: Boolean) : Command()
+
+        class SetDnsOptions(val dnsOptions: DnsOptions) : Command()
     }
 
     private val commandChannel = spawnActor()
@@ -56,6 +62,10 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
             registerHandler(Request.SetEnableCustomDns::class) { request ->
                 commandChannel.trySendBlocking(Command.SetEnabled(request.enable))
             }
+
+            registerHandler(Request.SetDnsOptions::class) { request ->
+                commandChannel.trySendBlocking(Command.SetDnsOptions(request.dnsOptions))
+            }
         }
     }
 
@@ -76,6 +86,7 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
                         doReplaceDnsServer(command.oldServer, command.newServer)
                     }
                     is Command.SetEnabled -> changeDnsOptions(command.enabled)
+                    is Command.SetDnsOptions -> setDnsOptions(command.dnsOptions)
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {
@@ -115,5 +126,9 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
             defaultOptions = DefaultDnsOptions()
         )
         daemon.await().setDnsOptions(options)
+    }
+
+    private suspend fun setDnsOptions(dnsOptions: DnsOptions) {
+        daemon.await().setDnsOptions(dnsOptions)
     }
 }
