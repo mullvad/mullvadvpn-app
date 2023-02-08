@@ -1,5 +1,5 @@
-# To build the image:
-# podman build . -t mullvadvpn-app-build
+# To build the image (executed from the repository root):
+# podman build -f building/Dockerfile . -t mullvadvpn-app-build
 #
 # To run the image and build the app you need to mount the app's source directory into the
 # container. You also probably want to mount in a directory for CARGO_HOME, so each container
