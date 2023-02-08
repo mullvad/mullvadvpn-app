@@ -9,7 +9,10 @@ on:
   workflow_dispatch:
 jobs:
   clippy_check:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,11 +32,13 @@ jobs:
           override: true
 
       - name: Install build dependencies
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install libdbus-1-dev
 
       - name: Clippy check
+        shell: bash
         run: |-
           export RUSTFLAGS="--deny warnings"
           source env.sh
