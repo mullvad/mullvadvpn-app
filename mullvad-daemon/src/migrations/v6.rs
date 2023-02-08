@@ -1,9 +1,17 @@
 use super::{Error, Result};
-use mullvad_types::{settings::SettingsVersion, wireguard::QuantumResistantState};
+use mullvad_types::settings::SettingsVersion;
 
 // ======================================================
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum QuantumResistantState {
+    Auto,
+    On,
+    Off,
+}
 
 // ======================================================
 
