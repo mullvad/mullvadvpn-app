@@ -332,7 +332,7 @@ mod test {
         let mut old_settings = serde_json::from_str(V5_SETTINGS).unwrap();
 
         assert!(version_matches(&mut old_settings));
-        migrate(&mut old_settings).await.unwrap();
+        migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V6_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
