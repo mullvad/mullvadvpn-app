@@ -221,7 +221,11 @@ impl InnerParametersGenerator {
                         #[cfg(target_os = "linux")]
                         fwmark: Some(mullvad_types::TUNNEL_FWMARK),
                     },
-                    options: wireguard::TunnelOptions::from(self.tunnel_options.wireguard.clone()),
+                    options: self
+                        .tunnel_options
+                        .wireguard
+                        .clone()
+                        .into_talpid_tunnel_options(),
                     generic_options: self.tunnel_options.generic.clone(),
                     obfuscation: obfuscator_config,
                 }
