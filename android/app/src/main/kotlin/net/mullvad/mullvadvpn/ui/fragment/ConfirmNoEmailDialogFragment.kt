@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.app.Dialog
 import android.content.Context
@@ -13,6 +13,7 @@ import android.widget.Button
 import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.MainActivity
 
 class ConfirmNoEmailDialogFragment : DialogFragment() {
     private var confirmNoEmail: CompletableDeferred<Boolean>? = null

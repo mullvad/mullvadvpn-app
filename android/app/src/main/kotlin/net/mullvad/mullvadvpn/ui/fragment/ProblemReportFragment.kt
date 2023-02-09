@@ -22,7 +22,6 @@ import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
-import net.mullvad.mullvadvpn.ui.ConfirmNoEmailDialogFragment
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.JobTracker
 
