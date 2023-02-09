@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.ConfirmDnsDialogFragment
 import net.mullvad.mullvadvpn.ui.fragment.SplitTunnelingFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
