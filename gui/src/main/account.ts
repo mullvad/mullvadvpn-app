@@ -33,7 +33,9 @@ export interface AccountDelegate {
 export default class Account {
   private accountDataValue?: IAccountData = undefined;
   private accountHistoryValue?: AccountToken = undefined;
-  private accountExpiryNotificationScheduler = new Scheduler();
+  private expiryNotificationFrequencyScheduler = new Scheduler();
+  private firstExpiryNotificationScheduler = new Scheduler();
+
   private accountDataCache = new AccountDataCache(
     (accountToken) => {
       return this.daemonRpc.getAccountData(accountToken);
@@ -179,7 +181,8 @@ export default class Account {
     try {
       await this.daemonRpc.logoutAccount();
 
-      this.accountExpiryNotificationScheduler.cancel();
+      this.expiryNotificationFrequencyScheduler.cancel();
+      this.firstExpiryNotificationScheduler.cancel();
     } catch (e) {
       const error = e as Error;
       log.info(`Failed to logout: ${error.message}`);
@@ -200,21 +203,31 @@ export default class Account {
       });
 
       if (expiredNotification.mayDisplay()) {
-        this.accountExpiryNotificationScheduler.cancel();
+        this.expiryNotificationFrequencyScheduler.cancel();
+        this.firstExpiryNotificationScheduler.cancel();
         this.delegate.notify(expiredNotification.getSystemNotification());
       } else if (
-        !this.accountExpiryNotificationScheduler.isRunning &&
+        !this.expiryNotificationFrequencyScheduler.isRunning &&
         closeToExpiryNotification.mayDisplay()
       ) {
+        this.firstExpiryNotificationScheduler.cancel();
         this.delegate.notify(closeToExpiryNotification.getSystemNotification());
 
         const twelveHours = 12 * 60 * 60 * 1000;
         const remainingMilliseconds = new Date(this.accountData.expiry).getTime() - Date.now();
         const delay = Math.min(twelveHours, remainingMilliseconds);
-        this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
+        this.expiryNotificationFrequencyScheduler.schedule(() => this.handleAccountExpiry(), delay);
       } else if (!closeToExpiry(this.accountData.expiry)) {
+        this.expiryNotificationFrequencyScheduler.cancel();
         // If no longer close to expiry, all previous notifications should be closed
         this.delegate.closeNotificationsInCategory(SystemNotificationCategory.expiry);
+
+        const expiry = new Date(this.accountData.expiry).getTime();
+        const now = new Date().getTime();
+        const threeDays = 3 * 24 * 60 * 60 * 1000;
+        // Add 10 seconds to be on the safe side
+        const timeout = expiry - now - threeDays + 10_000;
+        this.firstExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), timeout);
       }
     }
   }
