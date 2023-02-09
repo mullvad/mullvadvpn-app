@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.junit.Before

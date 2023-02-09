@@ -11,7 +11,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import java.text.DateFormat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -20,10 +19,10 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache

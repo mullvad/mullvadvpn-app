@@ -13,7 +13,6 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult

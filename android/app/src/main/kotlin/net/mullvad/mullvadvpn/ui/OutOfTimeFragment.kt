@@ -11,7 +11,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
