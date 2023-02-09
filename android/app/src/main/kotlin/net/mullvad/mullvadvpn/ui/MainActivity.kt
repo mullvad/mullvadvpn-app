@@ -36,8 +36,8 @@ import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted

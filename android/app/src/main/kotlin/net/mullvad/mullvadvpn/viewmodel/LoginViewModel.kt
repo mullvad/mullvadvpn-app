@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
 
 class LoginViewModel(
