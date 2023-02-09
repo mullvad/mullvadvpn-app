@@ -11,6 +11,7 @@ import net.mullvad.talpid.util.EventNotifier
 class CustomDns(private val connection: Messenger, private val settingsListener: SettingsListener) {
     val onEnabledChanged = EventNotifier(false)
     val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
+    val onDnsOptionsChanged = EventNotifier<DnsOptions?>(null)
 
     init {
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
@@ -18,6 +19,7 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
                 synchronized(this) {
                     onEnabledChanged.notifyIfChanged(dnsOptions.state == DnsState.Custom)
                     onDnsServersChanged.notifyIfChanged(dnsOptions.customOptions.addresses)
+                    onDnsOptionsChanged.notifyIfChanged(dnsOptions)
                 }
             }
         }
@@ -66,6 +68,7 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
     fun onDestroy() {
         onEnabledChanged.unsubscribeAll()
         onDnsServersChanged.unsubscribeAll()
+        onDnsOptionsChanged.unsubscribeAll()
 
         settingsListener.dnsOptionsNotifier.unsubscribe(this)
     }
