@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LaunchFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
