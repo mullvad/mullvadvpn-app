@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import androidx.fragment.app.FragmentManager
-import net.mullvad.mullvadvpn.ui.RedeemVoucherDialogFragment
+import net.mullvad.mullvadvpn.ui.fragment.RedeemVoucherDialogFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class RedeemVoucherButton : Button {

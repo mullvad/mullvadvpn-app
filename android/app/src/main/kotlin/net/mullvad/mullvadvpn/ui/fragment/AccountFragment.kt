@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
 import net.mullvad.mullvadvpn.ui.GroupedPasswordTransformationMethod
 import net.mullvad.mullvadvpn.ui.GroupedTransformationMethod
-import net.mullvad.mullvadvpn.ui.RedeemVoucherDialogFragment
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
