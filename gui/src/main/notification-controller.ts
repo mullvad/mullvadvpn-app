@@ -1,4 +1,4 @@
-import { app, NativeImage, nativeImage, Notification } from 'electron';
+import { app, NativeImage, nativeImage, Notification as ElectronNotification } from 'electron';
 import os from 'os';
 import path from 'path';
 
@@ -12,23 +12,45 @@ import {
   NotificationAction,
   ReconnectingNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from '../shared/notifications/notification';
+import { Scheduler } from '../shared/scheduler';
+
+const THROTTLE_DELAY = 500;
+
+export interface Notification {
+  specification: SystemNotification;
+  notification: ElectronNotification;
+}
 
 export interface NotificationSender {
   notify(notification: SystemNotification): void;
+  closeNotificationsInCategory(category: SystemNotificationCategory): void;
 }
 
 export interface NotificationControllerDelegate {
   openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
+  showNotificationIcon(value: boolean): void;
+}
+
+enum NotificationSuppressReason {
+  development,
+  windowVisible,
+  preference,
+  alreadyPresented,
 }
 
 export default class NotificationController {
-  private lastTunnelStateAnnouncement?: { body: string; notification: Notification };
   private reconnecting = false;
+
   private presentedNotifications: { [key: string]: boolean } = {};
-  private pendingNotifications: Notification[] = [];
+  private activeNotifications: Set<Notification> = new Set();
+  private dismissedNotifications: Set<SystemNotification> = new Set();
+  private throttledNotifications: Map<SystemNotification, Scheduler> = new Map();
+
   private notificationTitle = process.platform === 'linux' ? app.name : '';
   private notificationIcon?: NativeImage;
 
@@ -48,6 +70,13 @@ export default class NotificationController {
         path.join(basePath, 'icon-notification.png'),
       );
     }
+  }
+
+  public dispose() {
+    this.throttledNotifications.forEach((scheduler) => scheduler.cancel());
+
+    this.activeNotifications.forEach((notification) => notification.notification.close());
+    this.activeNotifications.clear();
   }
 
   public notifyTunnelState(
@@ -73,61 +102,119 @@ export default class NotificationController {
       const notification = notificationProvider.getSystemNotification();
 
       if (notification) {
-        this.showTunnelStateNotification(
-          notification,
-          isWindowVisible,
-          areSystemNotificationsEnabled,
-        );
+        this.notify(notification, isWindowVisible, areSystemNotificationsEnabled);
       } else {
         log.error(
           `Notification providers mayDisplay() returned true but getSystemNotification() returned undefined for ${notificationProvider.constructor.name}`,
         );
       }
+    } else {
+      this.closeNotificationsInCategory(SystemNotificationCategory.tunnelState);
     }
 
     this.reconnecting =
       tunnelState.state === 'disconnecting' && tunnelState.details === 'reconnect';
   }
 
-  public cancelPendingNotifications() {
-    for (const notification of this.pendingNotifications) {
-      notification.close();
-    }
+  // Closes still relevant notifications but still lets them affect notification dot in tray icon.
+  public dismissActiveNotifications() {
+    this.activeNotifications.forEach((notification) => {
+      notification.notification.close();
+    });
+    this.updateNotificationIcon();
   }
 
-  public resetTunnelStateAnnouncements() {
-    this.lastTunnelStateAnnouncement = undefined;
+  public closeNotificationsInCategory(
+    category: SystemNotificationCategory,
+    severity?: SystemNotificationSeverityType,
+  ) {
+    this.activeNotifications.forEach((notification) => {
+      if (notification.specification.category === category) {
+        notification.notification.close();
+      }
+    });
+    this.dismissedNotifications.forEach((notification) => {
+      if (
+        notification.category === category &&
+        (severity === undefined || severity >= notification.severity)
+      ) {
+        this.dismissedNotifications.delete(notification);
+      }
+    });
+    this.updateNotificationIcon();
   }
 
   public notify(
     systemNotification: SystemNotification,
-    isWindowVisible: boolean,
-    areSystemNotificationsEnabled: boolean,
+    windowVisible: boolean,
+    infoNotificationsEnabled: boolean,
   ) {
-    if (
-      this.evaluateNotification(systemNotification, isWindowVisible, areSystemNotificationsEnabled)
-    ) {
-      const notification = this.createNotification(systemNotification);
-      this.addPendingNotification(notification);
-      notification.show();
-
-      if (!systemNotification.critical) {
-        setTimeout(() => notification.close(), 4000);
+    const notificationSuppressReason = this.evaluateNotification(
+      systemNotification,
+      windowVisible,
+      infoNotificationsEnabled,
+    );
+    if (notificationSuppressReason !== undefined) {
+      if (
+        notificationSuppressReason === NotificationSuppressReason.preference ||
+        notificationSuppressReason === NotificationSuppressReason.windowVisible
+      ) {
+        this.dismissedNotifications.add(systemNotification);
+        this.updateNotificationIcon();
       }
 
-      return notification;
-    } else {
       return;
+    }
+
+    // Cancel throttled notifications within the same category
+    if (systemNotification.category !== undefined) {
+      this.throttledNotifications.forEach((scheduler, specification) => {
+        if (specification.category === systemNotification.category) {
+          scheduler.cancel();
+          this.throttledNotifications.delete(specification);
+        }
+      });
+    }
+
+    if (systemNotification.throttle) {
+      const scheduler = new Scheduler();
+      scheduler.schedule(() => {
+        this.throttledNotifications.delete(systemNotification);
+        this.notifyImpl(systemNotification);
+      }, THROTTLE_DELAY);
+
+      this.throttledNotifications.set(systemNotification, scheduler);
+    } else {
+      this.notifyImpl(systemNotification);
     }
   }
 
-  private createNotification(systemNotification: SystemNotification) {
-    const notification = new Notification({
+  private notifyImpl(systemNotification: SystemNotification): Notification {
+    // Remove notifications in the same category if specified
+    if (systemNotification.category !== undefined) {
+      this.closeNotificationsInCategory(systemNotification.category, systemNotification.severity);
+    }
+
+    const notification = this.createNotification(systemNotification);
+    this.addActiveNotification(notification);
+    notification.notification.show();
+
+    // Close notification of low severity automatically
+    if (systemNotification.severity === SystemNotificationSeverityType.info) {
+      setTimeout(() => notification.notification.close(), 4000);
+    }
+
+    return notification;
+  }
+
+  private createNotification(systemNotification: SystemNotification): Notification {
+    const notification = new ElectronNotification({
       title: this.notificationTitle,
       body: systemNotification.message,
       silent: true,
       icon: this.notificationIcon,
-      timeoutType: systemNotification.critical ? 'never' : 'default',
+      timeoutType:
+        systemNotification.severity == SystemNotificationSeverityType.high ? 'never' : 'default',
     });
 
     // Action buttons are only available on macOS.
@@ -137,7 +224,12 @@ export default class NotificationController {
         notification.on('action', () => this.performAction(systemNotification.action));
       }
       notification.on('click', () => this.notificationControllerDelegate.openApp());
-    } else if (!(process.platform === 'win32' && systemNotification.critical)) {
+    } else if (
+      !(
+        process.platform === 'win32' &&
+        systemNotification.severity === SystemNotificationSeverityType.high
+      )
+    ) {
       if (systemNotification.action) {
         notification.on('click', () => this.performAction(systemNotification.action));
       } else {
@@ -145,7 +237,7 @@ export default class NotificationController {
       }
     }
 
-    return notification;
+    return { specification: systemNotification, notification };
   }
 
   private performAction(action?: NotificationAction) {
@@ -154,68 +246,53 @@ export default class NotificationController {
     }
   }
 
-  private showTunnelStateNotification(
-    systemNotification: SystemNotification,
-    isWindowVisible: boolean,
-    areSystemNotificationsEnabled: boolean,
-  ) {
-    const message = systemNotification.message;
-    const lastAnnouncement = this.lastTunnelStateAnnouncement;
-    const sameAsLastNotification = lastAnnouncement && lastAnnouncement.body === message;
-
-    if (sameAsLastNotification) {
-      return;
-    }
-
-    if (lastAnnouncement) {
-      lastAnnouncement.notification.close();
-    }
-
-    const newNotification = this.notify(
-      systemNotification,
-      isWindowVisible,
-      areSystemNotificationsEnabled,
-    );
-
-    if (newNotification) {
-      this.lastTunnelStateAnnouncement = {
-        body: message,
-        notification: newNotification,
-      };
-    }
-  }
-
-  private addPendingNotification(notification: Notification) {
-    notification.on('close', () => {
-      this.removePendingNotification(notification);
+  private addActiveNotification(notification: Notification) {
+    notification.notification.on('close', () => {
+      this.dismissedNotifications.add({ ...notification.specification });
+      this.activeNotifications.delete(notification);
+      this.updateNotificationIcon();
     });
-
-    this.pendingNotifications.push(notification);
+    this.activeNotifications.add(notification);
+    this.updateNotificationIcon();
   }
 
-  private removePendingNotification(notification: Notification) {
-    const index = this.pendingNotifications.indexOf(notification);
-    if (index !== -1) {
-      this.pendingNotifications.splice(index, 1);
+  private updateNotificationIcon() {
+    for (const notification of this.activeNotifications) {
+      if (notification.specification.severity >= SystemNotificationSeverityType.medium) {
+        this.notificationControllerDelegate.showNotificationIcon(true);
+        return;
+      }
     }
+
+    for (const notification of this.dismissedNotifications) {
+      if (notification.severity >= SystemNotificationSeverityType.medium) {
+        this.notificationControllerDelegate.showNotificationIcon(true);
+        return;
+      }
+    }
+
+    this.notificationControllerDelegate.showNotificationIcon(false);
   }
 
   private evaluateNotification(
     notification: SystemNotification,
     isWindowVisible: boolean,
     areSystemNotificationsEnabled: boolean,
-  ) {
-    const suppressDueToDevelopment =
-      notification.suppressInDevelopment && process.env.NODE_ENV === 'development';
-    const suppressDueToVisibleWindow = isWindowVisible;
-    const suppressDueToPreference = !areSystemNotificationsEnabled && !notification.critical;
+  ): NotificationSuppressReason | undefined {
+    if (notification.suppressInDevelopment && process.env.NODE_ENV === 'development') {
+      return NotificationSuppressReason.development;
+    } else if (isWindowVisible) {
+      return NotificationSuppressReason.windowVisible;
+    } else if (
+      !areSystemNotificationsEnabled &&
+      notification.severity >= SystemNotificationSeverityType.low
+    ) {
+      return NotificationSuppressReason.preference;
+    } else if (this.suppressDueToAlreadyPresented(notification)) {
+      return NotificationSuppressReason.alreadyPresented;
+    }
 
-    return (
-      !suppressDueToDevelopment &&
-      !suppressDueToVisibleWindow &&
-      !suppressDueToPreference &&
-      !this.suppressDueToAlreadyPresented(notification)
-    );
+    return undefined;
   }
 
   private suppressDueToAlreadyPresented(notification: SystemNotification) {

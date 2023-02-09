@@ -3,7 +3,14 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import { InAppNotification, InAppNotificationProvider } from './notification';
+import {
+  InAppNotification,
+  InAppNotificationProvider,
+  SystemNotification,
+  SystemNotificationCategory,
+  SystemNotificationProvider,
+  SystemNotificationSeverityType,
+} from './notification';
 
 interface BlockWhenDisconnectedNotificationContext {
   tunnelState: TunnelState;
@@ -11,7 +18,8 @@ interface BlockWhenDisconnectedNotificationContext {
   hasExcludedApps: boolean;
 }
 
-export class BlockWhenDisconnectedNotificationProvider implements InAppNotificationProvider {
+export class BlockWhenDisconnectedNotificationProvider
+  implements InAppNotificationProvider, SystemNotificationProvider {
   public constructor(private context: BlockWhenDisconnectedNotificationContext) {}
 
   public mayDisplay() {
@@ -20,6 +28,16 @@ export class BlockWhenDisconnectedNotificationProvider implements InAppNotificat
         this.context.tunnelState.state === 'disconnected') &&
       this.context.blockWhenDisconnected
     );
+  }
+
+  public getSystemNotification(): SystemNotification {
+    const message = messages.pgettext('notifications', 'Lockdown mode active, connection blocked');
+
+    return {
+      message,
+      severity: SystemNotificationSeverityType.info,
+      category: SystemNotificationCategory.tunnelState,
+    };
   }
 
   public getInAppNotification(): InAppNotification {

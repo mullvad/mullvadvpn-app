@@ -2,14 +2,19 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import { SystemNotificationProvider } from './notification';
+import {
+  SystemNotification,
+  SystemNotificationCategory,
+  SystemNotificationProvider,
+  SystemNotificationSeverityType,
+} from './notification';
 
 export class ConnectedNotificationProvider implements SystemNotificationProvider {
   public constructor(private context: TunnelState) {}
 
   public mayDisplay = () => this.context.state === 'connected';
 
-  public getSystemNotification() {
+  public getSystemNotification(): SystemNotification | undefined {
     if (this.context.state === 'connected') {
       let message = messages.pgettext('notifications', 'Connected');
       const location = this.context.details.location?.hostname;
@@ -27,7 +32,8 @@ export class ConnectedNotificationProvider implements SystemNotificationProvider
 
       return {
         message,
-        critical: false,
+        severity: SystemNotificationSeverityType.info,
+        category: SystemNotificationCategory.tunnelState,
       };
     } else {
       return undefined;

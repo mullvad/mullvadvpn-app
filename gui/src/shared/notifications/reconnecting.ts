@@ -3,7 +3,10 @@ import { TunnelState } from '../daemon-rpc-types';
 import {
   InAppNotification,
   InAppNotificationProvider,
+  SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 export class ReconnectingNotificationProvider
@@ -14,10 +17,12 @@ export class ReconnectingNotificationProvider
     return this.context.state === 'disconnecting' && this.context.details === 'reconnect';
   }
 
-  public getSystemNotification() {
+  public getSystemNotification(): SystemNotification | undefined {
     return {
       message: messages.pgettext('notifications', 'Reconnecting'),
-      critical: false,
+      severity: SystemNotificationSeverityType.info,
+      category: SystemNotificationCategory.tunnelState,
+      throttle: true,
     };
   }
 

@@ -20,7 +20,10 @@ import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
 import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
-import { SystemNotification } from '../shared/notifications/notification';
+import {
+  SystemNotification,
+  SystemNotificationCategory,
+} from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
@@ -211,14 +214,6 @@ class ApplicationMain
 
   public isLoggedIn = () => this.account.isLoggedIn();
 
-  public notify = (notification: SystemNotification) => {
-    this.notificationController.notify(
-      notification,
-      this.userInterface?.isWindowVisible() ?? false,
-      this.settings.gui.enableSystemNotifications,
-    );
-  };
-
   public disconnectAndQuit = async () => {
     if (this.daemonRpc.isConnected) {
       try {
@@ -316,6 +311,7 @@ class ApplicationMain
     log.info('Quit initiated');
 
     this.userInterface?.dispose();
+    this.notificationController.dispose();
 
     // Unsubscribe the event handler
     try {
@@ -945,12 +941,22 @@ class ApplicationMain
       return shell.openExternal(url);
     }
   };
+  public showNotificationIcon = (value: boolean) => this.userInterface?.showNotificationIcon(value);
+
+  // NotificationSender
+  public notify = (notification: SystemNotification) => {
+    this.notificationController.notify(
+      notification,
+      this.userInterface?.isWindowVisible() ?? false,
+      this.settings.gui.enableSystemNotifications,
+    );
+  };
+  public closeNotificationsInCategory = (category: SystemNotificationCategory) =>
+    this.notificationController.closeNotificationsInCategory(category);
 
   // UserInterfaceDelegate
-  public cancelPendingNotifications = () =>
-    this.notificationController.cancelPendingNotifications();
-  public resetTunnelStateAnnouncements = () =>
-    this.notificationController.resetTunnelStateAnnouncements();
+  public dismissActiveNotifications = () =>
+    this.notificationController.dismissActiveNotifications();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
   public updateAccountData = () => this.account.updateAccountData();
   public getAccountData = () => this.account.accountData;
@@ -980,7 +986,7 @@ class ApplicationMain
 
   // SettingsDelegate
   public handleMonochromaticIconChange = (value: boolean) =>
-    this.userInterface?.setUseMonochromaticTrayIcon(value) ?? Promise.resolve();
+    this.userInterface?.setMonochromaticIcon(value) ?? Promise.resolve();
   public handleUnpinnedWindowChange = () =>
     void this.userInterface?.recreateWindow(
       this.account.isLoggedIn(),

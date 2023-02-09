@@ -8,7 +8,9 @@ import {
   InAppNotification,
   InAppNotificationProvider,
   SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface CloseToAccountExpiryNotificationContext {
@@ -38,7 +40,8 @@ export class CloseToAccountExpiryNotificationProvider
 
     return {
       message,
-      critical: true,
+      category: SystemNotificationCategory.expiry,
+      severity: SystemNotificationSeverityType.medium,
       action: {
         type: 'open-url',
         url: links.purchase,

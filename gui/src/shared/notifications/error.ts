@@ -12,7 +12,10 @@ import { messages } from '../gettext';
 import {
   InAppNotification,
   InAppNotificationProvider,
+  SystemNotification,
+  SystemNotificationCategory,
   SystemNotificationProvider,
+  SystemNotificationSeverityType,
 } from './notification';
 
 interface ErrorNotificationContext {
@@ -26,7 +29,7 @@ export class ErrorNotificationProvider
 
   public mayDisplay = () => this.context.tunnelState.state === 'error';
 
-  public getSystemNotification() {
+  public getSystemNotification(): SystemNotification | undefined {
     if (this.context.tunnelState.state === 'error') {
       let message = getMessage(this.context.tunnelState.details);
       if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
@@ -41,7 +44,11 @@ export class ErrorNotificationProvider
 
       return {
         message,
-        critical: !!this.context.tunnelState.details.blockingError,
+        severity:
+          this.context.tunnelState.details.blockingError === undefined
+            ? SystemNotificationSeverityType.low
+            : SystemNotificationSeverityType.high,
+        category: SystemNotificationCategory.tunnelState,
       };
     } else {
       return undefined;
