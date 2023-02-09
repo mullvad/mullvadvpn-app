@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.app.Activity
 import android.os.Bundle
@@ -20,9 +20,12 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
+import net.mullvad.mullvadvpn.ui.GroupedPasswordTransformationMethod
+import net.mullvad.mullvadvpn.ui.GroupedTransformationMethod
+import net.mullvad.mullvadvpn.ui.RedeemVoucherDialogFragment
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache

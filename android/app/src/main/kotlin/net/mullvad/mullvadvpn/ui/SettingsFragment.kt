@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.ui.fragment.AccountFragment
 import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
