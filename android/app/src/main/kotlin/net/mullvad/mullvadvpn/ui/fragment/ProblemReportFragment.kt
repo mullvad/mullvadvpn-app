@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.content.Context
 import android.graphics.Typeface
@@ -21,8 +21,9 @@ import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
-import net.mullvad.mullvadvpn.ui.fragment.ViewLogsFragment
+import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
+import net.mullvad.mullvadvpn.ui.ConfirmNoEmailDialogFragment
+import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class ProblemReportFragment : BaseFragment() {
