@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LaunchFragment
 import net.mullvad.mullvadvpn.ui.fragment.OutOfTimeFragment
+import net.mullvad.mullvadvpn.ui.fragment.WelcomeFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS

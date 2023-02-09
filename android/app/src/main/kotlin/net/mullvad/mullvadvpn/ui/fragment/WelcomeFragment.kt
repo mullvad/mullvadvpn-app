@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,8 +23,6 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
-import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
