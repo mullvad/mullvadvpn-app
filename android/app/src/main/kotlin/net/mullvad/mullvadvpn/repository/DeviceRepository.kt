@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.serviceconnection
+package net.mullvad.mullvadvpn.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +19,9 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.deviceDataSource
 
 class DeviceRepository(
     private val serviceConnectionManager: ServiceConnectionManager,

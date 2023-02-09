@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.content.Intent
 import android.net.Uri
@@ -23,12 +23,17 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.ui.ConnectActionButton
+import net.mullvad.mullvadvpn.ui.ConnectionStatus
+import net.mullvad.mullvadvpn.ui.LocationInfo
+import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.ui.SelectLocationFragment
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
+import net.mullvad.mullvadvpn.ui.paintNavigationBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager

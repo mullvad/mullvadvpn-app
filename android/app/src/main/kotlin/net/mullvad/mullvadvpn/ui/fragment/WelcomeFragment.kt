@@ -1,58 +1,53 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
+import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
-class OutOfTimeFragment : BaseFragment() {
+val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
+
+class WelcomeFragment : BaseFragment() {
 
     // Injected dependencies
     private val accountRepository: AccountRepository by inject()
+    private val deviceRepository: DeviceRepository by inject()
     private val serviceConnectionManager: ServiceConnectionManager by inject()
 
+    private lateinit var accountLabel: TextView
     private lateinit var headerBar: HeaderBar
-
     private lateinit var sitePaymentButton: SitePaymentButton
-    private lateinit var disconnectButton: Button
-    private lateinit var redeemButton: RedeemVoucherButton
-
-    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
-        updateDisconnectButton()
-        updateBuyButtons()
-        headerBar.tunnelState = state
-    }
 
     @Deprecated("Refactor code to instead rely on Lifecycle.")
     private val jobTracker = JobTracker()
@@ -67,26 +62,24 @@ class OutOfTimeFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.out_of_time, container, false)
+        val view = inflater.inflate(R.layout.welcome, container, false)
 
         headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = this@OutOfTimeFragment.tunnelState
+            tunnelState = TunnelState.Disconnected
         }
 
-        view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
-            append(requireActivity().getString(R.string.account_credit_has_expired))
+        accountLabel = view.findViewById<TextView>(R.id.account_number).apply {
+            setOnClickListener { copyAccountTokenToClipboard() }
+        }
+
+        view.findViewById<TextView>(R.id.pay_to_start_using).text = buildString {
+            append(requireActivity().getString(R.string.pay_to_start_using))
             append(" ")
-            requireActivity().getString(R.string.add_time_to_account)
-        }
-
-        disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
-            setOnClickAction("disconnect", jobTracker) {
-                serviceConnectionManager.connectionProxy()?.disconnect()
-            }
+            append(requireActivity().getString(R.string.add_time_to_account))
         }
 
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-            newAccount = false
+            newAccount = true
 
             setOnClickAction("openAccountPageInBrowser", jobTracker) {
                 setEnabled(false)
@@ -95,11 +88,9 @@ class OutOfTimeFragment : BaseFragment() {
                 }
                 setEnabled(true)
             }
-
-            isEnabled = true
         }
 
-        redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+        view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
             prepare(parentFragmentManager, jobTracker)
         }
 
@@ -113,18 +104,25 @@ class OutOfTimeFragment : BaseFragment() {
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            launchProceedToConnectViewIfExpiryExtended()
+            launchUpdateAccountNumberOnDeviceChanges()
+            launchAdvanceToConnectViewOnExpiryExtended()
             launchExpiryPolling()
             launchTunnelStateSubscription()
         }
     }
 
-    private fun CoroutineScope.launchProceedToConnectViewIfExpiryExtended() = launch {
-        accountRepository.accountExpiryState
-            .map { state -> state.date() }
-            .collect { expiryDate ->
-                checkExpiry(expiryDate)
+    private fun CoroutineScope.launchUpdateAccountNumberOnDeviceChanges() = launch {
+        deviceRepository.deviceState
+            .debounce { it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS) }
+            .collect { state ->
+                updateAccountNumber(state.token())
             }
+    }
+
+    private fun CoroutineScope.launchAdvanceToConnectViewOnExpiryExtended() = launch {
+        accountRepository.accountExpiryState.collect {
+            checkExpiry(it.date())
+        }
     }
 
     private fun CoroutineScope.launchExpiryPolling() = launch {
@@ -145,50 +143,48 @@ class OutOfTimeFragment : BaseFragment() {
                     emptyFlow()
                 }
             }
-            .collect { newState ->
-                tunnelState = newState
-            }
+            .collect { state -> updateUiForTunnelState(state) }
     }
 
-    private fun updateDisconnectButton() {
-        val state = tunnelState
-
-        val showButton = when (state) {
-            is TunnelState.Disconnected -> false
-            is TunnelState.Connecting, is TunnelState.Connected -> true
-            is TunnelState.Disconnecting -> {
-                state.actionAfterDisconnect != ActionAfterDisconnect.Nothing
-            }
-            is TunnelState.Error -> state.errorState.isBlocking
-        }
-
-        disconnectButton.apply {
-            if (showButton) {
-                setEnabled(true)
-                visibility = View.VISIBLE
-            } else {
-                setEnabled(false)
-                visibility = View.GONE
-            }
-        }
+    private fun updateUiForTunnelState(tunnelState: TunnelState) {
+        headerBar.tunnelState = tunnelState
+        sitePaymentButton.isEnabled = tunnelState is TunnelState.Disconnected
     }
 
-    private fun updateBuyButtons() {
-        val currentState = tunnelState
-        val hasConnectivity = currentState is TunnelState.Disconnected
-        sitePaymentButton.setEnabled(hasConnectivity)
+    private fun updateAccountNumber(rawAccountNumber: String?) {
+        val accountText = rawAccountNumber?.let { account ->
+            addSpacesToAccountText(account)
+        }
 
-        val isOffline = currentState is TunnelState.Error &&
-            currentState.errorState.cause is ErrorStateCause.IsOffline
-        redeemButton.setEnabled(!isOffline)
+        accountLabel.text = accountText ?: ""
+        accountLabel.setEnabled(accountText != null && accountText.length > 0)
+    }
+
+    private fun addSpacesToAccountText(account: String): String {
+        val length = account.length
+
+        if (length == 0) {
+            return ""
+        } else {
+            val numParts = (length - 1) / 4 + 1
+
+            val parts = Array(numParts) { index ->
+                val startIndex = index * 4
+                val endIndex = minOf(startIndex + 4, length)
+
+                account.substring(startIndex, endIndex)
+            }
+
+            return parts.joinToString(" ")
+        }
     }
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
         maybeExpiry?.let { expiry ->
-            if (expiry.isAfterNow()) {
-                jobTracker.newUiJob("advanceToConnectScreen") {
-                    advanceToConnectScreen()
-                }
+            val tomorrow = DateTime.now().plusDays(1)
+
+            if (expiry.isAfter(tomorrow)) {
+                advanceToConnectScreen()
             }
         }
     }
@@ -198,5 +194,19 @@ class OutOfTimeFragment : BaseFragment() {
             replace(R.id.main_fragment, ConnectFragment())
             commitAllowingStateLoss()
         }
+    }
+
+    private fun copyAccountTokenToClipboard() {
+        val accountToken = accountLabel.text
+        val clipboardLabel = resources.getString(R.string.mullvad_account_number)
+        val toastMessage = resources.getString(R.string.copied_mullvad_account_number)
+
+        val context = requireActivity()
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText(clipboardLabel, accountToken)
+
+        clipboard.setPrimaryClip(clipData)
+
+        Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
     }
 }

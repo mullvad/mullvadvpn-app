@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.serviceconnection
+package net.mullvad.mullvadvpn.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +17,8 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.accountDataSource
 import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 
 class AccountRepository(

@@ -36,9 +36,14 @@ import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.ui.fragments.DeviceRevokedFragment
-import net.mullvad.mullvadvpn.ui.serviceconnection.AccountRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.DeviceRepository
+import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
+import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
+import net.mullvad.mullvadvpn.ui.fragment.LaunchFragment
+import net.mullvad.mullvadvpn.ui.fragment.LoginFragment
+import net.mullvad.mullvadvpn.ui.fragment.OutOfTimeFragment
+import net.mullvad.mullvadvpn.ui.fragment.WelcomeFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS

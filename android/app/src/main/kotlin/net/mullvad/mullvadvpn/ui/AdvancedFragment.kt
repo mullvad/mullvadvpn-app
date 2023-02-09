@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import java.net.InetAddress
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -22,8 +21,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
-import net.mullvad.mullvadvpn.ui.fragments.SplitTunnelingFragment
+import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.ConfirmDnsDialogFragment
+import net.mullvad.mullvadvpn.ui.fragment.SplitTunnelingFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.customDns
@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import org.koin.android.ext.android.inject
 
+// TODO: Move as part of refactoring to compose.
 class AdvancedFragment : BaseFragment() {
 
     // Injected dependencies

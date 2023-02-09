@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.app.Dialog
-import android.content.Context
 import android.content.DialogInterface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -14,31 +13,23 @@ import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 
-class ConfirmNoEmailDialogFragment : DialogFragment() {
-    private var confirmNoEmail: CompletableDeferred<Boolean>? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        val parentActivity = context as MainActivity
-
-        confirmNoEmail = parentActivity.problemReport.confirmNoEmail
-    }
-
+class ConfirmDnsDialogFragment @JvmOverloads constructor(
+    private var confirmation: CompletableDeferred<Boolean>? = null
+) : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.confirm_no_email, container, false)
+        val view = inflater.inflate(R.layout.confirm_dns, container, false)
 
         view.findViewById<Button>(R.id.back_button).setOnClickListener {
             activity?.onBackPressed()
         }
 
-        view.findViewById<Button>(R.id.send_button).setOnClickListener {
-            confirmNoEmail?.complete(true)
-            confirmNoEmail = null
+        view.findViewById<Button>(R.id.confirm_button).setOnClickListener {
+            confirmation?.complete(true)
+            confirmation = null
             dismiss()
         }
 
@@ -57,9 +48,19 @@ class ConfirmNoEmailDialogFragment : DialogFragment() {
         super.onStart()
 
         dialog?.window?.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+
+        if (confirmation == null) {
+            dismiss()
+        }
     }
 
     override fun onDismiss(dialogInterface: DialogInterface) {
-        confirmNoEmail?.complete(false)
+        confirmation?.complete(false)
+    }
+
+    override fun onDestroy() {
+        confirmation?.cancel()
+
+        super.onDestroy()
     }
 }

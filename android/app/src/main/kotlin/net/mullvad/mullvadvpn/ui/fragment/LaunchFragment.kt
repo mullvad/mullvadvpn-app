@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,11 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.ui.StatusBarPainter
+import net.mullvad.mullvadvpn.ui.paintNavigationBar
+import net.mullvad.mullvadvpn.ui.paintStatusBar
 
 class LaunchFragment : Fragment(), StatusBarPainter, NavigationBarPainter {
     override fun onCreateView(

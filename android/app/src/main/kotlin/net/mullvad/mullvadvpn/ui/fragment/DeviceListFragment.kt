@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.fragments
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,12 +12,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.DeviceListScreen
-import net.mullvad.mullvadvpn.ui.LoginFragment
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
