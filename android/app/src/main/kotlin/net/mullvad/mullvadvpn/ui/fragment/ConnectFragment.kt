@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.ui.ConnectActionButton
 import net.mullvad.mullvadvpn.ui.ConnectionStatus
 import net.mullvad.mullvadvpn.ui.LocationInfo
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.OutOfTimeFragment
 import net.mullvad.mullvadvpn.ui.SelectLocationFragment
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
