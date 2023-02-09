@@ -69,7 +69,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Checkout binaries submodule
-        run: git submodule update --init --depth=1 dist-assets/binaries
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
 
       # The container image already has rustup and Rust, but only the stable toolchain
       - name: Install Rust toolchain
