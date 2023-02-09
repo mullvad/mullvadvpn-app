@@ -1,5 +1,5 @@
-# To build the image:
-# podman build . -t mullvadvpn-app-build
+# To build the image (executed from the repository root):
+# podman build -f building/Dockerfile . -t mullvadvpn-app-build
 #
 # To run the image and build the app you need to mount the app's source directory into the
 # container. You also probably want to mount in a directory for CARGO_HOME, so each container
@@ -38,13 +38,21 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     libdbus-1-dev libdbus-1-dev:arm64 \
     rpm \
     protobuf-compiler \
+    # For cross-compiling/linting towards Windows
+    gcc-mingw-w64-x86-64 \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
 
-# Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu
+# Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu,
+# plus x86_64-pc-windows-gnu for Windows cross-compilation/linting
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
-    sh -s -- --default-toolchain stable --profile minimal --target aarch64-unknown-linux-gnu -y
+    sh -s -- -y \
+    --default-toolchain stable \
+    --profile minimal \
+    --component clippy \
+    --target aarch64-unknown-linux-gnu \
+    --target x86_64-pc-windows-gnu
 
 ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \

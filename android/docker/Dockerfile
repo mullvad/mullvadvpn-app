@@ -1,4 +1,4 @@
-# To build the image:
+# To build the image (executed from this Dockerfile directory):
 # podman build . -t mullvadvpn-app-build-android
 #
 # To build using the image:
