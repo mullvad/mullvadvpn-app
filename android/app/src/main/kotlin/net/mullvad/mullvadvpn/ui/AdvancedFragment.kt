@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import org.koin.android.ext.android.inject
 
+// TODO: Move as part of refactoring to compose.
 class AdvancedFragment : BaseFragment() {
 
     // Injected dependencies
