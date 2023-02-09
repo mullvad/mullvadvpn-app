@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class ViewLogsFragment : BaseFragment() {

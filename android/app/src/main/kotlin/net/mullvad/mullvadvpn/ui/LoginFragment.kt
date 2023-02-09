@@ -13,14 +13,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragments.ACCOUNT_TOKEN_ARGUMENT_KEY
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
-import net.mullvad.mullvadvpn.ui.fragments.DeviceListFragment
+import net.mullvad.mullvadvpn.ui.fragment.ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.DeviceListFragment
 import net.mullvad.mullvadvpn.ui.widget.AccountInput
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button

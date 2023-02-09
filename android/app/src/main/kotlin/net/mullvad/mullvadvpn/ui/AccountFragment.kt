@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache

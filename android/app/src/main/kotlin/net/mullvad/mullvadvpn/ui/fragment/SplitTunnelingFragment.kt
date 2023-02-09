@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.fragments
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.os.Build
 import android.os.Bundle

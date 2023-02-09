@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification

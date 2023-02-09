@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.fragments
+package net.mullvad.mullvadvpn.ui.fragment
 
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
