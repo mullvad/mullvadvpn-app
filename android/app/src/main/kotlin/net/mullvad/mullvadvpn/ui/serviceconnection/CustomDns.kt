@@ -9,7 +9,15 @@ import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(private val connection: Messenger, private val settingsListener: SettingsListener) {
+    @Deprecated(
+        message = "Will soon be removed in favor of onDnsOptionsChanged.",
+        replaceWith = ReplaceWith("onDnsOptionsChanged")
+    )
     val onEnabledChanged = EventNotifier(false)
+    @Deprecated(
+        message = "Will soon be removed in favor of onDnsOptionsChanged.",
+        replaceWith = ReplaceWith("onDnsOptionsChanged")
+    )
     val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
     val onDnsOptionsChanged = EventNotifier<DnsOptions?>(null)
 
