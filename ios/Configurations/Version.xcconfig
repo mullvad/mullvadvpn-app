@@ -1,0 +1,10 @@
+// Versioning system
+VERSIONING_SYSTEM = apple-generic
+
+// Marketing version, aka major.minor
+MARKETING_VERSION = 2023.1
+
+// Build number
+// Normally we reset the build number to 1 after bumping MARKETING_VERSION.
+// Otherwise increment it for each subsequent TestFlight submission.
+CURRENT_PROJECT_VERSION = 4

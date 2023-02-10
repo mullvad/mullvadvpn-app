@@ -1,3 +1,5 @@
+#include "Version.xcconfig"
+
 // Development team
 DEVELOPMENT_TEAM = CKG9MXH72F
 
