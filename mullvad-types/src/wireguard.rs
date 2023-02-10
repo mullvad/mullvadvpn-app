@@ -18,7 +18,7 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
 /// is set to `QuantumResistantState::Auto`.
 const QUANTUM_RESISTANT_AUTO_STATE: bool = false;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum QuantumResistantState {
     Auto,
