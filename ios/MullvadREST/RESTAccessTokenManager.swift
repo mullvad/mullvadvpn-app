@@ -25,7 +25,6 @@ extension REST {
 
         func getAccessToken(
             accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping (OperationCompletion<REST.AccessTokenData, REST.Error>)
                 -> Void
         ) -> Cancellable {
@@ -39,7 +38,7 @@ extension REST {
 
                 let task = self.proxy.getAccessToken(
                     accountNumber: accountNumber,
-                    retryStrategy: retryStrategy
+                    retryStrategy: .noRetry
                 ) { completion in
                     self.dispatchQueue.async {
                         switch completion {
