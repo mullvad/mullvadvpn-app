@@ -168,25 +168,23 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `allowed_tun_ips` must not be dropped until `WinFw_ApplyPolicyConnecting` is
-        // done with it
-        let mut allowed_tun_ips = vec![];
+        // SAFETY: `allowed_tun_ips` and `allowed_tunnel_endpoints` must not be dropped until
+        // `WinFw_ApplyPolicyConnecting` is done with it
+        let mut allowed_tun_ips = [WideCString::new(), WideCString::new()];
         let allowed_tunnel_endpoints = match allowed_tunnel_traffic {
             AllowedTunnelTraffic::Only(endpoint) => {
-                allowed_tun_ips.push(widestring_ip(endpoint.address.ip()));
-                let allowed_tun_ips = allowed_tun_ips.last().unwrap();
+                allowed_tun_ips[0] = widestring_ip(endpoint.address.ip());
                 Some(vec![WinFwEndpoint {
-                    ip: allowed_tun_ips.as_ptr(),
+                    ip: allowed_tun_ips[0].as_ptr(),
                     port: endpoint.address.port(),
                     protocol: WinFwProt::from(endpoint.protocol),
                 }])
             }
             AllowedTunnelTraffic::Many(endpoints) => {
-                Some(endpoints.into_iter().map(|endpoint| {
-                    allowed_tun_ips.push(widestring_ip(endpoint.address.ip()));
-                    let allowed_tun_ips = allowed_tun_ips.last().unwrap();
+                Some(endpoints.into_iter().enumerate().map(|(i, endpoint)| {
+                    allowed_tun_ips[i] = widestring_ip(endpoint.address.ip());
                     WinFwEndpoint {
-                        ip: allowed_tun_ips.as_ptr(),
+                        ip: allowed_tun_ips[i].as_ptr(),
                         port: endpoint.address.port(),
                         protocol: WinFwProt::from(endpoint.protocol),
                     }
@@ -200,10 +198,10 @@ impl Firewall {
                 .as_ref()
                 .map(|eps| eps.as_ptr())
                 .unwrap_or(ptr::null()),
-            endpoints_length: allowed_tunnel_endpoints.map(|eps| eps.len()).unwrap_or(0),
+            endpoints_length: allowed_tunnel_endpoints.as_ref().map(|eps| eps.len()).unwrap_or(0),
         };
 
-        unsafe {
+        let res = unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
@@ -214,7 +212,13 @@ impl Firewall {
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
-        }
+        };
+        // SAFETY: Both of these hold stack allocated memory which is pointed to by
+        // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
+        // has returned.
+        drop(allowed_tun_ips);
+        drop(allowed_tunnel_endpoints);
+        res
     }
 
     fn set_connected_state(
