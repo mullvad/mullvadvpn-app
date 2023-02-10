@@ -60,18 +60,11 @@ jobs:
         rust: [stable, beta, nightly]
     continue-on-error: true
     steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Checkout binaries submodule
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
+        run: git submodule update --init --depth=1 dist-assets/binaries
 
       # The container image already has rustup and Rust, but only the stable toolchain
       - name: Install Rust toolchain
