@@ -172,24 +172,18 @@ impl Default for TunnelOptions {
     }
 }
 
-impl From<TunnelOptions> for wireguard::TunnelOptions {
-    fn from(options: TunnelOptions) -> Self {
-        Self {
-            mtu: options.mtu,
+impl TunnelOptions {
+    pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
+        wireguard::TunnelOptions {
+            mtu: self.mtu,
             #[cfg(windows)]
-            use_wireguard_nt: options.use_wireguard_nt,
-            quantum_resistant: match options.quantum_resistant {
+            use_wireguard_nt: self.use_wireguard_nt,
+            quantum_resistant: match self.quantum_resistant {
                 QuantumResistantState::Auto => QUANTUM_RESISTANT_AUTO_STATE,
                 QuantumResistantState::On => true,
                 QuantumResistantState::Off => false,
             },
         }
-    }
-}
-
-impl TunnelOptions {
-    pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
-        wireguard::TunnelOptions::from(self)
     }
 }
 
