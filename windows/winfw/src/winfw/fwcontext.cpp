@@ -243,7 +243,7 @@ bool FwContext::applyPolicyConnecting
                     THROW_ERROR("The Many tunnel traffic type currently only supports up to 2 endpoints");
                 }
                 std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints;
-                for (uint32_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
+                for (size_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
                     endpoints.emplace_back(baseline::PermitVpnTunnel::Endpoint{
                             wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
                             allowedTunnelTraffic.endpoints[i].port,
