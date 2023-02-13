@@ -59,11 +59,11 @@ pub enum Error {
     #[error(display = "Failed to read the settings")]
     Read(#[error(source)] io::Error),
 
-    #[error(display = "Malformed settings")]
-    Parse(#[error(source)] serde_json::Error),
+    #[error(display = "Failed to deserialize settings")]
+    Deserialize(#[error(source)] serde_json::Error),
 
-    #[error(display = "Unable to read any version of the settings")]
-    NoMatchingVersion,
+    #[error(display = "Unexpected settings format")]
+    InvalidSettingsContent,
 
     #[error(display = "Unable to serialize settings to JSON")]
     Serialize(#[error(source)] serde_json::Error),
@@ -132,10 +132,10 @@ pub(crate) async fn migrate_all(
     let settings_bytes = fs::read(&path).await.map_err(Error::Read)?;
 
     let mut settings: serde_json::Value =
-        serde_json::from_reader(&settings_bytes[..]).map_err(Error::Parse)?;
+        serde_json::from_reader(&settings_bytes[..]).map_err(Error::Deserialize)?;
 
     if !settings.is_object() {
-        return Err(Error::NoMatchingVersion);
+        return Err(Error::InvalidSettingsContent);
     }
 
     let old_settings = settings.clone();
