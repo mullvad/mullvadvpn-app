@@ -60,6 +60,11 @@ android {
     kotlinOptions {
         jvmTarget = Versions.jvmTarget
     }
+
+    lint {
+        abortOnError = true
+        warningsAsErrors = true
+    }
 }
 
 configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {

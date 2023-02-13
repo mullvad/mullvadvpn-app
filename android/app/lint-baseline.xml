@@ -1,0 +1,3625 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.1" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.1)" variant="all" version="7.3.1">
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onActivityResult`"
+        errorLine1="    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
+            line="118"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ScopedStorage"
+        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10+"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/>"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"
+            line="5"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ResourceAsColor"
+        message="Should pass resolved color instead of resource id here: `getResources().getColor(android.R.color.transparent)`"
+        errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/ConfirmDnsDialogFragment.kt"
+            line="42"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="ResourceAsColor"
+        message="Should pass resolved color instead of resource id here: `getResources().getColor(android.R.color.transparent)`"
+        errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/ConfirmNoEmailDialogFragment.kt"
+            line="52"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="ResourceAsColor"
+        message="Should pass resolved color instead of resource id here: `getResources().getColor(android.R.color.transparent)`"
+        errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/RedeemVoucherDialogFragment.kt"
+            line="108"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                          android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="23"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                  android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/login.xml"
+            line="9"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                      android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/out_of_time.xml"
+            line="14"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                      android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/welcome.xml"
+            line="14"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="            .commit()"
+        errorLine2="             ~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/service/MullvadVpnService.kt"
+            line="112"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                    input.replace(index, index + 1, character.toString().toUpperCase())"
+        errorLine2="                                                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/util/SegmentedInputFormatter.kt"
+            line="119"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="DuplicateIncludedIds"
+        message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_action.xml: [layout/list_item_action.xml defines @+id/widgetBarrier, layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"
+        errorLine1="    &lt;include layout=&quot;@layout/list_item_base&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/list_item_action.xml"
+            line="7"
+            column="5"
+            message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_action.xml: [layout/list_item_action.xml defines @+id/widgetBarrier, layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"/>
+        <location
+            file="src/main/res/layout/list_item_action.xml"
+            line="23"
+            column="47"
+            message="Defined here"/>
+        <location
+            file="src/main/res/layout/list_item_base.xml"
+            line="38"
+            column="47"
+            message="Defined here, included via layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier"/>
+    </issue>
+
+    <issue
+        id="DuplicateIncludedIds"
+        message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_two_action.xml: [layout/list_item_two_action.xml defines @+id/widgetBarrier, layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"
+        errorLine1="        &lt;include layout=&quot;@layout/list_item_base&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/list_item_two_action.xml"
+            line="16"
+            column="9"
+            message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_two_action.xml: [layout/list_item_two_action.xml defines @+id/widgetBarrier, layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"/>
+        <location
+            file="src/main/res/layout/list_item_two_action.xml"
+            line="34"
+            column="47"
+            message="Defined here"/>
+        <location
+            file="src/main/res/layout/list_item_base.xml"
+            line="38"
+            column="47"
+            message="Defined here, included via layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 33 (current min is 26): `android.Manifest.permission#POST_NOTIFICATIONS`"
+        errorLine1="            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
+            line="315"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SdCardPath"
+        message="Do not hardcode &quot;`/data/`&quot;; use `Context.getFilesDir().getPath()` instead"
+        errorLine1="        FileMigrator(File(&quot;/data/data/net.mullvad.mullvadvpn&quot;), vpnService.filesDir).apply {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/service/DaemonInstance.kt"
+            line="77"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;@string/app_name&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"
+            line="17"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="                  android:label=&quot;@string/app_name&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="33"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
+        errorLine1="                ListItemData.PROGRESS -> ProgressListItemView(parent.context)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
+            line="34"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
+        errorLine1="                ListItemData.APPLICATION -> ApplicationListItemView(parent.context)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
+            line="37"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
+        errorLine1="                ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
+            line="38"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="Deprecated"
+        message="`android:editable` is deprecated: Use `inputType` instead"
+        errorLine1="                  android:editable=&quot;false&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="31"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
+        errorLine1="        val id = resources.getIdentifier(&quot;config_showNavigationBar&quot;, &quot;bool&quot;, &quot;android&quot;)"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/SplitTunnelingFragment.kt"
+            line="130"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_corner, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border, null)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_corner_focused, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border_focused, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border_focused, null)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_corner_error, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border_error, null),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="43"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.account_login_border_error, null)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="44"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
+            line="164"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="    private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ConnectActionButton.kt"
+            line="16"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="        resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ConnectActionButton.kt"
+            line="18"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="    private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/NotificationBanner.kt"
+            line="64"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="    private val warningImage = resources.getDrawable(R.drawable.icon_notification_warning, null)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/NotificationBanner.kt"
+            line="65"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="    val activeRelayIcon = resources.getDrawable(R.drawable.icon_relay_active, null)"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
+            line="17"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="    val inactiveRelayIcon = resources.getDrawable(R.drawable.icon_relay_inactive, null)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
+            line="18"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `AppCompatResources.getDrawable()`"
+        errorLine1="        super.detailImage = context.getDrawable(R.drawable.icon_extlink)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/UrlButton.kt"
+            line="17"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;days_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="3"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;months_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;years_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;days_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="15"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;minutes_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;months_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;years_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;hours_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_days&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_hours&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;imkan&quot; is a common misspelling; did you mean &quot;imkân&quot;?"
+        errorLine1="    &lt;string name=&quot;confirm_no_email&quot;>Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.&lt;/string>"
+        errorLine2="                                                                              ^">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="31"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;imkan&quot; is a common misspelling; did you mean &quot;imkân&quot;?"
+        errorLine1="    &lt;string name=&quot;split_tunneling_description&quot;>Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar.&lt;/string>"
+        errorLine2="                                                                                                                                         ^">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="132"
+            column="138"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 jour restant&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="4"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 dia restante&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="4"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 mois restant&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="8"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 mês restante&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="8"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 an restant&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="12"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 ano restante&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="12"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>il y a un jour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="16"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>há um dia&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="16"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>il y a une minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="20"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>há um minuto&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="20"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>il y a un mois&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>há um mês&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>il y a un an&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>há um ano&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>il y a une heure&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>há uma hora&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>Les crédits du compte expirent dans un jour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>O crédito da conta expira dentro de um dia&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>Les crédits du compte expirent dans une heure&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/plurals.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>O crédito da conta expira dentro de uma hora&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCheckPermission"
+        message="The result of `checkPermission` is not used"
+        errorLine1="                mockedPackageManager.checkPermission(internet, packageName)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/kotlin/net/mullvad/mullvadvpn/applist/ApplicationsProviderTest.kt"
+            line="72"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DataExtractionRules"
+        message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
+        errorLine1="                 android:allowBackup=&quot;false&quot;"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="23"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="QueryAllPackagesPermission"
+        message="A `&lt;queries>` declaration should generally be used instead of QUERY_ALL_PACKAGES; \&#xA;see https://g.co/dev/packagevisibility for details"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.QUERY_ALL_PACKAGES&quot; />"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="6"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="        notifyDataSetChanged()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountHistoryAdapter.kt"
+            line="18"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="            notifyDataSetChanged()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/util/AdapterWithHeader.kt"
+            line="16"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="            notifyDataSetChanged()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/customdns/CustomDnsAdapter.kt"
+            line="38"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="            notifyDataSetChanged()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `FrameLayout`: `layout_alignParentLeft`"
+        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `FrameLayout`: `layout_alignParentRight`"
+        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `FrameLayout`: `layout_alignParentLeft`"
+        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `FrameLayout`: `layout_alignParentRight`"
+        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
+        <location
+            file="src/main/res/mipmap-anydpi-v26"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="                        &lt;LinearLayout android:layout_width=&quot;wrap_content&quot;"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="79"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (917 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#66294D73&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/account_history_remove_normal.xml"
+            line="7"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (917 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#FF294D73&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/account_history_remove_pressed.xml"
+            line="7"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (1165 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:pathData=&quot;M74.2,74.5c-8,10.3 -29,11.9 -38.3,0.4c-0.2,-0.9 1.9,-2.5 3.2,-4.3c0.6,-0.9 1.2,-1.8 1.6,-2.7c0.6,-1.7 -0.6,-1.6 -1.4,-3.1c-0.1,-0.3 -0.3,-0.6 -0.1,-0.9c0.2,-0.6 1.1,-1 1.3,-0.9c3.9,2.6 11.3,1.8 15.8,-3.4c0,0 1.4,0.3 2.1,0.5l-2.1,-1.4l-0.1,-0.1c-0.1,0.1 -0.2,0.1 -0.3,0.2c-9.4,7.1 -15.5,4.1 -15.5,4.1c-0.2,-0.2 -0.8,-0.8 -1.3,-1.2c-6.4,-4.5 -10.9,-10.5 -13,-14.4l-0.8,4.1l0.2,-5.5l-2.7,3.8l2,-4.1c-1.5,-0.2 -2.4,-1.7 -2,-2.9c0.3,-1.3 1.9,-2.2 3.3,-1.6l0.9,-4l-0.2,4.3c0,0 0.2,0.1 0.4,0.1l2.8,-3.4l-1.9,3.3c3,-0.6 8,-0.7 13.3,-0.3l5.5,2.7c2.7,2.4 6.4,5.5 10.5,8.1L67.9,56l1.3,1.9h-1.1l2.3,2.8l-2.1,-0.3c0,0.2 2.1,2.6 2.1,2.6l-1.7,0.2c0.1,0.2 1.7,2.3 1.7,2.3l-1.3,-0.1c0.1,0.3 2,3.5 2,3.5s-0.7,-0.2 -1.1,-0.3C71.7,72.3 74.1,73 74.2,74.5zM72.8,46.2c-0.8,2.5 -3.7,6 -2.6,8.7c-0.4,-0.1 -9.4,-3.1 -11.9,-4.5c-4,-2.5 -7.6,-5.6 -10.3,-8l-0.1,-0.1L38.6,38c-0.1,-0.1 -0.2,-0.1 -0.3,-0.2c1.3,0.1 6.3,0.7 8.5,0.2c-0.4,-1.2 -0.3,-2.7 0.3,-4.1c0.9,-2 2.5,-3.3 4,-3.3c0.3,0 0.6,0.1 0.9,0.2c0.9,-0.8 1.9,-1.5 3.1,-1.9c6.3,-2.5 15.5,2 17.9,8.1C74.1,40 73.8,43.2 72.8,46.2zM52,31.6c-1.4,-0.6 -3.2,0.5 -4,2.6c-0.9,2 -0.5,4.1 0.9,4.7c1.3,0.6 3.2,-0.5 4,-2.6C53.7,34.3 53.3,32.1 52,31.6z&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/icon_android_mono.xml"
+            line="6"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (917 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#99FFFFFF&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/icon_close.xml"
+            line="7"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (1161 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:pathData=&quot;M21.2552,12C21.2552,12.408 21.2182,12.792 21.1688,13.176L23.7719,15.156C24.0063,15.336 24.068,15.66 23.9199,15.924L21.4526,20.076C21.3045,20.34 20.9838,20.448 20.7001,20.34L17.6282,19.14C16.9867,19.608 16.2959,20.016 15.5433,20.316L15.0745,23.496C15.0375,23.784 14.7785,24 14.4701,24L9.5354,24C9.227,24 8.9679,23.784 8.9309,23.496L8.4621,20.316C7.7096,20.016 7.0187,19.62 6.3772,19.14L3.3054,20.34C3.034,20.436 2.7009,20.34 2.5529,20.076L0.0855,15.924C-0.0625,15.66 -0.0008,15.336 0.2336,15.156L2.8366,13.176C2.7873,12.792 2.7502,12.396 2.7502,12C2.7502,11.604 2.7873,11.208 2.8366,10.824L0.2336,8.844C-0.0008,8.664 -0.0748,8.34 0.0855,8.076L2.5529,3.924C2.7009,3.66 3.0217,3.552 3.3054,3.66L6.3772,4.86C7.0187,4.392 7.7096,3.984 8.4621,3.684L8.9309,0.504C8.9679,0.216 9.227,0 9.5354,0L14.4701,0C14.7785,0 15.0375,0.216 15.0745,0.504L15.5433,3.684C16.2959,3.984 16.9867,4.38 17.6282,4.86L20.7001,3.66C20.9715,3.564 21.3046,3.66 21.4526,3.924L23.9199,8.076C24.068,8.34 24.0063,8.664 23.7719,8.844L21.1688,10.824C21.2182,11.208 21.2552,11.592 21.2552,12ZM12,17C14.7571,17 17,14.7571 17,12C17,9.2429 14.7571,7 12,7C9.2429,7 7,9.2429 7,12C7,14.7571 9.2429,17 12,17Z&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/icon_settings.xml"
+            line="6"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/main.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                  android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/confirm_dns.xml"
+            line="17"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                  android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/confirm_no_email.xml"
+            line="17"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                                  android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="71"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                          android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="38"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="                  android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/redeem_voucher.xml"
+            line="13"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="              android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="9"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="        &lt;TextView android:layout_width=&quot;wrap_content&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="38"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="                                  android:layout_weight=&quot;0&quot;"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="72"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="                   android:layout_weight=&quot;1&quot; />"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/login.xml"
+            line="28"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/blue40` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/blue40&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="4"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/advanced.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="                                                     android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/collapsed_title_layout.xml"
+            line="8"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/blue40` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/blue40&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="4"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/white` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="              android:background=&quot;@color/white&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="4"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="                android:background=&quot;?android:attr/selectableItemBackground&quot;>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="8"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/preferences.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/select_location.xml"
+            line="4"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling.xml"
+            line="5"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="              android:background=&quot;@color/darkBlue&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="5"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.red45` appears to be unused"
+        errorLine1="    &lt;color name=&quot;red45&quot;>#72E34039&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="23"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.red40` appears to be unused"
+        errorLine1="    &lt;color name=&quot;red40&quot;>#66E34039&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="24"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.textInputBorder` appears to be unused"
+        errorLine1="    &lt;color name=&quot;textInputBorder&quot;>#234161&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="26"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.anim.fade_in` appears to be unused"
+        errorLine1="&lt;set xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/anim/fade_in.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.missing_service` appears to be unused"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/missing_service.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.split_tunneling` appears to be unused"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/split_tunneling.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.split_tunneling_header` appears to be unused"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.account_created` appears to be unused"
+        errorLine1="    &lt;string name=&quot;account_created&quot;>Account created&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.not_blocking_internet` appears to be unused"
+        errorLine1="    &lt;string name=&quot;not_blocking_internet&quot;>YOU MIGHT BE LEAKING NETWORK TRAFFIC&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="112"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.virtual_adapter_problem` appears to be unused"
+        errorLine1="    &lt;string name=&quot;virtual_adapter_problem&quot;>Virtual adapter error&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="132"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.enable` appears to be unused"
+        errorLine1="    &lt;string name=&quot;enable&quot;>Enable&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="147"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.wg_key_url` appears to be unused"
+        errorLine1="    &lt;string name=&quot;wg_key_url&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_non_translatable.xml"
+            line="10"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.transparent_red_button_background` appears to be unused"
+        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/transparent_red_button_background.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/information_view.xml"
+            line="2"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/information_view.xml"
+            line="2"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Connecting to Mullvad system service...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="15"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Logging in...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="18"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Creating account...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="26"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Opretter forbindelse til Mullvad-systemtjeneste...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Verbindung zum Mullvad-Systemdienst wird hergestellt...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Yhdistetään Mullvad-järjestelmäpalveluun...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Connexion au service système Mullvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Connessione al servizio del sistema Mullvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Mullvad システムサービスに接続中...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Mullvad 시스템 서비스에 연결하는 중...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ko/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-my/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Kobler til Mullvads systemtjeneste ...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Verbinden met Mullvad-systeemdienst...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Łączenie z usługą systemową Mullvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>A ligar-se ao serviço de sistema Mulvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Подключение к системному сервису Mullvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Ansluter till Mullvads systemtjänst...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>กำลังเชื่อมต่อบริการของระบบ Mullvad...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-th/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>Mullvad sistem hizmetlerine bağlanılıyor...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;connecting_to_daemon&quot;>連線 Mullvad 系統服務中...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Opretter konto...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Konto wird erstellt ...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Luodaan tiliä...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Creazione account...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>アカウントを作成中...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>계정 생성 중...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ko/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>အကောင့် ဖန်တီးနေဆဲ...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-my/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Oppretter konto ...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Account aanmaken...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Tworzenie konta...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>A criar conta...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Создание учетной записи...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Skapar konto...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>กำลังสร้างบัญชี...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-th/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;creating_new_account&quot;>Hesap oluşturuluyor...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="42"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Sending...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="82"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Logger ind...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Anmeldung läuft...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Kirjaudutaan sisään...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Connexion...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Accesso...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>ログイン中...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>로그인 중...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/res/values-ko/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>ဝင်ရောက်နေဆဲ...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-my/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Logger inn ...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Aanmelden...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Logowanie...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>A iniciar sessão...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Выполняется вход...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Loggar in...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>กำลังเข้าสู่ระบบ...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-th/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>Oturum açılıyor...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;logging_in_title&quot;>登入中...&lt;/string>"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="88"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Sender...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Wird gesendet...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Lähetetään...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Envoi...&lt;/string>"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Invio...&lt;/string>"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>送信中...&lt;/string>"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>전송 중...&lt;/string>"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/res/values-ko/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>ပို့နေဆဲ...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-my/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Sender ...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Verzenden...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Wysyłanie...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>A enviar...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Идет отправка...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Skicka...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>กำลังส่ง...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-th/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>Gönderiliyor...&lt;/string>"
+        errorLine2="                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;sending&quot;>傳送中...&lt;/string>"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="120"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: banner.png (found in drawable-xhdpi)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: banner.png (found in drawable-xhdpi)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: banner.png (found in drawable-xhdpi)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType`"
+        errorLine1="    &lt;EditText android:id=&quot;@+id/login_input&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_input.xml"
+            line="2"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType`"
+        errorLine1="    &lt;EditText android:id=&quot;@+id/input&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="6"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType`"
+        errorLine1="                        &lt;EditText android:id=&quot;@+id/user_message&quot;"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="70"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType`"
+        errorLine1="        &lt;EditText android:id=&quot;@+id/log_area&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="28"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="    &lt;EditText android:id=&quot;@+id/login_input&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_input.xml"
+            line="2"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="    &lt;EditText android:id=&quot;@+id/input&quot;"
+        errorLine2="     ~~~~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="6"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="&lt;EditText xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~">
+        <location
+            file="src/main/res/layout/mtu_edit_text.xml"
+            line="1"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="                        &lt;EditText android:id=&quot;@+id/user_email&quot;"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="60"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="                        &lt;EditText android:id=&quot;@+id/user_message&quot;"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="70"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="        &lt;EditText android:id=&quot;@+id/voucher_code&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/redeem_voucher.xml"
+            line="19"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="Autofill"
+        message="Missing `autofillHints` attribute"
+        errorLine1="        &lt;EditText android:id=&quot;@+id/log_area&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="28"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `CellSwitch` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    override fun onTouchEvent(event: MotionEvent): Boolean {"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
+            line="174"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/remove&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_history_entry.xml"
+            line="15"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/login_button&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_input.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/top_left_corner&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="3"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/top_right_corner&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="9"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/bottom_right_corner&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/bottom_left_corner&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/left_border&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/right_border&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="38"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/top_border&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="45"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/bottom_border&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="52"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/add&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/app_list_item.xml"
+            line="20"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/image&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/button.xml"
+            line="16"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:layout_width=&quot;44dp&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/confirm_dns.xml"
+            line="11"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:layout_width=&quot;44dp&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/confirm_no_email.xml"
+            line="11"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                            &lt;ImageView android:id=&quot;@+id/chevron&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="89"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                        &lt;ImageButton android:id=&quot;@+id/reconnect_button&quot;"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="137"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/remove&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/save&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="21"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/appIcon&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/header_bar.xml"
+            line="6"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/appLogo&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/header_bar.xml"
+            line="14"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageButton android:id=&quot;@+id/settings&quot;"
+        errorLine2="         ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/header_bar.xml"
+            line="25"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/settings&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/launch.xml"
+            line="5"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:layout_width=&quot;120dp&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/launch.xml"
+            line="19"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:layout_height=&quot;18dp&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/launch.xml"
+            line="22"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView android:id=&quot;@+id/logged_in_status&quot;"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/login.xml"
+            line="42"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                &lt;ImageView android:id=&quot;@+id/login_fail_status&quot;"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/login.xml"
+            line="48"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/notification_status&quot;"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="15"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/notification_icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="43"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView android:layout_width=&quot;60dp&quot;"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/out_of_time.xml"
+            line="16"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                            &lt;ImageView android:id=&quot;@+id/sent_successfully_icon&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="110"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                            &lt;ImageView android:id=&quot;@+id/failed_to_send_icon&quot;"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="116"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView android:id=&quot;@+id/relay_active&quot;"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="23"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView android:id=&quot;@+id/selected&quot;"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="28"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageButton android:id=&quot;@+id/chevron&quot;"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="46"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton android:id=&quot;@+id/close&quot;"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/select_location.xml"
+            line="16"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageButton android:id=&quot;@+id/close&quot;"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings.xml"
+            line="17"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:layout_width=&quot;24dp&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings_back_button.xml"
+            line="2"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="LabelFor"
+        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
+        errorLine1="        &lt;EditText android:id=&quot;@+id/log_area&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="28"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                informationDisplay.text = information.substring(0, maxLength) + &quot;...&quot;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/InformationView.kt"
+            line="176"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            inAddress.text = context.getString(R.string.in_address) + &quot;  $host:$port $protocol&quot;"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
+            line="118"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            inAddress.text = context.getString(R.string.in_address) + &quot;  $host:$port $protocol&quot;"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
+            line="118"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            outAddress.text = context.getString(R.string.out_address) + &quot;  $ipAddress&quot;"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
+            line="140"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            outAddress.text = context.getString(R.string.out_address) + &quot;  $ipAddress&quot;"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
+            line="140"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry"
+        errorLine1="                  android:paddingRight=&quot;@dimen/cell_inner_spacing&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="41"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.RIGHT"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
+            line="23"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.RIGHT"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
+            line="23"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.RIGHT"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
+            line="29"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.RIGHT"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
+            line="29"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/BackButton.kt"
+            line="45"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/BackButton.kt"
+            line="45"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/account.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/res/layout/account_history_entry.xml"
+            line="18"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="7"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="13"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="20"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="27"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="34"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="41"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toLeftOf` with `android:layout_toStartOf=&quot;@id/top_right_corner&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_toLeftOf=&quot;@id/top_right_corner&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="48"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toRightOf` with `android:layout_toEndOf=&quot;@id/top_left_corner&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_toRightOf=&quot;@id/top_left_corner&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="49"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toLeftOf` with `android:layout_toStartOf=&quot;@id/bottom_right_corner&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_toLeftOf=&quot;@id/bottom_right_corner&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="55"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toRightOf` with `android:layout_toEndOf=&quot;@id/bottom_left_corner&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_toRightOf=&quot;@id/bottom_left_corner&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/account_login_border.xml"
+            line="56"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="8"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/res/layout/add_custom_dns_server.xml"
+            line="26"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/advanced.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="              android:gravity=&quot;left&quot;>"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/res/layout/advanced_header.xml"
+            line="6"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/advanced_header.xml"
+            line="11"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;4dp&quot;` to better support right-to-left layouts"
+        errorLine1="                 android:layout_marginRight=&quot;4dp&quot;"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/app_list_item.xml"
+            line="14"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;4dp&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_marginRight=&quot;4dp&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/app_list_item.xml"
+            line="24"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;right|center_vertical&quot;"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/button.xml"
+            line="10"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="               android:layout_gravity=&quot;right|center_vertical&quot;"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/button.xml"
+            line="20"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                  android:gravity=&quot;left&quot;>"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/res/layout/confirm_dns.xml"
+            line="10"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                  android:gravity=&quot;left&quot;>"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/res/layout/confirm_no_email.xml"
+            line="10"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;1dp&quot;` to better support right-to-left layouts"
+        errorLine1="                                     android:layout_marginLeft=&quot;1dp&quot;"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/connect.xml"
+            line="140"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="9"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/res/layout/custom_dns_server.xml"
+            line="26"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="10"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/res/layout/edit_custom_dns_server.xml"
+            line="25"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                 android:layout_gravity=&quot;top | right&quot;"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/launch.xml"
+            line="8"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;16dp&quot;` to better support right-to-left layouts"
+        errorLine1="                android:paddingLeft=&quot;16dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="5"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;12dp&quot;` to better support right-to-left layouts"
+        errorLine1="                android:paddingRight=&quot;12dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="6"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="                    android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="13"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toLeftOf` with `android:layout_toStartOf=&quot;@id/notification_icon&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_toLeftOf=&quot;@id/notification_icon&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="25"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toRightOf` with `android:layout_toEndOf=&quot;@id/notification_status_container&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_toRightOf=&quot;@id/notification_status_container&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="26"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;7dp&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;7dp&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="27"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toLeftOf` with `android:layout_toStartOf=&quot;@id/notification_icon&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_toLeftOf=&quot;@id/notification_icon&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="36"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignLeft` with `android:layout_alignStart=&quot;@id/notification_title&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_alignLeft=&quot;@id/notification_title&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="37"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_banner.xml"
+            line="46"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/preferences.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
+        errorLine1="                          android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/preferences.xml"
+            line="41"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/problem_report.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="                  android:gravity=&quot;left&quot;>"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/res/layout/redeem_voucher.xml"
+            line="11"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="12"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="13"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="                     android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="20"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/country_row_padding&quot;` to better support right-to-left layouts"
+        errorLine1="                     android:layout_marginLeft=&quot;@dimen/country_row_padding&quot;>"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="22"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="                  android:layout_alignParentRight=&quot;true&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="39"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toRightOf` with `android:layout_toEndOf=&quot;@id/status&quot;` to better support right-to-left layouts"
+        errorLine1="                  android:layout_toRightOf=&quot;@id/status&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/relay_list_item.xml"
+            line="40"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/select_location.xml"
+            line="5"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="              android:gravity=&quot;left&quot;>"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/res/layout/select_location_header.xml"
+            line="5"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/settings.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
+        errorLine1="                          android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings.xml"
+            line="42"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;8dp&quot;` to better support right-to-left layouts"
+        errorLine1="               android:layout_marginRight=&quot;8dp&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/settings_back_button.xml"
+            line="4"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="             android:gravity=&quot;left&quot;>"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling.xml"
+            line="6"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="              android:gravity=&quot;left&quot;>"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="6"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
+        errorLine1="              android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="11"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/cell_left_padding&quot;` to better support right-to-left layouts"
+        errorLine1="                  android:paddingLeft=&quot;@dimen/cell_left_padding&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="33"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/cell_right_padding&quot;` to better support right-to-left layouts"
+        errorLine1="                  android:paddingRight=&quot;@dimen/cell_right_padding&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="34"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/cell_inner_spacing&quot;` to better support right-to-left layouts"
+        errorLine1="                  android:paddingRight=&quot;@dimen/cell_inner_spacing&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunneling_header.xml"
+            line="41"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableRight` with `android:drawableEnd=&quot;@drawable/icon_chevron&quot;` to better support right-to-left layouts"
+        errorLine1="            android:drawableRight=&quot;@drawable/icon_chevron&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/switch_location_button.xml"
+            line="11"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="              android:gravity=&quot;left&quot;"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/res/layout/view_logs.xml"
+            line="6"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="RtlEnabled"
+        message="The project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+</issues>

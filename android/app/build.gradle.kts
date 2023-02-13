@@ -42,6 +42,12 @@ android {
             name = "ALWAYS_SHOW_CHANGELOG",
             value = alwaysShowChangelog
         )
+
+        lint {
+            baseline = file("lint-baseline.xml")
+            abortOnError = true
+            warningsAsErrors = true
+        }
     }
 
     if (keystorePropertiesFile.exists()) {
