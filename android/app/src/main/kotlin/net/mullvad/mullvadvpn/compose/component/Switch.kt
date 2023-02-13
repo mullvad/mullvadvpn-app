@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewSwitch() {
+private fun PreviewSwitch() {
 
     CellSwitch(
         checked = false,
@@ -50,11 +50,9 @@ fun CellSwitch(
     thumbUncheckedTrackColor: Color = colorResource(id = R.color.red),
     thumbColor: Color = colorResource(id = R.color.white),
 ) {
-    var gapBetweenThumbAndTrackEdge: Dp = 2.dp
-
-    var width: Dp = 46.dp
-    var height: Dp = 28.dp
-
+    val gapBetweenThumbAndTrackEdge: Dp = 2.dp
+    val width: Dp = 46.dp
+    val height: Dp = 28.dp
     val thumbRadius = 11.dp
     getChecked = checked
 
@@ -76,7 +74,6 @@ fun CellSwitch(
             .size(width = width, height = height)
             .scale(scale = scale)
             .pointerInput(Unit) {
-
                 detectTapGestures(
                     onTap = {
                         // Investigate behaviour of Canvas onTap function later, it keeps initial state
@@ -85,8 +82,6 @@ fun CellSwitch(
                 )
             }
     ) {
-        Log.d("mullvad", "AAA drawscope isChecked: $checked")
-
         // Track
         drawRoundRect(
             color = thumbColor,

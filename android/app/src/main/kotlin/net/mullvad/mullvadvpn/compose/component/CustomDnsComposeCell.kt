@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun CustomDnsComposeCellPreview() {
+private fun PreviewDnsComposeCell() {
     CustomDnsComposeCell(
         checkboxDefaultState = true,
         onToggle = {}
@@ -30,7 +30,6 @@ fun CustomDnsComposeCell(
     checkboxDefaultState: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
-
     val titleModifier = Modifier
     val bodyViewModifier = Modifier
     val subtitleModifier = Modifier
@@ -46,7 +45,7 @@ fun CustomDnsComposeCell(
                 modifier = bodyViewModifier
             )
         },
-//        onCellClicked = { onToggle(!checkboxDefaultState) },
+        onCellClicked = { onToggle(!checkboxDefaultState) },
         subtitleModifier = subtitleModifier
     )
 }
@@ -82,7 +81,7 @@ fun CustomDnsCellView(
             checked = isToggled,
             onCheckedChange = {
                 switchTriggered(it)
-            },
+            }
         )
     }
 }
@@ -94,6 +93,5 @@ fun CustomDnsCellSubtitle(modifier: Modifier) {
         fontSize = 13.sp,
         color = colorResource(id = R.color.white60),
         modifier = modifier
-
     )
 }
