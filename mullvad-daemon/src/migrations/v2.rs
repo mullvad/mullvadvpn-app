@@ -27,7 +27,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     {
         settings
             .as_object_mut()
-            .ok_or(Error::NoMatchingVersion)?
+            .ok_or(Error::InvalidSettingsContent)?
             .remove("show_beta_releases");
     }
 
@@ -55,7 +55,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
         settings["tunnel_options"]["wireguard"]["rotation_interval"] = serde_json::json!(new_ivl);
         settings["tunnel_options"]["wireguard"]
             .as_object_mut()
-            .ok_or(Error::NoMatchingVersion)?
+            .ok_or(Error::InvalidSettingsContent)?
             .remove("automatic_rotation");
     }
 
