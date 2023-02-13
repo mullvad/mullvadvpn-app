@@ -597,31 +597,37 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             var newAccountExpiry: Date?
             var newDeviceRevoked: Bool?
 
-            switch accountOperation.completion {
+            switch accountOperation.result {
             case let .failure(error):
-                self.providerLogger.error(
-                    error: error,
-                    message: "Failed to fetch account data."
-                )
+                if !error.isOperationCancellationError {
+                    self.providerLogger.error(
+                        error: error,
+                        message: "Failed to fetch account data."
+                    )
+                }
 
             case let .success(accountData):
                 newAccountExpiry = accountData.expiry
 
-            case .none, .cancelled: break
+            case .none:
+                break
             }
 
-            switch deviceOperation.completion {
+            switch deviceOperation.result {
             case let .failure(error):
-                if error.compareErrorCode(.deviceNotFound) {
+                if let restError = error as? REST.Error,
+                   restError.compareErrorCode(.deviceNotFound)
+                {
                     newDeviceRevoked = true
-                } else {
+                } else if !error.isOperationCancellationError {
                     self.providerLogger.error(
                         error: error,
                         message: "Failed to fetch device data."
                     )
                 }
 
-            case .none, .cancelled, .success: break
+            case .none, .success:
+                break
             }
 
             if var deviceCheck = self.deviceCheck {
@@ -657,9 +663,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func createGetAccountDataOperation(accountNumber: String)
-        -> ResultOperation<REST.AccountData, REST.Error>
+        -> ResultOperation<REST.AccountData>
     {
-        let operation = ResultBlockOperation<REST.AccountData, REST.Error>(
+        let operation = ResultBlockOperation<REST.AccountData>(
             dispatchQueue: dispatchQueue
         )
 
@@ -667,8 +673,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             let task = self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .noRetry
-            ) { completion in
-                operation.finish(completion: completion)
+            ) { result in
+                operation.finish(result: result)
             }
 
             operation.addCancellationBlock {
@@ -680,17 +686,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func createGetDeviceDataOperation(accountNumber: String, identifier: String)
-        -> ResultOperation<REST.Device, REST.Error>
+        -> ResultOperation<REST.Device>
     {
-        let operation = ResultBlockOperation<REST.Device, REST.Error>(dispatchQueue: dispatchQueue)
+        let operation = ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             let task = self.devicesProxy.getDevice(
                 accountNumber: accountNumber,
                 identifier: identifier,
                 retryStrategy: .noRetry
-            ) { completion in
-                operation.finish(completion: completion)
+            ) { result in
+                operation.finish(result: result)
             }
 
             operation.addCancellationBlock {

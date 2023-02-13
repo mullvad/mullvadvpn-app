@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 import class WireGuardKitTypes.PublicKey
 
-class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
+class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
     private let interactor: TunnelInteractor
     private let devicesProxy: REST.DevicesProxy
 
@@ -32,7 +32,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
 
     override func main() {
         guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-            finish(completion: .failure(InvalidDeviceStateError()))
+            finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
@@ -40,11 +40,9 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
             accountNumber: accountData.number,
             identifier: deviceData.identifier,
             retryStrategy: .default,
-            completion: { [weak self] completion in
+            completion: { [weak self] result in
                 self?.dispatchQueue.async {
-                    self?.didReceiveDeviceResponse(
-                        completion: completion
-                    )
+                    self?.didReceiveDeviceResponse(result: result)
                 }
             }
         )
@@ -55,23 +53,21 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData, Error> {
         task = nil
     }
 
-    private func didReceiveDeviceResponse(completion: OperationCompletion<REST.Device, REST.Error>)
-    {
-        let mappedCompletion = completion
-            .tryMap { device -> StoredDeviceData in
-                switch interactor.deviceState {
-                case .loggedIn(let storedAccount, var storedDevice):
-                    storedDevice.update(from: device)
-                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                    interactor.setDeviceState(newDeviceState, persist: true)
+    private func didReceiveDeviceResponse(result: Result<REST.Device, Error>) {
+        let result = result.tryMap { device -> StoredDeviceData in
+            switch interactor.deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                interactor.setDeviceState(newDeviceState, persist: true)
 
-                    return storedDevice
+                return storedDevice
 
-                default:
-                    throw InvalidDeviceStateError()
-                }
+            default:
+                throw InvalidDeviceStateError()
             }
+        }
 
-        finish(completion: mappedCompletion)
+        finish(result: result)
     }
 }

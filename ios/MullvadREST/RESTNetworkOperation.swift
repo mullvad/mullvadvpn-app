@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 
 extension REST {
-    class NetworkOperation<Success>: ResultOperation<Success, REST.Error> {
+    class NetworkOperation<Success>: ResultOperation<Success> {
         private let requestHandler: RESTRequestHandler
         private let responseHandler: AnyResponseHandler<Success>
 
@@ -76,7 +76,7 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard !isCancelled else {
-                finish(completion: .cancelled)
+                finish(result: .failure(OperationError.cancelled))
                 return
             }
 
@@ -87,17 +87,18 @@ extension REST {
             }
 
             requiresAuthorization = true
-            authorizationTask = authorizationProvider.getAuthorization { completion in
+            authorizationTask = authorizationProvider.getAuthorization { result in
                 self.dispatchQueue.async {
-                    switch completion {
+                    switch result {
                     case let .success(authorization):
                         self.didReceiveAuthorization(authorization)
 
                     case let .failure(error):
-                        self.didFailToRequestAuthorization(error)
-
-                    case .cancelled:
-                        self.finish(completion: .cancelled)
+                        if error.isOperationCancellationError {
+                            self.finish(result: .failure(error))
+                        } else {
+                            self.didFailToRequestAuthorization(error)
+                        }
                     }
                 }
             }
@@ -107,7 +108,7 @@ extension REST {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard !isCancelled else {
-                finish(completion: .cancelled)
+                finish(result: .failure(OperationError.cancelled))
                 return
             }
 
@@ -125,7 +126,7 @@ extension REST {
             }
         }
 
-        private func didFailToRequestAuthorization(_ error: REST.Error) {
+        private func didFailToRequestAuthorization(_ error: Swift.Error) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.error(
@@ -133,7 +134,7 @@ extension REST {
                 message: "Failed to request authorization."
             )
 
-            finish(completion: .failure(error))
+            finish(result: .failure(error))
         }
 
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
@@ -141,7 +142,7 @@ extension REST {
 
             guard let transport = transportProvider() else {
                 logger.error("Failed to obtain transport.")
-                finish(completion: .failure(.transport(NoTransportError())))
+                finish(result: .failure(REST.Error.transport(NoTransportError())))
                 return
             }
 
@@ -190,7 +191,7 @@ extension REST {
                 message: "Failed to create URLRequest."
             )
 
-            finish(completion: .failure(error))
+            finish(result: .failure(error))
         }
 
         private func didReceiveError(
@@ -203,7 +204,7 @@ extension REST {
             if let urlError = error as? URLError {
                 switch urlError.code {
                 case .cancelled:
-                    finish(completion: .cancelled)
+                    finish(result: .failure(OperationError.cancelled))
                     return
 
                 case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
@@ -237,7 +238,7 @@ extension REST {
             switch handlerResult {
             case let .success(output):
                 // Response handler produced value.
-                finish(completion: .success(output))
+                finish(result: .success(output))
 
             case let .decoding(decoderBlock):
                 // Response handler returned a block decoding value.
@@ -245,7 +246,7 @@ extension REST {
                     .mapError { error -> REST.Error in
                         return .decodeResponse(error)
                     }
-                finish(completion: OperationCompletion(result: decodeResult))
+                finish(result: decodeResult.mapError { $0 })
 
             case let .unhandledResponse(serverErrorResponse):
                 // Response handler couldn't handle the response.
@@ -257,11 +258,9 @@ extension REST {
                     retryInvalidAccessTokenError = false
                     startRequest()
                 } else {
-                    finish(
-                        completion: .failure(
-                            .unhandledResponse(response.statusCode, serverErrorResponse)
-                        )
-                    )
+                    finish(result: .failure(
+                        REST.Error.unhandledResponse(response.statusCode, serverErrorResponse)
+                    ))
                 }
             }
         }
@@ -272,7 +271,7 @@ extension REST {
                 if retryStrategy.maxRetryCount > 0 {
                     logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
-                finish(completion: .failure(wrapRequestError(error)))
+                finish(result: .failure(wrapRequestError(error)))
                 return
             }
 
@@ -288,7 +287,7 @@ extension REST {
             guard let waitDelay = retryDelayIterator.next() else {
                 logger.debug("Retry delay iterator failed to produce next value.")
 
-                finish(completion: .failure(wrapRequestError(error)))
+                finish(result: .failure(wrapRequestError(error)))
                 return
             }
 
@@ -302,7 +301,7 @@ extension REST {
             }
 
             timer.setCancelHandler { [weak self] in
-                self?.finish(completion: .cancelled)
+                self?.finish(result: .failure(OperationError.cancelled))
             }
 
             timer.schedule(wallDeadline: .now() + waitDelay.timeInterval)

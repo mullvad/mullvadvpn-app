@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 import class WireGuardKitTypes.PrivateKey
 
-class RotateKeyOperation: ResultOperation<Bool, Error> {
+class RotateKeyOperation: ResultOperation<Bool> {
     private let interactor: TunnelInteractor
 
     private let devicesProxy: REST.DevicesProxy
@@ -41,7 +41,7 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
 
     override func main() {
         guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-            finish(completion: .failure(InvalidDeviceStateError()))
+            finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
@@ -52,7 +52,7 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
             if nextRotationDate > Date() {
                 logger.debug("Throttle private key rotation.")
 
-                finish(completion: .success(false))
+                finish(result: .success(false))
                 return
             } else {
                 logger.debug("Private key is old enough, rotate right away.")
@@ -70,11 +70,11 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
             identifier: deviceData.identifier,
             publicKey: newPrivateKey.publicKey,
             retryStrategy: .default
-        ) { completion in
+        ) { result in
             self.dispatchQueue.async {
                 self.didRotateKey(
                     newPrivateKey: newPrivateKey,
-                    completion: completion
+                    result: result
                 )
             }
         }
@@ -85,11 +85,8 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
         task = nil
     }
 
-    private func didRotateKey(
-        newPrivateKey: PrivateKey,
-        completion: OperationCompletion<REST.Device, REST.Error>
-    ) {
-        switch completion {
+    private func didRotateKey(newPrivateKey: PrivateKey, result: Result<REST.Device, Error>) {
+        switch result {
         case let .success(device):
             logger.debug("Successfully rotated device key. Persisting settings...")
 
@@ -103,20 +100,19 @@ class RotateKeyOperation: ResultOperation<Bool, Error> {
 
                 interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
 
-                finish(completion: .success(true))
+                finish(result: .success(true))
             default:
-                finish(completion: .failure(InvalidDeviceStateError()))
+                finish(result: .failure(InvalidDeviceStateError()))
             }
 
         case let .failure(error):
-            logger.error(
-                error: error,
-                message: "Failed to rotate device key."
-            )
-            finish(completion: .failure(error))
-
-        case .cancelled:
-            finish(completion: .cancelled)
+            if !error.isOperationCancellationError {
+                logger.error(
+                    error: error,
+                    message: "Failed to rotate device key."
+                )
+            }
+            finish(result: .failure(error))
         }
     }
 }

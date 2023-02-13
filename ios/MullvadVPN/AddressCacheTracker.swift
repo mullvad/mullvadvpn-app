@@ -84,22 +84,17 @@ final class AddressCacheTracker {
         timer = nil
     }
 
-    func updateEndpoints(
-        completionHandler: ((OperationCompletion<Bool, Error>) -> Void)? = nil
-    ) -> Cancellable {
-        let operation = ResultBlockOperation<Bool, Error> { operation in
+    func updateEndpoints(completionHandler: ((Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
+        let operation = ResultBlockOperation<Bool> { operation in
             guard self.nextScheduleDate() <= Date() else {
-                operation.finish(completion: .success(false))
+                operation.finish(result: .success(false))
                 return
             }
 
-            let task = self.apiProxy.getAddressList(retryStrategy: .default) { completion in
-                self.setEndpoints(from: completion)
+            let task = self.apiProxy.getAddressList(retryStrategy: .default) { result in
+                self.setEndpoints(from: result)
 
-                let mappedCompletion = completion.map { _ in true }
-                    .eraseFailureType()
-
-                operation.finish(completion: mappedCompletion)
+                operation.finish(result: result.map { _ in true })
             }
 
             operation.addCancellationBlock {
@@ -130,25 +125,25 @@ final class AddressCacheTracker {
         return _nextScheduleDate()
     }
 
-    private func setEndpoints(from completion: OperationCompletion<[AnyIPEndpoint], REST.Error>) {
+    private func setEndpoints(from result: Result<[AnyIPEndpoint], Error>) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        switch completion {
+        switch result {
         case let .success(endpoints):
             store.setEndpoints(endpoints)
+            lastFailureAttemptDate = nil
 
-        case let .failure(error):
+        case let .failure(error as REST.Error):
             logger.error(
                 error: error,
                 message: "Failed to update address cache."
             )
+            fallthrough
 
-        case .cancelled:
-            break
+        default:
+            lastFailureAttemptDate = Date()
         }
-
-        lastFailureAttemptDate = completion.isSuccess ? nil : Date()
     }
 
     private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {

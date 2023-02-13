@@ -67,7 +67,7 @@ final class TunnelManager: StorePaymentObserver {
     private var privateKeyRotationTimer: DispatchSourceTimer?
     private var lastKeyRotationData: (
         attempt: Date,
-        completion: OperationCompletion<Bool, Error>
+        completion: Result<Bool, Error>
     )?
     private var isRunningPeriodicPrivateKeyRotation = false
 
@@ -198,11 +198,11 @@ final class TunnelManager: StorePaymentObserver {
         logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatDate()).")
     }
 
-    private func setFinishedKeyRotation(_ completion: OperationCompletion<Bool, Error>) {
+    private func setFinishedKeyRotation(_ result: Result<Bool, Error>) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        lastKeyRotationData = (Date(), completion)
+        lastKeyRotationData = (Date(), result)
         updatePrivateKeyRotationTimer()
     }
 
@@ -252,15 +252,15 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(loadTunnelOperation)
     }
 
-    func startTunnel(completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil) {
+    func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
-            completionHandler: { [weak self] completion in
+            completionHandler: { [weak self] result in
                 guard let self = self else { return }
 
                 DispatchQueue.main.async {
-                    if let error = completion.error {
+                    if let error = result.error {
                         self.logger.error(
                             error: error,
                             message: "Failed to start the tunnel."
@@ -273,7 +273,7 @@ final class TunnelManager: StorePaymentObserver {
                         }
                     }
 
-                    completionHandler?(completion)
+                    completionHandler?(result.error)
                 }
             }
         )
@@ -288,15 +288,15 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func stopTunnel(completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil) {
+    func stopTunnel(completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
-        ) { [weak self] completion in
+        ) { [weak self] result in
             guard let self = self else { return }
 
             DispatchQueue.main.async {
-                if let error = completion.error {
+                if let error = result.error {
                     self.logger.error(
                         error: error,
                         message: "Failed to stop the tunnel."
@@ -309,7 +309,7 @@ final class TunnelManager: StorePaymentObserver {
                     }
                 }
 
-                completionHandler?(completion)
+                completionHandler?(result.error)
             }
         }
 
@@ -325,7 +325,7 @@ final class TunnelManager: StorePaymentObserver {
 
     func reconnectTunnel(
         selectNewRelay: Bool,
-        completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil
+        completionHandler: ((Error?) -> Void)? = nil
     ) {
         let operation = ReconnectTunnelOperation(
             dispatchQueue: internalQueue,
@@ -334,10 +334,10 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.completionQueue = .main
-        operation.completionHandler = { [weak self] completion in
-            self?.didReconnectTunnel(completion: completion)
+        operation.completionHandler = { [weak self] result in
+            self?.didReconnectTunnel(error: result.error)
 
-            completionHandler?(completion)
+            completionHandler?(result.error)
         }
 
         operation.addObserver(
@@ -356,7 +356,7 @@ final class TunnelManager: StorePaymentObserver {
 
     func setAccount(
         action: SetAccountAction,
-        completionHandler: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
+        completionHandler: @escaping (Result<StoredAccountData?, Error>) -> Void
     ) {
         let operation = SetAccountOperation(
             dispatchQueue: internalQueue,
@@ -367,10 +367,10 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.completionQueue = .main
-        operation.completionHandler = { [weak self] completion in
+        operation.completionHandler = { [weak self] result in
             self?.resetKeyRotationData()
 
-            completionHandler(completion)
+            completionHandler(result)
         }
 
         operation.addObserver(BackgroundObserver(
@@ -461,7 +461,7 @@ final class TunnelManager: StorePaymentObserver {
 
     func rotatePrivateKey(
         forceRotate: Bool,
-        completionHandler: @escaping (OperationCompletion<Bool, Error>) -> Void
+        completionHandler: @escaping (Result<Bool, Error>) -> Void
     ) -> Cancellable {
         var rotationInterval: TimeInterval?
         if !forceRotate {
@@ -476,24 +476,23 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.completionQueue = .main
-        operation.completionHandler = { [weak self] completion in
+        operation.completionHandler = { [weak self] result in
             guard let self = self else { return }
 
-            self.setFinishedKeyRotation(completion)
+            self.setFinishedKeyRotation(result)
 
-            switch completion {
+            switch result {
             case .success:
                 self.reconnectTunnel(selectNewRelay: true) { _ in
-                    completionHandler(completion)
+                    completionHandler(result)
                 }
 
             case let .failure(error):
-                self.checkIfDeviceRevoked(error)
+                if !error.isOperationCancellationError {
+                    self.checkIfDeviceRevoked(error)
+                }
 
-                completionHandler(.failure(error))
-
-            case .cancelled:
-                completionHandler(completion)
+                completionHandler(result)
             }
         }
 
@@ -814,15 +813,12 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
-    private func didReconnectTunnel(completion: OperationCompletion<Void, Error>) {
+    private func didReconnectTunnel(error: Error?) {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let error = completion.error {
-            logger.error(
-                error: error,
-                message: "Failed to reconnect the tunnel."
-            )
+        if let error = error, !error.isOperationCancellationError {
+            logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
 
         // Refresh tunnel status only when connecting or reasserting to pick up the next relay,

@@ -78,7 +78,7 @@ class OperationConditionTests: XCTestCase {
         let expectToNeverExecute = expectation(description: "Expect child to never execute.")
         expectToNeverExecute.isInverted = true
 
-        let parent = ResultBlockOperation<Void, URLError> {
+        let parent = ResultBlockOperation<Void> {
             throw URLError(.badURL)
         }
 

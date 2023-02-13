@@ -22,28 +22,26 @@ class DeviceManagementInteractor {
 
     @discardableResult
     func getDevices(
-        _ completionHandler: @escaping (OperationCompletion<[REST.Device], Error>)
+        _ completionHandler: @escaping (Result<[REST.Device], Error>)
             -> Void
     ) -> Cancellable {
         return devicesProxy.getDevices(
             accountNumber: accountNumber,
-            retryStrategy: .default
-        ) { completion in
-            completionHandler(completion.eraseFailureType())
-        }
+            retryStrategy: .default,
+            completion: completionHandler
+        )
     }
 
     @discardableResult
     func deleteDevice(
         _ identifier: String,
-        completionHandler: @escaping (OperationCompletion<Bool, Error>) -> Void
+        completionHandler: @escaping (Result<Bool, Error>) -> Void
     ) -> Cancellable {
         return devicesProxy.deleteDevice(
             accountNumber: accountNumber,
             identifier: identifier,
-            retryStrategy: .default
-        ) { completion in
-            completionHandler(completion.eraseFailureType())
-        }
+            retryStrategy: .default,
+            completion: completionHandler
+        )
     }
 }

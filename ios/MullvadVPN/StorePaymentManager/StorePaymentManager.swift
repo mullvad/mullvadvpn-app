@@ -110,7 +110,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void
+        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         let productIdentifiers = productIdentifiers.productIdentifiersSet
         let operation = ProductsRequestOperation(
@@ -149,10 +149,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (OperationCompletion<
-            REST.CreateApplePaymentResponse,
-            StorePaymentManagerError
-        >) -> Void
+        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
         return sendStoreReceipt(
             accountNumber: accountNumber,
@@ -184,15 +181,12 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         accountNumber: String,
         completionHandler: @escaping (StorePaymentManagerError?) -> Void
     ) {
-        let accountOperation = ResultBlockOperation<
-            REST.AccountData,
-            REST.Error
-        >(dispatchQueue: .main) { op in
+        let accountOperation = ResultBlockOperation<REST.AccountData>(dispatchQueue: .main) { op in
             let task = self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .default
-            ) { completion in
-                op.finish(completion: completion)
+            ) { result in
+                op.finish(result: result)
             }
 
             op.addCancellationBlock {
@@ -207,16 +201,8 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         ))
 
         accountOperation.completionQueue = .main
-        accountOperation.completionHandler = { completion in
-            var error: REST.Error?
-
-            if case .cancelled = completion {
-                error = .network(URLError(.cancelled))
-            } else {
-                error = completion.error
-            }
-
-            completionHandler(error.map { .validateAccount($0) })
+        accountOperation.completionHandler = { result in
+            completionHandler(result.error.map { StorePaymentManagerError.validateAccount($0) })
         }
 
         operationQueue.addOperation(accountOperation)
@@ -225,10 +211,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private func sendStoreReceipt(
         accountNumber: String,
         forceRefresh: Bool,
-        completionHandler: @escaping (OperationCompletion<
-            REST.CreateApplePaymentResponse,
-            StorePaymentManagerError
-        >) -> Void
+        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
         let operation = SendStoreReceiptOperation(
             apiProxy: apiProxy,
@@ -333,10 +316,10 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
             return
         }
 
-        _ = sendStoreReceipt(accountNumber: accountNumber, forceRefresh: false) { completion in
+        _ = sendStoreReceipt(accountNumber: accountNumber, forceRefresh: false) { result in
             var event: StorePaymentEvent?
 
-            switch completion {
+            switch result {
             case let .success(response):
                 self.paymentQueue.finishTransaction(transaction)
 
@@ -346,7 +329,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     serverResponse: response
                 ))
 
-            case let .failure(error):
+            case let .failure(error as StorePaymentManagerError):
                 event = StorePaymentEvent.failure(StorePaymentFailure(
                     transaction: transaction,
                     payment: transaction.payment,
@@ -354,7 +337,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     error: error
                 ))
 
-            case .cancelled:
+            default:
                 break
             }
 

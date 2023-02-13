@@ -25,37 +25,36 @@ extension REST {
 
         func getAccessToken(
             accountNumber: String,
-            completionHandler: @escaping (OperationCompletion<REST.AccessTokenData, REST.Error>)
-                -> Void
+            completionHandler: @escaping (Result<REST.AccessTokenData, Swift.Error>) -> Void
         ) -> Cancellable {
-            let operation = ResultBlockOperation<REST.AccessTokenData, REST.Error>(
-                dispatchQueue: dispatchQueue
-            ) { operation in
+            let operation = ResultBlockOperation<REST.AccessTokenData>(dispatchQueue: dispatchQueue)
+
+            operation.setExecutionBlock { operation in
                 if let tokenData = self.tokens[accountNumber], tokenData.expiry > Date() {
-                    operation.finish(completion: .success(tokenData))
+                    operation.finish(result: .success(tokenData))
                     return
                 }
 
                 let task = self.proxy.getAccessToken(
                     accountNumber: accountNumber,
                     retryStrategy: .noRetry
-                ) { completion in
+                ) { result in
                     self.dispatchQueue.async {
-                        switch completion {
+                        switch result {
                         case let .success(tokenData):
                             self.tokens[accountNumber] = tokenData
 
-                        case let .failure(error):
+                        case let .failure(error) where !error.isOperationCancellationError:
                             self.logger.error(
                                 error: error,
                                 message: "Failed to fetch access token."
                             )
 
-                        case .cancelled:
+                        default:
                             break
                         }
 
-                        operation.finish(completion: completion)
+                        operation.finish(result: result)
                     }
                 }
 

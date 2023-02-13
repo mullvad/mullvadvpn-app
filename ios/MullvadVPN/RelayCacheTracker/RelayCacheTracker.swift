@@ -94,28 +94,22 @@ final class RelayCacheTracker {
         timerSource = nil
     }
 
-    func updateRelays(
-        completionHandler: (
-            (OperationCompletion<RelaysFetchResult, Error>) -> Void
-        )? = nil
-    ) -> Cancellable {
-        let operation = ResultBlockOperation<RelaysFetchResult, Error>(
-            dispatchQueue: nil
-        ) { operation in
+    func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)? = nil)
+        -> Cancellable
+    {
+        let operation = ResultBlockOperation<RelaysFetchResult>(dispatchQueue: nil) { operation in
             let cachedRelays = try? self.getCachedRelays()
 
             if self.getNextUpdateDate() > Date() {
-                operation.finish(completion: .success(.throttled))
+                operation.finish(result: .success(.throttled))
                 return
             }
 
             let task = self.apiProxy.getRelays(
                 etag: cachedRelays?.etag,
                 retryStrategy: .noRetry
-            ) { completion in
-                operation.finish(
-                    completion: self.handleResponse(completion: completion)
-                )
+            ) { result in
+                operation.finish(result: self.handleResponse(result: result))
             }
 
             operation.addCancellationBlock {
@@ -181,10 +175,10 @@ final class RelayCacheTracker {
         return max(nextUpdate, Date())
     }
 
-    private func handleResponse(
-        completion: OperationCompletion<REST.ServerRelaysCacheResponse, REST.Error>
-    ) -> OperationCompletion<RelaysFetchResult, Error> {
-        let mappedCompletion = completion.tryMap { response -> RelaysFetchResult in
+    private func handleResponse(result: Result<REST.ServerRelaysCacheResponse, Error>)
+        -> Result<RelaysFetchResult, Error>
+    {
+        return result.tryMap { response -> RelaysFetchResult in
             switch response {
             case let .newContent(etag, relays):
                 try self.storeResponse(etag: etag, relays: relays)
@@ -194,16 +188,14 @@ final class RelayCacheTracker {
             case .notModified:
                 return .sameContent
             }
-        }
+        }.inspectError { error in
+            guard !error.isOperationCancellationError else { return }
 
-        if let error = mappedCompletion.error {
             logger.error(
                 error: error,
                 message: "Failed to update relays."
             )
         }
-
-        return mappedCompletion
     }
 
     private func storeResponse(etag: String?, relays: REST.ServerRelaysResponse) throws {

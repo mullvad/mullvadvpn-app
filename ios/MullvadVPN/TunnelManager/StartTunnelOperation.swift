@@ -14,7 +14,7 @@ import RelayCache
 import RelaySelector
 import TunnelProviderMessaging
 
-class StartTunnelOperation: ResultOperation<Void, Error> {
+class StartTunnelOperation: ResultOperation<Void> {
     typealias EncodeErrorHandler = (Error) -> Void
 
     private let interactor: TunnelInteractor
@@ -36,7 +36,7 @@ class StartTunnelOperation: ResultOperation<Void, Error> {
 
     override func main() {
         guard case .loggedIn = interactor.deviceState else {
-            finish(completion: .failure(InvalidDeviceStateError()))
+            finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
@@ -47,21 +47,21 @@ class StartTunnelOperation: ResultOperation<Void, Error> {
                 tunnelStatus.state = .disconnecting(.reconnect)
             }
 
-            finish(completion: .success(()))
+            finish(result: .success(()))
 
         case .disconnected, .pendingReconnect:
             do {
                 let selectorResult = try interactor.selectRelay()
 
                 makeTunnelProviderAndStartTunnel(selectorResult: selectorResult) { error in
-                    self.finish(completion: OperationCompletion(error: error))
+                    self.finish(result: error.map { .failure($0) } ?? .success(()))
                 }
             } catch {
-                finish(completion: .failure(error))
+                finish(result: .failure(error))
             }
 
         default:
-            finish(completion: .success(()))
+            finish(result: .success(()))
         }
     }
 

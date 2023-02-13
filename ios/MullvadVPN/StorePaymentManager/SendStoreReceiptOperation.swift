@@ -13,10 +13,8 @@ import MullvadTypes
 import Operations
 import StoreKit
 
-class SendStoreReceiptOperation: ResultOperation<
-    REST.CreateApplePaymentResponse,
-    StorePaymentManagerError
->, SKRequestDelegate {
+class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse>, SKRequestDelegate
+{
     private let apiProxy: REST.APIProxy
     private let accountNumber: String
 
@@ -75,7 +73,7 @@ class SendStoreReceiptOperation: ResultOperation<
                 error: error,
                 message: "Failed to read the AppStore receipt."
             )
-            finish(completion: .failure(.readReceipt(error)))
+            finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
         }
     }
 
@@ -92,7 +90,7 @@ class SendStoreReceiptOperation: ResultOperation<
                     error: error,
                     message: "Failed to read the AppStore receipt after refresh."
                 )
-                self.finish(completion: .failure(.readReceipt(error)))
+                self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
             }
         }
     }
@@ -103,7 +101,7 @@ class SendStoreReceiptOperation: ResultOperation<
                 error: error,
                 message: "Failed to refresh the AppStore receipt."
             )
-            self.finish(completion: .failure(.readReceipt(error)))
+            self.finish(result: .failure(StorePaymentManagerError.readReceipt(error)))
         }
     }
 
@@ -138,8 +136,8 @@ class SendStoreReceiptOperation: ResultOperation<
             accountNumber: accountNumber,
             receiptString: receiptData,
             retryStrategy: .noRetry
-        ) { completion in
-            switch completion {
+        ) { result in
+            switch result {
             case let .success(response):
                 self.logger.info(
                     """
@@ -148,18 +146,19 @@ class SendStoreReceiptOperation: ResultOperation<
                     New expiry: \(response.newExpiry.logFormatDate())
                     """
                 )
-                self.finish(completion: .success(response))
+                self.finish(result: .success(response))
 
             case let .failure(error):
-                self.logger.error(
-                    error: error,
-                    message: "Failed to send the AppStore receipt."
-                )
-                self.finish(completion: .failure(.sendReceipt(error)))
-
-            case .cancelled:
-                self.logger.debug("Receipt submission cancelled.")
-                self.finish(completion: .cancelled)
+                if error.isOperationCancellationError {
+                    self.logger.debug("Receipt submission cancelled.")
+                    self.finish(result: .failure(error))
+                } else {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to send the AppStore receipt."
+                    )
+                    self.finish(result: .failure(StorePaymentManagerError.sendReceipt(error)))
+                }
             }
         }
     }

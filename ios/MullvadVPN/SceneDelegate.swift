@@ -629,16 +629,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
     func loginViewController(
         _ controller: LoginViewController,
         shouldHandleLoginAction action: LoginAction,
-        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
+        completion: @escaping (Result<StoredAccountData?, Error>) -> Void
     ) {
         setEnableSettingsButton(isEnabled: false, from: controller)
 
-        tunnelManager.setAccount(action: action.setAccountAction) { operationCompletion in
-            switch operationCompletion {
+        tunnelManager.setAccount(action: action.setAccountAction) { result in
+            switch result {
             case .success:
                 // RootContainer's settings button will be re-enabled in
                 // `loginViewControllerDidFinishLogin`
-                completion(operationCompletion)
+                completion(result)
 
             case let .failure(error):
                 // Show device management controller when too many devices detected during log in.
@@ -664,7 +664,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
                             )
 
                             // Return .cancelled to login controller upon success.
-                            completion(operationCompletion.flatMap { .cancelled })
+                            completion(result.flatMap { _ in .failure(OperationError.cancelled) })
 
                             self?.setEnableSettingsButton(isEnabled: true, from: controller)
                         }
@@ -672,9 +672,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UISplitViewControllerDe
                     fallthrough
                 }
 
-            case .cancelled:
+            case .failure(OperationError.cancelled):
                 self.setEnableSettingsButton(isEnabled: true, from: controller)
-                completion(operationCompletion)
+                completion(result)
             }
         }
     }

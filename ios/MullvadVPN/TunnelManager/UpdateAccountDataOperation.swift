@@ -12,7 +12,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 
-class UpdateAccountDataOperation: ResultOperation<Void, Error> {
+class UpdateAccountDataOperation: ResultOperation<Void> {
     private let logger = Logger(label: "UpdateAccountDataOperation")
     private let interactor: TunnelInteractor
     private let accountsProxy: REST.AccountsProxy
@@ -31,16 +31,16 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
 
     override func main() {
         guard case let .loggedIn(accountData, _) = interactor.deviceState else {
-            finish(completion: .failure(InvalidDeviceStateError()))
+            finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
         task = accountsProxy.getAccountData(
             accountNumber: accountData.number,
             retryStrategy: .default
-        ) { completion in
+        ) { result in
             self.dispatchQueue.async {
-                self.didReceiveAccountData(completion: completion)
+                self.didReceiveAccountData(result: result)
             }
         }
     }
@@ -50,15 +50,14 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
         task = nil
     }
 
-    private func didReceiveAccountData(
-        completion: OperationCompletion<REST.AccountData, REST.Error>
-    ) {
-        let mappedCompletion = completion.mapError { error -> Error in
+    private func didReceiveAccountData(result: Result<REST.AccountData, Error>) {
+        let result = result.inspectError { error in
+            guard !error.isOperationCancellationError else { return }
+
             self.logger.error(
                 error: error,
                 message: "Failed to fetch account expiry."
             )
-            return error
         }.tryMap { accountData in
             switch interactor.deviceState {
             case .loggedIn(var storedAccountData, let storedDeviceData):
@@ -73,6 +72,6 @@ class UpdateAccountDataOperation: ResultOperation<Void, Error> {
             }
         }
 
-        finish(completion: mappedCompletion)
+        finish(result: result)
     }
 }
