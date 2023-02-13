@@ -79,7 +79,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
                     // "Null" is no longer valid. It is not an option.
                     wireguard_constraints
                         .as_object_mut()
-                        .ok_or(Error::NoMatchingVersion)?
+                        .ok_or(Error::InvalidSettingsContent)?
                         .remove("entry_location");
                 } else {
                     wireguard_constraints["use_multihop"] = serde_json::json!(true);
@@ -95,7 +95,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
         //
         if let Some(port) = wireguard_constraints.get("port") {
             let port_constraint: Constraint<TransportPort> =
-                serde_json::from_value(port.clone()).map_err(Error::Parse)?;
+                serde_json::from_value(port.clone()).map_err(|_| Error::InvalidSettingsContent)?;
             if let Some(transport_port) = port_constraint.option() {
                 let (port, obfuscation_settings) = match transport_port.protocol {
                     TransportProtocol::Udp => (serde_json::json!(transport_port.port), None),
@@ -116,7 +116,8 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
 
     let migration_data = if let Some(token) = settings.get("account_token").filter(|t| !t.is_null())
     {
-        let token: AccountToken = serde_json::from_value(token.clone()).map_err(Error::Parse)?;
+        let token: AccountToken =
+            serde_json::from_value(token.clone()).map_err(|_| Error::InvalidSettingsContent)?;
         let migration_data =
             if let Some(wg_data) = settings.get("wireguard").filter(|wg| !wg.is_null()) {
                 Some(MigrationData {
@@ -130,7 +131,9 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
                 })
             };
 
-        let settings_map = settings.as_object_mut().ok_or(Error::NoMatchingVersion)?;
+        let settings_map = settings
+            .as_object_mut()
+            .ok_or(Error::InvalidSettingsContent)?;
         settings_map.remove("account_token");
         settings_map.remove("wireguard");
 
