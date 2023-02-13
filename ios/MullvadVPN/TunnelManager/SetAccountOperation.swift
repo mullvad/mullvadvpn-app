@@ -89,23 +89,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
     }
 
     override func main() {
-        var deleteDeviceOperation: AsyncOperation?
-        if case let .loggedIn(accountData, deviceData) = interactor.deviceState {
-            let operation = getDeleteDeviceOperation(
-                accounNumber: accountData.number,
-                deviceIdentifier: deviceData.identifier
-            )
-            deleteDeviceOperation = operation
-        }
-
+        let deleteDeviceOperation = getDeleteDeviceOperation()
         let unsetDeviceStateOperation = getUnsetDeviceStateOperation()
-        unsetDeviceStateOperation.addCondition(
-            NoFailedDependenciesCondition(ignoreCancellations: false)
-        )
 
-        if let deleteDeviceOperation = deleteDeviceOperation {
-            unsetDeviceStateOperation.addDependency(deleteDeviceOperation)
-        }
+        deleteDeviceOperation.flatMap { unsetDeviceStateOperation.addDependency($0) }
 
         let setupAccountOperations = getAccountDataOperation()
             .flatMap { accountOperation -> [Operation] in
@@ -270,19 +257,19 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         return operation
     }
 
-    private func getDeleteDeviceOperation(accounNumber: String, deviceIdentifier: String)
-        -> ResultBlockOperation<Void, Error>
-    {
-        let operation = ResultBlockOperation<Void, Error>(
-            dispatchQueue: dispatchQueue
-        )
+    private func getDeleteDeviceOperation() -> ResultBlockOperation<Void, Error>? {
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            return nil
+        }
+
+        let operation = ResultBlockOperation<Void, Error>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Delete current device...")
 
             let task = self.devicesProxy.deleteDevice(
-                accountNumber: accounNumber,
-                identifier: deviceIdentifier,
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
                 retryStrategy: .default
             ) { completion in
                 let mappedCompletion = completion
