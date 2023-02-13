@@ -15,7 +15,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -31,15 +30,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewDnsCell() {
+private fun PreviewDnsCell() {
     Column {
         DnsCell(
-            dnsCellUiState = DnsCellUiState(),
+            dnsCellData = DnsCellData("35455", false),
             cellClick = {},
             onLostFocus = {},
             confirmClick = {},
@@ -47,7 +45,7 @@ fun PreviewDnsCell() {
         )
         Divider()
         DnsCell(
-            dnsCellUiState = DnsCellUiState("35455", false),
+            dnsCellData = DnsCellData("1.1.1.1", true),
             cellClick = {},
             onLostFocus = {},
             confirmClick = {},
@@ -55,7 +53,7 @@ fun PreviewDnsCell() {
         )
         Divider()
         DnsCell(
-            dnsCellUiState = DnsCellUiState("1.1.1.1", true),
+            dnsCellData = DnsCellData(),
             cellClick = {},
             onLostFocus = {},
             confirmClick = {},
@@ -66,7 +64,7 @@ fun PreviewDnsCell() {
 
 @Composable
 fun DnsCell(
-    dnsCellUiState: DnsCellUiState,
+    dnsCellData: DnsCellData,
     modifier: Modifier = Modifier,
     cellClick: () -> Unit,
     onLostFocus: () -> Unit,
@@ -87,10 +85,10 @@ fun DnsCell(
             .fillMaxWidth()
     ) {
         val (title, icon) = createRefs()
-        when (val cellMode = dnsCellUiState.dnsCellUiState.collectAsState().value) {
-            is DnsCellUiState.DnsCellMode.EditDns -> {
+        when {
+            dnsCellData.isEditMode -> {
                 DnsTextField(
-                    value = cellMode.editValue,
+                    value = dnsCellData.editValue,
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
@@ -99,10 +97,10 @@ fun DnsCell(
                         .padding(start = 42.dp, end = cellStartPadding),
                     onValueChanged = { value -> onTextChanged(value) },
                     onFocusChanges = { onLostFocus() },
-                    onSubmit = { confirmClick?.invoke(cellMode.editValue) },
+                    onSubmit = { confirmClick?.invoke(dnsCellData.editValue) },
                     isEnabled = true,
                     maxCharLength = Int.MAX_VALUE,
-                    isValidValue = { it -> validateInputDns(it) },
+                    isValidValue = { validateInputDns(it) }
                 )
 
                 LaunchedEffect(Unit) {
@@ -122,10 +120,10 @@ fun DnsCell(
                         .padding(end = cellEndPadding)
                         .wrapContentWidth()
                         .wrapContentHeight()
-                        .clickable { confirmClick?.invoke(cellMode.editValue) }
+                        .clickable { confirmClick?.invoke(dnsCellData.editValue) }
                 )
             }
-            is DnsCellUiState.DnsCellMode.NormalDns -> {
+            dnsCellData.ip != null -> {
                 Button(
                     onClick = {
                         cellClick()
@@ -138,7 +136,7 @@ fun DnsCell(
                 }
 
                 Text(
-                    text = cellMode.ipString,
+                    text = dnsCellData.ip!!,
                     color = colorResource(id = R.color.white),
                     fontSize = 16.sp,
                     fontStyle = FontStyle.Normal,
@@ -168,7 +166,7 @@ fun DnsCell(
                         .clickable { removeClick?.invoke() }
                 )
             }
-            is DnsCellUiState.DnsCellMode.NewDns -> {
+            else -> {
                 Button(
                     onClick = {
                         cellClick()
@@ -215,50 +213,9 @@ fun DnsCell(
     }
 }
 
-class DnsCellUiState(
+data class DnsCellData(
     var ip: String? = null,
     var isEditMode: Boolean = false,
-    var editValue: String = ""
-) {
-    val dnsCellUiState = MutableStateFlow<DnsCellMode>(DnsCellMode.NewDns)
-    private val inputValue = MutableStateFlow(ip ?: "")
+    var editValue: String = "",
 
-    init {
-        dnsCellUiState.value = when {
-            isEditMode -> DnsCellMode.EditDns(
-                ipString = inputValue.value,
-                editValue = editValue
-            )
-            ip == null -> DnsCellMode.NewDns
-            else -> DnsCellMode.NormalDns(
-                ipString = inputValue.value,
-                editValue = editValue
-            )
-        }
-    }
-
-    sealed interface DnsCellMode {
-        var ipString: String
-        var editValue: String
-
-        data class NormalDns(override var ipString: String, override var editValue: String) :
-            DnsCellMode
-        data class EditDns(override var ipString: String, override var editValue: String) :
-            DnsCellMode
-
-        object NewDns : DnsCellMode {
-            private var localIpString: String = ""
-
-            override var ipString: String
-                get() = localIpString
-                set(value) {
-                    localIpString = value
-                }
-            override var editValue: String
-                get() = localIpString
-                set(value) {
-                    localIpString = value
-                }
-        }
-    }
-}
+)

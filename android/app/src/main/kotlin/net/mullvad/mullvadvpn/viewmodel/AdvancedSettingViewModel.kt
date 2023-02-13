@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
 
 const val NO_EDIT_MODE = -1
@@ -26,12 +27,11 @@ sealed interface AdvancedSettingUiState {
     val currentEditValue: String
 
     fun isInEditMode(address: String?): Boolean {
-        return address?.let {
-            customDnsList.indexOf(it) == editDnsIndex
+        return if (address != null) {
+            customDnsList.indexOf(address) == editDnsIndex
+        } else {
+            editDnsIndex == customDnsList.size
         }
-            ?: run {
-                editDnsIndex == customDnsList.size
-            }
     }
 
     data class NormalState(
@@ -101,9 +101,6 @@ private data class AdvancedSettingViewModelState(
     }
 }
 
-/**
- * ViewModel that handles the business logic of the Setting screen
- */
 class AdvancedSettingViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
@@ -121,7 +118,6 @@ class AdvancedSettingViewModel(
         )
     )
 
-    // UI state exposed to the UI
     val uiState = viewModelState
         .map(AdvancedSettingViewModelState::toUiState)
         .stateIn(
@@ -132,8 +128,6 @@ class AdvancedSettingViewModel(
 
     init {
         refreshSettings()
-
-        // Observe for favorite changes in the repo layer
         viewModelScope.launch {
             repository.observeSettings().collectLatest { settings ->
                 viewModelState.update {
@@ -147,11 +141,7 @@ class AdvancedSettingViewModel(
         }
     }
 
-    /**
-     * Refresh advanced settings and update the UI state accordingly
-     */
     private fun refreshSettings() {
-        // Ui state is refreshing
         viewModelState.update {
             it.copy(
                 mtuValue = repository.wireguardMtuString,
@@ -293,15 +283,9 @@ class AdvancedSettingViewModel(
     }
 
     private fun saveMtu(newValue: String) {
-        if (isValidMtu(newValue)) {
+        if (newValue.isValidMtu()) {
             repository.wireguardMtu = newValue.toIntOrNull()
         }
-    }
-
-    private fun isValidMtu(newValue: String): Boolean {
-        return newValue.toIntOrNull()?.let {
-            it in 1280..1420
-        } ?: run { true }
     }
 
     private fun shouldShowLocalDnsWarningDialog(address: InetAddress): Boolean {

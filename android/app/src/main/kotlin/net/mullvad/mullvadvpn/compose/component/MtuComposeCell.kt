@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth as wrapContentWidth1
@@ -41,33 +40,28 @@ fun MtuComposeCell(
     onMtuFocusChanged: (Boolean) -> Unit,
 ) {
     val titleModifier = Modifier
-    val rightViewModifier = Modifier
     val subtitleModifier = Modifier
 
     val inputFocusRequester = remember { FocusRequester() }
 
-    Column {
-//        var currentMtu = value.uiState.collectAsState().value.mtuState.mtuValue?.wireguardMtu
-//        var mtuString: String = currentMtu?.let { it.toString() } ?: run{ "" }
-        BaseCell(
-            title = { MtuTitle(modifier = titleModifier) },
-            bodyView = {
-                MtuBodyView(
-                    mtuValue = mtuValue ?: "",
-                    onMtuChanged = { onMtuChanged.invoke(it) },
-                    onMtuSubmit = onMtuSubmit,
-                    onMtuFocusChanged = onMtuFocusChanged,
-                    modifier = titleModifier,
-                    inputFocusRequester = inputFocusRequester
-                )
-            },
-            subtitle = { MtuSubtitle(subtitleModifier) },
-            subtitleModifier = subtitleModifier,
-            onCellClicked = {
-                inputFocusRequester.requestFocus()
-            }
-        )
-    }
+    BaseCell(
+        title = { MtuTitle(modifier = titleModifier) },
+        bodyView = {
+            MtuBodyView(
+                mtuValue = mtuValue ?: "",
+                onMtuChanged = { onMtuChanged.invoke(it) },
+                onMtuSubmit = onMtuSubmit,
+                onMtuFocusChanged = onMtuFocusChanged,
+                modifier = titleModifier,
+                inputFocusRequester = inputFocusRequester
+            )
+        },
+        subtitle = { MtuSubtitle(subtitleModifier) },
+        subtitleModifier = subtitleModifier,
+        onCellClicked = {
+            inputFocusRequester.requestFocus()
+        }
+    )
 }
 
 @Composable

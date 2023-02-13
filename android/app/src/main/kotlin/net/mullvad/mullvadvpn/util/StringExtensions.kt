@@ -20,3 +20,9 @@ fun String.parseAsDateTime(): DateTime? {
         null
     }
 }
+
+fun String.isValidMtu(): Boolean {
+    return this.toIntOrNull()?.let {
+        it in 1280..1420
+    } ?: run { true }
+}

@@ -19,19 +19,19 @@ class SettingsRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val settings = MutableStateFlow(
-        MullvadSetting(
+    private val dnsSettings = MutableStateFlow(
+        DnsSetting(
             mtu = wireguardMtuString,
             isCustomDnsEnabled = customDns?.isCustomDnsEnabled() ?: false,
             dnsList = customDns?.onDnsServersChanged?.latestEvent ?: emptyList()
         )
     )
 
-    suspend fun fetchSettings(): MullvadSetting {
-        return settings.last()
+    suspend fun fetchSettings(): DnsSetting {
+        return dnsSettings.last()
     }
 
-    fun observeSettings(): Flow<MullvadSetting> = settings
+    fun observeSettings(): Flow<DnsSetting> = dnsSettings
 
     fun setDnsOptions(isCustom: Boolean, dnsList: List<InetAddress>) {
         var dnsOptions = DnsOptions(
@@ -40,8 +40,8 @@ class SettingsRepository(
             defaultOptions = DefaultDnsOptions()
         )
         serviceConnectionManager.customDns()?.setDnsOptions(dnsOptions)
-        settings.value.dnsList = dnsList
-        settings.value.isCustomDnsEnabled = isCustom
+        dnsSettings.value.dnsList = dnsList
+        dnsSettings.value.isCustomDnsEnabled = isCustom
     }
 
     fun isLocalNetworkSharingEnabled(): Boolean {
@@ -52,7 +52,7 @@ class SettingsRepository(
         get() = serviceConnectionManager.settingsListener()?.wireguardMtu
         set(value) {
             serviceConnectionManager.settingsListener()?.wireguardMtu = value
-            settings.value.mtu = value?.let { it.toString() } ?: run { "" }
+            dnsSettings.value.mtu = value?.let { it.toString() } ?: run { "" }
         }
 
     val wireguardMtuString: String
@@ -62,7 +62,7 @@ class SettingsRepository(
         get() = serviceConnectionManager.customDns()
 }
 
-data class MullvadSetting(
+data class DnsSetting(
     var mtu: String,
     var isCustomDnsEnabled: Boolean,
     var dnsList: List<InetAddress>

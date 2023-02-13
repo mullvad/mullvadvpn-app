@@ -22,6 +22,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
@@ -124,11 +125,20 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
     )
 }
 
+@Preview
+@Composable
+private fun PreviewConfirmDialog() {
+    ShowConfirmLocalDnsScreen({}, {})
+}
+
 @Composable
 fun ShowConfirmLocalDnsScreen(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val buttonSize = dimensionResource(id = R.dimen.button_height)
+    val mediumPadding = dimensionResource(id = R.dimen.medium_padding)
+    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     AlertDialog(
         onDismissRequest = {
             onDismiss()
@@ -137,15 +147,14 @@ fun ShowConfirmLocalDnsScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .padding(top = 0.dp)
                     .fillMaxWidth()
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_alert),
                     contentDescription = "Remove",
                     modifier = Modifier
-                        .width(50.dp)
-                        .height(50.dp)
+                        .width(buttonSize)
+                        .height(buttonSize)
                 )
             }
         },
@@ -159,14 +168,13 @@ fun ShowConfirmLocalDnsScreen(
         buttons = {
             Column(
                 Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .padding(start = mediumPadding, end = mediumPadding, bottom = mediumPadding)
             ) {
                 Button(
                     modifier = Modifier
-                        .height(dimensionResource(id = R.dimen.button_height))
+                        .height(buttonSize)
                         .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
+                            minHeight = buttonSize
                         )
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -179,18 +187,16 @@ fun ShowConfirmLocalDnsScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.add_anyway),
-                        fontSize = 18.sp
+                        fontSize = textMediumSize
                     )
                 }
                 Button(
-                    contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
                         .focusOrder(FocusRequester())
-                        .padding(top = 16.dp)
-                        .height(dimensionResource(id = R.dimen.button_height))
+                        .padding(top = mediumPadding)
+                        .height(buttonSize)
                         .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
+                            minHeight = buttonSize
                         )
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -203,7 +209,7 @@ fun ShowConfirmLocalDnsScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.back),
-                        fontSize = 18.sp
+                        fontSize = textMediumSize
                     )
                 }
             }

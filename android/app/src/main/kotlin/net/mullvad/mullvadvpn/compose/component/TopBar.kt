@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewTopBar() {
+private fun PreviewTopBar() {
     TopBar(
         backgroundColor = colorResource(R.color.blue),
         onSettingsClicked = {}

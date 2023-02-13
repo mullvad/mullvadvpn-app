@@ -16,52 +16,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
-@Preview
-@Composable
-fun PreviewBaeCellUsage() {
-
-    Column(Modifier.background(MullvadDarkBlue)) {
-        MtuComposeCell("", {}, {}, {})
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-        )
-
-        NavigationComposeCell(title = stringResource(id = R.string.split_tunneling)) {
-        }
-
-        CustomDnsComposeCell(
-            checkboxDefaultState = true,
-            onToggle = {}
-        )
-    }
-}
-
 @Composable
 fun BaseCell(
-
     title: @Composable () -> Unit,
     bodyView: @Composable () -> Unit,
-
     modifier: Modifier = Modifier,
     onCellClicked: () -> Unit = {},
-
     subtitle: @Composable (() -> Unit)? = null,
-    subtitleModifier: Modifier = Modifier,
-
+    subtitleModifier: Modifier = Modifier
 ) {
     val cellHeight = dimensionResource(id = R.dimen.cell_height)
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
+    val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
 
     Column {
         ConstraintLayout(
@@ -87,7 +58,6 @@ fun BaseCell(
                     .padding(start = cellHorizontalSpacing, end = cellHorizontalSpacing)
 
             ) {
-                // Cell title
                 title()
 
                 Spacer(modifier = Modifier.weight(1.0f))
@@ -103,13 +73,13 @@ fun BaseCell(
         }
 
         // Cell subtitle
-        subtitle?.let {
+        if (subtitle != null) {
             Column(
                 modifier = subtitleModifier
                     .background(MullvadDarkBlue)
                     .padding(
                         start = cellHorizontalSpacing,
-                        top = 6.dp,
+                        top = subtitleVerticalSpacing,
                         end = cellHorizontalSpacing,
                         bottom = cellVerticalSpacing
                     )
