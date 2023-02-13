@@ -41,15 +41,6 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn get_wireguard_tunnel_options(
-    settings: &mut serde_json::Value,
-) -> Option<&mut serde_json::Value> {
-    if let Some(relay_settings) = settings.get_mut("tunnel_options") {
-        return relay_settings.get_mut("wireguard");
-    }
-    None
-}
-
 fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
     if let Some(tunnel_options) = get_wireguard_tunnel_options(settings) {
         if let Some(psk_setting) = tunnel_options.get_mut("use_pq_safe_psk") {
@@ -66,6 +57,12 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
             .remove("use_pq_safe_psk");
     }
     Ok(())
+}
+
+fn get_wireguard_tunnel_options(
+    settings: &mut serde_json::Value,
+) -> Option<&mut serde_json::Value> {
+    settings.get_mut("tunnel_options")?.get_mut("wireguard")
 }
 
 fn version_matches(settings: &mut serde_json::Value) -> bool {
