@@ -301,17 +301,17 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         paymentState = .restoringPurchases
 
-        _ = interactor.restorePurchases(for: accountData.number) { [weak self] completion in
+        _ = interactor.restorePurchases(for: accountData.number) { [weak self] result in
             guard let self = self else { return }
 
-            switch completion {
+            switch result {
             case let .success(response):
                 self.showAlertIfNoTimeAdded(with: response, context: .restoration)
 
-            case let .failure(error):
+            case let .failure(error as StorePaymentManagerError):
                 self.showRestorePurchasesErrorAlert(error: error)
 
-            case .cancelled:
+            default:
                 break
             }
 

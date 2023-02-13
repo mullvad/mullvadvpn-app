@@ -9,20 +9,27 @@
 import Foundation
 
 /// Base class for operations producing result.
-open class ResultOperation<Success, Failure: Error>: AsyncOperation {
-    public typealias Completion = OperationCompletion<Success, Failure>
-    public typealias CompletionHandler = (Completion) -> Void
+open class ResultOperation<Success>: AsyncOperation, OutputOperation {
+    public typealias CompletionHandler = (Result<Success, Error>) -> Void
 
     private let nslock = NSLock()
-    private var completionValue: Completion?
+    private var _output: Success?
     private var _completionQueue: DispatchQueue?
     private var _completionHandler: CompletionHandler?
     private var pendingFinish = false
 
-    public var completion: Completion? {
+    public var result: Result<Success, Error>? {
         nslock.lock()
         defer { nslock.unlock() }
-        return completionValue
+
+        return _output.map { .success($0) } ?? error.map { .failure($0) }
+    }
+
+    public var output: Success? {
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        return _output
     }
 
     public var completionQueue: DispatchQueue? {
@@ -34,8 +41,9 @@ open class ResultOperation<Success, Failure: Error>: AsyncOperation {
         }
         set {
             nslock.lock()
+            defer { nslock.unlock() }
+
             _completionQueue = newValue
-            nslock.unlock()
         }
     }
 
@@ -72,25 +80,19 @@ open class ResultOperation<Success, Failure: Error>: AsyncOperation {
 
     @available(*, unavailable)
     override public func finish() {
-        _finish(error: nil)
+        _finish(result: .failure(OperationError.cancelled))
     }
 
     @available(*, unavailable)
     override public func finish(error: Error?) {
-        _finish(error: error)
+        _finish(result: .failure(error ?? OperationError.cancelled))
     }
 
-    open func finish(completion: Completion) {
-        nslock.lock()
-        if completionValue == nil {
-            completionValue = completion
-        }
-        nslock.unlock()
-
-        _finish(error: completion.error)
+    open func finish(result: Result<Success, Error>) {
+        _finish(result: result)
     }
 
-    private func _finish(error: Error?) {
+    private func _finish(result: Result<Success, Error>) {
         nslock.lock()
         // Bail if operation is already finishing.
         guard !pendingFinish else {
@@ -108,7 +110,9 @@ open class ResultOperation<Success, Failure: Error>: AsyncOperation {
         _completionHandler = nil
 
         // Copy completion value.
-        let completion = completionValue ?? .cancelled
+        if case let .success(output) = result {
+            _output = output
+        }
 
         // Copy completion queue.
         let completionQueue = _completionQueue
@@ -116,7 +120,12 @@ open class ResultOperation<Success, Failure: Error>: AsyncOperation {
 
         let block = {
             // Call completion handler.
-            completionHandler?(completion)
+            completionHandler?(result)
+
+            var error: Error?
+            if case let .failure(failure) = result {
+                error = failure
+            }
 
             // Finish operation.
             super.finish(error: error)

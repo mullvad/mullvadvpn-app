@@ -12,8 +12,7 @@ import Operations
 
 extension REST {
     public class Proxy<ConfigurationType: ProxyConfiguration> {
-        public typealias CompletionHandler<Success> = (OperationCompletion<Success, REST.Error>)
-            -> Void
+        public typealias CompletionHandler<Success> = (Result<Success, Swift.Error>) -> Void
 
         /// Synchronization queue used by network operations.
         let dispatchQueue: DispatchQueue

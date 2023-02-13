@@ -17,7 +17,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     enum State {
         case sending
         case sent(_ email: String)
-        case failure(REST.Error)
+        case failure(Error)
 
         var title: String? {
             switch self {
@@ -96,7 +96,11 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return combinedAttributedString
 
             case let .failure(error):
-                return error.displayErrorDescription.flatMap { NSAttributedString(string: $0) }
+                if let error = error as? REST.Error {
+                    return error.displayErrorDescription.flatMap { NSAttributedString(string: $0) }
+                } else {
+                    return NSAttributedString(string: error.localizedDescription)
+                }
             }
         }
     }

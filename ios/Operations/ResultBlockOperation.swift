@@ -8,11 +8,8 @@
 
 import Foundation
 
-public final class ResultBlockOperation<Success, Failure: Error>: ResultOperation<
-    Success,
-    Failure
-> {
-    public typealias ExecutionBlock = (ResultBlockOperation<Success, Failure>) -> Void
+public final class ResultBlockOperation<Success>: ResultOperation<Success> {
+    public typealias ExecutionBlock = (ResultBlockOperation<Success>) -> Void
     public typealias ThrowingExecutionBlock = () throws -> Success
 
     private var executionBlock: ExecutionBlock?
@@ -78,10 +75,7 @@ public final class ResultBlockOperation<Success, Failure: Error>: ResultOperatio
         executionBlock = nil
     }
 
-    public func setExecutionBlock(
-        _ block: @escaping (ResultBlockOperation<Success, Failure>)
-            -> Void
-    ) {
+    public func setExecutionBlock(_ block: @escaping ExecutionBlock) {
         dispatchQueue.async {
             assert(!self.isExecuting && !self.isFinished)
             self.executionBlock = block
@@ -106,15 +100,9 @@ public final class ResultBlockOperation<Success, Failure: Error>: ResultOperatio
         -> ExecutionBlock
     {
         return { operation in
-            do {
-                let value = try executionBlock()
+            let result = Result { try executionBlock() }
 
-                operation.finish(completion: .success(value))
-            } catch {
-                let castedError = error as! Failure
-
-                operation.finish(completion: .failure(castedError))
-            }
+            operation.finish(result: result)
         }
     }
 }

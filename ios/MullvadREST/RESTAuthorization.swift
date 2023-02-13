@@ -11,9 +11,8 @@ import MullvadTypes
 import Operations
 
 protocol RESTAuthorizationProvider {
-    typealias Completion = OperationCompletion<REST.Authorization, REST.Error>
-
-    func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable
+    func getAuthorization(completion: @escaping (Result<REST.Authorization, Swift.Error>) -> Void)
+        -> Cancellable
 }
 
 extension REST {
@@ -28,13 +27,15 @@ extension REST {
             self.accountNumber = accountNumber
         }
 
-        func getAuthorization(completion: @escaping (Completion) -> Void) -> Cancellable {
-            return accessTokenManager
-                .getAccessToken(accountNumber: accountNumber) { operationCompletion in
-                    completion(operationCompletion.map { tokenData in
-                        return tokenData.accessToken
-                    })
-                }
+        func getAuthorization(
+            completion: @escaping (Result<REST.Authorization, Swift.Error>)
+                -> Void
+        ) -> Cancellable {
+            return accessTokenManager.getAccessToken(accountNumber: accountNumber) { result in
+                completion(result.map { tokenData in
+                    return tokenData.accessToken
+                })
+            }
         }
     }
 }

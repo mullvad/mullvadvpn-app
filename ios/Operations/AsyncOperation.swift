@@ -188,9 +188,10 @@ open class AsyncOperation: Operation {
 
     public func addCondition(_ condition: OperationCondition) {
         operationLock.lock()
+        defer { operationLock.unlock() }
+
         assert(state < .evaluatingConditions)
         _conditions.append(condition)
-        operationLock.unlock()
     }
 
     private func evaluateConditions() {

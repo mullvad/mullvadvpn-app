@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 import Operations
 
-class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
+class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let interactor: TunnelInteractor
 
@@ -54,7 +54,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void, Error> {
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
         interactor.setConfigurationLoaded()
 
-        finish(completion: .success(()))
+        finish(result: .success(()))
     }
 
     private func readSettings() -> Result<TunnelSettingsV2?, Error> {

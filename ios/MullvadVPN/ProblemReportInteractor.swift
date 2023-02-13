@@ -40,7 +40,7 @@ final class ProblemReportInteractor {
     func sendReport(
         email: String,
         message: String,
-        completion: @escaping (OperationCompletion<Void, REST.Error>) -> Void
+        completion: @escaping (Result<Void, Error>) -> Void
     ) -> Cancellable {
         let request = REST.ProblemReportRequest(
             address: email,

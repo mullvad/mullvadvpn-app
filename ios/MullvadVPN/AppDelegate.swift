@@ -209,10 +209,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
             using: nil
         ) { task in
-            let handle = self.addressCacheTracker.updateEndpoints { completion in
+            let handle = self.addressCacheTracker.updateEndpoints { result in
                 self.scheduleAddressCacheUpdateTask()
 
-                task.setTaskCompleted(success: completion.isSuccess)
+                task.setTaskCompleted(success: result.isSuccess)
             }
 
             task.expirationHandler = {
@@ -373,12 +373,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult, Error>(
+        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult>(
             dispatchQueue: .main
         ) { operation in
             SettingsManager.migrateStore(with: self.proxyFactory) { migrationResult in
                 let finishHandler = {
-                    operation.finish(completion: .success(migrationResult))
+                    operation.finish(result: .success(migrationResult))
                 }
 
                 guard case let .failure(error) = migrationResult,
@@ -412,7 +412,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
-        let reconnectTunnelOperation = TransformOperation<SettingsMigrationResult, Void, Error>(
+        let reconnectTunnelOperation = TransformOperation<SettingsMigrationResult, Void>(
             dispatchQueue: .main
         ) { migrationResult in
             if case .success = migrationResult {

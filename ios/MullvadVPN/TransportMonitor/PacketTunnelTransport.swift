@@ -9,6 +9,7 @@
 import Foundation
 import protocol MullvadREST.RESTTransport
 import MullvadTypes
+import Operations
 import TunnelProviderMessaging
 
 struct PacketTunnelTransport: RESTTransport {
@@ -30,9 +31,6 @@ struct PacketTunnelTransport: RESTTransport {
 
         return tunnel.sendRequest(proxyRequest) { result in
             switch result {
-            case .cancelled:
-                completion(nil, nil, URLError(.cancelled))
-
             case let .success(reply):
                 completion(
                     reply.data,
@@ -41,7 +39,9 @@ struct PacketTunnelTransport: RESTTransport {
                 )
 
             case let .failure(error):
-                completion(nil, nil, error)
+                let returnError = error.isOperationCancellationError ? URLError(.cancelled) : error
+
+                completion(nil, nil, returnError)
             }
         }
     }

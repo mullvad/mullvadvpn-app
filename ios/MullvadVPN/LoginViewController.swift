@@ -36,7 +36,7 @@ protocol LoginViewControllerDelegate: AnyObject {
     func loginViewController(
         _ controller: LoginViewController,
         shouldHandleLoginAction action: LoginAction,
-        completion: @escaping (OperationCompletion<StoredAccountData?, Error>) -> Void
+        completion: @escaping (Result<StoredAccountData?, Error>) -> Void
     )
 
     func loginViewControllerDidFinishLogin(_ controller: LoginViewController)
@@ -184,9 +184,7 @@ class LoginViewController: UIViewController, RootContainment {
 
                     self?.endLogin(.success(action))
                 case let .failure(error):
-                    self?.endLogin(.failure(error))
-                case .cancelled:
-                    self?.endLogin(.default)
+                    self?.endLogin(error.isOperationCancellationError ? .default : .failure(error))
                 }
             }
     }
