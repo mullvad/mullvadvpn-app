@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - When logged into an account with no time left, a new view is shown instead of account settings,
 with the option to buy more time.
 - Use exponential backoff with jitter for delay interval when retrying REST API requests.
+- REST API requests will bypass VPN when tunnel is not functional.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
