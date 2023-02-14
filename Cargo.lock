@@ -2042,9 +2042,9 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
 name = "openvpn-plugin"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45d63bb4b48a4dc331d31e86aeac7e51b70e3d8d5a1626fe7642538cf4e126c3"
+checksum = "693396ea7e46ef8dfd60a644b87c976f99b59dedf27dc218d604ee2d6a2fdf90"
 dependencies = [
  "derive-try-from-primitive",
  "log",
