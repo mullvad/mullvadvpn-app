@@ -68,9 +68,9 @@ lazy_static::lazy_static! {
 
 ",
         mullvad_paths::get_default_resource_dir().display(),
-        mullvad_paths::get_default_settings_dir().expect("Unable to get settings dir").display(),
-        mullvad_paths::get_default_cache_dir().expect("Unable to get cache dir").display(),
-        mullvad_paths::get_default_log_dir().expect("Unable to get log dir").display(),
+        mullvad_paths::get_default_settings_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
+        mullvad_paths::get_default_cache_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
+        mullvad_paths::get_default_log_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
         mullvad_paths::get_default_rpc_socket_path().display());
 }
 
