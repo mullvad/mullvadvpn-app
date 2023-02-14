@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
+#### Windows
+- Don't fail to show the mullvad-daemon help text if some of the default paths cannot be obtained.
+
 
 ## [2023.1-beta2] - 2023-02-06
 ### Fixed
