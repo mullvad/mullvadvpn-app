@@ -64,6 +64,7 @@ with the option to buy more time.
 - Validate account token before charging user (in-app purchases). Safeguards from trying to add
   credits on accounts that no longer exist on our backend. Usually the case with newly created
   accounts that went stale.
+- API requests will bypass VPN when tunnel is connecting or reconnecting.
 
 
 ## [2022.1] - 2022-02-15
