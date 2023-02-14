@@ -195,19 +195,18 @@ metadata that might be useful.
 #### Post-quantum
 
 A post-quantum (PQ) resistant tunnel is established by creating a pre-shared key (PSK)
-and then exchanging this with a VPN relay. This exchange happens in a normal tunnel,
+through a cryptographic key exchange with the relay. This exchange happens in a normal tunnel,
 the PSK is saved on the relay and on the client together with a new temporary wireguard
-key of the client. After this a new tunnel is created which uses the new WG key and the PSK,
-this new tunnel is PQ resistant.
+key which the client generates. After this a new tunnel is created which uses the new WG key
+and the PSK, this new tunnel is PQ resistant.
 
 #### Post-quantum & Multihop
 
-A PQ multihop tunnel requires two PSK exchanges, one for each relay. First the temporary WG key
-is created with the first PSK, these are exchanged through a normal tunnel with the entry peer.
-A second normal tunnel is then established through the entry peer to the exit peer and a new PSK
-is exchanged with the exit.
-Finally a new PQ resistant tunnel is created which uses the new WG key and the two PSKs and routes
-through the entry to the exit.
+To create a PQ multihop tunnel, two PSK exchanges are needed with two relays. The client generates a
+temporary key and uses it to do a PSK exchange with the entry relay. Then, a normal tunnel is
+established from the entry to the exit relay and a new PSK is exchanged along with the temporary
+key. Finally, a new PQ resistant tunnel is created using the new WG key and the two PSKs to route
+from the entry to the exit.
 
 ### Detecting device offline
 
