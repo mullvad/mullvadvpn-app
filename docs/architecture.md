@@ -190,6 +190,25 @@ metadata that might be useful.
 
 ### Firewall integration
 
+### Connection logic
+
+#### Post-quantum
+
+A post-quantum (PQ) resistant tunnel is established by creating a pre-shared key (PSK)
+and then exchanging this with a VPN relay. This exchange happens in a normal tunnel,
+the PSK is saved on the relay and on the client together with a new temporary wireguard
+key of the client. After this a new tunnel is created which uses the new WG key and the PSK,
+this new tunnel is PQ resistant.
+
+#### Post-quantum & Multihop
+
+A PQ multihop tunnel requires two PSK exchanges, one for each relay. First the temporary WG key
+is created with the first PSK, these are exchanged through a normal tunnel with the entry peer.
+A second normal tunnel is then established through the entry peer to the exit peer and a new PSK
+is exchanged with the exit.
+Finally a new PQ resistant tunnel is created which uses the new WG key and the two PSKs and routes
+through the entry to the exit.
+
 ### Detecting device offline
 
 The tunnel state machine has an offline monitor that tries to detect when a device will certainly
