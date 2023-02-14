@@ -14,7 +14,7 @@ function build_test_executable {
     local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$suffix"
 
     npm exec pkg -- \
-        --config test.pkg.json \
+        --config standalone-tests.pkg.json \
         --targets "$pkg_target" \
         --output "$output" \
         build/standalone-tests.js
