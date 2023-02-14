@@ -235,27 +235,6 @@ impl Tunnel {
     ) -> Result<()> {
         let use_pq_safe_psk = matches.value_of("policy").unwrap() == "on";
         let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?;
-        if use_pq_safe_psk {
-            let multihop_is_enabled = settings
-                .into_inner()
-                .relay_settings
-                .unwrap()
-                .endpoint
-                .and_then(|endpoint| {
-                    if let types::relay_settings::Endpoint::Normal(settings) = endpoint {
-                        Some(settings.wireguard_constraints.unwrap().use_multihop)
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(false);
-            if multihop_is_enabled {
-                return Err(Error::CommandFailed(
-                    "Quantum resistant tunnels do not work when multihop is enabled",
-                ));
-            }
-        }
         rpc.set_quantum_resistant_tunnel(use_pq_safe_psk).await?;
         println!("Updated quantum resistant tunnel setting");
         Ok(())
