@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 - Show "Mullvad VPN" in the Login Items UI instead of "Amagicom AB".
 - Detect whether users need to approve the launch daemon in the Login Items UI.
 
+#### Windows
+- Don't fail to show the mullvad-daemon help text if some of the default paths cannot be obtained.
+
 
 ## [2023.1-beta1] - 2023-01-26
 ### Added
