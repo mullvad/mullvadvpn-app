@@ -592,26 +592,6 @@ impl Relay {
         if let Some(entry) = matches.values_of("entry location") {
             wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
             let use_multihop = wireguard_constraints.entry_location.is_some();
-            if use_multihop {
-                let quantum_resistant = rpc
-                    .get_settings(())
-                    .await?
-                    .into_inner()
-                    .tunnel_options
-                    .unwrap()
-                    .wireguard
-                    .unwrap()
-                    .quantum_resistant;
-                if quantum_resistant
-                    == Some(types::QuantumResistantState {
-                        state: i32::from(types::quantum_resistant_state::State::On),
-                    })
-                {
-                    return Err(Error::CommandFailed(
-                        "Quantum resistant tunnels do not work when multihop is enabled",
-                    ));
-                }
-            }
             wireguard_constraints.use_multihop = use_multihop;
         }
 

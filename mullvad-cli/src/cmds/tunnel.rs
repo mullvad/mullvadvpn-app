@@ -251,27 +251,6 @@ impl Tunnel {
             _ => unreachable!("invalid PQ state"),
         };
         let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?;
-        if quantum_resistant == types::quantum_resistant_state::State::On {
-            let multihop_is_enabled = settings
-                .into_inner()
-                .relay_settings
-                .unwrap()
-                .endpoint
-                .and_then(|endpoint| {
-                    if let types::relay_settings::Endpoint::Normal(settings) = endpoint {
-                        Some(settings.wireguard_constraints.unwrap().use_multihop)
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(false);
-            if multihop_is_enabled {
-                return Err(Error::CommandFailed(
-                    "Quantum resistant tunnels do not work when multihop is enabled",
-                ));
-            }
-        }
         rpc.set_quantum_resistant_tunnel(types::QuantumResistantState {
             state: i32::from(quantum_resistant),
         })
