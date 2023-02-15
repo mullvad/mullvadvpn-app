@@ -22,7 +22,7 @@ public:
     struct Endpoints {
         Endpoint entryEndpoint;
         std::optional<Endpoint> exitEndpoint;
-    }
+    };
 
 	PermitVpnTunnel(
 		const std::wstring &tunnelInterfaceAlias,
@@ -32,6 +32,7 @@ public:
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
+    bool AddEndpointFilter(std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder);
 
 	const std::wstring m_tunnelInterfaceAlias;
 	const std::optional<Endpoints> m_potentialEndpoints;
