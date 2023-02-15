@@ -22,6 +22,7 @@ public:
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
+    bool PermitVpnTunnel::AddEndpointFilter(std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder);
 
 	const std::wstring m_tunnelInterfaceAlias;
 	const std::vector<PermitVpnTunnel::Endpoints> m_potentialEndpoints;

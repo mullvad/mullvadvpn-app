@@ -17,19 +17,19 @@ namespace rules::baseline
 
 PermitVpnTunnel::PermitVpnTunnel(
 	const std::wstring &tunnelInterfaceAlias,
-	const std::optional<Endpoints> &potentialEndpoints,
+	const std::optional<Endpoints> &potentialEndpoints
 )
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_potentialEndpoints(potentialEndpoints)
 {
 }
 
-bool PermitVpnTunnel::add_endpoint_filter(std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder)
+bool PermitVpnTunnel::AddEndpointFilter(std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder)
 {
-    if (!endpoint.has_value() || endpoint.ip.type() == wfp::IpAddress::Ipv4)
+    if (!endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv4)
     {
         filterBuilder
-            .key(guid)
+            .key(ipv4Guid)
             .name(L"Permit outbound connections on tunnel interface (IPv4)")
             .layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
     
@@ -38,9 +38,9 @@ bool PermitVpnTunnel::add_endpoint_filter(std::optional<Endpoint> &endpoint, GUI
         conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
         if (endpoint.has_value())
         {
-            conditionBuilder.add_condition(ConditionIp::Remote(endpoint.ip));
-            conditionBuilder.add_condition(ConditionPort::Remote(endpoint.port));
-            conditionBuilder.add_condition(CreateProtocolCondition(endpoint.protocol));
+            conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+            conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+            conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
         }
     
         if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -49,10 +49,10 @@ bool PermitVpnTunnel::add_endpoint_filter(std::optional<Endpoint> &endpoint, GUI
         }
     }
     
-    if (!endpoint.has_value() || endpoint.ip.type() == wfp::IpAddress::Ipv6)
+    if (!endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv6)
     {
         filterBuilder
-            .key(guid)
+            .key(ipv6Guid)
             .name(L"Permit outbound connections on tunnel interface (IPv6)")
             .layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
     
@@ -61,9 +61,9 @@ bool PermitVpnTunnel::add_endpoint_filter(std::optional<Endpoint> &endpoint, GUI
         conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
         if (endpoint.has_value())
         {
-            conditionBuilder.add_condition(ConditionIp::Remote(endpoint.ip));
-            conditionBuilder.add_condition(ConditionPort::Remote(endpoint.port));
-            conditionBuilder.add_condition(CreateProtocolCondition(endpoint.protocol));
+            conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+            conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+            conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
         }
     
         if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -87,23 +87,23 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 		.permit();
 
     if (!m_potentialEndpoints.has_value()) {
-        return add_endpoint_filter(
+        return AddEndpointFilter(
                     std::nullopt,
                     MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_Entry(),
                     MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_Entry(),
                     filterBuilder
                 );
     } else {
-        add_endpoint_filter(
-                std::make_optional<Endpoint>(m_potentialEndpoints.entryEndpoint),
+        AddEndpointFilter(
+                std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
                 MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_Entry(),
                 MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_Entry(),
                 filterBuilder
            );
-        if (m_potentialEndpoints.exitEndpoint.has_value())
+        if (m_potentialEndpoints.value().exitEndpoint.has_value())
         {
-            add_endpoint_filter(
-                    m_potentialEndpoints.exitEndpoint,
+            AddEndpointFilter(
+                    m_potentialEndpoints.value().exitEndpoint.value(),
                     MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_Exit(),
                     MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_Exit(),
                     filterBuilder
