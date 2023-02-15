@@ -16,7 +16,7 @@ public:
 
 	PermitVpnTunnelService(
 		const std::wstring &tunnelInterfaceAlias,
-		const std::vector<PermitVpnTunnel::Endpoint> &endpoints
+		const std::optional<PermitVpnTunnel::Endpoints> &potentialEndpoints
 	);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
@@ -24,7 +24,7 @@ public:
 private:
 
 	const std::wstring m_tunnelInterfaceAlias;
-	const std::vector<PermitVpnTunnel::Endpoint> m_tunnelEndpoints;
+	const std::vector<PermitVpnTunnel::Endpoints> m_potentialEndpoints;
 };
 
 }

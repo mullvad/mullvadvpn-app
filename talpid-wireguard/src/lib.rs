@@ -341,7 +341,7 @@ impl WireguardMonitor {
                         .allowed_ips
                         .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
-                    let allowed_traffic = AllowedTunnelTraffic::Only(Endpoint::new(
+                    let allowed_traffic = AllowedTunnelTraffic::One(Endpoint::new(
                         config.ipv4_gateway,
                         talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
                         TransportProtocol::Tcp,
@@ -375,25 +375,22 @@ impl WireguardMonitor {
 
                 let close_obfs_sender = close_obfs_sender.clone();
 
-                let mut allowed_traffic = vec![
-                    Endpoint::new(
-                        config.ipv4_gateway,
-                        talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-                        TransportProtocol::Tcp,
-                    ),
-                ];
-                if config.peers.len() > 1 {
+                let allowed_traffic = Endpoint::new(
+                    config.ipv4_gateway,
+                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                    TransportProtocol::Tcp,
+                );
+                let allowed_traffic = if config.peers.len() > 1 {
                     // NOTE: We need to let traffic meant for the exit IP through the firewall. This
                     // should not allow any non-PQ traffic to leak since you can only reach the
                     // exit peer with these rules and not the broader internet.
-                    allowed_traffic.push(
-                        Endpoint::from_socket_address(
+                    AllowedTunnelTraffic::Two(allowed_traffic, Endpoint::from_socket_address(
                             config.peers[1].endpoint,
                             TransportProtocol::Udp,
-                        ),
-                    );
-                }
-                let allowed_traffic = AllowedTunnelTraffic::Many(allowed_traffic);
+                        ))
+                } else {
+                    AllowedTunnelTraffic::One(allowed_traffic)
+                };
 
                 let exit_config = Self::reconfigure_tunnel(
                     &tunnel,

@@ -219,14 +219,16 @@ bool FwContext::applyPolicyConnecting
 				));
 				break;
 			}
-			case WinFwAllowedTunnelTrafficType::Only:
+			case WinFwAllowedTunnelTrafficType::One:
 			{
-                std::vector<baseline::PermitVpnTunnel::Endpoint> onlyEndpoint;
-				onlyEndpoint.emplace_back(baseline::PermitVpnTunnel::Endpoint{
-					wfp::IpAddress(allowedTunnelTraffic.endpoints->ip),
-					allowedTunnelTraffic.endpoints->port,
-					allowedTunnelTraffic.endpoints->protocol
-				});
+                auto onlyEndpoint = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
+                        baseline::PermitVpnTunnel::Endpoint{
+                        wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
+                        allowedTunnelTraffic.entryEndpoint->port,
+                        allowedTunnelTraffic.entryEndpoint->protocol
+                        },
+                        std::nullopt,
+                });
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 					*tunnelInterfaceAlias,
 					onlyEndpoint
@@ -237,19 +239,20 @@ bool FwContext::applyPolicyConnecting
 				));
 				break;
 			}
-			case WinFwAllowedTunnelTrafficType::Many:
+			case WinFwAllowedTunnelTrafficType::Two:
 			{
-                if (allowedTunnelTraffic.endpointsLength > 2) {
-                    THROW_ERROR("The Many tunnel traffic type currently only supports up to 2 endpoints");
-                }
-                std::vector<baseline::PermitVpnTunnel::Endpoint> endpoints;
-                for (size_t i = 0; i < allowedTunnelTraffic.endpointsLength; i++) {
-                    endpoints.emplace_back(baseline::PermitVpnTunnel::Endpoint{
-                            wfp::IpAddress(allowedTunnelTraffic.endpoints[i].ip),
-                            allowedTunnelTraffic.endpoints[i].port,
-                            allowedTunnelTraffic.endpoints[i].protocol
-                            });
-                }
+                auto endpoints = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
+                        baseline::PermitVpnTunnel::Endpoint{
+                        wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
+                        allowedTunnelTraffic.entryEndpoint->port,
+                        allowedTunnelTraffic.entryEndpoint->protocol
+                        },
+                        std::make_optional<baseline::PermitVpnTunnel::Endpoint>({
+                                wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
+                                allowedTunnelTraffic.entryEndpoint->port,
+                                allowedTunnelTraffic.entryEndpoint->protocol
+                                })
+                });
                 ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
                             *tunnelInterfaceAlias,
                             endpoints
