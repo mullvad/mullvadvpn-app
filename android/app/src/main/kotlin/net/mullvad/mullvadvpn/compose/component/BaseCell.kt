@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 fun BaeCellUsagePreview() {
 
     Column(Modifier.background(MullvadDarkBlue)) {
-        MtuComposeCell("", {}, {})
+        MtuComposeCell("", {}, {}, {})
 
         Spacer(
             modifier = Modifier

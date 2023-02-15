@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -20,10 +21,10 @@ sealed interface AdvancedSettingUiState {
 
     val mtu: String?
     val isCustomDnsEnabled: Boolean
-    val customDnsList: List<InetAddress>
+    val customDnsList: List<String>
     val editDnsIndex: Int
 
-    fun isInEditMode(address: InetAddress?): Boolean {
+    fun isInEditMode(address: String?): Boolean {
         return address?.let {
             customDnsList.indexOf(it) == editDnsIndex
         }
@@ -35,21 +36,21 @@ sealed interface AdvancedSettingUiState {
     data class NormalState(
         override val mtu: String,
         override val isCustomDnsEnabled: Boolean,
-        override val customDnsList: List<InetAddress>,
+        override val customDnsList: List<String>,
         override val editDnsIndex: Int = NO_EDIT_MODE
     ) : AdvancedSettingUiState
 
     data class EditMtu(
         override val mtu: String,
         override val isCustomDnsEnabled: Boolean,
-        override val customDnsList: List<InetAddress>,
+        override val customDnsList: List<String>,
         override val editDnsIndex: Int = NO_EDIT_MODE
     ) : AdvancedSettingUiState
 
     data class InsertLocalDns(
         override val mtu: String,
         override val isCustomDnsEnabled: Boolean,
-        override val customDnsList: List<InetAddress>,
+        override val customDnsList: List<String>,
         override val editDnsIndex: Int = NO_EDIT_MODE,
         val onConfirm: () -> Unit,
         val onCancel: () -> Unit,
@@ -66,7 +67,7 @@ private data class AdvancedSettingViewModelState(
     val mtuValue: String,
     val mode: SettingScreenState = SettingScreenState.Normal,
     val isCustomDnsEnabled: Boolean,
-    val customDnsList: List<InetAddress>,
+    val customDnsList: List<String>,
     val editDnsIndex: Int = NO_EDIT_MODE,
     val hasLocalChange: Boolean = false
 ) {
@@ -109,7 +110,10 @@ class AdvancedSettingViewModel(
             mtuValue = repository.wireguardMtuString,
             mode = SettingScreenState.Normal,
             isCustomDnsEnabled = repository.customDns?.isCustomDnsEnabled() ?: false,
-            customDnsList = repository.customDns?.onDnsServersChanged?.latestEvent ?: emptyList()
+            customDnsList = repository.customDns?.onDnsServersChanged?.latestEvent?.map {
+                it.hostAddress
+            } as List<String>?
+                ?: emptyList()
         )
     )
 
@@ -127,7 +131,7 @@ class AdvancedSettingViewModel(
 
         // Observe for favorite changes in the repo layer
         viewModelScope.launch {
-            repository.observeSettings().collect { settings ->
+            repository.observeSettings().collectLatest { settings ->
                 viewModelState.update {
                     it.copy(
                         mtuValue = settings.mtu,
@@ -162,6 +166,25 @@ class AdvancedSettingViewModel(
         }
     }
 
+    // Mtu manipulation functions
+    fun onMtuChanged(newValue: String) {
+        viewModelState.update {
+            it.copy(mtuValue = newValue)
+        }
+    }
+
+    fun onSubmitMtu() {
+        saveMtu(viewModelState.value.mtuValue)
+    }
+    // This function handles the focus gain of MTU
+    // for now it will clear Editing Dns index
+    fun onMtuFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) {
+            setEditDnsIndex(-1)
+        }
+    }
+
+    // Dns manipulation functions
     fun toggleCustomDns(checked: Boolean) {
         viewModelScope.launch(dispatcher) {
             repository.setCustomDnsEnabled(checked)
@@ -171,39 +194,23 @@ class AdvancedSettingViewModel(
         }
     }
 
-    fun addDnsClicked(addressText: String) {
-        viewModelScope.launch(dispatcher) {
-            if (inetAddressValidator.isValid(addressText)) {
-                val address = InetAddress.getByName(addressText)
-                if (!address.isLoopbackAddress) {
-                    if (shouldShowLocalDnsWarningDialog(address)) {
-                    } else {
-                        viewModelState.value.let {
-                            it.copy(
-                                customDnsList = it.customDnsList.toMutableList()
-                                    .apply {
-                                        add(address)
-                                    },
-                                hasLocalChange = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    fun confirmDns(index: Int, addressText: String) {
 
-    fun editDnsClicked(index: Int, addressText: String) {
-        viewModelScope.launch(dispatcher) {
-            if (inetAddressValidator.isValid(addressText)) {
-                val address = InetAddress.getByName(addressText)
-                if (!address.isLoopbackAddress()) {
-                    if (shouldShowLocalDnsWarningDialog(address)) {
-                    } else {
-                        viewModelState.value.let {
-                            var list = it.customDnsList.toMutableList()
-                            list.set(index, address)
-                            it.copy(
+        if (inetAddressValidator.isValid(addressText)) {
+            val address = InetAddress.getByName(addressText)
+            if (!address.isLoopbackAddress) {
+                if (shouldShowLocalDnsWarningDialog(address)) {
+                } else {
+                    viewModelState.value.let {
+                        var list = it.customDnsList.toMutableList()
+                        if (index == list.size) {
+                            list.add(address.hostAddress)
+                        } else if (index < list.size) {
+                            list[index] = address.hostAddress
+                        }
+                        setEditDnsIndex(-1)
+                        viewModelState.update { vmUiState ->
+                            vmUiState.copy(
                                 customDnsList = list,
                                 hasLocalChange = true
                             )
@@ -215,51 +222,27 @@ class AdvancedSettingViewModel(
     }
 
     fun removeDnsClicked(index: Int) {
-        viewModelScope.launch(dispatcher) {
-            viewModelState.value.let {
-                var list = it.customDnsList.toMutableList()
-                list.removeAt(index)
-                it.copy(
-                    customDnsList = list,
-                    hasLocalChange = true
-                )
-            }
+        setEditDnsIndex(-1)
+        var list = viewModelState.value.customDnsList.toMutableList()
+        viewModelState.update {
+            list.removeAt(index)
+            it.copy(
+                customDnsList = list,
+                hasLocalChange = true
+
+            )
+//            repository.removeDns(InetAddress.getByAddress(list[index]))
         }
     }
 
     fun dnsChanged(index: Int, addressText: String) {
-        viewModelScope.launch(dispatcher) {
-            if (inetAddressValidator.isValid(addressText)) {
-                val address = InetAddress.getByName(addressText)
-                if (!address.isLoopbackAddress()) {
-                    if (shouldShowLocalDnsWarningDialog(address)) {
-                    } else {
-                        viewModelState.value.let {
-                            it.copy(
-                                customDnsList = it.customDnsList.toMutableList()
-                                    .apply {
-                                        add(address)
-                                    },
-                                hasLocalChange = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun onMtuChanged(newValue: String) {
+        var list = viewModelState.value.customDnsList.toMutableList()
+        list[index] = addressText
         viewModelState.update {
-            it.copy(mtuValue = newValue)
+            it.copy(
+                customDnsList = list,
+            )
         }
-    }
-
-    fun onSubmitMtu() {
-        saveMtu(viewModelState.value.mtuValue)
-    }
-
-    fun clearEnteredDns() {
     }
 
 //
@@ -277,13 +260,21 @@ class AdvancedSettingViewModel(
     }
 
     private fun shouldShowLocalDnsWarningDialog(address: InetAddress): Boolean {
-        val isLocalAddress = address.isLinkLocalAddress() || address.isSiteLocalAddress()
-        return isLocalAddress || !repository.isLocalNetworkSharingEnabled()
+        val isLocalAddress = address.isLinkLocalAddress || address.isSiteLocalAddress
+        return isLocalAddress && !repository.isLocalNetworkSharingEnabled()
     }
 
     fun setEditDnsIndex(index: Int) {
         viewModelState.update {
             it.copy(editDnsIndex = index)
         }
+    }
+
+    fun indexLostFocus(index: Int) {
+//
+//        if (index == viewModelState.value.editDnsIndex)
+//            viewModelState.update {
+//                it.copy(editDnsIndex = -1)
+//            }
     }
 }

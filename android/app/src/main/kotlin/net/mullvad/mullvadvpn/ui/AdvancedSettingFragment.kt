@@ -131,28 +131,34 @@ class AdvancedSettingFragment : BaseFragment() {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AdvancedSettingScreen(
                     uiState = advancesSettingViewModel.uiState.collectAsState().value,
-                    onDnsCellClicked = { advancesSettingViewModel.setEditDnsIndex(it) },
-                    onToggleCustomDns = { advancesSettingViewModel.toggleCustomDns(it) },
+
+                    onMtuChanged = { advancesSettingViewModel.onMtuChanged(it) },
+                    onMtuSubmit = { advancesSettingViewModel.onSubmitMtu() },
+                    onMtuFocusChanged = { advancesSettingViewModel.onMtuFocusChanged(it) },
+
                     onNavigateCellClicked = { onNavigationCellClicked(requireActivity()) },
-                    onAddDnsChanged = { item -> advancesSettingViewModel.addDnsClicked(item) },
-                    onRemoveDnsChanged = { index ->
-                        advancesSettingViewModel.removeDnsClicked(index)
+
+                    onDnsCellClicked = { advancesSettingViewModel.setEditDnsIndex(it) },
+                    onDnsCellLostFocus = {
+                        advancesSettingViewModel.indexLostFocus(it)
                     },
-                    onEditDnsChanged = { index, item ->
-                        advancesSettingViewModel.editDnsClicked(
+                    onToggleCustomDns = { advancesSettingViewModel.toggleCustomDns(it) },
+                    onConfirmDns = { index, item ->
+                        advancesSettingViewModel.confirmDns(
                             index,
                             item
                         )
                     },
-                    onDnsChanged = { index, item ->
+                    onRemoveDns = { index ->
+                        advancesSettingViewModel.removeDnsClicked(index)
+                    },
+                    onDnsTextChanged = { index, item ->
                         advancesSettingViewModel.dnsChanged(
                             index,
                             item
                         )
                     },
-                    onBackClick = { },
-                    onMtuChanged = { advancesSettingViewModel.onMtuChanged(it) },
-                    onMtuSubmit = { advancesSettingViewModel.onSubmitMtu() },
+                    onBackClick = { activity?.onBackPressed() },
                 )
             }
             // setup adapter
