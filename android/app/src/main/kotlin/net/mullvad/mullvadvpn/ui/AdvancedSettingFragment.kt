@@ -132,6 +132,9 @@ class AdvancedSettingFragment : BaseFragment() {
                 AdvancedSettingScreen(
                     uiState = advancesSettingViewModel.uiState.collectAsState().value,
                     onDnsCellClicked = { advancesSettingViewModel.setEditDnsIndex(it) },
+                    onDnsCellLostFocus = {
+                        advancesSettingViewModel.indexLostFocus(it)
+                    },
                     onToggleCustomDns = { advancesSettingViewModel.toggleCustomDns(it) },
                     onNavigateCellClicked = { onNavigationCellClicked(requireActivity()) },
                     onAddDnsChanged = { item -> advancesSettingViewModel.addDnsClicked(item) },
@@ -150,7 +153,7 @@ class AdvancedSettingFragment : BaseFragment() {
                             item
                         )
                     },
-                    onBackClick = { },
+                    onBackClick = { activity?.onBackPressed() },
                     onMtuChanged = { advancesSettingViewModel.onMtuChanged(it) },
                     onMtuSubmit = { advancesSettingViewModel.onSubmitMtu() },
                 )

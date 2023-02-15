@@ -9,3 +9,6 @@ val MullvadRed = Color(0xFFE34039)
 val MullvadYellow = Color(0xFFFFD524)
 val MullvadBrown = Color(0xFFD2943B)
 val MullvadBeige = Color(0xFFFFCD86)
+
+// WIP colors
+val MullvadWhite10 = Color(0x1AFFFFFF)

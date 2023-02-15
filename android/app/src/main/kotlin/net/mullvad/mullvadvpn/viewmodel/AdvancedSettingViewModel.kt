@@ -286,4 +286,11 @@ class AdvancedSettingViewModel(
             it.copy(editDnsIndex = index)
         }
     }
+
+    fun indexLostFocus(index: Int) {
+        if (index == viewModelState.value.editDnsIndex)
+            viewModelState.update {
+                it.copy(editDnsIndex = -1)
+            }
+    }
 }

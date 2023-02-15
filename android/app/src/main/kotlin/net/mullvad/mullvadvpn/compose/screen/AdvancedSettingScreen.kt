@@ -52,12 +52,13 @@ fun AdvancedSettingScreen(
     onMtuSubmit: (String) -> Unit,
     onToggleCustomDns: (Boolean) -> Unit,
     onDnsCellClicked: (Int) -> Unit,
+    onDnsCellLostFocus: (Int) -> Unit,
     onNavigateCellClicked: () -> Unit,
     onAddDnsChanged: (String) -> Unit,
     onRemoveDnsChanged: (Int) -> Unit,
     onEditDnsChanged: (Int, String) -> Unit,
     onDnsChanged: (Int, String) -> Unit,
-    onBackClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     val cellHeight = dimensionResource(id = R.dimen.cell_height)
     val cellInnerSpacing = dimensionResource(id = R.dimen.cell_inner_spacing)
@@ -203,6 +204,7 @@ fun AdvancedSettingScreen(
                             ),
                             modifier = Modifier.animateItemPlacement(),
                             cellClick = { onDnsCellClicked(index) },
+                            onLostFocus = { onDnsCellLostFocus(index) },
                             confirmClick = { onDnsChanged(index, it) },
                             removeClick = {},
                         )
@@ -217,6 +219,7 @@ fun AdvancedSettingScreen(
                             ),
                             modifier = Modifier.animateItemPlacement(),
                             cellClick = { onDnsCellClicked(uiState.customDnsList.size) },
+                            onLostFocus = { onDnsCellLostFocus(uiState.customDnsList.size) },
                             confirmClick = { onDnsChanged(uiState.customDnsList.size, it) },
                             removeClick = {},
                         )

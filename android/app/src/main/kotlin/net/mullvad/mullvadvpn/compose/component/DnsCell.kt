@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -35,15 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import java.net.InetAddress
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.R
-
-const val DefaultDnsValue = ""
-
-enum class CursorSelectionBehaviour {
-    START, END, SELECT_ALL
-}
 
 @Preview
 @Composable
@@ -52,6 +42,7 @@ fun PreviewDnsCell() {
         DnsCell(
             dnsCellUiState = DnsCellUiState(),
             cellClick = {},
+            onLostFocus = {},
             confirmClick = {},
             removeClick = null,
         )
@@ -59,6 +50,7 @@ fun PreviewDnsCell() {
         DnsCell(
             dnsCellUiState = DnsCellUiState(InetAddress.getByName("35455"), false),
             cellClick = {},
+            onLostFocus = {},
             confirmClick = {},
             removeClick = null,
         )
@@ -66,6 +58,7 @@ fun PreviewDnsCell() {
         DnsCell(
             dnsCellUiState = DnsCellUiState(InetAddress.getByName("1.1.1.1"), true),
             cellClick = {},
+            onLostFocus = {},
             confirmClick = {},
             removeClick = null,
         )
@@ -77,10 +70,11 @@ fun DnsCell(
     dnsCellUiState: DnsCellUiState,
     modifier: Modifier = Modifier,
     cellClick: () -> Unit,
+    onLostFocus: () -> Unit,
     confirmClick: ((String) -> Unit)? = null,
     removeClick: (() -> Unit)? = null,
     onTextChanged: ((String) -> Unit)? = null,
-    behaviour: CursorSelectionBehaviour = CursorSelectionBehaviour.END,
+    validateInputDns: ((String) -> Boolean) = { true },
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -96,69 +90,38 @@ fun DnsCell(
         val (title, icon) = createRefs()
         when (val cellMode = dnsCellUiState.dnsCellUiState.collectAsState().value) {
             is DnsCellUiState.DnsCellMode.EditDns -> {
-//                var inputIp = cellMode.newIpString
-//                val direction = LocalLayoutDirection.current
-//                var tfv by remember {
-//                    val selection = when (behaviour) {
-//                        CursorSelectionBehaviour.START -> {
-//                            if (direction == LayoutDirection.Ltr) {
-//                                TextRange.Zero
-//                            } else {
-//                                TextRange(inputIp.length)
-//                            }
-//                        }
-//                        CursorSelectionBehaviour.END -> {
-//                            if (direction == LayoutDirection.Ltr) {
-//                                TextRange(inputIp.length)
-//                            } else {
-//                                TextRange.Zero
-//                            }
-//                        }
-//                        CursorSelectionBehaviour.SELECT_ALL -> TextRange(0, inputIp.length)
-//                    }
-//                    val textFieldValue = TextFieldValue(text = inputIp, selection = selection)
-//                    mutableStateOf(textFieldValue)
-//                }
-
-                TextField(
+                DnsTextField(
                     value = cellMode.newIpString,
-//                    value = tfv,
-                    onValueChange = { value -> onTextChanged?.invoke(value) },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.hint_default),
-                            color = colorResource(id = R.color.blue60),
-                            fontSize = 16.sp,
-                            fontStyle = FontStyle.Normal,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier
-                                .constrainAs(title) {
-                                    top.linkTo(parent.top)
-                                    bottom.linkTo(parent.bottom)
-                                    start.linkTo(parent.start)
-                                }
-                                .fillMaxWidth()
-                                .padding(
-                                    start = cellStartPadding,
-                                    top = 14.dp,
-                                    bottom = 14.dp
-                                )
-                        )
-                    },
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
                         .fillMaxHeight()
                         .background(colorResource(id = R.color.white))
                         .padding(start = 42.dp, end = cellStartPadding),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = colorResource(id = R.color.white),
-                        focusedIndicatorColor = Color.Black, // hide the indicator
-                        unfocusedIndicatorColor = colorResource(id = R.color.white20),
-
-                    ),
-//
+                    onValueChanged = { value -> onTextChanged?.invoke(value) },
+                    onFocusLost = { onLostFocus() },
+                    onSubmit = { confirmClick?.invoke(cellMode.newIpString) },
+                    isEnabled = true,
+                    maxCharLength = Int.MAX_VALUE,
+                    isValidValue = { it -> validateInputDns(it) },
                 )
+//                TextField(
+//                    value = cellMode.newIpString,
+//                    onValueChange = { value -> onTextChanged?.invoke(value) },
+//                    modifier = Modifier
+//                        .focusRequester(focusRequester)
+//                        .fillMaxWidth()
+//                        .fillMaxHeight()
+//                        .background(colorResource(id = R.color.white))
+//                        .padding(start = 42.dp, end = cellStartPadding),
+//                    colors = TextFieldDefaults.textFieldColors(
+//                        backgroundColor = colorResource(id = R.color.white),
+//                        focusedIndicatorColor = Color.Black,
+//                        unfocusedIndicatorColor = colorResource(id = R.color.white20),
+//
+//                        ),
+// //
+//                )
 
                 LaunchedEffect(Unit) {
                     focusRequester.requestFocus()
@@ -269,8 +232,6 @@ fun DnsCell(
         }
     }
 }
-
-var lock = ReentrantReadWriteLock()
 
 class DnsCellUiState(var ip: InetAddress? = null, var isEditMode: Boolean = false) {
     val dnsCellUiState = MutableStateFlow<DnsCellMode>(DnsCellMode.NewDns)
