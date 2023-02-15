@@ -69,6 +69,13 @@ android {
     }
 
     buildTypes {
+        getByName("release") {
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
         create("fdroid") {
             initWith(buildTypes.getByName("release"))
             isMinifyEnabled = false
