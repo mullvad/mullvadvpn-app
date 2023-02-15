@@ -1,17 +1,16 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,10 +25,10 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
 @Preview
 @Composable
-fun BaeCellUsagePreview() {
+fun PreviewBaeCellUsage() {
 
     Column(Modifier.background(MullvadDarkBlue)) {
-        MtuComposeCell("", {}, {})
+        MtuComposeCell("", {}, {}, {})
 
         Spacer(
             modifier = Modifier
@@ -54,8 +53,7 @@ fun BaseCell(
     bodyView: @Composable () -> Unit,
 
     modifier: Modifier = Modifier,
-    onCellClicked: (() -> Unit)? = null,
-    expandableContent: @Composable (() -> Unit)? = null,
+    onCellClicked: () -> Unit = {},
 
     subtitle: @Composable (() -> Unit)? = null,
     subtitleModifier: Modifier = Modifier,
@@ -64,11 +62,6 @@ fun BaseCell(
     val cellHeight = dimensionResource(id = R.dimen.cell_height)
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
-//    var expanded by remember { mutableStateOf(true) }
-//
-//    val rotateState = animateFloatAsState(
-//        targetValue = if (expanded) 180F else 0F,
-//    )
 
     Column {
         ConstraintLayout(
@@ -77,29 +70,7 @@ fun BaseCell(
                 .height(cellHeight)
                 .background(colorResource(id = R.color.blue))
         ) {
-            val (clickReceiver, contentContainer) = createRefs()
-
-            // Click listener
-            onCellClicked?.let {
-                Button(
-                    onClick = it,
-                    modifier = Modifier
-                        .constrainAs(clickReceiver) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                ) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(cellHeight)
-                    )
-                }
-            }
+            val (contentContainer) = createRefs()
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -113,6 +84,7 @@ fun BaseCell(
                         bottom.linkTo(parent.bottom)
                         top.linkTo(parent.top)
                     }
+                    .clickable { onCellClicked }
             ) {
                 // Cell title
                 title()
@@ -127,10 +99,6 @@ fun BaseCell(
                     bodyView()
                 }
             }
-        }
-
-        expandableContent?.let { ec ->
-            ec()
         }
 
         // Cell subtitle
