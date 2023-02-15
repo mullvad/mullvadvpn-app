@@ -576,13 +576,12 @@ impl<'a> PolicyBatch<'a> {
                             self.add_allow_tunnel_rules(&tunnel.interface)?;
                         }
                         AllowedTunnelTraffic::None => (),
-                        AllowedTunnelTraffic::Only(endpoint) => {
+                        AllowedTunnelTraffic::One(endpoint) => {
                             self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint)?;
                         }
-                        AllowedTunnelTraffic::Many(endpoints) => {
-                            for endpoint in endpoints {
-                                self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint)?;
-                            }
+                        AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                            self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint1)?;
+                            self.add_allow_in_tunnel_endpoint_rules(&tunnel.interface, endpoint2)?;
                         }
                     }
                     if *allow_lan {

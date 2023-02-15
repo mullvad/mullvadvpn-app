@@ -168,37 +168,40 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `allowed_tun_ips` and `allowed_tunnel_endpoints` must not be dropped until
+        // SAFETY: `allowed_tun_ips`, `entry_endpoint` and `exit_endpoint` must not be dropped until
         // `WinFw_ApplyPolicyConnecting` is done with it
         let mut allowed_tun_ips = [WideCString::new(), WideCString::new()];
-        let allowed_tunnel_endpoints = match allowed_tunnel_traffic {
-            AllowedTunnelTraffic::Only(endpoint) => {
+        let (entry_endpoint, exit_endpoint) = match allowed_tunnel_traffic {
+            AllowedTunnelTraffic::One(endpoint) => {
                 allowed_tun_ips[0] = widestring_ip(endpoint.address.ip());
-                Some(vec![WinFwEndpoint {
+                (Some(WinFwEndpoint {
                     ip: allowed_tun_ips[0].as_ptr(),
                     port: endpoint.address.port(),
                     protocol: WinFwProt::from(endpoint.protocol),
-                }])
+                }), None)
             }
-            AllowedTunnelTraffic::Many(endpoints) => {
-                Some(endpoints.into_iter().enumerate().map(|(i, endpoint)| {
-                    allowed_tun_ips[i] = widestring_ip(endpoint.address.ip());
-                    WinFwEndpoint {
-                        ip: allowed_tun_ips[i].as_ptr(),
-                        port: endpoint.address.port(),
-                        protocol: WinFwProt::from(endpoint.protocol),
-                    }
-                }).collect())
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                allowed_tun_ips[0] = widestring_ip(endpoint1.address.ip());
+                let entry_endpoint = Some(WinFwEndpoint {
+                    ip: allowed_tun_ips[0].as_ptr(),
+                    port: endpoint1.address.port(),
+                    protocol: WinFwProt::from(endpoint1.protocol),
+                });
+                allowed_tun_ips[1] = widestring_ip(endpoint2.address.ip());
+                let exit_endpoint = Some(WinFwEndpoint {
+                    ip: allowed_tun_ips[1].as_ptr(),
+                    port: endpoint2.address.port(),
+                    protocol: WinFwProt::from(endpoint2.protocol),
+                });
+                (entry_endpoint, exit_endpoint)
             }
-            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => None,
+            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
         };
+
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            endpoints: allowed_tunnel_endpoints
-                .as_ref()
-                .map(|eps| eps.as_ptr())
-                .unwrap_or(ptr::null()),
-            endpoints_length: allowed_tunnel_endpoints.as_ref().map(|eps| eps.len()).unwrap_or(0),
+            entry_endpoint: entry_endpoint.as_ref().map(|ep| ep.as_ptr()).unwrap_or(ptr::null()),
+            exit_endpoint: exit_endpoint.as_ref().map(|ep| ep.as_ptr()).unwrap_or(ptr::null()),
         };
 
         let res = unsafe {
@@ -213,11 +216,12 @@ impl Firewall {
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
         };
-        // SAFETY: Both of these hold stack allocated memory which is pointed to by
+        // SAFETY: All of these hold stack allocated memory which is pointed to by
         // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
         // has returned.
         drop(allowed_tun_ips);
-        drop(allowed_tunnel_endpoints);
+        drop(entry_endpoint);
+        drop(exit_endpoint);
         res
     }
 
@@ -458,8 +462,8 @@ mod winfw {
     #[repr(C)]
     pub struct WinFwAllowedTunnelTraffic {
         pub type_: WinFwAllowedTunnelTrafficType,
-        pub endpoints: *const WinFwEndpoint,
-        pub endpoints_length: usize,
+        pub entry_endpoint: *const WinFwEndpoint,
+        pub exit_endpoint: *const WinFwEndpoint,
     }
 
     #[repr(u8)]

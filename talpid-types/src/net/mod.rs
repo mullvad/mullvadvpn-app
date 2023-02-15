@@ -284,8 +284,8 @@ impl fmt::Display for AllowedEndpoint {
 pub enum AllowedTunnelTraffic {
     None,
     All,
-    Only(Endpoint),
-    Many(Vec<Endpoint>),
+    One(Endpoint),
+    Two(Endpoint, Endpoint),
 }
 
 impl fmt::Display for AllowedTunnelTraffic {
@@ -293,9 +293,10 @@ impl fmt::Display for AllowedTunnelTraffic {
         match self {
             AllowedTunnelTraffic::None => "None".fmt(f),
             AllowedTunnelTraffic::All => "All".fmt(f),
-            AllowedTunnelTraffic::Only(endpoint) => endpoint.fmt(f),
-            AllowedTunnelTraffic::Many(endpoints) => {
-                f.write_fmt(format_args!("{:?}", &endpoints))
+            AllowedTunnelTraffic::One(endpoint) => endpoint.fmt(f),
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                endpoint1.fmt(f)?;
+                endpoint2.fmt(f)
             }
         }
     }

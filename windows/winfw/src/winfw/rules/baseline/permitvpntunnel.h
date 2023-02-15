@@ -4,7 +4,7 @@
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
-#include <vector>
+#include <optional>
 
 namespace rules::baseline
 {
@@ -19,9 +19,14 @@ public:
 		WinFwProtocol protocol;
 	};
 
+    struct Endpoints {
+        Endpoint entryEndpoint;
+        std::optional<Endpoint> exitEndpoint;
+    }
+
 	PermitVpnTunnel(
 		const std::wstring &tunnelInterfaceAlias,
-		const std::vector<Endpoint> &endpoints
+		const std::optional<Endpoints> &potentialEndpoints,
 	);
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
@@ -29,7 +34,7 @@ public:
 private:
 
 	const std::wstring m_tunnelInterfaceAlias;
-	const std::vector<Endpoint> m_tunnelEndpoints;
+	const std::optional<Endpoints> m_potentialEndpoints;
 };
 
 }
