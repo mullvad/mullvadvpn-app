@@ -14,6 +14,7 @@ using namespace wfp::conditions;
 
 namespace rules::baseline
 {
+using Endpoint = PermitVpnTunnel::Endpoint;
 
 PermitVpnTunnelService::PermitVpnTunnelService(
 	const std::wstring &tunnelInterfaceAlias,
@@ -24,9 +25,9 @@ PermitVpnTunnelService::PermitVpnTunnelService(
 {
 }
 
-bool PermitVpnTunnel::AddEndpointFilter(std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder)
+bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunnel::Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder, IObjectInstaller& objectInstaller)
 {
-    if (!endpoint.has_value() || endpoint.vale().ip.type() == wfp::IpAddress::Ipv4)
+    if (!endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv4)
     {
         filterBuilder
             .key(ipv4Guid)
@@ -88,27 +89,29 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 
     if (!m_potentialEndpoints.has_value()) {
         return AddEndpointFilter(
-                    std::nullopt,
-                    MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
-                    MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
-                    filterBuilder
-                );
-    } else {
+            std::nullopt,
+            MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
+            MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
+            filterBuilder,
+            objectInstaller
+        );
+    }
+    AddEndpointFilter(
+            std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
+            MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
+            MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
+            filterBuilder,
+            objectInstaller
+        );
+    if (m_potentialEndpoints.value().exitEndpoint.has_value())
+    {
         AddEndpointFilter(
-                std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
-                MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
-                MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
-                filterBuilder
-           );
-        if (m_potentialEndpoints.value().exitEndpoint.has_value())
-        {
-            AddEndpointFilter(
-                    m_potentialEndpoints.value().exitEndpoint.value(),
-                    MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Exit(),
-                    MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Exit(),
-                    filterBuilder
-               );
-        }
+                m_potentialEndpoints.value().exitEndpoint.value(),
+                MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Exit(),
+                MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Exit(),
+                filterBuilder,
+                objectInstaller
+            );
     }
 	return true;
 }
