@@ -200,8 +200,8 @@ impl Firewall {
 
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            entry_endpoint: entry_endpoint.as_ref().map(|ep| ep.as_ptr()).unwrap_or(ptr::null()),
-            exit_endpoint: exit_endpoint.as_ref().map(|ep| ep.as_ptr()).unwrap_or(ptr::null()),
+            entry_endpoint: entry_endpoint.as_ref().map(|ep| ep as *const _).unwrap_or(ptr::null()),
+            exit_endpoint: exit_endpoint.as_ref().map(|ep| ep as *const _).unwrap_or(ptr::null()),
         };
 
         let res = unsafe {
@@ -471,8 +471,8 @@ mod winfw {
     pub enum WinFwAllowedTunnelTrafficType {
         None,
         All,
-        Only,
-        Many,
+        One,
+        Two,
     }
 
     impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
@@ -480,8 +480,8 @@ mod winfw {
             match traffic {
                 AllowedTunnelTraffic::None => WinFwAllowedTunnelTrafficType::None,
                 AllowedTunnelTraffic::All => WinFwAllowedTunnelTrafficType::All,
-                AllowedTunnelTraffic::Only(..) => WinFwAllowedTunnelTrafficType::Only,
-                AllowedTunnelTraffic::Many(..) => WinFwAllowedTunnelTrafficType::Many,
+                AllowedTunnelTraffic::One(..) => WinFwAllowedTunnelTrafficType::One,
+                AllowedTunnelTraffic::Two(..) => WinFwAllowedTunnelTrafficType::Two,
             }
         }
     }
