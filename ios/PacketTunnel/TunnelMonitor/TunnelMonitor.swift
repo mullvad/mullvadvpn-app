@@ -520,14 +520,12 @@ final class TunnelMonitor: PingerDelegate {
             }
 
             try pinger.openSocket(bindTo: interfaceName)
+
+            state.connectionState = .connecting
+            startConnectivityCheckTimer()
         } catch {
             logger.error(error: error, message: "Failed to open socket.")
-            return
         }
-
-        state.connectionState = .connecting
-
-        startConnectivityCheckTimer()
     }
 
     private func stopMonitoring(resetRetryAttempt: Bool) {
