@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadLogging
 import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
@@ -40,8 +39,6 @@ final class Pinger {
     private var sequenceNumber: UInt16 = 0
     private var socket: CFSocket?
     private var readBuffer = [UInt8](repeating: 0, count: bufferSize)
-
-    private let logger = Logger(label: "Pinger")
     private let stateLock = NSRecursiveLock()
 
     private weak var _delegate: PingerDelegate?
@@ -109,8 +106,6 @@ final class Pinger {
 
         if let interfaceName = interfaceName {
             try bindSocket(newSocket, to: interfaceName)
-        } else {
-            logger.debug("Interface is not specified.")
         }
 
         guard let runLoop = CFSocketCreateRunLoopSource(kCFAllocatorDefault, newSocket, 0) else {
@@ -172,9 +167,7 @@ final class Pinger {
         }
 
         guard bytesSent >= 0 else {
-            let errorCode = errno
-            logger.debug("Failed to send packet (errno: \(errorCode)).")
-            throw Error.sendPacket(errorCode)
+            throw Error.sendPacket(errno)
         }
 
         return SendResult(sequenceNumber: sequenceNumber, bytesSent: UInt16(bytesSent))
@@ -289,8 +282,6 @@ final class Pinger {
             throw Error.mapInterfaceNameToIndex(errno)
         }
 
-        logger.debug("Bind socket to \"\(interfaceName)\" (index: \(index))...")
-
         let result = setsockopt(
             CFSocketGetNative(socket),
             IPPROTO_IP,
@@ -300,9 +291,6 @@ final class Pinger {
         )
 
         if result == -1 {
-            logger.error(
-                "Failed to bind socket to \"\(interfaceName)\" (index: \(index), errno: \(errno))."
-            )
             throw Error.bindSocket(errno)
         }
     }

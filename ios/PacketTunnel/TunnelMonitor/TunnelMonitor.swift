@@ -228,7 +228,7 @@ final class TunnelMonitor: PingerDelegate {
     private var state = State()
     private var probeAddress: IPv4Address?
 
-    private var logger = Logger(label: "TunnelMonitor")
+    private let logger = Logger(label: "TunnelMonitor")
 
     private weak var _delegate: TunnelMonitorDelegate?
     weak var delegate: TunnelMonitorDelegate? {
@@ -305,7 +305,7 @@ final class TunnelMonitor: PingerDelegate {
             logger.debug("Start with address: \(probeAddress).")
         } else {
             stopNoQueue(forRestart: true)
-            logger.debug("Restart with address: \(probeAddress)")
+            logger.debug("Restart with address: \(probeAddress).")
         }
 
         self.probeAddress = probeAddress
@@ -348,7 +348,7 @@ final class TunnelMonitor: PingerDelegate {
             newStats.bytesSent < state.netStats.bytesSent
 
         guard !isStatsReset else {
-            logger.debug("Stats was being reset.")
+            logger.trace("Stats was being reset.")
             state.netStats = newStats
             return
         }
@@ -364,7 +364,7 @@ final class TunnelMonitor: PingerDelegate {
         let evaluation = state.evaluateConnection(now: now, pingTimeout: timeout)
 
         if evaluation != .ok {
-            logger.debug("Evaluation: \(evaluation)")
+            logger.trace("Evaluation: \(evaluation)")
         }
 
         switch evaluation {
@@ -394,7 +394,7 @@ final class TunnelMonitor: PingerDelegate {
 
         guard rxDelta > 0 || txDelta > 0 else { return }
 
-        logger.debug(
+        logger.trace(
             """
             rx: \(newStats.bytesReceived) (+\(rxDelta)) \
             tx: \(newStats.bytesSent) (+\(txDelta))
@@ -430,7 +430,7 @@ final class TunnelMonitor: PingerDelegate {
             let sendResult = try pinger.send(to: receiver)
             state.updatePingStats(sendResult: sendResult, now: now)
 
-            logger.debug("Send ping icmp_seq=\(sendResult.sequenceNumber).")
+            logger.trace("Send ping icmp_seq=\(sendResult.sequenceNumber).")
         } catch {
             logger.error(error: error, message: "Failed to send ping.")
         }
@@ -485,23 +485,25 @@ final class TunnelMonitor: PingerDelegate {
         guard let probeAddress = probeAddress else { return }
 
         if sender.rawValue != probeAddress.rawValue {
-            logger.debug("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
+            logger.trace("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
         }
 
         let now = Date()
         let sequenceNumber = icmpHeader.sequenceNumber
         guard let pingTimestamp = state.setPingReplyReceived(sequenceNumber, now: now) else {
-            logger.debug("Got unknown ping sequence: \(sequenceNumber).")
+            logger.trace("Got unknown ping sequence: \(sequenceNumber).")
             return
         }
 
-        let time = now.timeIntervalSince(pingTimestamp) * 1000
-        let message = String(
-            format: "Received reply icmp_seq=%d, time=%.2f ms.",
-            sequenceNumber,
-            time
-        )
-        logger.debug(.init(stringLiteral: message))
+        logger.trace({
+            let time = now.timeIntervalSince(pingTimestamp) * 1000
+            let message = String(
+                format: "Received reply icmp_seq=%d, time=%.2f ms.",
+                sequenceNumber,
+                time
+            )
+            return Logger.Message(stringLiteral: message)
+        }())
 
         if case .connecting = state.connectionState {
             state.connectionState = .connected
@@ -518,14 +520,12 @@ final class TunnelMonitor: PingerDelegate {
             }
 
             try pinger.openSocket(bindTo: interfaceName)
+
+            state.connectionState = .connecting
+            startConnectivityCheckTimer()
         } catch {
             logger.error(error: error, message: "Failed to open socket.")
-            return
         }
-
-        state.connectionState = .connecting
-
-        startConnectivityCheckTimer()
     }
 
     private func stopMonitoring(resetRetryAttempt: Bool) {
@@ -564,7 +564,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func onWakeNoQueue() {
-        logger.debug("Wake up.")
+        logger.trace("Wake up.")
 
         switch state.connectionState {
         case .connecting, .connected:
@@ -576,7 +576,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func onSleepNoQueue() {
-        logger.debug("Prepare to sleep.")
+        logger.trace("Prepare to sleep.")
 
         switch state.connectionState {
         case .connecting, .connected:
