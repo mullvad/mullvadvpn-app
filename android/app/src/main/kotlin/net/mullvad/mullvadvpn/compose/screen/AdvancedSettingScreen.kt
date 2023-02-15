@@ -48,16 +48,24 @@ import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingUiState
 @Composable
 fun AdvancedSettingScreen(
     uiState: AdvancedSettingUiState,
+
     onMtuChanged: (String) -> Unit,
     onMtuSubmit: (String) -> Unit,
+    onMtuFocusChanged: (Boolean) -> Unit,
+
+    onNavigateCellClicked: () -> Unit,
+
     onToggleCustomDns: (Boolean) -> Unit,
     onDnsCellClicked: (Int) -> Unit,
-    onNavigateCellClicked: () -> Unit,
-    onAddDnsChanged: (String) -> Unit,
-    onRemoveDnsChanged: (Int) -> Unit,
-    onEditDnsChanged: (Int, String) -> Unit,
-    onDnsChanged: (Int, String) -> Unit,
-    onBackClick: () -> Unit,
+    onDnsCellLostFocus: (Int) -> Unit,
+
+    onConfirmDns: (Int, String) -> Unit,
+    onRemoveDns: (Int) -> Unit,
+    onDnsTextChanged: (Int, String) -> Unit,
+    onConfirmAddLocalDns: () -> Unit,
+    onCancelLocalDns: () -> Unit,
+
+    onBackClick: () -> Unit
 ) {
     val cellHeight = dimensionResource(id = R.dimen.cell_height)
     val cellInnerSpacing = dimensionResource(id = R.dimen.cell_inner_spacing)
@@ -92,8 +100,8 @@ fun AdvancedSettingScreen(
 
     if (uiState is AdvancedSettingUiState.InsertLocalDns) {
         ShowConfirmLocalDnsScreen(
-            onConfirm = { uiState.onConfirm() },
-            onDismiss = { uiState.onCancel() }
+            onConfirm = { onConfirmAddLocalDns() },
+            onDismiss = { onCancelLocalDns() }
         )
     }
 
@@ -148,7 +156,8 @@ fun AdvancedSettingScreen(
                         MtuComposeCell(
                             uiState.mtu,
                             onMtuChanged = { onMtuChanged(it) },
-                            onMtuSubmit = { onMtuSubmit(it) }
+                            onMtuSubmit = { onMtuSubmit(it) },
+                            onMtuFocusChanged = { onMtuFocusChanged(it) }
                         )
                     }
                 }
@@ -199,26 +208,33 @@ fun AdvancedSettingScreen(
                         DnsCell(
                             dnsCellUiState = DnsCellUiState(
                                 ip = item,
-                                isEditMode = uiState.isInEditMode(item)
+                                isEditMode = uiState.isInEditMode(item),
+                                editValue = uiState.currentEditValue
                             ),
                             modifier = Modifier.animateItemPlacement(),
                             cellClick = { onDnsCellClicked(index) },
-                            confirmClick = { onDnsChanged(index, it) },
-                            removeClick = {},
+                            onLostFocus = { onDnsCellLostFocus(index) },
+                            confirmClick = { onConfirmDns(index, it) },
+                            removeClick = { onRemoveDns(index) },
+                            onTextChanged = { onDnsTextChanged(index, it) }
                         )
                         Divider()
                     }
                     item {
 
+                        val index = uiState.customDnsList.size
                         DnsCell(
                             dnsCellUiState = DnsCellUiState(
                                 ip = null,
-                                isEditMode = uiState.isInEditMode(null)
+                                isEditMode = uiState.isInEditMode(null),
+                                editValue = uiState.currentEditValue
                             ),
                             modifier = Modifier.animateItemPlacement(),
-                            cellClick = { onDnsCellClicked(uiState.customDnsList.size) },
-                            confirmClick = { onDnsChanged(uiState.customDnsList.size, it) },
-                            removeClick = {},
+                            cellClick = { onDnsCellClicked(index) },
+                            onLostFocus = { onDnsCellLostFocus(index) },
+                            confirmClick = { onConfirmDns(index, it) },
+                            removeClick = { onRemoveDns(index) },
+                            onTextChanged = { onDnsTextChanged(index, it) }
                         )
                         Divider()
                     }

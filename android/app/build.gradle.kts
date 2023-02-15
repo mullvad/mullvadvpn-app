@@ -205,6 +205,7 @@ dependencies {
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.recyclerview)
+    implementation(Dependencies.Compose.composeCollapsingToolbar)
     implementation(Dependencies.Compose.constrainLayout)
     implementation(Dependencies.Compose.foundation)
     implementation(Dependencies.Compose.viewModelLifecycle)
@@ -224,9 +225,6 @@ dependencies {
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)
     debugImplementation(Dependencies.Compose.uiTooling)
-
-    // Compose collapsing toolbar
-    implementation(Dependencies.Compose.composeCollapsingToolbar)
 
     // Leak canary
     leakCanaryImplementation(Dependencies.leakCanary)
