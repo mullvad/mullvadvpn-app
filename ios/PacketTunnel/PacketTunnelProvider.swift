@@ -288,7 +288,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 return
             }
 
-            self.providerLogger.debug("Received app message: \(message)")
+            self.providerLogger.trace("Received app message: \(message)")
 
             switch message {
             case let .reconnectTunnel(appSelectorResult):
@@ -572,7 +572,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         } catch {
             providerLogger.error(
                 error: error,
-                message: "Failed to read device states"
+                message: "Failed to read device state."
             )
             return
         }
@@ -581,7 +581,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             return
         }
 
-        providerLogger.debug("Start device check")
+        providerLogger.debug("Start device check.")
 
         let accountOperation = createGetAccountDataOperation(
             accountNumber: storedAccountData.number
