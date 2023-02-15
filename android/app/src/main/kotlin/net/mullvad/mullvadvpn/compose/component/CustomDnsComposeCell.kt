@@ -33,7 +33,6 @@ fun CustomDnsComposeCell(
 
     val titleModifier = Modifier
     val bodyViewModifier = Modifier
-    val expandableViewModifier = Modifier
     val subtitleModifier = Modifier
 
     BaseCell(
@@ -79,14 +78,9 @@ fun CustomDnsCellView(
             .wrapContentWidth()
             .wrapContentHeight()
     ) {
-        // Declaring a boolean value for storing checked state
-        // TODO: remove all logical states from Views
-//        val mCheckedState = remember { mutableStateOf(isToggled) }
-
         CellSwitch(
             checked = isToggled,
             onCheckedChange = {
-//                mCheckedState.value = it
                 switchTriggered(it)
             },
         )
