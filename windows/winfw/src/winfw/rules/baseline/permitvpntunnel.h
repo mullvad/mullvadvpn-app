@@ -26,7 +26,7 @@ public:
 
 	PermitVpnTunnel(
 		const std::wstring &tunnelInterfaceAlias,
-		const std::optional<Endpoints> &potentialEndpoints,
+		const std::optional<Endpoints> &potentialEndpoints
 	);
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
