@@ -25,6 +25,7 @@ public struct LoggerBuilder {
     private var outputs: [LoggerOutput] = []
 
     public var metadata: Logger.Metadata = [:]
+    public var logLevel: Logger.Level = .debug
 
     public init() {}
 
@@ -75,6 +76,7 @@ public struct LoggerBuilder {
             } else {
                 var multiplex = MultiplexLogHandler(logHandlers)
                 multiplex.metadata = metadata
+                multiplex.logLevel = logLevel
                 return multiplex
             }
         }
