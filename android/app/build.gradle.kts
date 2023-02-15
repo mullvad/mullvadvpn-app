@@ -79,8 +79,8 @@ android {
 
         create("fdroid") {
             initWith(buildTypes.getByName("release"))
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = null
             matchingFallbacks += "release"
         }
