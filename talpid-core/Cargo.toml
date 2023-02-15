@@ -103,6 +103,7 @@ features = [
     "Win32_NetworkManagement_Ndis",
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
+    "Win32_System_SystemInformation",
 ]
 
 [build-dependencies]
