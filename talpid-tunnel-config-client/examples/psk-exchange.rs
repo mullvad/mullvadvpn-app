@@ -2,7 +2,7 @@
 //! Useful to test this crate's implementation.
 
 use std::net::IpAddr;
-use talpid_types::net::wireguard::{PublicKey, PrivateKey};
+use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 
 #[tokio::main]
 async fn main() {
@@ -18,9 +18,13 @@ async fn main() {
     let pubkey = PublicKey::from_base64(pubkey_string.trim()).expect("Invalid public key");
     let private_key = PrivateKey::new_from_random();
 
-    let psk = talpid_tunnel_config_client::push_pq_key(tuncfg_server_ip, pubkey, private_key.public_key())
-        .await
-        .unwrap();
+    let psk = talpid_tunnel_config_client::push_pq_key(
+        tuncfg_server_ip,
+        pubkey,
+        private_key.public_key(),
+    )
+    .await
+    .unwrap();
 
     println!("private key: {private_key:?}");
     println!("psk: {psk:?}");
