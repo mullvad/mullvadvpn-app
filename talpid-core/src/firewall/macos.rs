@@ -345,7 +345,7 @@ impl Firewall {
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        match allowed_traffic {
+        Ok(match allowed_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
                 let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 let pfctl_proto = as_pfctl_proto(endpoint.protocol);
@@ -353,22 +353,28 @@ impl Firewall {
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-                let endpoints = vec![endpoint1, endpoint2];
-                endpoints.into_iter().map(|endpoint| {
-                    let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
-                    let pfctl_proto = as_pfctl_proto(endpoint.protocol);
-                    base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
-                    base_rule.build()?
-                }).collect()
+                let mut rules = Vec::with_capacity(2);
+
+                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
+                let pfctl_proto = as_pfctl_proto(endpoint1.protocol);
+                base_rule = base_rule.to(endpoint1.address).proto(pfctl_proto);
+                rules.push(base_rule.build()?);
+
+                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
+                let pfctl_proto = as_pfctl_proto(endpoint2.protocol);
+                base_rule = base_rule.to(endpoint2.address).proto(pfctl_proto);
+                rules.push(base_rule.build()?);
+
+                rules
             }
             AllowedTunnelTraffic::All => {
                 let base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::None => {
-                Ok(vec![])
+                vec![]
             }
-        }
+        })
     }
 
     fn get_allow_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
