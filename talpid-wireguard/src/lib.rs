@@ -258,10 +258,9 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
-        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?));
+        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(
+            maybe_create_obfuscator(&mut config, close_obfs_sender.clone()),
+        )?));
 
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
@@ -340,7 +339,8 @@ impl WireguardMonitor {
                         .expect("entry peer not found")
                         .allowed_ips
                         .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
-                    let entry_tun_config = Self::patch_allowed_ips(&entry_tun_config, true).into_owned();
+                    let entry_tun_config =
+                        Self::patch_allowed_ips(&entry_tun_config, true).into_owned();
 
                     let allowed_traffic = AllowedTunnelTraffic::One(Endpoint::new(
                         config.ipv4_gateway,
@@ -385,10 +385,13 @@ impl WireguardMonitor {
                     // NOTE: We need to let traffic meant for the exit IP through the firewall. This
                     // should not allow any non-PQ traffic to leak since you can only reach the
                     // exit peer with these rules and not the broader internet.
-                    AllowedTunnelTraffic::Two(allowed_traffic, Endpoint::from_socket_address(
+                    AllowedTunnelTraffic::Two(
+                        allowed_traffic,
+                        Endpoint::from_socket_address(
                             config.peers[1].endpoint,
                             TransportProtocol::Udp,
-                        ))
+                        ),
+                    )
                 } else {
                     AllowedTunnelTraffic::One(allowed_traffic)
                 };

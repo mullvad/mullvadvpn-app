@@ -330,7 +330,11 @@ impl Firewall {
         Ok(vec![block_tcp_dns_rule, block_udp_dns_rule])
     }
 
-    fn base_rule(&self, action: FilterRuleAction, tunnel_interface: &str) -> pfctl::FilterRuleBuilder {
+    fn base_rule(
+        &self,
+        action: FilterRuleAction,
+        tunnel_interface: &str,
+    ) -> pfctl::FilterRuleBuilder {
         let mut rule_builder = self.create_rule_builder(action);
         rule_builder
             .quick(true)

@@ -174,11 +174,14 @@ impl Firewall {
         let (entry_endpoint, exit_endpoint) = match allowed_tunnel_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
                 allowed_tun_ips[0] = widestring_ip(endpoint.address.ip());
-                (Some(WinFwEndpoint {
-                    ip: allowed_tun_ips[0].as_ptr(),
-                    port: endpoint.address.port(),
-                    protocol: WinFwProt::from(endpoint.protocol),
-                }), None)
+                (
+                    Some(WinFwEndpoint {
+                        ip: allowed_tun_ips[0].as_ptr(),
+                        port: endpoint.address.port(),
+                        protocol: WinFwProt::from(endpoint.protocol),
+                    }),
+                    None,
+                )
             }
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
                 allowed_tun_ips[0] = widestring_ip(endpoint1.address.ip());
@@ -200,8 +203,14 @@ impl Firewall {
 
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            entry_endpoint: entry_endpoint.as_ref().map(|ep| ep as *const _).unwrap_or(ptr::null()),
-            exit_endpoint: exit_endpoint.as_ref().map(|ep| ep as *const _).unwrap_or(ptr::null()),
+            entry_endpoint: entry_endpoint
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
+            exit_endpoint: exit_endpoint
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
         };
 
         let res = unsafe {
