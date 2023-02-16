@@ -62,16 +62,25 @@ android {
 
         buildTypes {
             getByName("release") {
-                isMinifyEnabled = false
                 signingConfig = signingConfigs.getByName("release")
             }
         }
     }
 
     buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
         create("fdroid") {
             initWith(buildTypes.getByName("release"))
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = null
             matchingFallbacks += "release"
         }
