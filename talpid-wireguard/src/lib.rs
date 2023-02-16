@@ -32,11 +32,12 @@ use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMe
 use talpid_types::BoxedError;
 use talpid_types::{
     net::{
-        obfuscation::ObfuscatorConfig, wireguard::PublicKey, AllowedTunnelTraffic, Endpoint,
+        obfuscation::ObfuscatorConfig, wireguard::{PublicKey, PrivateKey, PeerConfig, PresharedKey}, AllowedTunnelTraffic, Endpoint,
         TransportProtocol,
     },
     ErrorExt,
 };
+use ipnetwork::IpNetwork;
 use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
@@ -230,7 +231,7 @@ impl WireguardMonitor {
             + 'static,
     >(
         mut config: Config,
-        psk_negotiation: Option<PublicKey>,
+        psk_negotiation: Option<Vec<PublicKey>>,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -238,19 +239,185 @@ impl WireguardMonitor {
 
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
-        let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
 
+        #[cfg(target_os = "windows")]
+        let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
+
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+                &mut config,
+                close_obfs_sender.clone(),
+        ))?;
+        let obfuscator_handle = Arc::new(AsyncMutex::new(obfuscator));
+
+        let mut wg_psk_privkey = None;
+        let mut entry_psk: Option<PresharedKey> = None;
+        if psk_negotiation.is_some() && config.peers.len() > 1 {
+            // Create new wg privkey
+            wg_psk_privkey = Some(PrivateKey::new_from_random());
+
+            // Set up tunnel to entry do psk
+            let mut entry_tun_config = config.clone();
+            entry_tun_config.peers.pop();
+            // FIXME: Allow the entry to accept gateway packets but maybe we can do this better?
+            entry_tun_config.peers[0].allowed_ips.push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 0).unwrap());
+            // TODO: Is this unnecessary for the entry?
+            let entry_tun_config = Self::patch_allowed_ips(&entry_tun_config, psk_negotiation.is_some());
+
+            let tunnel = Self::open_tunnel(
+                args.runtime.clone(),
+                &entry_tun_config,
+                log_path,
+                args.resource_dir,
+                args.tun_provider.clone(),
+                #[cfg(target_os = "windows")]
+                args.route_manager.clone(),
+                #[cfg(target_os = "windows")]
+                setup_done_tx,
+            )?;
+
+            let iface_name = tunnel.get_interface_name();
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
+
+            let tunnel = Arc::new(Mutex::new(Some(tunnel)));
+
+            // TODO: Can we make the allowed traffic smaller here?
+            //let allowed_traffic = AllowedTunnelTraffic::Only(Endpoint::new(
+            //    config.ipv4_gateway,
+            //    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+            //    TransportProtocol::Tcp,
+            //))
+            args.runtime.block_on(async {
+                let allowed_traffic = AllowedTunnelTraffic::All;
+                (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
+
+                // Add non-default routes before establishing the tunnel.
+                #[cfg(target_os = "linux")]
+                args.route_manager
+                    .create_routing_rules(config.enable_ipv6)
+                    .await
+                    .map_err(Error::SetupRoutingError)
+                    .map_err(CloseMsg::SetupError)?;
+
+                let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
+                    .chain(Self::get_endpoint_routes(&endpoint_addrs))
+                    .collect();
+                args.route_manager
+                    .add_routes(routes)
+                    .await
+                    .map_err(Error::SetupRoutingError)
+                    .map_err(CloseMsg::SetupError)?;
+
+                entry_psk = Some(Self::perform_psk_negotiation(
+                        obfuscator_handle.clone(),
+                        close_obfs_sender.clone(),
+                        args.retry_attempt,
+                        &mut config,
+                        wg_psk_privkey.clone().unwrap().public_key(),
+                )
+                    .await?);
+
+                std::result::Result::<_, CloseMsg>::Ok(())
+            }).unwrap();
+            dbg!("Successfully exchanged PSK with entry peer");
+            tunnel.lock().unwrap().take().unwrap().stop().unwrap();
+            dbg!("Stopped entry PSK exchange tunnel");
+        }
+
+        if psk_negotiation.is_some() {
+            // Create new wg privkey if there isn't one already
+            if wg_psk_privkey.is_none() {
+                wg_psk_privkey = Some(PrivateKey::new_from_random());
+            }
+            // Set up tunnel to exit and exchange psk
+            let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
+
+            let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+                    &mut config,
+                    close_msg_sender.clone(),
+            ))?;
+
+            let exit_config = Self::patch_allowed_ips(&config, psk_negotiation.is_some());
+            let tunnel = Self::open_tunnel(
+                args.runtime.clone(),
+                &exit_config,
+                log_path,
+                args.resource_dir,
+                args.tun_provider.clone(),
+                #[cfg(target_os = "windows")]
+                args.route_manager.clone(),
+                #[cfg(target_os = "windows")]
+                setup_done_tx,
+            )?;
+
+            let iface_name = tunnel.get_interface_name();
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
+
+            let tunnel = Arc::new(Mutex::new(Some(tunnel)));
+            let mut exit_psk = None;
+
+            args.runtime.block_on(async {
+                // TODO: Here we do not set allowed routes because I assume they are the same as
+                // before
+                let allowed_traffic = AllowedTunnelTraffic::All;
+                (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
+                // Add non-default routes before establishing the tunnel.
+                // TODO: Can we avoid doing this here?
+                #[cfg(target_os = "linux")]
+                args.route_manager
+                    .create_routing_rules(config.enable_ipv6)
+                    .await
+                    .map_err(Error::SetupRoutingError)
+                    .map_err(CloseMsg::SetupError)?;
+
+                let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
+                    .chain(Self::get_endpoint_routes(&endpoint_addrs))
+                    .collect();
+                args.route_manager
+                    .add_routes(routes)
+                    .await
+                    .map_err(Error::SetupRoutingError)
+                    .map_err(CloseMsg::SetupError)?;
+
+                exit_psk = Some(Self::perform_psk_negotiation(
+                        obfuscator_handle,
+                        close_obfs_sender,
+                        args.retry_attempt,
+                        &mut config,
+                        wg_psk_privkey.clone().unwrap().public_key(),
+                )
+                    .await?);
+
+                std::result::Result::<_, CloseMsg>::Ok(())
+            }).unwrap();
+
+            // Set new priv key and psks
+            config.tunnel.private_key = wg_psk_privkey.unwrap();
+            if let Some(entry_psk) = entry_psk {
+                // TODO: Split up entry and exit peer in config
+                config.peers[0].psk = Some(entry_psk);
+                config.peers[1].psk = exit_psk;
+            } else {
+                config.peers[0].psk = exit_psk;
+            }
+        }
+        dbg!("After doing PQ exchange completely");
+        dbg!(&config);
+
+        let (close_msg_sender, close_msg_receiver) = sync_mpsc::channel();
         let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
             &mut config,
             close_msg_sender.clone(),
         ))?;
 
-        #[cfg(target_os = "windows")]
-        let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
-
+        let tun_config = config.clone();
+        // TODO: Why is this not allowed?
+        //let tun_config = Self::patch_allowed_ips(&tun_config, psk_negotiation.is_some());
+        dbg!(&tun_config);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
-            &Self::patch_allowed_ips(&config, psk_negotiation.is_some()),
+            &tun_config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
@@ -302,11 +469,12 @@ impl WireguardMonitor {
                 .await?;
 
             let allowed_traffic = if psk_negotiation.is_some() {
-                AllowedTunnelTraffic::Only(Endpoint::new(
-                    config.ipv4_gateway,
-                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-                    TransportProtocol::Tcp,
-                ))
+                AllowedTunnelTraffic::All
+                //AllowedTunnelTraffic::Only(Endpoint::new(
+                //    config.ipv4_gateway,
+                //    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                //    TransportProtocol::Tcp,
+                //))
             } else {
                 AllowedTunnelTraffic::All
             };
@@ -328,23 +496,6 @@ impl WireguardMonitor {
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
-
-            if let Some(pubkey) = psk_negotiation {
-                Self::perform_psk_negotiation(
-                    tunnel,
-                    obfs_handle,
-                    obfs_close_sender,
-                    args.retry_attempt,
-                    pubkey,
-                    &mut config,
-                )
-                .await?;
-                (on_event)(TunnelEvent::InterfaceUp(
-                    metadata.clone(),
-                    AllowedTunnelTraffic::All,
-                ))
-                .await;
-            }
 
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
@@ -473,13 +624,12 @@ impl WireguardMonitor {
     }
 
     async fn perform_psk_negotiation(
-        tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         obfuscation_handle: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         obfs_close_sender: sync_mpsc::Sender<CloseMsg>,
         retry_attempt: u32,
-        current_pubkey: PublicKey,
         config: &mut Config,
-    ) -> std::result::Result<(), CloseMsg> {
+        wg_psk_pubkey: PublicKey,
+    ) -> std::result::Result<PresharedKey, CloseMsg> {
         log::debug!("Performing PQ-safe PSK exchange");
 
         let timeout = std::cmp::min(
@@ -488,34 +638,21 @@ impl WireguardMonitor {
                 .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
         );
 
-        let (private_key, psk) = tokio::time::timeout(
+        let psk = tokio::time::timeout(
             timeout,
             talpid_tunnel_config_client::push_pq_key(
                 IpAddr::V4(config.ipv4_gateway),
                 config.tunnel.private_key.public_key(),
+                wg_psk_pubkey,
             ),
         )
-        .await
-        .map_err(|_timeout_err| {
-            log::warn!("Timeout while negotiating PSK");
-            CloseMsg::PskNegotiationTimeout
-        })?
+            .await
+            .map_err(|_timeout_err| {
+                log::warn!("Timeout while negotiating PSK");
+                CloseMsg::PskNegotiationTimeout
+            })?
         .map_err(Error::PskNegotiationError)
-        .map_err(CloseMsg::SetupError)?;
-
-        config.tunnel.private_key = private_key;
-
-        for peer in &mut config.peers {
-            if current_pubkey == peer.public_key {
-                peer.psk = Some(psk);
-                break;
-            }
-        }
-
-        log::trace!(
-            "Ephemeral pubkey: {}",
-            config.tunnel.private_key.public_key()
-        );
+            .map_err(CloseMsg::SetupError)?;
 
         // Restart the obfuscation server
         let mut obfs_guard = obfuscation_handle.lock().await;
@@ -526,18 +663,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
         }
 
-        let set_config_future = tunnel
-            .lock()
-            .unwrap()
-            .as_ref()
-            .map(|tunnel| tunnel.set_config(config.clone()));
-        if let Some(f) = set_config_future {
-            f.await
-                .map_err(Error::TunnelError)
-                .map_err(CloseMsg::SetupError)?;
-        }
-
-        Ok(())
+        Ok(psk)
     }
 
     #[allow(unused_variables)]
@@ -550,9 +676,11 @@ impl WireguardMonitor {
         #[cfg(windows)] route_manager_handle: crate::routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
+        dbg!("opening tunnel");
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
             if will_nm_manage_dns() {
+                dbg!("nm");
                 match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
                     Ok(tunnel) => {
                         log::debug!("Using NetworkManager to use kernel WireGuard implementation");
@@ -568,6 +696,7 @@ impl WireguardMonitor {
                     }
                 };
             } else {
+                dbg!("netlink");
                 match wireguard_kernel::NetlinkTunnel::new(runtime, config) {
                     Ok(tunnel) => {
                         log::debug!("Using kernel WireGuard implementation");
@@ -598,6 +727,7 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError);
         }
 
+        dbg!("userspace");
         #[cfg(any(target_os = "linux", windows))]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
@@ -779,6 +909,7 @@ impl WireguardMonitor {
     }
 }
 
+#[derive(Debug)]
 enum CloseMsg {
     Stop,
     PskNegotiationTimeout,
