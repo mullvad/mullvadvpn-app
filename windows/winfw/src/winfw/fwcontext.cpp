@@ -210,24 +210,24 @@ bool FwContext::applyPolicyConnecting
 			{
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 					*tunnelInterfaceAlias,
-                    std::nullopt
+					std::nullopt
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 					*tunnelInterfaceAlias,
-                    std::nullopt
+					std::nullopt
 				));
 				break;
 			}
 			case WinFwAllowedTunnelTrafficType::One:
 			{
-                auto onlyEndpoint = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
-                        baseline::PermitVpnTunnel::Endpoint{
-                        wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
-                        allowedTunnelTraffic.entryEndpoint->port,
-                        allowedTunnelTraffic.entryEndpoint->protocol
-                        },
-                        std::nullopt,
-                });
+				auto onlyEndpoint = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
+						baseline::PermitVpnTunnel::Endpoint{
+						wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
+						allowedTunnelTraffic.entryEndpoint->port,
+						allowedTunnelTraffic.entryEndpoint->protocol
+						},
+						std::nullopt,
+				});
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 					*tunnelInterfaceAlias,
 					onlyEndpoint
@@ -240,27 +240,27 @@ bool FwContext::applyPolicyConnecting
 			}
 			case WinFwAllowedTunnelTrafficType::Two:
 			{
-                auto endpoints = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
-                        baseline::PermitVpnTunnel::Endpoint{
-                        wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
-                        allowedTunnelTraffic.entryEndpoint->port,
-                        allowedTunnelTraffic.entryEndpoint->protocol
-                        },
-                        std::make_optional<baseline::PermitVpnTunnel::Endpoint>({
-                                wfp::IpAddress(allowedTunnelTraffic.exitEndpoint->ip),
-                                allowedTunnelTraffic.exitEndpoint->port,
-                                allowedTunnelTraffic.exitEndpoint->protocol
-                                })
-                });
-                ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-                            *tunnelInterfaceAlias,
-                            endpoints
-                            ));
-                ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-                            *tunnelInterfaceAlias,
-                            endpoints
-                            ));
-                break;
+				auto endpoints = std::make_optional<baseline::PermitVpnTunnel::Endpoints>({
+						baseline::PermitVpnTunnel::Endpoint{
+						wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
+						allowedTunnelTraffic.entryEndpoint->port,
+						allowedTunnelTraffic.entryEndpoint->protocol
+						},
+						std::make_optional<baseline::PermitVpnTunnel::Endpoint>({
+								wfp::IpAddress(allowedTunnelTraffic.exitEndpoint->ip),
+								allowedTunnelTraffic.exitEndpoint->port,
+								allowedTunnelTraffic.exitEndpoint->protocol
+								})
+				});
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+							*tunnelInterfaceAlias,
+							endpoints
+							));
+				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+							*tunnelInterfaceAlias,
+							endpoints
+							));
+				break;
 			}
 			// For the "None" case, do nothing.
 		}
@@ -307,12 +307,12 @@ bool FwContext::applyPolicyConnected
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 		tunnelInterfaceAlias,
-        std::nullopt
+		std::nullopt
 	));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 		tunnelInterfaceAlias,
-        std::nullopt
+		std::nullopt
 	));
 
 	const auto status = applyRuleset(ruleset);
