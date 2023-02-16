@@ -75,8 +75,7 @@ pub async fn push_pq_key(
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
     let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
-    let client = new_client(service_address).await;
-    let mut client = client?;
+    let mut client = new_client(service_address).await?;
     let response = client
         .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
@@ -93,8 +92,7 @@ pub async fn push_pq_key(
             ],
         })
         .await
-        .map_err(Error::GrpcError);
-    let response = response?;
+        .map_err(Error::GrpcError)?;
 
     let ciphertexts = response.into_inner().ciphertexts;
 

@@ -345,32 +345,30 @@ impl Firewall {
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        let rules = match allowed_traffic {
-            AllowedTunnelTraffic::Only(endpoint) => {
+        match allowed_traffic {
+            AllowedTunnelTraffic::One(endpoint) => {
                 let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 let pfctl_proto = as_pfctl_proto(endpoint.protocol);
                 base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
                 vec![base_rule.build()?]
             }
-            AllowedTunnelTraffic::Many(endpoints) => {
-                let mut rules = vec![];
-                for endpoint in endpoints {
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                let endpoints = vec![endpoint1, endpoint2];
+                endpoints.into_iter().map(|endpoint| {
                     let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                     let pfctl_proto = as_pfctl_proto(endpoint.protocol);
                     base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
-                    rules.push(base_rule.build()?);
-                }
-                rules
+                    base_rule.build()?
+                }).collect()
             }
             AllowedTunnelTraffic::All => {
                 let base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::None => {
-                return Ok(vec![]);
+                Ok(vec![])
             }
-        };
-        Ok(rules)
+        }
     }
 
     fn get_allow_loopback_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
