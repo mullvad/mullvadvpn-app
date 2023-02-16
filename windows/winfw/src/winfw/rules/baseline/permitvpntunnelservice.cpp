@@ -87,7 +87,8 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
-    if (!m_potentialEndpoints.has_value()) {
+    if (!m_potentialEndpoints.has_value())
+    {
         return AddEndpointFilter(
             std::nullopt,
             MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
