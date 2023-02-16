@@ -19,10 +19,10 @@ public:
 		WinFwProtocol protocol;
 	};
 
-    struct Endpoints {
-        Endpoint entryEndpoint;
-        std::optional<Endpoint> exitEndpoint;
-    };
+	struct Endpoints {
+		Endpoint entryEndpoint;
+		std::optional<Endpoint> exitEndpoint;
+	};
 
 	PermitVpnTunnel(
 		const std::wstring &tunnelInterfaceAlias,
@@ -32,7 +32,7 @@ public:
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
-    bool AddEndpointFilter(const std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder, IObjectInstaller& objectInstaller);
+	bool AddEndpointFilter(const std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder, IObjectInstaller& objectInstaller);
 
 	const std::wstring m_tunnelInterfaceAlias;
 	const std::optional<Endpoints> m_potentialEndpoints;

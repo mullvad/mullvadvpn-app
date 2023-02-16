@@ -59,8 +59,8 @@ enum WinFwAllowedTunnelTrafficType : uint8_t
 {
 	None,
 	All,
-    One,
-    Two
+	One,
+	Two
 };
 
 typedef struct tag_WinFwAllowedTunnelTraffic
@@ -183,9 +183,9 @@ WinFw_ApplyPolicyConnecting(
 // Parameters:
 //
 // tunnelInterfaceAlias:
-//   Friendly name of VPN tunnel interface
+//	 Friendly name of VPN tunnel interface
 // dnsServers:
-//   Array of string-encoded IP addresses of DNS servers to use
+//	 Array of string-encoded IP addresses of DNS servers to use
 //
 extern "C"
 WINFW_LINKAGE
