@@ -256,6 +256,13 @@ impl WireguardMonitor {
         )?;
         let iface_name = tunnel.get_interface_name();
 
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+
+        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_obfs_sender.clone(),
+        ))?));
+
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
             // Exclude remote obfuscation socket or bridge
@@ -264,13 +271,6 @@ impl WireguardMonitor {
                 log::error!("Failed to exclude remote socket fd: {error}");
             }
         }
-
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-
-        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?));
 
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
