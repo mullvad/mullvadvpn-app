@@ -16,15 +16,16 @@ public:
 
 	PermitVpnTunnelService(
 		const std::wstring &tunnelInterfaceAlias,
-		const std::optional<PermitVpnTunnel::Endpoint> &onlyEndpoint
+		const std::optional<PermitVpnTunnel::Endpoints> &potentialEndpoints
 	);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
+	bool AddEndpointFilter(const std::optional<PermitVpnTunnel::Endpoint> &endpoint, const GUID &ipv4Guid, const GUID &ipv6Guid, IObjectInstaller &objectInstaller);
 
 	const std::wstring m_tunnelInterfaceAlias;
-	const std::optional<PermitVpnTunnel::Endpoint> m_tunnelOnlyEndpoint;
+	const std::optional<PermitVpnTunnel::Endpoints> m_potentialEndpoints;
 };
 
 }

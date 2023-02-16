@@ -168,27 +168,52 @@ impl Firewall {
             ptr::null()
         };
 
-        let allowed_tun_ip;
-        let allowed_tunnel_endpoint =
-            if let AllowedTunnelTraffic::Only(endpoint) = allowed_tunnel_traffic {
-                allowed_tun_ip = widestring_ip(endpoint.address.ip());
-                Some(WinFwEndpoint {
-                    ip: allowed_tun_ip.as_ptr(),
-                    port: endpoint.address.port(),
-                    protocol: WinFwProt::from(endpoint.protocol),
-                })
-            } else {
-                None
-            };
+        // SAFETY: `allowed_tun_ips`, `entry_endpoint` and `exit_endpoint` must not be dropped until
+        // `WinFw_ApplyPolicyConnecting` has returned.
+        let mut allowed_tun_ips = [WideCString::new(), WideCString::new()];
+        let (entry_endpoint, exit_endpoint) = match allowed_tunnel_traffic {
+            AllowedTunnelTraffic::One(endpoint) => {
+                allowed_tun_ips[0] = widestring_ip(endpoint.address.ip());
+                (
+                    Some(WinFwEndpoint {
+                        ip: allowed_tun_ips[0].as_ptr(),
+                        port: endpoint.address.port(),
+                        protocol: WinFwProt::from(endpoint.protocol),
+                    }),
+                    None,
+                )
+            }
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                allowed_tun_ips[0] = widestring_ip(endpoint1.address.ip());
+                let entry_endpoint = Some(WinFwEndpoint {
+                    ip: allowed_tun_ips[0].as_ptr(),
+                    port: endpoint1.address.port(),
+                    protocol: WinFwProt::from(endpoint1.protocol),
+                });
+                allowed_tun_ips[1] = widestring_ip(endpoint2.address.ip());
+                let exit_endpoint = Some(WinFwEndpoint {
+                    ip: allowed_tun_ips[1].as_ptr(),
+                    port: endpoint2.address.port(),
+                    protocol: WinFwProt::from(endpoint2.protocol),
+                });
+                (entry_endpoint, exit_endpoint)
+            }
+            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
+        };
+
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            endpoint: allowed_tunnel_endpoint
+            entry_endpoint: entry_endpoint
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
+            exit_endpoint: exit_endpoint
                 .as_ref()
                 .map(|ep| ep as *const _)
                 .unwrap_or(ptr::null()),
         };
 
-        unsafe {
+        let res = unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
@@ -199,7 +224,14 @@ impl Firewall {
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
-        }
+        };
+        // SAFETY: All of these hold stack allocated memory which is pointed to by
+        // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
+        // has returned.
+        drop(allowed_tun_ips);
+        drop(entry_endpoint);
+        drop(exit_endpoint);
+        res
     }
 
     fn set_connected_state(
@@ -439,7 +471,8 @@ mod winfw {
     #[repr(C)]
     pub struct WinFwAllowedTunnelTraffic {
         pub type_: WinFwAllowedTunnelTrafficType,
-        pub endpoint: *const WinFwEndpoint,
+        pub entry_endpoint: *const WinFwEndpoint,
+        pub exit_endpoint: *const WinFwEndpoint,
     }
 
     #[repr(u8)]
@@ -447,7 +480,8 @@ mod winfw {
     pub enum WinFwAllowedTunnelTrafficType {
         None,
         All,
-        Only,
+        One,
+        Two,
     }
 
     impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
@@ -455,7 +489,8 @@ mod winfw {
             match traffic {
                 AllowedTunnelTraffic::None => WinFwAllowedTunnelTrafficType::None,
                 AllowedTunnelTraffic::All => WinFwAllowedTunnelTrafficType::All,
-                AllowedTunnelTraffic::Only(..) => WinFwAllowedTunnelTrafficType::Only,
+                AllowedTunnelTraffic::One(..) => WinFwAllowedTunnelTrafficType::One,
+                AllowedTunnelTraffic::Two(..) => WinFwAllowedTunnelTrafficType::Two,
             }
         }
     }
