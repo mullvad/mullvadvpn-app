@@ -169,7 +169,7 @@ impl Firewall {
         };
 
         // SAFETY: `allowed_tun_ips`, `entry_endpoint` and `exit_endpoint` must not be dropped until
-        // `WinFw_ApplyPolicyConnecting` is done with it
+        // `WinFw_ApplyPolicyConnecting` has returned.
         let mut allowed_tun_ips = [WideCString::new(), WideCString::new()];
         let (entry_endpoint, exit_endpoint) = match allowed_tunnel_traffic {
             AllowedTunnelTraffic::One(endpoint) => {

@@ -267,11 +267,10 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
-        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(maybe_create_obfuscator(
             &mut config,
             close_obfs_sender.clone(),
-        ))?;
-        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
+        ))?));
 
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
@@ -495,7 +494,7 @@ impl WireguardMonitor {
     }
 
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
-    /// and restarting the obfuscation provider. Returns the used config.
+    /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel<
         F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
@@ -604,8 +603,6 @@ impl WireguardMonitor {
     }
 
     async fn perform_psk_negotiation(
-        //obfuscation_handle: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
-        //obfs_close_sender: sync_mpsc::Sender<CloseMsg>,
         retry_attempt: u32,
         config: &Config,
         wg_psk_pubkey: PublicKey,
@@ -633,15 +630,6 @@ impl WireguardMonitor {
         })?
         .map_err(Error::PskNegotiationError)
         .map_err(CloseMsg::SetupError)?;
-
-        // Restart the obfuscation server
-        //let mut obfs_guard = obfuscation_handle.lock().await;
-        //if let Some(obfs_abort_handle) = obfs_guard.take() {
-        //    obfs_abort_handle.abort();
-        //    *obfs_guard = maybe_create_obfuscator(config, obfs_close_sender)
-        //        .await
-        //        .map_err(CloseMsg::SetupError)?;
-        //}
 
         Ok(psk)
     }

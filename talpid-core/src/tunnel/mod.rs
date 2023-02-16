@@ -143,8 +143,6 @@ impl TunnelMonitor {
         let config = talpid_wireguard::config::Config::from_parameters(params)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
-            // TODO: We only need to use a bool here, the actual public key can be found in the
-            // peers list
             params.options.quantum_resistant,
             log.as_deref(),
             args,
