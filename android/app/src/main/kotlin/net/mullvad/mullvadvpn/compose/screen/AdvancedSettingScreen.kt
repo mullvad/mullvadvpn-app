@@ -26,10 +26,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.component.CustomDnsComposeCell
@@ -102,13 +102,13 @@ fun AdvancedSettingScreen(
         val state = rememberCollapsingToolbarScaffoldState()
         val progress = state.toolbarState.progress
 
-        CollapsingToolbarScaffold(
+        CollapsableAwareToolbarScaffold(
             modifier = Modifier
                 .background(MullvadDarkBlue)
                 .fillMaxSize(),
             state = state,
             scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-            enabled = true,
+            isEnabledWhenCollapsable = true,
             toolbar = {
 
                 val scaffoldModifier = Modifier
