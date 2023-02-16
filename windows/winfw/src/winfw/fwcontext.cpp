@@ -247,9 +247,9 @@ bool FwContext::applyPolicyConnecting
                         allowedTunnelTraffic.entryEndpoint->protocol
                         },
                         std::make_optional<baseline::PermitVpnTunnel::Endpoint>({
-                                wfp::IpAddress(allowedTunnelTraffic.entryEndpoint->ip),
-                                allowedTunnelTraffic.entryEndpoint->port,
-                                allowedTunnelTraffic.entryEndpoint->protocol
+                                wfp::IpAddress(allowedTunnelTraffic.exitEndpoint->ip),
+                                allowedTunnelTraffic.exitEndpoint->port,
+                                allowedTunnelTraffic.exitEndpoint->protocol
                                 })
                 });
                 ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
