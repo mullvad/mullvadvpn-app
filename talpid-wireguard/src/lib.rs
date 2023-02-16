@@ -326,6 +326,7 @@ impl WireguardMonitor {
                 let mut entry_psk = None;
 
                 if config.peers.len() > 1 {
+                    assert_eq!(config.peers.len(), 2);
                     // Create new wg privkey
                     wg_psk_privkey = Some(PrivateKey::new_from_random());
 
@@ -339,6 +340,7 @@ impl WireguardMonitor {
                         .expect("entry peer not found")
                         .allowed_ips
                         .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
+                    let entry_tun_config = Self::patch_allowed_ips(&entry_tun_config, true).into_owned();
 
                     let allowed_traffic = AllowedTunnelTraffic::One(Endpoint::new(
                         config.ipv4_gateway,
