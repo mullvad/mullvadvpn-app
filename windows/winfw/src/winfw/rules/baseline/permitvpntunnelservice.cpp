@@ -14,30 +14,22 @@ using namespace wfp::conditions;
 
 namespace rules::baseline
 {
+using Endpoint = PermitVpnTunnel::Endpoint;
 
 PermitVpnTunnelService::PermitVpnTunnelService(
 	const std::wstring &tunnelInterfaceAlias,
-	const std::optional<PermitVpnTunnel::Endpoint> &onlyEndpoint
+	const std::optional<PermitVpnTunnel::Endpoints> &potentialEndpoints
 )
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
-	, m_tunnelOnlyEndpoint(onlyEndpoint)
+	, m_potentialEndpoints(potentialEndpoints)
 {
 }
 
-bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
+bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunnel::Endpoint> &endpoint, const GUID &ipv4Guid, const GUID &ipv6Guid, IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
 
-	bool includeV4 = !m_tunnelOnlyEndpoint.has_value() || m_tunnelOnlyEndpoint->ip.type() == wfp::IpAddress::Ipv4;
-	bool includeV6 = !m_tunnelOnlyEndpoint.has_value() || m_tunnelOnlyEndpoint->ip.type() == wfp::IpAddress::Ipv6;
-
-	//
-	// #1 Permit inbound connections, IPv4.
-	//
-
 	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4())
-		.name(L"Permit inbound connections on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits hosting services that listen on the tunnel interface")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
@@ -45,17 +37,24 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
-	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
+    bool shouldAddV4Filter = !endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv4;
+    bool shouldAddV6Filter = !endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv6;
 
-	if (includeV4)
+	if (shouldAddV4Filter)
 	{
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		filterBuilder
+			.key(ipv4Guid)
+			.name(L"Permit inbound connections on tunnel interface (IPv4)")
+			.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
-		if (m_tunnelOnlyEndpoint.has_value())
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		if (endpoint.has_value())
 		{
-			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
+			conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+			conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+			conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
 		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -64,30 +63,57 @@ bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 		}
 	}
 
-	//
-	// #2 Permit inbound connections, IPv6.
-	//
-
-	if (includeV6)
+	if (shouldAddV6Filter)
 	{
 		filterBuilder
-			.key(MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6())
+			.key(ipv6Guid)
 			.name(L"Permit inbound connections on tunnel interface (IPv6)")
 			.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
-		conditionBuilder.reset(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
-		if (m_tunnelOnlyEndpoint.has_value())
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		if (endpoint.has_value())
 		{
-			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
+			conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+			conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+			conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
 		}
 
-		return objectInstaller.addFilter(filterBuilder, conditionBuilder);
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
+		}
 	}
+	return true;
+}
 
+bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
+{
+	if (!m_potentialEndpoints.has_value())
+	{
+		return AddEndpointFilter(
+			std::nullopt,
+			MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
+			objectInstaller
+		);
+	}
+	AddEndpointFilter(
+			std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Entry(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Entry(),
+			objectInstaller
+		);
+	if (m_potentialEndpoints.value().exitEndpoint.has_value())
+	{
+		AddEndpointFilter(
+				m_potentialEndpoints.value().exitEndpoint.value(),
+				MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_Exit(),
+				MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_Exit(),
+				objectInstaller
+			);
+	}
 	return true;
 }
 

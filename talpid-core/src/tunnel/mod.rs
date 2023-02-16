@@ -143,18 +143,7 @@ impl TunnelMonitor {
         let config = talpid_wireguard::config::Config::from_parameters(params)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
-            if params.options.quantum_resistant {
-                Some(
-                    params
-                        .connection
-                        .exit_peer
-                        .as_ref()
-                        .map(|peer| peer.public_key.clone())
-                        .unwrap_or_else(|| params.connection.peer.public_key.clone()),
-                )
-            } else {
-                None
-            },
+            params.options.quantum_resistant,
             log.as_deref(),
             args,
         )?;
