@@ -70,16 +70,19 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 pub async fn push_pq_key(
     service_address: IpAddr,
     wg_pubkey: PublicKey,
-) -> Result<(PrivateKey, PresharedKey), Error> {
-    let wg_psk_privkey = PrivateKey::new_from_random();
+    wg_psk_pubkey: PublicKey,
+) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
     let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
-    let mut client = new_client(service_address).await?;
+    dbg!("Pushing PQ key to: {}", service_address);
+    let client = new_client(service_address).await;
+    dbg!(&client);
+    let mut client = client?;
     let response = client
         .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
-            wg_psk_pubkey: wg_psk_privkey.public_key().as_bytes().to_vec(),
+            wg_psk_pubkey: wg_psk_pubkey.as_bytes().to_vec(),
             kem_pubkeys: vec![
                 proto::KemPubkeyV1 {
                     algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
@@ -92,7 +95,9 @@ pub async fn push_pq_key(
             ],
         })
         .await
-        .map_err(Error::GrpcError)?;
+        .map_err(Error::GrpcError);
+    dbg!(&response);
+    let response = response?;
 
     let ciphertexts = response.into_inner().ciphertexts;
 
@@ -127,7 +132,7 @@ pub async fn push_pq_key(
         shared_secret.zeroize();
     }
 
-    Ok((wg_psk_privkey, PresharedKey::from(psk_data)))
+    Ok(PresharedKey::from(psk_data))
 }
 
 /// Performs `dst = dst ^ src`.
