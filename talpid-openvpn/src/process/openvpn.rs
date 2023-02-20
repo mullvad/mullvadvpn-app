@@ -64,7 +64,6 @@ pub struct OpenVpnCommand {
     proxy_auth_path: Option<PathBuf>,
     ca: Option<PathBuf>,
     crl: Option<PathBuf>,
-    iproute_bin: Option<OsString>,
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
     tunnel_options: net::openvpn::TunnelOptions,
@@ -88,7 +87,6 @@ impl OpenVpnCommand {
             proxy_auth_path: None,
             ca: None,
             crl: None,
-            iproute_bin: None,
             plugin: None,
             log: None,
             tunnel_options: net::openvpn::TunnelOptions::default(),
@@ -143,12 +141,6 @@ impl OpenVpnCommand {
     /// Sets the path to the CRL (Certificate revocation list) file.
     pub fn crl(&mut self, path: impl AsRef<Path>) -> &mut Self {
         self.crl = Some(path.as_ref().to_path_buf());
-        self
-    }
-
-    /// Sets the path to the ip route command.
-    pub fn iproute_bin(&mut self, iproute_bin: impl Into<OsString>) -> &mut Self {
-        self.iproute_bin = Some(iproute_bin.into());
         self
     }
 
@@ -213,11 +205,6 @@ impl OpenVpnCommand {
 
         args.extend(self.remote_arguments().iter().map(OsString::from));
         args.extend(self.authentication_arguments());
-
-        if let Some(ref iproute_bin) = self.iproute_bin {
-            args.push(OsString::from("--iproute"));
-            args.push(iproute_bin.clone());
-        }
 
         if let Some(ref ca) = self.ca {
             args.push(OsString::from("--ca"));
