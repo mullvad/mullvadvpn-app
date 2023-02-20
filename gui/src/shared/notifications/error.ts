@@ -211,15 +211,17 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
 
   if (errorState.cause === ErrorStateCause.setFirewallPolicyError && platform === 'linux') {
     return {
-      type: 'info-dialog',
-      details: messages.pgettext(
-        'troubleshoot',
-        'This can happen because the kernel is old, or if you have removed a kernel.',
-      ),
-      troubleshoot: [
-        messages.pgettext('troubleshoot', 'Update your kernel.'),
-        messages.pgettext('troubleshoot', 'Make sure you have NF tables support.'),
-      ],
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'This can happen because the kernel is old, or if you have removed a kernel.',
+        ),
+        steps: [
+          messages.pgettext('troubleshoot', 'Update your kernel.'),
+          messages.pgettext('troubleshoot', 'Make sure you have NF tables support.'),
+        ],
+      },
     };
   } else if (errorState.cause === ErrorStateCause.setDnsError) {
     const troubleshootSteps = [];
@@ -244,24 +246,28 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
     }
 
     return {
-      type: 'info-dialog',
-      details: messages.pgettext(
-        'troubleshoot',
-        'This error can happen when something other than Mullvad is actively updating the DNS.',
-      ),
-      troubleshoot: troubleshootSteps,
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'This error can happen when something other than Mullvad is actively updating the DNS.',
+        ),
+        steps: troubleshootSteps,
+      },
     };
   } else if (errorState.cause === ErrorStateCause.splitTunnelError) {
     return {
-      type: 'info-dialog',
-      details: messages.pgettext(
-        'troubleshoot',
-        'Unable to communicate with Mullvad kernel driver.',
-      ),
-      troubleshoot: [
-        messages.pgettext('troubleshoot', 'Try reconnecting.'),
-        messages.pgettext('troubleshoot', 'Try restarting your device.'),
-      ],
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'Unable to communicate with Mullvad kernel driver.',
+        ),
+        steps: [
+          messages.pgettext('troubleshoot', 'Try reconnecting.'),
+          messages.pgettext('troubleshoot', 'Try restarting your device.'),
+        ],
+      },
     };
   }
 }
