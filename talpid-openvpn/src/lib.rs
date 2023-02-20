@@ -100,11 +100,6 @@ pub enum Error {
     #[error(display = "Failed to start OpenVPN")]
     StartProcessError,
 
-    /// The IP routing program was not found.
-    #[cfg(target_os = "linux")]
-    #[error(display = "The IP routing program `ip` was not found")]
-    IpRouteNotFound(#[error(source)] which::Error),
-
     /// The OpenVPN binary was not found.
     #[error(display = "No OpenVPN binary found at {}", _0)]
     OpenVpnNotFound(String),
@@ -690,8 +685,6 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         if let Some(config) = Self::get_config_path(resource_dir) {
             cmd.config(config);
         }
-        #[cfg(target_os = "linux")]
-        cmd.iproute_bin(which::which("ip").map_err(Error::IpRouteNotFound)?);
         cmd.remote(params.config.endpoint)
             .user_pass(user_pass_file)
             .tunnel_options(&params.options)
