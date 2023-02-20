@@ -159,7 +159,9 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                 quantum_resistant: wireguard_options
                     .quantum_resistant
                     .map(mullvad_types::wireguard::QuantumResistantState::try_from)
-                    .unwrap_or(Ok(mullvad_types::wireguard::QuantumResistantState::Auto))?,
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "missing quantum resistant state",
+                    ))??,
             },
             generic: net::GenericTunnelOptions {
                 enable_ipv6: generic_options.enable_ipv6,
