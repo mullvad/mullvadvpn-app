@@ -12,6 +12,7 @@ fun ScaffoldWithTopBar(
     statusBarColor: Color,
     navigationBarColor: Color,
     onSettingsClicked: () -> Unit,
+    isIconAndLogoVisible: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
@@ -22,7 +23,8 @@ fun ScaffoldWithTopBar(
         topBar = {
             TopBar(
                 backgroundColor = topBarColor,
-                onSettingsClicked = onSettingsClicked
+                onSettingsClicked = onSettingsClicked,
+                isIconAndLogoVisible = isIconAndLogoVisible
             )
         },
         content = content
