@@ -38,7 +38,7 @@ export default function Support() {
   const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
 
   return (
-    <BackAction icon="close" action={history.pop}>
+    <BackAction action={history.pop}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>

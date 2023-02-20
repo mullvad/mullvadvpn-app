@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -184,13 +184,14 @@ export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarIt
 });
 
 export function BackBarItem() {
+  const history = useHistory();
+  const backIcon = useMemo(() => history.length > 2, []);
   const { parentBackAction } = useContext(BackActionContext);
-  const iconSource = parentBackAction?.icon === 'back' ? 'icon-back' : 'icon-close-down';
-  const ariaLabel =
-    parentBackAction?.icon === 'back' ? messages.gettext('Back') : messages.gettext('Close');
+  const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
+  const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');
 
   return (
-    <StyledBackBarItemButton aria-label={ariaLabel} onClick={parentBackAction?.action}>
+    <StyledBackBarItemButton aria-label={ariaLabel} onClick={parentBackAction}>
       <StyledBackBarItemIcon source={iconSource} tintColor={colors.white40} width={24} />
     </StyledBackBarItemButton>
   );

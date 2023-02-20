@@ -11,7 +11,7 @@ interface IKeyboardNavigationProps {
 // Listens for and handles keyboard shortcuts
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const history = useHistory();
-  const [backAction, setBackAction] = useState<IBackActionConfiguration>();
+  const [backAction, setBackAction] = useState<BackActionFn>();
   const location = useLocation();
 
   const handleKeyDown = useCallback(
@@ -22,7 +22,7 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
           if (event.shiftKey) {
             history.pop(true);
           } else {
-            backAction?.action();
+            backAction?.();
           }
         }
       }
@@ -38,18 +38,12 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   return <BackActionTracker registerBackAction={setBackAction}>{props.children}</BackActionTracker>;
 }
 
-type BackActionIcon = 'back' | 'close';
 type BackActionFn = () => void;
 
-interface IBackActionConfiguration {
-  icon: BackActionIcon;
-  action: BackActionFn;
-}
-
 interface IBackActionContext {
-  parentBackAction?: IBackActionConfiguration;
-  registerBackAction: (backAction: IBackActionConfiguration) => void;
-  removeBackAction: (backAction: IBackActionConfiguration) => void;
+  parentBackAction?: BackActionFn;
+  registerBackAction: (backAction: BackActionFn) => void;
+  removeBackAction: (backAction: BackActionFn) => void;
 }
 
 export const BackActionContext = React.createContext<IBackActionContext>({
@@ -63,7 +57,6 @@ export const BackActionContext = React.createContext<IBackActionContext>({
 
 interface IBackActionProps {
   disabled?: boolean;
-  icon?: BackActionIcon;
   action: BackActionFn;
   children: React.ReactNode;
 }
@@ -72,13 +65,9 @@ interface IBackActionProps {
 // either by pressing the back button in the navigation bar or by pressing escape.
 export function BackAction(props: IBackActionProps) {
   const backActionContext = useContext(BackActionContext);
-  const [childrenBackAction, setChildrenBackAction] = useState<IBackActionConfiguration>();
+  const [childrenBackAction, setChildrenBackAction] = useState<BackActionFn>();
 
-  const parentBackAction = useMemo<IBackActionConfiguration>(
-    () => ({ icon: props.icon ?? 'back', action: props.action }),
-    [props.icon, props.action],
-  );
-  const backActionConfiguration = childrenBackAction ?? parentBackAction;
+  const backActionConfiguration = childrenBackAction ?? props.action;
 
   // Every time the action or the disabled property changes the action needs to be reregistered.
   useEffect((): (() => void) | void => {
@@ -91,29 +80,27 @@ export function BackAction(props: IBackActionProps) {
   // Every back action keeps track of the back actions in its subtree. This makes it possible to
   // always use the action furthest down in the tree.
   return (
-    <BackActionTracker
-      registerBackAction={setChildrenBackAction}
-      parentBackAction={parentBackAction}>
+    <BackActionTracker registerBackAction={setChildrenBackAction} parentBackAction={props.action}>
       {props.children}
     </BackActionTracker>
   );
 }
 
 interface IBackActionTracker {
-  parentBackAction?: IBackActionConfiguration;
-  registerBackAction: (backAction: IBackActionConfiguration | undefined) => void;
+  parentBackAction?: BackActionFn;
+  registerBackAction: (backAction: BackActionFn | undefined) => void;
   children: React.ReactNode;
 }
 
 // This component keeps track of all registered back actions in it's subtree and reports one of them
 // to it's parent.
 function BackActionTracker(props: IBackActionTracker) {
-  const [backActions, setBackActions] = useState<Array<IBackActionConfiguration>>([]);
+  const [backActions, setBackActions] = useState<Array<BackActionFn>>([]);
 
-  const registerBackAction = useCallback((backAction: IBackActionConfiguration) => {
+  const registerBackAction = useCallback((backAction: BackActionFn) => {
     setBackActions((backActions) => [...backActions, backAction]);
   }, []);
-  const removeBackAction = useCallback((backAction: IBackActionConfiguration) => {
+  const removeBackAction = useCallback((backAction: BackActionFn) => {
     setBackActions((backActions) => backActions.filter((action) => action !== backAction));
   }, []);
   const backActionContext = useMemo(
@@ -121,7 +108,7 @@ function BackActionTracker(props: IBackActionTracker) {
     [backActions],
   );
 
-  useEffect(() => props.registerBackAction(backActions.at(0)), [backActions]);
+  useEffect(() => props.registerBackAction(() => backActions.at(0)), [backActions]);
 
   return (
     <BackActionContext.Provider value={backActionContext}>
