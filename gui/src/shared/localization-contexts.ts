@@ -33,4 +33,5 @@ export type LocalizationContexts =
   | 'support-view'
   | 'select-language-nav'
   | 'tray-icon-context-menu'
-  | 'tray-icon-tooltip';
+  | 'tray-icon-tooltip'
+  | 'troubleshoot';
