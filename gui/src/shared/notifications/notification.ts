@@ -5,6 +5,14 @@ export type NotificationAction = {
   withAuth?: boolean;
 };
 
+export type InAppNotificationAction =
+  | NotificationAction
+  | {
+      type: 'info-dialog';
+      details: string;
+      troubleshoot: string[];
+    };
+
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
 
 export enum SystemNotificationSeverityType {
@@ -39,7 +47,7 @@ export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   title: string;
   subtitle?: string;
-  action?: NotificationAction;
+  action?: InAppNotificationAction;
 }
 
 export interface SystemNotificationProvider extends NotificationProvider {

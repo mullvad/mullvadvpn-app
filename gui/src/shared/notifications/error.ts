@@ -11,6 +11,7 @@ import {
 import { messages } from '../gettext';
 import {
   InAppNotification,
+  InAppNotificationAction,
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationCategory,
@@ -77,6 +78,7 @@ export class ErrorNotificationProvider
           ? messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING')
           : messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
         subtitle,
+        action: getActions(this.context.tunnelState.details) ?? undefined,
       };
     } else {
       return undefined;
@@ -201,5 +203,65 @@ function getTunnelParameterMessage(error: TunnelParameterError): string {
         'notifications',
         'Unable to resolve host of custom tunnel. Try changing your settings.',
       );
+  }
+}
+
+function getActions(errorState: ErrorState): InAppNotificationAction | void {
+  const platform = process.platform ?? window.env.platform;
+
+  if (errorState.cause === ErrorStateCause.setFirewallPolicyError && platform === 'linux') {
+    return {
+      type: 'info-dialog',
+      details: messages.pgettext(
+        'troubleshoot',
+        'This can happen because the kernel is old, or if you have removed a kernel.',
+      ),
+      troubleshoot: [
+        messages.pgettext('troubleshoot', 'Update your kernel.'),
+        messages.pgettext('troubleshoot', 'Make sure you have NF tables support.'),
+      ],
+    };
+  } else if (errorState.cause === ErrorStateCause.setDnsError) {
+    const troubleshootSteps = [];
+    if (platform === 'darwin') {
+      troubleshootSteps.push(
+        messages.pgettext(
+          'troubleshoot',
+          'Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac.',
+        ),
+        messages.pgettext(
+          'troubleshoot',
+          'Uninstall or disable other DNS, networking and ads/website blocking apps.',
+        ),
+      );
+    } else if (platform === 'win32') {
+      troubleshootSteps.push(
+        messages.pgettext(
+          'troubleshoot',
+          'Uninstall or disable other DNS, networking and ads/website blocking apps.',
+        ),
+      );
+    }
+
+    return {
+      type: 'info-dialog',
+      details: messages.pgettext(
+        'troubleshoot',
+        'This error can happen when something other than Mullvad is actively updating the DNS.',
+      ),
+      troubleshoot: troubleshootSteps,
+    };
+  } else if (errorState.cause === ErrorStateCause.splitTunnelError) {
+    return {
+      type: 'info-dialog',
+      details: messages.pgettext(
+        'troubleshoot',
+        'Unable to communicate with Mullvad kernel driver.',
+      ),
+      troubleshoot: [
+        messages.pgettext('troubleshoot', 'Try reconnecting.'),
+        messages.pgettext('troubleshoot', 'Try restarting your device.'),
+      ],
+    };
   }
 }
