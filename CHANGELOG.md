@@ -32,7 +32,7 @@ Line wrap the file at 100 chars.                                              Th
   `PskExchangeV1` endpoint
 - Add "auto" setting for the quantum-resistant tunnel feature, and make it the default. If it was
   previously set to off, it will now be set to auto instead. That currently means the same thing as
-  "off", but this will change in the future.
+  "off", but this might change in the future.
 
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
