@@ -42,8 +42,15 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 }
 
 fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
-    if let Some(tunnel_options) = get_wireguard_tunnel_options(settings) {
-        if let Some(psk_setting) = tunnel_options.get_mut("use_pq_safe_psk") {
+    if let Some(tunnel_options) = settings
+        .get_mut("tunnel_options")
+        .and_then(|opt| opt.get_mut("wireguard"))
+    {
+        if let Some(psk_setting) = tunnel_options
+            .as_object_mut()
+            .ok_or(Error::NoMatchingVersion)?
+            .remove("use_pq_safe_psk")
+        {
             if let Some(true) = psk_setting.as_bool() {
                 tunnel_options["quantum_resistant"] = serde_json::json!(QuantumResistantState::On);
             } else {
@@ -51,18 +58,8 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
                     serde_json::json!(QuantumResistantState::Auto);
             }
         }
-        tunnel_options
-            .as_object_mut()
-            .ok_or(Error::NoMatchingVersion)?
-            .remove("use_pq_safe_psk");
     }
     Ok(())
-}
-
-fn get_wireguard_tunnel_options(
-    settings: &mut serde_json::Value,
-) -> Option<&mut serde_json::Value> {
-    settings.get_mut("tunnel_options")?.get_mut("wireguard")
 }
 
 fn version_matches(settings: &mut serde_json::Value) -> bool {
