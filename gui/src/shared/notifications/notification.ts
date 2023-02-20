@@ -5,12 +5,16 @@ export type NotificationAction = {
   withAuth?: boolean;
 };
 
+export interface InAppNotificationTroubleshootInfo {
+  details: string;
+  steps: string[];
+}
+
 export type InAppNotificationAction =
   | NotificationAction
   | {
-      type: 'info-dialog';
-      details: string;
-      troubleshoot: string[];
+      type: 'troubleshoot-dialog';
+      troubleshoot: InAppNotificationTroubleshootInfo;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
