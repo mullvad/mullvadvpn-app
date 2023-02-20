@@ -40,7 +40,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
-import net.mullvad.mullvadvpn.ui.fragment.LaunchFragment
+import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoginFragment
 import net.mullvad.mullvadvpn.ui.fragment.OutOfTimeFragment
 import net.mullvad.mullvadvpn.ui.fragment.WelcomeFragment
@@ -239,7 +239,7 @@ open class MainActivity : FragmentActivity() {
 
     private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.main_fragment, LaunchFragment())
+            replace(R.id.main_fragment, LoadingFragment())
             commitAllowingStateLoss()
         }
     }
