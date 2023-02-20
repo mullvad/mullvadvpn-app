@@ -148,7 +148,9 @@ build_ref() {
       done
       popd
 
-      version="$version$version_suffix"
+      if [[ $version == *"-dev-"* ]]; then
+          version="$version$version_suffix"
+      fi
   fi
 
   (cd "$artifact_dir" && upload "$version") || return 0
