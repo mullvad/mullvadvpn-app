@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2023.1] - 2023-02-20
+### Fixed
+#### Windows
+- Don't fail to show the mullvad-daemon help text if some of the default paths cannot be obtained.
+
+
 ## [2023.1-beta2] - 2023-02-06
 ### Fixed
 - Fix sorting of devices in the "too many devices"-view to properly sort on device creation time.
@@ -34,9 +40,6 @@ Line wrap the file at 100 chars.                                              Th
   domain.
 - Show "Mullvad VPN" in the Login Items UI instead of "Amagicom AB".
 - Detect whether users need to approve the launch daemon in the Login Items UI.
-
-#### Windows
-- Don't fail to show the mullvad-daemon help text if some of the default paths cannot be obtained.
 
 
 ## [2023.1-beta1] - 2023-01-26
