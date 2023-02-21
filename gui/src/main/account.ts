@@ -225,8 +225,9 @@ export default class Account {
         const expiry = new Date(this.accountData.expiry).getTime();
         const now = new Date().getTime();
         const threeDays = 3 * 24 * 60 * 60 * 1000;
-        // Add 10 seconds to be on the safe side
-        const timeout = expiry - now - threeDays + 10_000;
+        // Add 10 seconds to be on the safe side. Never make it longer than a 24 days since
+        // the timeout needs to fit into a signed 32-bit integer.
+        const timeout = Math.min(expiry - now - threeDays + 10_000, 24 * 24 * 60 * 60 * 1000);
         this.firstExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), timeout);
       }
     }
