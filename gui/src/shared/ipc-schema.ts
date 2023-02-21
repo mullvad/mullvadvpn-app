@@ -163,6 +163,7 @@ export const ipcSchema = {
     setBridgeState: invoke<BridgeState, void>(),
     setOpenVpnMssfix: invoke<number | undefined, void>(),
     setWireguardMtu: invoke<number | undefined, void>(),
+    setWireguardQuantumResistant: invoke<boolean | undefined, void>(),
     updateRelaySettings: invoke<RelaySettingsUpdate, void>(),
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),

@@ -464,6 +464,12 @@ export default class AppRenderer {
     await IpcRendererEventChannel.settings.setWireguardMtu(mtu);
   };
 
+  public setWireguardQuantumResistant = async (quantumResistant?: boolean) => {
+    const actions = this.reduxActions;
+    actions.settings.updateWireguardQuantumResistant(quantumResistant);
+    await IpcRendererEventChannel.settings.setWireguardQuantumResistant(quantumResistant);
+  };
+
   public setAutoStart = (autoStart: boolean): Promise<void> => {
     this.storeAutoStart(autoStart);
 
@@ -746,6 +752,9 @@ export default class AppRenderer {
     reduxSettings.updateShowBetaReleases(newSettings.showBetaReleases);
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
+    reduxSettings.updateWireguardQuantumResistant(
+      newSettings.tunnelOptions.wireguard.quantumResistant,
+    );
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);

@@ -45,6 +45,7 @@ export function getDefaultSettings(): ISettings {
       },
       wireguard: {
         mtu: undefined,
+        quantumResistant: undefined,
       },
       dns: {
         state: 'default',
