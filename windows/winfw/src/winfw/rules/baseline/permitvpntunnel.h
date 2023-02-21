@@ -32,7 +32,7 @@ public:
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
-	bool AddEndpointFilter(const std::optional<Endpoint> &endpoint, GUID ipv4Guid, GUID ipv6Guid, wfp::FilterBuilder &filterBuilder, IObjectInstaller& objectInstaller);
+	bool AddEndpointFilter(const std::optional<Endpoint> &endpoint, const GUID &ipv4Guid, const GUID &ipv6Guid, IObjectInstaller &objectInstaller);
 
 	const std::wstring m_tunnelInterfaceAlias;
 	const std::optional<Endpoints> m_potentialEndpoints;
