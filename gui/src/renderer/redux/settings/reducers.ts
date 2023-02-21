@@ -100,6 +100,7 @@ export interface ISettingsReduxState {
   };
   wireguard: {
     mtu?: number;
+    quantumResistant?: boolean;
   };
   dns: IDnsOptions;
   splitTunneling: boolean;
@@ -237,6 +238,15 @@ export default function (
         wireguard: {
           ...state.wireguard,
           mtu: action.mtu,
+        },
+      };
+
+    case 'UPDATE_WIREGUARD_QUANTUM_RESISTANT':
+      return {
+        ...state,
+        wireguard: {
+          ...state.wireguard,
+          quantumResistant: action.quantumResistant,
         },
       };
 

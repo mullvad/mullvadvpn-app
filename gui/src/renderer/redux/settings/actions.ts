@@ -68,6 +68,11 @@ export interface IUpdateWireguardMtuAction {
   mtu?: number;
 }
 
+export interface IUpdateWireguardQuantumResistantAction {
+  type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT';
+  quantumResistant?: boolean;
+}
+
 export interface IUpdateAutoStartAction {
   type: 'UPDATE_AUTO_START';
   autoStart: boolean;
@@ -106,6 +111,7 @@ export type SettingsAction =
   | IUpdateBridgeStateAction
   | IUpdateOpenVpnMssfixAction
   | IUpdateWireguardMtuAction
+  | IUpdateWireguardQuantumResistantAction
   | IUpdateAutoStartAction
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
@@ -200,6 +206,15 @@ function updateWireguardMtu(mtu?: number): IUpdateWireguardMtuAction {
   };
 }
 
+function updateWireguardQuantumResistant(
+  quantumResistant?: boolean,
+): IUpdateWireguardQuantumResistantAction {
+  return {
+    type: 'UPDATE_WIREGUARD_QUANTUM_RESISTANT',
+    quantumResistant,
+  };
+}
+
 function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   return {
     type: 'UPDATE_AUTO_START',
@@ -252,6 +267,7 @@ export default {
   updateBridgeState,
   updateOpenVpnMssfix,
   updateWireguardMtu,
+  updateWireguardQuantumResistant,
   updateAutoStart,
   updateDnsOptions,
   updateSplitTunnelingState,

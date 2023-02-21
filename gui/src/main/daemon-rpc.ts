@@ -437,6 +437,25 @@ export class DaemonRpc {
     await this.callNumber(this.client.setWireguardMtu, mtu);
   }
 
+  public async setWireguardQuantumResistant(quantumResistant?: boolean): Promise<void> {
+    const quantumResistantState = new grpcTypes.QuantumResistantState();
+    switch (quantumResistant) {
+      case true:
+        quantumResistantState.setState(grpcTypes.QuantumResistantState.State.ON);
+        break;
+      case false:
+        quantumResistantState.setState(grpcTypes.QuantumResistantState.State.OFF);
+        break;
+      case undefined:
+        quantumResistantState.setState(grpcTypes.QuantumResistantState.State.AUTO);
+        break;
+    }
+    await this.call<grpcTypes.QuantumResistantState, Empty>(
+      this.client.setQuantumResistantTunnel,
+      quantumResistantState,
+    );
+  }
+
   public async setAutoConnect(autoConnect: boolean): Promise<void> {
     await this.callBool(this.client.setAutoConnect, autoConnect);
   }
@@ -1230,6 +1249,9 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
     },
     wireguard: {
       mtu: tunnelOptions.wireguard!.mtu,
+      quantumResistant: convertFromQuantumResistantState(
+        tunnelOptions.wireguard?.quantumResistant?.state,
+      ),
     },
     generic: {
       enableIpv6: tunnelOptions.generic!.enableIpv6,
@@ -1251,6 +1273,18 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
       },
     },
   };
+}
+
+function convertFromQuantumResistantState(
+  state?: grpcTypes.QuantumResistantState.State,
+): boolean | undefined {
+  return state === undefined
+    ? undefined
+    : {
+        [grpcTypes.QuantumResistantState.State.ON]: true,
+        [grpcTypes.QuantumResistantState.State.OFF]: false,
+        [grpcTypes.QuantumResistantState.State.AUTO]: undefined,
+      }[state];
 }
 
 function convertFromObfuscationSettings(

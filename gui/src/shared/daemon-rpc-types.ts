@@ -301,6 +301,7 @@ export interface ITunnelOptions {
   };
   wireguard: {
     mtu?: number;
+    quantumResistant?: boolean;
   };
   generic: {
     enableIpv6: boolean;
