@@ -1,99 +1,120 @@
-use std::{
-    ffi::OsString,
-    io, mem,
-    os::windows::ffi::OsStringExt,
-    path::{Path, PathBuf},
-    ptr,
-};
+use std::{io, mem, path::PathBuf, ptr};
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
     core::{GUID, PWSTR},
     Win32::{
-        Foundation::{CloseHandle, ERROR_NO_TOKEN, ERROR_SUCCESS, HANDLE, LUID, S_OK},
-        Security::{
-            AdjustTokenPrivileges, ImpersonateSelf, LookupPrivilegeValueW, RevertToSelf,
-            SecurityImpersonation, LUID_AND_ATTRIBUTES, SE_PRIVILEGE_ENABLED,
-            TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
-            TOKEN_QUERY,
+        Foundation::{
+            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_TOKEN, ERROR_SUCCESS, HANDLE, LUID,
+            S_OK,
         },
+        Security::{
+            AdjustTokenPrivileges, CreateWellKnownSid, EqualSid, GetTokenInformation,
+            ImpersonateSelf, LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation, TokenUser,
+            WinLocalSystemSid, LUID_AND_ATTRIBUTES, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES,
+            TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
+        },
+        Storage::FileSystem::MAX_SID_SIZE,
         System::{
             Com::CoTaskMemFree,
             ProcessStatus::K32EnumProcesses,
             SystemServices::GENERIC_READ,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
-                QueryFullProcessImageNameW, PROCESS_QUERY_INFORMATION,
+                PROCESS_QUERY_INFORMATION,
             },
         },
-        UI::Shell::{
-            FOLDERID_LocalAppData, FOLDERID_System, SHGetKnownFolderPath, KF_FLAG_DEFAULT,
-        },
+        UI::Shell::{FOLDERID_LocalAppData, SHGetKnownFolderPath, KF_FLAG_DEFAULT},
     },
 };
 
+struct Handle(HANDLE);
+
+impl Drop for Handle {
+    fn drop(&mut self) {
+        unsafe {
+            CloseHandle(self.0);
+        }
+    }
+}
+
 pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
-    get_system_service_known_folder(&FOLDERID_LocalAppData)
+    let result = get_appdata_as_system_user().or_else(|_| get_appdata_as_admin());
+    if unsafe { RevertToSelf() } == 0 {
+        log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
+    }
+    result
+}
+
+/// Get local AppData path if the current user is the system service user.
+fn get_appdata_as_system_user() -> io::Result<PathBuf> {
+    let current_token = Handle(get_current_thread_token()?);
+    let current_user_is_system = is_local_system_user_token(current_token.0);
+
+    if current_user_is_system.map_err(|error| {
+        log::error!("is_local_system_user_token failed: {error}");
+        error
+    })? {
+        log::trace!("Is system user");
+        return get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, 0);
+    }
+
+    log::trace!("Is not system user");
+    Err(io::Error::new(
+        io::ErrorKind::Other,
+        "current user is not SYSTEM",
+    ))
 }
 
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
-fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Result<PathBuf> {
+fn get_appdata_as_admin() -> std::io::Result<PathBuf> {
     let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
+    let current_token = Handle(get_current_thread_token()?);
+    adjust_token_privilege(current_token.0, &system_debug_priv, true)?;
 
-    adjust_current_thread_token_privilege(&system_debug_priv, true)?;
-    let known_folder: io::Result<PathBuf> = (|| {
-        let mut lsass_path = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, 0)?;
-        lsass_path.push("lsass.exe");
+    let known_path = find_process(|process_handle| {
+        let mut process_token = 0;
 
-        let lsass_pid = get_running_process_id_from_name(&lsass_path)?;
-        let lsass_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, lsass_pid) };
-        if lsass_handle == 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                format!(
-                    "Failed to open process {:?} to query information",
-                    lsass_handle
-                ),
-            ));
-        }
-
-        let mut lsass_token: HANDLE = 0;
         let status = unsafe {
             OpenProcessToken(
-                lsass_handle,
+                process_handle,
                 GENERIC_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE,
-                &mut lsass_token,
+                &mut process_token,
             )
         };
-        unsafe { CloseHandle(lsass_handle) };
         if status == 0 {
-            return Err(io::Error::new(
-                io::ErrorKind::PermissionDenied,
-                format!("Failed to open process token, failure code {}", status),
-            ));
+            log::error!(
+                "Failed to open process token: {}",
+                io::Error::last_os_error()
+            );
+            return None;
         }
 
-        let known_folder = get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT, lsass_token);
-        unsafe { CloseHandle(lsass_token) };
+        let result = if let Ok(true) = is_local_system_user_token(process_token) {
+            match get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, process_token) {
+                Ok(path) => Some(Ok(path)),
+                Err(error) => {
+                    log::error!("Failed to obtain folder path: {}", error);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+        unsafe { CloseHandle(process_token) };
 
-        known_folder
-    })();
+        result
+    });
 
-    if let Err(err) = adjust_current_thread_token_privilege(&system_debug_priv, false) {
-        eprintln!("Failed to drop SeDebugPrivilege: {}", err);
+    if let Err(err) = adjust_token_privilege(current_token.0, &system_debug_priv, false) {
+        log::error!("Failed to drop SeDebugPrivilege: {}", err);
     }
-    if unsafe { RevertToSelf() } == 0 {
-        return Err(io::Error::last_os_error());
-    }
 
-    known_folder
+    known_path
 }
 
-fn adjust_current_thread_token_privilege(
-    privilege: &WideCStr,
-    enable: bool,
-) -> std::io::Result<()> {
+fn get_current_thread_token() -> std::io::Result<HANDLE> {
     let mut token_handle: HANDLE = 0;
     if unsafe {
         OpenThreadToken(
@@ -126,9 +147,7 @@ fn adjust_current_thread_token_privilege(
         }
     }
 
-    let result = adjust_token_privilege(token_handle, privilege, enable);
-    unsafe { CloseHandle(token_handle) };
-    result
+    Ok(token_handle)
 }
 
 fn adjust_token_privilege(
@@ -190,17 +209,12 @@ fn get_known_folder_path(
     result
 }
 
-/// Find the PID of a process with the given image path. In case of multiple processes matching
-/// the path, the first one found to match the path will be returned - the ordering of PIDs is
-/// determined by `K32EnumProcesses`.
-fn get_running_process_id_from_name(target_name: &Path) -> io::Result<u32> {
-    let mut num_procs: u32 = 2048;
-    let mut pid_buffer = vec![];
-    let canonical_target = target_name
-        .canonicalize()
-        .unwrap_or(target_name.to_path_buf());
+/// Enumerate over all processes until `handle_process` returns a result or until there are
+/// no more processes left. In the latter case, an error is returned.
+fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<io::Result<T>>) -> io::Result<T> {
+    let mut pid_buffer = vec![0u32; 2048];
+    let mut num_procs: u32 = u32::try_from(pid_buffer.len()).unwrap();
 
-    pid_buffer.resize(num_procs as usize, 0);
     let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
     if unsafe { K32EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) }
@@ -215,7 +229,7 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<u32> {
     for process in pid_buffer {
         let process_handle = unsafe { OpenProcess(PROCESS_QUERY_INFORMATION, 0, process) };
         if process_handle == 0 {
-            eprintln!(
+            log::error!(
                 "Failed to open process {}: {}",
                 process,
                 io::Error::last_os_error()
@@ -223,35 +237,71 @@ fn get_running_process_id_from_name(target_name: &Path) -> io::Result<u32> {
             continue;
         }
 
-        let mut process_name = vec![0u16; 512];
-        let mut process_name_size = process_name.len() as u32;
+        let result = handle_process(process_handle);
 
-        let status = unsafe {
-            QueryFullProcessImageNameW(
-                process_handle,
-                0,
-                process_name.as_mut_ptr(),
-                &mut process_name_size,
-            )
-        };
         unsafe { CloseHandle(process_handle) };
 
-        if 0 == status || process_name_size == 0 {
-            continue;
-        };
-
-        process_name.resize(process_name_size as usize, 0u16);
-
-        let process_path = PathBuf::from(OsString::from_wide(&process_name));
-        let canonical_process_path = process_path.canonicalize().unwrap_or(process_path);
-
-        if canonical_target == canonical_process_path {
-            return Ok(process);
+        if let Some(result) = result {
+            return result;
         }
     }
 
     Err(io::Error::new(
         io::ErrorKind::NotFound,
-        format!("Process ID for {} not found", target_name.to_string_lossy()),
+        "Could not find matching process",
     ))
+}
+
+fn is_local_system_user_token(token: HANDLE) -> io::Result<bool> {
+    let mut token_info_len = 0;
+
+    let info_result =
+        unsafe { GetTokenInformation(token, TokenUser, ptr::null_mut(), 0, &mut token_info_len) };
+    let err = io::Error::last_os_error();
+
+    if info_result != 0 || err.raw_os_error() != Some(ERROR_INSUFFICIENT_BUFFER as i32) {
+        log::error!("Failed to obtain token information (length): {}", err);
+        return Err(err);
+    }
+
+    let mut token_info = vec![0u8; usize::try_from(token_info_len).expect("i32 must fit in usize")];
+    let mut _ret_len = 0;
+
+    if unsafe {
+        GetTokenInformation(
+            token,
+            TokenUser,
+            token_info.as_mut_ptr() as _,
+            token_info_len,
+            &mut _ret_len,
+        )
+    } == 0
+    {
+        let err = io::Error::last_os_error();
+        log::error!("Failed to obtain token information: {}", err);
+        return Err(err);
+    }
+
+    // SAFETY: We specified `TokenUser` as the class, so that is what GetTokenInformation should
+    // return.
+    let token_user = unsafe { &*(token_info.as_mut_ptr() as *const TOKEN_USER) };
+
+    let mut local_system_sid = [0u8; MAX_SID_SIZE as usize];
+    let mut local_system_size = u32::try_from(local_system_sid.len()).unwrap();
+
+    if unsafe {
+        CreateWellKnownSid(
+            WinLocalSystemSid,
+            std::ptr::null_mut(),
+            local_system_sid.as_mut_ptr() as _,
+            &mut local_system_size,
+        )
+    } == 0
+    {
+        let err = io::Error::last_os_error();
+        log::error!("CreateWellKnownSid failed: {}", err);
+        return Err(err);
+    }
+
+    Ok(unsafe { EqualSid(token_user.User.Sid, local_system_sid.as_ptr() as _) } != 0)
 }
