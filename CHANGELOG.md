@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
   Quantum-resistant-tunnels feature now mixes both Classic McEliece and Kyber for added protection.
 - Add notification dot to tray icon and system notification throttling.
 - Add troubleshooting information to some in-app notifications.
+- Add setting for quantum resistant tunnels to the desktop GUI.
 
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
