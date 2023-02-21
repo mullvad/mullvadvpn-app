@@ -50,6 +50,7 @@ function getLabelText(displayStyle: SecuredDisplayStyle) {
       return messages.gettext('SECURE CONNECTION');
 
     case SecuredDisplayStyle.securedPq:
+      // TRANSLATORS: The connection is secure and isn't breakable by quantum computers.
       return messages.gettext('QUANTUM SECURE CONNECTION');
 
     case SecuredDisplayStyle.blocked:
@@ -59,6 +60,7 @@ function getLabelText(displayStyle: SecuredDisplayStyle) {
       return messages.gettext('CREATING SECURE CONNECTION');
 
     case SecuredDisplayStyle.securingPq:
+      // TRANSLATORS: Creating a secure connection that isn't breakable by quantum computers.
       return messages.gettext('CREATING QUANTUM SECURE CONNECTION');
 
     case SecuredDisplayStyle.unsecured:
