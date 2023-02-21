@@ -169,6 +169,8 @@ export default class UserInterface implements WindowControllerDelegate {
       // work since the old webContents is destroyed after the IPC wrapper has been updated with the
       // new one.
       this.windowController.webContents?.removeListener('destroyed', unsetIpcWebContents);
+      // Remove window close handler that calls `preventDefault` when closed.
+      this.windowController.window?.removeListener('close', this.windowCloseHandler);
 
       const window = this.createWindow();
       changeIpcWebContents(window.webContents);
@@ -510,11 +512,13 @@ export default class UserInterface implements WindowControllerDelegate {
       return;
     }
 
-    this.windowController.window?.on('close', (closeEvent: Event) => {
-      closeEvent.preventDefault();
-      this.windowController.hide();
-    });
+    this.windowController.window?.on('close', this.windowCloseHandler);
   }
+
+  private windowCloseHandler = (closeEvent: Event) => {
+    closeEvent.preventDefault();
+    this.windowController.hide();
+  };
 
   private installTrayClickHandlers() {
     switch (process.platform) {
