@@ -108,6 +108,7 @@ msgstr ""
 msgid "Connecting"
 msgstr ""
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr ""
 
@@ -187,6 +188,7 @@ msgstr ""
 msgid "Open URL"
 msgstr ""
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr ""
 
@@ -1478,6 +1480,10 @@ msgid "IP version"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr ""
 
@@ -1495,6 +1501,13 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Port"
+msgstr ""
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
 msgstr ""
 
 #. The hint displayed below the WireGuard MTU input field.
@@ -1519,6 +1532,10 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
