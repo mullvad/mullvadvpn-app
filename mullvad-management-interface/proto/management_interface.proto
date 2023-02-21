@@ -43,7 +43,7 @@ service ManagementService {
 	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetQuantumResistantTunnel(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
 	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
 
 	// Account management
@@ -437,6 +437,15 @@ message ConnectionConfig {
 	}
 }
 
+message QuantumResistantState {
+	enum State {
+		AUTO = 0;
+		ON = 1;
+		OFF = 2;
+	}
+	State state = 1;
+}
+
 message TunnelOptions {
 	message OpenvpnOptions {
 		uint32 mssfix = 1;
@@ -445,7 +454,7 @@ message TunnelOptions {
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
 		bool use_wireguard_nt = 3;
-		bool use_pq_safe_psk = 4;
+		QuantumResistantState quantum_resistant = 4;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;

@@ -143,7 +143,7 @@ impl TunnelMonitor {
         let config = talpid_wireguard::config::Config::from_parameters(params)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
-            if params.options.use_pq_safe_psk {
+            if params.options.quantum_resistant {
                 Some(
                     params
                         .connection

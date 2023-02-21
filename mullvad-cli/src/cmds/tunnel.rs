@@ -63,7 +63,13 @@ fn create_wireguard_quantum_resistant_tunnel_subcommand() -> clap::App<'static> 
         .about("Controls the quantum-resistant PSK exchange in the tunnel")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::App::new("get"))
-        .subcommand(clap::App::new("set").arg(clap::Arg::new("policy").required(true)))
+        .subcommand(
+            clap::App::new("set").arg(
+                clap::Arg::new("policy")
+                    .required(true)
+                    .possible_values(["on", "off", "auto"]),
+            ),
+        )
 }
 
 fn create_wireguard_keys_subcommand() -> clap::App<'static> {
@@ -222,10 +228,15 @@ impl Tunnel {
 
     async fn process_wireguard_quantum_resistant_tunnel_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        if tunnel_options.wireguard.unwrap().use_pq_safe_psk {
-            println!("enabled");
-        } else {
-            println!("disabled");
+        match tunnel_options
+            .wireguard
+            .unwrap()
+            .quantum_resistant
+            .and_then(|state| types::quantum_resistant_state::State::from_i32(state.state))
+        {
+            Some(types::quantum_resistant_state::State::On) => println!("enabled"),
+            Some(types::quantum_resistant_state::State::Off) => println!("disabled"),
+            None | Some(types::quantum_resistant_state::State::Auto) => println!("auto"),
         }
         Ok(())
     }
@@ -233,10 +244,15 @@ impl Tunnel {
     async fn process_wireguard_quantum_resistant_tunnel_set(
         matches: &clap::ArgMatches,
     ) -> Result<()> {
-        let use_pq_safe_psk = matches.value_of("policy").unwrap() == "on";
+        let quantum_resistant = match matches.value_of("policy").unwrap() {
+            "auto" => types::quantum_resistant_state::State::Auto,
+            "on" => types::quantum_resistant_state::State::On,
+            "off" => types::quantum_resistant_state::State::Off,
+            _ => unreachable!("invalid PQ state"),
+        };
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?;
-        if use_pq_safe_psk {
+        if quantum_resistant == types::quantum_resistant_state::State::On {
             let multihop_is_enabled = settings
                 .into_inner()
                 .relay_settings
@@ -256,7 +272,10 @@ impl Tunnel {
                 ));
             }
         }
-        rpc.set_quantum_resistant_tunnel(use_pq_safe_psk).await?;
+        rpc.set_quantum_resistant_tunnel(types::QuantumResistantState {
+            state: i32::from(quantum_resistant),
+        })
+        .await?;
         println!("Updated quantum resistant tunnel setting");
         Ok(())
     }

@@ -345,11 +345,16 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_settings_error)
     }
 
-    async fn set_quantum_resistant_tunnel(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enable = request.into_inner();
-        log::debug!("set_quantum_resistant_tunnel({})", enable);
+    async fn set_quantum_resistant_tunnel(
+        &self,
+        request: Request<types::QuantumResistantState>,
+    ) -> ServiceResult<()> {
+        let state = mullvad_types::wireguard::QuantumResistantState::try_from(request.into_inner())
+            .map_err(map_protobuf_type_err)?;
+
+        log::debug!("set_quantum_resistant_tunnel({state:?})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, enable))?;
+        self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, state))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
