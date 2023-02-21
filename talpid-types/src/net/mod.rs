@@ -296,6 +296,7 @@ impl fmt::Display for AllowedTunnelTraffic {
             AllowedTunnelTraffic::One(endpoint) => endpoint.fmt(f),
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
                 endpoint1.fmt(f)?;
+                f.write_str(", ")?;
                 endpoint2.fmt(f)
             }
         }
