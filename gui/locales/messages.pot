@@ -215,6 +215,9 @@ msgstr ""
 msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
+msgid "Troubleshoot"
+msgstr ""
+
 msgid "Try a different search."
 msgstr ""
 
@@ -602,6 +605,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr ""
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr ""
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -779,7 +786,7 @@ msgid "Lockdown mode active, connection blocked"
 msgstr ""
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
+msgid "No servers match your settings, try changing server or other settings."
 msgstr ""
 
 msgctxt "notifications"
@@ -795,7 +802,7 @@ msgid "Unable to apply firewall rules."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
 msgstr ""
 
 msgctxt "notifications"
@@ -807,7 +814,7 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
 msgstr ""
 
 msgctxt "notifications"
@@ -1229,6 +1236,46 @@ msgstr ""
 
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
 msgstr ""
 
 msgctxt "tunnel-control"
