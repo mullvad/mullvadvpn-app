@@ -13,8 +13,9 @@ use lazy_static::lazy_static;
 use std::env;
 #[cfg(windows)]
 use std::io;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 use std::{
-    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
@@ -92,6 +93,10 @@ pub enum Error {
     /// Failed to negotiate PQ PSK
     #[error(display = "Failed to negotiate PQ PSK")]
     PskNegotiationError(#[error(source)] talpid_tunnel_config_client::Error),
+
+    /// Too many peers in the config
+    #[error(display = "There are too many peers in the tunnel config")]
+    TooManyPeers,
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
@@ -296,12 +301,24 @@ impl WireguardMonitor {
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let tunnel = moved_tunnel;
-            let close_obfs_sender = moved_close_obfs_sender;
+            let mut tunnel = moved_tunnel;
+            let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
             Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                 .await?;
+
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            let allowed_traffic = if psk_negotiation {
+                AllowedTunnelTraffic::One(Endpoint::new(
+                    config.ipv4_gateway,
+                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                    TransportProtocol::Tcp,
+                ))
+            } else {
+                AllowedTunnelTraffic::All
+            };
+            (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
 
             // Add non-default routes before establishing the tunnel.
             #[cfg(target_os = "linux")]
@@ -320,111 +337,18 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
+            let psk_obfs_sender = close_obfs_sender.clone();
             if psk_negotiation {
-                let mut wg_psk_privkey = None;
-                let mut entry_psk = None;
-
-                if config.peers.len() > 1 {
-                    assert_eq!(config.peers.len(), 2);
-                    // Create new wg privkey
-                    wg_psk_privkey = Some(PrivateKey::new_from_random());
-
-                    // Set up tunnel to entry do psk
-                    let mut entry_tun_config = config.clone();
-                    // Here we know there are exactly 2 peers, the last one is the exit
-                    entry_tun_config.peers.pop();
-                    entry_tun_config
-                        .peers
-                        .get_mut(0)
-                        .expect("entry peer not found")
-                        .allowed_ips
-                        .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
-                    let entry_tun_config =
-                        Self::patch_allowed_ips(&entry_tun_config, true).into_owned();
-
-                    let allowed_traffic = AllowedTunnelTraffic::One(Endpoint::new(
-                        config.ipv4_gateway,
-                        talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-                        TransportProtocol::Tcp,
-                    ));
-                    let close_obfs_sender = close_obfs_sender.clone();
-                    let entry_config = Self::reconfigure_tunnel(
-                        &tunnel,
-                        entry_tun_config,
-                        args.on_event.clone(),
-                        allowed_traffic,
-                        &iface_name,
-                        obfuscator.clone(),
-                        close_obfs_sender,
-                    )
-                    .await?;
-                    entry_psk = Some(
-                        Self::perform_psk_negotiation(
-                            args.retry_attempt,
-                            &entry_config,
-                            wg_psk_privkey.as_ref().unwrap().public_key(),
-                        )
-                        .await?,
-                    );
-                    log::debug!("Successfully exchanged PSK with entry peer");
-                }
-
-                // Create new wg privkey if there isn't one already
-                let wg_psk_privkey = wg_psk_privkey.unwrap_or_else(PrivateKey::new_from_random);
-                // Set up tunnel to exit and exchange psk
-                let exit_config = Self::patch_allowed_ips(&config, psk_negotiation);
-
-                let close_obfs_sender = close_obfs_sender.clone();
-
-                let allowed_traffic = Endpoint::new(
-                    config.ipv4_gateway,
-                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-                    TransportProtocol::Tcp,
-                );
-                let allowed_traffic = if config.peers.len() > 1 {
-                    // NOTE: We need to let traffic meant for the exit IP through the firewall. This
-                    // should not allow any non-PQ traffic to leak since you can only reach the
-                    // exit peer with these rules and not the broader internet.
-                    AllowedTunnelTraffic::Two(
-                        allowed_traffic,
-                        Endpoint::from_socket_address(
-                            config.peers[1].endpoint,
-                            TransportProtocol::Udp,
-                        ),
-                    )
-                } else {
-                    AllowedTunnelTraffic::One(allowed_traffic)
-                };
-
-                let exit_config = Self::reconfigure_tunnel(
-                    &tunnel,
-                    exit_config.into_owned(),
+                Self::psk_negotiation(
+                    &mut tunnel,
+                    &mut config,
+                    args.retry_attempt,
                     args.on_event.clone(),
-                    allowed_traffic,
                     &iface_name,
                     obfuscator.clone(),
-                    close_obfs_sender,
+                    psk_obfs_sender,
                 )
                 .await?;
-                let exit_psk = Self::perform_psk_negotiation(
-                    args.retry_attempt,
-                    &exit_config,
-                    wg_psk_privkey.public_key(),
-                )
-                .await?;
-
-                log::debug!("Successfully exchanged PSK with gateway peer");
-
-                // Set new priv key and psks
-                config.tunnel.private_key = wg_psk_privkey;
-                if let Some(entry_psk) = entry_psk {
-                    // The first peer is the entry peer and there is guaranteed to be a second peer
-                    // which is the exit
-                    config.peers.get_mut(0).expect("entry peer not found").psk = Some(entry_psk);
-                    config.peers.get_mut(1).expect("exit peer not found").psk = Some(exit_psk);
-                } else {
-                    config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
-                }
             }
 
             let config = Self::reconfigure_tunnel(
@@ -498,6 +422,124 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
+    async fn psk_negotiation<
+        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
+            + Send
+            + Sync
+            + Clone
+            + 'static,
+    >(
+        tunnel: &mut Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        config: &mut Config,
+        retry_attempt: u32,
+        on_event: F,
+        iface_name: &str,
+        obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
+        close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    ) -> std::result::Result<(), CloseMsg> {
+        let wg_psk_privkey = PrivateKey::new_from_random();
+        let mut entry_psk = None;
+
+        if config.peers.len() > 1 {
+            if config.peers.len() != 2 {
+                return Err(CloseMsg::TooManyPeers);
+            }
+            // Set up tunnel to entry do psk
+            let mut entry_tun_config = config.clone();
+            // Here we know there are exactly 2 peers, the last one is the exit
+            // TODO: Remove this
+            //entry_tun_config.peers.pop();
+            entry_tun_config
+                .peers
+                .get_mut(0)
+                .expect("entry peer not found")
+                .allowed_ips
+                .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
+            // TODO: Remove this
+            //let entry_tun_config = Self::patch_allowed_ips(&entry_tun_config, true).into_owned();
+
+            let allowed_traffic = AllowedTunnelTraffic::One(Endpoint::new(
+                config.ipv4_gateway,
+                talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                TransportProtocol::Tcp,
+            ));
+            let close_obfs_sender = close_obfs_sender.clone();
+            let entry_config = Self::reconfigure_tunnel(
+                tunnel,
+                entry_tun_config,
+                on_event.clone(),
+                allowed_traffic,
+                iface_name,
+                obfuscator.clone(),
+                close_obfs_sender,
+            )
+            .await?;
+            entry_psk = Some(
+                Self::perform_psk_negotiation(
+                    retry_attempt,
+                    &entry_config,
+                    wg_psk_privkey.public_key(),
+                )
+                .await?,
+            );
+            log::debug!("Successfully exchanged PSK with entry peer");
+        }
+
+        // Set up tunnel to exit and exchange psk
+        // TODO: Remove this
+        //let exit_config = Self::patch_allowed_ips(&config, psk_negotiation);
+
+        let close_obfs_sender = close_obfs_sender.clone();
+
+        let allowed_traffic = Endpoint::new(
+            config.ipv4_gateway,
+            talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+            TransportProtocol::Tcp,
+        );
+        let allowed_traffic = if config.peers.len() > 1 {
+            // NOTE: We need to let traffic meant for the exit IP through the firewall. This
+            // should not allow any non-PQ traffic to leak since you can only reach the
+            // exit peer with these rules and not the broader internet.
+            AllowedTunnelTraffic::Two(
+                allowed_traffic,
+                Endpoint::from_socket_address(config.peers[1].endpoint, TransportProtocol::Udp),
+            )
+        } else {
+            AllowedTunnelTraffic::One(allowed_traffic)
+        };
+
+        let exit_config = Self::reconfigure_tunnel(
+            tunnel,
+            config.clone(),
+            on_event.clone(),
+            allowed_traffic,
+            iface_name,
+            obfuscator.clone(),
+            close_obfs_sender,
+        )
+        .await?;
+        let exit_psk = Self::perform_psk_negotiation(
+            retry_attempt,
+            &exit_config,
+            wg_psk_privkey.public_key(),
+        )
+        .await?;
+
+        log::debug!("Successfully exchanged PSK with gateway peer");
+
+        // Set new priv key and psks
+        config.tunnel.private_key = wg_psk_privkey;
+        if let Some(entry_psk) = entry_psk {
+            // The first peer is the entry peer and there is guaranteed to be a second peer
+            // which is the exit
+            config.peers.get_mut(0).expect("entry peer not found").psk = Some(entry_psk);
+            config.peers.get_mut(1).expect("exit peer not found").psk = Some(exit_psk);
+        } else {
+            config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
+        }
+        Ok(())
+    }
+
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel<
@@ -542,6 +584,7 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
             let mut patched_config = config.clone();
@@ -725,6 +768,7 @@ impl WireguardMonitor {
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
+            Ok(CloseMsg::TooManyPeers) => Err(Error::TooManyPeers),
             Err(_) => Ok(()),
         };
 
@@ -886,6 +930,7 @@ enum CloseMsg {
     SetupError(Error),
     ObfuscatorExpired,
     ObfuscatorFailed(Error),
+    TooManyPeers,
 }
 
 pub(crate) trait Tunnel: Send {
