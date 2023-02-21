@@ -117,7 +117,7 @@ export default function SelectLocation() {
   const showProvidersFilter = providers.length > 0;
   const showFilters = showOwnershipFilter || showProvidersFilter;
   return (
-    <BackAction icon="close" action={onClose}>
+    <BackAction action={onClose}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>

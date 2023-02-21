@@ -26,7 +26,7 @@ export function NotificationSubtitle(props: INotificationSubtitleProps) {
   return React.Children.count(props.children) > 0 ? <NotificationSubtitleText {...props} /> : null;
 }
 
-export const NotificationOpenLinkActionButton = styled(AppButton.SimpleButton)({
+export const NotificationActionButton = styled(AppButton.SimpleButton)({
   flex: 1,
   justifyContent: 'center',
   cursor: 'default',
@@ -36,20 +36,25 @@ export const NotificationOpenLinkActionButton = styled(AppButton.SimpleButton)({
 });
 
 export const NotificationOpenLinkActionIcon = styled(ImageView)({
-  [NotificationOpenLinkActionButton + ':hover &']: {
+  [NotificationActionButton + ':hover &']: {
+    backgroundColor: colors.white80,
+  },
+});
+
+export const NotificationTroubleshootDialogActionIcon = styled(ImageView)({
+  [NotificationActionButton + ':hover &']: {
     backgroundColor: colors.white80,
   },
 });
 
 interface INotifcationOpenLinkActionProps {
   onClick: () => Promise<void>;
-  children?: React.ReactNode;
 }
 
 export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProps) {
   return (
     <AppButton.BlockingButton onClick={props.onClick}>
-      <NotificationOpenLinkActionButton
+      <NotificationActionButton
         aria-describedby={NOTIFICATION_AREA_ID}
         aria-label={messages.gettext('Open URL')}>
         <NotificationOpenLinkActionIcon
@@ -58,8 +63,30 @@ export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProp
           tintColor={colors.white60}
           source="icon-extLink"
         />
-      </NotificationOpenLinkActionButton>
+      </NotificationActionButton>
     </AppButton.BlockingButton>
+  );
+}
+
+interface INotifcationTroubleshootDialogActionProps {
+  onClick: () => Promise<void>;
+}
+
+export function NotificationTroubleshootDialogAction(
+  props: INotifcationTroubleshootDialogActionProps,
+) {
+  return (
+    <NotificationActionButton
+      aria-describedby={NOTIFICATION_AREA_ID}
+      aria-label={messages.gettext('Troubleshoot')}
+      onClick={props.onClick}>
+      <NotificationOpenLinkActionIcon
+        height={12}
+        width={12}
+        tintColor={colors.white60}
+        source="icon-info"
+      />
+    </NotificationActionButton>
   );
 }
 

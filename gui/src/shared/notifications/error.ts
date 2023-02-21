@@ -11,6 +11,7 @@ import {
 import { messages } from '../gettext';
 import {
   InAppNotification,
+  InAppNotificationAction,
   InAppNotificationProvider,
   SystemNotification,
   SystemNotificationCategory,
@@ -77,6 +78,7 @@ export class ErrorNotificationProvider
           ? messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING')
           : messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
         subtitle,
+        action: getActions(this.context.tunnelState.details) ?? undefined,
       };
     } else {
       return undefined;
@@ -91,7 +93,7 @@ function getMessage(errorState: ErrorState): string {
         case 'win32':
           return messages.pgettext(
             'notifications',
-            'Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report.',
+            'Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report.',
           );
         case 'linux':
           return messages.pgettext(
@@ -141,7 +143,7 @@ function getMessage(errorState: ErrorState): string {
           case 'win32':
             return messages.pgettext(
               'notifications',
-              'Unable to apply firewall rules. Try disabling any third-party antivirus or security software.',
+              'Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software.',
             );
           case 'linux':
             return messages.pgettext(
@@ -184,7 +186,7 @@ function getTunnelParameterMessage(error: TunnelParameterError): string {
     case TunnelParameterError.noMatchingRelay:
       return messages.pgettext(
         'notifications',
-        'No servers in your selected location match your settings.',
+        'No servers match your settings, try changing server or other settings.',
       );
     case TunnelParameterError.noWireguardKey:
       return sprintf(
@@ -201,5 +203,71 @@ function getTunnelParameterMessage(error: TunnelParameterError): string {
         'notifications',
         'Unable to resolve host of custom tunnel. Try changing your settings.',
       );
+  }
+}
+
+function getActions(errorState: ErrorState): InAppNotificationAction | void {
+  const platform = process.platform ?? window.env.platform;
+
+  if (errorState.cause === ErrorStateCause.setFirewallPolicyError && platform === 'linux') {
+    return {
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'This can happen because the kernel is old, or if you have removed a kernel.',
+        ),
+        steps: [
+          messages.pgettext('troubleshoot', 'Update your kernel.'),
+          messages.pgettext('troubleshoot', 'Make sure you have NF tables support.'),
+        ],
+      },
+    };
+  } else if (errorState.cause === ErrorStateCause.setDnsError) {
+    const troubleshootSteps = [];
+    if (platform === 'darwin') {
+      troubleshootSteps.push(
+        messages.pgettext(
+          'troubleshoot',
+          'Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac.',
+        ),
+        messages.pgettext(
+          'troubleshoot',
+          'Uninstall or disable other DNS, networking and ads/website blocking apps.',
+        ),
+      );
+    } else if (platform === 'win32') {
+      troubleshootSteps.push(
+        messages.pgettext(
+          'troubleshoot',
+          'Uninstall or disable other DNS, networking and ads/website blocking apps.',
+        ),
+      );
+    }
+
+    return {
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'This error can happen when something other than Mullvad is actively updating the DNS.',
+        ),
+        steps: troubleshootSteps,
+      },
+    };
+  } else if (errorState.cause === ErrorStateCause.splitTunnelError) {
+    return {
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'Unable to communicate with Mullvad kernel driver.',
+        ),
+        steps: [
+          messages.pgettext('troubleshoot', 'Try reconnecting.'),
+          messages.pgettext('troubleshoot', 'Try restarting your device.'),
+        ],
+      },
+    };
   }
 }
