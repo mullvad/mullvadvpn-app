@@ -39,7 +39,7 @@ impl Drop for Handle {
     }
 }
 
-pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
+pub fn get_system_service_appdata() -> io::Result<PathBuf> {
     let result = get_appdata_as_system_user()
         .or_else(|error| {
             log::error!("get_appdata_as_system_user failed: {error}");

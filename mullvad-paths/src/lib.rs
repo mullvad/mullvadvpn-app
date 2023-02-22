@@ -71,4 +71,4 @@ mod settings;
 pub use crate::settings::{get_default_settings_dir, settings_dir};
 
 #[cfg(windows)]
-mod windows;
+pub mod windows;
