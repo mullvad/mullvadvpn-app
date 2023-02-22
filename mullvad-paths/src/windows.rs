@@ -1,10 +1,4 @@
-use std::{
-    ffi::{CStr, OsString},
-    io, mem,
-    os::windows::ffi::OsStringExt,
-    path::{Path, PathBuf},
-    ptr,
-};
+use std::{io, mem, path::PathBuf, ptr};
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
     core::{GUID, PWSTR},
@@ -33,16 +27,51 @@ use windows_sys::{
     },
 };
 
+struct Handle(HANDLE);
+
+impl Drop for Handle {
+    fn drop(&mut self) {
+        unsafe {
+            CloseHandle(self.0);
+        }
+    }
+}
+
 pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
-    get_system_service_known_folder(&FOLDERID_LocalAppData)
+    let result = get_appdata_as_system_user().or_else(|_| get_appdata_as_admin());
+    if unsafe { RevertToSelf() } == 0 {
+        log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
+    }
+    result
+}
+
+/// Get local AppData path if the current user is the system service user.
+fn get_appdata_as_system_user() -> io::Result<PathBuf> {
+    let current_token = Handle(get_current_thread_token()?);
+    let current_user_is_system = is_local_system_user_token(current_token.0);
+
+    if current_user_is_system.map_err(|error| {
+        log::error!("is_local_system_user_token failed: {error}");
+        error
+    })? {
+        log::trace!("Is system user");
+        return get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, 0);
+    }
+
+    log::trace!("Is not system user");
+    Err(io::Error::new(
+        io::ErrorKind::Other,
+        "current user is not SYSTEM",
+    ))
 }
 
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
 /// Useful for deducing the config path for the daemon on Windows when running as a user that
 /// isn't the system service.
-fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Result<PathBuf> {
+fn get_appdata_as_admin() -> std::io::Result<PathBuf> {
     let system_debug_priv = WideCString::from_str("SeDebugPrivilege").unwrap();
-    adjust_current_thread_token_privilege(&system_debug_priv, true)?;
+    let current_token = Handle(get_current_thread_token()?);
+    adjust_token_privilege(current_token.0, &system_debug_priv, true)?;
 
     let known_path = find_process(|process_handle| {
         let mut process_token = 0;
@@ -63,7 +92,7 @@ fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Res
         }
 
         let result = if let Ok(true) = is_local_system_user_token(process_token) {
-            match get_known_folder_path(known_folder_id, KF_FLAG_DEFAULT, process_token) {
+            match get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, process_token) {
                 Ok(path) => Some(Ok(path)),
                 Err(error) => {
                     log::error!("Failed to obtain folder path: {}", error);
@@ -78,20 +107,14 @@ fn get_system_service_known_folder(known_folder_id: *const GUID) -> std::io::Res
         result
     });
 
-    if let Err(err) = adjust_current_thread_token_privilege(&system_debug_priv, false) {
+    if let Err(err) = adjust_token_privilege(current_token.0, &system_debug_priv, false) {
         log::error!("Failed to drop SeDebugPrivilege: {}", err);
-    }
-    if unsafe { RevertToSelf() } == 0 {
-        return Err(io::Error::last_os_error());
     }
 
     known_path
 }
 
-fn adjust_current_thread_token_privilege(
-    privilege: &WideCStr,
-    enable: bool,
-) -> std::io::Result<()> {
+fn get_current_thread_token() -> std::io::Result<HANDLE> {
     let mut token_handle: HANDLE = 0;
     if unsafe {
         OpenThreadToken(
@@ -124,9 +147,7 @@ fn adjust_current_thread_token_privilege(
         }
     }
 
-    let result = adjust_token_privilege(token_handle, privilege, enable);
-    unsafe { CloseHandle(token_handle) };
-    result
+    Ok(token_handle)
 }
 
 fn adjust_token_privilege(
