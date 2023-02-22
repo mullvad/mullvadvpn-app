@@ -75,7 +75,7 @@
       <ModuleDefinitionFile>cleanup.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo +stable-i686-pc-windows-msvc build -p mullvad-nsis</Command>
+      <Command>cargo +stable-i686-pc-windows-msvc build --release -p mullvad-nsis</Command>
       <Message>Build mullvad-nsis library</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
