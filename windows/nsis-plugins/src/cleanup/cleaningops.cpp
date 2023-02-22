@@ -75,34 +75,60 @@ std::wstring GetSystemUserLocalAppData()
 		common::security::AdjustCurrentProcessTokenPrivilege(L"SeDebugPrivilege", false);
 	};
 
-	auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
-	auto lsassPath = std::filesystem::path(systemDir).append(L"lsass.exe");
-	auto lsassPid = common::process::GetProcessIdFromName(lsassPath);
+	const auto processes = common::process::GetProcesses([](HANDLE process) {
+		HANDLE processToken;
 
-	auto processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lsassPid);
+		auto status = OpenProcessToken(process, TOKEN_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, &processToken);
 
-	if (nullptr == processHandle)
-	{
-		THROW_ERROR("Failed to access the \"LSASS\" process");
-	}
+		if (FALSE == status)
+		{
+			return false;
+		}
 
-	HANDLE processToken;
+		try
+		{
+			bool isSystem = common::security::IsLocalSystemUser(processToken);
 
-	auto status = OpenProcessToken(processHandle, TOKEN_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, &processToken);
+			CloseHandle(processToken);
+			return isSystem;
+		}
+		catch (...)
+		{
+		}
 
-	CloseHandle(processHandle);
-
-	if (FALSE == status)
-	{
-		THROW_ERROR("Failed to acquire process token for the \"LSASS\" process");
-	}
-
-	sd += [&]()
-	{
 		CloseHandle(processToken);
-	};
+		return false;
+	});
 
-	return common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, processToken);
+	for (auto process : processes)
+	{
+		auto processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, process);
+
+		if (nullptr == processHandle)
+		{
+			continue;
+		}
+
+		HANDLE processToken;
+
+		auto status = OpenProcessToken(processHandle, TOKEN_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, &processToken);
+
+		CloseHandle(processHandle);
+
+		if (FALSE == status)
+		{
+			continue;
+		}
+
+		sd += [&]()
+		{
+			CloseHandle(processToken);
+		};
+
+		return common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, processToken);
+	}
+
+	THROW_ERROR("Failed to acquire system app data path");
 }
 
 std::filesystem::path GetSystemCacheDirectory()
