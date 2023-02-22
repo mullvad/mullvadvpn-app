@@ -17,7 +17,7 @@ env_logger = "0.10.0"
 parity-tokio-ipc = "0.9"
 tokio = { version = "1.8", features =  ["rt"] }
 
-openvpn-plugin = { version = "0.4", features = ["serde", "log", "auth-failed-event"] }
+openvpn-plugin = { version = "0.4.2", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
 tonic = "0.8"
