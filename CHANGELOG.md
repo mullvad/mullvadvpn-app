@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add "auto" setting for the quantum-resistant tunnel feature, and make it the default. If it was
   previously set to off, it will now be set to auto instead. That currently means the same thing as
   "off", but this might change in the future.
+- Update OpenVPN to 2.6.0 from 2.5.3.
+- Update OpenSSL to 1.1.1t from 1.1.1j.
 
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
