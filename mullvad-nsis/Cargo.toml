@@ -1,0 +1,17 @@
+[package]
+name = "mullvad-nsis"
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+description = "Helper library used by Mullvad NSIS plugins"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate_type = ["staticlib"]
+
+[target.i686-pc-windows-msvc.dependencies]
+mullvad-paths = { path = "../mullvad-paths" }
+
+[target.i686-pc-windows-msvc.build-dependencies]
+cbindgen = "0.24.3"

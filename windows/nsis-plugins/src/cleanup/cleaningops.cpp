@@ -12,6 +12,7 @@
 #include <utility>
 #include <functional>
 #include <processthreadsapi.h>
+#include <mullvad-nsis.h>
 
 namespace
 {
@@ -66,43 +67,25 @@ std::wstring ConstructUserPath(const std::wstring &users, const std::wstring &us
 
 std::wstring GetSystemUserLocalAppData()
 {
-	common::security::AdjustCurrentProcessTokenPrivilege(L"SeDebugPrivilege");
+	std::vector<uint16_t> buffer(256);
+	size_t bufferSize = buffer.size();
 
-	common::memory::ScopeDestructor sd;
+GET_LOCAL_APPDATA:
 
-	sd += []
+	auto result = get_system_local_appdata(buffer.data(), &bufferSize);
+
+	if (Status::InsufficientBufferSize == result)
 	{
-		common::security::AdjustCurrentProcessTokenPrivilege(L"SeDebugPrivilege", false);
-	};
-
-	auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
-	auto lsassPath = std::filesystem::path(systemDir).append(L"lsass.exe");
-	auto lsassPid = common::process::GetProcessIdFromName(lsassPath);
-
-	auto processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lsassPid);
-
-	if (nullptr == processHandle)
-	{
-		THROW_ERROR("Failed to access the \"LSASS\" process");
+		buffer.resize(bufferSize);
+		goto GET_LOCAL_APPDATA;
 	}
 
-	HANDLE processToken;
-
-	auto status = OpenProcessToken(processHandle, TOKEN_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE, &processToken);
-
-	CloseHandle(processHandle);
-
-	if (FALSE == status)
+	if (Status::Ok != result)
 	{
-		THROW_ERROR("Failed to acquire process token for the \"LSASS\" process");
+		THROW_ERROR("Failed to acquire system app data path");
 	}
 
-	sd += [&]()
-	{
-		CloseHandle(processToken);
-	};
-
-	return common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, processToken);
+	return std::wstring(reinterpret_cast<wchar_t *>(buffer.data()));
 }
 
 std::filesystem::path GetSystemCacheDirectory()
