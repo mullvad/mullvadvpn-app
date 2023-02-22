@@ -168,15 +168,16 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `allowed_tun_ips`, `entry_endpoint` and `exit_endpoint` must not be dropped until
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1` and `endpoint2` must not be dropped until
         // `WinFw_ApplyPolicyConnecting` has returned.
-        let mut allowed_tun_ips = [WideCString::new(), WideCString::new()];
-        let (entry_endpoint, exit_endpoint) = match allowed_tunnel_traffic {
+        let mut endpoint1_ip = WideCString::new();
+        let mut endpoint2_ip = WideCString::new();
+        let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
-                allowed_tun_ips[0] = widestring_ip(endpoint.address.ip());
+                endpoint1_ip = widestring_ip(endpoint.address.ip());
                 (
                     Some(WinFwEndpoint {
-                        ip: allowed_tun_ips[0].as_ptr(),
+                        ip: endpoint1_ip.as_ptr(),
                         port: endpoint.address.port(),
                         protocol: WinFwProt::from(endpoint.protocol),
                     }),
@@ -184,30 +185,30 @@ impl Firewall {
                 )
             }
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-                allowed_tun_ips[0] = widestring_ip(endpoint1.address.ip());
-                let entry_endpoint = Some(WinFwEndpoint {
-                    ip: allowed_tun_ips[0].as_ptr(),
+                endpoint1_ip = widestring_ip(endpoint1.address.ip());
+                let endpoint1 = Some(WinFwEndpoint {
+                    ip: endpoint1_ip.as_ptr(),
                     port: endpoint1.address.port(),
                     protocol: WinFwProt::from(endpoint1.protocol),
                 });
-                allowed_tun_ips[1] = widestring_ip(endpoint2.address.ip());
-                let exit_endpoint = Some(WinFwEndpoint {
-                    ip: allowed_tun_ips[1].as_ptr(),
+                endpoint2_ip = widestring_ip(endpoint2.address.ip());
+                let endpoint2 = Some(WinFwEndpoint {
+                    ip: endpoint2_ip.as_ptr(),
                     port: endpoint2.address.port(),
                     protocol: WinFwProt::from(endpoint2.protocol),
                 });
-                (entry_endpoint, exit_endpoint)
+                (endpoint1, endpoint2)
             }
             AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
         };
 
         let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
             type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            entry_endpoint: entry_endpoint
+            endpoint1: endpoint1
                 .as_ref()
                 .map(|ep| ep as *const _)
                 .unwrap_or(ptr::null()),
-            exit_endpoint: exit_endpoint
+            endpoint2: endpoint2
                 .as_ref()
                 .map(|ep| ep as *const _)
                 .unwrap_or(ptr::null()),
@@ -228,9 +229,10 @@ impl Firewall {
         // SAFETY: All of these hold stack allocated memory which is pointed to by
         // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
         // has returned.
-        drop(allowed_tun_ips);
-        drop(entry_endpoint);
-        drop(exit_endpoint);
+        drop(endpoint1_ip);
+        drop(endpoint2_ip);
+        drop(endpoint1);
+        drop(endpoint2);
         res
     }
 
@@ -471,8 +473,8 @@ mod winfw {
     #[repr(C)]
     pub struct WinFwAllowedTunnelTraffic {
         pub type_: WinFwAllowedTunnelTrafficType,
-        pub entry_endpoint: *const WinFwEndpoint,
-        pub exit_endpoint: *const WinFwEndpoint,
+        pub endpoint1: *const WinFwEndpoint,
+        pub endpoint2: *const WinFwEndpoint,
     }
 
     #[repr(u8)]
