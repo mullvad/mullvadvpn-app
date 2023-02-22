@@ -39,7 +39,7 @@ impl Drop for Handle {
     }
 }
 
-pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
+pub fn get_system_service_appdata() -> io::Result<PathBuf> {
     let result = get_appdata_as_system_user()
         .or_else(|error| {
             log::error!("get_appdata_as_system_user failed: {error}");
@@ -58,21 +58,24 @@ pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
 /// Get local AppData path if the current user is the system service user.
 fn get_appdata_as_system_user() -> io::Result<PathBuf> {
     let current_token = Handle(get_current_thread_token()?);
-    let current_user_is_system = is_local_system_user_token(current_token.0);
 
-    if current_user_is_system.map_err(|error| {
-        log::error!("is_local_system_user_token failed: {error}");
-        error
-    })? {
-        log::trace!("Is system user");
-        return get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, 0);
+    match is_local_system_user_token(current_token.0) {
+        Ok(true) => {
+            log::trace!("Is system user");
+            get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, 0)
+        }
+        Ok(false) => {
+            log::trace!("Is not system user");
+            Err(io::Error::new(
+                io::ErrorKind::Other,
+                "current user is not SYSTEM",
+            ))
+        }
+        Err(error) => {
+            log::error!("is_local_system_user_token failed: {error}");
+            Err(error)
+        }
     }
-
-    log::trace!("Is not system user");
-    Err(io::Error::new(
-        io::ErrorKind::Other,
-        "current user is not SYSTEM",
-    ))
 }
 
 /// Get local AppData path for the system service user. Requires elevated privileges to work.
@@ -84,37 +87,25 @@ fn get_appdata_as_admin() -> std::io::Result<PathBuf> {
     adjust_token_privilege(current_token.0, &system_debug_priv, true)?;
 
     let known_path = find_process(|process_handle| {
-        let mut process_token = 0;
-
-        let status = unsafe {
-            OpenProcessToken(
+        let process_token = Handle(
+            open_process_token(
                 process_handle,
                 GENERIC_READ | TOKEN_IMPERSONATE | TOKEN_DUPLICATE,
-                &mut process_token,
             )
-        };
-        if status == 0 {
-            log::error!(
-                "Failed to open process token: {}",
-                io::Error::last_os_error()
-            );
-            return None;
-        }
+            .ok()?,
+        );
 
-        let result = if let Ok(true) = is_local_system_user_token(process_token) {
-            match get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, process_token) {
+        if let Ok(true) = is_local_system_user_token(process_token.0) {
+            match get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, process_token.0) {
                 Ok(path) => Some(Ok(path)),
                 Err(error) => {
-                    log::error!("Failed to obtain folder path: {}", error);
+                    log::error!("Failed to get app data for token: {error}");
                     None
                 }
             }
         } else {
             None
-        };
-        unsafe { CloseHandle(process_token) };
-
-        result
+        }
     });
 
     if let Err(err) = adjust_token_privilege(current_token.0, &system_debug_priv, false) {
@@ -122,6 +113,16 @@ fn get_appdata_as_admin() -> std::io::Result<PathBuf> {
     }
 
     known_path
+}
+
+fn open_process_token(process: HANDLE, access: u32) -> io::Result<HANDLE> {
+    let mut process_token = 0;
+    if unsafe { OpenProcessToken(process, access, &mut process_token) } == 0 {
+        let error = io::Error::last_os_error();
+        log::error!("Failed to open process token: {error}");
+        return Err(error);
+    }
+    Ok(process_token)
 }
 
 /// If all else fails, infer the AppData path from the system directory.
@@ -253,10 +254,9 @@ fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<io::Result<T>>) -> 
             );
             continue;
         }
+        let process_handle = Handle(process_handle);
 
-        let result = handle_process(process_handle);
-
-        unsafe { CloseHandle(process_handle) };
+        let result = handle_process(process_handle.0);
 
         if let Some(result) = result {
             return result;
