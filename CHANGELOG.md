@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
+#### Windows
+- Fix service not starting when LSA protection is enabled (which is the default on Windows 11 22H2).
+
 
 ## [2023.1] - 2023-02-20
 ### Fixed
