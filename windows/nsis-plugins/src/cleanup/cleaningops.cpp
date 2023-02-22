@@ -72,7 +72,7 @@ std::wstring GetSystemUserLocalAppData()
 
 GET_LOCAL_APPDATA:
 
-	auto result = get_system_local_appdata(reinterpret_cast<uint16_t *>(buffer.data()), &bufferSize);
+	auto result = get_system_local_appdata(buffer.data(), &bufferSize);
 
 	if (Status::InsufficientBufferSize == result)
 	{

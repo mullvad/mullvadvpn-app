@@ -39,22 +39,22 @@ pub unsafe extern "C" fn get_system_local_appdata(
             return Status::InvalidArguments;
         }
 
-        let path = check!(mullvad_paths::windows::get_system_service_appdata()
-            .map_err(|_error| { Status::OsError }));
+        let path =
+            check!(mullvad_paths::windows::get_system_service_appdata()
+                .map_err(|_error| Status::OsError));
 
         let path = path.as_os_str();
+        let path_u16: Vec<u16> = path.encode_wide().chain(std::iter::once(0u16)).collect();
 
-        let req_len = path.len() + 1;
+        let prev_len = *buffer_size;
 
-        if *buffer_size < req_len {
+        *buffer_size = path_u16.len();
+
+        if prev_len < path_u16.len() || buffer.is_null() {
             return Status::InsufficientBufferSize;
         }
 
-        *buffer_size = req_len;
-
-        let path_u16: Vec<u16> = path.encode_wide().chain(std::iter::once(0u16)).collect();
-
-        ptr::copy_nonoverlapping(path_u16.as_ptr(), buffer, req_len);
+        ptr::copy_nonoverlapping(path_u16.as_ptr(), buffer, path_u16.len());
 
         Status::Ok
     })
