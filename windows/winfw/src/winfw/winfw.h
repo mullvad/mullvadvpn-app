@@ -66,8 +66,8 @@ enum WinFwAllowedTunnelTrafficType : uint8_t
 typedef struct tag_WinFwAllowedTunnelTraffic
 {
 	WinFwAllowedTunnelTrafficType type;
-	WinFwEndpoint *entryEndpoint;
-	WinFwEndpoint *exitEndpoint;
+	WinFwEndpoint *endpoint1;
+	WinFwEndpoint *endpoint2;
 }
 WinFwAllowedTunnelTraffic;
 
