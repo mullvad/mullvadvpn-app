@@ -23,7 +23,9 @@ use windows_sys::{
                 PROCESS_QUERY_INFORMATION,
             },
         },
-        UI::Shell::{FOLDERID_LocalAppData, SHGetKnownFolderPath, KF_FLAG_DEFAULT},
+        UI::Shell::{
+            FOLDERID_LocalAppData, FOLDERID_System, SHGetKnownFolderPath, KF_FLAG_DEFAULT,
+        },
     },
 };
 
@@ -38,7 +40,15 @@ impl Drop for Handle {
 }
 
 pub(crate) fn get_system_service_appdata() -> io::Result<PathBuf> {
-    let result = get_appdata_as_system_user().or_else(|_| get_appdata_as_admin());
+    let result = get_appdata_as_system_user()
+        .or_else(|error| {
+            log::error!("get_appdata_as_system_user failed: {error}");
+            get_appdata_as_admin()
+        })
+        .or_else(|error| {
+            log::error!("get_appdata_as_admin failed: {error}");
+            infer_appdata_from_system()
+        });
     if unsafe { RevertToSelf() } == 0 {
         log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
     }
@@ -112,6 +122,13 @@ fn get_appdata_as_admin() -> std::io::Result<PathBuf> {
     }
 
     known_path
+}
+
+/// If all else fails, infer the AppData path from the system directory.
+fn infer_appdata_from_system() -> io::Result<PathBuf> {
+    let mut sysdir = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, 0)?;
+    sysdir.extend(["config", "systemprofile", "AppData", "Local"]);
+    Ok(sysdir)
 }
 
 fn get_current_thread_token() -> std::io::Result<HANDLE> {
