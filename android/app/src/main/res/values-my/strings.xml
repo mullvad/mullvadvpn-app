@@ -24,7 +24,6 @@
     <string name="block_malware_title">မဲလ်ဝဲရ်</string>
     <string name="block_trackers_title">ခြေရာခံများ</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
-    <string name="blocking_all_connections">ချိတ်ဆက်မှု အားလုံးကို ပိတ်ဆို့ထားပါသည်</string>
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>

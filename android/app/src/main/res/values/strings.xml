@@ -5,7 +5,6 @@
     <string name="secured">Secured</string>
     <string name="unsecured">Unsecured</string>
     <string name="critical_error">Critical error (your attention is required)</string>
-    <string name="blocking_all_connections">Blocking all connections</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel
     status</string>

@@ -24,7 +24,6 @@
     <string name="block_malware_title">Skadlig kod</string>
     <string name="block_trackers_title">Spårare</string>
     <string name="blocked_connection">ANSLUTNINGEN BLOCKERAD</string>
-    <string name="blocking_all_connections">Blockerar alla anslutningar</string>
     <string name="blocking_internet">Blockerar internet</string>
     <string name="buy_credit">Köp kredit</string>
     <string name="buy_more_credit">Köp mer kredit</string>

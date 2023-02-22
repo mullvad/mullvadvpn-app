@@ -24,7 +24,6 @@
     <string name="block_malware_title">มัลแวร์</string>
     <string name="block_trackers_title">ตัวติดตาม</string>
     <string name="blocked_connection">การเชื่อมต่อที่ถูกบล็อก</string>
-    <string name="blocking_all_connections">บล็อกการเชื่อมต่อทั้งหมด</string>
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>

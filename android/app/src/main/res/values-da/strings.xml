@@ -24,7 +24,6 @@
     <string name="block_malware_title">Malware</string>
     <string name="block_trackers_title">Trackere</string>
     <string name="blocked_connection">FORBINDELSE BLOKERET</string>
-    <string name="blocking_all_connections">Blokerer alle forbindelser</string>
     <string name="blocking_internet">Blokerer internettet</string>
     <string name="buy_credit">Køb kredit</string>
     <string name="buy_more_credit">Køb mere kredit</string>

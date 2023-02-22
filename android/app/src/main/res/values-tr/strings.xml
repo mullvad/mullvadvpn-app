@@ -24,7 +24,6 @@
     <string name="block_malware_title">Kötü amaçlı yazılım</string>
     <string name="block_trackers_title">İzleyiciler</string>
     <string name="blocked_connection">ENGELLENEN BAĞLANTI</string>
-    <string name="blocking_all_connections">Tüm bağlantılar engelleniyor</string>
     <string name="blocking_internet">İnternet bağlantısı engelleniyor</string>
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>

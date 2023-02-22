@@ -24,7 +24,6 @@
     <string name="block_malware_title">Malware</string>
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">GESPERRTE VERBINDUNG</string>
-    <string name="blocking_all_connections">Alle Verbindungen werden blockiert</string>
     <string name="blocking_internet">Internet wird gesperrt</string>
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>

@@ -24,7 +24,6 @@
     <string name="block_malware_title">Złośliwe oprogramowanie</string>
     <string name="block_trackers_title">Trackery</string>
     <string name="blocked_connection">ZABLOKOWANE POŁĄCZENIE</string>
-    <string name="blocking_all_connections">Blokowanie wszystkich połączeń</string>
     <string name="blocking_internet">Blokowanie Internetu</string>
     <string name="buy_credit">Kup doładowanie</string>
     <string name="buy_more_credit">Doładuj konto</string>

@@ -24,7 +24,6 @@
     <string name="block_malware_title">Вредоносное ПО</string>
     <string name="block_trackers_title">Трекеры</string>
     <string name="blocked_connection">ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО</string>
-    <string name="blocking_all_connections">Блокируются все подключения</string>
     <string name="blocking_internet">Блокируется доступ в Интернет</string>
     <string name="buy_credit">Пополнить баланс</string>
     <string name="buy_more_credit">Пополнить баланс</string>

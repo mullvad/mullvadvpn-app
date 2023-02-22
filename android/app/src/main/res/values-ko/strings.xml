@@ -24,7 +24,6 @@
     <string name="block_malware_title">맬웨어</string>
     <string name="block_trackers_title">트래커</string>
     <string name="blocked_connection">연결 차단됨</string>
-    <string name="blocking_all_connections">모든 연결 차단 중</string>
     <string name="blocking_internet">인터넷 차단</string>
     <string name="buy_credit">크레딧 구매</string>
     <string name="buy_more_credit">추가 크레딧 구매</string>

@@ -24,7 +24,6 @@
     <string name="block_malware_title">惡意軟體</string>
     <string name="block_trackers_title">追蹤程式</string>
     <string name="blocked_connection">被封鎖的連線</string>
-    <string name="blocking_all_connections">正在封鎖所有連線</string>
     <string name="blocking_internet">正在封鎖網路</string>
     <string name="buy_credit">購買點數</string>
     <string name="buy_more_credit">購買更多點數</string>

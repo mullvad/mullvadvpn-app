@@ -24,7 +24,6 @@
     <string name="block_malware_title">Haittaohjelmat</string>
     <string name="block_trackers_title">Seurantapalvelimet</string>
     <string name="blocked_connection">ESTETTY YHTEYS</string>
-    <string name="blocking_all_connections">Kaikki yhteydet estetään</string>
     <string name="blocking_internet">Verkkoyhteys estetään</string>
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="buy_more_credit">Uudista tilaus</string>

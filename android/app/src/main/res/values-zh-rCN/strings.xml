@@ -24,7 +24,6 @@
     <string name="block_malware_title">恶意软件</string>
     <string name="block_trackers_title">跟踪器</string>
     <string name="blocked_connection">已阻止连接</string>
-    <string name="blocking_all_connections">正在阻止所有连接</string>
     <string name="blocking_internet">正在阻止网络</string>
     <string name="buy_credit">购买额度</string>
     <string name="buy_more_credit">购买更多额度</string>

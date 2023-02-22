@@ -11,7 +11,7 @@ fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificatio
     return when {
         cause is ErrorStateCause.InvalidDnsServers -> {
             ErrorNotificationMessage(
-                R.string.blocking_all_connections,
+                R.string.blocking_internet,
                 cause.errorMessageId(),
                 cause.addresses.joinToString { address -> address.addressString() }
             )
@@ -19,8 +19,7 @@ fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificatio
         cause is ErrorStateCause.VpnPermissionDenied -> {
             resolveAlwaysOnVpnErrorNotificationMessage(context.getAlwaysOnVpnAppName())
         }
-        isBlocking ->
-            ErrorNotificationMessage(R.string.blocking_all_connections, cause.errorMessageId())
+        isBlocking -> ErrorNotificationMessage(R.string.blocking_internet, cause.errorMessageId())
         else -> ErrorNotificationMessage(R.string.critical_error, R.string.failed_to_block_internet)
     }
 }

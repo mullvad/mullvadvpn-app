@@ -24,7 +24,6 @@
     <string name="block_malware_title">Skadelig programvare</string>
     <string name="block_trackers_title">Sporing</string>
     <string name="blocked_connection">TILKOBLING BLOKKERT</string>
-    <string name="blocking_all_connections">Blokkerer alle tilkoblinger</string>
     <string name="blocking_internet">Blokkerer internettet</string>
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="buy_more_credit">Kjøp mer kreditt</string>

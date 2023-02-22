@@ -24,7 +24,6 @@
     <string name="block_malware_title">マルウェア</string>
     <string name="block_trackers_title">トラッカー</string>
     <string name="blocked_connection">ブロックされた接続</string>
-    <string name="blocking_all_connections">すべての接続をブロックしています</string>
     <string name="blocking_internet">インターネットをブロック中</string>
     <string name="buy_credit">クレジットを購入</string>
     <string name="buy_more_credit">追加クレジットを購入</string>
