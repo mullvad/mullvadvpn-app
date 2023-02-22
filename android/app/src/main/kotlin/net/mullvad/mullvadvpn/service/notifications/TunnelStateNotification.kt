@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.SdkUtils
 import net.mullvad.mullvadvpn.util.getErrorNotificationResources
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorStateCause
 
 class TunnelStateNotification(val context: Context) {
     companion object {
@@ -50,9 +51,17 @@ class TunnelStateNotification(val context: Context) {
                     }
                 }
                 is TunnelState.Error -> {
-                    state.errorState.getErrorNotificationResources(context).titleResourceId
+                    if (state.isDeviceOffline()) {
+                        R.string.blocking_internet_device_offline
+                    } else {
+                        state.errorState.getErrorNotificationResources(context).titleResourceId
+                    }
                 }
             }
+
+    private fun TunnelState.isDeviceOffline(): Boolean {
+        return (this as? TunnelState.Error)?.errorState?.cause is ErrorStateCause.IsOffline
+    }
 
     private val shouldDisplayOngoingNotification: Boolean
         get() =

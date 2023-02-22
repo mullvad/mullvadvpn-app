@@ -108,6 +108,7 @@
     <string name="in_address">In</string>
     <string name="out_address">Out</string>
     <string name="blocking_internet">Blocking internet</string>
+    <string name="blocking_internet_device_offline">Blocking internet (device offline)</string>
     <string name="not_blocking_internet">YOU MIGHT BE LEAKING NETWORK TRAFFIC</string>
     <string name="failed_to_block_internet">Failed to block all network traffic. Please
     troubleshoot or report the problem to us.</string>

@@ -1623,6 +1623,9 @@ msgstr ""
 msgid "Always-on VPN might be enabled for another app"
 msgstr ""
 
+msgid "Blocking internet (device offline)"
+msgstr ""
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
