@@ -192,21 +192,28 @@ metadata that might be useful.
 
 ### Connection logic
 
-#### Post-quantum
+#### Quantum-resistant tunnels
 
-A post-quantum (PQ) resistant tunnel is established by creating a pre-shared key (PSK)
+A quantum-resistant tunnel is established by creating a pre-shared key (PSK)
 through a cryptographic key exchange with the relay. This exchange happens in a normal tunnel,
 the PSK is saved on the relay and on the client together with a new temporary wireguard
 key which the client generates. After this a new tunnel is created which uses the new WG key
-and the PSK, this new tunnel is PQ resistant.
+and the PSK, this new tunnel is quantum-resistant.
 
-#### Post-quantum & Multihop
+The specifics of how the PSK exchange is done can be found (here)[https://github.com/mullvad/mullvadvpn-app/blob/master/talpid-tunnel-config-client/proto/tunnel_config.proto]
 
-To create a PQ multihop tunnel, two PSK exchanges are needed with two relays. The client generates a
-temporary key and uses it to do a PSK exchange with the entry relay. Then, a normal tunnel is
-established from the entry to the exit relay and a new PSK is exchanged along with the temporary
-key. Finally, a new PQ resistant tunnel is created using the new WG key and the two PSKs to route
-from the entry to the exit.
+#### Quantum-resistant tunnels & Multihop
+
+In order to create a quantum-resistant multihop tunnel, two PSK exchanges are needed with two
+relays. First, the client generates a temporary WireGuard (WG) key and establishes a normal tunnel.
+The normal tunnel then routes through the entry relay to the exit relay.
+Next, the client performs a PSK exchange in this tunnel using the temporary WG key.
+This ensures that the exit relay never sees the real IP of the client.
+
+Once this exchange is complete, the client creates a new normal tunnel to the entry relay and
+performs another PSK exchange with the entry relay using the same temporary WG key.
+Finally, the client creates a quantum-resistant tunnel using the new WG key and the two PSKs.
+This tunnel routes from the entry relay to the exit relay.
 
 ### Detecting device offline
 
