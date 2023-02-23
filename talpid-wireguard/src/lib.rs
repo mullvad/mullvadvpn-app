@@ -13,8 +13,6 @@ use lazy_static::lazy_static;
 use std::env;
 #[cfg(windows)]
 use std::io;
-#[cfg(target_os = "android")]
-use std::borrow::Cow;
 use std::{
     convert::Infallible,
     net::IpAddr,
@@ -22,6 +20,7 @@ use std::{
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
     time::Duration,
+    borrow::Cow,
 };
 use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
@@ -250,7 +249,7 @@ impl WireguardMonitor {
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
-            &config,
+            &Self::patch_allowed_ips(&config, psk_negotiation),
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
@@ -546,7 +545,6 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
-    #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
             let mut patched_config = config.clone();
