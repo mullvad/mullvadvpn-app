@@ -200,7 +200,7 @@ WireGuard tunnel to the relay and deriving the PSK within the tunnel.
 The PSK is saved on the relay and the client, along with a new client generated ephemeral WireGuard
 key. Subsequently, a new tunnel is created using the new WireGuard key and the PSK, ensuring that
 the tunnel is quantum-resistant.
-See [this](../talpid-tunnel-config/proto/tunnel_config.proto) for more details on the protocol.
+See [this](../talpid-tunnel-config-client/proto/tunnel_config.proto) for more details on the protocol.
 
 #### Quantum-resistant tunnels & Multihop
 
