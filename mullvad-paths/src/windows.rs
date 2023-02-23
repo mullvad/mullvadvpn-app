@@ -225,33 +225,34 @@ fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<T>) -> io::Result<T
 }
 
 fn is_local_system_user_token(token: HANDLE) -> io::Result<bool> {
-    let mut token_info_len = 0;
+    let mut token_info = vec![0u8; 1024];
 
-    let info_result =
-        unsafe { GetTokenInformation(token, TokenUser, ptr::null_mut(), 0, &mut token_info_len) };
-    let err = io::Error::last_os_error();
+    loop {
+        let mut returned_info_len = 0;
 
-    if info_result != 0 || err.raw_os_error() != Some(ERROR_INSUFFICIENT_BUFFER as i32) {
-        log::error!("Failed to obtain token information (length): {}", err);
-        return Err(err);
-    }
+        let info_result = unsafe {
+            GetTokenInformation(
+                token,
+                TokenUser,
+                token_info.as_mut_ptr() as _,
+                u32::try_from(token_info.len()).expect("len must fit in u32"),
+                &mut returned_info_len,
+            )
+        };
 
-    let mut token_info = vec![0u8; usize::try_from(token_info_len).expect("i32 must fit in usize")];
-    let mut _ret_len = 0;
-
-    if unsafe {
-        GetTokenInformation(
-            token,
-            TokenUser,
-            token_info.as_mut_ptr() as _,
-            token_info_len,
-            &mut _ret_len,
-        )
-    } == 0
-    {
         let err = io::Error::last_os_error();
-        log::error!("Failed to obtain token information: {}", err);
-        return Err(err);
+        if info_result == 0 && err.raw_os_error() != Some(ERROR_INSUFFICIENT_BUFFER as i32) {
+            log::error!("Failed to obtain token information: {}", err);
+            return Err(err);
+        }
+
+        token_info.resize(
+            usize::try_from(returned_info_len).expect("u32 must fit in usize"),
+            0,
+        );
+        if info_result != 0 {
+            break;
+        }
     }
 
     // SAFETY: We specified `TokenUser` as the class, so that is what GetTokenInformation should
