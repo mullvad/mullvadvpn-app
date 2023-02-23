@@ -194,26 +194,25 @@ metadata that might be useful.
 
 #### Quantum-resistant tunnels
 
-A quantum-resistant tunnel is established by creating a pre-shared key (PSK)
-through a cryptographic key exchange with the relay. This exchange happens in a normal tunnel,
-the PSK is saved on the relay and on the client together with a new temporary wireguard
-key which the client generates. After this a new tunnel is created which uses the new WG key
-and the PSK, this new tunnel is quantum-resistant.
-
-The specifics of how the PSK exchange is done can be found (here)[https://github.com/mullvad/mullvadvpn-app/blob/master/talpid-tunnel-config-client/proto/tunnel_config.proto]
+To establish a quantum-resistant tunnel, a pre-shared key (PSK) is derived using a quantum-safe
+key encapsulation mechanism (KEM) with the relay. This is achieved by initiating a regular
+WireGuard tunnel to the relay and deriving the PSK within the tunnel.
+The PSK is saved on the relay and the client, along with a new client generated ephemeral WireGuard
+key. Subsequently, a new tunnel is created using the new WireGuard key and the PSK, ensuring that
+the tunnel is quantum-resistant.
+See [this](../talpid-tunnel-config/proto/tunnel_config.proto) for more details on the protocol.
 
 #### Quantum-resistant tunnels & Multihop
 
-In order to create a quantum-resistant multihop tunnel, two PSK exchanges are needed with two
-relays. First, the client generates a temporary WireGuard (WG) key and establishes a normal tunnel.
-The normal tunnel then routes through the entry relay to the exit relay.
-Next, the client performs a PSK exchange in this tunnel using the temporary WG key.
-This ensures that the exit relay never sees the real IP of the client.
+To create a multihop tunnel where both hops are quantum resistant the client must negotiate a unique
+PSK with both the entry and the exit relay separately. It must use the same ephemeral WireGuard key
+on both relays since the end result (just as with regular multihop tunnels) is two peers on a
+single WireGuard interface, which can only have a single key for the local peer.
 
-Once this exchange is complete, the client creates a new normal tunnel to the entry relay and
-performs another PSK exchange with the entry relay using the same temporary WG key.
-Finally, the client creates a quantum-resistant tunnel using the new WG key and the two PSKs.
-This tunnel routes from the entry relay to the exit relay.
+The PSKs are established by first creating a regular multihop tunnel to the exit via the entry relay
+and negotiate a PSK with the exit. Then establish a regular tunnel to just the entry and negotiate a
+PSK with it. Lastly the client can set up a multihop tunnel using the new ephemeral WireGuard key
+and the two PSKs via the entry to the exit.
 
 ### Detecting device offline
 
