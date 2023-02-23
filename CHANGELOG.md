@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
   "off", but this might change in the future.
 - Update OpenVPN to 2.6.0 from 2.5.3.
 - Update OpenSSL to 1.1.1t from 1.1.1j.
+- Post-Quantum secure tunnels and multihop can now be used at the same time.
 
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
