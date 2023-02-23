@@ -11,8 +11,14 @@ interface IKeyboardNavigationProps {
 // Listens for and handles keyboard shortcuts
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
   const history = useHistory();
-  const [backAction, setBackAction] = useState<BackActionFn>();
+  const [backAction, setBackActionImpl] = useState<BackActionFn>();
   const location = useLocation();
+
+  // Since the backaction is now a function we need to make sure it's not called when setting the
+  // state.
+  const setBackAction = useCallback((backAction: BackActionFn | undefined) => {
+    setBackActionImpl(() => backAction);
+  }, []);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -65,17 +71,28 @@ interface IBackActionProps {
 // either by pressing the back button in the navigation bar or by pressing escape.
 export function BackAction(props: IBackActionProps) {
   const backActionContext = useContext(BackActionContext);
-  const [childrenBackAction, setChildrenBackAction] = useState<BackActionFn>();
+  const [childrenBackAction, setChildrenBackActionImpl] = useState<BackActionFn>();
 
-  const backActionConfiguration = childrenBackAction ?? props.action;
+  // Since the backaction is now a function we need to make sure it's not called when setting the
+  // state.
+  const setChildrenBackAction = useCallback((backAction: BackActionFn | undefined) => {
+    setChildrenBackActionImpl(() => backAction);
+  }, []);
+
+  // Each back action needs to be unique to make `removeBackAction` work. This is accomplished by
+  // wrapping it in a callback. This was an issue since `history.pop`, which is commonly used as a
+  // back action, is the same function for every component.
+  const backAction = useCallback(() => {
+    (childrenBackAction ?? props.action)();
+  }, [props.action, childrenBackAction]);
 
   // Every time the action or the disabled property changes the action needs to be reregistered.
   useEffect((): (() => void) | void => {
-    if (!props.disabled && backActionConfiguration) {
-      backActionContext.registerBackAction(backActionConfiguration);
-      return () => backActionContext.removeBackAction(backActionConfiguration);
+    if (!props.disabled && backAction) {
+      backActionContext.registerBackAction(backAction);
+      return () => backActionContext.removeBackAction(backAction);
     }
-  }, [props.disabled, backActionConfiguration]);
+  }, [props.disabled, backAction]);
 
   // Every back action keeps track of the back actions in its subtree. This makes it possible to
   // always use the action furthest down in the tree.
@@ -108,7 +125,7 @@ function BackActionTracker(props: IBackActionTracker) {
     [backActions],
   );
 
-  useEffect(() => props.registerBackAction(() => backActions.at(0)), [backActions]);
+  useEffect(() => props.registerBackAction(backActions.at(0)), [backActions]);
 
   return (
     <BackActionContext.Provider value={backActionContext}>
