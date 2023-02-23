@@ -23,9 +23,9 @@ on:
         description: Override container image
         type: string
         required: false
-  # Build if master is updated to ensure up-to-date caches are available
+  # Build if main is updated to ensure up-to-date caches are available
   push:
-    branches: [master]
+    branches: [main]
 jobs:
   prepare:
     name: Prepare

@@ -48,8 +48,8 @@ in other DEs, but we don't regularly test those.
 
 ## Features
 
-Here is a table containing the features of the app across platforms. This reflects the current
-state of latest master, not necessarily any existing release.
+Here is a table containing the features of the app across platforms. This is intended to reflect
+the current state of the latest code in git, not necessarily any existing release.
 
 |                               | Windows | Linux | macOS | Android | iOS |
 |-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
@@ -84,7 +84,7 @@ cd mullvadvpn-app
 git submodule update --init
 ```
 
-We sign every commit on the master branch as well as our release tags. If you would like to verify
+We sign every commit on the `main` branch as well as our release tags. If you would like to verify
 your checkout, you can find our developer keys on [Mullvad's Open Source page].
 
 ### Binaries submodule

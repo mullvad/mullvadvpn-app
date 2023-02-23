@@ -29,8 +29,8 @@ jobs:
         run: |-
           commits=${{ github.event.pull_request.commits }}
           if [[ -n "$commits" ]]; then
-              # Prepare enough depth for diffs with master, currently hard-coded but should probably be
+              # Prepare enough depth for diffs with main, currently hard-coded but should probably be
               # whatever branch is merged into
-              git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} master
+              git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} main
           fi
-          ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/master
+          ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main

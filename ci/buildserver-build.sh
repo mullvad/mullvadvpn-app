@@ -19,7 +19,7 @@ BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
 
-BRANCHES_TO_BUILD=("origin/master")
+BRANCHES_TO_BUILD=("origin/main")
 
 case "$(uname -s)" in
   Darwin*|MINGW*|MSYS_NT*)

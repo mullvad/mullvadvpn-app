@@ -12,7 +12,7 @@ import_gpg_keys="false"
 # The policy of enforcing lockfiles to be signed was not in place before this commit and
 # as such some of the commits before are not signed
 # The whitelisted commit can be set in order to allow github actions to only check changes
-# since origin/master
+# since origin/main
 whitelisted_commit="618130520"
 
 while [ "$#" -gt 0 ]; do
