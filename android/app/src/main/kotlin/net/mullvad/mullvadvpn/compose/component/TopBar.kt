@@ -34,7 +34,8 @@ fun PreviewTopBar() {
 fun TopBar(
     backgroundColor: Color,
     onSettingsClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isIconAndLogoVisible: Boolean = true
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -45,29 +46,31 @@ fun TopBar(
     ) {
         val (logo, appName, settingsIcon) = createRefs()
 
-        Image(
-            painter = painterResource(id = R.drawable.logo_icon),
-            contentDescription = null, // No meaningful user info or action.
-            modifier = Modifier
-                .width(44.dp)
-                .height(44.dp)
-                .constrainAs(logo) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(parent.start, margin = 16.dp)
-                }
-        )
+        if (isIconAndLogoVisible) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_icon),
+                contentDescription = null, // No meaningful user info or action.
+                modifier = Modifier
+                    .width(44.dp)
+                    .height(44.dp)
+                    .constrainAs(logo) {
+                        centerVerticallyTo(parent)
+                        start.linkTo(parent.start, margin = 16.dp)
+                    }
+            )
 
-        Icon(
-            painter = painterResource(id = R.drawable.logo_text),
-            tint = colorResource(id = R.color.white80),
-            contentDescription = null, // No meaningful user info or action.
-            modifier = Modifier
-                .height(16.dp)
-                .constrainAs(appName) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(logo.end, margin = 8.dp)
-                }
-        )
+            Icon(
+                painter = painterResource(id = R.drawable.logo_text),
+                tint = colorResource(id = R.color.white80),
+                contentDescription = null, // No meaningful user info or action.
+                modifier = Modifier
+                    .height(16.dp)
+                    .constrainAs(appName) {
+                        centerVerticallyTo(parent)
+                        start.linkTo(logo.end, margin = 8.dp)
+                    }
+            )
+        }
 
         Image(
             painter = painterResource(R.drawable.icon_settings),
