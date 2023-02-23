@@ -509,7 +509,7 @@ impl WireguardMonitor {
             close_obfs_sender,
         ).await?;
         let metadata = Self::tunnel_metadata(iface_name, config);
-        (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
+        (on_event)(TunnelEvent::InterfaceUp(metadata, AllowedTunnelTraffic::All)).await;
 
         Ok(())
     }
@@ -992,3 +992,5 @@ fn will_nm_manage_dns() -> bool {
         })
         .unwrap_or(false)
 }
+
+
