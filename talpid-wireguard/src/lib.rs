@@ -14,13 +14,13 @@ use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
+    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
     time::Duration,
-    borrow::Cow,
 };
 use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
@@ -410,13 +410,7 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
-    async fn psk_negotiation<
-        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + Clone
-            + 'static,
-    >(
+    async fn psk_negotiation<F>(
         tunnel: &mut Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
@@ -424,7 +418,14 @@ impl WireguardMonitor {
         iface_name: &str,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    ) -> std::result::Result<(), CloseMsg> {
+    ) -> std::result::Result<(), CloseMsg>
+    where
+        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
+            + Send
+            + Sync
+            + Clone
+            + 'static,
+    {
         let wg_psk_privkey = PrivateKey::new_from_random();
         let close_obfs_sender = close_obfs_sender.clone();
 
@@ -447,14 +448,11 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
-        let exit_psk = Self::perform_psk_negotiation(
-            retry_attempt,
-            config,
-            wg_psk_privkey.public_key(),
-        )
-        .await?;
+        let exit_psk =
+            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key())
+                .await?;
 
-        log::debug!("Successfully exchanged PSK with gateway peer");
+        log::debug!("Successfully exchanged PSK with exit peer");
 
         let mut entry_psk = None;
 
@@ -501,14 +499,14 @@ impl WireguardMonitor {
             config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
         }
 
-        *config = Self::reconfigure_tunnel(
-            tunnel,
-            config.clone(),
-            obfuscator,
-            close_obfs_sender,
-        ).await?;
+        *config =
+            Self::reconfigure_tunnel(tunnel, config.clone(), obfuscator, close_obfs_sender).await?;
         let metadata = Self::tunnel_metadata(iface_name, config);
-        (on_event)(TunnelEvent::InterfaceUp(metadata, AllowedTunnelTraffic::All)).await;
+        (on_event)(TunnelEvent::InterfaceUp(
+            metadata,
+            AllowedTunnelTraffic::All,
+        ))
+        .await;
 
         Ok(())
     }
@@ -990,5 +988,3 @@ fn will_nm_manage_dns() -> bool {
         })
         .unwrap_or(false)
 }
-
-
