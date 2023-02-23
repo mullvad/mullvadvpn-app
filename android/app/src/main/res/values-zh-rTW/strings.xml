@@ -148,7 +148,7 @@
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>
     <string name="unsupported_version">不支援的版本</string>
-    <string name="unsupported_version_description">您正在執行不受支援的應用程式版本。請立即升級到 %1$s，以確保您的安全</string>
+    <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
     <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>
     <string name="update_available">可用的更新</string>
     <string name="update_available_description">安裝 Mullvad VPN (%1$s) 以維持最新狀態</string>

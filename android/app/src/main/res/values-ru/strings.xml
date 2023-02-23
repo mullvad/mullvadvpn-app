@@ -148,7 +148,7 @@
     <string name="unsecured">Подключение не защищено</string>
     <string name="unsecured_connection">НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
-    <string name="unsupported_version_description">Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %1$s.</string>
+    <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
     <string name="unsupported_version_without_upgrade">Версия приложения, с которой вы работаете, не поддерживается.</string>
     <string name="update_available">ЕСТЬ ОБНОВЛЕНИЕ</string>
     <string name="update_available_description">Пользуйтесь актуальной версией — установите Mullvad VPN (%1$s)</string>

@@ -148,7 +148,7 @@
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
-    <string name="unsupported_version_description">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน โปรดอัปเกรดเป็นเวอร์ชัน %1$s ทันที เพื่อให้แน่ใจในความปลอดภัยของคุณ</string>
+    <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
     <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>
     <string name="update_available">มีการอัปเดตให้ใช้งาน</string>
     <string name="update_available_description">ติดตั้ง Mullvad VPN (%1$s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ</string>

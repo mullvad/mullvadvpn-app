@@ -148,7 +148,7 @@
     <string name="unsecured">Niezabezpieczone</string>
     <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
-    <string name="unsupported_version_description">Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, uaktualnij teraz do wersji %1$s</string>
+    <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
     <string name="unsupported_version_without_upgrade">Używasz nieobsługiwanej wersji aplikacji.</string>
     <string name="update_available">DOSTĘPNA JEST AKTUALIZACJA</string>
     <string name="update_available_description">Aby być na bieżąco, zainstaluj Mullvad VPN (%1$s)</string>

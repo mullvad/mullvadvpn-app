@@ -148,7 +148,7 @@
     <string name="unsecured">Oskyddad</string>
     <string name="unsecured_connection">OSÄKER ANSLUTNING</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
-    <string name="unsupported_version_description">Du kör en appversion som inte stöds. Uppgradera till %1$s nu för att garantera din säkerhet</string>
+    <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>
     <string name="unsupported_version_without_upgrade">Du kör en appversion som inte stöds.</string>
     <string name="update_available">UPPDATERING TILLGÄNGLIG</string>
     <string name="update_available_description">Installera Mullvad VPN (%1$s) för att hålla dig uppdaterad</string>

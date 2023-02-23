@@ -135,8 +135,8 @@
     <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to
     date</string>
     <string name="unsupported_version">UNSUPPORTED VERSION</string>
-    <string name="unsupported_version_description">You are running an unsupported app version.
-    Please upgrade to %1$s now to ensure your security</string>
+    <string name="unsupported_version_description">Your privacy might be at risk with this
+    unsupported app version. Please update now.</string>
     <string name="unsupported_version_without_upgrade">You are running an unsupported app
     version.</string>
     <string name="account_credit_expires_soon">Account credit expires soon</string>

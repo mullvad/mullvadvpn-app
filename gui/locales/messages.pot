@@ -1773,9 +1773,6 @@ msgstr ""
 msgid "You are running an unsupported app version."
 msgstr ""
 
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr ""
-
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
 msgstr[0] ""

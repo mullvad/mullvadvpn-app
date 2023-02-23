@@ -148,7 +148,7 @@
     <string name="unsecured">Suojaamaton</string>
     <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
-    <string name="unsupported_version_description">Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %1$s.</string>
+    <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
     <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>
     <string name="update_available">PÄIVITYS SAATAVILLA</string>
     <string name="update_available_description">Asenna Mullvad VPN (%1$s) pysyäksesi ajan tasalla</string>

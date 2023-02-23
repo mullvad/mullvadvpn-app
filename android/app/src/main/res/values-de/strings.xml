@@ -148,7 +148,7 @@
     <string name="unsecured">Ungesichert</string>
     <string name="unsecured_connection">UNGESICHERTE VERBINDUNG</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
-    <string name="unsupported_version_description">Sie führen eine nicht unterstützte Version der App aus. Bitte führen Sie jetzt ein Upgrade auf %1$s durch, um Ihre Sicherheit zu gewährleisten</string>
+    <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
     <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>
     <string name="update_available">UPDATE VERFÜGBAR</string>
     <string name="update_available_description">Installieren Sie Mullvad VPN (%1$s), um auf dem neuesten Stand zu bleiben</string>

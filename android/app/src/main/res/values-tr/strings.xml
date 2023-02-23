@@ -148,7 +148,7 @@
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
-    <string name="unsupported_version_description">Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi korumak için lütfen hemen %1$s sürümüne yükseltin</string>
+    <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
     <string name="unsupported_version_without_upgrade">Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
     <string name="update_available">GÜNCELLEME MEVCUT</string>
     <string name="update_available_description">Güncel kalmak için Mullvad VPN (%1$s) yükleyin</string>

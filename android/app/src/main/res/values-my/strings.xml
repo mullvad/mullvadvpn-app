@@ -148,7 +148,7 @@
     <string name="unsecured">မလုံခြုံပါ</string>
     <string name="unsecured_connection">မလုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
-    <string name="unsupported_version_description">သင်သည် တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းကို သုံးနေပါသည်။ သင့်လုံခြုံရေးအတွက် ယခုပင် %1$s အထိ အဆင့်မြှင့်တင်ပေးပါ</string>
+    <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
     <string name="unsupported_version_without_upgrade">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။</string>
     <string name="update_available">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</string>
     <string name="update_available_description">အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%1$s) ကို ထည့်သွင်းပါ</string>

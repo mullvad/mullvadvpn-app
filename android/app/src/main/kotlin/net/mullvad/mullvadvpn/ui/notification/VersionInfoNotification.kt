@@ -12,19 +12,19 @@ class VersionInfoNotification(context: Context) :
     fun updateVersionInfo(versionInfo: VersionInfo) {
         if (versionInfo.isOutdated || !versionInfo.isSupported) {
             if (versionInfo.upgradeVersion != null) {
-                val template: Int
-
-                if (versionInfo.isSupported) {
-                    status = StatusLevel.Warning
-                    title = updateAvailable
-                    template = R.string.update_available_description
-                } else {
-                    status = StatusLevel.Error
-                    title = unsupportedVersion
-                    template = R.string.unsupported_version_description
-                }
-
-                message = context.getString(template, versionInfo.upgradeVersion)
+                message =
+                    if (versionInfo.isSupported) {
+                        status = StatusLevel.Warning
+                        title = updateAvailable
+                        context.getString(
+                            R.string.update_available_description,
+                            versionInfo.upgradeVersion
+                        )
+                    } else {
+                        status = StatusLevel.Error
+                        title = unsupportedVersion
+                        context.getString(R.string.unsupported_version_description)
+                    }
             } else {
                 status = StatusLevel.Error
                 title = unsupportedVersion

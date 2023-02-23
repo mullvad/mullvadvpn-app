@@ -148,7 +148,7 @@
     <string name="unsecured">セキュリティ保護されていません</string>
     <string name="unsecured_connection">セキュリティ保護されていない接続</string>
     <string name="unsupported_version">未対応のバージョン</string>
-    <string name="unsupported_version_description">サポート対象外バージョンのアプリを実行中です。セキュリティを確保するため、今すぐ%1$sにアップグレードしてください</string>
+    <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
     <string name="unsupported_version_without_upgrade">サポート対象外バージョンのアプリを実行しています。</string>
     <string name="update_available">アップデート可</string>
     <string name="update_available_description">Mullvad VPN (%1$s) をインストールして常に最新の状態を保ちましょう</string>
