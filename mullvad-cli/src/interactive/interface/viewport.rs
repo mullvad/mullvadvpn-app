@@ -2,6 +2,7 @@ use super::{app::AppActions, router::Router, tunnel_state_provider::TunnelStateB
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::Event;
+use mullvad_management_interface::ManagementServiceClient;
 use tui::{
     layout::Rect,
     style::{Color, Style},
@@ -16,8 +17,12 @@ pub struct Viewport {
 }
 
 impl Viewport {
-    pub fn new(actions: AppActions, tunnel_state_broadcast: TunnelStateBroadcast) -> Self {
-        let router = Router::new(actions, tunnel_state_broadcast);
+    pub fn new(
+        actions: AppActions,
+        rpc: ManagementServiceClient,
+        tunnel_state_broadcast: TunnelStateBroadcast,
+    ) -> Self {
+        let router = Router::new(actions, rpc, tunnel_state_broadcast);
         Self { router }
     }
 }

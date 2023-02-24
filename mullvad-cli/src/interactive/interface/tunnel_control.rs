@@ -4,7 +4,7 @@ use super::{app::AppActions, tunnel_state_provider::TunnelStateBroadcast};
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use mullvad_management_interface::new_rpc_client;
+use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::states::TunnelState;
 use parking_lot::Mutex;
 use tui::{
@@ -16,10 +16,15 @@ use tui::{
 #[derive(Clone)]
 pub struct TunnelControl {
     state: Arc<Mutex<TunnelState>>,
+    rpc: ManagementServiceClient,
 }
 
 impl TunnelControl {
-    pub fn new(actions: AppActions, tunnel_state_broadcast: TunnelStateBroadcast) -> Self {
+    pub fn new(
+        actions: AppActions,
+        rpc: ManagementServiceClient,
+        tunnel_state_broadcast: TunnelStateBroadcast,
+    ) -> Self {
         let (tunnel_state, mut receiver) = tunnel_state_broadcast.receiver();
         let state = Arc::new(Mutex::new(
             tunnel_state.unwrap_or(TunnelState::Disconnected),
@@ -37,7 +42,7 @@ impl TunnelControl {
             }
         });
 
-        Self { state }
+        Self { state, rpc }
     }
 
     fn button_color(state: &TunnelState) -> Color {
@@ -109,9 +114,8 @@ impl Component for TunnelControl {
     }
 
     fn handle_event(&mut self, event: Event) {
+        let mut rpc = self.rpc.clone();
         tokio::spawn(async move {
-            let mut rpc = new_rpc_client().await.unwrap();
-
             if let Event::Key(KeyEvent { code, .. }) = event {
                 if code == KeyCode::Enter {
                     let _ = rpc.connect_tunnel(()).await;

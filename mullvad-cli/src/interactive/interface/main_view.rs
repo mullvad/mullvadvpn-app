@@ -7,6 +7,7 @@ use super::{
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode};
+use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::{location::GeoIpLocation, states::TunnelState};
 use parking_lot::Mutex;
 use tui::{
@@ -25,7 +26,11 @@ pub struct MainView {
 }
 
 impl MainView {
-    pub fn new(actions: AppActions, tunnel_state_broadcast: TunnelStateBroadcast) -> Self {
+    pub fn new(
+        actions: AppActions,
+        rpc: ManagementServiceClient,
+        tunnel_state_broadcast: TunnelStateBroadcast,
+    ) -> Self {
         let (tunnel_state, mut receiver) = tunnel_state_broadcast.receiver();
         let state = Arc::new(Mutex::new(
             tunnel_state.unwrap_or(TunnelState::Disconnected),
@@ -49,7 +54,7 @@ impl MainView {
             state,
             show_details: Arc::new(Mutex::new(false)),
             loading_indicator: LoadingIndicator::new(actions.clone()),
-            tunnel_control: TunnelControl::new(actions, tunnel_state_broadcast),
+            tunnel_control: TunnelControl::new(actions, rpc, tunnel_state_broadcast),
         }
     }
 

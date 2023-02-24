@@ -6,7 +6,9 @@ use crate::{
 };
 
 use crossterm::event::Event;
-use mullvad_management_interface::{new_rpc_client, types::daemon_event::Event as EventType};
+use mullvad_management_interface::{
+    types::daemon_event::Event as EventType, ManagementServiceClient,
+};
 use mullvad_types::states::TunnelState;
 use parking_lot::Mutex;
 use tui::layout::Rect;
@@ -17,31 +19,35 @@ pub struct TunnelStateProvider<T: Component> {
 }
 
 impl<T: Component> TunnelStateProvider<T> {
-    pub fn new(child_factory: impl FnOnce(TunnelStateBroadcast) -> T) -> Self {
+    pub fn new(
+        child_factory: impl FnOnce(TunnelStateBroadcast) -> T,
+        rpc: ManagementServiceClient,
+    ) -> Self {
         let (state_sender, state_receiver) = tokio::sync::mpsc::unbounded_channel();
         let broadcast = TunnelStateBroadcast::new(state_receiver);
         let child = child_factory(broadcast);
 
         tokio::spawn(async move {
-            let _ = Self::listen_tunnel_state(state_sender).await;
+            let _ = Self::listen_tunnel_state(rpc, state_sender).await;
         });
 
         Self { child }
     }
 
     pub async fn listen_tunnel_state(
+        mut rpc: ManagementServiceClient,
         sender: tokio::sync::mpsc::UnboundedSender<TunnelState>,
     ) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
         let state = rpc.get_tunnel_state(()).await?.into_inner();
         let tunnel_state = TunnelState::try_from(state).unwrap();
         let _ = sender.send(tunnel_state);
 
         let mut events = rpc.events_listen(()).await?.into_inner();
         while let Some(event) = events.message().await? {
-            if let EventType::TunnelState(state) = event.event.unwrap() {
-                let tunnel_state = TunnelState::try_from(state).unwrap();
-                let _ = sender.send(tunnel_state);
+            if let Some(EventType::TunnelState(state)) = event.event {
+                if let Ok(tunnel_state) = TunnelState::try_from(state) {
+                    let _ = sender.send(tunnel_state);
+                }
             }
         }
 

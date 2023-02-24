@@ -1,10 +1,11 @@
 use super::{
-    app::AppActions, main_view::MainView, select_location::SelectLocation,
+    app::AppActions, main_view::MainView, select_location::SelectLocationContainer,
     tunnel_state_provider::TunnelStateBroadcast,
 };
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode};
+use mullvad_management_interface::ManagementServiceClient;
 use tui::layout::Rect;
 
 enum Route {
@@ -14,14 +15,18 @@ enum Route {
 
 pub struct Router {
     main_view: MainView,
-    select_location: SelectLocation,
+    select_location: SelectLocationContainer,
     route: Route,
 }
 
 impl Router {
-    pub fn new(actions: AppActions, tunnel_state_broadcast: TunnelStateBroadcast) -> Self {
-        let main_view = MainView::new(actions.clone(), tunnel_state_broadcast);
-        let select_location = SelectLocation::new(actions);
+    pub fn new(
+        actions: AppActions,
+        rpc: ManagementServiceClient,
+        tunnel_state_broadcast: TunnelStateBroadcast,
+    ) -> Self {
+        let main_view = MainView::new(actions.clone(), rpc.clone(), tunnel_state_broadcast);
+        let select_location = SelectLocationContainer::new(actions, rpc);
         Self {
             main_view,
             select_location,

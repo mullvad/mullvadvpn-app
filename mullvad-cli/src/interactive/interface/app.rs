@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use super::{
     error_handler::{ErrorHandler, ErrorMessage},
+    rpc_provider::RpcProvider,
     tunnel_state_provider::TunnelStateProvider,
     viewport::Viewport,
 };
@@ -101,7 +102,7 @@ impl AppActions {
 pub struct App {
     ui_sender: flume::Sender<UiMessage>,
     actions: AppActions,
-    error_handler: ErrorHandler<TunnelStateProvider<Viewport>>,
+    error_handler: ErrorHandler<RpcProvider<TunnelStateProvider<Viewport>>>,
 }
 
 impl App {
@@ -112,12 +113,18 @@ impl App {
             error_sender,
         };
 
-        let tunnel_state_provider = TunnelStateProvider::new(|tunnel_state_broadcast| {
-            Viewport::new(actions.clone(), tunnel_state_broadcast)
+        let cloned_actions = actions.clone();
+        let rpc_provider = RpcProvider::new(|rpc| {
+            let rpc_clone = rpc.clone();
+            TunnelStateProvider::new(
+                |tunnel_state_broadcast| {
+                    Viewport::new(cloned_actions, rpc_clone, tunnel_state_broadcast)
+                },
+                rpc,
+            )
         });
 
-        let error_handler =
-            ErrorHandler::new(actions.clone(), error_receiver, tunnel_state_provider);
+        let error_handler = ErrorHandler::new(actions.clone(), error_receiver, rpc_provider);
 
         Self {
             ui_sender,
