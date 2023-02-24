@@ -1,7 +1,3 @@
-import { generatePath } from 'react-router';
-
-export type GeneratedRoutePath = { routePath: string };
-
 export enum RoutePath {
   launch = '/',
   login = '/login',
@@ -25,23 +21,4 @@ export enum RoutePath {
   debug = '/settings/debug',
   selectLocation = '/select-location',
   filter = '/select-location/filter',
-}
-
-export const disableDismissForRoutes = [
-  RoutePath.launch,
-  RoutePath.login,
-  RoutePath.tooManyDevices,
-  RoutePath.deviceRevoked,
-  RoutePath.main,
-  RoutePath.redeemVoucher,
-  RoutePath.voucherSuccess,
-  RoutePath.timeAdded,
-  RoutePath.setupFinished,
-];
-
-export function generateRoutePath(
-  routePath: RoutePath,
-  parameters: Parameters<typeof generatePath>[1],
-): GeneratedRoutePath {
-  return { routePath: generatePath(routePath, parameters) };
 }
