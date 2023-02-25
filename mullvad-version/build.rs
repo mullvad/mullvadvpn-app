@@ -53,12 +53,14 @@ fn get_product_version(target: Target) -> String {
         .trim()
         .to_owned();
 
-    let dev_suffix = get_dev_suffix(target, &version);
-
-    format!("{version}{dev_suffix}")
+    if let Some(dev_suffix) = get_dev_suffix(target, &version) {
+        format!("{version}{dev_suffix}")
+    } else {
+        version.to_string()
+    }
 }
 
-fn get_dev_suffix(target: Target, product_version: &str) -> String {
+fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
     // Compute the expected tag name for the release named `product_version`
     let release_tag = match target {
         Target::Android => format!("android/{product_version}"),
@@ -67,17 +69,18 @@ fn get_dev_suffix(target: Target, product_version: &str) -> String {
 
     // Get the git commit hashes for the latest release and current HEAD
     let product_version_commit_hash = git_rev_parse_commit_hash(&release_tag);
-    let current_head_commit_hash =
-        git_rev_parse_commit_hash("HEAD").expect("HEAD must have a commit hash");
+    let current_head_commit_hash = git_rev_parse_commit_hash("HEAD");
 
     // If we are not currently building the release tag, we are on a development build.
     // Adjust product version string accordingly.
-    if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
-        let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
-        format!("-dev-{hash_suffix}")
-    } else {
-        "".to_owned()
+    if let Some(current_head_commit_hash) = current_head_commit_hash {
+        if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
+            let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
+            return Some(format!("-dev-{hash_suffix}"));
+        }
     }
+
+    None
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to
