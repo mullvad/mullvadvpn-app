@@ -9,12 +9,13 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
-    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
@@ -245,11 +246,20 @@ impl WireguardMonitor {
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
 
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_obfs_sender.clone(),
+        ))?;
+
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
+            #[cfg(target_os = "android")]
             &Self::patch_allowed_ips(&config, psk_negotiation),
+            #[cfg(not(target_os = "android"))]
+            &config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
@@ -260,12 +270,6 @@ impl WireguardMonitor {
         )?;
         let iface_name = tunnel.get_interface_name();
 
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-
-        let obfuscator = Arc::new(AsyncMutex::new(args.runtime.block_on(
-            maybe_create_obfuscator(&mut config, close_obfs_sender.clone()),
-        )?));
-
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
             // Exclude remote obfuscation socket or bridge
@@ -274,6 +278,8 @@ impl WireguardMonitor {
                 log::error!("Failed to exclude remote socket fd: {error}");
             }
         }
+
+        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
         let event_callback = Box::new(on_event.clone());
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
@@ -543,6 +549,7 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
             let mut patched_config = config.clone();
