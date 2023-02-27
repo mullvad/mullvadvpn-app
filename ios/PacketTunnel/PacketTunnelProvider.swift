@@ -142,12 +142,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         devicesProxy = proxyFactory.createDevicesProxy()
 
         super.init()
-        initializeAdapter()
-    }
 
-    func initializeAdapter() {
-        tunnelMonitor.stop()
-        tunnelMonitor = nil
         adapter = WireGuardAdapter(
             with: self,
             shouldHandleReasserting: false,
@@ -527,9 +522,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Set tunnel relay to \(newTunnelRelay.hostname).")
         setReconnecting(true)
 
-        tunnelMonitor.stop()
-        tunnelMonitor = nil
-
         adapter.stop { error in
             if let error = error {
                 self.providerLogger.error(
@@ -554,7 +546,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         completionHandler: ((Error?) -> Void)? = nil
     ) {
         dispatchQueue.async {
-            self.initializeAdapter()
             self.adapter
                 .start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
                     self.dispatchQueue.async {
