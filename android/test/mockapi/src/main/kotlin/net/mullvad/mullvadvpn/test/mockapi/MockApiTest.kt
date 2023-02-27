@@ -15,7 +15,6 @@ import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
-import net.mullvad.mullvadvpn.test.mockapi.constant.MOCK_SERVER_LOCALHOST_ADDRESS
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
@@ -68,7 +67,7 @@ abstract class MockApiTest {
 
     private fun createEndpoint(port: Int): CustomApiEndpointConfiguration {
         val mockApiSocket = InetSocketAddress(
-            InetAddress.getByName(MOCK_SERVER_LOCALHOST_ADDRESS),
+            InetAddress.getLocalHost(),
             port
         )
         val api = ApiEndpoint(
