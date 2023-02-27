@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-UPLOAD_DIR="/home/upload/upload"
-
 set -eu
 shopt -s nullglob
 
+UPLOAD_DIR="/home/upload/upload"
 cd $UPLOAD_DIR
 
 while true; do
