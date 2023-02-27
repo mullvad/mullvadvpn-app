@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Windows
 - Fix desktop app not quitting properly after switching from unpinned to pinned window.
+- Fix service not starting when LSA protection is enabled (which is the default on Windows 11 22H2).
 
 
 ## [2023.1] - 2023-02-20
