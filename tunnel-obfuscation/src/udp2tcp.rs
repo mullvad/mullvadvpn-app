@@ -49,6 +49,8 @@ impl Udp2Tcp {
             TcpOptions {
                 #[cfg(target_os = "linux")]
                 fwmark: settings.fwmark,
+                // Disables the Nagle algorithm on the TCP socket. Improves performance
+                nodelay: true,
                 ..TcpOptions::default()
             },
         )
