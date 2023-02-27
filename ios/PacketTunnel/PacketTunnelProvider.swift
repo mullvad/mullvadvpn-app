@@ -142,7 +142,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         devicesProxy = proxyFactory.createDevicesProxy()
 
         super.init()
+        initializeAdapter()
+    }
 
+    func initializeAdapter() {
+        tunnelMonitor.stop()
+        tunnelMonitor = nil
         adapter = WireGuardAdapter(
             with: self,
             shouldHandleReasserting: false,
@@ -522,48 +527,61 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Set tunnel relay to \(newTunnelRelay.hostname).")
         setReconnecting(true)
 
-        // dropping all references to old tunnel adatper
-        adapter = nil
+        tunnelMonitor.stop()
         tunnelMonitor = nil
 
-        let newAdapter = WireGuardAdapter(
-            with: self,
-            shouldHandleReasserting: false,
-            logHandler: { [weak self] logLevel, message in
-                self?.dispatchQueue.async {
-                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
-                }
+        adapter.stop { error in
+            if let error = error {
+                self.providerLogger.error(
+                    error: error,
+                    message: "Failed to stop wireguard-go adapter."
+                )
             }
-        )
+            self.finishReconnecting(
+                with: tunnelConfiguration,
+                oldSelectorResult: oldSelectorResult,
 
-        // dropping all references to old tunnel adatper
-        adapter = newAdapter
-        tunnelMonitor = TunnelMonitor(queue: dispatchQueue, adapter: newAdapter)
-        tunnelMonitor.delegate = self
+                completionHandler: completionHandler
+            )
+        }
+    }
 
-        adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.wgError = error
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to update WireGuard configuration."
-                    )
+    /// This function is intended to be solely called from reconnectTunnel(), after the previous
+    /// WireGuard adapter has been removed.
+    private func finishReconnecting(
+        with tunnelConfiguration: PacketTunnelConfiguration,
+        oldSelectorResult: RelaySelectorResult?,
+        completionHandler: ((Error?) -> Void)? = nil
+    ) {
+        dispatchQueue.async {
+            self.initializeAdapter()
+            self.adapter
+                .start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
+                    self.dispatchQueue.async {
+                        if let error = error {
+                            self.wgError = error
+                            self.providerLogger.error(
+                                error: error,
+                                message: "Failed to update WireGuard configuration."
+                            )
 
-                    // Revert to previously used relay selector as it's very likely that we keep
-                    // using previous configuration.
-                    self.selectorResult = oldSelectorResult
-                    self.providerLogger.debug(
-                        "Reset tunnel relay to \(oldSelectorResult?.relay.hostname ?? "none")."
-                    )
-                    self.setReconnecting(false)
-                } else {
-                    self.tunnelMonitor.start(
-                        probeAddress: tunnelConfiguration.selectorResult.endpoint.ipv4Gateway
-                    )
+                            // Revert to previously used relay selector as it's very likely that we
+                            // keep
+                            // using previous configuration.
+                            self.selectorResult = oldSelectorResult
+                            self.providerLogger.debug(
+                                "Reset tunnel relay to \(oldSelectorResult?.relay.hostname ?? "none")."
+                            )
+                            self.setReconnecting(false)
+                        } else {
+                            self.tunnelMonitor.start(
+                                probeAddress: tunnelConfiguration.selectorResult.endpoint
+                                    .ipv4Gateway
+                            )
+                        }
+                        completionHandler?(error)
+                    }
                 }
-                completionHandler?(error)
-            }
         }
     }
 
