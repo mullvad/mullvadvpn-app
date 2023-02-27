@@ -522,7 +522,26 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Set tunnel relay to \(newTunnelRelay.hostname).")
         setReconnecting(true)
 
-        adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
+        // dropping all references to old tunnel adatper
+        adapter = nil
+        tunnelMonitor = nil
+
+        let newAdapter = WireGuardAdapter(
+            with: self,
+            shouldHandleReasserting: false,
+            logHandler: { [weak self] logLevel, message in
+                self?.dispatchQueue.async {
+                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
+                }
+            }
+        )
+
+        // dropping all references to old tunnel adatper
+        adapter = newAdapter
+        tunnelMonitor = TunnelMonitor(queue: dispatchQueue, adapter: newAdapter)
+        tunnelMonitor.delegate = self
+
+        adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
                 if let error = error {
                     self.wgError = error
