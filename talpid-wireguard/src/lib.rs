@@ -246,6 +246,12 @@ impl WireguardMonitor {
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
 
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_obfs_sender.clone(),
+        ))?;
+
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
@@ -263,13 +269,6 @@ impl WireguardMonitor {
             setup_done_tx,
         )?;
         let iface_name = tunnel.get_interface_name();
-
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-
-        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?;
 
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
