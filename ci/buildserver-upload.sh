@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 UPLOAD_DIR="/home/upload/upload"
-BUILD_ARTIFACT_EXTENSIONS="deb|rpm|exe|pkg|apk|aab"
 
 set -eu
 shopt -s nullglob
