@@ -143,6 +143,7 @@ jobs:
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
+          target: i686-pc-windows-msvc
           default: true
 
       - name: Install Go
