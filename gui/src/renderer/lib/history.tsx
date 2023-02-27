@@ -2,7 +2,8 @@ import { Action, History as OriginalHistory, Location, LocationDescriptorObject 
 import { useHistory as useReactRouterHistory } from 'react-router';
 
 import { IHistoryObject, LocationState } from '../../shared/ipc-types';
-import { GeneratedRoutePath, RoutePath } from './routes';
+import { GeneratedRoutePath } from './routeHelpers';
+import { RoutePath } from './routes';
 
 export interface ITransitionSpecification {
   name: string;

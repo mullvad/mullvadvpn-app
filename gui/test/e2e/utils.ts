@@ -38,18 +38,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
 
 export const launch = async (options: LaunchOptions): Promise<ElectronApplication> => {
   process.env.CI = 'e2e';
-  const app = await electron.launch(options);
-
-  await app.evaluate(({ webContents }) => {
-    return new Promise((resolve) => {
-      webContents.getAllWebContents()
-          // Select window that isn't devtools
-          .find((webContents) => webContents.getURL().startsWith('file://'))!
-          .once('did-finish-load', resolve);
-    });
-  });
-
-  return app;
+  return await electron.launch(options);
 }
 
 const currentRouteFactory = (app: ElectronApplication) => {

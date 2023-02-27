@@ -1,6 +1,7 @@
 {
   "assets": [
     "build/src/config.json",
+    "build/src/renderer/lib/routes.js",
     "build/test/e2e/utils.js",
     "build/test/e2e/shared/*.js",
     "build/test/e2e/installed/**/*.js",

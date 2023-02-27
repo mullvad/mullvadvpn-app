@@ -2,7 +2,8 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { useLocation } from 'react-router';
 
 import { useHistory } from '../lib/history';
-import { disableDismissForRoutes, RoutePath } from '../lib/routes';
+import { disableDismissForRoutes } from '../lib/routeHelpers';
+import { RoutePath } from '../lib/routes';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;
