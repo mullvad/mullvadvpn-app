@@ -168,6 +168,9 @@ while true; do
     git tag | xargs git tag -d > /dev/null
 
     git fetch --prune --tags 2> /dev/null || continue
+
+    # Tags can't include spaces so SC2207 isn't a problem here
+    # shellcheck disable=SC2207
     tags=( $(git tag) )
 
     for tag in "${tags[@]}"; do
