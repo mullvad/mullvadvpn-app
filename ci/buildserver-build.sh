@@ -24,7 +24,7 @@ BRANCHES_TO_BUILD=("origin/main")
 case "$(uname -s)" in
     Darwin*|MINGW*|MSYS_NT*)
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
-            read -sp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+            read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
             export CSC_KEY_PASSWORD
         fi
