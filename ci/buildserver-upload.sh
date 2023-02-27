@@ -4,6 +4,7 @@ set -eu
 shopt -s nullglob
 
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
+UPLOAD_SERVER="releases.mullvad.net"
 UPLOAD_DIR="/home/upload/upload"
 cd $UPLOAD_DIR
 
@@ -33,12 +34,12 @@ while true; do
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
-            rsync -av --rsh='ssh -p 1122' "$file" "build@releases.mullvad.net:$file_upload_dir/" || continue
+            rsync -av --rsh='ssh -p 1122' "$file" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
 
             if [[ $file == MullvadVPN-* ]]; then
                 rm -f "$file.asc"
                 gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
-                rsync -av --rsh='ssh -p 1122' "$file.asc" "build@releases.mullvad.net:$file_upload_dir/" || continue
+                rsync -av --rsh='ssh -p 1122' "$file.asc" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
                 rm -f "$file.asc"
             fi
 
