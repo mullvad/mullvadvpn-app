@@ -9,12 +9,13 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
-    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
@@ -249,7 +250,10 @@ impl WireguardMonitor {
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
+            #[cfg(target_os = "android")]
             &Self::patch_allowed_ips(&config, psk_negotiation),
+            #[cfg(not(target_os = "android"))]
+            &config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
@@ -543,6 +547,7 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
             let mut patched_config = config.clone();
