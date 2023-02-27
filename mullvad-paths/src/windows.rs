@@ -1,3 +1,4 @@
+use once_cell::sync::OnceCell;
 use std::{io, mem, path::PathBuf, ptr};
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
@@ -43,14 +44,23 @@ impl Drop for Handle {
 
 /// Get local AppData path for the system service user.
 pub fn get_system_service_appdata() -> io::Result<PathBuf> {
-    impersonate_self(|| {
-        let user_token = get_system_user_token()?;
-        get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, user_token.0)
-    })
-    .or_else(|error| {
-        log::error!("Failed to get AppData path: {error}");
-        infer_appdata_from_system_directory()
-    })
+    static APPDATA_PATH: OnceCell<PathBuf> = OnceCell::new();
+
+    APPDATA_PATH
+        .get_or_try_init(|| {
+            let join_handle = std::thread::spawn(|| {
+                impersonate_self(|| {
+                    let user_token = get_system_user_token()?;
+                    get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, user_token.0)
+                })
+                .or_else(|error| {
+                    log::error!("Failed to get AppData path: {error}");
+                    infer_appdata_from_system_directory()
+                })
+            });
+            join_handle.join().unwrap()
+        })
+        .cloned()
 }
 
 /// Get user token for the system service user. Requires elevated privileges to work.
@@ -126,7 +136,7 @@ fn impersonate_self<T>(func: impl FnOnce() -> io::Result<T>) -> io::Result<T> {
     let result = func();
 
     if unsafe { RevertToSelf() } == 0 {
-        panic!("RevertToSelf failed: {}", io::Error::last_os_error());
+        log::error!("RevertToSelf failed: {}", io::Error::last_os_error());
     }
 
     result

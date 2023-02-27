@@ -1786,6 +1786,7 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "log",
+ "once_cell",
  "widestring 1.0.2",
  "windows-sys 0.42.0",
 ]
