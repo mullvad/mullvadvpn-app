@@ -84,7 +84,7 @@ fun BaseCell(
                         bottom.linkTo(parent.bottom)
                         top.linkTo(parent.top)
                     }
-                    .clickable { onCellClicked }
+                    .clickable { onCellClicked.invoke() }
             ) {
                 // Cell title
                 title()
