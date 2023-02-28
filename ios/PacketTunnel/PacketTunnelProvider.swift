@@ -83,6 +83,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Last device check task.
     private var checkDeviceStateTask: Cancellable?
 
+    /// Last task to reconnect the tunnel.
+    private var reconnectTunnelTask: Operation?
+
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
 
@@ -207,7 +210,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             configurationError = error
 
             startEmptyTunnel(completionHandler: completionHandler)
-            beginTunnelStartupFailureRecovery()
+            dispatchQueue.async {
+                self.beginTunnelStartupFailureRecovery()
+            }
             return
         }
 
@@ -252,11 +257,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         dispatchQueue.async {
             self.cancelTunnelStartupFailureRecovery()
-            self.tunnelMonitor.stop()
-            self.checkDeviceStateTask?.cancel()
-            self.checkDeviceStateTask = nil
             self.startTunnelCompletionHandler = nil
         }
+
+        tunnelMonitor.stop()
+        operationQueue.cancelAllOperations()
 
         adapter.stop { error in
             self.dispatchQueue.async {
@@ -402,6 +407,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     // MARK: - Private
 
     private func beginTunnelStartupFailureRecovery() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
@@ -425,6 +432,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func cancelTunnelStartupFailureRecovery() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         tunnelStartupFailureRecoveryTimer?.cancel()
         tunnelStartupFailureRecoveryTimer = nil
     }
@@ -490,6 +499,29 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func reconnectTunnel(
+        to nextRelay: NextRelay,
+        completionHandler: ((Error?) -> Void)? = nil
+    ) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
+            self.reconnectTunnelInner(to: nextRelay) { error in
+                completionHandler?(error)
+                operation.finish()
+            }
+        }
+
+        if let reconnectTunnelTask = reconnectTunnelTask {
+            blockOperation.addDependency(reconnectTunnelTask)
+        }
+
+        reconnectTunnelTask?.cancel()
+        reconnectTunnelTask = blockOperation
+
+        operationQueue.addOperation(blockOperation)
+    }
+
+    private func reconnectTunnelInner(
         to nextRelay: NextRelay,
         completionHandler: ((Error?) -> Void)? = nil
     ) {
