@@ -56,10 +56,7 @@ final class AccountInteractor {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (OperationCompletion<
-            REST.CreateApplePaymentResponse,
-            StorePaymentManagerError
-        >) -> Void
+        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
         return storePaymentManager.restorePurchases(
             for: accountNumber,
@@ -69,7 +66,7 @@ final class AccountInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void
+        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         return storePaymentManager.requestProducts(
             with: productIdentifiers,

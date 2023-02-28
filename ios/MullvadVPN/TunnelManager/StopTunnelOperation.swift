@@ -9,7 +9,7 @@
 import Foundation
 import Operations
 
-class StopTunnelOperation: ResultOperation<Void, Error> {
+class StopTunnelOperation: ResultOperation<Void> {
     private let interactor: TunnelInteractor
 
     init(
@@ -33,11 +33,11 @@ class StopTunnelOperation: ResultOperation<Void, Error> {
                 tunnelStatus.state = .disconnecting(.nothing)
             }
 
-            finish(completion: .success(()))
+            finish(result: .success(()))
 
         case .connected, .connecting, .reconnecting, .waitingForConnectivity:
             guard let tunnel = interactor.tunnel else {
-                finish(completion: .failure(UnsetTunnelError()))
+                finish(result: .failure(UnsetTunnelError()))
                 return
             }
 
@@ -47,16 +47,16 @@ class StopTunnelOperation: ResultOperation<Void, Error> {
             tunnel.saveToPreferences { error in
                 self.dispatchQueue.async {
                     if let error = error {
-                        self.finish(completion: .failure(error))
+                        self.finish(result: .failure(error))
                     } else {
                         tunnel.stop()
-                        self.finish(completion: .success(()))
+                        self.finish(result: .success(()))
                     }
                 }
             }
 
         case .disconnected, .disconnecting, .pendingReconnect:
-            finish(completion: .success(()))
+            finish(result: .success(()))
         }
     }
 }

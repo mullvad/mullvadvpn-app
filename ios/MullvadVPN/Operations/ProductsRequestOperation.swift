@@ -9,7 +9,7 @@
 import Operations
 import StoreKit
 
-public final class ProductsRequestOperation: ResultOperation<SKProductsResponse, Error>,
+public final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
     SKProductsRequestDelegate
 {
     private let productIdentifiers: Set<String>
@@ -52,7 +52,7 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse,
                 self.retryCount += 1
                 self.retry(error: error)
             } else {
-                self.finish(completion: .failure(error))
+                self.finish(result: .failure(error))
             }
         }
     }
@@ -61,7 +61,7 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse,
         _ request: SKProductsRequest,
         didReceive response: SKProductsResponse
     ) {
-        finish(completion: .success(response))
+        finish(result: .success(response))
     }
 
     // MARK: - Private
@@ -80,7 +80,7 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse,
         }
 
         retryTimer?.setCancelHandler { [weak self] in
-            self?.finish(completion: .failure(error))
+            self?.finish(result: .failure(error))
         }
 
         retryTimer?.schedule(wallDeadline: .now() + retryDelay)

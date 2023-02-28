@@ -56,15 +56,15 @@ public final class InputInjectionBuilder<OperationType, Context>
         return self
     }
 
-    public func injectCompletion<T, Success, Failure>(
+    public func injectResult<T, Success>(
         from dependency: T,
-        via block: @escaping (inout Context, T.Completion) -> Void
+        via block: @escaping (inout Context, Result<T.Output, Error>) -> Void
     ) -> Self
-        where T: ResultOperation<Success, Failure>
+        where T: ResultOperation<Success>
     {
         inputBlocks.append { context in
-            if let completion = dependency.completion {
-                block(&context, completion)
+            if let result = dependency.result {
+                block(&context, result)
             }
         }
 

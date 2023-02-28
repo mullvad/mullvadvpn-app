@@ -20,7 +20,7 @@ private let connectingStateWaitDelay: TimeInterval = 5
 /// Default timeout in seconds.
 private let defaultTimeout: TimeInterval = 5
 
-final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, Error> {
+final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output
 
     private let tunnel: Tunnel
@@ -68,11 +68,11 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
     override func operationDidCancel() {
         if isExecuting {
-            finish(completion: .cancelled)
+            finish(result: .failure(OperationError.cancelled))
         }
     }
 
-    override func finish(completion: Completion) {
+    override func finish(result: Result<Output, Error>) {
         // Release status observer.
         removeVPNStatusObserver()
 
@@ -81,7 +81,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         waitForConnectingStateWork?.cancel()
 
         // Finish operation.
-        super.finish(completion: completion)
+        super.finish(result: result)
     }
 
     private func removeVPNStatusObserver() {
@@ -91,7 +91,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
 
     private func setTimeoutTimer(connectingStateWaitDelay delay: TimeInterval) {
         let workItem = DispatchWorkItem { [weak self] in
-            self?.finish(completion: .failure(SendTunnelProviderMessageError.timeout))
+            self?.finish(result: .failure(SendTunnelProviderMessageError.timeout))
         }
 
         // Cancel pending timeout work.
@@ -124,7 +124,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
             sendMessage()
 
         case .invalid, .disconnecting, .disconnected:
-            finish(completion: .failure(SendTunnelProviderMessageError.tunnelDown(status)))
+            finish(result: .failure(SendTunnelProviderMessageError.tunnelDown(status)))
 
         @unknown default:
             break
@@ -180,7 +180,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
         do {
             messageData = try message.encode()
         } catch {
-            finish(completion: .failure(error))
+            finish(result: .failure(error))
             return
         }
 
@@ -192,11 +192,11 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output, 
                 self.dispatchQueue.async {
                     let decodingResult = Result { try self.decoderHandler(responseData) }
 
-                    self.finish(completion: OperationCompletion(result: decodingResult))
+                    self.finish(result: decodingResult)
                 }
             }
         } catch {
-            finish(completion: .failure(SendTunnelProviderMessageError.system(error)))
+            finish(result: .failure(SendTunnelProviderMessageError.system(error)))
         }
     }
 }

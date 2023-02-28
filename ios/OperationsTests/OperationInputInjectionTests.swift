@@ -11,11 +11,11 @@ import XCTest
 
 class OperationInputInjectionTests: XCTestCase {
     func testInject() throws {
-        let provider = ResultBlockOperation<Int, Error> {
+        let provider = ResultBlockOperation<Int> {
             return 1
         }
 
-        let consumer = TransformOperation<Int, Int, Error> { input in
+        let consumer = TransformOperation<Int, Int> { input in
             return input + 1
         }
 
@@ -29,11 +29,11 @@ class OperationInputInjectionTests: XCTestCase {
     }
 
     func testInjectVia() throws {
-        let provider = ResultBlockOperation<Int, Error> {
+        let provider = ResultBlockOperation<Int> {
             return 1
         }
 
-        let consumer = TransformOperation<String, Int, Error> { input in
+        let consumer = TransformOperation<String, Int> { input in
             return Int(input)!
         }
 
@@ -62,15 +62,15 @@ class OperationInputInjectionTests: XCTestCase {
 
         let operationQueue = AsyncOperationQueue()
 
-        let providerA = ResultBlockOperation<Int, Error> {
+        let providerA = ResultBlockOperation<Int> {
             return 1
         }
 
-        let providerB = ResultBlockOperation<Int, Error> {
+        let providerB = ResultBlockOperation<Int> {
             return 2
         }
 
-        let consumer = TransformOperation<Int, String, Error> { input in
+        let consumer = TransformOperation<Int, String> { input in
             return "\(input)"
         }
 

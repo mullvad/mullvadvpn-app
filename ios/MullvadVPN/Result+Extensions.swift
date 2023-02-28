@@ -26,6 +26,30 @@ extension Result {
             return error
         }
     }
+
+    var isSuccess: Bool {
+        switch self {
+        case .success:
+            return true
+        case .failure:
+            return false
+        }
+    }
+
+    func tryMap<NewSuccess>(_ body: (Success) throws -> NewSuccess) -> Result<NewSuccess, Error> {
+        return Result<NewSuccess, Error> {
+            let value = try self.get()
+
+            return try body(value)
+        }
+    }
+
+    @discardableResult func inspectError(_ body: (Failure) -> Void) -> Self {
+        if case let .failure(error) = self {
+            body(error)
+        }
+        return self
+    }
 }
 
 extension Result {

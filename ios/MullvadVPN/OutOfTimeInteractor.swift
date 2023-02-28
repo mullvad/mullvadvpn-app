@@ -61,9 +61,9 @@ final class OutOfTimeInteractor {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (OperationCompletion<
+        completionHandler: @escaping (Result<
             REST.CreateApplePaymentResponse,
-            StorePaymentManagerError
+            Error
         >) -> Void
     ) -> Cancellable {
         return storePaymentManager.restorePurchases(
@@ -74,7 +74,7 @@ final class OutOfTimeInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (OperationCompletion<SKProductsResponse, Error>) -> Void
+        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         return storePaymentManager.requestProducts(
             with: productIdentifiers,

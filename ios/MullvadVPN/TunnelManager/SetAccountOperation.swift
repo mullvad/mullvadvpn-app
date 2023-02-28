@@ -62,7 +62,7 @@ private struct SetAccountContext: OperationInputContext {
     }
 }
 
-class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
+class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private let interactor: TunnelInteractor
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
@@ -156,7 +156,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
 
     private func completeOperation(accountData: StoredAccountData?) {
         guard !isCancelled else {
-            finish(completion: .cancelled)
+            finish(result: .failure(OperationError.cancelled))
             return
         }
 
@@ -165,13 +165,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         }
 
         if let error = errors.first {
-            finish(completion: .failure(error))
+            finish(result: .failure(error))
         } else {
-            finish(completion: .success(accountData))
+            finish(result: .success(accountData))
         }
     }
 
-    private func getAccountDataOperation() -> ResultOperation<StoredAccountData, Error>? {
+    private func getAccountDataOperation() -> ResultOperation<StoredAccountData>? {
         switch action {
         case .new:
             return getCreateAccountOperation()
@@ -184,19 +184,20 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         }
     }
 
-    private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData, Error> {
-        let operation = ResultBlockOperation<StoredAccountData, Error>(dispatchQueue: dispatchQueue)
+    private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData> {
+        let operation = ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Create new account...")
 
-            let task = self.accountsProxy.createAccount(retryStrategy: .default) { completion in
-                let mappedCompletion = completion.mapError { error -> Error in
+            let task = self.accountsProxy.createAccount(retryStrategy: .default) { result in
+                let result = result.inspectError { error in
+                    guard !error.isOperationCancellationError else { return }
+
                     self.logger.error(
                         error: error,
                         message: "Failed to create new account."
                     )
-                    return error
                 }.map { newAccountData -> StoredAccountData in
                     self.logger.debug("Created new account.")
 
@@ -207,7 +208,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                     )
                 }
 
-                operation.finish(completion: mappedCompletion)
+                operation.finish(result: result)
             }
 
             operation.addCancellationBlock {
@@ -219,9 +220,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
     }
 
     private func getExistingAccountOperation(accountNumber: String)
-        -> ResultOperation<StoredAccountData, Error>
+        -> ResultOperation<StoredAccountData>
     {
-        let operation = ResultBlockOperation<StoredAccountData, Error>(dispatchQueue: dispatchQueue)
+        let operation = ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Request account data...")
@@ -229,13 +230,14 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
             let task = self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .default
-            ) { completion in
-                let mappedCompletion = completion.mapError { error -> Error in
+            ) { result in
+                let result = result.inspectError { error in
+                    guard !error.isOperationCancellationError else { return }
+
                     self.logger.error(
                         error: error,
                         message: "Failed to receive account data."
                     )
-                    return error
                 }.map { accountData -> StoredAccountData in
                     self.logger.debug("Received account data.")
 
@@ -246,7 +248,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                     )
                 }
 
-                operation.finish(completion: mappedCompletion)
+                operation.finish(result: result)
             }
 
             operation.addCancellationBlock {
@@ -257,12 +259,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
         return operation
     }
 
-    private func getDeleteDeviceOperation() -> ResultBlockOperation<Void, Error>? {
+    private func getDeleteDeviceOperation() -> AsyncBlockOperation? {
         guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
             return nil
         }
 
-        let operation = ResultBlockOperation<Void, Error>(dispatchQueue: dispatchQueue)
+        let operation = AsyncBlockOperation(dispatchQueue: dispatchQueue)
 
         operation.setExecutionBlock { operation in
             self.logger.debug("Delete current device...")
@@ -271,23 +273,22 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                 accountNumber: accountData.number,
                 identifier: deviceData.identifier,
                 retryStrategy: .default
-            ) { completion in
-                let mappedCompletion = completion
-                    .mapError { error -> Error in
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to delete device."
-                        )
-                        return error
-                    }.map { isDeleted in
-                        if isDeleted {
-                            self.logger.debug("Deleted device.")
-                        } else {
-                            self.logger.debug("Device is already deleted.")
-                        }
-                    }
+            ) { result in
+                switch result {
+                case let .success(isDeleted):
+                    self.logger.debug(isDeleted ? "Deleted device." : "Device is already deleted.")
 
-                operation.finish(completion: mappedCompletion)
+                case let .failure(error) where !error.isOperationCancellationError:
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to delete device."
+                    )
+
+                default:
+                    break
+                }
+
+                operation.finish(error: result.error)
             }
 
             operation.addCancellationBlock {
@@ -336,12 +337,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
     }
 
     private func getCreateDeviceOperation()
-        -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device), Error>
+        -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)>
     {
         let createDeviceOperation = TransformOperation<
             StoredAccountData,
-            (PrivateKey, REST.Device),
-            Error
+            (PrivateKey, REST.Device)
         >(dispatchQueue: dispatchQueue)
 
         createDeviceOperation.setExecutionBlock { storedAccountData, operation in
@@ -369,17 +369,16 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
                 accountNumber: storedAccountData.number,
                 request: request,
                 retryStrategy: .default
-            ) { completion in
-                let mappedCompletion = completion
+            ) { result in
+                let result = result
                     .map { device in
                         return (privateKey, device)
                     }
-                    .mapError { error -> Error in
+                    .inspectError { error in
                         self.logger.error(error: error, message: "Failed to create device.")
-                        return error
                     }
 
-                operation.finish(completion: mappedCompletion)
+                operation.finish(result: result)
             }
 
             operation.addCancellationBlock {
@@ -391,10 +390,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?, Error> {
     }
 
     private func getSaveSettingsOperation()
-        -> TransformOperation<SetAccountResult, StoredAccountData, Error>
+        -> TransformOperation<SetAccountResult, StoredAccountData>
     {
         let saveSettingsOperation = TransformOperation<
-            SetAccountResult, StoredAccountData, Error
+            SetAccountResult,
+            StoredAccountData
         >(dispatchQueue: dispatchQueue)
 
         saveSettingsOperation.setExecutionBlock { input in

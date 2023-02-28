@@ -654,7 +654,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     private func didSendProblemReport(
         viewModel: ViewModel,
-        completion: OperationCompletion<Void, REST.Error>
+        completion: Result<Void, Error>
     ) {
         switch completion {
         case .success:
@@ -665,9 +665,6 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
         case let .failure(error):
             submissionOverlayView.state = .failure(error)
-
-        case .cancelled:
-            submissionOverlayView.state = .failure(.network(URLError(.cancelled)))
         }
 
         navigationItem.setHidesBackButton(false, animated: true)

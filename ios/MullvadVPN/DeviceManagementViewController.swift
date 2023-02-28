@@ -85,16 +85,16 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     func fetchDevices(
         animateUpdates: Bool,
-        completionHandler: ((OperationCompletion<Void, Error>) -> Void)? = nil
+        completionHandler: ((Result<Void, Error>) -> Void)? = nil
     ) {
-        interactor.getDevices { [weak self] completion in
+        interactor.getDevices { [weak self] result in
             guard let self = self else { return }
 
-            if let devices = completion.value {
+            if let devices = result.value {
                 self.setDevices(devices, animated: animateUpdates)
             }
 
-            completionHandler?(completion.ignoreOutput())
+            completionHandler?(result.map { _ in () })
         }
     }
 
@@ -236,14 +236,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 }
 
             case let .failure(error):
-                self.logger.error(
-                    error: error,
-                    message: "Failed to delete device."
-                )
-                completionHandler(error)
-
-            case .cancelled:
-                completionHandler(nil)
+                if error.isOperationCancellationError {
+                    completionHandler(nil)
+                } else {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to delete device."
+                    )
+                    completionHandler(error)
+                }
             }
         }
     }

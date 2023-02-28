@@ -329,10 +329,10 @@ class AccountViewController: UIViewController {
             case let .success(response):
                 self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
 
-            case let .failure(error):
+            case let .failure(error as StorePaymentManagerError):
                 self.showRestorePurchasesErrorAlert(error: error)
 
-            case .cancelled:
+            default:
                 break
             }
 

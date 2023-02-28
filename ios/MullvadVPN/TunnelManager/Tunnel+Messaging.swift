@@ -27,7 +27,7 @@ extension Tunnel {
     /// Packet tunnel will reconnect to the current relay if relay selector result is not provided.
     func reconnectTunnel(
         relaySelectorResult: RelaySelectorResult?,
-        completionHandler: @escaping (OperationCompletion<Void, Error>) -> Void
+        completionHandler: @escaping (Result<Void, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
@@ -43,7 +43,7 @@ extension Tunnel {
 
     /// Request status from packet tunnel process.
     func getTunnelStatus(
-        completionHandler: @escaping (OperationCompletion<PacketTunnelStatus, Error>) -> Void
+        completionHandler: @escaping (Result<PacketTunnelStatus, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
@@ -60,7 +60,7 @@ extension Tunnel {
     /// Send HTTP request via packet tunnel process bypassing VPN.
     func sendRequest(
         _ proxyRequest: ProxyURLRequest,
-        completionHandler: @escaping (OperationCompletion<ProxyURLResponse, Error>) -> Void
+        completionHandler: @escaping (Result<ProxyURLResponse, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,

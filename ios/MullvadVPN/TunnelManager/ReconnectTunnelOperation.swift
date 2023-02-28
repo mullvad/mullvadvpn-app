@@ -13,7 +13,7 @@ import Operations
 import RelayCache
 import RelaySelector
 
-class ReconnectTunnelOperation: ResultOperation<Void, Error> {
+class ReconnectTunnelOperation: ResultOperation<Void> {
     private let interactor: TunnelInteractor
     private let selectNewRelay: Bool
     private var task: Cancellable?
@@ -31,20 +31,19 @@ class ReconnectTunnelOperation: ResultOperation<Void, Error> {
 
     override func main() {
         guard let tunnel = interactor.tunnel else {
-            finish(completion: .failure(UnsetTunnelError()))
+            finish(result: .failure(UnsetTunnelError()))
             return
         }
 
         do {
             let selectorResult = selectNewRelay ? try interactor.selectRelay() : nil
 
-            task = tunnel.reconnectTunnel(
-                relaySelectorResult: selectorResult
-            ) { [weak self] completion in
-                self?.finish(completion: completion)
-            }
+            task = tunnel
+                .reconnectTunnel(relaySelectorResult: selectorResult) { [weak self] result in
+                    self?.finish(result: result)
+                }
         } catch {
-            finish(completion: .failure(error))
+            finish(result: .failure(error))
         }
     }
 

@@ -8,11 +8,8 @@
 
 import Foundation
 
-public final class TransformOperation<Input, Output, Failure: Error>:
-    ResultOperation<Output, Failure>,
-    InputOperation
-{
-    public typealias ExecutionBlock = (Input, TransformOperation<Input, Output, Failure>) -> Void
+public final class TransformOperation<Input, Output>: ResultOperation<Output>, InputOperation {
+    public typealias ExecutionBlock = (Input, TransformOperation<Input, Output>) -> Void
     public typealias ThrowingExecutionBlock = (Input) throws -> Output
     public typealias InputBlock = () -> Input?
 
@@ -69,7 +66,7 @@ public final class TransformOperation<Input, Output, Failure: Error>:
         _input = inputValue
 
         guard let inputValue = inputValue, let executionBlock = executionBlock else {
-            finish(completion: .cancelled)
+            finish(result: .failure(OperationError.unsatisfiedRequirement))
             return
         }
 
@@ -125,15 +122,9 @@ public final class TransformOperation<Input, Output, Failure: Error>:
         -> ExecutionBlock
     {
         return { input, operation in
-            do {
-                let value = try executionBlock(input)
+            let result = Result { try executionBlock(input) }
 
-                operation.finish(completion: .success(value))
-            } catch {
-                let castedError = error as! Failure
-
-                operation.finish(completion: .failure(castedError))
-            }
+            operation.finish(result: result)
         }
     }
 }

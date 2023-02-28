@@ -19,8 +19,10 @@ final class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountCompletion: OperationCompletion<REST.AccountData, REST.Error> = .cancelled
-    private var devicesCompletion: OperationCompletion<[REST.Device], REST.Error> = .cancelled
+    private var accountCompletion: Result<REST.AccountData, Error> = .failure(
+        OperationError.cancelled
+    )
+    private var devicesCompletion: Result<[REST.Device], Error> = .failure(OperationError.cancelled)
 
     private let legacySettings: LegacyTunnelSettings
 
