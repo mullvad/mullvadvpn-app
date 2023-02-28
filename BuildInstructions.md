@@ -104,6 +104,12 @@ The host has to have the following installed:
 
 - `mingw`'s `gcc` compiler is required for CGo.
 
+- The `x86` target is required for building some NSIS plugins:
+
+  ```bash
+  rustup target add i686-pc-windows-msvc
+  ```
+
 [Git for Windows]: https://git-scm.com/download/win
 
 ## macOS
