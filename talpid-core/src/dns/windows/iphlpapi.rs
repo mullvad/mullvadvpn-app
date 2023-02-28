@@ -33,6 +33,10 @@ pub enum Error {
     /// Failed to set DNS settings on interface.
     #[error(display = "Failed to set DNS settings on interface: {}", _0)]
     SetInterfaceDnsSettings(i32),
+
+    /// Failure to flush DNS cache.
+    #[error(display = "Failed to flush DNS resolver cache")]
+    FlushResolverCacheError(#[error(source)] super::dnsapi::Error),
 }
 
 pub struct DnsMonitor {
@@ -49,7 +53,6 @@ impl DnsMonitorT for DnsMonitor {
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::InterfaceLuidError)?)
             .map_err(Error::InterfaceGuidError)?;
-
 
         let mut v4_servers = vec![];
         let mut v6_servers = vec![];
@@ -70,13 +73,16 @@ impl DnsMonitorT for DnsMonitor {
             set_interface_dns_servers_v6(&guid, &v6_servers)?;
         }
 
+        flush_dns_cache()?;
+
         Ok(())
     }
 
     fn reset(&mut self) -> Result<(), Error> {
         if let Some(guid) = self.current_guid.take() {
-            let _ = set_interface_dns_servers_v4(&guid, &[]);
-            let _ = set_interface_dns_servers_v6(&guid, &[]);
+            set_interface_dns_servers_v4(&guid, &[])
+                .and(set_interface_dns_servers_v6(&guid, &[]))
+                .and(flush_dns_cache())?;
         }
         Ok(())
     }
@@ -130,4 +136,8 @@ fn set_interface_dns_servers<T: ToString>(
         return Err(Error::SetInterfaceDnsSettings(result));
     }
     Ok(())
+}
+
+fn flush_dns_cache() -> Result<(), Error> {
+    super::dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCacheError)
 }
