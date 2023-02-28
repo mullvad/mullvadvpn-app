@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -141,7 +142,8 @@ private fun CustomTextField(
 
     fun triggerSubmit() {
         keyboardController?.hide()
-        focusManager.clearFocus()
+        // Focuses row instead of text field on submission.
+        focusManager.moveFocus(FocusDirection.Exit)
         onSubmit(value)
     }
 
