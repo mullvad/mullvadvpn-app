@@ -16,7 +16,7 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 
 BRANCHES_TO_BUILD=("origin/main")
-TAG_PATTERN_TO_BUILD=("^android/")
+TAG_PATTERN_TO_BUILD="^android/"
 
 upload() {
     for f in MullvadVPN-*.{apk,aab}; do
@@ -29,7 +29,7 @@ build_ref() {
     ref=$1
     tag=${2:-""}
 
-    current_hash="$(git rev-parse $ref^{commit})"
+    current_hash="$(git rev-parse "$ref^{commit}")"
     if [ -f "$LAST_BUILT_DIR/$current_hash" ]; then
         # This commit has already been built
         return 0
@@ -38,13 +38,13 @@ build_ref() {
     echo ""
     echo "[#] $ref: $current_hash, building new packages."
 
-    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag $ref; then
+    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
         echo "!!!"
         echo "[#] $ref is a tag, but it failed GPG verification!"
         echo "!!!"
         sleep 60
         return 0
-    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit $current_hash; then
+    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
         echo "!!!"
         echo "[#] $ref is a branch, but it failed GPG verification!"
         echo "!!!"
@@ -55,7 +55,7 @@ build_ref() {
     # Clean our working dir and check out the code we want to build
     rm -r dist/ 2&>/dev/null || true
     git reset --hard
-    git checkout $ref
+    git checkout "$ref"
     git submodule update
     git clean -df
 
@@ -71,8 +71,8 @@ build_ref() {
         # Pipes all matching names and their new name to mv
         pushd dist
         for original_file in MullvadVPN-*-dev-*{.apk,.aab}; do
-            new_file=$(echo $original_file | sed -nE "s/^(MullvadVPN-.*-dev-.*)(\.apk|\.aab)$/\1$version_suffix\2/p")
-            mv $original_file $new_file
+            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(\.apk|\.aab)$/\1$version_suffix\2/p")
+            mv "$original_file" "$new_file"
         done
         popd
     fi
@@ -90,6 +90,9 @@ while true; do
     git tag | xargs git tag -d > /dev/null
 
     git fetch --prune --tags 2> /dev/null || continue
+
+    # Tags can't include spaces so SC2207 isn't a problem here
+    # shellcheck disable=SC2207
     tags=( $(git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
     for tag in "${tags[@]}"; do

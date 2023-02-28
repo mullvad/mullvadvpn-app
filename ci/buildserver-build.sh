@@ -24,7 +24,7 @@ BRANCHES_TO_BUILD=("origin/main")
 case "$(uname -s)" in
     Darwin*|MINGW*|MSYS_NT*)
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
-            read -sp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+            read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
             export CSC_KEY_PASSWORD
         fi
@@ -67,7 +67,7 @@ build_ref() {
     ref=$1
     tag=${2:-""}
 
-    current_hash="$(git rev-parse $ref^{commit})"
+    current_hash="$(git rev-parse "$ref^{commit}")"
     if [ -f "$LAST_BUILT_DIR/$current_hash" ]; then
         # This commit has already been built
         return 0
@@ -76,13 +76,13 @@ build_ref() {
     echo ""
     echo "[#] $ref: $current_hash, building new packages."
 
-    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag $ref; then
+    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
         echo "!!!"
         echo "[#] $ref is a tag, but it failed GPG verification!"
         echo "!!!"
         sleep 60
         return 0
-    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit $current_hash; then
+    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
         echo "!!!"
         echo "[#] $ref is a branch, but it failed GPG verification!"
         echo "!!!"
@@ -93,7 +93,7 @@ build_ref() {
     # Clean our working dir and check out the code we want to build
     rm -r dist/ 2&>/dev/null || true
     git reset --hard
-    git checkout $ref
+    git checkout "$ref"
     git submodule update
     git clean -df
 
@@ -168,6 +168,9 @@ while true; do
     git tag | xargs git tag -d > /dev/null
 
     git fetch --prune --tags 2> /dev/null || continue
+
+    # Tags can't include spaces so SC2207 isn't a problem here
+    # shellcheck disable=SC2207
     tags=( $(git tag) )
 
     for tag in "${tags[@]}"; do
