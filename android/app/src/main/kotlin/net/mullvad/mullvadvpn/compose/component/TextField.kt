@@ -148,6 +148,8 @@ private fun CustomTextField(
     var modifierTmp = modifier
         .clip(shape)
         .onFocusChanged { focusState ->
+            // TODO: Local tracking of focus state. Use to determine background color.
+            isFocused = focusState.isFocused
             onFocusChanges(focusState.isFocused)
         }
         .focusRequester(focusRequester)
