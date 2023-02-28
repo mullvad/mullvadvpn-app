@@ -1,12 +1,19 @@
 use std::{env, fmt, net::IpAddr};
 
+use super::DnsMonitorT;
+
 mod dnsapi;
+mod iphlpapi;
 mod netsh;
 mod tcpip;
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// Failed to set DNS config using the iphlpapi module.
+    #[error(display = "Error in iphlpapi module")]
+    Iphlpapi(#[error(source)] iphlpapi::Error),
+
     /// Failed to set DNS config using the netsh module.
     #[error(display = "Error in netsh module")]
     Netsh(#[error(source)] netsh::Error),
@@ -20,15 +27,17 @@ pub struct DnsMonitor {
     inner: DnsMonitorHolder,
 }
 
-impl super::DnsMonitorT for DnsMonitor {
+impl DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new() -> Result<Self, Error> {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
         let inner = match dns_module.as_ref().and_then(|value| value.to_str()) {
+            Some("iphlpapi") => DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?),
             Some("tcpip") => DnsMonitorHolder::Tcpip(tcpip::DnsMonitor::new()?),
-            Some(_) | None => DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?),
+            Some("netsh") => DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?),
+            Some(_) | None => Self::detect_appropriate_method()?,
         };
 
         log::debug!("DNS monitor: {}", inner);
@@ -38,6 +47,7 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.set(interface, servers)?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.set(interface, servers)?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.set(interface, servers)?,
         }
@@ -46,6 +56,7 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn reset(&mut self) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.reset()?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.reset()?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.reset()?,
         }
@@ -54,6 +65,7 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn reset_before_interface_removal(&mut self) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.reset_before_interface_removal()?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.reset_before_interface_removal()?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.reset_before_interface_removal()?,
         }
@@ -61,7 +73,14 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 }
 
+impl DnsMonitor {
+    fn detect_appropriate_method() -> Result<DnsMonitorHolder, Error> {
+        Ok(DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?))
+    }
+}
+
 enum DnsMonitorHolder {
+    Iphlpapi(iphlpapi::DnsMonitor),
     Netsh(netsh::DnsMonitor),
     Tcpip(tcpip::DnsMonitor),
 }
@@ -69,6 +88,7 @@ enum DnsMonitorHolder {
 impl fmt::Display for DnsMonitorHolder {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            DnsMonitorHolder::Iphlpapi(_) => f.write_str("SetInterfaceDnsSettings (iphlpapi)"),
             DnsMonitorHolder::Netsh(_) => f.write_str("netsh"),
             DnsMonitorHolder::Tcpip(_) => f.write_str("TCP/IP registry parameter"),
         }
