@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.
 - Fix desktop app not quitting properly after switching from unpinned to pinned window.
+- Retry if PQ PSK negotiation fails for any reason.
 
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.

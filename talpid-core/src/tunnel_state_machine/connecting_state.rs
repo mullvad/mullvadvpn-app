@@ -494,9 +494,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 
         tunnel::Error::WireguardTunnelMonitoringError(Error::ObfuscatorError(_)) => true,
 
-        tunnel::Error::WireguardTunnelMonitoringError(Error::PskNegotiationError(
-            talpid_tunnel_config_client::Error::GrpcConnectError(_),
-        )) => true,
+        tunnel::Error::WireguardTunnelMonitoringError(Error::PskNegotiationError(_)) => true,
 
         #[cfg(not(windows))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
