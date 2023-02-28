@@ -71,11 +71,15 @@ public:
 
 	static const GUID &Filter_Baseline_PermitEndpoint();
 
-	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4();
-	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6();
+	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1();
+	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1();
+	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2();
+	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2();
 
-	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv4();
-	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv6();
+	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv4_1();
+	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv6_1();
+	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv4_2();
+	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv6_2();
 
 	static const GUID &Filter_Baseline_PermitNdp_Outbound_Router_Solicitation();
 	static const GUID &Filter_Baseline_PermitNdp_Inbound_Router_Advertisement();

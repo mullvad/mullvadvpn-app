@@ -17,45 +17,64 @@ namespace rules::baseline
 
 PermitVpnTunnel::PermitVpnTunnel(
 	const std::wstring &tunnelInterfaceAlias,
-	const std::optional<Endpoint> &onlyEndpoint
+	const std::optional<Endpoints> &potentialEndpoints
 )
 	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
-	, m_tunnelOnlyEndpoint(onlyEndpoint)
+	, m_potentialEndpoints(potentialEndpoints)
 {
 }
 
-bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
+bool PermitVpnTunnel::AddEndpointFilter(const std::optional<Endpoint> &endpoint, const GUID &ipv4Guid, const GUID &ipv6Guid, IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
 
-	bool includeV4 = !m_tunnelOnlyEndpoint.has_value() || m_tunnelOnlyEndpoint->ip.type() == wfp::IpAddress::Ipv4;
-	bool includeV6 = !m_tunnelOnlyEndpoint.has_value() || m_tunnelOnlyEndpoint->ip.type() == wfp::IpAddress::Ipv6;
-
-	//
-	// #1 Permit outbound connections, IPv4.
-	//
-
 	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4())
-		.name(L"Permit outbound connections on tunnel interface (IPv4)")
 		.description(L"This filter is part of a rule that permits communications inside the VPN tunnel")
 		.provider(MullvadGuids::Provider())
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
+    bool shouldAddV4Filter = !endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv4;
+    bool shouldAddV6Filter = !endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv6;
 
-	if (includeV4)
+	if (shouldAddV4Filter)
 	{
+		filterBuilder
+			.key(ipv4Guid)
+			.name(L"Permit outbound connections on tunnel interface (IPv4)")
+			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+	
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-
+	
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-
-		if (m_tunnelOnlyEndpoint.has_value())
+		if (endpoint.has_value())
 		{
-			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
+			conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+			conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+			conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
+		}
+	
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
+		}
+	}
+	
+	if (shouldAddV6Filter)
+	{
+		filterBuilder
+			.key(ipv6Guid)
+			.name(L"Permit outbound connections on tunnel interface (IPv6)")
+			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+	
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+	
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		if (endpoint.has_value())
+		{
+			conditionBuilder.add_condition(ConditionIp::Remote(endpoint.value().ip));
+			conditionBuilder.add_condition(ConditionPort::Remote(endpoint.value().port));
+			conditionBuilder.add_condition(CreateProtocolCondition(endpoint.value().protocol));
 		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -63,32 +82,36 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 			return false;
 		}
 	}
+	return true;
+}
 
-	//
-	// #2 Permit outbound connections, IPv6.
-	//
 
-	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6())
-		.name(L"Permit outbound connections on tunnel interface (IPv6)")
-		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
-	if (includeV6)
+bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
+{
+	if (!m_potentialEndpoints.has_value())
 	{
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-
-		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-
-		if (m_tunnelOnlyEndpoint.has_value())
-		{
-			conditionBuilder.add_condition(ConditionIp::Remote(m_tunnelOnlyEndpoint->ip));
-			conditionBuilder.add_condition(ConditionPort::Remote(m_tunnelOnlyEndpoint->port));
-			conditionBuilder.add_condition(CreateProtocolCondition(m_tunnelOnlyEndpoint->protocol));
-		}
-
-		return objectInstaller.addFilter(filterBuilder, conditionBuilder);
+		return AddEndpointFilter(
+			std::nullopt,
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
+			objectInstaller
+		);
 	}
-
+	AddEndpointFilter(
+			std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
+			objectInstaller
+		);
+	if (m_potentialEndpoints.value().exitEndpoint.has_value())
+	{
+		AddEndpointFilter(
+				m_potentialEndpoints.value().exitEndpoint.value(),
+				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2(),
+				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2(),
+				objectInstaller
+			);
+	}
 	return true;
 }
 

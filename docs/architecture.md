@@ -190,6 +190,31 @@ metadata that might be useful.
 
 ### Firewall integration
 
+### Connection logic
+
+#### Quantum-resistant tunnels
+
+To establish a quantum-resistant tunnel, a pre-shared key (PSK) is derived using a quantum-safe
+key encapsulation mechanism (KEM) with the relay. This is achieved by initiating a regular
+WireGuard tunnel to the relay and deriving the PSK within the tunnel.
+The PSK is stored in memory on the relay and the client, along with a new client generated ephemeral
+WireGuard key. Subsequently, a new tunnel is created using the new WireGuard key and the PSK,
+ensuring that the tunnel is quantum-resistant.
+See the [protocol definition file](../talpid-tunnel-config-client/proto/tunnel_config.proto) for
+more details on the protocol.
+
+#### Quantum-resistant tunnels & Multihop
+
+To create a multihop tunnel where both hops are quantum resistant the client must negotiate a unique
+PSK with both the entry and the exit relay separately. It must use the same ephemeral WireGuard key
+on both relays since the end result (just as with regular multihop tunnels) is two peers on a
+single WireGuard interface, which can only have a single key for the local peer.
+
+The PSKs are established by first creating a regular multihop tunnel to the exit via the entry relay
+and negotiate a PSK with the exit. Then establish a regular tunnel to just the entry and negotiate a
+PSK with it. Lastly the client can set up a multihop tunnel using the new ephemeral WireGuard key
+and the two PSKs via the entry to the exit.
+
 ### Detecting device offline
 
 The tunnel state machine has an offline monitor that tries to detect when a device will certainly

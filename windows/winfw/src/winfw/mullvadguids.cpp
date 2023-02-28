@@ -130,10 +130,14 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnRelay()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitEndpoint()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4()));
-	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4_1()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6_1()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4_2()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6_2()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Router_Solicitation()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Router_Advertisement()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Neighbor_Solicitation()));
@@ -663,7 +667,7 @@ const GUID &MullvadGuids::Filter_Baseline_PermitEndpoint()
 }
 
 //static
-const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4()
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1()
 {
 	static const GUID g =
 	{
@@ -677,7 +681,7 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4()
 }
 
 //static
-const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6()
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1()
 {
 	static const GUID g =
 	{
@@ -691,7 +695,35 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6()
 }
 
 //static
-const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4()
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2()
+{
+	static const GUID g =
+	{
+		0x7e09435c,
+		0xefd7,
+		0x482d,
+		{ 0xa1, 0xec, 0x6c, 0xc3, 0x80, 0xac, 0xf3, 0xf1 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2()
+{
+	static const GUID g =
+	{
+		0x276bc66f,
+		0xf9ef,
+		0x4428,
+		{ 0xb1, 0x5e, 0xd9, 0xe2, 0x6e, 0xf4, 0xf0, 0x06 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_1()
 {
 	static const GUID g =
 	{
@@ -705,7 +737,7 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4()
 }
 
 //static
-const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6()
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_1()
 {
 	static const GUID g =
 	{
@@ -713,6 +745,35 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6()
 		0x1845,
 		0x42e5,
 		{ 0xad, 0xf3, 0x33, 0xb2, 0x7a, 0xd, 0x5d, 0x38 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_2()
+{
+	static const GUID g =
+	{
+		0x98c99ac3,
+		0xaa54,
+		0x45e7,
+		{ 0x91, 0xc4, 0x61, 0x1a, 0x1e, 0xe2, 0x64, 0x83 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_2()
+{
+
+	static const GUID g =
+	{
+		0x01deb2b8,
+		0xb25d,
+		0x4e60,
+		{ 0x81, 0x52, 0xef, 0x3b, 0x40, 0xc0, 0x8e, 0xdc }
 	};
 
 	return g;

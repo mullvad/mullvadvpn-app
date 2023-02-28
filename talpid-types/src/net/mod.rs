@@ -284,15 +284,21 @@ impl fmt::Display for AllowedEndpoint {
 pub enum AllowedTunnelTraffic {
     None,
     All,
-    Only(Endpoint),
+    One(Endpoint),
+    Two(Endpoint, Endpoint),
 }
 
 impl fmt::Display for AllowedTunnelTraffic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match *self {
+        match self {
             AllowedTunnelTraffic::None => "None".fmt(f),
             AllowedTunnelTraffic::All => "All".fmt(f),
-            AllowedTunnelTraffic::Only(endpoint) => endpoint.fmt(f),
+            AllowedTunnelTraffic::One(endpoint) => endpoint.fmt(f),
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                endpoint1.fmt(f)?;
+                f.write_str(", ")?;
+                endpoint2.fmt(f)
+            }
         }
     }
 }
