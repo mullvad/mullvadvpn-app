@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add notification dot to tray icon and system notification throttling.
 - Add troubleshooting information to some in-app notifications.
 - Add setting for quantum resistant tunnels to the desktop GUI.
+- Enable `TCP_NODELAY` for the socket used by WireGuard over TCP. Improves latency and performance.
 
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
