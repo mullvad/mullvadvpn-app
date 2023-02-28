@@ -51,13 +51,16 @@ fun CellTextField(
     maxCharLength: Int = Int.MAX_VALUE,
     // TODO: We might want to let the caller provide colors rather than using this validation func.
     isValidValue: (String) -> Boolean,
+    inputFocusRequester: FocusRequester
 ) {
     val modifier = Modifier
         .width(96.dp)
         .height(35.dp)
     CustomTextField(
         value = value,
-        modifier = modifier,
+        modifier = Modifier
+            .focusRequester(inputFocusRequester)
+            .then(modifier),
         onValueChanged = onValueChanged,
         onFocusChanges = onFocusChanges,
         onSubmit = onSubmit,
@@ -119,7 +122,6 @@ private fun CustomTextField(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
 
     val textColor = when {
@@ -143,7 +145,7 @@ private fun CustomTextField(
     fun triggerSubmit() {
         keyboardController?.hide()
         // Focuses row instead of text field on submission.
-        focusManager.moveFocus(FocusDirection.Exit)
+        focusManager.moveFocus(FocusDirection.Previous)
         onSubmit(value)
     }
 
@@ -154,7 +156,6 @@ private fun CustomTextField(
             isFocused = focusState.isFocused
             onFocusChanges(focusState.isFocused)
         }
-        .focusRequester(focusRequester)
         .onKeyEvent { keyEvent ->
             return@onKeyEvent when (keyEvent.nativeKeyEvent.keyCode) {
                 KeyEvent.KEYCODE_ENTER -> {
