@@ -16,7 +16,7 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 
 BRANCHES_TO_BUILD=("origin/main")
-TAG_PATTERN_TO_BUILD=("^android/")
+TAG_PATTERN_TO_BUILD="^android/"
 
 upload() {
     for f in MullvadVPN-*.{apk,aab}; do
