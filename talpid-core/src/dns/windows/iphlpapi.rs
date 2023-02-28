@@ -1,4 +1,5 @@
 use crate::dns::DnsMonitorT;
+use once_cell::sync::OnceCell;
 use std::{
     ffi::OsString,
     io,
@@ -9,11 +10,15 @@ use std::{
 use talpid_windows_net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
     core::GUID,
+    s, w,
     Win32::{
-        Foundation::NO_ERROR,
+        Foundation::{ERROR_PROC_NOT_FOUND, NO_ERROR, NTSTATUS},
         NetworkManagement::IpHelper::{
-            SetInterfaceDnsSettings, DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1,
-            DNS_SETTING_IPV6, DNS_SETTING_NAMESERVER,
+            DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1, DNS_SETTING_IPV6,
+            DNS_SETTING_NAMESERVER,
+        },
+        System::LibraryLoader::{
+            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32,
         },
     },
 };
@@ -37,10 +42,71 @@ pub enum Error {
     /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
     FlushResolverCacheError(#[error(source)] super::dnsapi::Error),
+
+    /// Failed to load iphlpapi.dll.
+    #[error(display = "Failed to load iphlpapi.dll")]
+    LoadDll(#[error(source)] io::Error),
+
+    /// Failed to obtain exported function.
+    #[error(display = "Failed to obtain DNS function")]
+    GetFunction(#[error(source)] io::Error),
+}
+
+type SetInterfaceDnsSettingsFn = unsafe extern "stdcall" fn(
+    interface: GUID,
+    settings: *const DNS_INTERFACE_SETTINGS,
+) -> NTSTATUS;
+
+struct IphlpApi {
+    set_interface_dns_settings: SetInterfaceDnsSettingsFn,
+}
+
+unsafe impl Send for IphlpApi {}
+unsafe impl Sync for IphlpApi {}
+
+static IPHLPAPI_HANDLE: OnceCell<IphlpApi> = OnceCell::new();
+
+impl IphlpApi {
+    fn new() -> Result<Self, Error> {
+        let module = unsafe { LoadLibraryExW(w!("iphlpapi.dll"), 0, LOAD_LIBRARY_SEARCH_SYSTEM32) };
+        if module == 0 {
+            log::error!("Failed to load iphlpapi.dll");
+            return Err(Error::LoadDll(io::Error::last_os_error()));
+        }
+
+        let set_interface_dns_settings =
+            unsafe { GetProcAddress(module, s!("SetInterfaceDnsSettings")) };
+        let set_interface_dns_settings = set_interface_dns_settings.ok_or_else(|| {
+            let error = io::Error::last_os_error();
+
+            if error.raw_os_error() != Some(ERROR_PROC_NOT_FOUND as i32) {
+                log::error!(
+                    "Could not find SetInterfaceDnsSettings due to an unexpected error: {error}"
+                );
+            }
+
+            unsafe { FreeLibrary(module) };
+            Error::GetFunction(error)
+        })?;
+
+        // NOTE: Leaking `module` here, since we're lazily initializing it
+
+        Ok(Self {
+            set_interface_dns_settings: unsafe {
+                *(&set_interface_dns_settings as *const _ as *const _)
+            },
+        })
+    }
 }
 
 pub struct DnsMonitor {
     current_guid: Option<GUID>,
+}
+
+impl DnsMonitor {
+    pub fn is_supported() -> bool {
+        IPHLPAPI_HANDLE.get_or_try_init(|| IphlpApi::new()).is_ok()
+    }
 }
 
 impl DnsMonitorT for DnsMonitor {
@@ -107,6 +173,8 @@ fn set_interface_dns_servers<T: ToString>(
     servers: &[T],
     flags: u32,
 ) -> Result<(), Error> {
+    let iphlpapi = IPHLPAPI_HANDLE.get_or_try_init(|| IphlpApi::new())?;
+
     // Create comma-separated nameserver list
     let nameservers = servers
         .iter()
@@ -131,7 +199,8 @@ fn set_interface_dns_servers<T: ToString>(
         ProfileNameServer: ptr::null_mut(),
     };
 
-    let result = unsafe { SetInterfaceDnsSettings(guid.to_owned(), &dns_interface_settings) };
+    let result =
+        unsafe { (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &dns_interface_settings) };
     if result != (NO_ERROR as i32) {
         return Err(Error::SetInterfaceDnsSettings(result));
     }

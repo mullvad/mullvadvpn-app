@@ -37,7 +37,7 @@ impl DnsMonitorT for DnsMonitor {
             Some("iphlpapi") => DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?),
             Some("tcpip") => DnsMonitorHolder::Tcpip(tcpip::DnsMonitor::new()?),
             Some("netsh") => DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?),
-            Some(_) | None => Self::detect_appropriate_method()?,
+            Some(_) | None => DnsMonitor::detect_appropriate_method()?,
         };
 
         log::debug!("DNS monitor: {}", inner);
@@ -75,7 +75,10 @@ impl DnsMonitorT for DnsMonitor {
 
 impl DnsMonitor {
     fn detect_appropriate_method() -> Result<DnsMonitorHolder, Error> {
-        Ok(DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?))
+        if iphlpapi::DnsMonitor::is_supported() {
+            return Ok(DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?));
+        }
+        Ok(DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?))
     }
 }
 
