@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth as wrapContentWidth1
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +44,8 @@ fun MtuComposeCell(
     val rightViewModifier = Modifier
     val subtitleModifier = Modifier
 
+    val inputFocusRequester = remember { FocusRequester() }
+
     Column {
 //        var currentMtu = value.uiState.collectAsState().value.mtuState.mtuValue?.wireguardMtu
 //        var mtuString: String = currentMtu?.let { it.toString() } ?: run{ "" }
@@ -53,11 +57,15 @@ fun MtuComposeCell(
                     onMtuChanged = { onMtuChanged.invoke(it) },
                     onMtuSubmit = onMtuSubmit,
                     onMtuFocusChanged = onMtuFocusChanged,
-                    modifier = titleModifier
+                    modifier = titleModifier,
+                    inputFocusRequester = inputFocusRequester
                 )
             },
             subtitle = { MtuSubtitle(subtitleModifier) },
             subtitleModifier = subtitleModifier,
+            onCellClicked = {
+                inputFocusRequester.requestFocus()
+            }
         )
     }
 }
@@ -84,7 +92,8 @@ private fun MtuBodyView(
     onMtuChanged: (String) -> Unit,
     onMtuSubmit: (String) -> Unit,
     onMtuFocusChanged: (Boolean) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    inputFocusRequester: FocusRequester
 ) {
     Row(
         modifier = modifier
@@ -105,7 +114,8 @@ private fun MtuBodyView(
             isEnabled = true,
             placeholderText = stringResource(id = R.string.hint_default),
             maxCharLength = 4,
-            isValidValue = { return@CellTextField it.toIntOrNull() in 1280..1420 }
+            isValidValue = { return@CellTextField it.toIntOrNull() in 1280..1420 },
+            inputFocusRequester = inputFocusRequester
         )
     }
 }
