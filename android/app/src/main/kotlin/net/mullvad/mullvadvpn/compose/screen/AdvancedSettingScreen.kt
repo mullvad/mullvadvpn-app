@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -34,14 +35,36 @@ import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.component.CustomDnsComposeCell
 import net.mullvad.mullvadvpn.compose.component.DnsCell
-import net.mullvad.mullvadvpn.compose.component.DnsCellUiState
+import net.mullvad.mullvadvpn.compose.component.DnsCellData
 import net.mullvad.mullvadvpn.compose.component.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.component.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.component.ShowConfirmLocalDnsScreen
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingUiState
+
+@Preview
+@Composable
+private fun PreviewBaeCellUsage() {
+
+    Column(Modifier.background(MullvadDarkBlue)) {
+        MtuComposeCell("", {}, {}, {})
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+        )
+
+        NavigationComposeCell(title = "Navigation Row") {
+        }
+
+        CustomDnsComposeCell(
+            checkboxDefaultState = true,
+            onToggle = {}
+        )
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
@@ -146,36 +169,21 @@ fun AdvancedSettingScreen(
 
             ) {
                 item {
-                    ConstraintLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(top = 8.dp)
-                            .background(MullvadBlue)
-                    ) {
-                        MtuComposeCell(
-                            uiState.mtu,
-                            onMtuChanged = { onMtuChanged(it) },
-                            onMtuSubmit = { onMtuSubmit(it) },
-                            onMtuFocusChanged = { onMtuFocusChanged(it) }
-                        )
-                    }
+                    MtuComposeCell(
+                        uiState.mtu,
+                        onMtuChanged = { onMtuChanged(it) },
+                        onMtuSubmit = { onMtuSubmit(it) },
+                        onMtuFocusChanged = { onMtuFocusChanged(it) }
+                    )
                 }
 
                 item {
-                    ConstraintLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .background(MullvadBlue)
-                    ) {
-                        NavigationComposeCell(
-                            title = stringResource(id = R.string.split_tunneling),
-                            onClick = {
-                                onNavigateCellClicked.invoke()
-                            }
-                        )
-                    }
+                    NavigationComposeCell(
+                        title = stringResource(id = R.string.split_tunneling),
+                        onClick = {
+                            onNavigateCellClicked.invoke()
+                        }
+                    )
                 }
 
                 item {
@@ -206,7 +214,7 @@ fun AdvancedSettingScreen(
                 if (uiState.isCustomDnsEnabled) {
                     itemsIndexed(uiState.customDnsList) { index, item ->
                         DnsCell(
-                            dnsCellUiState = DnsCellUiState(
+                            dnsCellData = DnsCellData(
                                 ip = item,
                                 isEditMode = uiState.isInEditMode(item),
                                 editValue = uiState.currentEditValue
@@ -224,7 +232,7 @@ fun AdvancedSettingScreen(
 
                         val index = uiState.customDnsList.size
                         DnsCell(
-                            dnsCellUiState = DnsCellUiState(
+                            dnsCellData = DnsCellData(
                                 ip = null,
                                 isEditMode = uiState.isInEditMode(null),
                                 editValue = uiState.currentEditValue

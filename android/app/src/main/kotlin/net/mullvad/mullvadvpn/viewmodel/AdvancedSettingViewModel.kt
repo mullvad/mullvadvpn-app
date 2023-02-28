@@ -7,12 +7,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
 
 const val NO_EDIT_MODE = -1
@@ -26,12 +26,11 @@ sealed interface AdvancedSettingUiState {
     val currentEditValue: String
 
     fun isInEditMode(address: String?): Boolean {
-        return address?.let {
-            customDnsList.indexOf(it) == editDnsIndex
+        return if (address != null) {
+            customDnsList.indexOf(address) == editDnsIndex
+        } else {
+            editDnsIndex == customDnsList.size
         }
-            ?: run {
-                editDnsIndex == customDnsList.size
-            }
     }
 
     data class NormalState(
@@ -101,9 +100,6 @@ private data class AdvancedSettingViewModelState(
     }
 }
 
-/**
- * ViewModel that handles the business logic of the Setting screen
- */
 class AdvancedSettingViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
@@ -121,7 +117,6 @@ class AdvancedSettingViewModel(
         )
     )
 
-    // UI state exposed to the UI
     val uiState = viewModelState
         .map(AdvancedSettingViewModelState::toUiState)
         .stateIn(
@@ -132,26 +127,9 @@ class AdvancedSettingViewModel(
 
     init {
         refreshSettings()
-
-        // Observe for favorite changes in the repo layer
-        viewModelScope.launch {
-            repository.observeSettings().collectLatest { settings ->
-                viewModelState.update {
-                    it.copy(
-                        mtuValue = settings.mtu,
-                        mode = SettingScreenState.Normal,
-                        isCustomDnsEnabled = settings.isCustomDnsEnabled
-                    )
-                }
-            }
-        }
     }
 
-    /**
-     * Refresh advanced settings and update the UI state accordingly
-     */
     private fun refreshSettings() {
-        // Ui state is refreshing
         viewModelState.update {
             it.copy(
                 mtuValue = repository.wireguardMtuString,
@@ -198,6 +176,7 @@ class AdvancedSettingViewModel(
                     InetAddress.getByName(it)
                 }
             )
+            setEditDnsIndex(-1)
             viewModelState.update {
                 it.copy(isCustomDnsEnabled = checked)
             }
@@ -208,7 +187,7 @@ class AdvancedSettingViewModel(
 
         if (inetAddressValidator.isValid(addressText)) {
             val address = InetAddress.getByName(addressText)
-            if (!address.isLoopbackAddress) {
+            if (!address.isLoopbackAddress && !isAddressDuplicate(index, addressText)) {
                 if (shouldShowLocalDnsWarningDialog(address)) {
                     viewModelState.update { vmUiState ->
                         vmUiState.copy(
@@ -293,15 +272,10 @@ class AdvancedSettingViewModel(
     }
 
     private fun saveMtu(newValue: String) {
-        if (isValidMtu(newValue)) {
-            repository.wireguardMtu = newValue.toIntOrNull()
+        var mtuValue = newValue.toIntOrNull()
+        if (mtuValue?.isValidMtu() != false) {
+            repository.wireguardMtu = mtuValue
         }
-    }
-
-    private fun isValidMtu(newValue: String): Boolean {
-        return newValue.toIntOrNull()?.let {
-            it in 1280..1420
-        } ?: run { true }
     }
 
     private fun shouldShowLocalDnsWarningDialog(address: InetAddress): Boolean {
@@ -320,6 +294,12 @@ class AdvancedSettingViewModel(
                 it.copy(editDnsIndex = index, currentEditValue = editValue)
             }
         }
+    }
+
+    private fun isAddressDuplicate(index: Int, addressText: String): Boolean {
+        return viewModelState.value.customDnsList.filterIndexed { i, item ->
+            index != i && item == addressText
+        }.isNotEmpty()
     }
 
     fun indexLostFocus(index: Int) {

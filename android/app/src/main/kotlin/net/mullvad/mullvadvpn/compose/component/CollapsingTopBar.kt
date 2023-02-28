@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -29,14 +31,14 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
 @Preview
 @Composable
-fun TopBarPreview() {
+private fun PreviewTopBar() {
     CollapsingTopBar(
         backgroundColor = MullvadDarkBlue,
         onBackClicked = {},
-        title = stringResource(id = R.string.settings_advanced),
+        title = "Page Title",
         progress = 1.0f,
-        backTitle = stringResource(id = R.string.settings),
-        modifier = Modifier
+        backTitle = "Back",
+        modifier = Modifier.height(102.dp)
     )
 }
 
@@ -49,18 +51,23 @@ fun CollapsingTopBar(
     backTitle: String,
     modifier: Modifier
 ) {
+    val expandedToolbarHeight = dimensionResource(id = R.dimen.expanded_toolbar_height)
+    val iconSize = dimensionResource(id = R.dimen.icon_size)
+    val iconPadding = dimensionResource(id = R.dimen.small_padding)
+    val sideMargin = dimensionResource(id = R.dimen.side_margin)
+    val verticalMargin = dimensionResource(id = R.dimen.cell_label_vertical_padding)
 
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
-            .height(104.dp)
+            .height(expandedToolbarHeight)
             .background(backgroundColor)
     )
 
     Button(
         modifier = Modifier
-            .widthIn(min = 32.dp)
-            .height(50.dp),
+            .wrapContentWidth()
+            .wrapContentHeight(),
         onClick = onBackClicked,
         colors = ButtonDefaults.buttonColors(
             contentColor = Color.White,
@@ -69,14 +76,14 @@ fun CollapsingTopBar(
     ) {
         Image(
             painter = painterResource(id = R.drawable.icon_back),
-            contentDescription = "",
+            contentDescription = stringResource(id = R.string.back),
             modifier = Modifier
-                .width(24.dp)
-                .height(24.dp)
+                .width(iconSize)
+                .height(iconSize)
         )
         Spacer(
             modifier = Modifier
-                .width(8.dp)
+                .width(iconPadding)
                 .fillMaxHeight()
         )
         Text(
@@ -95,7 +102,12 @@ fun CollapsingTopBar(
             textAlign = TextAlign.End
         ),
         modifier = modifier
-            .padding(start = 22.dp, top = (12 + (48 - 12) * progress).dp, bottom = 12.dp),
+            .padding(
+                start = sideMargin,
+                end = sideMargin,
+                top = (14 + (48 - 14) * progress).dp,
+                bottom = verticalMargin
+            ),
         fontSize = (20 + (30 - 20) * progress).sp
     )
 }

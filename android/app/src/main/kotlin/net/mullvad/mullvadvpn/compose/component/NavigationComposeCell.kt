@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -17,7 +18,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewNavigationCell() {
+private fun PreviewNavigationCell() {
     NavigationComposeCell(
         title = "Navigation sample",
         onClick = {}
@@ -46,11 +47,12 @@ private fun NavigationTitleView(
     title: String,
     modifier: Modifier = Modifier
 ) {
+    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     Text(
         text = title,
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.Bold,
-        fontSize = 18.sp,
+        fontSize = textMediumSize,
         color = Color.White,
         modifier = modifier
             .wrapContentWidth(align = Alignment.End)

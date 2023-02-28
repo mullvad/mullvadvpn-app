@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
+import net.mullvad.mullvadvpn.compose.theme.MullvadBlue60
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite10
 
 @Composable
@@ -80,6 +81,7 @@ fun DnsTextField(
     onValueChanged: (String) -> Unit = { },
     onFocusChanges: (Boolean) -> Unit = { },
     onSubmit: (String) -> Unit = { },
+    placeholderText: String = "",
     isEnabled: Boolean = true,
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: (String) -> Boolean,
@@ -91,6 +93,8 @@ fun DnsTextField(
         onFocusChanges = onFocusChanges,
         onSubmit = onSubmit,
         isEnabled = isEnabled,
+        placeholderText = placeholderText,
+        placeHolderColor = MullvadBlue60,
         maxCharLength = maxCharLength,
         hasBackground = true,
         isValidValue = isValidValue,
@@ -109,6 +113,7 @@ private fun CustomTextField(
     onSubmit: (String) -> Unit,
     isEnabled: Boolean = true,
     placeholderText: String = "",
+    placeHolderColor: Color = MullvadBlue,
     maxCharLength: Int = Int.MAX_VALUE,
     hasBackground: Boolean = true,
     isValidValue: (String) -> Boolean,
@@ -131,7 +136,7 @@ private fun CustomTextField(
     }
 
     val placeholderTextColor = if (isFocused) {
-        MullvadBlue
+        placeHolderColor
     } else {
         Color.White
     }
@@ -209,7 +214,7 @@ private fun CustomTextField(
                     Text(
                         text = placeholderText,
                         color = placeholderTextColor,
-                        textAlign = TextAlign.End,
+                        textAlign = textAlign,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
