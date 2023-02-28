@@ -76,7 +76,6 @@ fun BaseCell(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
-                    .padding(start = cellHorizontalSpacing, end = cellHorizontalSpacing)
                     .height(cellHeight)
                     .constrainAs(contentContainer) {
                         start.linkTo(parent.start)
@@ -85,6 +84,8 @@ fun BaseCell(
                         top.linkTo(parent.top)
                     }
                     .clickable { onCellClicked.invoke() }
+                    .padding(start = cellHorizontalSpacing, end = cellHorizontalSpacing)
+
             ) {
                 // Cell title
                 title()
