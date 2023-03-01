@@ -4,7 +4,7 @@ shopt -s nullglob
 
 TAG_PATTERN_TO_BUILD=("^ios/")
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
+BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app/ios"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 mkdir -p "$LAST_BUILT_DIR"
 
