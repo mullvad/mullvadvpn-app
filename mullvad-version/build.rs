@@ -83,8 +83,8 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
-    // This is a very blunt way of making sure we run again if a tag is added or removed.
-    println!("cargo:rerun-if-changed=.git");
+    // A somewhat blunt way of making us re-run if another commit has been checked out
+    println!("cargo:rerun-if-changed=../.git");
 
     let output = Command::new("git")
         .arg("rev-parse")
