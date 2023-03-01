@@ -64,6 +64,10 @@ final class TunnelMonitor: PingerDelegate {
         /// Connection is established.
         case connected
 
+        /// Delegate is recovering connection.
+        /// Delegate has to call `start(probeAddress:)` to complete recovery and resume monitoring.
+        case recovering
+
         /// Waiting for network connectivity.
         case waitingConnectivity
     }
@@ -171,7 +175,7 @@ final class TunnelMonitor: PingerDelegate {
                     return maxEstablishTimeout
                 }
 
-            case .pendingStart, .connected, .waitingConnectivity, .stopped:
+            case .pendingStart, .connected, .waitingConnectivity, .stopped, .recovering:
                 return pingTimeout
             }
         }
@@ -218,7 +222,9 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private let adapter: WireGuardAdapter
-    private let internalQueue = DispatchQueue(label: "TunnelMonitor")
+
+    private let nslock = NSLock()
+    private let eventQueue = DispatchQueue(label: "TunnelMonitor-eventQueue")
     private let delegateQueue: DispatchQueue
 
     private let pinger: Pinger
@@ -233,52 +239,82 @@ final class TunnelMonitor: PingerDelegate {
     private weak var _delegate: TunnelMonitorDelegate?
     weak var delegate: TunnelMonitorDelegate? {
         set {
-            internalQueue.sync {
-                _delegate = newValue
-            }
+            nslock.lock()
+            defer { nslock.unlock() }
+
+            _delegate = newValue
         }
         get {
-            return internalQueue.sync {
-                return _delegate
-            }
+            nslock.lock()
+            defer { nslock.unlock() }
+
+            return _delegate
         }
     }
 
-    init(queue: DispatchQueue, adapter anAdapter: WireGuardAdapter) {
-        delegateQueue = queue
+    init(delegateQueue: DispatchQueue, adapter anAdapter: WireGuardAdapter) {
+        self.delegateQueue = delegateQueue
         adapter = anAdapter
 
-        pinger = Pinger(delegateQueue: internalQueue)
+        pinger = Pinger(delegateQueue: delegateQueue)
         pinger.delegate = self
     }
 
     deinit {
-        stopNoQueue()
+        stop()
     }
 
     func start(probeAddress: IPv4Address) {
-        internalQueue.async {
-            self.startNoQueue(probeAddress: probeAddress)
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        if case .stopped = state.connectionState {
+            logger.debug("Start with address: \(probeAddress).")
+        } else {
+            _stop(forRestart: true)
+            logger.debug("Restart with address: \(probeAddress).")
         }
+
+        self.probeAddress = probeAddress
+        state.connectionState = .pendingStart
+
+        startPathMonitor()
     }
 
     func stop() {
-        internalQueue.async {
-            self.stopNoQueue()
-        }
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        _stop()
     }
 
     func onWake() {
-        internalQueue.async {
-            self.onWakeNoQueue()
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        logger.trace("Wake up.")
+
+        switch state.connectionState {
+        case .connecting, .connected:
+            startConnectivityCheckTimer()
+            startPathMonitor()
+
+        case .waitingConnectivity, .pendingStart:
+            startPathMonitor()
+
+        case .stopped, .recovering:
+            break
         }
     }
 
     func onSleep(completion: @escaping () -> Void) {
-        internalQueue.async {
-            self.onSleepNoQueue()
-            completion()
-        }
+        nslock.lock()
+        defer { nslock.unlock() }
+
+        logger.trace("Prepare to sleep.")
+
+        stopConnectivityCheckTimer()
+        stopPathMonitor()
     }
 
     // MARK: - PingerDelegate
@@ -300,26 +336,7 @@ final class TunnelMonitor: PingerDelegate {
 
     // MARK: - Private
 
-    private func startNoQueue(probeAddress: IPv4Address) {
-        if case .stopped = state.connectionState {
-            logger.debug("Start with address: \(probeAddress).")
-        } else {
-            stopNoQueue(forRestart: true)
-            logger.debug("Restart with address: \(probeAddress).")
-        }
-
-        self.probeAddress = probeAddress
-        state.connectionState = .pendingStart
-
-        let pathMonitor = NWPathMonitor()
-        pathMonitor.pathUpdateHandler = { [weak self] path in
-            self?.handleNetworkPathUpdate(path)
-        }
-        pathMonitor.start(queue: internalQueue)
-        self.pathMonitor = pathMonitor
-    }
-
-    private func stopNoQueue(forRestart: Bool = false) {
+    private func _stop(forRestart: Bool = false) {
         if case .stopped = state.connectionState {
             return
         }
@@ -330,15 +347,38 @@ final class TunnelMonitor: PingerDelegate {
 
         probeAddress = nil
 
-        pathMonitor?.cancel()
-        pathMonitor = nil
-
+        stopPathMonitor()
         stopMonitoring(resetRetryAttempt: !forRestart)
 
         state.connectionState = .stopped
     }
 
+    private func startPathMonitor() {
+        let pathMonitor = NWPathMonitor()
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            self?.handleNetworkPathUpdate(path)
+        }
+        pathMonitor.start(queue: eventQueue)
+
+        self.pathMonitor?.cancel()
+        self.pathMonitor = pathMonitor
+
+        logger.trace("Start path monitor.")
+    }
+
+    private func stopPathMonitor() {
+        guard let pathMonitor = pathMonitor else { return }
+
+        logger.trace("Stop path monitor.")
+
+        pathMonitor.cancel()
+        self.pathMonitor = nil
+    }
+
     private func checkConnectivity() {
+        nslock.lock()
+        defer { nslock.unlock() }
+
         guard let probeAddress = probeAddress, let newStats = getStats() else {
             return
         }
@@ -404,25 +444,14 @@ final class TunnelMonitor: PingerDelegate {
     #endif
 
     private func startConnectionRecovery() {
-        stopConnectivityCheckTimer()
+        stopPathMonitor()
+        stopMonitoring(resetRetryAttempt: false)
 
-        state.pingStats = PingStats()
-        state.isHeartbeatSuspended = false
         state.retryAttempt = state.retryAttempt.saturatingAddition(1)
+        state.connectionState = .recovering
+        probeAddress = nil
 
-        sendDelegateShouldHandleConnectionRecovery { [weak self] in
-            guard let self = self else { return }
-
-            self.internalQueue.async {
-                switch self.state.connectionState {
-                case .connecting, .connected:
-                    self.startConnectivityCheckTimer()
-
-                case .pendingStart, .stopped, .waitingConnectivity:
-                    break
-                }
-            }
-        }
+        sendDelegateShouldHandleConnectionRecovery()
     }
 
     private func sendPing(to receiver: IPv4Address, now: Date) {
@@ -437,6 +466,9 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func handleNetworkPathUpdate(_ networkPath: Network.NWPath) {
+        nslock.lock()
+        defer { nslock.unlock() }
+
         let pathStatus = networkPath.status
         let isReachable = pathStatus == .requiresConnection || pathStatus == .satisfied
         let hasPhysicalNetworkInterface = networkPath.availableInterfaces.contains { nw in
@@ -476,12 +508,15 @@ final class TunnelMonitor: PingerDelegate {
             stopMonitoring(resetRetryAttempt: true)
             sendDelegateNetworkStatusChange(false)
 
-        default:
+        case .stopped, .recovering:
             break
         }
     }
 
     private func didReceivePing(from sender: IPAddress, icmpHeader: ICMPHeader) {
+        nslock.lock()
+        defer { nslock.unlock() }
+
         guard let probeAddress = probeAddress else { return }
 
         if sender.rawValue != probeAddress.rawValue {
@@ -545,7 +580,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func startConnectivityCheckTimer() {
-        let timer = DispatchSource.makeTimerSource(queue: internalQueue)
+        let timer = DispatchSource.makeTimerSource(queue: eventQueue)
         timer.setEventHandler { [weak self] in
             self?.checkConnectivity()
         }
@@ -556,35 +591,17 @@ final class TunnelMonitor: PingerDelegate {
         self.timer = timer
 
         state.timeoutReference = Date()
+
+        logger.trace("Start connectivity check timer.")
     }
 
     private func stopConnectivityCheckTimer() {
-        timer?.cancel()
-        timer = nil
-    }
+        guard let timer = timer else { return }
 
-    private func onWakeNoQueue() {
-        logger.trace("Wake up.")
+        logger.trace("Stop connectivity check timer.")
 
-        switch state.connectionState {
-        case .connecting, .connected:
-            startConnectivityCheckTimer()
-
-        case .pendingStart, .stopped, .waitingConnectivity:
-            break
-        }
-    }
-
-    private func onSleepNoQueue() {
-        logger.trace("Prepare to sleep.")
-
-        switch state.connectionState {
-        case .connecting, .connected:
-            stopConnectivityCheckTimer()
-
-        case .pendingStart, .stopped, .waitingConnectivity:
-            break
-        }
+        timer.cancel()
+        self.timer = nil
     }
 
     private func sendDelegateConnectionEstablished() {
@@ -593,12 +610,9 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    private func sendDelegateShouldHandleConnectionRecovery(completion: @escaping () -> Void) {
+    private func sendDelegateShouldHandleConnectionRecovery() {
         delegateQueue.async {
-            self.delegate?.tunnelMonitorDelegate(
-                self,
-                shouldHandleConnectionRecoveryWithCompletion: completion
-            )
+            self.delegate?.tunnelMonitorDelegateShouldHandleConnectionRecovery(self)
         }
     }
 
