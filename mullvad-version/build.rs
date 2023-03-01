@@ -1,3 +1,4 @@
+use std::path::Path;
 use std::{env, fs, path::PathBuf, process::Command};
 
 /// How many characters of the git commit that should be added to the version name
@@ -60,6 +61,10 @@ fn get_product_version(target: Target) -> String {
     }
 }
 
+/// Returns the development suffix for the current build. A build has a development
+/// suffix if the build is not done on a git tag named `product_version`.
+/// This also returns `None` if the `git` command can't run, or the code does
+/// not live in a git repository.
 fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
     // Compute the expected tag name for the release named `product_version`
     let release_tag = match target {
@@ -68,29 +73,44 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
     };
 
     // Get the git commit hashes for the latest release and current HEAD
+    // Return `None` if unable to find the hash for HEAD.
+    let head_commit_hash = git_rev_parse_commit_hash("HEAD")?;
     let product_version_commit_hash = git_rev_parse_commit_hash(&release_tag);
-    let current_head_commit_hash = git_rev_parse_commit_hash("HEAD")?;
 
-    // If we are not currently building the release tag, we are on a development build.
-    // Adjust product version string accordingly.
-    if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
-        let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
-        return Some(format!("-dev-{hash_suffix}"));
+    // If we are currently building the release tag, there is no dev suffix
+    if Some(&head_commit_hash) == product_version_commit_hash.as_ref() {
+        return None;
     }
-
-    None
+    Some(format!(
+        "-dev-{}",
+        &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN]
+    ))
 }
 
-/// Returns the commit hash for the commit that `git_ref` is pointing to
+/// Returns the commit hash for the commit that `git_ref` is pointing to.
+///
+/// Returns `None` if executing the `git rev-parse` command fails for some reason.
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
-    // This is a very blunt way of making sure we run again if a tag is added or removed.
-    println!("cargo:rerun-if-changed=.git");
+    let git_dir = Path::new("..").join(".git");
+    // If we build our output on information about HEAD we need to re-run if HEAD moves
+    if git_ref == "HEAD" {
+        let head_path = git_dir.join("HEAD");
+        if head_path.exists() {
+            println!("cargo:rerun-if-changed={}", head_path.display());
+        }
+    }
+    // If we build our output on information about a git reference, we need to re-run
+    // if it moves. Instead of trying to be smart, just re-run if any git reference moves.
+    let git_refs_dir = git_dir.join("refs");
+    if git_refs_dir.exists() {
+        println!("cargo:rerun-if-changed={}", git_refs_dir.display());
+    }
 
     let output = Command::new("git")
         .arg("rev-parse")
         .arg(format!("{git_ref}^{{commit}}"))
         .output()
-        .expect("Not able to run git");
+        .ok()?;
     if !output.status.success() {
         return None;
     }
