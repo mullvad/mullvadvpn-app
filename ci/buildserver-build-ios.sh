@@ -58,6 +58,8 @@ build_ref() {
     git clean -df
 
     "$BUILD_DIR"/build.sh --deploy
+    touch "$LAST_BUILT_DIR"/"commit-$current_hash"
+    echo "$current_hash" > "$LAST_BUILT_DIR"/"build-${app_build_version}"
     echo "Successfully built ${app_build_version} ${tag} with hash ${current_hash}"
 }
 
