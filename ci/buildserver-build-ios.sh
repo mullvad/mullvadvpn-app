@@ -22,7 +22,7 @@ build_ref() {
     local app_build_version="";
     if ! app_build_version=$(read_app_version); then
         echo "!!!"
-        echo "[#] Failed to read app build version"
+        echo "[#] Failed to read app build version for tag $tag ($current_hash)"
         echo "!!!"
         return 0
     fi
