@@ -68,7 +68,7 @@ read_app_version() {
     project_version=$(sed -n "s/CURRENT_PROJECT_VERSION = \([[:digit:]]\)/\1/p" Configurations/Version.xcconfig)
     marketing_version=$(sed -n "s/MARKETING_VERSION = \([[:digit:]]\)/\1/p" Configurations/Version.xcconfig)
     echo "${marketing_version}-${project_version}"
-    if [ -z "$project_version" ] || [ -z "$marketing_version" ];
+    if [ -z "$project_version" ] || [ -z "$marketing_version" ]; then
         exit 1;
     fi
 }
@@ -92,4 +92,4 @@ build_loop() {
     done
 }
 
-build_loop
+# build_loop
