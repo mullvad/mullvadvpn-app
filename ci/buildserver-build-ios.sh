@@ -37,6 +37,7 @@ build_ref() {
         echo "[#] App version already built in commit $(cat "${LAST_BUILT_DIR}/build-${app_build_version}")"
         echo "[#] The build version in Configuration/Version.xcconfig should be bumped."
         echo "!!!"
+        sleep 60
         return 0
     fi
 
