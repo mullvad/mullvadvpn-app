@@ -2,6 +2,7 @@ use std::{env, fmt, net::IpAddr};
 
 use super::DnsMonitorT;
 
+mod auto;
 mod dnsapi;
 mod iphlpapi;
 mod netsh;
@@ -37,7 +38,7 @@ impl DnsMonitorT for DnsMonitor {
             Some("iphlpapi") => DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?),
             Some("tcpip") => DnsMonitorHolder::Tcpip(tcpip::DnsMonitor::new()?),
             Some("netsh") => DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?),
-            Some(_) | None => DnsMonitor::detect_appropriate_method()?,
+            Some(_) | None => DnsMonitorHolder::Auto(auto::DnsMonitor::new()?),
         };
 
         log::debug!("DNS monitor: {}", inner);
@@ -47,6 +48,7 @@ impl DnsMonitorT for DnsMonitor {
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Auto(ref mut inner) => inner.set(interface, servers)?,
             DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.set(interface, servers)?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.set(interface, servers)?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.set(interface, servers)?,
@@ -56,6 +58,7 @@ impl DnsMonitorT for DnsMonitor {
 
     fn reset(&mut self) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Auto(ref mut inner) => inner.reset()?,
             DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.reset()?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.reset()?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.reset()?,
@@ -65,6 +68,7 @@ impl DnsMonitorT for DnsMonitor {
 
     fn reset_before_interface_removal(&mut self) -> Result<(), Error> {
         match self.inner {
+            DnsMonitorHolder::Auto(ref mut inner) => inner.reset_before_interface_removal()?,
             DnsMonitorHolder::Iphlpapi(ref mut inner) => inner.reset_before_interface_removal()?,
             DnsMonitorHolder::Netsh(ref mut inner) => inner.reset_before_interface_removal()?,
             DnsMonitorHolder::Tcpip(ref mut inner) => inner.reset_before_interface_removal()?,
@@ -73,16 +77,8 @@ impl DnsMonitorT for DnsMonitor {
     }
 }
 
-impl DnsMonitor {
-    fn detect_appropriate_method() -> Result<DnsMonitorHolder, Error> {
-        if iphlpapi::DnsMonitor::is_supported() {
-            return Ok(DnsMonitorHolder::Iphlpapi(iphlpapi::DnsMonitor::new()?));
-        }
-        Ok(DnsMonitorHolder::Netsh(netsh::DnsMonitor::new()?))
-    }
-}
-
 enum DnsMonitorHolder {
+    Auto(auto::DnsMonitor),
     Iphlpapi(iphlpapi::DnsMonitor),
     Netsh(netsh::DnsMonitor),
     Tcpip(tcpip::DnsMonitor),
@@ -91,6 +87,7 @@ enum DnsMonitorHolder {
 impl fmt::Display for DnsMonitorHolder {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            DnsMonitorHolder::Auto(_) => f.write_str("auto (iphlpapi > netsh > tcpip)"),
             DnsMonitorHolder::Iphlpapi(_) => f.write_str("SetInterfaceDnsSettings (iphlpapi)"),
             DnsMonitorHolder::Netsh(_) => f.write_str("netsh"),
             DnsMonitorHolder::Tcpip(_) => f.write_str("TCP/IP registry parameter"),

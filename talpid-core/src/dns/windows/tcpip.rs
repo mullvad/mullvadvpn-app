@@ -32,13 +32,17 @@ pub enum Error {
 
 pub struct DnsMonitor {
     current_guid: Option<GUID>,
+    should_flush: bool,
 }
 
 impl DnsMonitorT for DnsMonitor {
     type Error = Error;
 
     fn new() -> Result<Self, Error> {
-        Ok(DnsMonitor { current_guid: None })
+        Ok(DnsMonitor {
+            current_guid: None,
+            should_flush: true,
+        })
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
@@ -46,15 +50,27 @@ impl DnsMonitorT for DnsMonitor {
             .map_err(Error::InterfaceGuidError)?;
         set_dns(&guid, servers)?;
         self.current_guid = Some(guid);
-        flush_dns_cache()?;
+        if self.should_flush {
+            flush_dns_cache()?;
+        }
         Ok(())
     }
 
     fn reset(&mut self) -> Result<(), Error> {
         if let Some(guid) = self.current_guid.take() {
-            return set_dns(&guid, &[]).and(flush_dns_cache());
+            let mut result = set_dns(&guid, &[]);
+            if self.should_flush {
+                result = result.and(flush_dns_cache());
+            }
+            return result;
         }
         Ok(())
+    }
+}
+
+impl DnsMonitor {
+    pub fn disable_flushing(&mut self) {
+        self.should_flush = false;
     }
 }
 
