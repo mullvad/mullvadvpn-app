@@ -38,6 +38,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// completion handler passed into `startTunnel`.
     private var isConnected = false
 
+    /// Raised once tunnel receives the first call to `stopTunnel()`.
+    /// Once this happens all requests to reconnect the tunnel will be ignored.
+    private var isStopping = false
+
     /// Flag indicating whether network is reachable.
     private var isNetworkReachable = true
 
@@ -256,6 +260,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Stop the tunnel: \(reason)")
 
         dispatchQueue.async {
+            self.isStopping = true
             self.cancelTunnelStartupFailureRecovery()
             self.startTunnelCompletionHandler = nil
         }
@@ -507,6 +512,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         completionHandler: ((Error?) -> Void)? = nil
     ) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        // Ignore all requests to reconnect once tunnel is preparing to stop.
+        guard !isStopping else { return }
 
         let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
             if shouldStopTunnelMonitor {
