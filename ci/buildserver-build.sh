@@ -70,7 +70,7 @@ run_in_build_env() {
     if [[ "$(uname -s)" == "Linux" ]]; then
         ./building/container-run.sh linux "$@"
     else
-        "$@"
+        bash -c "$*"
     fi
 }
 
