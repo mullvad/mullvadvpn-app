@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add troubleshooting information to some in-app notifications.
 - Add setting for quantum resistant tunnels to the desktop GUI.
 
+#### Windows
+- Use IP helper API to config DNS when available.
+
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
   `PskExchangeV1` endpoint
