@@ -257,6 +257,9 @@ fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api
 
     endpoint.addr =
         try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress");
+    if let Some(host) = try_hostname_from_java(env, address) {
+        endpoint.host = host;
+    }
     endpoint.disable_address_cache = env
         .call_method(object, "component2", "()Z", &[])
         .expect("missing ApiEndpoint.disableAddressCache")
@@ -312,6 +315,30 @@ fn try_socketaddr_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<S
         IpAddr::from_java(env, ip_addr),
         u16::try_from(port).expect("invalid port"),
     ))
+}
+
+/// Returns the hostname for an InetSocketAddress. This may be an IP address converted to
+/// a string.
+#[cfg(feature = "api-override")]
+fn try_hostname_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<String> {
+    let class = env.get_class("java/net/InetSocketAddress");
+
+    let method_id = env
+        .get_method_id(&class, "getHostString", "()Ljava/lang/String;")
+        .expect("Failed to get method ID for InetSocketAddress.getHostString()");
+    let return_type = JavaType::Object("java/lang/String".to_owned());
+
+    let hostname = env
+        .call_method_unchecked(address, method_id, return_type, &[])
+        .expect("Failed to call InetSocketAddress.getHostString()")
+        .l()
+        .expect("Call to InetSocketAddress.getHostString() did not return an object");
+
+    if hostname.is_null() {
+        return None;
+    }
+
+    Some(String::from_java(env, hostname))
 }
 
 fn start_logging(log_dir: &Path) -> Result<(), String> {
