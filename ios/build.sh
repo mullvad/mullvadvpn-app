@@ -1,140 +1,143 @@
 #!/usr/bin/env bash
 
-# This script is used to build and ship the iOS app
-set -eu
-shopt -s nullglob
+echo it works
+exit 0
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+## This script is used to build and ship the iOS app
+#set -eu
+#shopt -s nullglob
 
-###########################################
-# Verify environment configuration
-###########################################
+#SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [[ -z ${IOS_APPLE_ID-} ]]; then
-    echo "The variable IOS_APPLE_ID is not set."
-    exit
-fi
+############################################
+## Verify environment configuration
+############################################
 
-if [[ -z ${IOS_APPLE_ID_PASSWORD-} ]]; then
-    echo "The variable IOS_APPLE_ID_PASSWORD is not set."
-    read -sp "IOS_APPLE_ID_PASSWORD = " IOS_APPLE_ID_PASSWORD
-    echo ""
-    export IOS_APPLE_ID_PASSWORD
-fi
+#if [[ -z ${IOS_APPLE_ID-} ]]; then
+#    echo "The variable IOS_APPLE_ID is not set."
+#    exit
+#fi
 
-# Provisioning profiles directory
-if [[ -z ${IOS_PROVISIONING_PROFILES_DIR-} ]]; then
-    IOS_PROVISIONING_PROFILES_DIR="$SCRIPT_DIR/iOS Provisioning Profiles"
+#if [[ -z ${IOS_APPLE_ID_PASSWORD-} ]]; then
+#    echo "The variable IOS_APPLE_ID_PASSWORD is not set."
+#    read -sp "IOS_APPLE_ID_PASSWORD = " IOS_APPLE_ID_PASSWORD
+#    echo ""
+#    export IOS_APPLE_ID_PASSWORD
+#fi
 
-    echo "The variable IOS_PROVISIONING_PROFILES_DIR is not set."
-    echo "Default: $IOS_PROVISIONING_PROFILES_DIR"
+## Provisioning profiles directory
+#if [[ -z ${IOS_PROVISIONING_PROFILES_DIR-} ]]; then
+#    IOS_PROVISIONING_PROFILES_DIR="$SCRIPT_DIR/iOS Provisioning Profiles"
 
-    export IOS_PROVISIONING_PROFILES_DIR
-fi
+#    echo "The variable IOS_PROVISIONING_PROFILES_DIR is not set."
+#    echo "Default: $IOS_PROVISIONING_PROFILES_DIR"
 
-###########################################
-# Build configuration
-###########################################
+#    export IOS_PROVISIONING_PROFILES_DIR
+#fi
 
-# The Xcode project name without file extension
-# The folder with all sources is expected to hold the same name
-PROJECT_NAME="MullvadVPN"
+############################################
+## Build configuration
+############################################
 
-# Xcode project directory
-XCODE_PROJECT_DIR="$SCRIPT_DIR/$PROJECT_NAME.xcodeproj"
+## The Xcode project name without file extension
+## The folder with all sources is expected to hold the same name
+#PROJECT_NAME="MullvadVPN"
 
-# Build output directory without trailing slash
-BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
+## Xcode project directory
+#XCODE_PROJECT_DIR="$SCRIPT_DIR/$PROJECT_NAME.xcodeproj"
 
-# Xcode archive output
-XCODE_ARCHIVE_DIR="$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive"
+## Build output directory without trailing slash
+#BUILD_OUTPUT_DIR="$SCRIPT_DIR/Build"
 
-# Export options file used for producing .xcarchive
-EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
+## Xcode archive output
+#XCODE_ARCHIVE_DIR="$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive"
 
-# Path to generated IPA file produced after .xcarchive export
-IPA_PATH="$BUILD_OUTPUT_DIR/$PROJECT_NAME.ipa"
+## Export options file used for producing .xcarchive
+#EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
 
-# Xcodebuild intermediate files directory
-DERIVED_DATA_DIR="$BUILD_OUTPUT_DIR/DerivedData"
+## Path to generated IPA file produced after .xcarchive export
+#IPA_PATH="$BUILD_OUTPUT_DIR/$PROJECT_NAME.ipa"
 
-# System provisioning profiles directory
-SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+## Xcodebuild intermediate files directory
+#DERIVED_DATA_DIR="$BUILD_OUTPUT_DIR/DerivedData"
 
-
-###########################################
-# Install provisioning profiles
-###########################################
-
-get_mobile_provisioning_uuid() {
-  security cms -D -i "$1" | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"
-}
-
-install_mobile_provisioning() {
-    echo "Install system provisioning profiles into $SYSTEM_PROVISIONING_PROFILES_DIR"
-
-    if [[ ! -d "$SYSTEM_PROVISIONING_PROFILES_DIR" ]]; then
-        echo "Missing system provisioning profiles directory. Creating one."
-        mkdir -p "$SYSTEM_PROVISIONING_PROFILES_DIR"
-    fi
-
-    for mobile_provisioning_path in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
-        local profile_uuid=$(get_mobile_provisioning_uuid "$mobile_provisioning_path")
-        local target_path="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
-
-        if [[ -f "$target_path" ]]; then
-            echo "Skip installing $mobile_provisioning_path"
-        else
-            echo "Install $mobile_provisioning_path -> $target_path"
-
-            cp "$mobile_provisioning_path" "$target_path"
-        fi
-    done
-}
-
-install_mobile_provisioning
+## System provisioning profiles directory
+#SYSTEM_PROVISIONING_PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
 
 
-###########################################
-# Build Xcode project
-###########################################
+############################################
+## Install provisioning profiles
+############################################
 
-release_build() {
-  xcodebuild \
-    -project "$XCODE_PROJECT_DIR" \
-    -scheme "$PROJECT_NAME" \
-    -sdk iphoneos \
-    -configuration Release \
-    -derivedDataPath "$DERIVED_DATA_DIR" \
-    $@
-}
+#get_mobile_provisioning_uuid() {
+#  security cms -D -i "$1" | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"
+#}
 
-# Clean build directory
-release_build clean
+#install_mobile_provisioning() {
+#    echo "Install system provisioning profiles into $SYSTEM_PROVISIONING_PROFILES_DIR"
 
-# Archive project
-release_build archive -archivePath "$XCODE_ARCHIVE_DIR"
+#    if [[ ! -d "$SYSTEM_PROVISIONING_PROFILES_DIR" ]]; then
+#        echo "Missing system provisioning profiles directory. Creating one."
+#        mkdir -p "$SYSTEM_PROVISIONING_PROFILES_DIR"
+#    fi
 
-# Export IPA for distribution
-xcodebuild \
-    -exportArchive \
-    -archivePath "$XCODE_ARCHIVE_DIR" \
-    -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
-    -exportPath "$BUILD_OUTPUT_DIR"
+#    for mobile_provisioning_path in "$IOS_PROVISIONING_PROFILES_DIR"/*.mobileprovision; do
+#        local profile_uuid=$(get_mobile_provisioning_uuid "$mobile_provisioning_path")
+#        local target_path="$SYSTEM_PROVISIONING_PROFILES_DIR/$profile_uuid.mobileprovision"
+
+#        if [[ -f "$target_path" ]]; then
+#            echo "Skip installing $mobile_provisioning_path"
+#        else
+#            echo "Install $mobile_provisioning_path -> $target_path"
+
+#            cp "$mobile_provisioning_path" "$target_path"
+#        fi
+#    done
+#}
+
+#install_mobile_provisioning
 
 
-###########################################
-# Deploy to AppStore
-###########################################
+############################################
+## Build Xcode project
+############################################
 
-if [[ "${1:-""}" == "--deploy" ]]; then
-    xcrun altool \
-        --upload-app --verbose \
-        --type ios \
-        --file "$IPA_PATH" \
-        --username "$IOS_APPLE_ID" \
-        --password "$IOS_APPLE_ID_PASSWORD"
-else
-    echo "Deployment to AppStore will not be performed."
-    echo "Run with --deploy to upload the binary."
-fi
+#release_build() {
+#  xcodebuild \
+#    -project "$XCODE_PROJECT_DIR" \
+#    -scheme "$PROJECT_NAME" \
+#    -sdk iphoneos \
+#    -configuration Release \
+#    -derivedDataPath "$DERIVED_DATA_DIR" \
+#    $@
+#}
+
+## Clean build directory
+#release_build clean
+
+## Archive project
+#release_build archive -archivePath "$XCODE_ARCHIVE_DIR"
+
+## Export IPA for distribution
+#xcodebuild \
+#    -exportArchive \
+#    -archivePath "$XCODE_ARCHIVE_DIR" \
+#    -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
+#    -exportPath "$BUILD_OUTPUT_DIR"
+
+
+############################################
+## Deploy to AppStore
+############################################
+
+#if [[ "${1:-""}" == "--deploy" ]]; then
+#    xcrun altool \
+#        --upload-app --verbose \
+#        --type ios \
+#        --file "$IPA_PATH" \
+#        --username "$IOS_APPLE_ID" \
+#        --password "$IOS_APPLE_ID_PASSWORD"
+#else
+#    echo "Deployment to AppStore will not be performed."
+#    echo "Run with --deploy to upload the binary."
+#fi
