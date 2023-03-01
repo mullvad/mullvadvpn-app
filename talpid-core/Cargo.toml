@@ -94,6 +94,7 @@ features = [
     "Win32_System_LibraryLoader",
     "Win32_System_ProcessStatus",
     "Win32_System_Registry",
+    "Win32_System_Rpc",
     "Win32_System_Services",
     "Win32_System_SystemServices",
     "Win32_System_Threading",
