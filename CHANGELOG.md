@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add setting for quantum resistant tunnels to the desktop GUI.
 - Enable `TCP_NODELAY` for the socket used by WireGuard over TCP. Improves latency and performance.
 
+#### Windows
+- Use `SetInterfaceDnsSettings` to config DNS when it's available (on Windows 10, version 1809 and
+  above).
+
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
   `PskExchangeV1` endpoint

@@ -139,6 +139,7 @@ See [this](Release.md) for instructions on how to make a new release.
     * `"network-manager"`: use `NetworkManager` service through DBus
 
   * Windows
+    * `iphlpapi`: use the IP helper API
     * `netsh`: use the `netsh` program
     * `tcpip`: set TCP/IP parameters in the registry
 
