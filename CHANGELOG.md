@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Windows
+- Use `SetInterfaceDnsSettings` to config DNS when it's available (on Windows 10, version 1809 and
+  above).
+
 ### Fixed
 #### Windows
 - Fix desktop app not quitting properly after switching from unpinned to pinned window.
