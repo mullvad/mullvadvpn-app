@@ -92,28 +92,18 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
 /// Returns `None` if executing the `git rev-parse` command fails for some reason.
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
     let git_dir = Path::new("..").join(".git");
+    // If we build our output on information about HEAD we need to re-run if HEAD moves
     if git_ref == "HEAD" {
-        // If we build our output on information about HEAD we need to re-run if HEAD moves
         let head_path = git_dir.join("HEAD");
         if head_path.exists() {
             println!("cargo:rerun-if-changed={}", head_path.display());
-
-            // If HEAD points to a reference, we want to re-run if that reference moves
-            let head_content = fs::read_to_string(head_path).unwrap();
-            if let Some(ref_name) = head_content.strip_prefix("ref: ") {
-                let ref_path = git_dir.join(ref_name);
-                println!("cargo:rerun-if-changed={}", ref_path.display());
-            }
         }
-    } else {
-        // If we build our output on information about a git reference, we need to re-run
-        // if it moves. We don't know if the ref is a head, remote or tag, so we check all.
-        for ref_type in ["heads", "remotes", "tags"] {
-            let ref_path = git_dir.join("refs").join(ref_type).join(git_ref);
-            if ref_path.exists() {
-                println!("cargo:rerun-if-changed={}", ref_path.display());
-            }
-        }
+    }
+    // If we build our output on information about a git reference, we need to re-run
+    // if it moves. Instead of trying to be smart, just re-run if any git reference moves.
+    let git_refs_dir = git_dir.join("refs");
+    if git_refs_dir.exists() {
+        println!("cargo:rerun-if-changed={}", git_refs_dir.display());
     }
 
     let output = Command::new("git")
