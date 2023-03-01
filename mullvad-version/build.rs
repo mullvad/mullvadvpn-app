@@ -75,10 +75,10 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
     // Adjust product version string accordingly.
     if product_version_commit_hash.as_ref() != Some(&current_head_commit_hash) {
         let hash_suffix = &current_head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN];
-        return Some(format!("-dev-{hash_suffix}"));
+        Some(format!("-dev-{hash_suffix}"))
+    } else {
+        None
     }
-
-    None
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to
