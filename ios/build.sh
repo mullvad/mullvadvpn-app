@@ -12,7 +12,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [[ -z ${IOS_APPLE_ID-} ]]; then
     echo "The variable IOS_APPLE_ID is not set."
-    exit
+    exit 1
 fi
 
 if [[ -z ${IOS_APPLE_ID_PASSWORD-} ]]; then
