@@ -52,6 +52,11 @@ build_ref() {
         return 0
     fi
 
+    git reset --hard
+    git checkout $tag
+    git submodule update
+    git clean -df
+
     "$BUILD_DIR"/build.sh --deploy
     echo "Successfully built ${app_build_version} ${tag} with hash ${current_hash}"
 }
