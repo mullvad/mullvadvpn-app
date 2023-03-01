@@ -63,6 +63,32 @@ upload() {
     esac
 }
 
+
+# Run the arguments in an environment suitable for building the app. This
+# means in a container on Linux, and straight up in the local shell elsewhere.
+run_in_build_env() {
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        ./building/container-run.sh linux "$@"
+    else
+        "$@"
+    fi
+}
+
+# Builds the app and test artifacts. To cross compile pass in `target` as an environment variable
+# to this function. Must also pass `artifact_dir` to show where to move the built artifacts.
+# Pass all the build arguments as arguments to this function
+build() {
+    local target=${target:-""}
+    local build_args=("${@}")
+
+    run_in_build_env TARGETS="$target" ./build.sh "${build_args[@]}" || return 0
+    mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 0
+
+    (run_in_build_env gui/scripts/build-test-executable.sh "$target" && \
+        mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
+        true
+}
+
 build_ref() {
     ref=$1
     tag=${2:-""}
@@ -100,19 +126,22 @@ build_ref() {
     # Make sure we have the latest Rust and Node toolchains before the build
     rustup update
 
+    local version=""
     version="$(cargo run -q --bin mullvad-version || return 0)"
-    artifact_dir="dist/$version"
+
+    local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
 
-    BUILD_ARGS=(--optimize --sign)
+    local build_args=(--optimize --sign)
     if [[ "$(uname -s)" == "Darwin" ]]; then
-        BUILD_ARGS+=(--universal)
+        build_args+=(--universal)
     fi
-    ./build.sh "${BUILD_ARGS[@]}" || return 0
-    mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 0
 
-    (gui/scripts/build-test-executable.sh && mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
-        true
+    artifact_dir=$artifact_dir build "${build_args[@]}" || return 0
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        echo "Building ARM64 installers"
+        target=aarch64-unknown-linux-gnu artifact_dir=$artifact_dir build "${build_args[@]}" || return 0
+    fi
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
@@ -122,15 +151,6 @@ build_ref() {
                 ./target/release/mullvad.pdb \
                 ./target/release/mullvad-problem-report.pdb \
                 -iname "*.pdb" | tar -cJf "$artifact_dir/pdb-$version.tar.xz" -T -
-            ;;
-        Linux*)
-            echo "Building ARM64 installers"
-            TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
-            mv dist/*.{deb,rpm} "$artifact_dir" || return 0
-
-            (gui/scripts/build-test-executable.sh aarch64-unknown-linux-gnu && \
-                mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
-                true
             ;;
     esac
 
