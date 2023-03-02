@@ -132,11 +132,11 @@ final class Pinger {
     /// Returns `SendResult` on success, otherwise throws a `Pinger.Error`.
     func send(to address: IPv4Address) throws -> SendResult {
         stateLock.lock()
+        defer { stateLock.unlock() }
+
         guard let socket = socket else {
-            stateLock.unlock()
             throw Error.closedSocket
         }
-        stateLock.unlock()
 
         var sa = sockaddr_in()
         sa.sin_len = UInt8(MemoryLayout.size(ofValue: sa))
