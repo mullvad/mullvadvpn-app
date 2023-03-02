@@ -6,6 +6,7 @@ on:
       - .github/workflows/rust-unused-dependencies.yml
       - '**/*.rs'
       - '**/Cargo.toml'
+      - 'building/*-container-image.txt'
   workflow_dispatch:
 env:
   RUST_NIGHTLY_TOOLCHAIN: nightly-2023-01-13
