@@ -123,8 +123,10 @@ build_ref() {
     git submodule update
     git clean -df
 
-    # Make sure we have the latest Rust and Node toolchains before the build
-    rustup update
+    if [[ "$(uname -s)" != "Linux" ]]; then
+        echo "Updating Rust toolchain..."
+        rustup update
+    fi
 
     local version=""
     version="$(cargo run -q --bin mullvad-version || return 0)"
