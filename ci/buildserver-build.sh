@@ -90,6 +90,30 @@ build() {
         true
 }
 
+# Checks out the passed git reference passed to the working directory.
+# Returns an error code if the commit/tag at `ref` is not properly signed.
+checkout_ref() {
+    ref=$1
+    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
+        echo "!!!"
+        echo "[#] $ref is a tag, but it failed GPG verification!"
+        echo "!!!"
+        return 1
+    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
+        echo "!!!"
+        echo "[#] $ref is a branch, but it failed GPG verification!"
+        echo "!!!"
+        return 1
+    fi
+
+    # Clean our working dir and check out the code we want to build
+    rm -r dist/ 2&>/dev/null || true
+    git reset --hard
+    git checkout "$ref"
+    git submodule update
+    git clean -df
+}
+
 build_ref() {
     ref=$1
     tag=${2:-""}
@@ -102,27 +126,9 @@ build_ref() {
 
     echo ""
     echo "[#] $ref: $current_hash, building new packages."
+    echo ""
 
-    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
-        echo "!!!"
-        echo "[#] $ref is a tag, but it failed GPG verification!"
-        echo "!!!"
-        sleep 60
-        return 1
-    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
-        echo "!!!"
-        echo "[#] $ref is a branch, but it failed GPG verification!"
-        echo "!!!"
-        sleep 60
-        return 1
-    fi
-
-    # Clean our working dir and check out the code we want to build
-    rm -r dist/ 2&>/dev/null || true
-    git reset --hard
-    git checkout "$ref"
-    git submodule update
-    git clean -df
+    checkout_ref "$ref" || return 1
 
     # When we build in containers, the updating of toolchains is done by updating containers.
     if [[ "$(uname -s)" != "Linux" ]]; then
