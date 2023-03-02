@@ -55,11 +55,15 @@ the current state of the latest code in git, not necessarily any existing releas
 |-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |         |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Ad and tracker blocking       |    ✓    |   ✓   |   ✓   |         |  ✓  |
+| Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
+| [Externally audited](./audits)|    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
 \* The local network is always accessible on iOS with the current implementation
 
