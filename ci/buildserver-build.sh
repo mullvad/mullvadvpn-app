@@ -124,6 +124,7 @@ build_ref() {
     git submodule update
     git clean -df
 
+    # When we build in containers, the updating of toolchains is done by updating containers.
     if [[ "$(uname -s)" != "Linux" ]]; then
         echo "Updating Rust toolchain..."
         rustup update
