@@ -63,6 +63,57 @@ upload() {
     esac
 }
 
+
+# Run the arguments in an environment suitable for building the app. This
+# means in a container on Linux, and straight up in the local shell elsewhere.
+run_in_build_env() {
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        ./building/container-run.sh linux "$@"
+    else
+        bash -c "$*"
+    fi
+}
+
+# Builds the app and test artifacts and move them to the passed in `artifact_dir`.
+# To cross compile pass in `target` as an environment variable
+# to this function. Must also pass `artifact_dir` to show where to move the built artifacts.
+# Pass all the build arguments as arguments to this function
+build() {
+    local target=${target:-""}
+    local build_args=("${@}")
+
+    run_in_build_env TARGETS="$target" ./build.sh "${build_args[@]}" || return 1
+    mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 1
+
+    (run_in_build_env gui/scripts/build-test-executable.sh "$target" && \
+        mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
+        true
+}
+
+# Checks out the passed git reference passed to the working directory.
+# Returns an error code if the commit/tag at `ref` is not properly signed.
+checkout_ref() {
+    ref=$1
+    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
+        echo "!!!"
+        echo "[#] $ref is a tag, but it failed GPG verification!"
+        echo "!!!"
+        return 1
+    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
+        echo "!!!"
+        echo "[#] $ref is a branch, but it failed GPG verification!"
+        echo "!!!"
+        return 1
+    fi
+
+    # Clean our working dir and check out the code we want to build
+    rm -r dist/ 2&>/dev/null || true
+    git reset --hard
+    git checkout "$ref"
+    git submodule update
+    git clean -df
+}
+
 build_ref() {
     ref=$1
     tag=${2:-""}
@@ -75,44 +126,33 @@ build_ref() {
 
     echo ""
     echo "[#] $ref: $current_hash, building new packages."
+    echo ""
 
-    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
-        echo "!!!"
-        echo "[#] $ref is a tag, but it failed GPG verification!"
-        echo "!!!"
-        sleep 60
-        return 0
-    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
-        echo "!!!"
-        echo "[#] $ref is a branch, but it failed GPG verification!"
-        echo "!!!"
-        sleep 60
-        return 0
+    checkout_ref "$ref" || return 1
+
+    # When we build in containers, the updating of toolchains is done by updating containers.
+    if [[ "$(uname -s)" != "Linux" ]]; then
+        echo "Updating Rust toolchain..."
+        rustup update
     fi
 
-    # Clean our working dir and check out the code we want to build
-    rm -r dist/ 2&>/dev/null || true
-    git reset --hard
-    git checkout "$ref"
-    git submodule update
-    git clean -df
+    # podman appends a trailing carriage return to the output. So we use `tr` to strip it
+    local version=""
+    version="$(run_in_build_env cargo run -q --bin mullvad-version | tr -d "\r" || return 1)"
 
-    # Make sure we have the latest Rust and Node toolchains before the build
-    rustup update
-
-    version="$(cargo run -q --bin mullvad-version || return 0)"
-    artifact_dir="dist/$version"
+    local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
 
-    BUILD_ARGS=(--optimize --sign)
+    local build_args=(--optimize --sign)
     if [[ "$(uname -s)" == "Darwin" ]]; then
-        BUILD_ARGS+=(--universal)
+        build_args+=(--universal)
     fi
-    ./build.sh "${BUILD_ARGS[@]}" || return 0
-    mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 0
 
-    (gui/scripts/build-test-executable.sh && mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
-        true
+    artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        echo "Building ARM64 installers"
+        target=aarch64-unknown-linux-gnu artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+    fi
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
@@ -122,15 +162,6 @@ build_ref() {
                 ./target/release/mullvad.pdb \
                 ./target/release/mullvad-problem-report.pdb \
                 -iname "*.pdb" | tar -cJf "$artifact_dir/pdb-$version.tar.xz" -T -
-            ;;
-        Linux*)
-            echo "Building ARM64 installers"
-            TARGETS=aarch64-unknown-linux-gnu ./build.sh "${BUILD_ARGS[@]}" || return 0
-            mv dist/*.{deb,rpm} "$artifact_dir" || return 0
-
-            (gui/scripts/build-test-executable.sh aarch64-unknown-linux-gnu && \
-                mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
-                true
             ;;
     esac
 
@@ -153,7 +184,7 @@ build_ref() {
         fi
     fi
 
-    (cd "$artifact_dir" && upload "$version") || return 0
+    (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
 
@@ -174,11 +205,11 @@ while true; do
     tags=( $(git tag) )
 
     for tag in "${tags[@]}"; do
-        build_ref "refs/tags/$tag" "$tag"
+        build_ref "refs/tags/$tag" "$tag" || echo "Failed to build tag $tag"
     done
 
     for branch in "${BRANCHES_TO_BUILD[@]}"; do
-        build_ref "refs/remotes/$branch"
+        build_ref "refs/remotes/$branch" || echo "Failed to build branch $tag"
     done
 
     sleep 240
