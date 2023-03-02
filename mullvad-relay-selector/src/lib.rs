@@ -2088,7 +2088,7 @@ mod test {
             let mut actual_ports = HashSet::new();
             let mut actual_ips = HashSet::new();
 
-            for retry_attempt in 0..10 {
+            for retry_attempt in 0..30 {
                 let (relay, ..) = relay_selector.get_relay(retry_attempt).unwrap();
                 match relay {
                     SelectedRelay::Normal(relay) => {
