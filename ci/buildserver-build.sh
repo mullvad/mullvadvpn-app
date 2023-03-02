@@ -129,7 +129,7 @@ build_ref() {
     fi
 
     local version=""
-    version="$(cargo run -q --bin mullvad-version || return 0)"
+    version="$(run_in_build_env cargo run -q --bin mullvad-version || return 0)"
 
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
