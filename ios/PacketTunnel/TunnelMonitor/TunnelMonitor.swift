@@ -397,9 +397,9 @@ final class TunnelMonitor: PingerDelegate {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress = probeAddress, let newStats = getStats() else {
-            return
-        }
+        guard let probeAddress = probeAddress, let newStats = getStats(),
+              state.connectionState == .connecting || state.connectionState == .connected
+        else { return }
 
         // Check if counters were reset.
         let isStatsReset = newStats.bytesReceived < state.netStats.bytesReceived ||
