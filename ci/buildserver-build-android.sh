@@ -18,14 +18,14 @@ ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
 
-upload() {
+function upload {
     for f in MullvadVPN-*.{apk,aab}; do
         sha256sum "$f" > "$f.sha256"
         mv "$f" "$f.sha256" "$UPLOAD_DIR/"
     done
 }
 
-build_ref() {
+function build_ref {
     ref=$1
     tag=${2:-""}
 
