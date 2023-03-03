@@ -11,6 +11,7 @@ import MullvadTypes
 import NetworkExtension
 import Operations
 import TunnelProviderMessaging
+import UIKit
 
 /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
 /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
@@ -23,6 +24,7 @@ private let defaultTimeout: TimeInterval = 5
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output
 
+    private let application: UIApplication
     private let tunnel: Tunnel
     private let message: TunnelProviderMessage
     private let timeout: TimeInterval
@@ -37,12 +39,14 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 
     init(
         dispatchQueue: DispatchQueue,
+        application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
         timeout: TimeInterval? = nil,
         decoderHandler: @escaping DecoderHandler,
         completionHandler: CompletionHandler?
     ) {
+        self.application = application
         self.tunnel = tunnel
         self.message = message
         self.timeout = timeout ?? defaultTimeout
@@ -53,6 +57,14 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
             dispatchQueue: dispatchQueue,
             completionQueue: dispatchQueue,
             completionHandler: completionHandler
+        )
+
+        addObserver(
+            BackgroundObserver(
+                application: application,
+                name: "Send tunnel provider message: \(message)",
+                cancelUponExpiration: true
+            )
         )
     }
 
@@ -184,6 +196,11 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
             return
         }
 
+        guard application.backgroundTimeRemaining > timeout else {
+            finish(result: .failure(SendTunnelProviderMessageError.notEnoughBackgroundTime))
+            return
+        }
+
         // Send IPC message.
         do {
             try tunnel.sendProviderMessage(messageData) { [weak self] responseData in
@@ -204,6 +221,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 extension SendTunnelProviderMessageOperation where Output: Codable {
     convenience init(
         dispatchQueue: DispatchQueue,
+        application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
         timeout: TimeInterval? = nil,
@@ -211,6 +229,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
+            application: application,
             tunnel: tunnel,
             message: message,
             timeout: timeout,
@@ -229,6 +248,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
 extension SendTunnelProviderMessageOperation where Output == Void {
     convenience init(
         dispatchQueue: DispatchQueue,
+        application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
         timeout: TimeInterval? = nil,
@@ -236,6 +256,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
+            application: application,
             tunnel: tunnel,
             message: message,
             timeout: timeout,
@@ -255,12 +276,17 @@ enum SendTunnelProviderMessageError: LocalizedError, WrappingError {
     /// System error.
     case system(Error)
 
+    /// Not enough background time to accommodate the operation.
+    case notEnoughBackgroundTime
+
     var errorDescription: String? {
         switch self {
         case let .tunnelDown(status):
             return "Tunnel is either down or about to go down (status: \(status))."
         case .timeout:
             return "Send timeout."
+        case .notEnoughBackgroundTime:
+            return "Not enough background time to accommodate the operation."
         case let .system(error):
             return "System error: \(error.localizedDescription)"
         }
@@ -270,7 +296,7 @@ enum SendTunnelProviderMessageError: LocalizedError, WrappingError {
         switch self {
         case let .system(error):
             return error
-        case .timeout, .tunnelDown:
+        case .timeout, .tunnelDown, .notEnoughBackgroundTime:
             return nil
         }
     }

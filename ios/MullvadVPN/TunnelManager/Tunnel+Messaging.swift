@@ -31,6 +31,7 @@ extension Tunnel {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
+            application: .shared,
             tunnel: self,
             message: .reconnectTunnel(relaySelectorResult),
             completionHandler: completionHandler
@@ -47,6 +48,7 @@ extension Tunnel {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
+            application: .shared,
             tunnel: self,
             message: .getTunnelStatus,
             completionHandler: completionHandler
@@ -64,6 +66,7 @@ extension Tunnel {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
+            application: .shared,
             tunnel: self,
             message: .sendURLRequest(proxyRequest),
             timeout: proxyRequestTimeout,
@@ -76,6 +79,7 @@ extension Tunnel {
 
                 let cancelOperation = SendTunnelProviderMessageOperation(
                     dispatchQueue: dispatchQueue,
+                    application: .shared,
                     tunnel: self,
                     message: .cancelURLRequest(proxyRequest.id),
                     completionHandler: nil
