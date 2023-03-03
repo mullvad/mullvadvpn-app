@@ -37,12 +37,12 @@ while true; do
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
-            rsync -av --rsh='ssh -p 1122' "$file" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
+            rsync -av --mkpath --rsh='ssh -p 1122' "$file" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
 
             if [[ $file == MullvadVPN-* ]]; then
                 rm -f "$file.asc"
                 gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
-                rsync -av --rsh='ssh -p 1122' "$file.asc" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
+                rsync -av --mkpath --rsh='ssh -p 1122' "$file.asc" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
                 rm -f "$file.asc"
             fi
 
