@@ -9,7 +9,7 @@ LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 mkdir -p "$LAST_BUILT_DIR"
 
 
-build_ref() {
+function build_ref() {
     local tag=$1;
     local current_hash="";
     if ! current_hash=$(git rev-parse "$tag^{commit}"); then
@@ -65,7 +65,7 @@ build_ref() {
     fi
 }
 
-read_app_version() {
+function read_app_version() {
     project_version=$(sed -n "s/CURRENT_PROJECT_VERSION = \([[:digit:]]\)/\1/p" Configurations/Version.xcconfig)
     marketing_version=$(sed -n "s/MARKETING_VERSION = \([[:digit:]]\)/\1/p" Configurations/Version.xcconfig)
     echo "${marketing_version}-${project_version}"
@@ -76,7 +76,7 @@ read_app_version() {
 
 
 
-run_build_loop() {
+function run_build_loop() {
     cd "$BUILD_DIR"
     while true; do
         # Delete all tags. So when fetching we only get the ones existing on the remote
