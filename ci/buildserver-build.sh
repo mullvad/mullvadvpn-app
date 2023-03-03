@@ -32,7 +32,7 @@ case "$(uname -s)" in
 esac
 
 # Uploads whatever matches the first argument to the Linux build server
-upload_sftp() {
+function upload_sftp {
     echo "Uploading Mullvad VPN installers to app-build-linux:upload/"
     sftp app-build-linux <<EOF
 cd upload
@@ -41,7 +41,7 @@ bye
 EOF
 }
 
-upload() {
+function upload {
     version=$1
 
     files=( * )
@@ -66,7 +66,7 @@ upload() {
 
 # Run the arguments in an environment suitable for building the app. This
 # means in a container on Linux, and straight up in the local shell elsewhere.
-run_in_build_env() {
+function run_in_build_env {
     if [[ "$(uname -s)" == "Linux" ]]; then
         ./building/container-run.sh linux "$@"
     else
@@ -78,7 +78,7 @@ run_in_build_env() {
 # To cross compile pass in `target` as an environment variable
 # to this function. Must also pass `artifact_dir` to show where to move the built artifacts.
 # Pass all the build arguments as arguments to this function
-build() {
+function build {
     local target=${target:-""}
     local build_args=("${@}")
 
@@ -92,7 +92,7 @@ build() {
 
 # Checks out the passed git reference passed to the working directory.
 # Returns an error code if the commit/tag at `ref` is not properly signed.
-checkout_ref() {
+function checkout_ref {
     ref=$1
     if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
         echo "!!!"
@@ -114,7 +114,7 @@ checkout_ref() {
     git clean -df
 }
 
-build_ref() {
+function build_ref {
     ref=$1
     tag=${2:-""}
 
