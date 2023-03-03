@@ -19,6 +19,11 @@ build_ref() {
         return
     fi
 
+    if [ -f "$LAST_BUILT_DIR/commit-$current_hash" ]; then
+        # This commit has already been built
+        return 0
+    fi
+
     local app_build_version="";
     if ! app_build_version=$(read_app_version); then
         echo "!!!"
@@ -27,10 +32,6 @@ build_ref() {
         return 0
     fi
 
-    if [ -f "$LAST_BUILT_DIR/commit-$current_hash" ]; then
-        # This commit has already been built
-        return 0
-    fi
 
     if [ -f "$LAST_BUILT_DIR/build-$app_build_version" ]; then
         echo "!!!"
@@ -75,7 +76,7 @@ read_app_version() {
 
 
 
-build_loop() {
+run_build_loop() {
     cd "$BUILD_DIR"
     while true; do
         # Delete all tags. So when fetching we only get the ones existing on the remote
@@ -92,4 +93,4 @@ build_loop() {
     done
 }
 
-build_loop
+run_build_loop
