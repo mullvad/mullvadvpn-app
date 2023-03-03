@@ -17,7 +17,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
-UPLOAD_DIR="/home/upload/upload"
+UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 BRANCHES_TO_BUILD=("origin/main")
 
@@ -189,7 +189,10 @@ build_ref() {
     yes | rm -r "$artifact_dir"
 
     touch "$LAST_BUILT_DIR/$current_hash"
-    echo "Successfully finished build at $(date)"
+
+    echo ""
+    echo "Successfully finished building $version at $(date)"
+    echo ""
 }
 
 cd "$BUILD_DIR"
