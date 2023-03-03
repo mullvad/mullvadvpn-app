@@ -6,6 +6,7 @@ on:
       - .github/workflows/rust-unused-dependencies.yml
       - '**/*.rs'
       - '**/Cargo.toml'
+      - 'building/*-container-image.txt'
   workflow_dispatch:
 env:
   RUST_NIGHTLY_TOOLCHAIN: nightly-2023-01-13
@@ -40,7 +41,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Checkout binaries submodule
-        run: git submodule update --init --depth=1 dist-assets/binaries
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
 
       - name: Install nightly Rust toolchain
         run: rustup default $RUST_NIGHTLY_TOOLCHAIN
