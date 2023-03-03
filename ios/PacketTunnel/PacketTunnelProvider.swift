@@ -160,7 +160,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             }
         )
 
-        tunnelMonitor = TunnelMonitor(delegateQueue: dispatchQueue, adapter: adapter)
+        tunnelMonitor = TunnelMonitor(
+            delegateQueue: dispatchQueue,
+            packetTunnelProvider: self,
+            adapter: adapter
+        )
         tunnelMonitor.delegate = self
     }
 

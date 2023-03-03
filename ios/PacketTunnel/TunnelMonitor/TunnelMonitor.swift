@@ -55,7 +55,7 @@ final class TunnelMonitor: PingerDelegate {
         case stopped
 
         /// Preparing to start.
-        /// Intermediate state before recieving the first path update.
+        /// Intermediate state before receiving the first path update.
         case pendingStart
 
         /// Establishing connection.
@@ -228,7 +228,8 @@ final class TunnelMonitor: PingerDelegate {
     private let delegateQueue: DispatchQueue
 
     private let pinger: Pinger
-    private var pathMonitor: NWPathMonitor?
+    private weak var packetTunnelProvider: NEPacketTunnelProvider?
+    private var defaultPathObserver: NSKeyValueObservation?
     private var timer: DispatchSourceTimer?
 
     private var state = State()
@@ -252,11 +253,16 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    init(delegateQueue: DispatchQueue, adapter anAdapter: WireGuardAdapter) {
+    init(
+        delegateQueue: DispatchQueue,
+        packetTunnelProvider: NEPacketTunnelProvider,
+        adapter: WireGuardAdapter
+    ) {
         self.delegateQueue = delegateQueue
-        adapter = anAdapter
+        self.packetTunnelProvider = packetTunnelProvider
+        self.adapter = adapter
 
-        pinger = Pinger(delegateQueue: delegateQueue)
+        pinger = Pinger(delegateQueue: eventQueue)
         pinger.delegate = self
     }
 
@@ -278,7 +284,7 @@ final class TunnelMonitor: PingerDelegate {
         self.probeAddress = probeAddress
         state.connectionState = .pendingStart
 
-        startPathMonitor()
+        addDefaultPathObserver()
     }
 
     func stop() {
@@ -297,10 +303,10 @@ final class TunnelMonitor: PingerDelegate {
         switch state.connectionState {
         case .connecting, .connected:
             startConnectivityCheckTimer()
-            startPathMonitor()
+            addDefaultPathObserver()
 
         case .waitingConnectivity, .pendingStart:
-            startPathMonitor()
+            addDefaultPathObserver()
 
         case .stopped, .recovering:
             break
@@ -314,7 +320,7 @@ final class TunnelMonitor: PingerDelegate {
         logger.trace("Prepare to sleep.")
 
         stopConnectivityCheckTimer()
-        stopPathMonitor()
+        removeDefaultPathObserver()
     }
 
     // MARK: - PingerDelegate
@@ -347,41 +353,53 @@ final class TunnelMonitor: PingerDelegate {
 
         probeAddress = nil
 
-        stopPathMonitor()
+        removeDefaultPathObserver()
         stopMonitoring(resetRetryAttempt: !forRestart)
 
         state.connectionState = .stopped
     }
 
-    private func startPathMonitor() {
-        let pathMonitor = NWPathMonitor()
-        pathMonitor.pathUpdateHandler = { [weak self] path in
-            self?.handleNetworkPathUpdate(path)
+    private func addDefaultPathObserver() {
+        guard let packetTunnelProvider = packetTunnelProvider else { return }
+
+        defaultPathObserver?.invalidate()
+
+        logger.trace("Add default path observer.")
+
+        defaultPathObserver = packetTunnelProvider
+            .observe(\.defaultPath, options: [.new]) { [weak self] _, change in
+                guard let self = self else { return }
+
+                self.nslock.lock()
+                defer { self.nslock.unlock() }
+
+                let newValue = change.newValue.flatMap { $0 }
+                if let newPath = newValue {
+                    self.handleNetworkPathUpdate(newPath)
+                }
+            }
+
+        if let currentPath = packetTunnelProvider.defaultPath {
+            handleNetworkPathUpdate(currentPath)
         }
-        pathMonitor.start(queue: eventQueue)
-
-        self.pathMonitor?.cancel()
-        self.pathMonitor = pathMonitor
-
-        logger.trace("Start path monitor.")
     }
 
-    private func stopPathMonitor() {
-        guard let pathMonitor = pathMonitor else { return }
+    private func removeDefaultPathObserver() {
+        guard let defaultPathObserver = defaultPathObserver else { return }
 
-        logger.trace("Stop path monitor.")
+        logger.trace("Remove default path observer.")
 
-        pathMonitor.cancel()
-        self.pathMonitor = nil
+        defaultPathObserver.invalidate()
+        self.defaultPathObserver = nil
     }
 
     private func checkConnectivity() {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress = probeAddress, let newStats = getStats() else {
-            return
-        }
+        guard let probeAddress = probeAddress, let newStats = getStats(),
+              state.connectionState == .connecting || state.connectionState == .connected
+        else { return }
 
         // Check if counters were reset.
         let isStatsReset = newStats.bytesReceived < state.netStats.bytesReceived ||
@@ -444,7 +462,7 @@ final class TunnelMonitor: PingerDelegate {
     #endif
 
     private func startConnectionRecovery() {
-        stopPathMonitor()
+        removeDefaultPathObserver()
         stopMonitoring(resetRetryAttempt: false)
 
         state.retryAttempt = state.retryAttempt.saturatingAddition(1)
@@ -465,25 +483,13 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    private func handleNetworkPathUpdate(_ networkPath: Network.NWPath) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
+    private func handleNetworkPathUpdate(_ networkPath: NetworkExtension.NWPath) {
         let pathStatus = networkPath.status
-        let isReachable = pathStatus == .requiresConnection || pathStatus == .satisfied
-        let hasPhysicalNetworkInterface = networkPath.availableInterfaces.contains { nw in
-            return nw.type == .wifi || nw.type == .cellular || nw.type == .wiredEthernet
-        }
-
-        lazy var isRoutableViaUtun = isTunnelInterfaceUp(networkPath) &&
-            hasPhysicalNetworkInterface && isReachable
+        let isReachable = pathStatus == .satisfiable || pathStatus == .satisfied
 
         switch state.connectionState {
         case .pendingStart:
-            // Wait for tunnel interface to appear first.
-            guard isTunnelInterfaceUp(networkPath) else { return }
-
-            if isReachable, hasPhysicalNetworkInterface {
+            if isReachable {
                 logger.debug("Start monitoring connection.")
                 startMonitoring()
                 sendDelegateNetworkStatusChange(true)
@@ -494,14 +500,14 @@ final class TunnelMonitor: PingerDelegate {
             }
 
         case .waitingConnectivity:
-            guard isRoutableViaUtun else { return }
+            guard isReachable else { return }
 
             logger.debug("Network is reachable. Resume monitoring.")
             startMonitoring()
             sendDelegateNetworkStatusChange(true)
 
         case .connecting, .connected:
-            guard !isRoutableViaUtun else { return }
+            guard !isReachable else { return }
 
             logger.debug("Network is unreachable. Pause monitoring.")
             state.connectionState = .waitingConnectivity
@@ -663,15 +669,5 @@ final class TunnelMonitor: PingerDelegate {
         }
 
         return newStats
-    }
-
-    private func isTunnelInterfaceUp(_ networkPath: Network.NWPath) -> Bool {
-        guard let tunName = adapter.interfaceName else { return false }
-
-        let utunUp = networkPath.availableInterfaces.contains { interface in
-            return interface.name == tunName
-        }
-
-        return utunUp
     }
 }
