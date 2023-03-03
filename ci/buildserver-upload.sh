@@ -11,6 +11,12 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 cd "$UPLOAD_DIR"
 
+function rsync_upload {
+    local file=$1
+    local upload_dir=$2
+    rsync -av --mkpath --rsh='ssh -p 1122' "$file" "build@$UPLOAD_SERVER:$upload_dir/"
+}
+
 while true; do
     sleep 10
     for checksums_path in *.sha256; do
@@ -37,12 +43,12 @@ while true; do
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
-            rsync -av --mkpath --rsh='ssh -p 1122' "$file" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
+            rsync_upload "$file" "$file_upload_dir/" || continue
 
             if [[ $file == MullvadVPN-* ]]; then
                 rm -f "$file.asc"
                 gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
-                rsync -av --mkpath --rsh='ssh -p 1122' "$file.asc" "build@$UPLOAD_SERVER:$file_upload_dir/" || continue
+                rsync_upload "$file.asc" "$file_upload_dir/" || continue
                 rm -f "$file.asc"
             fi
 
