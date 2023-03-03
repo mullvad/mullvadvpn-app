@@ -55,7 +55,7 @@ final class TunnelMonitor: PingerDelegate {
         case stopped
 
         /// Preparing to start.
-        /// Intermediate state before recieving the first path update.
+        /// Intermediate state before receiving the first path update.
         case pendingStart
 
         /// Establishing connection.
