@@ -38,6 +38,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// completion handler passed into `startTunnel`.
     private var isConnected = false
 
+    /// Raised once tunnel receives the first call to `stopTunnel()`.
+    /// Once this happens all requests to reconnect the tunnel will be ignored.
+    private var isStopping = false
+
     /// Flag indicating whether network is reachable.
     private var isNetworkReachable = true
 
@@ -82,6 +86,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Last device check task.
     private var checkDeviceStateTask: Cancellable?
+
+    /// Last task to reconnect the tunnel.
+    private var reconnectTunnelTask: Operation?
 
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
@@ -153,7 +160,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             }
         )
 
-        tunnelMonitor = TunnelMonitor(queue: dispatchQueue, adapter: adapter)
+        tunnelMonitor = TunnelMonitor(delegateQueue: dispatchQueue, adapter: adapter)
         tunnelMonitor.delegate = self
     }
 
@@ -207,7 +214,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             configurationError = error
 
             startEmptyTunnel(completionHandler: completionHandler)
-            beginTunnelStartupFailureRecovery()
+            dispatchQueue.async {
+                self.beginTunnelStartupFailureRecovery()
+            }
             return
         }
 
@@ -251,24 +260,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Stop the tunnel: \(reason)")
 
         dispatchQueue.async {
+            self.isStopping = true
             self.cancelTunnelStartupFailureRecovery()
-            self.tunnelMonitor.stop()
-            self.checkDeviceStateTask?.cancel()
-            self.checkDeviceStateTask = nil
             self.startTunnelCompletionHandler = nil
         }
 
-        adapter.stop { error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to stop the tunnel gracefully."
-                    )
-                } else {
-                    self.providerLogger.debug("Stopped the tunnel.")
+        // Cancel all operations: reconnection requests, network requests.
+        operationQueue.cancelAllOperations()
+
+        // Stop tunnel monitor after all operations are kicked off the queue.
+        operationQueue.addBarrierBlock {
+            self.tunnelMonitor.stop()
+
+            self.adapter.stop { error in
+                self.dispatchQueue.async {
+                    if let error = error {
+                        self.providerLogger.error(
+                            error: error,
+                            message: "Failed to stop the tunnel gracefully."
+                        )
+                    } else {
+                        self.providerLogger.debug("Stopped the tunnel.")
+                    }
+                    completionHandler()
                 }
-                completionHandler()
             }
         }
     }
@@ -297,7 +312,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult)
                     .map { .set($0) } ?? .automatic
 
-                self.reconnectTunnel(to: nextRelay)
+                self.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
 
                 completionHandler?(nil)
 
@@ -365,10 +380,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         setReconnecting(false)
     }
 
-    func tunnelMonitorDelegate(
-        _ tunnelMonitor: TunnelMonitor,
-        shouldHandleConnectionRecoveryWithCompletion completionHandler: @escaping () -> Void
-    ) {
+    func tunnelMonitorDelegateShouldHandleConnectionRecovery(_ tunnelMonitor: TunnelMonitor) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
@@ -380,9 +392,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         providerLogger.debug("Recover connection. Picking next relay...")
 
-        reconnectTunnel(to: .automatic) { _ in
-            completionHandler()
-        }
+        reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
     }
 
     func tunnelMonitor(
@@ -402,12 +412,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     // MARK: - Private
 
     private func beginTunnelStartupFailureRecovery() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
 
             self.providerLogger.debug("Restart the tunnel that had startup failure.")
-            self.reconnectTunnel(to: .automatic) { [weak self] error in
+            self.reconnectTunnel(
+                to: .automatic,
+                shouldStopTunnelMonitor: false
+            ) { [weak self] error in
                 if error == nil {
                     self?.cancelTunnelStartupFailureRecovery()
                 }
@@ -425,6 +440,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func cancelTunnelStartupFailureRecovery() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         tunnelStartupFailureRecoveryTimer?.cancel()
         tunnelStartupFailureRecoveryTimer = nil
     }
@@ -490,6 +507,37 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func reconnectTunnel(
+        to nextRelay: NextRelay,
+        shouldStopTunnelMonitor: Bool,
+        completionHandler: ((Error?) -> Void)? = nil
+    ) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        // Ignore all requests to reconnect once tunnel is preparing to stop.
+        guard !isStopping else { return }
+
+        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
+            if shouldStopTunnelMonitor {
+                self.tunnelMonitor.stop()
+            }
+
+            self.reconnectTunnelInner(to: nextRelay) { error in
+                completionHandler?(error)
+                operation.finish()
+            }
+        }
+
+        if let reconnectTunnelTask = reconnectTunnelTask {
+            blockOperation.addDependency(reconnectTunnelTask)
+        }
+
+        reconnectTunnelTask?.cancel()
+        reconnectTunnelTask = blockOperation
+
+        operationQueue.addOperation(blockOperation)
+    }
+
+    private func reconnectTunnelInner(
         to nextRelay: NextRelay,
         completionHandler: ((Error?) -> Void)? = nil
     ) {
