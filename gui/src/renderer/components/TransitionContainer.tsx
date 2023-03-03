@@ -33,7 +33,7 @@ interface IItemStyle {
 interface IState {
   currentItem?: ITransitionQueueItem;
   nextItem?: ITransitionQueueItem;
-  itemQueue: ITransitionQueueItem[];
+  queuedItem?: ITransitionQueueItem;
   currentItemStyle?: IItemStyle;
   nextItemStyle?: IItemStyle;
   currentItemTransition?: Partial<IItemStyle>;
@@ -91,7 +91,6 @@ export class TransitionView extends React.Component<ITransitioningViewProps> {
 
 export default class TransitionContainer extends React.Component<IProps, IState> {
   public state: IState = {
-    itemQueue: [],
     currentItem: TransitionContainer.makeItem(this.props),
   };
 
@@ -109,23 +108,19 @@ export default class TransitionContainer extends React.Component<IProps, IState>
       // Synchronize updates to the last added child. Although the queue doesn't change, the child
       // itself might need to change. That's why the queue-/next item is replaced by it again after
       // calling `makeItem`.
-      const itemQueueCount = state.itemQueue.length;
-      const lastItemInQueue = itemQueueCount > 0 ? state.itemQueue[itemQueueCount - 1] : undefined;
-
-      if (lastItemInQueue && lastItemInQueue.view.props.viewId === candidate.props.viewId) {
+      if (state.queuedItem?.view.props.viewId === candidate.props.viewId) {
         // Child is last item in queue. No change to the queue needed.
         return {
-          itemQueue: [...state.itemQueue.slice(0, -1), TransitionContainer.makeItem(props)],
+          queuedItem: TransitionContainer.makeItem(props),
         };
       } else if (
-        itemQueueCount === 0 &&
-        state.nextItem &&
-        state.nextItem.view.props.viewId === candidate.props.viewId
+        !state.queuedItem &&
+        state.nextItem?.view.props.viewId === candidate.props.viewId
       ) {
         // Child is next item, no change to the queue needed.
         return { nextItem: TransitionContainer.makeItem(props) };
       } else if (
-        itemQueueCount === 0 &&
+        !state.queuedItem &&
         !state.nextItem &&
         state.currentItem.view.props.viewId === candidate.props.viewId
       ) {
@@ -133,7 +128,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         return { currentItem: TransitionContainer.makeItem(props) };
       } else {
         // Child is a new item and is added to the queue.
-        return { itemQueue: [...state.itemQueue, TransitionContainer.makeItem(props)] };
+        return { queuedItem: TransitionContainer.makeItem(props) };
       }
     } else if (candidate && !state.currentItem) {
       // Child is set as current item if there's no item already.
@@ -167,7 +162,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   public render() {
-    const willExit = this.state.itemQueue.length > 0 || this.state.nextItem !== undefined;
+    const willExit = this.state.queuedItem !== undefined || this.state.nextItem !== undefined;
 
     return (
       <StyledTransitionContainer disableUserInteraction={willExit}>
@@ -218,11 +213,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   private cycleUnguarded = () => {
-    const itemQueue = this.state.itemQueue;
-
-    if (itemQueue.length > 0) {
-      const nextItem = itemQueue[0];
-      const transition = nextItem.transition;
+    if (this.state.queuedItem) {
+      const transition = this.state.queuedItem.transition;
 
       switch (transition.name) {
         case 'slide-up':
@@ -277,8 +269,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private slideUp(duration: number) {
     this.transitioningItemRef = this.nextContentRef;
     this.setState((state) => ({
-      nextItem: state.itemQueue[0],
-      itemQueue: state.itemQueue.slice(1),
+      nextItem: state.queuedItem,
+      queuedItem: undefined,
       currentItemStyle: { x: 0, y: 0, inFront: false },
       nextItemStyle: { x: 0, y: 100, inFront: true },
       currentItemTransition: { duration },
@@ -289,8 +281,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private slideDown(duration: number) {
     this.transitioningItemRef = this.currentContentRef;
     this.setState((state) => ({
-      nextItem: state.itemQueue[0],
-      itemQueue: state.itemQueue.slice(1),
+      nextItem: state.queuedItem,
+      queuedItem: undefined,
       currentItemStyle: { x: 0, y: 0, inFront: true },
       nextItemStyle: { x: 0, y: 0, inFront: false },
       currentItemTransition: { y: 100, duration },
@@ -301,8 +293,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private push(duration: number) {
     this.transitioningItemRef = this.nextContentRef;
     this.setState((state) => ({
-      nextItem: state.itemQueue[0],
-      itemQueue: state.itemQueue.slice(1),
+      nextItem: state.queuedItem,
+      queuedItem: undefined,
       currentItemStyle: { x: 0, y: 0, inFront: false },
       nextItemStyle: { x: 100, y: 0, inFront: true },
       currentItemTransition: { x: -50, duration },
@@ -313,8 +305,8 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private pop(duration: number) {
     this.transitioningItemRef = this.currentContentRef;
     this.setState((state) => ({
-      nextItem: state.itemQueue[0],
-      itemQueue: state.itemQueue.slice(1),
+      nextItem: state.queuedItem,
+      queuedItem: undefined,
       currentItemStyle: { x: 0, y: 0, inFront: true },
       nextItemStyle: { x: -50, y: 0, inFront: false },
       currentItemTransition: { x: 100, duration },
@@ -325,9 +317,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private replace(completion: () => void) {
     this.setState(
       (state) => ({
-        currentItem: state.itemQueue[0],
+        currentItem: state.queuedItem,
         nextItem: undefined,
-        itemQueue: state.itemQueue.slice(1),
+        queuedItem: undefined,
         currentItemStyle: { x: 0, y: 0, inFront: false, duration: 0 },
         nextItemStyle: { x: 0, y: 0, inFront: true, duration: 0 },
         currentItemTransition: undefined,
