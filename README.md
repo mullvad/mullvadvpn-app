@@ -40,7 +40,7 @@ security.
 | Linux (Ubuntu)| The two latest LTS releases and the latest non-LTS releases |
 | Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
 | Linux (Debian) | The versions that are not yet [EOL](https://wiki.debian.org/DebianReleases) |
-| Android | The four latest major releases|
+| Android     | 8 and newer        |
 | iOS         | 13 and newer       |
 
 On Linux we test using the Gnome desktop environment. The app should, and probably does work
