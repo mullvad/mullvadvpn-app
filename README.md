@@ -40,8 +40,8 @@ security.
 | Linux (Ubuntu)| The two latest LTS releases and the latest non-LTS releases |
 | Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
 | Linux (Debian) | The versions that are not yet [EOL](https://wiki.debian.org/DebianReleases) |
-| Android | The four latest major releases|
-| iOS         | 12 and newer       |
+| Android     | 8 and newer        |
+| iOS         | 13 and newer       |
 
 On Linux we test using the Gnome desktop environment. The app should, and probably does work
 in other DEs, but we don't regularly test those.
@@ -55,11 +55,15 @@ the current state of the latest code in git, not necessarily any existing releas
 |-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |         |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Ad and tracker blocking       |    ✓    |   ✓   |   ✓   |         |  ✓  |
+| Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
+| [Externally audited](./audits)|    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
 \* The local network is always accessible on iOS with the current implementation
 
