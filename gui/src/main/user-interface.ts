@@ -267,7 +267,7 @@ export default class UserInterface implements WindowControllerDelegate {
         if (unpinnedWindow) {
           void app.dock.show();
         } else {
-          appWindow.setVisibleOnAllWorkspaces(true);
+          appWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
           app.dock.hide();
         }
 
