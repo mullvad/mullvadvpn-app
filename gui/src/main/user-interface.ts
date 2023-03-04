@@ -259,6 +259,7 @@ export default class UserInterface implements WindowControllerDelegate {
           minimizable: unpinnedWindow,
           closable: unpinnedWindow,
           transparent: !unpinnedWindow,
+          hiddenInMissionControl: !unpinnedWindow,
         });
 
         // make the window visible on all workspaces and prevent the icon from showing in the dock
