@@ -30,7 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add revoked device view displayed when the app detects that device is no longer registered on
   backend.
 - Add ability to manage registered devices if too many devices detected during log-in.
-- Add continuous monitoring of tunnel connection. Verify ping replies to detect whether traffic is 
+- Add continuous monitoring of tunnel connection. Verify ping replies to detect whether traffic is
   really flowing.
 - Check if device is revoked or account has expired when the tunnel fails to connect on each second
   failed attempt.
@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 with the option to buy more time.
 - Use exponential backoff with jitter for delay interval when retrying REST API requests.
 - REST API requests will bypass VPN when tunnel is not functional.
+- Swap vertical position of country and city labels on connection view.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
