@@ -1,3 +1,3 @@
-Add search bar to location selection view
-[linux, windows] Add quit button to tray icon menu
-Lots of bugs squashed
+[windows] System service now works with LSA protection enabled
+[windows] Add more robust method for setting DNS
+[windows] Fix bug which caused the app to not always quit successfully
