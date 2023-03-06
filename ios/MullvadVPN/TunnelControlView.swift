@@ -232,7 +232,7 @@ final class TunnelControlView: UIView {
     // MARK: - Private
 
     private func addSubviews() {
-        for subview in [secureLabel, cityLabel, countryLabel] {
+        for subview in [secureLabel, countryLabel, cityLabel] {
             locationContainerView.addSubview(subview)
         }
 
@@ -267,14 +267,14 @@ final class TunnelControlView: UIView {
             secureLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
             secureLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
 
-            cityLabel.topAnchor.constraint(equalTo: secureLabel.bottomAnchor, constant: 8),
-            cityLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
-            cityLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
-
-            countryLabel.topAnchor.constraint(equalTo: cityLabel.bottomAnchor, constant: 8),
+            countryLabel.topAnchor.constraint(equalTo: secureLabel.bottomAnchor, constant: 8),
             countryLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
             countryLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
-            countryLabel.bottomAnchor.constraint(equalTo: locationContainerView.bottomAnchor),
+
+            cityLabel.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 8),
+            cityLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
+            cityLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
+            cityLabel.bottomAnchor.constraint(equalTo: locationContainerView.bottomAnchor),
 
             connectionPanel.topAnchor.constraint(
                 equalTo: locationContainerView.bottomAnchor,
