@@ -137,6 +137,7 @@ type CallFunctionArgument<T, R> =
 export class DaemonRpc {
   private client: ManagementServiceClient;
   private isConnectedValue = false;
+  private isClosed = false;
   private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
@@ -152,6 +153,17 @@ export class DaemonRpc {
 
   public get isConnected() {
     return this.isConnectedValue;
+  }
+
+  public reopen() {
+    if (this.isClosed) {
+      this.isClosed = false;
+      this.client = new ManagementServiceClient(
+        DAEMON_RPC_PATH,
+        grpc.credentials.createInsecure(),
+        this.channelOptions(),
+      );
+    }
   }
 
   public connect(): Promise<void> {
@@ -179,6 +191,7 @@ export class DaemonRpc {
       this.removeSubscription(subscriptionId);
     }
 
+    this.isClosed = true;
     this.client.close();
     if (this.reconnectionTimeout) {
       clearTimeout(this.reconnectionTimeout);
