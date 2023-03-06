@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2023.2] - 2023-03-06
 ### Fixed
 #### Windows
 - Fix desktop app not quitting properly after switching from unpinned to pinned window.
