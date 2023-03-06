@@ -52,14 +52,19 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.
-- Fix desktop app not quitting properly after switching from unpinned to pinned window.
 - Retry if PQ PSK negotiation fails for any reason.
 
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
+
+## [2023.2] - 2023-03-06
+### Fixed
 #### Windows
+- Fix desktop app not quitting properly after switching from unpinned to pinned window.
 - Fix service not starting when LSA protection is enabled (which is the default on Windows 11 22H2).
+- Fix some issues with setting system DNS by using SetInterfaceDnsSettings when it's available (on
+  Windows 10, version 1809 and above).
 
 
 ## [2023.1] - 2023-02-20
