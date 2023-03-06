@@ -28,7 +28,7 @@ mod android {
             let value = PARAMETERS.replace_all(&value, "%");
 
             // Unescape XML characters
-            htmlize::unescape(value.as_bytes())
+            htmlize::unescape(value).into()
         }
     }
 }

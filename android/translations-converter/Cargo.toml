@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 derive_more = "0.99"
-htmlize = "0.5"
+htmlize = { version = "1.0.2", features = ["unescape"] }
 lazy_static = "1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
