@@ -23,15 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Added
-#### Windows
-- Use `SetInterfaceDnsSettings` to config DNS when it's available (on Windows 10, version 1809 and
-  above).
-
 ### Fixed
 #### Windows
 - Fix desktop app not quitting properly after switching from unpinned to pinned window.
 - Fix service not starting when LSA protection is enabled (which is the default on Windows 11 22H2).
+- Fix some issues with setting system DNS by using SetInterfaceDnsSettings when it's available (on
+  Windows 10, version 1809 and above).
 
 
 ## [2023.1] - 2023-02-20
