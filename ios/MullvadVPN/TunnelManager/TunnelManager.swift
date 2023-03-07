@@ -354,7 +354,22 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func setAccount(
+    func setNewAccount(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+        setAccount(action: .new) { result in
+            completion(result.map { $0! })
+        }
+    }
+
+    func setExistingAccount(
+        accountNumber: String,
+        completion: @escaping (Result<StoredAccountData, Error>) -> Void
+    ) {
+        setAccount(action: .existing(accountNumber)) { result in
+            completion(result.map { $0! })
+        }
+    }
+
+    private func setAccount(
         action: SetAccountAction,
         completionHandler: @escaping (Result<StoredAccountData?, Error>) -> Void
     ) {
