@@ -41,6 +41,8 @@ with the option to buy more time.
 - Use exponential backoff with jitter for delay interval when retrying REST API requests.
 - REST API requests will bypass VPN when tunnel is not functional.
 - Swap vertical position of country and city labels on connection view.
+- Display remaining account time in years if equal to or more than two years,
+  otherwise display days.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
