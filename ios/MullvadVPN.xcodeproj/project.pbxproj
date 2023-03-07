@@ -266,7 +266,6 @@
 		58D223CD294C8BCB0029F5F8 /* Operations.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223A5294C8A480029F5F8 /* Operations.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58D223D8294C8E5E0029F5F8 /* MullvadTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		58D223DC294C8EB90029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
-		58D223E1294C8EE60029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58D223E6294C8F120029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58D223E7294C8F120029F5F8 /* MullvadTypes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58D223EA294C8F3C0029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
@@ -927,7 +926,6 @@
 				58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */,
 				58D223DC294C8EB90029F5F8 /* MullvadTypes.framework in Frameworks */,
 				06D9844C28F990AB003AABE9 /* WireGuardKitTypes in Frameworks */,
-				58D223E1294C8EE60029F5F8 /* MullvadTypes.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1959,7 +1957,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
 					063F02722902B63F001FA09F = {
