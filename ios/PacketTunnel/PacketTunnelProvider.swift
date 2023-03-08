@@ -172,86 +172,84 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         options: [String: NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
-        let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
-        var appSelectorResult: RelaySelectorResult?
+        dispatchQueue.async {
+            let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
+            var appSelectorResult: RelaySelectorResult?
 
-        // Parse relay selector from tunnel options.
-        do {
-            appSelectorResult = try tunnelOptions.getSelectorResult()
+            // Parse relay selector from tunnel options.
+            do {
+                appSelectorResult = try tunnelOptions.getSelectorResult()
 
-            switch appSelectorResult {
-            case let .some(selectorResult):
-                providerLogger.debug(
-                    "Start the tunnel via app, connect to \(selectorResult.relay.hostname)."
+                switch appSelectorResult {
+                case let .some(selectorResult):
+                    self.providerLogger.debug(
+                        "Start the tunnel via app, connect to \(selectorResult.relay.hostname)."
+                    )
+
+                case .none:
+                    if tunnelOptions.isOnDemand() {
+                        self.providerLogger.debug("Start the tunnel via on-demand rule.")
+                    } else {
+                        self.providerLogger.debug("Start the tunnel via system.")
+                    }
+                }
+            } catch {
+                self.providerLogger.debug("Start the tunnel via app.")
+                self.providerLogger.error(
+                    error: error,
+                    message: """
+                    Failed to decode relay selector result passed from the app. \
+                    Will continue by picking new relay.
+                    """
+                )
+            }
+
+            // Read tunnel configuration.
+            let tunnelConfiguration: PacketTunnelConfiguration
+            do {
+                let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
+
+                tunnelConfiguration = try self.makeConfiguration(initialRelay)
+            } catch {
+                self.providerLogger.error(
+                    error: error,
+                    message: "Failed to read tunnel configuration when starting the tunnel."
                 )
 
-            case .none:
-                if tunnelOptions.isOnDemand() {
-                    providerLogger.debug("Start the tunnel via on-demand rule.")
-                } else {
-                    providerLogger.debug("Start the tunnel via system.")
-                }
-            }
-        } catch {
-            providerLogger.debug("Start the tunnel via app.")
-            providerLogger.error(
-                error: error,
-                message: """
-                Failed to decode relay selector result passed from the app. \
-                Will continue by picking new relay.
-                """
-            )
-        }
+                self.configurationError = error
 
-        // Read tunnel configuration.
-        let tunnelConfiguration: PacketTunnelConfiguration
-        do {
-            let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
-
-            tunnelConfiguration = try makeConfiguration(initialRelay)
-        } catch {
-            providerLogger.error(
-                error: error,
-                message: "Failed to read tunnel configuration when starting the tunnel."
-            )
-
-            configurationError = error
-
-            startEmptyTunnel(completionHandler: completionHandler)
-            dispatchQueue.async {
+                self.startEmptyTunnel(completionHandler: completionHandler)
                 self.beginTunnelStartupFailureRecovery()
+                return
             }
-            return
-        }
 
-        // Set tunnel status.
-        dispatchQueue.async {
+            // Set tunnel status.
             let selectorResult = tunnelConfiguration.selectorResult
             self.selectorResult = selectorResult
             self.providerLogger.debug("Set tunnel relay to \(selectorResult.relay.hostname).")
-        }
 
-        // Start tunnel.
-        adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
-            self.dispatchQueue.async {
-                if let error = error {
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to start the tunnel."
-                    )
+            // Start tunnel.
+            self.adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
+                self.dispatchQueue.async {
+                    if let error = error {
+                        self.providerLogger.error(
+                            error: error,
+                            message: "Failed to start the tunnel."
+                        )
 
-                    completionHandler(error)
-                } else {
-                    self.providerLogger.debug("Started the tunnel.")
+                        completionHandler(error)
+                    } else {
+                        self.providerLogger.debug("Started the tunnel.")
 
-                    self.startTunnelCompletionHandler = { [weak self] in
-                        self?.isConnected = true
-                        completionHandler(nil)
+                        self.startTunnelCompletionHandler = { [weak self] in
+                            self?.isConnected = true
+                            completionHandler(nil)
+                        }
+
+                        self.tunnelMonitor.start(
+                            probeAddress: tunnelConfiguration.selectorResult.endpoint.ipv4Gateway
+                        )
                     }
-
-                    self.tunnelMonitor.start(
-                        probeAddress: tunnelConfiguration.selectorResult.endpoint.ipv4Gateway
-                    )
                 }
             }
         }
@@ -261,32 +259,32 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
-        providerLogger.debug("Stop the tunnel: \(reason)")
-
         dispatchQueue.async {
+            self.providerLogger.debug("Stop the tunnel: \(reason)")
+
             self.isStopping = true
             self.cancelTunnelStartupFailureRecovery()
             self.startTunnelCompletionHandler = nil
-        }
 
-        // Cancel all operations: reconnection requests, network requests.
-        operationQueue.cancelAllOperations()
+            // Cancel all operations: reconnection requests, network requests.
+            self.operationQueue.cancelAllOperations()
 
-        // Stop tunnel monitor after all operations are kicked off the queue.
-        operationQueue.addBarrierBlock {
-            self.tunnelMonitor.stop()
+            // Stop tunnel monitor after all operations are kicked off the queue.
+            self.operationQueue.addBarrierBlock {
+                self.tunnelMonitor.stop()
 
-            self.adapter.stop { error in
-                self.dispatchQueue.async {
-                    if let error = error {
-                        self.providerLogger.error(
-                            error: error,
-                            message: "Failed to stop the tunnel gracefully."
-                        )
-                    } else {
-                        self.providerLogger.debug("Stopped the tunnel.")
+                self.adapter.stop { error in
+                    self.dispatchQueue.async {
+                        if let error = error {
+                            self.providerLogger.error(
+                                error: error,
+                                message: "Failed to stop the tunnel gracefully."
+                            )
+                        } else {
+                            self.providerLogger.debug("Stopped the tunnel.")
+                        }
+                        completionHandler()
                     }
-                    completionHandler()
                 }
             }
         }
@@ -403,6 +401,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         _ tunnelMonitor: TunnelMonitor,
         networkReachabilityStatusDidChange isNetworkReachable: Bool
     ) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         guard self.isNetworkReachable != isNetworkReachable else { return }
 
         self.isNetworkReachable = isNetworkReachable
@@ -451,6 +451,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
         let emptyTunnelConfiguration = TunnelConfiguration(
             name: nil,
             interface: InterfaceConfiguration(privateKey: PrivateKey()),
