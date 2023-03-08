@@ -5,7 +5,6 @@ import { ITransitionSpecification } from '../lib/history';
 import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
-  viewId: string;
   routePath: string;
   children?: React.ReactNode;
 }
@@ -95,51 +94,17 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   };
 
   private isCycling = false;
+  private isTransitioning = false;
 
-  private currentContentRef = React.createRef<HTMLDivElement>();
-  private nextContentRef = React.createRef<HTMLDivElement>();
+  private currentContentRef: React.MutableRefObject<HTMLDivElement | null> = React.createRef<HTMLDivElement>();
+  private nextContentRef: React.MutableRefObject<HTMLDivElement | null> = React.createRef<HTMLDivElement>();
   // The item that should trigger the cycle to finish in onTransitionEnd
   private transitioningItemRef?: React.RefObject<HTMLDivElement>;
 
-  public static getDerivedStateFromProps(props: IProps, state: IState) {
-    const candidate = props.children;
-
-    if (candidate && state.currentItem) {
-      // Synchronize updates to the last added child. Although the queue doesn't change, the child
-      // itself might need to change. That's why the queue-/next item is replaced by it again after
-      // calling `makeItem`.
-      if (state.queuedItem?.view.props.viewId === candidate.props.viewId) {
-        // Child is last item in queue. No change to the queue needed.
-        return {
-          queuedItem: TransitionContainer.makeItem(props),
-        };
-      } else if (
-        !state.queuedItem &&
-        state.nextItem?.view.props.viewId === candidate.props.viewId
-      ) {
-        // Child is next item, no change to the queue needed.
-        return { nextItem: TransitionContainer.makeItem(props) };
-      } else if (
-        !state.queuedItem &&
-        !state.nextItem &&
-        state.currentItem.view.props.viewId === candidate.props.viewId
-      ) {
-        // Child is current item and there's no new child, no change to the queue needed.
-        return { currentItem: TransitionContainer.makeItem(props) };
-      } else {
-        // Child is a new item and is added to the queue.
-        return { queuedItem: TransitionContainer.makeItem(props) };
-      }
-    } else if (candidate && !state.currentItem) {
-      // Child is set as current item if there's no item already.
-      return { currentItem: TransitionContainer.makeItem(props) };
-    } else {
-      return null;
-    }
-  }
-
-  public componentDidUpdate() {
-    if (
+  public componentDidUpdate(prevProps: IProps) {
+    if (this.props.children !== prevProps.children) {
+      this.updateStateFromProps();
+    } else if (
       this.state.currentItemStyle &&
       this.state.currentItemTransition &&
       this.state.nextItemStyle &&
@@ -167,9 +132,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     return (
       <StyledTransitionContainer disableUserInteraction={willExit}>
         {this.state.currentItem && (
-          <WillExit key={this.state.currentItem.view.props.viewId} value={willExit}>
+          <WillExit key={this.state.currentItem.view.props.routePath} value={willExit}>
             <StyledTransitionContent
-              ref={this.currentContentRef}
+              ref={this.setCurrentContentRef}
               transition={this.state.currentItemStyle}
               onTransitionEnd={this.onTransitionEnd}>
               {this.state.currentItem.view}
@@ -178,9 +143,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         )}
 
         {this.state.nextItem && (
-          <WillExit key={this.state.nextItem.view.props.viewId} value={false}>
+          <WillExit key={this.state.nextItem.view.props.routePath} value={false}>
             <StyledTransitionContent
-              ref={this.nextContentRef}
+              ref={this.setNextContentRef}
               transition={this.state.nextItemStyle}
               onTransitionEnd={this.onTransitionEnd}>
               {this.state.nextItem.view}
@@ -191,8 +156,86 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     );
   }
 
+  private setCurrentContentRef = (element: HTMLDivElement) => {
+    this.currentContentRef.current?.removeEventListener('transitionstart', this.onTransitionStart);
+    this.currentContentRef.current = element;
+    this.currentContentRef.current?.addEventListener('transitionstart', this.onTransitionStart);
+  };
+
+  private setNextContentRef = (element: HTMLDivElement) => {
+    this.nextContentRef.current?.removeEventListener('transitionstart', this.onTransitionStart);
+    this.nextContentRef.current = element;
+    this.nextContentRef.current?.addEventListener('transitionstart', this.onTransitionStart);
+  };
+
+  private updateStateFromProps() {
+    const candidate = this.props.children;
+
+    if (candidate && this.state.currentItem) {
+      // Update currentItem, nextItem, queuedItem depending on which the candidate matches.
+      if (
+        !this.isTransitioning &&
+        this.state.currentItem.view.props.routePath === candidate.props.routePath
+      ) {
+        // There's no transition in progress and the newest candidate has the same path as the
+        // current. In this sitation the app should just remain in the same view.
+        this.setState(
+          {
+            currentItem: TransitionContainer.makeItem(this.props),
+            nextItem: undefined,
+            queuedItem: undefined,
+            currentItemStyle: undefined,
+            nextItemStyle: undefined,
+            currentItemTransition: undefined,
+            nextItemTransition: undefined,
+          },
+          () => (this.isCycling = false),
+        );
+      } else if (!this.isTransitioning && this.state.nextItem) {
+        // There's no transition in progress but there is a next item. Abort the transition and add
+        // the candidate to the queue. The app shouldn't start a transition if there is another view
+        // to queue.
+        this.setState(
+          {
+            nextItem: undefined,
+            queuedItem: TransitionContainer.makeItem(this.props),
+            currentItemStyle: undefined,
+            nextItemStyle: undefined,
+            currentItemTransition: undefined,
+            nextItemTransition: undefined,
+          },
+          () => (this.isCycling = false),
+        );
+      } else if (this.state.nextItem?.view.props.routePath === candidate.props.routePath) {
+        // There's an update to the item that is currently being transitioned to. Update that item
+        // and continue the transition.
+        this.setState({
+          nextItem: TransitionContainer.makeItem(this.props),
+          queuedItem: undefined,
+        });
+      } else {
+        // If none of the above, initiate a transition to the new item.
+        this.setState({ queuedItem: TransitionContainer.makeItem(this.props) });
+      }
+    } else if (candidate) {
+      // Child is set as current item if there's no item already.
+      this.setState({ currentItem: TransitionContainer.makeItem(this.props) });
+    }
+  }
+
+  private onTransitionStart = (event: TransitionEvent) => {
+    if (
+      this.isCycling &&
+      !this.isTransitioning &&
+      event.target === this.transitioningItemRef?.current
+    ) {
+      this.isTransitioning = true;
+    }
+  };
+
   private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
     if (this.isCycling && event.target === this.transitioningItemRef?.current) {
+      this.isTransitioning = false;
       this.transitioningItemRef = undefined;
       this.makeNextItemCurrent(() => {
         this.onFinishCycle();
