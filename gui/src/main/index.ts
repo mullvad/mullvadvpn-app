@@ -452,6 +452,7 @@ class ApplicationMain
     }
 
     const wasConnected = this.daemonRpc.isConnected;
+    IpcMainEventChannel.navigation.notifyReset?.();
     this.daemonRpc.disconnect();
     this.onDaemonDisconnected(wasConnected);
   };
