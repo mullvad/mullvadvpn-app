@@ -8,8 +8,11 @@
 
 import UIKit
 
-final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDelegate {
-    private enum CellReuseIdentifiers: String, CaseIterable {
+final class SettingsDataSource: UITableViewDiffableDataSource<
+    SettingsDataSource.Section,
+    SettingsDataSource.Item
+>, UITableViewDelegate {
+    enum CellReuseIdentifiers: String, CaseIterable {
         case accountCell
         case basicCell
 
@@ -23,7 +26,7 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
         }
     }
 
-    private enum HeaderFooterReuseIdentifier: String, CaseIterable {
+    enum HeaderFooterReuseIdentifier: String, CaseIterable {
         case spacer
 
         var reusableViewClass: AnyClass {
@@ -48,172 +51,41 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
         case faq
     }
 
-    private var snapshot = DataSourceSnapshot<Section, Item>()
     private let interactor: SettingsInteractor
+    private let settingsCellFactory: SettingsCellFactory
     private var storedAccountData: StoredAccountData?
 
     weak var delegate: SettingsDataSourceDelegate?
+    weak var tableView: UITableView?
 
-    weak var tableView: UITableView? {
-        didSet {
-            tableView?.delegate = self
-            tableView?.dataSource = self
-
-            registerClasses()
-        }
-    }
-
-    init(interactor: SettingsInteractor) {
+    init(
+        tableView: UITableView,
+        interactor: SettingsInteractor
+    ) {
+        self.tableView = tableView
         self.interactor = interactor
 
-        super.init()
+        let settingsCellFactory = SettingsCellFactory(tableView: tableView, interactor: interactor)
+        self.settingsCellFactory = settingsCellFactory
+
+        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+            settingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
+        }
+
+        tableView.delegate = self
+        registerClasses()
+        updateDataSnapshot()
 
         interactor.didUpdateDeviceState = { [weak self] deviceState in
             self?.didUpdateDeviceState(deviceState)
         }
         storedAccountData = interactor.deviceState.accountData
-
-        updateDataSnapshot()
-    }
-
-    private func registerClasses() {
-        CellReuseIdentifiers.allCases.forEach { cellIdentifier in
-            tableView?.register(
-                cellIdentifier.reusableViewClass,
-                forCellReuseIdentifier: cellIdentifier.rawValue
-            )
-        }
-
-        HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
-            tableView?.register(
-                reuseIdentifier.reusableViewClass,
-                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
-            )
-        }
-    }
-
-    private func updateDataSnapshot() {
-        var newSnapshot = DataSourceSnapshot<Section, Item>()
-
-        if interactor.deviceState.isLoggedIn {
-            newSnapshot.appendSections([.main])
-            newSnapshot.appendItems([.account, .preferences], in: .main)
-        }
-
-        newSnapshot.appendSections([.version, .problemReport])
-        newSnapshot.appendItems([.version], in: .version)
-        newSnapshot.appendItems([.problemReport, .faq], in: .problemReport)
-
-        snapshot = newSnapshot
-    }
-
-    // MARK: - UITableViewDataSource
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionIdentifier = snapshot.section(at: section)!
-
-        return snapshot.numberOfItems(in: sectionIdentifier) ?? 0
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return snapshot.numberOfSections()
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = snapshot.itemForIndexPath(indexPath)!
-
-        switch item {
-        case .account:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.accountCell.rawValue,
-                for: indexPath
-            ) as! SettingsAccountCell
-            cell.titleLabel.text = NSLocalizedString(
-                "ACCOUNT_CELL_LABEL",
-                tableName: "Settings",
-                value: "Account",
-                comment: ""
-            )
-            cell.accountExpiryDate = interactor.deviceState.accountData?.expiry
-            cell.accessibilityIdentifier = "AccountCell"
-            cell.disclosureType = .chevron
-
-            return cell
-
-        case .preferences:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "PREFERENCES_CELL_LABEL",
-                tableName: "Settings",
-                value: "Preferences",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = "PreferencesCell"
-            cell.disclosureType = .chevron
-
-            return cell
-
-        case .version:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "APP_VERSION_CELL_LABEL",
-                tableName: "Settings",
-                value: "App version",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = Bundle.main.productVersion
-            cell.accessibilityIdentifier = nil
-            cell.disclosureType = .none
-
-            return cell
-
-        case .problemReport:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "REPORT_PROBLEM_CELL_LABEL",
-                tableName: "Settings",
-                value: "Report a problem",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
-            cell.disclosureType = .chevron
-
-            return cell
-
-        case .faq:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            ) as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString(
-                "FAQ_AND_GUIDES_CELL_LABEL",
-                tableName: "Settings",
-                value: "FAQ & Guides",
-                comment: ""
-            )
-            cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
-            cell.disclosureType = .externalLink
-
-            return cell
-        }
     }
 
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        if case .version = snapshot.itemForIndexPath(indexPath) {
+        if case .version = itemIdentifier(for: indexPath) {
             return false
         } else {
             return true
@@ -221,7 +93,7 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let item = snapshot.itemForIndexPath(indexPath) else { return }
+        guard let item = itemIdentifier(for: indexPath) else { return }
 
         delegate?.settingsDataSource(self, didSelectItem: item)
     }
@@ -246,6 +118,37 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
 
     // MARK: - Private
 
+    private func registerClasses() {
+        CellReuseIdentifiers.allCases.forEach { cellIdentifier in
+            tableView?.register(
+                cellIdentifier.reusableViewClass,
+                forCellReuseIdentifier: cellIdentifier.rawValue
+            )
+        }
+
+        HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
+            tableView?.register(
+                reuseIdentifier.reusableViewClass,
+                forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
+            )
+        }
+    }
+
+    private func updateDataSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+
+        if interactor.deviceState.isLoggedIn {
+            snapshot.appendSections([.main])
+            snapshot.appendItems([.account, .preferences], toSection: .main)
+        }
+
+        snapshot.appendSections([.version, .problemReport])
+        snapshot.appendItems([.version], toSection: .version)
+        snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
+
+        apply(snapshot)
+    }
+
     private func didUpdateDeviceState(_ deviceState: DeviceState) {
         let newAccountData = deviceState.accountData
         let oldAccountData = storedAccountData
@@ -257,15 +160,15 @@ final class SettingsDataSource: NSObject, UITableViewDataSource, UITableViewDele
            oldAccountData.number == newAccountData.number,
            oldAccountData.expiry != newAccountData.expiry
         {
-            tableView?.performBatchUpdates {
-                if let indexPath = snapshot.indexPathForItem(.account) {
-                    tableView?.reloadRows(at: [indexPath], with: .none)
-                }
+            if let indexPath = indexPath(for: .account),
+               let cell = tableView?.cellForRow(at: indexPath)
+            {
+                settingsCellFactory.configureCell(cell, item: .account, indexPath: indexPath)
             }
+
             return
         }
 
         updateDataSnapshot()
-        tableView?.reloadData()
     }
 }
