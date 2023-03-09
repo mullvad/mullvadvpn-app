@@ -18,16 +18,15 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
     SFSafariViewControllerDelegate
 {
     weak var delegate: SettingsViewControllerDelegate?
+    private var dataSource: SettingsDataSource?
+    private let interactor: SettingsInteractor
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
-    private let dataSource: SettingsDataSource
-
     init(interactor: SettingsInteractor) {
-        dataSource = SettingsDataSource(interactor: interactor)
-
+        self.interactor = interactor
         super.init(style: .grouped)
     }
 
@@ -55,8 +54,8 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate,
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
 
-        dataSource.tableView = tableView
-        dataSource.delegate = self
+        dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
+        dataSource?.delegate = self
     }
 
     // MARK: - IBActions
