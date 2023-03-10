@@ -44,8 +44,6 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     echo $(pwd)
     make -f Android.mk clean
 
-    export CFLAGS="-D__ANDROID_API__=26"
-
     make -f Android.mk
 
     # Strip and copy the libray to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
