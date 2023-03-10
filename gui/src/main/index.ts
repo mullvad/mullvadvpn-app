@@ -1,5 +1,5 @@
 import { exec, execFile } from 'child_process';
-import { app, nativeTheme, session, shell, systemPreferences } from 'electron';
+import { app, nativeTheme, powerMonitor, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
@@ -181,6 +181,9 @@ class ApplicationMain
       log.info('quit received');
       this.onQuit();
     });
+
+    powerMonitor.on('suspend', this.onSuspend);
+    powerMonitor.on('resume', this.onResume);
   }
 
   public async performPostUpgradeCheck(): Promise<void> {
@@ -440,6 +443,27 @@ class ApplicationMain
       this.account.isLoggedIn(),
       this.tunnelState.tunnelState,
     );
+  };
+
+  private onSuspend = () => {
+    log.info('Suspend event received, disconnecting from daemon');
+    if (this.daemonEventListener) {
+      this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+    }
+
+    const wasConnected = this.daemonRpc.isConnected;
+    IpcMainEventChannel.navigation.notifyReset?.();
+    this.daemonRpc.disconnect();
+    this.onDaemonDisconnected(wasConnected);
+  };
+
+  private onResume = () => {
+    log.info('Resume event received, connecting to daemon');
+    this.daemonRpc.reopen();
+    this.daemonRpc.addConnectionObserver(
+      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+    );
+    this.connectToDaemon();
   };
 
   private onDaemonConnected = async () => {
