@@ -28,7 +28,7 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 # === Define toolchain versions and paths ===
 
 ENV SDK_VERSION=platforms;android-33 \
-    BUILD_TOOLS_VERSION=build-tools;30.0.2
+    BUILD_TOOLS_VERSION=build-tools;30.0.3
 
 # Command line tools and checksum from: https://developer.android.com/studio#command-tools
 ENV COMMAND_LINE_TOOLS_VERSION=9123335 \
