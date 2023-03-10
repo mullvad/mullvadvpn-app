@@ -86,22 +86,18 @@ popd
 for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     case "$ARCHITECTURE" in
         "x86_64")
-            LLVM_TRIPLE="x86_64-linux-android"
             TARGET="x86_64-linux-android"
             ABI="x86_64"
             ;;
         "i686")
-            LLVM_TRIPLE="i686-linux-android"
             TARGET="i686-linux-android"
             ABI="x86"
             ;;
         "aarch64")
-            LLVM_TRIPLE="aarch64-linux-android"
             TARGET="aarch64-linux-android"
             ABI="arm64-v8a"
             ;;
         "armv7")
-            LLVM_TRIPLE="arm-linux-androideabi"
             TARGET="armv7-linux-androideabi"
             ABI="armeabi-v7a"
             ;;
@@ -110,7 +106,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     echo "Building mullvad-daemon for $TARGET"
     cargo build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
-    STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
+    STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
     UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
 

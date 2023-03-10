@@ -14,28 +14,28 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     case "$arch" in
         "aarch64")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android26-clang"
-            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-strip"
+            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
             export RUST_TARGET_TRIPLE="aarch64-linux-android"
             export ANDROID_ABI="arm64-v8a"
             export ANDROID_ARCH_NAME="arm64"
             ;;
         "x86_64")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android26-clang"
-            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-strip"
+            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
             export RUST_TARGET_TRIPLE="x86_64-linux-android"
             export ANDROID_ABI="x86_64"
             export ANDROID_ARCH_NAME="x86_64"
             ;;
         "armv7")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi26-clang"
-            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-strip"
+            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
             export RUST_TARGET_TRIPLE="armv7-linux-androideabi"
             export ANDROID_ABI="armeabi-v7a"
             export ANDROID_ARCH_NAME="arm"
             ;;
         "i686")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/i686-linux-android26-clang"
-            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/i686-linux-android-strip"
+            export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
             export RUST_TARGET_TRIPLE="i686-linux-android"
             export ANDROID_ABI="x86"
             export ANDROID_ARCH_NAME="x86"
