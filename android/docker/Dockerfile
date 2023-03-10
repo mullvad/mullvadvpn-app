@@ -37,7 +37,7 @@ ARG COMMAND_LINE_TOOLS_VERSION=9123335 \
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
 ARG NDK_VERSION=r25c \
     NDK_SHA1_CHECKSUM=53af80a1cce9144025b81c78c8cd556bff42bd0e \
-    MIN_SDK_VERSION=21
+    MIN_SDK_VERSION=26
 
 ENV ANDROID_SDK_ROOT=/opt/android
 # ANDROID_HOME is kept for backwards compatibility
