@@ -40,6 +40,10 @@ allprojects {
         failBuildOnCVSS = 0F // All severity levels
         suppressionFile = "${rootProject.projectDir}/config/dependency-check-suppression.xml"
     }
+
+    configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
+        kotlinLangStyle()
+    }
 }
 
 tasks.withType<DependencyUpdatesTask> {
