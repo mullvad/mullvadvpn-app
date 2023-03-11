@@ -3,6 +3,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
     id(Dependencies.Plugin.gradleVersionsId) version Versions.Plugin.gradleVersions
+    id(Dependencies.Plugin.ktfmtId) version Versions.Plugin.ktfmt apply false
 }
 
 buildscript {
@@ -28,6 +29,7 @@ buildscript {
 
 allprojects {
     apply(plugin = Dependencies.Plugin.dependencyCheckId)
+    apply(plugin = Dependencies.Plugin.ktfmtId)
 
     repositories {
         google()
