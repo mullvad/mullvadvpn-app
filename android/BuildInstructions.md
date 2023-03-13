@@ -69,7 +69,7 @@ Linux distro:
 
   wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
   unzip commandlinetools-linux-6609375_latest.zip
-  ./tools/bin/sdkmanager "platforms;android-33" "build-tools;30.0.2" "platform-tools"
+  ./tools/bin/sdkmanager "platforms;android-33" "build-tools;30.0.3" "platform-tools"
   ```
 
 - Install the NDK
@@ -80,10 +80,10 @@ Linux distro:
 
   ```bash
   cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
-  wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
-  unzip android-ndk-r20b-linux-x86_64.zip
+  wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+  unzip android-ndk-r25c-linux.zip
 
-  cd android-ndk-r20b
+  cd android-ndk-r25c
   export ANDROID_NDK_HOME="$PWD"
   ```
 
@@ -95,14 +95,14 @@ Linux distro:
 environment variables:
   ```
   export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-  export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android-ar"
-  export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/arm-linux-androideabi-ar"
-  export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android-ar"
-  export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android-ar"
-  export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android21-clang"
-  export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi21-clang"
-  export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
-  export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
+  export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+  export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
+  export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+  export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+  export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android26-clang"
+  export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi26-clang"
+  export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
+  export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android26-clang"
   ```
 
 - Install Android targets
@@ -118,20 +118,20 @@ environment variables:
   Add to `~/.cargo/config.toml`:
   ```
   [target.aarch64-linux-android]
-  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
 
   [target.armv7-linux-androideabi]
-  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi26-clang"
 
   [target.x86_64-linux-android]
-  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
 
   [target.i686-linux-android]
-  ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-  linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android26-clang"
   ```
 
 ### Debug build
