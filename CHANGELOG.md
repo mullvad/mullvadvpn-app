@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.
 - Retry if PQ PSK negotiation fails for any reason.
+- Fix accumulated tunnel state notifications sometimes displayed after suspend.
 
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
