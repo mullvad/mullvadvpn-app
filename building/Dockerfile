@@ -31,6 +31,9 @@ ENV CARGO_TARGET_DIR=/root/.cargo/target
 ENV GOLANG_VERSION=1.18.5 \
     GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
+# The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
+ARG MOLD_COMMIT_HASH=c4722fe5aed96295837d9150b20ef8698c7a28db
+
 # === Install/set up the image ===
 
 RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
@@ -59,6 +62,21 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
 ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
     PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
+
+# === mold (fast linker) ===
+# Allows linking Rust binaries significantly faster.
+
+RUN apt-get update -y && \
+    apt-get install -y --mark-auto cmake libssl-dev zlib1g-dev gcc g++ && \
+    rm -rf /var/lib/apt/lists/* && \
+    git clone https://github.com/rui314/mold.git && \
+    mkdir mold/build && cd mold/build && \
+    git reset --hard "$MOLD_COMMIT_HASH" && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. && \
+    cmake --build . -j $(nproc) && \
+    cmake --install . && \
+    cd ../.. && rm -rf mold && \
+    apt-get autoremove -y
 
 # === Volta for npm + node ===
 
