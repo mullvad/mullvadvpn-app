@@ -31,6 +31,7 @@ ENV CARGO_TARGET_DIR=/root/.cargo/target
 ENV GOLANG_VERSION=1.18.5 \
     GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
+# The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
 ENV MOLD_COMMIT_HASH=c4722fe5aed96295837d9150b20ef8698c7a28db
 
 # === Install/set up the image ===
@@ -44,8 +45,6 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     protobuf-compiler \
     # For cross-compiling/linting towards Windows
     gcc-mingw-w64-x86-64 \
-    # For building mold further down
-    cmake libssl-dev zlib1g-dev gcc g++ file \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
@@ -67,18 +66,18 @@ ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
 # === mold (fast linker) ===
 # Allows linking Rust binaries significantly faster.
 # This requires some build time dependencies, they are installed further up.
-#
-# The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
-RUN git clone https://github.com/rui314/mold.git && \
+
+RUN apt-get update -y && \
+    apt-get install -y --mark-auto cmake libssl-dev zlib1g-dev gcc g++ && \
+    rm -rf /var/lib/apt/lists/* && \
+    git clone https://github.com/rui314/mold.git && \
     mkdir mold/build && cd mold/build && \
     git reset --hard "$MOLD_COMMIT_HASH" && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. && \
     cmake --build . -j $(nproc) && \
     cmake --install . && \
     cd ../.. && rm -rf mold && \
-    # Remove development libraries we don't need or want. Can help prevent accidentally
-    # linking to wrong versions of libraries in our app.
-    apt-get purge -y libssl-dev
+    apt-get autoremove -y
 
 # === Volta for npm + node ===
 
