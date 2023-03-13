@@ -42,6 +42,8 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     protobuf-compiler \
     # For cross-compiling/linting towards Windows
     gcc-mingw-w64-x86-64 \
+    # For building mold further down
+    cmake libssl-dev zlib1g-dev gcc g++ file \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
@@ -59,6 +61,22 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
 ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
     PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
+
+# === mold (fast linker) ===
+# Allows linking Rust binaries significantly faster.
+# This requires some build time dependencies, they are installed further up.
+#
+# The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
+RUN git clone https://github.com/rui314/mold.git && \
+    mkdir mold/build && cd mold/build && \
+    git reset --hard c4722fe5aed96295837d9150b20ef8698c7a28db && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. && \
+    cmake --build . -j $(nproc) && \
+    cmake --install . && \
+    cd ../.. && rm -rf mold && \
+    # Remove development libraries we don't need or want. Can help prevent accidentally
+    # linking to wrong versions of libraries in our app.
+    apt-get purge -y libssl-dev
 
 # === Volta for npm + node ===
 
