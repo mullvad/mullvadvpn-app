@@ -78,7 +78,7 @@ subslice = "0.2"
 widestring = "1.0"
 winreg = { version = "0.7", features = ["transactions"] }
 memoffset = "0.6"
-windows-service = "0.5.0"
+windows-service = "0.6.0"
 talpid-windows-net = { path = "../talpid-windows-net" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
