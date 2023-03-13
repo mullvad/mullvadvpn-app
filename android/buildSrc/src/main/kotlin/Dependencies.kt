@@ -110,5 +110,6 @@ object Dependencies {
             "org.owasp:dependency-check-gradle:${Versions.Plugin.dependencyCheck}"
         const val dependencyCheckId = "org.owasp.dependencycheck"
         const val gradleVersionsId = "com.github.ben-manes.versions"
+        const val ktfmtId = "com.ncorti.ktfmt.gradle"
     }
 }

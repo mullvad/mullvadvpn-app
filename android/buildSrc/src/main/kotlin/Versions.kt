@@ -53,5 +53,6 @@ object Versions {
         const val playPublisher = "3.7.0"
         const val dependencyCheck = "7.4.4"
         const val gradleVersions = "0.44.0"
+        const val ktfmt = "0.11.0"
     }
 }
