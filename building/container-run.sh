@@ -3,12 +3,10 @@
 # Gives you a shell or runs a given command in the Android or Linux build container,
 # as designated by the *-container-image.txt files. Uses podman unless overridden using the
 # environment variable `CONTAINER_RUNNER`. Note that this script uses named
-# docker volumes that can be overridden using enviornment variables (see the
+# docker volumes that can be overridden using environment variables (see the
 # beginning of the script).
 #
 # Usage: $ container-run.sh <linux/android> [command ...]
-#
-# Not supplying any command gives you a shell in the container.
 
 set -eu
 
@@ -18,6 +16,8 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 ANDROID_CREDENTIALS_DIR=${ANDROID_CREDENTIALS_DIR:-""}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+# By default, use mold as the linker in the container
+USE_MOLD=${USE_MOLD:-"true"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -45,6 +45,11 @@ case ${1-:""} in
         exit 1
 esac
 
+optional_mold=""
+if [[ "$USE_MOLD" == "true" ]]; then
+    optional_mold="mold -run"
+fi
+
 set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
@@ -52,4 +57,4 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "$*"
+    "$container_image_name" bash -c "$optional_mold $*"

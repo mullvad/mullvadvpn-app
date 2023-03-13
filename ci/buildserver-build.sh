@@ -68,7 +68,7 @@ function upload {
 # means in a container on Linux, and straight up in the local shell elsewhere.
 function run_in_build_env {
     if [[ "$(uname -s)" == "Linux" ]]; then
-        ./building/container-run.sh linux "$@"
+        USE_MOLD=false ./building/container-run.sh linux "$@"
     else
         bash -c "$*"
     fi
