@@ -76,6 +76,7 @@ RUN apt-get update -y && apt-get install -y \
     software-properties-common \
     unzip \
     openjdk-11-jdk \
+    tidy \
     && rm -rf /var/lib/apt/lists/*
 
 # Set default java version
