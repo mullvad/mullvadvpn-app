@@ -437,7 +437,7 @@ impl RouteManagerInternal {
             })?,
         };
 
-        return Ok(Some(luid));
+        Ok(Some(luid))
     }
 
     pub fn delete_applied_routes(&mut self) -> Result<()> {
@@ -504,8 +504,7 @@ impl RouteManagerInternal {
 
         for record in (*records).iter_mut() {
             if matches!(record.route.node, NetNode::DefaultNode)
-                && family
-                    == u32::from(ipnetwork_to_address_family(record.route.network).to_af_family())
+                && family == ipnetwork_to_address_family(record.route.network).to_af_family()
             {
                 affected_routes.push(record);
             }
@@ -569,7 +568,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         | GAA_FLAG_INCLUDE_GATEWAYS;
 
     // SAFETY: The si_family field is always valid to access.
-    let family: u32 = u32::from(unsafe { gateway.si_family });
+    let family = unsafe { gateway.si_family };
     let adapters = Adapters::new(family, ADAPTER_FLAGS)?;
 
     // Process adapters to find matching ones.
@@ -651,7 +650,7 @@ unsafe fn isolate_gateway_address<'a>(
     loop {
         // SAFETY: The contract states that Address.lpSockaddr is dereferencable if the element is
         // non-null
-        if family == u32::from((*gateway.Address.lpSockaddr).sa_family) {
+        if family == (*gateway.Address.lpSockaddr).sa_family {
             // SAFETY: The contract states that this field must have lifetime 'a
             matches.push(&gateway.Address);
         }
@@ -686,7 +685,7 @@ fn equal_address(lhs: &'_ SOCKADDR_INET, rhs: &'_ SOCKET_ADDRESS) -> Result<bool
         return Ok(false);
     }
 
-    match unsafe { lhs.si_family } as u32 {
+    match unsafe { lhs.si_family } {
         AF_INET => {
             let typed_rhs = rhs.lpSockaddr as *mut SOCKADDR_IN;
             // SAFETY: If rhs.lpSockaddr.sa_family is IPv4 then lpSockaddr is a SOCKADDR_IN
@@ -733,7 +732,7 @@ impl Adapters {
             // called again.
             let status = unsafe {
                 GetAdaptersAddresses(
-                    family,
+                    u32::from(family),
                     flags,
                     std::ptr::null_mut(),
                     buffer_pointer as *mut IP_ADAPTER_ADDRESSES_LH,
