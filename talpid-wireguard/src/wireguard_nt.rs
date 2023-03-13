@@ -145,7 +145,7 @@ pub enum Error {
 
     /// Unknown address family
     #[error(display = "Unknown address family: {}", _0)]
-    UnknownAddressFamily(u32),
+    UnknownAddressFamily(u16),
 
     /// Failure to set up logging
     #[error(display = "Failed to set up logging")]
@@ -220,7 +220,7 @@ impl WgAllowedIp {
         Self::validate(&address, address_family, cidr)?;
         Ok(Self {
             address,
-            address_family: address_family as u16,
+            address_family,
             cidr,
         })
     }
@@ -260,7 +260,7 @@ impl PartialEq for WgAllowedIp {
         if self.cidr != other.cidr {
             return false;
         }
-        match self.address_family as u32 {
+        match self.address_family {
             AF_INET => {
                 net::ipaddr_from_inaddr(unsafe { self.address.v4 })
                     == net::ipaddr_from_inaddr(unsafe { other.address.v4 })
@@ -281,7 +281,7 @@ impl Eq for WgAllowedIp {}
 impl fmt::Debug for WgAllowedIp {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("WgAllowedIp");
-        match self.address_family as u32 {
+        match self.address_family {
             AF_INET => s.field(
                 "address",
                 &net::ipaddr_from_inaddr(unsafe { self.address.v4 }),
@@ -762,7 +762,8 @@ impl WgNtDll {
         config: *const MaybeUninit<u8>,
         config_size: usize,
     ) -> io::Result<()> {
-        let result = (self.func_set_configuration)(adapter, config, config_size as u32);
+        let result =
+            (self.func_set_configuration)(adapter, config, u32::try_from(config_size).unwrap());
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
@@ -841,7 +842,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
         listen_port: 0,
         private_key: config.tunnel.private_key.to_bytes(),
         public_key: [0u8; WIREGUARD_KEY_LENGTH],
-        peers_count: config.peers.len() as u32,
+        peers_count: u32::try_from(config.peers.len()).unwrap(),
     };
 
     buffer.extend(as_uninit_byte_slice(&header));
@@ -866,7 +867,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             tx_bytes: 0,
             rx_bytes: 0,
             last_handshake: 0,
-            allowed_ips_count: peer.allowed_ips.len() as u32,
+            allowed_ips_count: u32::try_from(peer.allowed_ips.len()).unwrap(),
         };
 
         buffer.extend(as_uninit_byte_slice(&wg_peer));
@@ -927,7 +928,7 @@ unsafe fn deserialize_config(
             let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
             if let Err(error) = WgAllowedIp::validate(
                 &allowed_ip.address,
-                u32::from(allowed_ip.address_family),
+                allowed_ip.address_family,
                 allowed_ip.cidr,
             ) {
                 log::error!(
@@ -1072,7 +1073,7 @@ mod tests {
             },
             p0_allowed_ip_0: WgAllowedIp {
                 address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
-                address_family: AF_INET as u16,
+                address_family: AF_INET,
                 cidr: 24,
             },
         };
