@@ -43,6 +43,8 @@ object Dependencies {
     }
 
     object Compose {
+        const val composeCollapsingToolbar =
+            "me.onebone:toolbar-compose:${Versions.Compose.composeCollapsingToolbar}"
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation =
@@ -55,6 +57,7 @@ object Dependencies {
         const val uiController =
             "com.google.accompanist:accompanist-systemuicontroller:${Versions.Compose.uiController}"
         const val ui = "androidx.compose.ui:ui:${Versions.Compose.base}"
+        const val uiUtil = "androidx.compose.ui:ui-util:${Versions.Compose.base}"
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.Compose.base}"
         const val uiToolingPreview =
             "androidx.compose.ui:ui-tooling-preview:${Versions.Compose.base}"
