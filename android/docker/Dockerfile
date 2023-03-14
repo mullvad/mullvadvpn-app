@@ -18,7 +18,7 @@
 # patch for a given go version can be identified by checking the wireguard-android
 # repo: https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go.
 # It's also important to keep the go path in sync.
-FROM ghcr.io/mullvad/mullvadvpn-app-build:62371bb6c
+FROM ghcr.io/mullvad/mullvadvpn-app-build:3461d7d2c
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
@@ -34,10 +34,10 @@ ARG SDK_VERSION=platforms;android-33 \
 ARG COMMAND_LINE_TOOLS_VERSION=9123335 \
     COMMAND_LINE_TOOLS_SHA256_CHECKSUM=0bebf59339eaa534f4217f8aa0972d14dc49e7207be225511073c661ae01da0a
 
-# NDK and checksum from: https://github.com/android/ndk/wiki/Unsupported-Downloads
-ARG NDK_VERSION=r20b \
-    NDK_SHA1_CHECKSUM=d903fdf077039ad9331fb6c3bee78aa46d45527b \
-    MIN_SDK_VERSION=21
+# NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
+ARG NDK_VERSION=r25c \
+    NDK_SHA1_CHECKSUM=53af80a1cce9144025b81c78c8cd556bff42bd0e \
+    MIN_SDK_VERSION=26
 
 ENV ANDROID_SDK_ROOT=/opt/android
 # ANDROID_HOME is kept for backwards compatibility
@@ -47,22 +47,22 @@ ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/
 ENV GRADLE_USER_HOME=/root/.gradle
 
 # Rust cross-compilation for: aarch64
-ENV AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-ar \
+ENV AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang
 
 # Rust cross-compilation for: armv7
-ENV AR_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-ar \
+ENV AR_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_armv7_linux_androideabi=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi${MIN_SDK_VERSION}-clang
 
 # Rust cross-compilation for: i686
-ENV AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android-ar \
+ENV AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_i686_linux_android=${NDK_TOOLCHAIN_DIR}/i686-linux-android${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_I686_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/i686-linux-android${MIN_SDK_VERSION}-clang
 
 # Rust cross-compilation for: x86_64
-ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-ar \
+ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang
 
@@ -95,7 +95,7 @@ RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/c
 RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
 
 # Install Android NDK
-RUN curl -sfLo /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip && \
+RUN curl -sfLo /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip && \
     echo "$NDK_SHA1_CHECKSUM /tmp/ndk.zip" | sha1sum -c && \
     unzip -q /tmp/ndk.zip -d $ANDROID_SDK_ROOT && \
     rm /tmp/ndk.zip
