@@ -28,11 +28,11 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 ENV CARGO_TARGET_DIR=/root/.cargo/target
 
-ENV GOLANG_VERSION=1.18.5 \
+ARG GOLANG_VERSION=1.18.5 \
     GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
 # The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
-ARG MOLD_COMMIT_HASH=c4722fe5aed96295837d9150b20ef8698c7a28db
+ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
 
 # === Install/set up the image ===
 
@@ -71,7 +71,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/rui314/mold.git && \
     mkdir mold/build && cd mold/build && \
-    git reset --hard "$MOLD_COMMIT_HASH" && \
+    git reset --hard "$MOLD_COMMIT_REF" && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. && \
     cmake --build . -j $(nproc) && \
     cmake --install . && \
