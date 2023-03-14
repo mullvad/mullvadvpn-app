@@ -49,6 +49,11 @@ Line wrap the file at 100 chars.                                              Th
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
   deprecating it on Windows.
 
+### Deprecated
+#### Linux
+- Deprecated support for Debian 10. This also means dropping support for glibc older
+  than 2.31 and Linux kernels older than 5.10.
+
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.

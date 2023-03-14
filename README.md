@@ -39,7 +39,7 @@ security.
 | macOS       | The three latest major releases |
 | Linux (Ubuntu)| The two latest LTS releases and the latest non-LTS releases |
 | Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
-| Linux (Debian) | The versions that are not yet [EOL](https://wiki.debian.org/DebianReleases) |
+| Linux (Debian) | 11 and newer    |
 | Android     | 8 and newer        |
 | iOS         | 13 and newer       |
 
