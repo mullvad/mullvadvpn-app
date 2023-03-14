@@ -65,11 +65,10 @@ lazy_static! {
     static ref FORWARD_CHAIN_NAME: CString = CString::new("forward").unwrap();
     static ref PREROUTING_CHAIN_NAME: CString = CString::new("prerouting").unwrap();
 
-    /// We need two separate tables for compatibility with older kernels (holds true for kernel
-    /// version 4.19 but not 5.6), where the base filter type may not be `nftnl::ChainType::Route`
-    /// or `nftnl::ChainType::Nat` for inet tables.
-    static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
-    static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
+    /// NOTE: The base filter type may not be `nftnl::ChainType::Route` or `nftnl::ChainType::Nat`
+    /// for inet tables when running older kernels. It's been confirmed to work on 5.6, and not work
+    /// on 4.19.
+    static ref MANGLE_TABLE_NAME: CString = CString::new("mullvadmangle").unwrap();
     static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
     static ref NAT_CHAIN_NAME: CString = CString::new("nat").unwrap();
 
@@ -103,8 +102,7 @@ pub struct Firewall {
 
 struct FirewallTables {
     main: Table,
-    mangle_v4: Table,
-    mangle_v6: Table,
+    mangle: Table,
 }
 
 impl Firewall {
@@ -119,20 +117,18 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         let tables = FirewallTables {
             main: Table::new(&*TABLE_NAME, ProtoFamily::Inet),
-            mangle_v4: Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
-            mangle_v6: Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+            mangle: Table::new(&*MANGLE_TABLE_NAME, ProtoFamily::Inet),
         };
         let batch = PolicyBatch::new(&tables).finalize(&policy, self.fwmark)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
-        self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME_V4, &MANGLE_TABLE_NAME_V6])
+        self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME])
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
         let tables = [
             Table::new(&*TABLE_NAME, ProtoFamily::Inet),
-            Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
-            Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+            Table::new(&*MANGLE_TABLE_NAME, ProtoFamily::Inet),
         ];
         let mut batch = Batch::new();
         for table in &tables {
@@ -235,10 +231,8 @@ struct PolicyBatch<'a> {
     out_chain: Chain<'a>,
     forward_chain: Chain<'a>,
     prerouting_chain: Chain<'a>,
-    mangle_chain_v4: Chain<'a>,
-    mangle_chain_v6: Chain<'a>,
-    nat_chain_v4: Chain<'a>,
-    nat_chain_v6: Chain<'a>,
+    mangle_chain: Chain<'a>,
+    nat_chain: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -268,32 +262,19 @@ impl<'a> PolicyBatch<'a> {
         batch.add(&in_chain, nftnl::MsgType::Add);
         batch.add(&forward_chain, nftnl::MsgType::Add);
 
-        Self::flush_table(&mut batch, &tables.mangle_v4);
-        Self::flush_table(&mut batch, &tables.mangle_v6);
+        Self::flush_table(&mut batch, &tables.mangle);
 
-        let mut add_mangle_chain = |table| {
-            let mut chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
-            chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
-            chain.set_type(nftnl::ChainType::Route);
-            chain.set_policy(nftnl::Policy::Accept);
-            batch.add(&chain, nftnl::MsgType::Add);
+        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, &tables.mangle);
+        mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
+        mangle_chain.set_type(nftnl::ChainType::Route);
+        mangle_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&mangle_chain, nftnl::MsgType::Add);
 
-            chain
-        };
-        let mangle_chain_v4 = add_mangle_chain(&tables.mangle_v4);
-        let mangle_chain_v6 = add_mangle_chain(&tables.mangle_v6);
-
-        let mut add_nat_chain = |table| {
-            let mut chain = Chain::new(&*NAT_CHAIN_NAME, table);
-            chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
-            chain.set_type(nftnl::ChainType::Nat);
-            chain.set_policy(nftnl::Policy::Accept);
-            batch.add(&chain, nftnl::MsgType::Add);
-
-            chain
-        };
-        let nat_chain_v4 = add_nat_chain(&tables.mangle_v4);
-        let nat_chain_v6 = add_nat_chain(&tables.mangle_v6);
+        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, &tables.mangle);
+        nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+        nat_chain.set_type(nftnl::ChainType::Nat);
+        nat_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&nat_chain, nftnl::MsgType::Add);
 
         PolicyBatch {
             batch,
@@ -301,10 +282,8 @@ impl<'a> PolicyBatch<'a> {
             out_chain,
             forward_chain,
             prerouting_chain,
-            mangle_chain_v4,
-            mangle_chain_v6,
-            nat_chain_v4,
-            nat_chain_v6,
+            mangle_chain,
+            nat_chain,
         }
     }
 
@@ -339,20 +318,15 @@ impl<'a> PolicyBatch<'a> {
                 .iter()
                 .filter(|server| !is_local_dns_address(tunnel, server))
             {
-                let chain = if server.is_ipv4() {
-                    &self.mangle_chain_v4
-                } else {
-                    &self.mangle_chain_v6
-                };
                 let allow_rule = allow_tunnel_dns_rule(
-                    chain,
+                    &self.mangle_chain,
                     &tunnel.interface,
                     TransportProtocol::Udp,
                     *server,
                 )?;
                 self.batch.add(&allow_rule, nftnl::MsgType::Add);
                 let allow_rule = allow_tunnel_dns_rule(
-                    chain,
+                    &self.mangle_chain,
                     &tunnel.interface,
                     TransportProtocol::Tcp,
                     *server,
@@ -361,17 +335,14 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        let mangle_chains = [&self.mangle_chain_v4, &self.mangle_chain_v6];
-        for chain in &mangle_chains {
-            let mut rule = Rule::new(chain);
-            rule.add_expr(&nft_expr!(meta cgroup));
-            rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
-            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
-            rule.add_expr(&nft_expr!(ct mark set));
-            rule.add_expr(&nft_expr!(immediate data fwmark));
-            rule.add_expr(&nft_expr!(meta mark set));
-            self.batch.add(&rule, nftnl::MsgType::Add);
-        }
+        let mut rule = Rule::new(&self.mangle_chain);
+        rule.add_expr(&nft_expr!(meta cgroup));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+        rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+        rule.add_expr(&nft_expr!(ct mark set));
+        rule.add_expr(&nft_expr!(immediate data fwmark));
+        rule.add_expr(&nft_expr!(meta mark set));
+        self.batch.add(&rule, nftnl::MsgType::Add);
 
         for chain in &[&self.in_chain, &self.out_chain] {
             let mut rule = Rule::new(chain);
@@ -381,36 +352,33 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
 
-        let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
-        for chain in &nat_chains {
-            // Block remaining marked outgoing in-tunnel traffic
-            if let FirewallPolicy::Connected { tunnel, .. } = policy {
-                let mut block_tunnel_rule = Rule::new(chain);
-                check_iface(&mut block_tunnel_rule, Direction::Out, &tunnel.interface)?;
-                block_tunnel_rule.add_expr(&nft_expr!(ct mark));
-                block_tunnel_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-                add_verdict(&mut block_tunnel_rule, &Verdict::Drop);
-                self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
-            }
-
-            // Replace source IP address in rerouted packets.
-            // Don't masquerade packets on the loopback device.
-            let mut rule = Rule::new(chain);
-
-            let iface_index = crate::linux::iface_index("lo")
-                .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
-            rule.add_expr(&nft_expr!(meta oif));
-            rule.add_expr(&nft_expr!(cmp != iface_index));
-
-            rule.add_expr(&nft_expr!(ct mark));
-            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-
-            rule.add_expr(&nft_expr!(masquerade));
-            if *ADD_COUNTERS {
-                rule.add_expr(&nft_expr!(counter));
-            }
-            self.batch.add(&rule, nftnl::MsgType::Add);
+        // Block remaining marked outgoing in-tunnel traffic
+        if let FirewallPolicy::Connected { tunnel, .. } = policy {
+            let mut block_tunnel_rule = Rule::new(&self.nat_chain);
+            check_iface(&mut block_tunnel_rule, Direction::Out, &tunnel.interface)?;
+            block_tunnel_rule.add_expr(&nft_expr!(ct mark));
+            block_tunnel_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            add_verdict(&mut block_tunnel_rule, &Verdict::Drop);
+            self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
         }
+
+        // Fix source IP address in rerouted packets using masquerade.
+        // Don't masquerade packets on the loopback device.
+        let mut rule = Rule::new(&self.nat_chain);
+
+        let iface_index = crate::linux::iface_index("lo")
+            .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
+        rule.add_expr(&nft_expr!(meta oif));
+        rule.add_expr(&nft_expr!(cmp != iface_index));
+
+        rule.add_expr(&nft_expr!(ct mark));
+        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+
+        rule.add_expr(&nft_expr!(masquerade));
+        if *ADD_COUNTERS {
+            rule.add_expr(&nft_expr!(counter));
+        }
+        self.batch.add(&rule, nftnl::MsgType::Add);
 
         // Route incoming traffic correctly to prevent strict rpf from rejecting packets
         // for excluded processes
