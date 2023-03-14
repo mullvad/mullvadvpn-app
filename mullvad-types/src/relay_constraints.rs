@@ -96,6 +96,8 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
     }
 }
 
+// Using the default attribute fails on Android
+#[allow(clippy::derivable_impls)]
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
     fn default() -> Self {
         Constraint::Any
