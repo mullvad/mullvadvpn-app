@@ -43,6 +43,8 @@ object Dependencies {
     }
 
     object Compose {
+        const val composeCollapsingToolbar =
+            "me.onebone:toolbar-compose:${Versions.Compose.composeCollapsingToolbar}"
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation =
