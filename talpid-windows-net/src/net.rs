@@ -81,7 +81,7 @@ pub enum Error {
 
     /// Unknown address family
     #[error(display = "Unknown address family: {}", _0)]
-    UnknownAddressFamily(u32),
+    UnknownAddressFamily(u16),
 }
 
 /// Handles cases where there DAD state is neither tentative nor preferred.
@@ -119,7 +119,7 @@ impl From<NL_DAD_STATE> for DadStateError {
 impl AddressFamily {
     /// Convert one of the `AF_*` constants to an [`AddressFamily`].
     pub fn try_from_af_family(family: u16) -> Result<AddressFamily> {
-        match u32::from(family) {
+        match family {
             AF_INET => Ok(AddressFamily::Ipv4),
             AF_INET6 => Ok(AddressFamily::Ipv6),
             family => Err(Error::UnknownAddressFamily(family)),
@@ -246,7 +246,7 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
             if unsafe { row.InterfaceLuid.Value != luid.Value } {
                 return;
             }
-            match row.Family as u32 {
+            match row.Family {
                 AF_INET => found_ipv4 = true,
                 AF_INET6 => found_ipv6 = true,
                 _ => (),
@@ -473,7 +473,7 @@ pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
 
 /// Converts a `SOCKADDR_INET` to `SocketAddr`. Returns an error if the address family is invalid.
 pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
-    let family = unsafe { addr.si_family } as u32;
+    let family = unsafe { addr.si_family };
     unsafe {
         let mut storage: sockaddr_storage = mem::zeroed();
         *(&mut storage as *mut _ as *mut SOCKADDR_INET) = addr;

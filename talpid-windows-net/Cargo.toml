@@ -13,7 +13,7 @@ libc = "0.2"
 socket2 = { version = "0.4.2", features = ["all"] }
 futures = "0.3.15"
 winapi = { version = "0.3.6", features = ["ws2def"] }
-windows-sys = { version = "0.42", features = [
+windows-sys = { version = "0.45.0", features = [
     "Win32_Foundation",
     "Win32_Globalization",
     "Win32_System_Com",
