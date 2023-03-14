@@ -252,6 +252,20 @@ impl WireguardMonitor {
             close_obfs_sender.clone(),
         ))?;
 
+        let mut init_tunnel_config = config.clone();
+        // TODO: Currently MH + PQ on MacOS has connection issues during the handshake. This seems
+        // be be due to packet fragmentation happening and PF blocking fragmented packets during
+        // the handshake due to them sometimes not having a port. Lowering the MTU for the initial
+        // tunnel which connects to the exit during PSK + MH negotiation causes less fragmentation
+        // and should be a hacky fix for the problem. In the longer term this should be fixed by
+        // allowing the handshake to work even if there is fragmentation and/or setting the MTU
+        // properly so fragmentation does not happen.
+        #[cfg(target_os = "macos")]
+        if psk_negotiation && config.peers.len() > 1 {
+            const MH_PQ_HANDSHAKE_MTU: u16 = 1280;
+            init_tunnel_config.mtu = MH_PQ_HANDSHAKE_MTU;
+        }
+
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
@@ -259,7 +273,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "android")]
             &Self::patch_allowed_ips(&config, psk_negotiation),
             #[cfg(not(target_os = "android"))]
-            &config,
+            &init_tunnel_config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
