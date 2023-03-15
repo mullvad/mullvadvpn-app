@@ -86,6 +86,7 @@ struct PreferencesViewModel: Equatable {
     private(set) var blockGambling: Bool
     private(set) var enableCustomDNS: Bool
     var customDNSDomains: [DNSServerEntry]
+    var isEditing = false
 
     mutating func setBlockAdvertising(_ newValue: Bool) {
         blockAdvertising = newValue

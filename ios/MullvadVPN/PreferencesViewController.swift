@@ -10,7 +10,7 @@ import UIKit
 
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
     private let interactor: PreferencesInteractor
-    private let dataSource = PreferencesDataSource()
+    private var dataSource: PreferencesDataSource?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -33,8 +33,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
 
-        dataSource.tableView = tableView
-        dataSource.delegate = self
+        dataSource = PreferencesDataSource(tableView: tableView)
+        dataSource?.delegate = self
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
@@ -45,14 +45,14 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         navigationItem.rightBarButtonItem = editButtonItem
 
         interactor.dnsSettingsDidChange = { [weak self] newDNSSettings in
-            self?.dataSource.update(from: newDNSSettings)
+            self?.dataSource?.update(from: newDNSSettings)
         }
 
-        dataSource.update(from: interactor.dnsSettings)
+        dataSource?.update(from: interactor.dnsSettings)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
-        dataSource.setEditing(editing, animated: animated)
+        dataSource?.setEditing(editing, animated: animated)
 
         navigationItem.setHidesBackButton(editing, animated: animated)
 
