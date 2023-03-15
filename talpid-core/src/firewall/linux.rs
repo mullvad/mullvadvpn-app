@@ -235,7 +235,7 @@ impl<'a> PolicyBatch<'a> {
 
         batch_deprecated_tables(&mut batch);
 
-        /// Create the table if it does not exist and clear it otherwise.
+        // Create the table if it does not exist and clear it otherwise.
         batch.add(table, nftnl::MsgType::Add);
         batch.add(table, nftnl::MsgType::Del);
         batch.add(table, nftnl::MsgType::Add);
