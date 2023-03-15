@@ -9,7 +9,7 @@
 import UIKit
 
 class SettingsAddDNSEntryCell: SettingsCell {
-    var actionHandler: ((SettingsAddDNSEntryCell) -> Void)?
+    var action: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -29,7 +29,7 @@ class SettingsAddDNSEntryCell: SettingsCell {
 
     @objc func handleTap(_ sender: UIGestureRecognizer) {
         if case .ended = sender.state {
-            actionHandler?(self)
+            action?()
         }
     }
 }
