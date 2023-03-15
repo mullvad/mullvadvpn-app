@@ -66,6 +66,7 @@ jobs:
         id: native-lib-cache-hash
         shell: bash
         run: |
+          git config --global --add safe.directory $(pwd)
           non_android_hash="$(git grep --cached -l '' -- ':!android/' \
             | xargs -d '\n' sha1sum \
             | sha1sum \
