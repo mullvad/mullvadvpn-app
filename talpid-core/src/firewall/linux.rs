@@ -68,7 +68,6 @@ lazy_static! {
     /// NOTE: The base filter type may not be `nftnl::ChainType::Route` or `nftnl::ChainType::Nat`
     /// for inet tables when running older kernels. It's been confirmed to work on 5.6, and not work
     /// on 4.19.
-    static ref MANGLE_TABLE_NAME: CString = CString::new("mullvadmangle").unwrap();
     static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
     static ref NAT_CHAIN_NAME: CString = CString::new("nat").unwrap();
 
@@ -100,11 +99,6 @@ pub struct Firewall {
     fwmark: u32,
 }
 
-struct FirewallTables {
-    main: Table,
-    mangle: Table,
-}
-
 impl Firewall {
     pub fn from_args(args: FirewallArguments) -> Result<Self> {
         Firewall::new(args.fwmark)
@@ -115,32 +109,30 @@ impl Firewall {
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
-        let tables = FirewallTables {
-            main: Table::new(&*TABLE_NAME, ProtoFamily::Inet),
-            mangle: Table::new(&*MANGLE_TABLE_NAME, ProtoFamily::Inet),
-        };
-        let batch = PolicyBatch::new(&tables).finalize(&policy, self.fwmark)?;
+        let table = Table::new(&*TABLE_NAME, ProtoFamily::Inet);
+        let batch = PolicyBatch::new(&table).finalize(&policy, self.fwmark)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
-        self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME])
+        self.verify_tables(&[&TABLE_NAME])
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
-        let tables = [
-            Table::new(&*TABLE_NAME, ProtoFamily::Inet),
-            Table::new(&*MANGLE_TABLE_NAME, ProtoFamily::Inet),
-        ];
+        let table = Table::new(&*TABLE_NAME, ProtoFamily::Inet);
         let mut batch = Batch::new();
-        for table in &tables {
-            // Our batch will add and remove the table even though the goal is just to remove
-            // it. This because only removing it throws a strange error if the
-            // table does not exist.
-            batch.add(table, nftnl::MsgType::Add);
-            batch.add(table, nftnl::MsgType::Del);
-        }
+
+        // Our batch will add and remove the table even though the goal is just to remove
+        // it. This because only removing it throws a strange error if the
+        // table does not exist.
+        batch.add(&table, nftnl::MsgType::Add);
+        batch.add(&table, nftnl::MsgType::Del);
+
+        batch_deprecated_tables(&mut batch);
+
         let batch = batch.finalize();
+
         log::debug!("Removing table and chain from netfilter");
         Self::send_and_process(&batch)?;
+
         Ok(())
     }
 
@@ -238,39 +230,43 @@ struct PolicyBatch<'a> {
 impl<'a> PolicyBatch<'a> {
     /// Bootstrap a new nftnl message batch object and add the initial messages creating the
     /// table and chains.
-    pub fn new(tables: &'a FirewallTables) -> Self {
+    pub fn new(table: &'a Table) -> Self {
         let mut batch = Batch::new();
-        let mut prerouting_chain = Chain::new(&*PREROUTING_CHAIN_NAME, &tables.main);
+
+        batch_deprecated_tables(&mut batch);
+
+        /// Create the table if it does not exist and clear it otherwise.
+        batch.add(table, nftnl::MsgType::Add);
+        batch.add(table, nftnl::MsgType::Del);
+        batch.add(table, nftnl::MsgType::Add);
+
+        let mut prerouting_chain = Chain::new(&*PREROUTING_CHAIN_NAME, table);
         prerouting_chain.set_hook(nftnl::Hook::PreRouting, PREROUTING_CHAIN_PRIORITY);
         prerouting_chain.set_type(nftnl::ChainType::Filter);
+        batch.add(&prerouting_chain, nftnl::MsgType::Add);
 
-        let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, &tables.main);
+        let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, table);
         out_chain.set_hook(nftnl::Hook::Out, 0);
         out_chain.set_policy(nftnl::Policy::Drop);
+        batch.add(&out_chain, nftnl::MsgType::Add);
 
-        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, &tables.main);
+        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, table);
         in_chain.set_hook(nftnl::Hook::In, 0);
         in_chain.set_policy(nftnl::Policy::Drop);
+        batch.add(&in_chain, nftnl::MsgType::Add);
 
-        let mut forward_chain = Chain::new(&*FORWARD_CHAIN_NAME, &tables.main);
+        let mut forward_chain = Chain::new(&*FORWARD_CHAIN_NAME, table);
         forward_chain.set_hook(nftnl::Hook::Forward, 0);
         forward_chain.set_policy(nftnl::Policy::Drop);
-
-        Self::flush_table(&mut batch, &tables.main);
-        batch.add(&prerouting_chain, nftnl::MsgType::Add);
-        batch.add(&out_chain, nftnl::MsgType::Add);
-        batch.add(&in_chain, nftnl::MsgType::Add);
         batch.add(&forward_chain, nftnl::MsgType::Add);
 
-        Self::flush_table(&mut batch, &tables.mangle);
-
-        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, &tables.mangle);
+        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
         mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
         mangle_chain.set_type(nftnl::ChainType::Route);
         mangle_chain.set_policy(nftnl::Policy::Accept);
         batch.add(&mangle_chain, nftnl::MsgType::Add);
 
-        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, &tables.mangle);
+        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, table);
         nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
         nat_chain.set_type(nftnl::ChainType::Nat);
         nat_chain.set_policy(nftnl::Policy::Accept);
@@ -285,13 +281,6 @@ impl<'a> PolicyBatch<'a> {
             mangle_chain,
             nat_chain,
         }
-    }
-
-    /// Creates the table if it does not exist and clears it otherwise.
-    fn flush_table(batch: &mut Batch, table: &'a Table) {
-        batch.add(table, nftnl::MsgType::Add);
-        batch.add(table, nftnl::MsgType::Del);
-        batch.add(table, nftnl::MsgType::Add);
     }
 
     /// Finalize the nftnl message batch by adding every firewall rule needed to satisfy the given
@@ -1037,4 +1026,21 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
 
 fn set_src_valid_mark_sysctl() -> io::Result<()> {
     fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK, b"1")
+}
+
+/// Tables that are no longer used but need to be deleted due to upgrades.
+/// This can be removed when upgrades from 2023.3 are no longer supported.
+fn batch_deprecated_tables(batch: &mut Batch) {
+    lazy_static! {
+        static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
+        static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
+    }
+    let tables = [
+        Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
+        Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+    ];
+    for table in &tables {
+        batch.add(table, nftnl::MsgType::Add);
+        batch.add(table, nftnl::MsgType::Del);
+    }
 }
