@@ -64,7 +64,7 @@ enum CustomDNSPrecondition {
                 string: NSLocalizedString(
                     "CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE",
                     tableName: "Preferences",
-                    value: "Disable all content blockers (under Preferences) to activate this setting.",
+                    value: "Disable all content blockers (under VPN settings) to activate this setting.",
                     comment: "Foot note displayed when custom DNS cannot be enabled, because content blockers should be disabled first."
                 ),
                 attributes: [.font: preferredFont]
