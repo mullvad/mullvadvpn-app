@@ -105,7 +105,7 @@
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="port_removal_notice">၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။</string>
-    <string name="privacy_policy">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
+    <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
     <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>

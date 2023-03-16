@@ -105,7 +105,7 @@
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
-    <string name="privacy_policy">개인정보 보호정책</string>
+    <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
     <string name="reconnecting">다시 연결 중</string>
     <string name="redeem">사용</string>

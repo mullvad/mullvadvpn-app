@@ -105,7 +105,7 @@
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="port_removal_notice">これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。</string>
-    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
     <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>

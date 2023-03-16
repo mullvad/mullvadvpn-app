@@ -105,7 +105,7 @@
     <string name="paid_until">Pagado hasta</string>
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
     <string name="port_removal_notice">Se eliminarán todos los puertos reenviados. La configuración local se guardará.</string>
-    <string name="privacy_policy">Política de privacidad</string>
+    <string name="privacy_policy_label">Política de privacidad</string>
     <string name="problem_report_description">Para ayudarle de una forma más eficiente, se adjuntará el archivo de registro de la aplicación a este mensaje. Sus datos permanecerán protegidos y privados, ya que se anonimizan antes de enviarse a través de un canal cifrado.</string>
     <string name="reconnecting">Volviendo a establecer la conexión</string>
     <string name="redeem">Canjear</string>

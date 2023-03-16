@@ -105,7 +105,7 @@
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
-    <string name="privacy_policy">Privacybeleid</string>
+    <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
