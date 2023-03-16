@@ -63,7 +63,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString(
                 "PREFERENCES_CELL_LABEL",
                 tableName: "Settings",
-                value: "Preferences",
+                value: "VPN settings",
                 comment: ""
             )
             cell.detailTitleLabel.text = nil

@@ -39,7 +39,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "Preferences",
-            value: "Preferences",
+            value: "VPN settings",
             comment: ""
         )
         navigationItem.rightBarButtonItem = editButtonItem
