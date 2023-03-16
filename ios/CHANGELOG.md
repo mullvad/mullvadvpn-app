@@ -43,6 +43,7 @@ with the option to buy more time.
 - Swap vertical position of country and city labels on connection view.
 - Display remaining account time in years if equal to or more than two years,
   otherwise display days.
+- Change naming of "Preferences" to "VPN Settings"
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
