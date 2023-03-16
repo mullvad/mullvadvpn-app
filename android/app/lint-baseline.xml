@@ -178,17 +178,6 @@
     </issue>
 
     <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;`/data/`&quot;; use `Context.getFilesDir().getPath()` instead"
-        errorLine1="        FileMigrator(File(&quot;/data/data/net.mullvad.mullvadvpn&quot;), vpnService.filesDir).apply {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/service/DaemonInstance.kt"
-            line="77"
-            column="28"/>
-    </issue>
-
-    <issue
         id="RedundantLabel"
         message="Redundant label can be removed"
         errorLine1="            android:label=&quot;@string/app_name&quot;"
