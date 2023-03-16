@@ -1,6 +1,7 @@
+#!/usr/bin/env bash
+
 # CI/Developer script to format
 # Relies on Tidy - https://github.com/htacg/tidy-html5
-
 
 # Autoformats Android XML files
 function tidy-up-android-xml {
