@@ -37,9 +37,9 @@ extension REST {
             applyJitter: false
         )
 
-        /// Startegy configured with 3 retry attempts and exponential backoff.
+        /// Startegy configured with 2 retry attempts and exponential backoff.
         public static var `default` = RetryStrategy(
-            maxRetryCount: 3,
+            maxRetryCount: 2,
             delay: defaultRetryDelay,
             applyJitter: true
         )
