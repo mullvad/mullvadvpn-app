@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.util.Intermittent
 
 class DaemonInstance(
-    val vpnService: MullvadVpnService
+    private val vpnService: MullvadVpnService
 ) {
     sealed class Command {
         data class Start(val apiEndpointConfiguration: ApiEndpointConfiguration) : Command()
@@ -42,7 +42,7 @@ class DaemonInstance(
         intermittentDaemon.onDestroy()
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+    private fun spawnActor() = GlobalScope.actor(Dispatchers.Default, Channel.UNLIMITED) {
         var isRunning = true
 
         while (isRunning) {
