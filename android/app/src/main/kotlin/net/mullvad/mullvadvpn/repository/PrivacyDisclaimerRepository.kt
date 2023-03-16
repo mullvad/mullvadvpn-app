@@ -12,6 +12,6 @@ class PrivacyDisclaimerRepository(
     }
 
     fun setPrivacyDisclosureAccepted() {
-        sharedPreferences.edit().putBoolean(IS_PRIVACY_DISCLOSURE_ACCEPTED_KEY, true).commit()
+        sharedPreferences.edit().putBoolean(IS_PRIVACY_DISCLOSURE_ACCEPTED_KEY, true).apply()
     }
 }
