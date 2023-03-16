@@ -2573,39 +2573,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton android:id=&quot;@+id/settings&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/launch.xml"
-            line="5"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:layout_width=&quot;120dp&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/launch.xml"
-            line="19"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:layout_height=&quot;18dp&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/launch.xml"
-            line="22"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="                &lt;ImageView android:id=&quot;@+id/logged_in_status&quot;"
         errorLine2="                 ~~~~~~~~~">
         <location
@@ -3238,17 +3205,6 @@
         <location
             file="src/main/res/layout/edit_custom_dns_server.xml"
             line="25"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="                 android:layout_gravity=&quot;top | right&quot;"
-        errorLine2="                                         ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/launch.xml"
-            line="8"
             column="42"/>
     </issue>
 
