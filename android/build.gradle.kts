@@ -44,6 +44,7 @@ allprojects {
     configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
         kotlinLangStyle()
     }
+
 }
 
 tasks.withType<DependencyUpdatesTask> {
