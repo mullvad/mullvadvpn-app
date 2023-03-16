@@ -105,7 +105,7 @@
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="port_removal_notice">Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane.</string>
-    <string name="privacy_policy">Polityka prywatności</string>
+    <string name="privacy_policy_label">Polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>

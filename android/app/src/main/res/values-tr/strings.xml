@@ -105,7 +105,7 @@
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
-    <string name="privacy_policy">Gizlilik politikası</string>
+    <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
     <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>

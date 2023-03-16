@@ -33,7 +33,7 @@ fun PreviewTopBar() {
 @Composable
 fun TopBar(
     backgroundColor: Color,
-    onSettingsClicked: () -> Unit,
+    onSettingsClicked: (() -> Unit)?,
     modifier: Modifier = Modifier,
     isIconAndLogoVisible: Boolean = true
 ) {
@@ -72,16 +72,18 @@ fun TopBar(
             )
         }
 
-        Image(
-            painter = painterResource(R.drawable.icon_settings),
-            contentDescription = stringResource(id = R.string.settings),
-            modifier = Modifier
-                .clickable { onSettingsClicked() }
-                .fillMaxHeight()
-                .padding(horizontal = 16.dp)
-                .constrainAs(settingsIcon) {
-                    end.linkTo(parent.end)
-                }
-        )
+        if (onSettingsClicked != null) {
+            Image(
+                painter = painterResource(R.drawable.icon_settings),
+                contentDescription = stringResource(id = R.string.settings),
+                modifier = Modifier
+                    .clickable { onSettingsClicked() }
+                    .fillMaxHeight()
+                    .padding(horizontal = 16.dp)
+                    .constrainAs(settingsIcon) {
+                        end.linkTo(parent.end)
+                    }
+            )
+        }
     }
 }

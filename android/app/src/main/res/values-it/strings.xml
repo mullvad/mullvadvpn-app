@@ -105,7 +105,7 @@
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="port_removal_notice">Questa operazione eliminerà tutte le porte inoltrate. Le impostazioni locali verranno salvate.</string>
-    <string name="privacy_policy">Informativa sulla privacy</string>
+    <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
     <string name="reconnecting">Riconnessione</string>
     <string name="redeem">Riscatta</string>

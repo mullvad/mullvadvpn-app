@@ -36,6 +36,10 @@ fun UiDevice.findObjectWithTimeout(
     }
 }
 
+fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
+    findObjectWithTimeout(By.text("Agree and continue")).click()
+}
+
 fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ) {

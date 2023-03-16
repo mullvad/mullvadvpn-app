@@ -26,6 +26,7 @@ class ServiceConnectionManager(
     @Deprecated(message = "Use connectionState")
     val serviceNotifier = EventNotifier<ServiceConnectionContainer?>(null)
 
+    var isBound = false
     private var vpnPermissionRequestHandler: (() -> Unit)? = null
 
     private val serviceConnection = object : android.content.ServiceConnection {
@@ -54,22 +55,32 @@ class ServiceConnectionManager(
         vpnPermissionRequestHandler: () -> Unit,
         apiEndpointConfiguration: ApiEndpointConfiguration?
     ) {
-        this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
-        val intent = Intent(context, MullvadVpnService::class.java)
+        synchronized(this) {
+            if (isBound.not()) {
+                this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
+                val intent = Intent(context, MullvadVpnService::class.java)
 
-        if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
-            intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
+                if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
+                    intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
+                }
+
+                context.startService(intent)
+                context.bindService(intent, serviceConnection, 0)
+                isBound = true
+            }
         }
-
-        context.startService(intent)
-        context.bindService(intent, serviceConnection, 0)
     }
 
     fun unbind() {
-        _connectionState.value.readyContainer()?.onDestroy()
-        context.unbindService(serviceConnection)
-        notify(ServiceConnectionState.Disconnected)
-        vpnPermissionRequestHandler = null
+        synchronized(this) {
+            if (isBound) {
+                _connectionState.value.readyContainer()?.onDestroy()
+                context.unbindService(serviceConnection)
+                notify(ServiceConnectionState.Disconnected)
+                vpnPermissionRequestHandler = null
+                isBound = false
+            }
+        }
     }
 
     fun onDestroy() {

@@ -33,11 +33,13 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
@@ -73,6 +75,7 @@ open class MainActivity : FragmentActivity() {
 
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
 
@@ -82,6 +85,7 @@ open class MainActivity : FragmentActivity() {
         getKoin().apply {
             accountRepository = get()
             deviceRepository = get()
+            privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             changelogViewModel = get()
         }
@@ -100,18 +104,29 @@ open class MainActivity : FragmentActivity() {
         }
 
         setContentView(R.layout.main)
-
-        launchDeviceStateHandler()
-        checkForNotificationPermission()
     }
 
     override fun onStart() {
         Log.d("mullvad", "Starting main activity")
         super.onStart()
 
+        if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            initializeStateHandlerAndServiceConnection(
+                apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+            )
+        } else {
+            openPrivacyDisclaimerFragment()
+        }
+    }
+
+    fun initializeStateHandlerAndServiceConnection(
+        apiEndpointConfiguration: ApiEndpointConfiguration?
+    ) {
+        launchDeviceStateHandler()
+        checkForNotificationPermission()
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+            apiEndpointConfiguration = apiEndpointConfiguration
         )
     }
 
@@ -240,6 +255,13 @@ open class MainActivity : FragmentActivity() {
     private fun openLaunchView() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoadingFragment())
+            commitAllowingStateLoss()
+        }
+    }
+
+    private fun openPrivacyDisclaimerFragment() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, PrivacyDisclaimerFragment())
             commitAllowingStateLoss()
         }
     }
