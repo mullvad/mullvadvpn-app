@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
@@ -21,6 +22,7 @@ class LoginMockApiTest : MockApiTest() {
         app.launch(endpoint)
 
         // Act
+        device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
@@ -40,6 +42,7 @@ class LoginMockApiTest : MockApiTest() {
 
         // Act
         app.launch(endpoint)
+        device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
@@ -59,6 +62,7 @@ class LoginMockApiTest : MockApiTest() {
 
         // Act
         app.launch(endpoint)
+        device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)

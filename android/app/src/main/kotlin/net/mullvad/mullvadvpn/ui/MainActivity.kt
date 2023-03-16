@@ -114,7 +114,6 @@ open class MainActivity : FragmentActivity() {
             initializeStateHandlerAndServiceConnection(
                 apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
             )
-            checkForNotificationPermission()
         } else {
             openPrivacyDisclaimerFragment()
         }
@@ -124,6 +123,7 @@ open class MainActivity : FragmentActivity() {
         apiEndpointConfiguration: ApiEndpointConfiguration?
     ) {
         launchDeviceStateHandler()
+        checkForNotificationPermission()
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = apiEndpointConfiguration
