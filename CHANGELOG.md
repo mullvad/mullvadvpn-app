@@ -45,6 +45,9 @@ Line wrap the file at 100 chars.                                              Th
 - Update OpenSSL to 1.1.1t from 1.1.1j.
 - Post-Quantum secure tunnels and multihop can now be used at the same time.
 
+#### Android
+- Change Android key rotation interval to 7 days instead of 4.
+
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
   deprecating it on Windows.
