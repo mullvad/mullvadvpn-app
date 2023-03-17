@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
     <string name="add_a_server">Dodaj serwer</string>
-    <string name="add_anyway">Mimo to dodaj</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
     <string name="all_applications">Wszystkie aplikacje</string>
     <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">TWORZENIE BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
-    <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać nazwy hosta serwera niestandardowego</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>

@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
     <string name="add_a_server">Tilføj en server</string>
-    <string name="add_anyway">Tilføj alligevel</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
-    <string name="custom_dns_hint">Indtast IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værtsnavnet på den tilpassede server</string>
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>

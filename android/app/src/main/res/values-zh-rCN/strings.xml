@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
     <string name="add_a_server">添加服务器</string>
-    <string name="add_anyway">仍然添加</string>
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="all_applications">所有应用程序</string>
     <string name="allow_lan_footer">允许访问同一个网络上的其他设备以进行共享和打印等。</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">正在创建安全连接</string>
     <string name="critical_error">严重错误（需要注意）</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
-    <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
