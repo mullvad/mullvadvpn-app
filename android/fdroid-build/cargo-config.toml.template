@@ -1,15 +1,15 @@
 [target.aarch64-linux-android]
-ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
 
 [target.armv7-linux-androideabi]
-ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang"
+ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi26-clang"
 
 [target.x86_64-linux-android]
-ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
-linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
+ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
 
 [target.i686-linux-android]
-ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android-ar"
-linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
+ar = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "{NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android26-clang"
