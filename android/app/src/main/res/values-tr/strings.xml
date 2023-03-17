@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
     <string name="add_a_server">Sunucu ekle</string>
-    <string name="add_anyway">Yine de ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
-    <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>

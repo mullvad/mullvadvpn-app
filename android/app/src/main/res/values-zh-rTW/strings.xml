@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">在帳戶時間即將到期時顯示提醒</string>
     <string name="account_time_notification_channel_name">帳戶時間提醒</string>
     <string name="add_a_server">新增伺服器</string>
-    <string name="add_anyway">仍要新增</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="all_applications">所有應用程式</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行共用、列印等。</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
-    <string name="custom_dns_hint">輸入 IP</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂伺服器的主機名稱</string>
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
