@@ -30,7 +30,7 @@ import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ListItem
-import net.mullvad.mullvadvpn.compose.component.ShowDeviceRemovalDialog
+import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 
