@@ -16,9 +16,8 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 ANDROID_CREDENTIALS_DIR=${ANDROID_CREDENTIALS_DIR:-""}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-# Don't use mold by default until we have published the images with mold in
-# and swapped our builds to use them.
-USE_MOLD=${USE_MOLD:-"false"}
+# Use mold for linking by default. Build servers opt out of this and use GNU ld
+USE_MOLD=${USE_MOLD:-"true"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
