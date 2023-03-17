@@ -29,7 +29,7 @@ extension REST.Error: DisplayError {
                 return String(format: NSLocalizedString(
                     "INVALID_ACCOUNT_ERROR",
                     tableName: "REST",
-                    value: "Unexpected server response: %@",
+                    value: "Unexpected server response: %d",
                     comment: ""
                 ), statusCode)
             }
