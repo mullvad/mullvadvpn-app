@@ -1605,6 +1605,9 @@ msgstr ""
 msgid "Account time reminders"
 msgstr ""
 
+msgid "Add DNS server"
+msgstr ""
+
 msgid "Advanced"
 msgstr ""
 
@@ -1639,6 +1642,9 @@ msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
 msgid "Enable"
+msgstr ""
+
+msgid "Enter…"
 msgstr ""
 
 msgid "Excluded applications"
@@ -1686,6 +1692,12 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Remove"
+msgstr ""
+
+msgid "Reset to default"
+msgstr ""
+
 msgid "Secured"
 msgstr ""
 
@@ -1704,7 +1716,13 @@ msgstr ""
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr ""
 
+msgid "Submit"
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr ""
+
+msgid "This address has already been entered."
 msgstr ""
 
 msgid "This device is offline, no tunnels can be established"
@@ -1720,6 +1738,9 @@ msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s
 msgstr ""
 
 msgid "Unsecured"
+msgstr ""
+
+msgid "Update DNS server"
 msgstr ""
 
 msgid "Update available, download to remain safe."
