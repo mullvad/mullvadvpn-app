@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
     <string name="add_a_server">Server toevoegen</string>
-    <string name="add_anyway">Toch toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">BEVEILIGDE VERBINDING AANMAKEN</string>
     <string name="critical_error">Kritieke fout (uw aandacht is vereist)</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
-    <string name="custom_dns_hint">Voer IP-adres in</string>
     <string name="custom_tunnel_host_resolution_error">Kon de hostnaam van de aangepaste server niet omzetten</string>
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>

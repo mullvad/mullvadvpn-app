@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
     <string name="add_a_server">サーバーを追加</string>
-    <string name="add_anyway">追加を続ける</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="allow_lan_footer">共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
-    <string name="custom_dns_hint">IPを入力</string>
     <string name="custom_tunnel_host_resolution_error">カスタムサーバーのホスト名を解決できませんでした</string>
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>

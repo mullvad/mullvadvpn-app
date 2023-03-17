@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Показывает уведомления, когда время на учетной записи скоро закончится</string>
     <string name="account_time_notification_channel_name">Напоминания о времени на учетной записи</string>
     <string name="add_a_server">Добавить сервер</string>
-    <string name="add_anyway">Всё равно добавить</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
     <string name="all_applications">Все приложения</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для передачи данных, печати и т. д.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
-    <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского сервера</string>
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>

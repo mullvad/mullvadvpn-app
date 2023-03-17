@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Erinnerungen anzeigen, wenn die Kontozeit bald abläuft</string>
     <string name="account_time_notification_channel_name">Erinnerungen an die Kontozeit</string>
     <string name="add_a_server">Server hinzufügen</string>
-    <string name="add_anyway">Trotzdem hinzufügen</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit ist erforderlich)</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
-    <string name="custom_dns_hint">IP eingeben</string>
     <string name="custom_tunnel_host_resolution_error">Der Hostname des benutzerdefinierten Servers konnte nicht aufgelöst werden</string>
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>

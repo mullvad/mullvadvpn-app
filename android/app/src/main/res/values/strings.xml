@@ -147,11 +147,9 @@
     <string name="enable">Enable</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
-    <string name="custom_dns_hint">Enter IP</string>
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
     <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local
     Network Sharing\" under Preferences.</string>
-    <string name="add_anyway">Add anyway</string>
     <string name="exclude_applications">Excluded applications</string>
     <string name="all_applications">All applications</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
