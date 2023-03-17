@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ChangelogDialog
+import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
