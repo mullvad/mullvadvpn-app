@@ -34,13 +34,13 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
-import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsComposeCell
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
+import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.getScrollPercentage
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
