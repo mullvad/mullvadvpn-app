@@ -8,11 +8,7 @@ use talpid_types::net::wireguard;
 
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
-pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
-    Duration::from_secs(4 * 24 * 60 * 60)
-} else {
-    Duration::from_secs(7 * 24 * 60 * 60)
-};
+pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
 /// Whether to enable or disable quantum resistant tunnels when the setting
 /// is set to `QuantumResistantState::Auto`.

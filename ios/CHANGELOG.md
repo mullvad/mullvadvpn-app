@@ -43,6 +43,7 @@ with the option to buy more time.
 - Swap vertical position of country and city labels on connection view.
 - Display remaining account time in years if equal to or more than two years,
   otherwise display days.
+- Changed key rotation interval from 4 to 7 days.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
