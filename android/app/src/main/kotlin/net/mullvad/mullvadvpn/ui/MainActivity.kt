@@ -45,6 +45,8 @@ import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoginFragment
 import net.mullvad.mullvadvpn.ui.fragment.OutOfTimeFragment
+import net.mullvad.mullvadvpn.ui.fragment.PrivacyDisclaimerFragment
+import net.mullvad.mullvadvpn.ui.fragment.SettingsFragment
 import net.mullvad.mullvadvpn.ui.fragment.WelcomeFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.util.SdkUtils.isNotificationPermissionGranted
