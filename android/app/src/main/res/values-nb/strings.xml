@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntreffe</string>
     <string name="account_time_notification_channel_name">Påminnelser om tidsavbrudd for konto</string>
     <string name="add_a_server">Legg til en server</string>
-    <string name="add_anyway">Legg til likevel</string>
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="all_applications">Alle applikasjoner</string>
     <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">OPPRETTER SIKKER TILKOBLING</string>
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
-    <string name="custom_dns_hint">Angi IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vertsnavnet til den egendefinerte serveren</string>
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>

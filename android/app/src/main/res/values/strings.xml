@@ -147,11 +147,9 @@
     <string name="enable">Enable</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
-    <string name="custom_dns_hint">Enter IP</string>
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
     <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local
     Network Sharing\" under Preferences.</string>
-    <string name="add_anyway">Add anyway</string>
     <string name="exclude_applications">Excluded applications</string>
     <string name="all_applications">All applications</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
@@ -203,4 +201,11 @@
     then the app queries your system for a list of all installed applications. This list is only
     retrieved in the split tunneling view. The list of installed applications is never sent from
     the device.</string>
+    <string name="submit_button">Submit</string>
+    <string name="remove_button">Remove</string>
+    <string name="enter_value_placeholder">Enter…</string>
+    <string name="reset_to_default_button">Reset to default</string>
+    <string name="add_dns_server_dialog_title">Add DNS server</string>
+    <string name="update_dns_server_dialog_title">Update DNS server</string>
+    <string name="duplicate_address_warning">This address has already been entered.</string>
 </resources>

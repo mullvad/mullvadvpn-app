@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
-    <string name="add_anyway">เพิ่มต่อไป</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
-    <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>

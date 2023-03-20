@@ -8,7 +8,6 @@
     <string name="account_time_notification_channel_description">Affiche des rappels lorsque le temps du compte va expirer</string>
     <string name="account_time_notification_channel_name">Rappels de temps pour le compte</string>
     <string name="add_a_server">Ajouter un serveur</string>
-    <string name="add_anyway">Ajouter quand même</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="allow_lan_footer">Autorise l\'accès aux autres appareils sur le même réseau pour partager, imprimer, etc.</string>
@@ -43,7 +42,6 @@
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
-    <string name="custom_dns_hint">Saisir l\'IP</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
