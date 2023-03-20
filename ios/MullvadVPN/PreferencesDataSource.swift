@@ -147,10 +147,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         if viewModel != mergedViewModel {
             viewModel = mergedViewModel
-
-            updateSnapshot()
-            reloadCustomDNSFooter()
         }
+
+        updateCellFactory(with: viewModel)
+        updateSnapshot()
+        reloadCustomDNSFooter()
     }
 
     // MARK: - UITableViewDataSource
