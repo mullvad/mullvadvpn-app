@@ -343,6 +343,7 @@
 		7AD8490D29BA1EC500878E53 /* SettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD8490C29BA1EC500878E53 /* SettingsCellFactory.swift */; };
 		7AD8490F29BA26B000878E53 /* CellFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD8490E29BA26B000878E53 /* CellFactoryProtocol.swift */; };
 		7AD8491129BA316500878E53 /* PreferencesCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD8491029BA316500878E53 /* PreferencesCellFactory.swift */; };
+		7AF1E73A29C47727002C6633 /* LocationCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF1E73929C47727002C6633 /* LocationCellFactory.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* StringFormatter.swift */; };
@@ -909,6 +910,7 @@
 		7AD8490C29BA1EC500878E53 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
 		7AD8490E29BA26B000878E53 /* CellFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellFactoryProtocol.swift; sourceTree = "<group>"; };
 		7AD8491029BA316500878E53 /* PreferencesCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesCellFactory.swift; sourceTree = "<group>"; };
+		7AF1E73929C47727002C6633 /* LocationCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCellFactory.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
@@ -1423,6 +1425,7 @@
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				58E20770274672CA00DE5D77 /* LaunchViewController.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
+				7AF1E73929C47727002C6633 /* LocationCellFactory.swift */,
 				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
 				58C3F4F82964B08300D72515 /* MapViewController.swift */,
@@ -2386,6 +2389,7 @@
 				587EB6742714520600123C75 /* PreferencesDataSourceDelegate.swift in Sources */,
 				584555F42991176200DD0657 /* UIPresentationController+Private.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
+				7AF1E73A29C47727002C6633 /* LocationCellFactory.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,

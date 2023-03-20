@@ -20,23 +20,25 @@ protocol LocationDataSourceItemProtocol {
     var indentationLevel: Int { get }
 }
 
-class LocationDataSource: NSObject, UITableViewDataSource {
-    typealias CellProviderBlock = (UITableView, IndexPath, LocationDataSourceItemProtocol)
-        -> UITableViewCell
-    typealias CellConfiguratorBlock = (UITableViewCell, IndexPath, LocationDataSourceItemProtocol)
-        -> Void
+final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation> {
+    enum CellReuseIdentifiers: String, CaseIterable {
+        case locationCell
+
+        var reusableViewClass: AnyClass {
+            switch self {
+            case .locationCell:
+                return SelectLocationCell.self
+            }
+        }
+    }
 
     private var nodeByLocation = [RelayLocation: Node]()
     private var locationList = [RelayLocation]()
     private var rootNode = makeRootNode()
+    private(set) var selectedRelayLocation: RelayLocation?
 
     private let tableView: UITableView
-    private let cellProvider: CellProviderBlock
-    private let cellConfigurator: CellConfiguratorBlock
-
-    private(set) var selectedRelayLocation: RelayLocation?
-    private var lastShowHiddenParents = false
-    private var lastScrollPosition: UITableView.ScrollPosition = .none
+    private let locationCellFactory: LocationCellFactory
 
     private class func makeRootNode() -> Node {
         return Node(
@@ -49,60 +51,46 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         )
     }
 
-    init(
-        tableView: UITableView,
-        cellProvider: @escaping CellProviderBlock,
-        cellConfigurator: @escaping CellConfiguratorBlock
-    ) {
+    var didSelectRelayLocation: ((RelayLocation) -> Void)?
+
+    init(tableView: UITableView) {
         self.tableView = tableView
-        self.cellProvider = cellProvider
-        self.cellConfigurator = cellConfigurator
 
-        super.init()
+        let locationCellFactory = LocationCellFactory(
+            tableView: tableView,
+            nodeByLocation: nodeByLocation
+        )
+        self.locationCellFactory = locationCellFactory
 
-        tableView.dataSource = self
+        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+            locationCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
+        }
+
+        tableView.delegate = self
+        locationCellFactory.delegate = self
+
+        defaultRowAnimation = .fade
+        registerClasses()
     }
 
     func setSelectedRelayLocation(
         _ relayLocation: RelayLocation?,
-        showHiddenParents: Bool,
-        animated: Bool,
-        scrollPosition: UITableView.ScrollPosition,
-        completion: (() -> Void)? = nil
+        animated: Bool
     ) {
         selectedRelayLocation = relayLocation
-        lastShowHiddenParents = showHiddenParents
-        lastScrollPosition = scrollPosition
 
-        if relayLocation == nil {
-            if let indexPath = tableView.indexPathForSelectedRow {
-                tableView.deselectRow(at: indexPath, animated: animated)
-            }
-            completion?()
-        } else {
-            let setSelection = {
-                if let indexPath = self.indexPathForSelectedRelay() {
-                    self.tableView.selectRow(
-                        at: indexPath,
-                        animated: animated,
-                        scrollPosition: scrollPosition
-                    )
-                }
-                completion?()
-            }
-
-            if let relayLocation = relayLocation, showHiddenParents {
-                showParents(relayLocation, animated: animated, completion: setSelection)
-            } else {
-                setSelection()
-            }
+        let selectedLocationTree = selectedRelayLocation?.ascendants ?? []
+        selectedLocationTree.forEach { location in
+            nodeByLocation[location]?.showsChildren = true
         }
+
+        updateCellFactory(with: nodeByLocation)
+        updateDataSnapshot(with: locationList, animated: animated)
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse) {
         let rootNode = Self.makeRootNode()
         var nodeByLocation = [RelayLocation: Node]()
-        let dataSourceWasEmpty = locationList.isEmpty
 
         for relay in response.wireguard.relays {
             guard case let .city(
@@ -119,7 +107,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
                 }
 
                 // Maintain the `showsChildren` state when transitioning between relay lists
-                let wasShowingChildren = self.nodeByLocation[ascendantOrSelf]?
+                let wasShowingChildren = nodeByLocation[ascendantOrSelf]?
                     .showsChildren ?? false
 
                 let node: Node
@@ -168,288 +156,172 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         self.rootNode = rootNode
         locationList = rootNode.flatRelayLocationList()
 
-        tableView.reloadData()
-
-        let setSelection = { (_ scrollPosition: UITableView.ScrollPosition) in
-            if let indexPath = self.indexPathForSelectedRelay() {
-                self.tableView.selectRow(
-                    at: indexPath,
-                    animated: false,
-                    scrollPosition: scrollPosition
-                )
-            }
-        }
-
-        // Sometimes the selected relay may be set before the data source is populated with relays.
-        // In that case restore the selection using cached parameters from the last call to
-        // `setSelectedRelayLocation`.
-        if let selectedRelayLocation = selectedRelayLocation, dataSourceWasEmpty {
-            if lastShowHiddenParents {
-                showParents(selectedRelayLocation, animated: false) {
-                    setSelection(self.lastScrollPosition)
-                }
-            } else {
-                setSelection(lastScrollPosition)
-            }
-        } else {
-            setSelection(.none)
-        }
-    }
-
-    func showChildren(
-        _ relayLocation: RelayLocation,
-        showHiddenParents: Bool = false,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        toggleChildrenInternal(
-            relayLocation,
-            show: true,
-            showHiddenParents: showHiddenParents,
-            animated: animated,
-            completion: completion
-        )
-    }
-
-    func hideChildren(
-        _ relayLocation: RelayLocation,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        toggleChildrenInternal(
-            relayLocation,
-            show: false,
-            showHiddenParents: false,
-            animated: animated,
-            completion: completion
-        )
-    }
-
-    func toggleChildren(
-        _ relayLocation: RelayLocation,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        guard let node = nodeByLocation[relayLocation] else { return }
-
-        toggleChildrenInternal(
-            relayLocation,
-            show: !node.showsChildren,
-            showHiddenParents: false,
-            animated: animated,
-            completion: completion
-        )
-    }
-
-    private func showParents(
-        _ relayLocation: RelayLocation,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        switch relayLocation {
-        case .country:
-            completion?()
-        case .city:
-            if let countryLocation = relayLocation.ascendants.first {
-                toggleChildrenInternal(
-                    countryLocation,
-                    show: true,
-                    showHiddenParents: false,
-                    animated: animated,
-                    completion: completion
-                )
-            }
-        case .hostname:
-            if let cityLocation = relayLocation.ascendants.last {
-                toggleChildrenInternal(
-                    cityLocation,
-                    show: true,
-                    showHiddenParents: true,
-                    animated: animated,
-                    completion: completion
-                )
-            }
-        }
-    }
-
-    private func toggleChildrenInternal(
-        _ relayLocation: RelayLocation,
-        show: Bool,
-        showHiddenParents: Bool,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        let affectedRelayLocations: [RelayLocation]
-        if showHiddenParents {
-            affectedRelayLocations = relayLocation.ascendants + [relayLocation]
-        } else {
-            affectedRelayLocations = [relayLocation]
-        }
-
-        let affectedNodes = affectedRelayLocations.compactMap { relayLocation -> Node? in
-            return nodeByLocation[relayLocation]
-        }
-
-        // Pick the topmost node to expand or collapse
-        guard let topNode = affectedNodes.first(where: { node -> Bool in
-            return node.isCollapsible && node.showsChildren != show
-        }) else {
-            completion?()
-            return
-        }
-
-        let numAffectedChildren = topNode.countChildrenRecursive { node -> Bool in
-            if show {
-                return node.showsChildren || affectedNodes.contains(where: { otherNode -> Bool in
-                    return node === otherNode
-                })
-            } else {
-                return node.showsChildren
-            }
-        }
-
-        let applyChanges = { () -> ChangeSet? in
-            guard let topIndexPath = self.indexPath(for: topNode.location) else { return nil }
-
-            affectedNodes.forEach { node in
-                node.showsChildren = show
-            }
-
-            let affectedRange = (topIndexPath.row + 1 ... topIndexPath.row + numAffectedChildren)
-            let affectedIndexPaths = affectedRange.map { row -> IndexPath in
-                return IndexPath(row: row, section: 0)
-            }
-
-            if show {
-                self.locationList.insert(
-                    contentsOf: topNode.flatRelayLocationList(),
-                    at: topIndexPath.row + 1
-                )
-
-                return ChangeSet(
-                    insertIndexPaths: affectedIndexPaths,
-                    deleteIndexPaths: [],
-                    updateIndexPaths: [topIndexPath]
-                )
-            } else {
-                self.locationList.removeSubrange(affectedRange)
-
-                return ChangeSet(
-                    insertIndexPaths: [],
-                    deleteIndexPaths: affectedIndexPaths,
-                    updateIndexPaths: [topIndexPath]
-                )
-            }
-        }
-
-        let restoreSelection = {
-            if let indexPath = self.indexPathForSelectedRelay() {
-                self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
-            }
-        }
-
-        let scrollToInsertedIndexPaths = { [weak tableView] (changeSet: ChangeSet) in
-            guard let lastInsertedIndexPath = changeSet.insertIndexPaths.last,
-                  let lastUpdatedIndexPath = changeSet.updateIndexPaths.last,
-                  let visibleIndexPaths = tableView?.indexPathsForVisibleRows,
-                  let lastVisibleIndexPath = visibleIndexPaths.last,
-                  lastInsertedIndexPath >= lastVisibleIndexPath
-            else {
-                return
-            }
-            if changeSet.insertIndexPaths.count >= visibleIndexPaths.count {
-                tableView?.scrollToRow(at: lastUpdatedIndexPath, at: .top, animated: animated)
-            } else {
-                tableView?.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
-            }
-        }
-
-        if animated {
-            guard let changeSet = applyChanges() else {
-                completion?()
-                return
-            }
-
-            tableView.performBatchUpdates {
-                tableView.insertRows(at: changeSet.insertIndexPaths, with: .fade)
-                tableView.deleteRows(at: changeSet.deleteIndexPaths, with: .fade)
-                changeSet.updateIndexPaths.forEach { indexPath in
-                    guard let item = item(for: indexPath) else {
-                        assertionFailure()
-                        return
-                    }
-
-                    if let cell = tableView.cellForRow(at: indexPath) {
-                        cellConfigurator(cell, indexPath, item)
-                    }
-                }
-            } completion: { finished in
-                scrollToInsertedIndexPaths(changeSet)
-                restoreSelection()
-                completion?()
-            }
-        } else {
-            _ = applyChanges()
-            tableView.reloadData()
-            restoreSelection()
-            completion?()
-        }
-    }
-
-    func relayLocation(for indexPath: IndexPath) -> RelayLocation? {
-        return locationList[indexPath.row]
-    }
-
-    func item(for indexPath: IndexPath) -> LocationDataSourceItemProtocol? {
-        return relayLocation(for: indexPath)
-            .flatMap { relayLocation -> Node? in
-                return nodeByLocation[relayLocation]
-            }
-    }
-
-    func indexPath(for location: RelayLocation) -> IndexPath? {
-        return locationList.firstIndex(of: location).map { index -> IndexPath in
-            return IndexPath(row: index, section: 0)
-        }
+        updateCellFactory(with: nodeByLocation)
+        updateDataSnapshot(with: locationList)
     }
 
     func indexPathForSelectedRelay() -> IndexPath? {
-        return selectedRelayLocation.flatMap { relayLocation -> IndexPath? in
-            return self.indexPath(for: relayLocation)
+        return selectedRelayLocation.flatMap { indexPath(for: $0) }
+    }
+
+    private func updateDataSnapshot(
+        with locations: [RelayLocation],
+        animated: Bool = false,
+        completion: (() -> Void)? = nil
+    ) {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, RelayLocation>()
+        snapshot.appendSections([0])
+
+        for location in locations {
+            snapshot.appendItems([location])
+
+            guard let countryNode = nodeByLocation[location], countryNode.showsChildren else {
+                continue
+            }
+
+            for cityNode in countryNode.children {
+                snapshot.appendItems([cityNode.location])
+
+                guard cityNode.showsChildren else {
+                    continue
+                }
+
+                snapshot.appendItems(cityNode.children.map { $0.location })
+            }
+        }
+
+        apply(snapshot, animatingDifferences: animated, completion: completion)
+    }
+
+    private func registerClasses() {
+        CellReuseIdentifiers.allCases.forEach { enumCase in
+            tableView.register(
+                enumCase.reusableViewClass,
+                forCellReuseIdentifier: enumCase.rawValue
+            )
         }
     }
 
-    // MARK: - UITableViewDataSource
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+    private func updateCellFactory(with nodeByLocation: [RelayLocation: Node]) {
+        locationCellFactory.nodeByLocation = nodeByLocation
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        assert(section == 0)
-        return locationList.count
+    private func toggleChildren(
+        _ relayLocation: RelayLocation,
+        show: Bool,
+        animated: Bool
+    ) {
+        guard let node = nodeByLocation[relayLocation] else { return }
+
+        node.showsChildren = show
+
+        if let indexPath = indexPath(for: node.location),
+           let cell = tableView.cellForRow(at: indexPath)
+        {
+            locationCellFactory.configureCell(cell, item: node.location, indexPath: indexPath)
+        }
+
+        updateCellFactory(with: nodeByLocation)
+        updateDataSnapshot(with: locationList, animated: animated) { [weak self] in
+            guard let visibleIndexPaths = self?.tableView.indexPathsForVisibleRows else { return }
+
+            let scrollToNodeTop = {
+                if let firstInsertedIndexPath = self?.indexPath(for: node.location) {
+                    self?.tableView.scrollToRow(
+                        at: firstInsertedIndexPath,
+                        at: .top,
+                        animated: animated
+                    )
+                }
+            }
+
+            let scrollToNodeBottom = {
+                if let location = node.children.last?.location,
+                   let lastInsertedIndexPath = self?.indexPath(for: location),
+                   let lastVisibleIndexPath = visibleIndexPaths.last,
+                   lastInsertedIndexPath >= lastVisibleIndexPath
+                {
+                    self?.tableView.scrollToRow(
+                        at: lastInsertedIndexPath,
+                        at: .bottom,
+                        animated: animated
+                    )
+                }
+            }
+
+            if node.children.count > visibleIndexPaths.count {
+                scrollToNodeTop()
+            } else {
+                scrollToNodeBottom()
+            }
+        }
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        assert(indexPath.section == 0)
-        let item = item(for: indexPath)!
-        let cell = cellProvider(tableView, indexPath, item)
+    private func item(for indexPath: IndexPath) -> LocationDataSourceItemProtocol? {
+        return itemIdentifier(for: indexPath).flatMap { nodeByLocation[$0] }
+    }
+}
 
-        cellConfigurator(cell, indexPath, item)
+extension LocationDataSource: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        return item(for: indexPath)?.isActive ?? false
+    }
 
-        return cell
+    func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
+        return item(for: indexPath)?.indentationLevel ?? 0
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        if let item = item(for: indexPath),
+           item.location == selectedRelayLocation
+        {
+            cell.setSelected(true, animated: false)
+        }
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let item = item(for: indexPath) else { return }
+
+        if let indexPath = indexPathForSelectedRelay(),
+           let cell = tableView.cellForRow(at: indexPath)
+        {
+            cell.setSelected(false, animated: false)
+        }
+
+        setSelectedRelayLocation(
+            item.location,
+            animated: false
+        )
+
+        didSelectRelayLocation?(item.location)
+    }
+}
+
+extension LocationDataSource: LocationCellEventHandler {
+    func collapseCell(for item: RelayLocation) {
+        guard let node = nodeByLocation[item] else { return }
+
+        toggleChildren(
+            item,
+            show: !node.showsChildren,
+            animated: true
+        )
     }
 }
 
 extension LocationDataSource {
-    private enum NodeType {
+    enum NodeType {
         case root
         case country
         case city
         case relay
     }
 
-    private class Node: LocationDataSourceItemProtocol {
+    class Node: LocationDataSourceItemProtocol {
         let nodeType: NodeType
         var location: RelayLocation
         var displayName: String
@@ -561,12 +433,6 @@ extension LocationDataSource {
                 }
             }
         }
-    }
-
-    private struct ChangeSet {
-        let insertIndexPaths: [IndexPath]
-        let deleteIndexPaths: [IndexPath]
-        let updateIndexPaths: [IndexPath]
     }
 }
 

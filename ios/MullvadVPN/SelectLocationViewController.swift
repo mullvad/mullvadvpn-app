@@ -19,8 +19,6 @@ protocol SelectLocationViewControllerDelegate: AnyObject {
 }
 
 class SelectLocationViewController: UIViewController, UITableViewDelegate {
-    static let cellReuseIdentifier = "Cell"
-
     private var tableView: UITableView?
 
     private let tableHeaderFooterView = SelectLocationHeaderView()
@@ -75,12 +73,14 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         tableView.estimatedRowHeight = 53
         tableView.indicatorStyle = .white
 
-        tableView.register(
-            SelectLocationCell.self,
-            forCellReuseIdentifier: Self.cellReuseIdentifier
-        )
-
         self.tableView = tableView
+        dataSource = LocationDataSource(tableView: tableView)
+        tableView.dataSource = dataSource
+
+        dataSource?.didSelectRelayLocation = { [weak self] location in
+            guard let self = self else { return }
+            self.delegate?.selectLocationViewController(self, didSelectRelayLocation: location)
+        }
 
         view.accessibilityElements = [tableHeaderFooterView, tableView]
         view.backgroundColor = .secondaryColor
@@ -88,31 +88,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         tableHeaderFooterView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableHeaderFooterView)
-
-        dataSource = LocationDataSource(
-            tableView: tableView,
-            cellProvider: { tableView, indexPath, item in
-                return tableView.dequeueReusableCell(
-                    withIdentifier: Self.cellReuseIdentifier,
-                    for: indexPath
-                )
-            },
-            cellConfigurator: { [weak self] cell, indexPath, item in
-                guard let cell = cell as? SelectLocationCell else { return }
-
-                cell.accessibilityIdentifier = item.location.stringRepresentation
-                cell.isDisabled = !item.isActive
-                cell.locationLabel.text = item.displayName
-                cell.showsCollapseControl = item.isCollapsible
-                cell.isExpanded = item.showsChildren
-                cell.didCollapseHandler = { [weak self] cell in
-                    self?.collapseCell(cell)
-                }
-            }
-        )
-
-        tableView.delegate = self
-        tableView.dataSource = dataSource
 
         tableHeaderFooterViewTopConstraints = [
             tableHeaderFooterView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -140,9 +115,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         if let setRelayLocationOnViewDidLoad = setRelayLocationOnViewDidLoad {
             dataSource?.setSelectedRelayLocation(
                 setRelayLocationOnViewDidLoad,
-                showHiddenParents: true,
-                animated: false,
-                scrollPosition: setScrollPositionOnViewDidLoad
+                animated: false
             )
         }
     }
@@ -194,41 +167,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         updateTableHeaderTopLayoutMargin()
     }
 
-    // MARK: - UITableViewDelegate
-
-    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        return dataSource?.item(for: indexPath)?.isActive ?? false
-    }
-
-    func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
-        return dataSource?.item(for: indexPath)?.indentationLevel ?? 0
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-        if let item = dataSource?.item(for: indexPath),
-           item.location == dataSource?.selectedRelayLocation
-        {
-            cell.setSelected(true, animated: false)
-        }
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let item = dataSource?.item(for: indexPath) else { return }
-
-        dataSource?.setSelectedRelayLocation(
-            item.location,
-            showHiddenParents: false,
-            animated: false,
-            scrollPosition: .none
-        )
-
-        delegate?.selectLocationViewController(self, didSelectRelayLocation: item.location)
-    }
-
     // MARK: - Public
 
     func setCachedRelays(_ cachedRelays: CachedRelays) {
@@ -252,23 +190,8 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         dataSource?.setSelectedRelayLocation(
             relayLocation,
-            showHiddenParents: true,
-            animated: animated,
-            scrollPosition: scrollPosition
+            animated: animated
         )
-    }
-
-    // MARK: - Collapsible cells
-
-    private func collapseCell(_ cell: SelectLocationCell) {
-        guard let cellIndexPath = tableView?.indexPath(for: cell),
-              let dataSource = dataSource,
-              let location = dataSource.relayLocation(for: cellIndexPath)
-        else {
-            return
-        }
-
-        dataSource.toggleChildren(location, animated: true)
     }
 
     // MARK: - Private
