@@ -25,15 +25,16 @@ class VoucherRedeemer(private val endpoint: ServiceEndpoint) {
         voucherChannel.close()
     }
 
-    private fun spawnActor() = GlobalScope.actor<String>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            for (voucher in channel) {
-                val result = daemon.await().submitVoucher(voucher)
+    private fun spawnActor() =
+        GlobalScope.actor<String>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                for (voucher in channel) {
+                    val result = daemon.await().submitVoucher(voucher)
 
-                endpoint.sendEvent(Event.VoucherSubmissionResult(voucher, result))
+                    endpoint.sendEvent(Event.VoucherSubmissionResult(voucher, result))
+                }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Voucher channel was closed, stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Voucher channel was closed, stop the actor
         }
-    }
 }

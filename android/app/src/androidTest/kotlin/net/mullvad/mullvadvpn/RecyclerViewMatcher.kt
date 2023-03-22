@@ -19,27 +19,27 @@ class RecyclerViewMatcher(private val recyclerViewId: Int) {
             var childView: View? = null
 
             override fun describeTo(description: Description) {
-                val idDescription = resources?.let {
-                    try {
-                        it.getResourceName(recyclerViewId)
-                    } catch (var4: NotFoundException) {
-                        "$recyclerViewId (resource name not found)"
+                val idDescription =
+                    resources?.let {
+                        try {
+                            it.getResourceName(recyclerViewId)
+                        } catch (var4: NotFoundException) {
+                            "$recyclerViewId (resource name not found)"
+                        }
                     }
-                } ?: recyclerViewId.toString()
+                        ?: recyclerViewId.toString()
                 description.appendText("with id: $idDescription")
             }
 
             override fun matchesSafely(view: View): Boolean {
                 resources = view.resources
-                val recyclerView =
-                    view.rootView.findViewById<View>(recyclerViewId) as RecyclerView?
+                val recyclerView = view.rootView.findViewById<View>(recyclerViewId) as RecyclerView?
                 if (recyclerView == null || recyclerView.id != recyclerViewId) {
                     return false
                 }
                 childView = recyclerView.findViewHolderForAdapterPosition(position)?.itemView
-                val targetView = targetViewId?.let { id ->
-                    childView?.findViewById<View>(id)
-                } ?: childView
+                val targetView =
+                    targetViewId?.let { id -> childView?.findViewById<View>(id) } ?: childView
                 return view == targetView
             }
         }

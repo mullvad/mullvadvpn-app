@@ -23,17 +23,18 @@ class Debouncer<T>(initialValue: T, val intervalInMs: Long = 0) {
     var debouncedValue = initialValue
         private set
 
-    var rawValue by observable(initialValue) { _, oldValue, newValue ->
-        if (newValue != oldValue) {
-            jobTracker.cancelJob("notifyNewValue")
+    var rawValue by
+        observable(initialValue) { _, oldValue, newValue ->
+            if (newValue != oldValue) {
+                jobTracker.cancelJob("notifyNewValue")
 
-            if (newValue != debouncedValue) {
-                jobTracker.newUiJob("notifyNewValue") {
-                    delay(intervalInMs)
-                    listener?.invoke(newValue)
-                    debouncedValue = newValue
+                if (newValue != debouncedValue) {
+                    jobTracker.newUiJob("notifyNewValue") {
+                        delay(intervalInMs)
+                        listener?.invoke(newValue)
+                        debouncedValue = newValue
+                    }
                 }
             }
         }
-    }
 }

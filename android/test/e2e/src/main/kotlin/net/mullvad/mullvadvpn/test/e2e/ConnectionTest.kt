@@ -12,13 +12,9 @@ import org.junit.Test
 
 class ConnectionTest : EndToEndTest() {
 
-    @Rule
-    @JvmField
-    val cleanupAccountTestRule = CleanupAccountTestRule()
+    @Rule @JvmField val cleanupAccountTestRule = CleanupAccountTestRule()
 
-    @Rule
-    @JvmField
-    val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
+    @Rule @JvmField val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
     @Test
     fun testConnectAndVerifyWithConnectionCheck() {

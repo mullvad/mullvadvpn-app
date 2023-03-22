@@ -37,28 +37,28 @@ import org.koin.core.scope.Scope
 
 class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
     private val listItemsAdapter = ListItemsAdapter()
-    private val scope: Scope = getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE))
-        .also { appsScope ->
+    private val scope: Scope =
+        getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE)).also { appsScope ->
             getKoin().getScopeOrNull(SERVICE_CONNECTION_SCOPE)?.let { serviceConnectionScope ->
                 appsScope.linkTo(serviceConnectionScope)
             }
         }
-    private val viewModel by scope.viewModel<SplitTunnelingViewModel>(
-        owner = {
-            ViewModelOwner.from(this, this)
-        }
-    )
+    private val viewModel by
+        scope.viewModel<SplitTunnelingViewModel>(owner = { ViewModelOwner.from(this, this) })
     private val toggleSystemAppsVisibility = Channel<Boolean>(Channel.CONFLATED)
     private val toggleExcludeChannel = Channel<ListItemData>(Channel.BUFFERED)
-    private val listItemListener = object : ListItemListener {
-        override fun onItemAction(item: ListItemData) {
-            when (item.widget) {
-                is ImageState -> toggleExcludeChannel.trySend(item)
-                is SwitchState -> toggleSystemAppsVisibility.trySend(!item.widget.isChecked)
-                else -> { /* NOOP */ }
+    private val listItemListener =
+        object : ListItemListener {
+            override fun onItemAction(item: ListItemData) {
+                when (item.widget) {
+                    is ImageState -> toggleExcludeChannel.trySend(item)
+                    is SwitchState -> toggleSystemAppsVisibility.trySend(!item.widget.isChecked)
+                    else -> {
+                        /* NOOP */
+                    }
+                }
             }
         }
-    }
 
     private var recyclerView: RecyclerView? = null
 
@@ -69,32 +69,24 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
         }
         listItemsAdapter.listItemListener = listItemListener
         listItemsAdapter.setHasStableIds(true)
-        recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView).apply {
-            adapter = listItemsAdapter
-            addItemDecoration(
-                ListItemDividerDecoration(
-                    topOffset = resources.getDimensionPixelSize(R.dimen.list_item_divider)
+        recyclerView =
+            view.findViewById<RecyclerView>(R.id.recyclerView).apply {
+                adapter = listItemsAdapter
+                addItemDecoration(
+                    ListItemDividerDecoration(
+                        topOffset = resources.getDimensionPixelSize(R.dimen.list_item_divider)
+                    )
                 )
-            )
-            tweakMargin(this)
-        }
-        view.findViewById<View>(R.id.back).setOnClickListener {
-            requireActivity().onBackPressed()
-        }
+                tweakMargin(this)
+            }
+        view.findViewById<View>(R.id.back).setOnClickListener { requireActivity().onBackPressed() }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.listItems
-                .onEach {
-                    listItemsAdapter.setItems(it)
-                }
-                .catch { }
-                .collect()
+            viewModel.listItems.onEach { listItemsAdapter.setItems(it) }.catch {}.collect()
         }
         lifecycleScope.launchWhenResumed {
             // pass view intent to view model
-            intents()
-                .onEach { viewModel.processIntent(it) }
-                .collect()
+            intents().onEach { viewModel.processIntent(it) }.collect()
         }
     }
 
@@ -105,11 +97,12 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
         super.onDestroy()
     }
 
-    private fun intents(): Flow<ViewIntent> = merge(
-        transitionFinishedFlow.map { ViewIntent.ViewIsReady },
-        toggleExcludeChannel.consumeAsFlow().map { ViewIntent.ChangeApplicationGroup(it) },
-        toggleSystemAppsVisibility.consumeAsFlow().map { ViewIntent.ShowSystemApps(it) }
-    )
+    private fun intents(): Flow<ViewIntent> =
+        merge(
+            transitionFinishedFlow.map { ViewIntent.ViewIsReady },
+            toggleExcludeChannel.consumeAsFlow().map { ViewIntent.ChangeApplicationGroup(it) },
+            toggleSystemAppsVisibility.consumeAsFlow().map { ViewIntent.ShowSystemApps(it) }
+        )
 
     private fun tweakMargin(view: View) {
         if (!hasNavigationBar()) {

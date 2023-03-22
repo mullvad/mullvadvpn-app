@@ -37,17 +37,15 @@ fun PrivacyDisclaimerScreen(
     onAcceptClicked: () -> Unit,
 ) {
     ConstraintLayout(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(colorResource(id = R.color.darkBlue))
+        modifier =
+            Modifier.fillMaxHeight().fillMaxWidth().background(colorResource(id = R.color.darkBlue))
     ) {
         val (body, actionButtons) = createRefs()
         val sideMargin = dimensionResource(id = R.dimen.side_margin)
 
         Column(
-            modifier = Modifier
-                .constrainAs(body) {
+            modifier =
+                Modifier.constrainAs(body) {
                     top.linkTo(parent.top, margin = sideMargin)
                     start.linkTo(parent.start, margin = sideMargin)
                     end.linkTo(parent.end, margin = sideMargin)
@@ -68,34 +66,33 @@ fun PrivacyDisclaimerScreen(
                 modifier = Modifier.padding(top = 10.dp)
             )
 
-            Row(
-                modifier = Modifier.padding(top = 10.dp)
-            ) {
+            Row(modifier = Modifier.padding(top = 10.dp)) {
                 ClickableText(
                     text = AnnotatedString(stringResource(id = R.string.privacy_policy_label)),
                     onClick = { onPrivacyPolicyLinkClicked.invoke() },
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        color = Color.White,
-                        textDecoration = TextDecoration.Underline
-                    )
+                    style =
+                        TextStyle(
+                            fontSize = 12.sp,
+                            color = Color.White,
+                            textDecoration = TextDecoration.Underline
+                        )
                 )
 
                 Image(
                     painter = painterResource(id = R.drawable.icon_extlink),
                     contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(start = 2.dp, top = 2.dp)
-                        .width(10.dp)
-                        .height(10.dp)
+                    modifier =
+                        Modifier.align(Alignment.CenterVertically)
+                            .padding(start = 2.dp, top = 2.dp)
+                            .width(10.dp)
+                            .height(10.dp)
                 )
             }
         }
 
         Column(
-            modifier = Modifier
-                .constrainAs(actionButtons) {
+            modifier =
+                Modifier.constrainAs(actionButtons) {
                     bottom.linkTo(parent.bottom, margin = sideMargin)
                     start.linkTo(parent.start, margin = sideMargin)
                     end.linkTo(parent.end, margin = sideMargin)
@@ -105,12 +102,11 @@ fun PrivacyDisclaimerScreen(
             ActionButton(
                 text = stringResource(id = R.string.agree_and_continue),
                 onClick = onAcceptClicked::invoke,
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                    backgroundColor = colorResource(
-                        R.color.blue
+                colors =
+                    ButtonDefaults.buttonColors(
+                        contentColor = Color.White,
+                        backgroundColor = colorResource(R.color.blue)
                     )
-                )
             )
         }
     }

@@ -73,9 +73,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     ): View {
         val view = inflater.inflate(R.layout.redeem_voucher, container, false)
 
-        voucherInput = view.findViewById<EditText>(R.id.voucher_code).apply {
-            addTextChangedListener(ValidVoucherCodeChecker())
-        }
+        voucherInput =
+            view.findViewById<EditText>(R.id.voucher_code).apply {
+                addTextChangedListener(ValidVoucherCodeChecker())
+            }
 
         SegmentedInputFormatter(voucherInput, '-').apply {
             allCaps = true
@@ -85,13 +86,12 @@ class RedeemVoucherDialogFragment : DialogFragment() {
             }
         }
 
-        redeemButton = view.findViewById<Button>(R.id.redeem).apply {
-            setEnabled(false)
+        redeemButton =
+            view.findViewById<Button>(R.id.redeem).apply {
+                setEnabled(false)
 
-            setOnClickAction("action", jobTracker) {
-                submitVoucher()
+                setOnClickAction("action", jobTracker) { submitVoucher() }
             }
-        }
 
         errorMessage = view.findViewById(R.id.error)
 
@@ -141,7 +141,9 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         when (result) {
             is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
             is VoucherSubmissionResult.Error -> showError(result.error)
-            else -> { /* NOOP */ }
+            else -> {
+                /* NOOP */
+            }
         }
     }
 
@@ -152,11 +154,12 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private fun showError(error: VoucherSubmissionError) {
-        val message = when (error) {
-            VoucherSubmissionError.InvalidVoucher -> R.string.invalid_voucher
-            VoucherSubmissionError.VoucherAlreadyUsed -> R.string.voucher_already_used
-            else -> R.string.error_occurred
-        }
+        val message =
+            when (error) {
+                VoucherSubmissionError.InvalidVoucher -> R.string.invalid_voucher
+                VoucherSubmissionError.VoucherAlreadyUsed -> R.string.voucher_already_used
+                else -> R.string.error_occurred
+            }
 
         errorMessage.apply {
             setText(message)

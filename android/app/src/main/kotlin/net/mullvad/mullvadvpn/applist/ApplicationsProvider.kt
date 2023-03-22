@@ -9,12 +9,12 @@ class ApplicationsProvider(
     private val thisPackageName: String
 ) {
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
-        hasInternetPermission(appInfo.packageName) &&
-            !isSelfApplication(appInfo.packageName)
+        hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
     }
 
     fun getAppsList(): List<AppData> {
-        return packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        return packageManager
+            .getInstalledApplications(PackageManager.GET_META_DATA)
             .asSequence()
             .filter(applicationFilterPredicate)
             .map { info ->

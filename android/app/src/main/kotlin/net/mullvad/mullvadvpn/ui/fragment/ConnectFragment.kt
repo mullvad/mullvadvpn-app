@@ -68,8 +68,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var status: ConnectionStatus
     private lateinit var locationInfo: LocationInfo
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,9 +82,10 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     ): View? {
         val view = inflater.inflate(R.layout.connect, container, false)
 
-        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = TunnelState.Disconnected
-        }
+        headerBar =
+            view.findViewById<HeaderBar>(R.id.header_bar).apply {
+                tunnelState = TunnelState.Disconnected
+            }
 
         accountExpiryNotification.onClick = {
             serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
@@ -95,20 +95,20 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             }
         }
 
-        notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
-            notifications.apply {
-                // NOTE: The order of below notifications is significant.
-                register(tunnelStateNotification)
-                register(versionInfoNotification)
-                register(accountExpiryNotification)
+        notificationBanner =
+            view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
+                notifications.apply {
+                    // NOTE: The order of below notifications is significant.
+                    register(tunnelStateNotification)
+                    register(versionInfoNotification)
+                    register(accountExpiryNotification)
+                }
             }
-        }
 
         status = ConnectionStatus(view, requireMainActivity())
 
-        locationInfo = LocationInfo(view, requireContext()) {
-            connectViewModel.toggleTunnelInfoExpansion()
-        }
+        locationInfo =
+            LocationInfo(view, requireContext()) { connectViewModel.toggleTunnelInfoExpansion() }
 
         actionButton = ConnectActionButton(view)
 
@@ -119,9 +119,10 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             onDisconnect = { serviceConnectionManager.connectionProxy()?.disconnect() }
         }
 
-        switchLocationButton = view.findViewById<SwitchLocationButton>(R.id.switch_location).apply {
-            onClick = { openSwitchLocationScreen() }
-        }
+        switchLocationButton =
+            view.findViewById<SwitchLocationButton>(R.id.switch_location).apply {
+                onClick = { openSwitchLocationScreen() }
+            }
 
         return view
     }
@@ -136,15 +137,16 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
     }
 
-    val shared = serviceConnectionManager.connectionState
-        .flatMapLatest { state ->
-            if (state is ServiceConnectionState.ConnectedReady) {
-                flowOf(state.container)
-            } else {
-                emptyFlow()
+    val shared =
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    flowOf(state.container)
+                } else {
+                    emptyFlow()
+                }
             }
-        }
-        .shareIn(lifecycleScope, SharingStarted.WhileSubscribed())
+            .shareIn(lifecycleScope, SharingStarted.WhileSubscribed())
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -164,9 +166,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
-        onNewLocation = {
-            this.trySend(it)
-        }
+        onNewLocation = { this.trySend(it) }
         awaitClose { onNewLocation = null }
     }
 
@@ -177,9 +177,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
-        onRelayListChange = { _, item ->
-            this.trySend(item)
-        }
+        onRelayListChange = { _, item -> this.trySend(item) }
         awaitClose { onRelayListChange = null }
     }
 
@@ -208,17 +206,15 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun CoroutineScope.launchAccountExpirySubscription() = launch {
-        accountRepository.accountExpiryState
-            .collect {
-                accountExpiryNotification.updateAccountExpiry(it.date())
-            }
+        accountRepository.accountExpiryState.collect {
+            accountExpiryNotification.updateAccountExpiry(it.date())
+        }
     }
 
     private fun CoroutineScope.launchTunnelInfoExpansionSubscription() = launch {
-        connectViewModel.isTunnelInfoExpanded
-            .collect { isExpanded ->
-                locationInfo.isTunnelInfoExpanded = isExpanded
-            }
+        connectViewModel.isTunnelInfoExpanded.collect { isExpanded ->
+            locationInfo.isTunnelInfoExpanded = isExpanded
+        }
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
@@ -259,7 +255,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
         return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
-            ?.isCausedByExpiredAccount() ?: false
+            ?.isCausedByExpiredAccount()
+            ?: false
     }
 
     companion object {

@@ -21,17 +21,11 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 @Preview
 @Composable
 private fun PreviewDnsComposeCell() {
-    CustomDnsComposeCell(
-        checkboxDefaultState = true,
-        onToggle = {}
-    )
+    CustomDnsComposeCell(checkboxDefaultState = true, onToggle = {})
 }
 
 @Composable
-fun CustomDnsComposeCell(
-    checkboxDefaultState: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
+fun CustomDnsComposeCell(checkboxDefaultState: Boolean, onToggle: (Boolean) -> Unit) {
     val titleModifier = Modifier
     val bodyViewModifier = Modifier
     val subtitleModifier = Modifier
@@ -40,9 +34,7 @@ fun CustomDnsComposeCell(
         title = { CustomDnsCellTitle(modifier = titleModifier) },
         bodyView = {
             CustomDnsCellView(
-                switchTriggered = {
-                    onToggle(it)
-                },
+                switchTriggered = { onToggle(it) },
                 isToggled = checkboxDefaultState,
                 modifier = bodyViewModifier
             )
@@ -53,9 +45,7 @@ fun CustomDnsComposeCell(
 }
 
 @Composable
-fun CustomDnsCellTitle(
-    modifier: Modifier
-) {
+fun CustomDnsCellTitle(modifier: Modifier) {
     val textSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     Text(
         text = stringResource(R.string.enable_custom_dns),
@@ -63,27 +53,14 @@ fun CustomDnsCellTitle(
         fontWeight = FontWeight.Bold,
         fontSize = textSize,
         color = MullvadWhite,
-        modifier = modifier
-            .wrapContentWidth(align = Alignment.End)
-            .wrapContentHeight()
+        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
     )
 }
 
 @Composable
-fun CustomDnsCellView(
-    switchTriggered: (Boolean) -> Unit,
-    isToggled: Boolean,
-    modifier: Modifier
-) {
-    Row(
-        modifier = modifier
-            .wrapContentWidth()
-            .wrapContentHeight()
-    ) {
-        CellSwitch(
-            isChecked = isToggled,
-            onCheckedChange = null
-        )
+fun CustomDnsCellView(switchTriggered: (Boolean) -> Unit, isToggled: Boolean, modifier: Modifier) {
+    Row(modifier = modifier.wrapContentWidth().wrapContentHeight()) {
+        CellSwitch(isChecked = isToggled, onCheckedChange = null)
     }
 }
 

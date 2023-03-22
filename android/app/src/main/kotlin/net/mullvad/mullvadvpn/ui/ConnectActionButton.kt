@@ -70,10 +70,11 @@ class ConnectActionButton(val parentView: View) {
         reconnectButton.addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
             val width = right - left
             val layoutParams = reconnectButton.layoutParams
-            val leftMargin = when (layoutParams) {
-                is MarginLayoutParams -> layoutParams.leftMargin
-                else -> 0
-            }
+            val leftMargin =
+                when (layoutParams) {
+                    is MarginLayoutParams -> layoutParams.leftMargin
+                    else -> 0
+                }
 
             reconnectButtonSpace = width + leftMargin
         }

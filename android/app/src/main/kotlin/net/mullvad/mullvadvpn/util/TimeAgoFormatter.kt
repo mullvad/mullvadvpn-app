@@ -7,9 +7,7 @@ import org.joda.time.Duration
 import org.joda.time.PeriodType
 
 class TimeAgoFormatter(val resources: Resources) {
-    private val periodType = PeriodType.standard()
-        .withMillisRemoved()
-        .withSecondsRemoved()
+    private val periodType = PeriodType.standard().withMillisRemoved().withSecondsRemoved()
 
     fun format(instant: DateTime): String {
         val elapsedTime = Duration(instant, DateTime.now())

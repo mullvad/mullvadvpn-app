@@ -64,23 +64,20 @@ class DeviceListFragment : Fragment() {
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         deviceListViewModel.toastMessages
             .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-            .collect {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            }
+            .collect { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
     }
 
     private fun openLoginView(doTriggerAutoLogin: Boolean) {
         parentActivity()?.clearBackStack()
-        val loginFragment = LoginFragment().apply {
-            if (doTriggerAutoLogin && deviceListViewModel.accountToken != null) {
-                arguments = Bundle().apply {
-                    putString(
-                        ACCOUNT_TOKEN_ARGUMENT_KEY,
-                        deviceListViewModel.accountToken
-                    )
+        val loginFragment =
+            LoginFragment().apply {
+                if (doTriggerAutoLogin && deviceListViewModel.accountToken != null) {
+                    arguments =
+                        Bundle().apply {
+                            putString(ACCOUNT_TOKEN_ARGUMENT_KEY, deviceListViewModel.accountToken)
+                        }
                 }
             }
-        }
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, loginFragment)
             commitAllowingStateLoss()

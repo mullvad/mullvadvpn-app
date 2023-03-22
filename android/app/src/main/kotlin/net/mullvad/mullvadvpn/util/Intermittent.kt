@@ -67,19 +67,18 @@ class Intermittent<T> {
         synchronized(this@Intermittent) {
             val previousUpdate = updateJob
 
-            updateJob = GlobalScope.launch(Dispatchers.Default) {
-                previousUpdate?.join()
-                update(newValue)
-            }
+            updateJob =
+                GlobalScope.launch(Dispatchers.Default) {
+                    previousUpdate?.join()
+                    update(newValue)
+                }
         }
     }
 
     // Helper method that provides a simple way to change the wrapped value.
     // The method returns a property delegate that will spawn a coroutine to update the wrapped
     // value every time the property is written to.
-    fun source() = observable<T?>(null) { _, _, newValue ->
-        spawnUpdate(newValue)
-    }
+    fun source() = observable<T?>(null) { _, _, newValue -> spawnUpdate(newValue) }
 
     fun onDestroy() {
         notifier.unsubscribeAll()

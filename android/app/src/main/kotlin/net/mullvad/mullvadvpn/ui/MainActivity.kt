@@ -90,11 +90,12 @@ open class MainActivity : FragmentActivity() {
             changelogViewModel = get()
         }
 
-        requestedOrientation = if (deviceIsTv) {
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        requestedOrientation =
+            if (deviceIsTv) {
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
 
         super.onCreate(savedInstanceState)
 
@@ -235,9 +236,7 @@ open class MainActivity : FragmentActivity() {
                     ChangelogDialog(
                         changesList = state.changes,
                         version = BuildConfig.VERSION_NAME,
-                        onDismiss = {
-                            changelogViewModel.dismissChangelogDialog()
-                        }
+                        onDismiss = { changelogViewModel.dismissChangelogDialog() }
                     )
                 }
             }
@@ -270,21 +269,22 @@ open class MainActivity : FragmentActivity() {
         val isNewAccount = accountToken == accountRepository.cachedCreatedAccount.value
         val isExpired = isNewAccount.not() && isExpired(LOGIN_AWAIT_EXPIRY_MILLIS)
 
-        val fragment = when {
-            isNewAccount -> WelcomeFragment()
-            isExpired -> {
-                if (shouldDelayLogin) {
-                    delay(LOGIN_DELAY_MILLIS)
+        val fragment =
+            when {
+                isNewAccount -> WelcomeFragment()
+                isExpired -> {
+                    if (shouldDelayLogin) {
+                        delay(LOGIN_DELAY_MILLIS)
+                    }
+                    OutOfTimeFragment()
                 }
-                OutOfTimeFragment()
-            }
-            else -> {
-                if (shouldDelayLogin) {
-                    delay(LOGIN_DELAY_MILLIS)
+                else -> {
+                    if (shouldDelayLogin) {
+                        delay(LOGIN_DELAY_MILLIS)
+                    }
+                    ConnectFragment()
                 }
-                ConnectFragment()
             }
-        }
 
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
@@ -298,7 +298,8 @@ open class MainActivity : FragmentActivity() {
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
-        } ?: false
+        }
+            ?: false
     }
 
     private fun openLoginView() {

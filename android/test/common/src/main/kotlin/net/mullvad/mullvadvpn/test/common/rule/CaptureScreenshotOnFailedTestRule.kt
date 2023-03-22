@@ -60,10 +60,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
     ) {
         contentValues.apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(
-                MediaStore.Images.Media.RELATIVE_PATH,
-                "$DIRECTORY_PICTURES/$baseDir"
-            )
+            put(MediaStore.Images.Media.RELATIVE_PATH, "$DIRECTORY_PICTURES/$baseDir")
         }
 
         val uri =
@@ -89,14 +86,17 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         baseDir: String,
         filename: String
     ) {
-        val screenshotBaseDirectory = Paths.get(
-            Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).path,
-            baseDir,
-        ).toFile().apply {
-            if (exists().not()) {
-                mkdirs()
-            }
-        }
+        val screenshotBaseDirectory =
+            Paths.get(
+                    Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).path,
+                    baseDir,
+                )
+                .toFile()
+                .apply {
+                    if (exists().not()) {
+                        mkdirs()
+                    }
+                }
         FileOutputStream(File(screenshotBaseDirectory, filename)).use { outputStream ->
             try {
                 this.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
@@ -107,8 +107,9 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
-    private fun createBaseScreenshotContentValues() = ContentValues().apply {
-        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
-    }
+    private fun createBaseScreenshotContentValues() =
+        ContentValues().apply {
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
+        }
 }

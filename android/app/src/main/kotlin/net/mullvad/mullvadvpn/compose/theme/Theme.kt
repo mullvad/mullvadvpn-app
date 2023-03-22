@@ -7,27 +7,19 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
-private val MullvadColorPalette = lightColors(
-    primary = MullvadBlue,
-    primaryVariant = MullvadDarkBlue,
-    secondary = MullvadRed
-)
+private val MullvadColorPalette =
+    lightColors(primary = MullvadBlue, primaryVariant = MullvadDarkBlue, secondary = MullvadRed)
 
-val Shapes = Shapes(
-    small = RoundedCornerShape(4.dp),
-    medium = RoundedCornerShape(4.dp),
-    large = RoundedCornerShape(0.dp)
-)
+val Shapes =
+    Shapes(
+        small = RoundedCornerShape(4.dp),
+        medium = RoundedCornerShape(4.dp),
+        large = RoundedCornerShape(0.dp)
+    )
 
 @Composable
-fun CollapsingToolbarTheme(
-    content: @Composable () -> Unit
-) {
+fun CollapsingToolbarTheme(content: @Composable () -> Unit) {
     val colors = MullvadColorPalette
 
-    MaterialTheme(
-        colors = colors,
-        shapes = Shapes,
-        content = content
-    )
+    MaterialTheme(colors = colors, shapes = Shapes, content = content)
 }

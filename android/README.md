@@ -27,6 +27,27 @@ The easiest and recommended way to build the Android project including the `mull
 ```
 See the [build instructions](BuildInstructions.md) for further information.
 
+## Linting and formatting
+
+### Kotlin formatting
+`ktfmt` is used for kotlin formatting.
+
+See the [official documentation](https://github.com/facebook/ktfmt) for how to use it as default
+formatter in Android Studio. Ensure to set `kotlinLangStyle` as "Code Style" and to set the project
+to rely on the `EditorConfig` (`.editorconfig` file).
+
+Also, see the [`ktfmt` gradle plugin documentation](https://github.com/cortinico/ktfmt-gradle) for
+how to use it as a gradle task.
+
+### XML formatting
+`tidy` is used for XML resource formatting. `tidy` is a separate tool which has to be installed
+unless the container image (which includes `tidy`) is used.
+
+### Android Gradle Plugin lint tool
+
+The Android Gradle Plugin lint tool for linting of resources and code. The tool is configured to be
+strict. See each `build.gradle.kts`for more information.
+
 ## Translations and localization
 
 See the [locale README][gui-locales-readme] for how to easily update translations. It also includes

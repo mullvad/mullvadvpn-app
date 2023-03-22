@@ -63,22 +63,23 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
         daemon.unregisterListener(this)
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            while (true) {
-                val command = channel.receive()
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                while (true) {
+                    val command = channel.receive()
 
-                when (command) {
-                    Command.CONNECT -> {
-                        vpnPermission.request()
-                        daemon.await().connect()
+                    when (command) {
+                        Command.CONNECT -> {
+                            vpnPermission.request()
+                            daemon.await().connect()
+                        }
+                        Command.RECONNECT -> daemon.await().reconnect()
+                        Command.DISCONNECT -> daemon.await().disconnect()
                     }
-                    Command.RECONNECT -> daemon.await().reconnect()
-                    Command.DISCONNECT -> daemon.await().disconnect()
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Closed sender, so stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
         }
-    }
 }

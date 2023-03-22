@@ -22,37 +22,39 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class NotificationBanner : FrameLayout {
     private val jobTracker = JobTracker()
 
-    private val animationListener = object : AnimatorListener {
-        override fun onAnimationCancel(animation: Animator) {}
-        override fun onAnimationRepeat(animation: Animator) {}
+    private val animationListener =
+        object : AnimatorListener {
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
 
-        override fun onAnimationStart(animation: Animator) {
-            visibility = View.VISIBLE
-        }
+            override fun onAnimationStart(animation: Animator) {
+                visibility = View.VISIBLE
+            }
 
-        override fun onAnimationEnd(animation: Animator) {
-            synchronized(this@NotificationBanner) {
-                if (reversedAnimation) {
-                    // Banner is now hidden
-                    val notification = notifications.current
+            override fun onAnimationEnd(animation: Animator) {
+                synchronized(this@NotificationBanner) {
+                    if (reversedAnimation) {
+                        // Banner is now hidden
+                        val notification = notifications.current
 
-                    visibility = View.INVISIBLE
+                        visibility = View.INVISIBLE
 
-                    if (notification != null) {
-                        // Notification changed, restart animation
-                        update(notification)
-                        reversedAnimation = false
-                        animation.start()
+                        if (notification != null) {
+                            // Notification changed, restart animation
+                            update(notification)
+                            reversedAnimation = false
+                            animation.start()
+                        }
                     }
                 }
             }
         }
-    }
 
-    private val animation = ObjectAnimator.ofFloat(this, "translationY", 0.0f).apply {
-        addListener(animationListener)
-        setDuration(350)
-    }
+    private val animation =
+        ObjectAnimator.ofFloat(this, "translationY", 0.0f).apply {
+            addListener(animationListener)
+            setDuration(350)
+        }
 
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
@@ -72,23 +74,22 @@ class NotificationBanner : FrameLayout {
     private var reversedAnimation = false
 
     val notifications = InAppNotificationController { _ ->
-        synchronized(this@NotificationBanner) {
-            animateChange()
-        }
+        synchronized(this@NotificationBanner) { animateChange() }
     }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
         setBackgroundResource(R.color.darkBlue)
 
-        setOnClickListener {
-            jobTracker.newUiJob("click") { onClick() }
-        }
+        setOnClickListener { jobTracker.newUiJob("click") { onClick() } }
 
         visibility = View.INVISIBLE
     }

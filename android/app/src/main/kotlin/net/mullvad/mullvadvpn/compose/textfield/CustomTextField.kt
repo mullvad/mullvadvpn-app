@@ -68,23 +68,26 @@ fun CustomTextField(
 
     var isFocused by remember { mutableStateOf(false) }
 
-    val textColor = when {
-        isValidValue.not() -> Color.Red
-        isFocused -> MullvadBlue
-        else -> defaultTextColor
-    }
+    val textColor =
+        when {
+            isValidValue.not() -> Color.Red
+            isFocused -> MullvadBlue
+            else -> defaultTextColor
+        }
 
-    val placeholderTextColor = if (isFocused) {
-        placeHolderColor
-    } else {
-        Color.White
-    }
+    val placeholderTextColor =
+        if (isFocused) {
+            placeHolderColor
+        } else {
+            Color.White
+        }
 
-    val backgroundColor = if (isFocused) {
-        Color.White
-    } else {
-        MullvadWhite10
-    }
+    val backgroundColor =
+        if (isFocused) {
+            Color.White
+        } else {
+            MullvadWhite10
+        }
 
     fun triggerSubmit() {
         keyboardController?.hide()
@@ -101,28 +104,19 @@ fun CustomTextField(
                 onValueChanged(input.replace(NEWLINE_STRING, EMPTY_STRING))
             }
         },
-        textStyle = TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            textAlign = textAlign
-        ),
+        textStyle = TextStyle(color = textColor, fontSize = fontSize, textAlign = textAlign),
         enabled = isEnabled,
         singleLine = true,
         maxLines = 1,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done,
-            autoCorrect = false,
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = { triggerSubmit() }
-        ),
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done,
+                autoCorrect = false,
+            ),
+        keyboardActions = KeyboardActions(onDone = { triggerSubmit() }),
         decorationBox = { decorationBox ->
-            Box(
-                modifier = Modifier
-                    .padding(PaddingValues(12.dp, 10.dp))
-                    .fillMaxWidth()
-            ) {
+            Box(modifier = Modifier.padding(PaddingValues(12.dp, 10.dp)).fillMaxWidth()) {
                 if (value.isBlank()) {
                     Text(
                         text = placeholderText,
@@ -136,37 +130,38 @@ fun CustomTextField(
             }
         },
         cursorBrush = SolidColor(MullvadBlue),
-        modifier = modifier
-            .background(backgroundColor)
-            .clip(shape)
-            .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-                onFocusChange(focusState.isFocused)
-            }
-            .height(textFieldHeight)
-            .onKeyEvent { keyEvent ->
-                return@onKeyEvent when (keyEvent.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_ENTER -> {
-                        triggerSubmit()
-                        true
-                    }
-                    KeyEvent.KEYCODE_ESCAPE -> {
-                        focusManager.clearFocus(force = true)
-                        keyboardController?.hide()
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        focusManager.moveFocus(FocusDirection.Down)
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        focusManager.moveFocus(FocusDirection.Up)
-                        true
-                    }
-                    else -> {
-                        false
+        modifier =
+            modifier
+                .background(backgroundColor)
+                .clip(shape)
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                    onFocusChange(focusState.isFocused)
+                }
+                .height(textFieldHeight)
+                .onKeyEvent { keyEvent ->
+                    return@onKeyEvent when (keyEvent.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_ENTER -> {
+                            triggerSubmit()
+                            true
+                        }
+                        KeyEvent.KEYCODE_ESCAPE -> {
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            focusManager.moveFocus(FocusDirection.Down)
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_UP -> {
+                            focusManager.moveFocus(FocusDirection.Up)
+                            true
+                        }
+                        else -> {
+                            false
+                        }
                     }
                 }
-            }
     )
 }

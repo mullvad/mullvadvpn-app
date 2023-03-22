@@ -24,14 +24,11 @@ class ServiceConnectionContainer(
     onServiceReady: (ServiceConnectionContainer) -> Unit,
     onVpnPermissionRequest: () -> Unit
 ) : KoinScopeComponent {
-    private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
-        Event.fromMessage(message)
-    }
+    private val dispatcher =
+        DispatchingHandler(Looper.getMainLooper()) { message -> Event.fromMessage(message) }
 
-    override val scope = getKoin().getOrCreateScope(
-        SERVICE_CONNECTION_SCOPE,
-        named(SERVICE_CONNECTION_SCOPE), this
-    )
+    override val scope =
+        getKoin().getOrCreateScope(SERVICE_CONNECTION_SCOPE, named(SERVICE_CONNECTION_SCOPE), this)
 
     val accountDataSource = ServiceConnectionAccountDataSource(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)

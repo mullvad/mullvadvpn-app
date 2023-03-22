@@ -19,14 +19,9 @@ fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificatio
         cause is ErrorStateCause.VpnPermissionDenied -> {
             resolveAlwaysOnVpnErrorNotificationMessage(context.getAlwaysOnVpnAppName())
         }
-        isBlocking -> ErrorNotificationMessage(
-            R.string.blocking_all_connections,
-            cause.errorMessageId()
-        )
-        else -> ErrorNotificationMessage(
-            R.string.critical_error,
-            R.string.failed_to_block_internet
-        )
+        isBlocking ->
+            ErrorNotificationMessage(R.string.blocking_all_connections, cause.errorMessageId())
+        else -> ErrorNotificationMessage(R.string.critical_error, R.string.failed_to_block_internet)
     }
 }
 

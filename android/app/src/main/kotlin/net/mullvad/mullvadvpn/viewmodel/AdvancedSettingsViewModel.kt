@@ -29,30 +29,30 @@ class AdvancedSettingsViewModel(
     private val dialogState =
         MutableStateFlow<AdvancedSettingsDialogState>(AdvancedSettingsDialogState.NoDialog)
 
-    private val vmState = combine(
-        repository.settingsUpdates,
-        dialogState
-    ) { settings, interaction ->
-        AdvancedSettingsViewModelState(
-            mtuValue = settings?.mtuString() ?: "",
-            isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
-            customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-            isAllowLanEnabled = settings?.allowLan ?: false,
-            dialogState = interaction
-        )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        AdvancedSettingsViewModelState.default()
-    )
+    private val vmState =
+        combine(repository.settingsUpdates, dialogState) { settings, interaction ->
+                AdvancedSettingsViewModelState(
+                    mtuValue = settings?.mtuString() ?: "",
+                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                    isAllowLanEnabled = settings?.allowLan ?: false,
+                    dialogState = interaction
+                )
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                AdvancedSettingsViewModelState.default()
+            )
 
-    val uiState = vmState
-        .map(AdvancedSettingsViewModelState::toUiState)
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            AdvancedSettingsUiState.DefaultUiState()
-        )
+    val uiState =
+        vmState
+            .map(AdvancedSettingsViewModelState::toUiState)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                AdvancedSettingsUiState.DefaultUiState()
+            )
 
     fun onMtuCellClick() {
         dialogState.update { AdvancedSettingsDialogState.MtuDialog(vmState.value.mtuValue) }
@@ -62,34 +62,36 @@ class AdvancedSettingsViewModel(
         dialogState.update { AdvancedSettingsDialogState.MtuDialog(value) }
     }
 
-    fun onSaveMtuClick() = viewModelScope.launch(dispatcher) {
-        val dialog = dialogState.value as? AdvancedSettingsDialogState.MtuDialog
-        dialog?.mtuEditValue?.toIntOrNull()?.takeIf { it.isValidMtu() }?.let { mtu ->
-            repository.setWireguardMtu(mtu)
+    fun onSaveMtuClick() =
+        viewModelScope.launch(dispatcher) {
+            val dialog = dialogState.value as? AdvancedSettingsDialogState.MtuDialog
+            dialog
+                ?.mtuEditValue
+                ?.toIntOrNull()
+                ?.takeIf { it.isValidMtu() }
+                ?.let { mtu -> repository.setWireguardMtu(mtu) }
+            hideDialog()
         }
-        hideDialog()
-    }
 
-    fun onRestoreMtuClick() = viewModelScope.launch(dispatcher) {
-        repository.setWireguardMtu(null)
-        hideDialog()
-    }
+    fun onRestoreMtuClick() =
+        viewModelScope.launch(dispatcher) {
+            repository.setWireguardMtu(null)
+            hideDialog()
+        }
 
     fun onCancelDialogClick() {
         hideDialog()
     }
 
     fun onDnsClick(index: Int? = null) {
-        val stagedDns = if (index == null) {
-            StagedDns.NewDns(CustomDnsItem.default())
-        } else {
-            vmState.value.customDnsList.getOrNull(index)?.let { listItem ->
-                StagedDns.EditDns(
-                    item = listItem,
-                    index = index
-                )
+        val stagedDns =
+            if (index == null) {
+                StagedDns.NewDns(CustomDnsItem.default())
+            } else {
+                vmState.value.customDnsList.getOrNull(index)?.let { listItem ->
+                    StagedDns.EditDns(item = listItem, index = index)
+                }
             }
-        }
 
         if (stagedDns != null) {
             dialogState.update { AdvancedSettingsDialogState.DnsDialog(stagedDns) }
@@ -100,100 +102,101 @@ class AdvancedSettingsViewModel(
         dialogState.update { state ->
             val dialog = state as? AdvancedSettingsDialogState.DnsDialog ?: return
 
-            val error = when {
-                ipAddress.isBlank() || ipAddress.isValidIp().not() -> {
-                    StagedDns.ValidationResult.InvalidAddress
+            val error =
+                when {
+                    ipAddress.isBlank() || ipAddress.isValidIp().not() -> {
+                        StagedDns.ValidationResult.InvalidAddress
+                    }
+                    ipAddress.isDuplicateDns((state.stagedDns as? StagedDns.EditDns)?.index) -> {
+                        StagedDns.ValidationResult.DuplicateAddress
+                    }
+                    else -> StagedDns.ValidationResult.Success
                 }
-                ipAddress.isDuplicateDns((state.stagedDns as? StagedDns.EditDns)?.index) -> {
-                    StagedDns.ValidationResult.DuplicateAddress
-                }
-                else -> StagedDns.ValidationResult.Success
-            }
 
             return@update AdvancedSettingsDialogState.DnsDialog(
-                stagedDns = if (dialog.stagedDns is StagedDns.EditDns) {
-                    StagedDns.EditDns(
-                        item = CustomDnsItem(
-                            address = ipAddress,
-                            isLocal = ipAddress.isLocalAddress()
-                        ),
-                        validationResult = error,
-                        index = dialog.stagedDns.index
-                    )
-                } else {
-                    StagedDns.NewDns(
-                        item = CustomDnsItem(
-                            address = ipAddress,
-                            isLocal = ipAddress.isLocalAddress()
-                        ),
-                        validationResult = error
-                    )
-                }
+                stagedDns =
+                    if (dialog.stagedDns is StagedDns.EditDns) {
+                        StagedDns.EditDns(
+                            item =
+                                CustomDnsItem(
+                                    address = ipAddress,
+                                    isLocal = ipAddress.isLocalAddress()
+                                ),
+                            validationResult = error,
+                            index = dialog.stagedDns.index
+                        )
+                    } else {
+                        StagedDns.NewDns(
+                            item =
+                                CustomDnsItem(
+                                    address = ipAddress,
+                                    isLocal = ipAddress.isLocalAddress()
+                                ),
+                            validationResult = error
+                        )
+                    }
             )
         }
     }
 
-    fun onSaveDnsClick() = viewModelScope.launch(dispatcher) {
-        val dialog =
-            vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog ?: return@launch
+    fun onSaveDnsClick() =
+        viewModelScope.launch(dispatcher) {
+            val dialog =
+                vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog ?: return@launch
 
-        if (dialog.stagedDns.isValid().not()) return@launch
+            if (dialog.stagedDns.isValid().not()) return@launch
 
-        val updatedList =
-            vmState.value.customDnsList.toMutableList()
-                .map { it.address }
-                .toMutableList()
-                .let { activeList ->
-                    if (dialog.stagedDns is StagedDns.EditDns) {
-                        activeList
-                            .apply {
-                                set(dialog.stagedDns.index, dialog.stagedDns.item.address)
-                            }
-                            .asInetAddressList()
-                    } else {
-                        activeList
-                            .apply {
-                                add(dialog.stagedDns.item.address)
-                            }
-                            .asInetAddressList()
+            val updatedList =
+                vmState.value.customDnsList
+                    .toMutableList()
+                    .map { it.address }
+                    .toMutableList()
+                    .let { activeList ->
+                        if (dialog.stagedDns is StagedDns.EditDns) {
+                            activeList
+                                .apply {
+                                    set(dialog.stagedDns.index, dialog.stagedDns.item.address)
+                                }
+                                .asInetAddressList()
+                        } else {
+                            activeList
+                                .apply { add(dialog.stagedDns.item.address) }
+                                .asInetAddressList()
+                        }
                     }
-                }
 
-        repository.setDnsOptions(
-            isCustomDnsEnabled = true,
-            dnsList = updatedList
-        )
+            repository.setDnsOptions(isCustomDnsEnabled = true, dnsList = updatedList)
 
-        hideDialog()
-    }
+            hideDialog()
+        }
 
-    fun onToggleDnsClick(isEnabled: Boolean) = viewModelScope.launch(dispatcher) {
-        repository.setDnsOptions(
-            isEnabled,
-            dnsList = vmState.value.customDnsList
-                .map { it.address }
-                .asInetAddressList()
-        )
-    }
+    fun onToggleDnsClick(isEnabled: Boolean) =
+        viewModelScope.launch(dispatcher) {
+            repository.setDnsOptions(
+                isEnabled,
+                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList()
+            )
+        }
 
-    fun onRemoveDnsClick() = viewModelScope.launch(dispatcher) {
-        val dialog = vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog
-            ?: return@launch
+    fun onRemoveDnsClick() =
+        viewModelScope.launch(dispatcher) {
+            val dialog =
+                vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog ?: return@launch
 
-        val updatedList = vmState.value.customDnsList.toMutableList()
-            .filter {
-                it.address != dialog.stagedDns.item.address
-            }
-            .map { it.address }
-            .asInetAddressList()
+            val updatedList =
+                vmState.value.customDnsList
+                    .toMutableList()
+                    .filter { it.address != dialog.stagedDns.item.address }
+                    .map { it.address }
+                    .asInetAddressList()
 
-        repository.setDnsOptions(
-            isCustomDnsEnabled = vmState.value.isCustomDnsEnabled && updatedList.isNotEmpty(),
-            dnsList = updatedList
-        )
+            repository.setDnsOptions(
+                isCustomDnsEnabled = vmState.value.isCustomDnsEnabled && updatedList.isNotEmpty(),
+                dnsList = updatedList
+            )
 
-        hideDialog()
-    }
+            hideDialog()
+        }
 
     private fun hideDialog() {
         dialogState.update { AdvancedSettingsDialogState.NoDialog }
@@ -201,9 +204,7 @@ class AdvancedSettingsViewModel(
 
     private fun String.isDuplicateDns(stagedIndex: Int? = null): Boolean {
         return vmState.value.customDnsList
-            .filterIndexed { index, listItem ->
-                index != stagedIndex && listItem.address == this
-            }
+            .filterIndexed { index, listItem -> index != stagedIndex && listItem.address == this }
             .isNotEmpty()
     }
 
@@ -218,10 +219,7 @@ class AdvancedSettingsViewModel(
 
     private fun List<InetAddress>.asStringAddressList(): List<CustomDnsItem> {
         return map {
-            CustomDnsItem(
-                address = it.hostAddress ?: EMPTY_STRING,
-                isLocal = it.isLocalAddress()
-            )
+            CustomDnsItem(address = it.hostAddress ?: EMPTY_STRING, isLocal = it.isLocalAddress())
         }
     }
 

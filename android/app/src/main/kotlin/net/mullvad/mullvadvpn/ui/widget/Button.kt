@@ -48,11 +48,12 @@ open class Button : FrameLayout {
         set(value) {
             field = value
 
-            val backgroundResource = when (value) {
-                ButtonColor.Blue -> R.drawable.blue_button_background
-                ButtonColor.Green -> R.drawable.green_button_background
-                ButtonColor.Red -> R.drawable.red_button_background
-            }
+            val backgroundResource =
+                when (value) {
+                    ButtonColor.Blue -> R.drawable.blue_button_background
+                    ButtonColor.Green -> R.drawable.green_button_background
+                    ButtonColor.Red -> R.drawable.red_button_background
+                }
 
             button.setBackgroundResource(backgroundResource)
         }
@@ -85,8 +86,11 @@ open class Button : FrameLayout {
         loadAttributes(attributes)
     }
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute) {
         loadAttributes(attributes)
     }
 

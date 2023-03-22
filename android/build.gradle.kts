@@ -43,6 +43,8 @@ allprojects {
 
     configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
         kotlinLangStyle()
+        maxWidth.set(100)
+        removeUnusedImports.set(true)
     }
 }
 

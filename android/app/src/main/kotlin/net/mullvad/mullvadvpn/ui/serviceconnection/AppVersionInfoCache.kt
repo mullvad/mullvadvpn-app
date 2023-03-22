@@ -9,9 +9,8 @@ class AppVersionInfoCache(
     eventDispatcher: EventDispatcher,
     private val settingsListener: SettingsListener
 ) {
-    private var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, _ ->
-        onUpdate?.invoke()
-    }
+    private var appVersionInfo by
+        observable<AppVersionInfo?>(null) { _, _, _ -> onUpdate?.invoke() }
 
     val isSupported
         get() = appVersionInfo?.supported ?: true
@@ -22,15 +21,14 @@ class AppVersionInfoCache(
     val upgradeVersion
         get() = appVersionInfo?.suggestedUpgrade
 
-    var onUpdate by observable<(() -> Unit)?>(null) { _, _, callback ->
-        callback?.invoke()
-    }
+    var onUpdate by observable<(() -> Unit)?>(null) { _, _, callback -> callback?.invoke() }
 
-    var showBetaReleases by observable(false) { _, wasShowing, shouldShow ->
-        if (shouldShow != wasShowing) {
-            onUpdate?.invoke()
+    var showBetaReleases by
+        observable(false) { _, wasShowing, shouldShow ->
+            if (shouldShow != wasShowing) {
+                onUpdate?.invoke()
+            }
         }
-    }
         private set
 
     var version: String? = null
@@ -38,9 +36,7 @@ class AppVersionInfoCache(
 
     init {
         eventDispatcher.apply {
-            registerHandler(Event.CurrentVersion::class) { event ->
-                version = event.version
-            }
+            registerHandler(Event.CurrentVersion::class) { event -> version = event.version }
 
             registerHandler(Event.AppVersionInfo::class) { event ->
                 appVersionInfo = event.versionInfo
@@ -48,9 +44,7 @@ class AppVersionInfoCache(
         }
 
         settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings ->
-                showBetaReleases = settings.showBetaReleases
-            }
+            maybeSettings?.let { settings -> showBetaReleases = settings.showBetaReleases }
         }
     }
 

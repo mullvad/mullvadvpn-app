@@ -69,9 +69,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
     fun subscribe(id: Any, listener: (Settings) -> Unit) {
         settingsNotifier.subscribe(id) { maybeSettings ->
-            maybeSettings?.let { settings ->
-                listener(settings)
-            }
+            maybeSettings?.let { settings -> listener(settings) }
         }
     }
 
@@ -84,9 +82,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
     }
 
     private fun fetchInitialSettings(daemon: MullvadDaemon) {
-        synchronized(this) {
-            handleNewSettings(daemon.getSettings())
-        }
+        synchronized(this) { handleNewSettings(daemon.getSettings()) }
     }
 
     private fun handleNewSettings(newSettings: Settings?) {
@@ -105,17 +101,19 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    is Command.SetAllowLan -> daemon.await().setAllowLan(command.allow)
-                    is Command.SetAutoConnect -> daemon.await().setAutoConnect(command.autoConnect)
-                    is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                for (command in channel) {
+                    when (command) {
+                        is Command.SetAllowLan -> daemon.await().setAllowLan(command.allow)
+                        is Command.SetAutoConnect ->
+                            daemon.await().setAutoConnect(command.autoConnect)
+                        is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
+                    }
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Closed sender, so stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
         }
-    }
 }

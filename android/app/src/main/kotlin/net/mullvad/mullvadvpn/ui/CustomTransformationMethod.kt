@@ -29,7 +29,8 @@ class GroupedTransformationMethod() : TransformationMethod {
 class GroupedPasswordTransformationMethod() : PasswordTransformationMethod() {
     override fun getTransformation(source: CharSequence?, view: View?): CharSequence {
         return if (source != null && view != null) {
-            super.getTransformation(source, view)?.toString()
+            super.getTransformation(source, view)
+                ?.toString()
                 ?.replace(DOT_CHAR, BIG_DOT_CHAR)
                 ?.groupWithSpaces()
                 ?: EMPTY_STRING

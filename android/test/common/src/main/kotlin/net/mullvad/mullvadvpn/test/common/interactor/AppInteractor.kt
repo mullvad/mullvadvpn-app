@@ -20,10 +20,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaime
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
-class AppInteractor(
-    private val device: UiDevice,
-    private val targetContext: Context
-) {
+class AppInteractor(private val device: UiDevice, private val targetContext: Context) {
     fun launch(customApiEndpointConfiguration: CustomApiEndpointConfiguration? = null) {
         device.pressHome()
         // Wait for launcher
@@ -41,10 +38,7 @@ class AppInteractor(
                 }
             }
         targetContext.startActivity(intent)
-        device.wait(
-            Until.hasObject(By.pkg(MULLVAD_PACKAGE).depth(0)),
-            APP_LAUNCH_TIMEOUT
-        )
+        device.wait(Until.hasObject(By.pkg(MULLVAD_PACKAGE).depth(0)), APP_LAUNCH_TIMEOUT)
     }
 
     fun launchAndEnsureLoggedIn(accountToken: String) {
@@ -56,8 +50,10 @@ class AppInteractor(
     }
 
     fun attemptLogin(accountToken: String) {
-        val loginObject = device.findObjectWithTimeout(By.clazz("android.widget.EditText"))
-            .apply { text = accountToken }
+        val loginObject =
+            device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
+                text = accountToken
+            }
         loginObject.parent.findObject(By.clazz(ImageButton::class.java)).click()
     }
 
@@ -67,10 +63,10 @@ class AppInteractor(
 
     fun extractIpAddress(): String {
         device.findObjectWithTimeout(By.res(TUNNEL_INFO_ID)).click()
-        return device.findObjectWithTimeout(
-            By.res(TUNNEL_OUT_ADDRESS_ID),
-            CONNECTION_TIMEOUT
-        ).text.extractIpAddress()
+        return device
+            .findObjectWithTimeout(By.res(TUNNEL_OUT_ADDRESS_ID), CONNECTION_TIMEOUT)
+            .text
+            .extractIpAddress()
     }
 
     fun clickSettingsCog() {
@@ -85,9 +81,7 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text(text)).click()
     }
 
-    fun waitForLoginPrompt(
-        timeout: Long = LOGIN_PROMPT_TIMEOUT
-    ) {
+    fun waitForLoginPrompt(timeout: Long = LOGIN_PROMPT_TIMEOUT) {
         device.findObjectWithTimeout(By.text("Login"), timeout)
     }
 

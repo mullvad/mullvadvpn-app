@@ -58,9 +58,7 @@ fun DnsDialog(
     Dialog(
         // Fix for https://issuetracker.google.com/issues/221643630
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = {
-            onDismiss()
-        },
+        onDismissRequest = { onDismiss() },
         content = {
             Column(
                 Modifier
@@ -70,47 +68,46 @@ fun DnsDialog(
                     .padding(dialogPadding)
             ) {
                 Text(
-                    text = if (stagedDns is StagedDns.NewDns) {
-                        stringResource(R.string.add_dns_server_dialog_title)
-                    } else {
-                        stringResource(R.string.update_dns_server_dialog_title)
-                    },
+                    text =
+                        if (stagedDns is StagedDns.NewDns) {
+                            stringResource(R.string.add_dns_server_dialog_title)
+                        } else {
+                            stringResource(R.string.update_dns_server_dialog_title)
+                        },
                     color = Color.White,
                     fontSize = textBigSize
                 )
 
                 Box(
-                    Modifier
-                        .wrapContentSize()
-                        .clickable { textFieldFocusRequester.requestFocus() }
+                    Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
                 ) {
                     DnsTextField(
                         value = stagedDns.item.address,
                         isValidValue = stagedDns.isValid(),
-                        onValueChanged = { newMtuValue ->
-                            onIpAddressChanged(newMtuValue)
-                        },
+                        onValueChanged = { newMtuValue -> onIpAddressChanged(newMtuValue) },
                         onFocusChanges = {},
                         onSubmit = { onAttemptToSave() },
                         isEnabled = true,
                         placeholderText = stringResource(R.string.enter_value_placeholder),
-                        modifier = Modifier
-                            .padding(top = midPadding)
-                            .focusRequester(textFieldFocusRequester)
+                        modifier =
+                            Modifier.padding(top = midPadding)
+                                .focusRequester(textFieldFocusRequester)
                     )
                 }
 
-                val errorMessage = when {
-                    stagedDns.validationResult is StagedDns.ValidationResult.DuplicateAddress -> {
-                        stringResource(R.string.duplicate_address_warning)
+                val errorMessage =
+                    when {
+                        stagedDns.validationResult is
+                            StagedDns.ValidationResult.DuplicateAddress -> {
+                            stringResource(R.string.duplicate_address_warning)
+                        }
+                        stagedDns.item.isLocal && isAllowLanEnabled.not() -> {
+                            stringResource(id = R.string.confirm_local_dns)
+                        }
+                        else -> {
+                            null
+                        }
                     }
-                    stagedDns.item.isLocal && isAllowLanEnabled.not() -> {
-                        stringResource(id = R.string.confirm_local_dns)
-                    }
-                    else -> {
-                        null
-                    }
-                }
 
                 if (errorMessage != null) {
                     Text(
@@ -122,17 +119,18 @@ fun DnsDialog(
                 }
 
                 Button(
-                    modifier = Modifier
-                        .padding(top = mediumPadding)
-                        .height(buttonSize)
-                        .defaultMinSize(minHeight = buttonSize)
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
-                        contentColor = MullvadWhite,
-                        disabledContentColor = MullvadWhite60,
-                        disabledBackgroundColor = MullvadWhite20
-                    ),
+                    modifier =
+                        Modifier.padding(top = mediumPadding)
+                            .height(buttonSize)
+                            .defaultMinSize(minHeight = buttonSize)
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = MullvadBlue,
+                            contentColor = MullvadWhite,
+                            disabledContentColor = MullvadWhite60,
+                            disabledBackgroundColor = MullvadWhite20
+                        ),
                     onClick = { onAttemptToSave() },
                     enabled = stagedDns.isValid()
                 ) {
@@ -144,15 +142,16 @@ fun DnsDialog(
 
                 if (stagedDns is StagedDns.EditDns) {
                     Button(
-                        modifier = Modifier
-                            .padding(top = mediumPadding)
-                            .height(buttonSize)
-                            .defaultMinSize(minHeight = buttonSize)
-                            .fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
-                            contentColor = MullvadWhite
-                        ),
+                        modifier =
+                            Modifier.padding(top = mediumPadding)
+                                .height(buttonSize)
+                                .defaultMinSize(minHeight = buttonSize)
+                                .fillMaxWidth(),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                backgroundColor = MullvadBlue,
+                                contentColor = MullvadWhite
+                            ),
                         onClick = { onRemove() }
                     ) {
                         Text(
@@ -163,23 +162,19 @@ fun DnsDialog(
                 }
 
                 Button(
-                    modifier = Modifier
-                        .padding(top = mediumPadding)
-                        .height(buttonSize)
-                        .defaultMinSize(minHeight = buttonSize)
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        onDismiss()
-                    }
+                    modifier =
+                        Modifier.padding(top = mediumPadding)
+                            .height(buttonSize)
+                            .defaultMinSize(minHeight = buttonSize)
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = MullvadBlue,
+                            contentColor = Color.White
+                        ),
+                    onClick = { onDismiss() }
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.cancel),
-                        fontSize = textMediumSize
-                    )
+                    Text(text = stringResource(id = R.string.cancel), fontSize = textMediumSize)
                 }
             }
         }

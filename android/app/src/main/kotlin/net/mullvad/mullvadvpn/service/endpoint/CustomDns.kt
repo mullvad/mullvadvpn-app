@@ -15,14 +15,11 @@ import net.mullvad.mullvadvpn.model.DnsState
 
 class CustomDns(private val endpoint: ServiceEndpoint) {
     private sealed class Command {
-        @Deprecated("Use SetDnsOptions")
-        class AddDnsServer(val server: InetAddress) : Command()
-        @Deprecated("Use SetDnsOptions")
-        class RemoveDnsServer(val server: InetAddress) : Command()
+        @Deprecated("Use SetDnsOptions") class AddDnsServer(val server: InetAddress) : Command()
+        @Deprecated("Use SetDnsOptions") class RemoveDnsServer(val server: InetAddress) : Command()
         @Deprecated("Use SetDnsOptions")
         class ReplaceDnsServer(val oldServer: InetAddress, val newServer: InetAddress) : Command()
-        @Deprecated("Use SetDnsOptions")
-        class SetEnabled(val enabled: Boolean) : Command()
+        @Deprecated("Use SetDnsOptions") class SetEnabled(val enabled: Boolean) : Command()
 
         class SetDnsOptions(val dnsOptions: DnsOptions) : Command()
     }
@@ -74,25 +71,26 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
         commandChannel.close()
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            while (true) {
-                val command = channel.receive()
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                while (true) {
+                    val command = channel.receive()
 
-                when (command) {
-                    is Command.AddDnsServer -> doAddDnsServer(command.server)
-                    is Command.RemoveDnsServer -> doRemoveDnsServer(command.server)
-                    is Command.ReplaceDnsServer -> {
-                        doReplaceDnsServer(command.oldServer, command.newServer)
+                    when (command) {
+                        is Command.AddDnsServer -> doAddDnsServer(command.server)
+                        is Command.RemoveDnsServer -> doRemoveDnsServer(command.server)
+                        is Command.ReplaceDnsServer -> {
+                            doReplaceDnsServer(command.oldServer, command.newServer)
+                        }
+                        is Command.SetEnabled -> changeDnsOptions(command.enabled)
+                        is Command.SetDnsOptions -> setDnsOptions(command.dnsOptions)
                     }
-                    is Command.SetEnabled -> changeDnsOptions(command.enabled)
-                    is Command.SetDnsOptions -> setDnsOptions(command.dnsOptions)
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Closed sender, so stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
         }
-    }
 
     private suspend fun doAddDnsServer(server: InetAddress) {
         if (!dnsServers.contains(server)) {
@@ -120,11 +118,12 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun changeDnsOptions(enable: Boolean) {
-        val options = DnsOptions(
-            state = if (enable) DnsState.Custom else DnsState.Default,
-            customOptions = CustomDnsOptions(dnsServers),
-            defaultOptions = DefaultDnsOptions()
-        )
+        val options =
+            DnsOptions(
+                state = if (enable) DnsState.Custom else DnsState.Default,
+                customOptions = CustomDnsOptions(dnsServers),
+                defaultOptions = DefaultDnsOptions()
+            )
         daemon.await().setDnsOptions(options)
     }
 

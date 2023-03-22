@@ -17,15 +17,19 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
-        itemAnimator = customItemAnimator.apply {
-            onMove = { horizontalDelta, verticalDelta ->
-                dispatchScrollEvent(horizontalDelta, verticalDelta)
+        itemAnimator =
+            customItemAnimator.apply {
+                onMove = { horizontalDelta, verticalDelta ->
+                    dispatchScrollEvent(horizontalDelta, verticalDelta)
+                }
             }
-        }
     }
 
     override fun setLayoutManager(layoutManager: LayoutManager?) {

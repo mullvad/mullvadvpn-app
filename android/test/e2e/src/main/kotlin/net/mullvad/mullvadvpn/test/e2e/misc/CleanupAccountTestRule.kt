@@ -13,8 +13,9 @@ class CleanupAccountTestRule : TestWatcher() {
     override fun starting(description: Description) {
         Log.d(LOG_TAG, "Cleaning up account before test: ${description.methodName}")
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val validTestAccountToken = InstrumentationRegistry.getArguments()
-            .getRequiredArgument(VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY)
+        val validTestAccountToken =
+            InstrumentationRegistry.getArguments()
+                .getRequiredArgument(VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY)
         MullvadAccountInteractor(SimpleMullvadHttpClient(targetContext), validTestAccountToken)
             .cleanupAccount()
     }

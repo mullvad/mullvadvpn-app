@@ -19,8 +19,8 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
 
-  xml-tidy:
-    name: Build app and run unit tests
+  check-formatting:
+    name: Lint XML using tidy
     needs: prepare
     runs-on: ubuntu-latest
     container:

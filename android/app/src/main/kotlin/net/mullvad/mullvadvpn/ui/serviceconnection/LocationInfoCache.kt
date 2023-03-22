@@ -6,13 +6,13 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 
 class LocationInfoCache(eventDispatcher: EventDispatcher) {
-    private var location: GeoIpLocation? by observable(null) { _, _, newLocation ->
-        onNewLocation?.invoke(newLocation)
-    }
+    private var location: GeoIpLocation? by
+        observable(null) { _, _, newLocation -> onNewLocation?.invoke(newLocation) }
 
-    var onNewLocation by observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
-        callback?.invoke(location)
-    }
+    var onNewLocation by
+        observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
+            callback?.invoke(location)
+        }
 
     init {
         eventDispatcher.registerHandler(Event.NewLocation::class) { event ->

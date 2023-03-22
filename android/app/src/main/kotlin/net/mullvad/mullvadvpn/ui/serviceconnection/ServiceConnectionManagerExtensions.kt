@@ -15,8 +15,7 @@ fun ServiceConnectionManager.connectionProxy() =
 fun ServiceConnectionManager.deviceDataSource() =
     this.connectionState.value.readyContainer()?.deviceDataSource
 
-fun ServiceConnectionManager.customDns() =
-    this.connectionState.value.readyContainer()?.customDns
+fun ServiceConnectionManager.customDns() = this.connectionState.value.readyContainer()?.customDns
 
 fun ServiceConnectionManager.relayListListener() =
     this.connectionState.value.readyContainer()?.relayListListener

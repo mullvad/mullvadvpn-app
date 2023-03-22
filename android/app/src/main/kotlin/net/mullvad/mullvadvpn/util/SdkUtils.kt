@@ -40,7 +40,6 @@ object SdkUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))
         } else {
-            @Suppress("DEPRECATION")
-            getInstalledPackages(flags)
+            @Suppress("DEPRECATION") getInstalledPackages(flags)
         }
 }

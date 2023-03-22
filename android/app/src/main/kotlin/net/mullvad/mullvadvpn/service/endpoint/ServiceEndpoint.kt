@@ -37,9 +37,7 @@ class ServiceEndpoint(
     private val listeners = mutableMapOf<Int, Messenger>()
     private val commands: SendChannel<Command> = startRegistrator()
 
-    internal val dispatcher = DispatchingHandler(looper) { message ->
-        Request.fromMessage(message)
-    }
+    internal val dispatcher = DispatchingHandler(looper) { message -> Request.fromMessage(message) }
 
     private var listenerIdCounter = 0
 
@@ -95,11 +93,7 @@ class ServiceEndpoint(
             val deadListeners = mutableSetOf<Int>()
 
             for ((id, listener) in listeners) {
-                if (!listener.trySendEvent(
-                        event,
-                        SHOULD_LOG_DEAD_OBJECT_EXCEPTION
-                    )
-                ) {
+                if (!listener.trySendEvent(event, SHOULD_LOG_DEAD_OBJECT_EXCEPTION)) {
                     deadListeners.add(id)
                 }
             }
@@ -107,25 +101,23 @@ class ServiceEndpoint(
         }
     }
 
-    private fun startRegistrator() = GlobalScope.actor<Command>(
-        Dispatchers.Default,
-        Channel.UNLIMITED
-    ) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    is Command.RegisterListener -> {
-                        intermittentDaemon.await()
+    private fun startRegistrator() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                for (command in channel) {
+                    when (command) {
+                        is Command.RegisterListener -> {
+                            intermittentDaemon.await()
 
-                        registerListener(command.listener)
+                            registerListener(command.listener)
+                        }
+                        is Command.UnregisterListener -> unregisterListener(command.listenerId)
                     }
-                    is Command.UnregisterListener -> unregisterListener(command.listenerId)
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Registration queue closed; stop registrator
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Registration queue closed; stop registrator
         }
-    }
 
     private fun registerListener(listener: Messenger) {
         synchronized(this) {
@@ -133,29 +125,28 @@ class ServiceEndpoint(
 
             listeners.put(listenerId, listener)
 
-            val initialEvents = mutableListOf(
-                Event.TunnelStateChange(connectionProxy.state),
-                Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
-                Event.SettingsUpdate(settingsListener.settings),
-                Event.NewLocation(locationInfoCache.location),
-                Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
-                Event.CurrentVersion(appVersionInfoCache.currentVersion),
-                Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
-                Event.NewRelayList(relayListListener.relayList),
-                Event.AuthToken(authTokenCache.authToken),
-                Event.ListenerReady(messenger, listenerId)
-            )
+            val initialEvents =
+                mutableListOf(
+                    Event.TunnelStateChange(connectionProxy.state),
+                    Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
+                    Event.SettingsUpdate(settingsListener.settings),
+                    Event.NewLocation(locationInfoCache.location),
+                    Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
+                    Event.CurrentVersion(appVersionInfoCache.currentVersion),
+                    Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
+                    Event.NewRelayList(relayListListener.relayList),
+                    Event.AuthToken(authTokenCache.authToken),
+                    Event.ListenerReady(messenger, listenerId)
+                )
 
             if (vpnPermission.waitingForResponse) {
                 initialEvents.add(Event.VpnPermissionRequest)
             }
 
-            val didSuccessfullySendAllMessages = initialEvents.all { event ->
-                listener.trySendEvent(
-                    event,
-                    SHOULD_LOG_DEAD_OBJECT_EXCEPTION
-                )
-            }
+            val didSuccessfullySendAllMessages =
+                initialEvents.all { event ->
+                    listener.trySendEvent(event, SHOULD_LOG_DEAD_OBJECT_EXCEPTION)
+                }
             if (didSuccessfullySendAllMessages.not()) {
                 listeners.remove(listenerId)
             }
@@ -163,9 +154,7 @@ class ServiceEndpoint(
     }
 
     private fun unregisterListener(listenerId: Int) {
-        synchronized(this) {
-            listeners.remove(listenerId)
-        }
+        synchronized(this) { listeners.remove(listenerId) }
     }
 
     private fun newListenerId(): Int {

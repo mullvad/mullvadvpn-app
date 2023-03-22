@@ -12,8 +12,6 @@ class MullvadApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // Used to create/start separate DI graphs for each process. Avoid non-common classes etc.
-        startKoin {
-            androidContext(this@MullvadApplication)
-        }
+        startKoin { androidContext(this@MullvadApplication) }
     }
 }

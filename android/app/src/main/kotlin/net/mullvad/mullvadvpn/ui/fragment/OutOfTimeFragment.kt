@@ -46,14 +46,14 @@ class OutOfTimeFragment : BaseFragment() {
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: RedeemVoucherButton
 
-    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
-        updateDisconnectButton()
-        updateBuyButtons()
-        headerBar.tunnelState = state
-    }
+    private var tunnelState by
+        observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
+            updateDisconnectButton()
+            updateBuyButtons()
+            headerBar.tunnelState = state
+        }
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +67,10 @@ class OutOfTimeFragment : BaseFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.out_of_time, container, false)
 
-        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = this@OutOfTimeFragment.tunnelState
-        }
+        headerBar =
+            view.findViewById<HeaderBar>(R.id.header_bar).apply {
+                tunnelState = this@OutOfTimeFragment.tunnelState
+            }
 
         view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
             append(requireActivity().getString(R.string.account_credit_has_expired))
@@ -77,29 +78,32 @@ class OutOfTimeFragment : BaseFragment() {
             requireActivity().getString(R.string.add_time_to_account)
         }
 
-        disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
-            setOnClickAction("disconnect", jobTracker) {
-                serviceConnectionManager.connectionProxy()?.disconnect()
-            }
-        }
-
-        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-            newAccount = false
-
-            setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                setEnabled(false)
-                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                    context.openAccountPageInBrowser(token)
+        disconnectButton =
+            view.findViewById<Button>(R.id.disconnect).apply {
+                setOnClickAction("disconnect", jobTracker) {
+                    serviceConnectionManager.connectionProxy()?.disconnect()
                 }
-                setEnabled(true)
             }
 
-            isEnabled = true
-        }
+        sitePaymentButton =
+            view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+                newAccount = false
 
-        redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-            prepare(parentFragmentManager, jobTracker)
-        }
+                setOnClickAction("openAccountPageInBrowser", jobTracker) {
+                    setEnabled(false)
+                    serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                        context.openAccountPageInBrowser(token)
+                    }
+                    setEnabled(true)
+                }
+
+                isEnabled = true
+            }
+
+        redeemButton =
+            view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+                prepare(parentFragmentManager, jobTracker)
+            }
 
         return view
     }
@@ -120,9 +124,7 @@ class OutOfTimeFragment : BaseFragment() {
     private fun CoroutineScope.launchProceedToConnectViewIfExpiryExtended() = launch {
         accountRepository.accountExpiryState
             .map { state -> state.date() }
-            .collect { expiryDate ->
-                checkExpiry(expiryDate)
-            }
+            .collect { expiryDate -> checkExpiry(expiryDate) }
     }
 
     private fun CoroutineScope.launchExpiryPolling() = launch {
@@ -136,29 +138,27 @@ class OutOfTimeFragment : BaseFragment() {
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
                 if (state is ServiceConnectionState.ConnectedReady) {
-                    callbackFlowFromNotifier(
-                        state.container.connectionProxy.onStateChange
-                    )
+                    callbackFlowFromNotifier(state.container.connectionProxy.onStateChange)
                 } else {
                     emptyFlow()
                 }
             }
-            .collect { newState ->
-                tunnelState = newState
-            }
+            .collect { newState -> tunnelState = newState }
     }
 
     private fun updateDisconnectButton() {
         val state = tunnelState
 
-        val showButton = when (state) {
-            is TunnelState.Disconnected -> false
-            is TunnelState.Connecting, is TunnelState.Connected -> true
-            is TunnelState.Disconnecting -> {
-                state.actionAfterDisconnect != ActionAfterDisconnect.Nothing
+        val showButton =
+            when (state) {
+                is TunnelState.Disconnected -> false
+                is TunnelState.Connecting,
+                is TunnelState.Connected -> true
+                is TunnelState.Disconnecting -> {
+                    state.actionAfterDisconnect != ActionAfterDisconnect.Nothing
+                }
+                is TunnelState.Error -> state.errorState.isBlocking
             }
-            is TunnelState.Error -> state.errorState.isBlocking
-        }
 
         disconnectButton.apply {
             if (showButton) {
@@ -176,17 +176,16 @@ class OutOfTimeFragment : BaseFragment() {
         val hasConnectivity = currentState is TunnelState.Disconnected
         sitePaymentButton.setEnabled(hasConnectivity)
 
-        val isOffline = currentState is TunnelState.Error &&
-            currentState.errorState.cause is ErrorStateCause.IsOffline
+        val isOffline =
+            currentState is TunnelState.Error &&
+                currentState.errorState.cause is ErrorStateCause.IsOffline
         redeemButton.setEnabled(!isOffline)
     }
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
         maybeExpiry?.let { expiry ->
             if (expiry.isAfterNow()) {
-                jobTracker.newUiJob("advanceToConnectScreen") {
-                    advanceToConnectScreen()
-                }
+                jobTracker.newUiJob("advanceToConnectScreen") { advanceToConnectScreen() }
             }
         }
     }

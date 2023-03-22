@@ -13,9 +13,7 @@ class ServiceConnectionDeviceDataSource(
     private val dispatcher: EventDispatcher
 ) {
     val deviceStateUpdates = callbackFlow {
-        val handler: (Event.DeviceStateEvent) -> Unit = { event ->
-            trySend(event.newState)
-        }
+        val handler: (Event.DeviceStateEvent) -> Unit = { event -> trySend(event.newState) }
         dispatcher.registerHandler(Event.DeviceStateEvent::class, handler)
         connection.trySendRequest(Request.GetDevice, false)
         awaitClose {
@@ -24,9 +22,7 @@ class ServiceConnectionDeviceDataSource(
     }
 
     val deviceListUpdates = callbackFlow {
-        val handler: (Event.DeviceListUpdate) -> Unit = { event ->
-            trySend(event.event)
-        }
+        val handler: (Event.DeviceListUpdate) -> Unit = { event -> trySend(event.event) }
         dispatcher.registerHandler(Event.DeviceListUpdate::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
@@ -34,9 +30,7 @@ class ServiceConnectionDeviceDataSource(
     }
 
     val deviceRemovalResult = callbackFlow {
-        val handler: (Event.DeviceRemovalEvent) -> Unit = { event ->
-            trySend(event)
-        }
+        val handler: (Event.DeviceRemovalEvent) -> Unit = { event -> trySend(event) }
         dispatcher.registerHandler(Event.DeviceRemovalEvent::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.

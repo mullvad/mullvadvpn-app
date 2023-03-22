@@ -28,9 +28,7 @@ class LoginViewModel(
     sealed class LoginUiState {
         object Default : LoginUiState()
         object Loading : LoginUiState()
-        data class Success(
-            val isOutOfTime: Boolean
-        ) : LoginUiState()
+        data class Success(val isOutOfTime: Boolean) : LoginUiState()
 
         object CreatingAccount : LoginUiState()
         object AccountCreated : LoginUiState()
@@ -54,20 +52,22 @@ class LoginViewModel(
     fun createAccount() {
         _uiState.value = LoginUiState.CreatingAccount
         viewModelScope.launch(dispatcher) {
-            _uiState.value = accountRepository.accountCreationEvents
-                .onStart { accountRepository.createAccount() }
-                .first()
-                .mapToUiState()
+            _uiState.value =
+                accountRepository.accountCreationEvents
+                    .onStart { accountRepository.createAccount() }
+                    .first()
+                    .mapToUiState()
         }
     }
 
     fun login(accountToken: String) {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch(dispatcher) {
-            _uiState.value = accountRepository.loginEvents
-                .onStart { accountRepository.login(accountToken) }
-                .map { it.result.mapToUiState(accountToken) }
-                .first()
+            _uiState.value =
+                accountRepository.loginEvents
+                    .onStart { accountRepository.login(accountToken) }
+                    .map { it.result.mapToUiState(accountToken) }
+                    .first()
         }
     }
 
@@ -84,12 +84,13 @@ class LoginViewModel(
             LoginResult.Ok -> LoginUiState.Success(false)
             LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
             LoginResult.MaxDevicesReached -> {
-                val refreshResult = deviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                    accountToken = accountToken,
-                    shouldClearCache = true,
-                    shouldOverrideCache = true,
-                    timeoutMillis = 5000L
-                )
+                val refreshResult =
+                    deviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                        accountToken = accountToken,
+                        shouldClearCache = true,
+                        shouldOverrideCache = true,
+                        timeoutMillis = 5000L
+                    )
 
                 if (refreshResult.isAvailable()) {
                     LoginUiState.TooManyDevicesError(accountToken)

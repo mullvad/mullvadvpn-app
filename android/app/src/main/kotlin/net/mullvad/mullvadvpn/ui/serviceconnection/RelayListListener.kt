@@ -48,9 +48,7 @@ class RelayListListener(
 
     init {
         eventDispatcher.registerHandler(Event.NewRelayList::class) { event ->
-            event.relayList?.let { relayLocations ->
-                relayListChanged(RelayList(relayLocations))
-            }
+            event.relayList?.let { relayLocations -> relayListChanged(RelayList(relayLocations)) }
         }
 
         settingsListener.relaySettingsNotifier.subscribe(this) { newRelaySettings ->
@@ -67,8 +65,8 @@ class RelayListListener(
         synchronized(this) {
             val relayList = this.relayList
 
-            relaySettings = newRelaySettings
-                ?: RelaySettings.Normal(RelayConstraints(Constraint.Any()))
+            relaySettings =
+                newRelaySettings ?: RelaySettings.Normal(RelayConstraints(Constraint.Any()))
 
             if (relayList != null) {
                 relayListChanged(relayList)
@@ -95,7 +93,9 @@ class RelayListListener(
 
                 return relayList?.findItemForLocation(location, true)
             }
-            else -> { /* NOOP */ }
+            else -> {
+                /* NOOP */
+            }
         }
 
         return null

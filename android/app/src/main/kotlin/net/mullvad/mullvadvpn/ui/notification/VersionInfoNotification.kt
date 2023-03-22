@@ -4,9 +4,8 @@ import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.VersionInfo
 
-class VersionInfoNotification(
-    context: Context
-) : NotificationWithUrl(context, R.string.download_url) {
+class VersionInfoNotification(context: Context) :
+    NotificationWithUrl(context, R.string.download_url) {
     private val unsupportedVersion = context.getString(R.string.unsupported_version)
     private val updateAvailable = context.getString(R.string.update_available)
 

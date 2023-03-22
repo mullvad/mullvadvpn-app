@@ -47,8 +47,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
     private lateinit var advancedMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,21 +61,22 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
     ): View {
         val view = inflater.inflate(R.layout.settings, container, false)
 
-        view.findViewById<ImageButton>(R.id.close).setOnClickListener {
-            activity?.onBackPressed()
-        }
+        view.findViewById<ImageButton>(R.id.close).setOnClickListener { activity?.onBackPressed() }
 
-        accountMenu = view.findViewById<AccountCell>(R.id.account).apply {
-            targetFragment = AccountFragment::class
-        }
+        accountMenu =
+            view.findViewById<AccountCell>(R.id.account).apply {
+                targetFragment = AccountFragment::class
+            }
 
-        preferencesMenu = view.findViewById<NavigateCell>(R.id.preferences).apply {
-            targetFragment = PreferencesFragment::class
-        }
+        preferencesMenu =
+            view.findViewById<NavigateCell>(R.id.preferences).apply {
+                targetFragment = PreferencesFragment::class
+            }
 
-        advancedMenu = view.findViewById<NavigateCell>(R.id.advanced).apply {
-            targetFragment = AdvancedFragment::class
-        }
+        advancedMenu =
+            view.findViewById<NavigateCell>(R.id.advanced).apply {
+                targetFragment = AdvancedFragment::class
+            }
 
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
             targetFragment = ProblemReportFragment::class
@@ -149,20 +149,14 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
     private fun CoroutineScope.luanchConfigureMenuOnDeviceChanges() = launch {
         deviceRepository.deviceState
-            .debounce {
-                it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
-            }
-            .collect { device ->
-                updateLoggedInStatus(device is DeviceState.LoggedIn)
-            }
+            .debounce { it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS) }
+            .collect { device -> updateLoggedInStatus(device is DeviceState.LoggedIn) }
     }
 
     private fun CoroutineScope.launchUpdateExpiryTextOnExpiryChanges() = launch {
         accountRepository.accountExpiryState
             .map { state -> state.date() }
-            .collect { expiryDate ->
-                accountMenu.accountExpiry = expiryDate
-            }
+            .collect { expiryDate -> accountMenu.accountExpiry = expiryDate }
     }
 
     private fun CoroutineScope.launchVersionInfoSubscription() = launch {
@@ -174,26 +168,23 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
                     emptyFlow()
                 }
             }
-            .collect { versionInfo ->
-                updateVersionInfo(versionInfo)
-            }
+            .collect { versionInfo -> updateVersionInfo(versionInfo) }
     }
 
     private fun updateLoggedInStatus(loggedIn: Boolean) {
-        val visibility = if (loggedIn) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        val visibility =
+            if (loggedIn) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
         accountMenu.visibility = visibility
         preferencesMenu.visibility = visibility
         advancedMenu.visibility = visibility
     }
 
-    private fun updateVersionInfo(
-        versionInfo: VersionInfo
-    ) {
+    private fun updateVersionInfo(versionInfo: VersionInfo) {
         appVersionMenu.updateAvailable = versionInfo.isOutdated || !versionInfo.isSupported
         appVersionMenu.version = versionInfo.currentVersion ?: ""
     }

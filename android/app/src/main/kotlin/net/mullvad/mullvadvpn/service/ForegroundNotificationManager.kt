@@ -32,9 +32,8 @@ class ForegroundNotificationManager(
 
     private val tunnelStateNotification = TunnelStateNotification(service)
 
-    private var loggedIn by observable(false) { _, _, _ ->
-        updater.trySendBlocking(UpdaterMessage.UpdateAction())
-    }
+    private var loggedIn by
+        observable(false) { _, _, _ -> updater.trySendBlocking(UpdaterMessage.UpdateAction()) }
 
     private val tunnelState
         get() = connectionProxy.onStateChange.latestEvent
@@ -45,9 +44,10 @@ class ForegroundNotificationManager(
     var onForeground = false
         private set
 
-    var lockedToForeground by observable(false) { _, _, _ ->
-        updater.trySendBlocking(UpdaterMessage.UpdateNotification())
-    }
+    var lockedToForeground by
+        observable(false) { _, _, _ ->
+            updater.trySendBlocking(UpdaterMessage.UpdateNotification())
+        }
 
     init {
         connectionProxy.onStateChange.subscribe(this) { newState ->
@@ -56,13 +56,10 @@ class ForegroundNotificationManager(
 
         intermittentDaemon.registerListener(this) { daemon ->
             jobTracker.newBackgroundJob("notificationLoggedInJob") {
-                daemon?.deviceStateUpdates
-                    ?.onStart {
-                        emit(daemon.getAndEmitDeviceState())
-                    }
-                    ?.collect { deviceState ->
-                        loggedIn = deviceState is DeviceState.LoggedIn
-                    }
+                daemon
+                    ?.deviceStateUpdates
+                    ?.onStart { emit(daemon.getAndEmitDeviceState()) }
+                    ?.collect { deviceState -> loggedIn = deviceState is DeviceState.LoggedIn }
             }
         }
 
@@ -76,21 +73,19 @@ class ForegroundNotificationManager(
         updater.close()
     }
 
-    private fun runUpdater() = GlobalScope.actor<UpdaterMessage>(
-        Dispatchers.Main,
-        Channel.UNLIMITED
-    ) {
-        for (message in channel) {
-            when (message) {
-                is UpdaterMessage.UpdateNotification -> updateNotification()
-                is UpdaterMessage.UpdateAction -> updateNotificationAction()
-                is UpdaterMessage.NewTunnelState -> {
-                    tunnelStateNotification.tunnelState = message.newState
-                    updateNotification()
+    private fun runUpdater() =
+        GlobalScope.actor<UpdaterMessage>(Dispatchers.Main, Channel.UNLIMITED) {
+            for (message in channel) {
+                when (message) {
+                    is UpdaterMessage.UpdateNotification -> updateNotification()
+                    is UpdaterMessage.UpdateAction -> updateNotificationAction()
+                    is UpdaterMessage.NewTunnelState -> {
+                        tunnelStateNotification.tunnelState = message.newState
+                        updateNotification()
+                    }
                 }
             }
         }
-    }
 
     fun showOnForeground() {
         service.startForeground(

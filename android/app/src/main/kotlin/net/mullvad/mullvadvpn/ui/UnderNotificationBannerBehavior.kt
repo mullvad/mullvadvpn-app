@@ -8,10 +8,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import net.mullvad.mullvadvpn.R
 
-class UnderNotificationBannerBehavior(
-    context: Context,
-    attributes: AttributeSet
-) : Behavior<ScrollView>(context, attributes) {
+class UnderNotificationBannerBehavior(context: Context, attributes: AttributeSet) :
+    Behavior<ScrollView>(context, attributes) {
     override fun layoutDependsOn(parent: CoordinatorLayout, body: ScrollView, dependency: View) =
         dependency.id == R.id.notification_banner
 
@@ -20,11 +18,12 @@ class UnderNotificationBannerBehavior(
         body: ScrollView,
         dependency: View
     ): Boolean {
-        val newPaddingTop = if (dependency.visibility == View.VISIBLE) {
-            dependency.height + dependency.translationY.toInt()
-        } else {
-            0
-        }
+        val newPaddingTop =
+            if (dependency.visibility == View.VISIBLE) {
+                dependency.height + dependency.translationY.toInt()
+            } else {
+                0
+            }
 
         body.getChildAt(0).apply {
             if (paddingTop != newPaddingTop) {

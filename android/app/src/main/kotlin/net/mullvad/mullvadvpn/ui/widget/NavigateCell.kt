@@ -9,15 +9,16 @@ import kotlin.reflect.KClass
 import net.mullvad.mullvadvpn.R
 
 open class NavigateCell : Cell {
-    private val chevron = ImageView(context).apply {
-        val width = resources.getDimensionPixelSize(R.dimen.chevron_width)
-        val height = resources.getDimensionPixelSize(R.dimen.chevron_height)
+    private val chevron =
+        ImageView(context).apply {
+            val width = resources.getDimensionPixelSize(R.dimen.chevron_width)
+            val height = resources.getDimensionPixelSize(R.dimen.chevron_height)
 
-        layoutParams = LayoutParams(width, height, 0.0f)
-        alpha = 0.6f
+            layoutParams = LayoutParams(width, height, 0.0f)
+            alpha = 0.6f
 
-        setImageResource(R.drawable.icon_chevron)
-    }
+            setImageResource(R.drawable.icon_chevron)
+        }
 
     var targetFragment: KClass<out Fragment>? = null
 
@@ -25,8 +26,11 @@ open class NavigateCell : Cell {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
         cell.addView(chevron)

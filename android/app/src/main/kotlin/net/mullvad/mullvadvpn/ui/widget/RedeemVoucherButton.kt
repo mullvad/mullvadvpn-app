@@ -11,8 +11,11 @@ class RedeemVoucherButton : Button {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     fun prepare(
         fragmentManager: FragmentManager?,

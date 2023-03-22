@@ -14,14 +14,10 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onCompletion
 
-class HandlerFlow<T>(
-    looper: Looper,
-    private val extractor: (Message) -> T
-) : Handler(looper), Flow<T> {
+class HandlerFlow<T>(looper: Looper, private val extractor: (Message) -> T) :
+    Handler(looper), Flow<T> {
     private val channel = Channel<T>(Channel.UNLIMITED)
-    private val flow = channel.consumeAsFlow().onCompletion {
-        removeCallbacksAndMessages(null)
-    }
+    private val flow = channel.consumeAsFlow().onCompletion { removeCallbacksAndMessages(null) }
 
     @InternalCoroutinesApi
     override suspend fun collect(collector: FlowCollector<T>) = flow.collect(collector)
@@ -33,7 +29,8 @@ class HandlerFlow<T>(
             channel.trySendBlocking(extractedData)
         } catch (exception: Exception) {
             when (exception) {
-                is ClosedSendChannelException, is CancellationException -> {
+                is ClosedSendChannelException,
+                is CancellationException -> {
                     Log.w("mullvad", "Received a message after HandlerFlow was closed", exception)
                     removeCallbacksAndMessages(null)
                 }

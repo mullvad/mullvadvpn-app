@@ -25,14 +25,11 @@ import org.junit.Test
 class ServiceConnectionDeviceDataSourceTest {
     private val tracker = JobTracker()
 
-    @MockK
-    private lateinit var mockedMainLooper: Looper
+    @MockK private lateinit var mockedMainLooper: Looper
 
-    @MockK
-    private lateinit var mockedDispatchingHandler: EventDispatcher
+    @MockK private lateinit var mockedDispatchingHandler: EventDispatcher
 
-    @MockK
-    private lateinit var connection: Messenger
+    @MockK private lateinit var connection: Messenger
 
     lateinit var serviceConnectionDeviceDataSource: ServiceConnectionDeviceDataSource
 
@@ -57,9 +54,7 @@ class ServiceConnectionDeviceDataSourceTest {
     fun test_get_devices_list() {
         // Arrange
         every { connection.send(any()) } just Runs
-        every {
-            mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any())
-        } just Runs
+        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
         // Act and Assert no crashes
         serviceConnectionDeviceDataSource =
             ServiceConnectionDeviceDataSource(connection, mockedDispatchingHandler)
@@ -70,9 +65,7 @@ class ServiceConnectionDeviceDataSourceTest {
     fun test_catch_exception_on_devices_list() {
         // Arrange
         every { connection.send(any()) } throws DeadObjectException()
-        every {
-            mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any())
-        } just Runs
+        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
         // Act and Assert no crashes
         serviceConnectionDeviceDataSource =
             ServiceConnectionDeviceDataSource(connection, mockedDispatchingHandler)

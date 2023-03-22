@@ -78,13 +78,15 @@ class AccountFragment : BaseFragment() {
             redeemVoucherButton.setEnabled(!value)
         }
 
-    private var isAccountNumberShown by observable(false) { _, _, doShow ->
-        accountNumberView.informationState = if (doShow) {
-            InformationView.Masking.Show(GroupedTransformationMethod())
-        } else {
-            InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
+    private var isAccountNumberShown by
+        observable(false) { _, _, doShow ->
+            accountNumberView.informationState =
+                if (doShow) {
+                    InformationView.Masking.Show(GroupedTransformationMethod())
+                } else {
+                    InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
+                }
         }
-    }
 
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
@@ -93,8 +95,7 @@ class AccountFragment : BaseFragment() {
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onAttach(activity: Activity) {
         super.onAttach(activity)
@@ -117,33 +118,35 @@ class AccountFragment : BaseFragment() {
             requireMainActivity().onBackPressed()
         }
 
-        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-            newAccount = false
+        sitePaymentButton =
+            view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+                newAccount = false
 
-            setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                setEnabled(false)
-                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                    context.openAccountPageInBrowser(token)
+                setOnClickAction("openAccountPageInBrowser", jobTracker) {
+                    setEnabled(false)
+                    serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                        context.openAccountPageInBrowser(token)
+                    }
+                    setEnabled(true)
+                    checkForAddedTime()
                 }
-                setEnabled(true)
-                checkForAddedTime()
             }
-        }
 
-        redeemVoucherButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-            prepare(parentFragmentManager, jobTracker)
-        }
+        redeemVoucherButton =
+            view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+                prepare(parentFragmentManager, jobTracker)
+            }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
             accountRepository.logout()
         }
 
-        accountNumberView = view.findViewById<CopyableInformationView>(R.id.account_number).apply {
-            informationState = InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
-            onToggleMaskingClicked = {
-                isAccountNumberShown = isAccountNumberShown.not()
+        accountNumberView =
+            view.findViewById<CopyableInformationView>(R.id.account_number).apply {
+                informationState =
+                    InformationView.Masking.Hide(GroupedPasswordTransformationMethod())
+                onToggleMaskingClicked = { isAccountNumberShown = isAccountNumberShown.not() }
             }
-        }
 
         accountExpiryView = view.findViewById(R.id.account_expiry)
         deviceNameView = view.findViewById(R.id.device_name)
@@ -184,8 +187,7 @@ class AccountFragment : BaseFragment() {
                 }
                 .collect { state ->
                     accountNumberView.information = state.token()
-                    deviceNameView.information =
-                        state.deviceName()?.capitalizeFirstCharOfEachWord()
+                    deviceNameView.information = state.deviceName()?.capitalizeFirstCharOfEachWord()
                 }
         }
     }
@@ -206,33 +208,29 @@ class AccountFragment : BaseFragment() {
             serviceConnectionManager.connectionState
                 .flatMapLatest { state ->
                     if (state is ServiceConnectionState.ConnectedReady) {
-                        callbackFlowFromNotifier(
-                            state.container.connectionProxy.onUiStateChange
-                        )
+                        callbackFlowFromNotifier(state.container.connectionProxy.onUiStateChange)
                     } else {
                         emptyFlow()
                     }
                 }
                 .collect { uiState ->
-                    hasConnectivity = uiState is TunnelState.Connected ||
-                        uiState is TunnelState.Disconnected ||
-                        (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
-                    isOffline = uiState is TunnelState.Error &&
-                        uiState.errorState.cause is ErrorStateCause.IsOffline
+                    hasConnectivity =
+                        uiState is TunnelState.Connected ||
+                            uiState is TunnelState.Disconnected ||
+                            (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+                    isOffline =
+                        uiState is TunnelState.Error &&
+                            uiState.errorState.cause is ErrorStateCause.IsOffline
                 }
         }
     }
 
     private fun CoroutineScope.launchRefreshDeviceStateAfterAnimation() = launch {
-        transitionFinishedFlow.collect {
-            deviceRepository.refreshDeviceState()
-        }
+        transitionFinishedFlow.collect { deviceRepository.refreshDeviceState() }
     }
 
     private fun checkForAddedTime() {
-        currentAccountExpiry?.let { expiry ->
-            oldAccountExpiry = expiry
-        }
+        currentAccountExpiry?.let { expiry -> oldAccountExpiry = expiry }
     }
 
     private fun updateAccountExpiry(accountExpiry: DateTime?) {

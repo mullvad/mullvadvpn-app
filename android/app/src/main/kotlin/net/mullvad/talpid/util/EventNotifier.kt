@@ -52,20 +52,14 @@ class EventNotifier<T>(private val initialValue: T) {
     }
 
     fun unsubscribe(id: Any) {
-        synchronized(this) {
-            listeners.remove(id)
-        }
+        synchronized(this) { listeners.remove(id) }
     }
 
     fun unsubscribeAll() {
-        synchronized(this) {
-            listeners.clear()
-        }
+        synchronized(this) { listeners.clear() }
     }
 
-    fun notifiable() = observable(latestEvent) { _, _, newValue ->
-        notify(newValue)
-    }
+    fun notifiable() = observable(latestEvent) { _, _, newValue -> notify(newValue) }
 }
 
 fun <T> autoSubscribable(id: Any, fallback: T, listener: (T) -> Unit) =

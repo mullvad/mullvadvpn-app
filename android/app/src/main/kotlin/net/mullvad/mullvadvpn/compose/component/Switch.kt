@@ -27,10 +27,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 @Preview
 @Composable
 private fun PreviewSwitch() {
-    CellSwitch(
-        isChecked = false,
-        onCheckedChange = null
-    )
+    CellSwitch(isChecked = false, onCheckedChange = null)
 }
 
 @Composable
@@ -49,49 +46,48 @@ fun CellSwitch(
     val thumbRadius = 11.dp
 
     // To move the thumb, we need to calculate the position (along x axis)
-    val animatePosition = animateFloatAsState(
-        targetValue = if (isChecked)
-            with(LocalDensity.current) {
-                (width - thumbRadius - gapBetweenThumbAndTrackEdge - 1.dp).toPx()
-            }
-        else
-            with(LocalDensity.current) { (thumbRadius + gapBetweenThumbAndTrackEdge + 1.dp).toPx() }
-    )
+    val animatePosition =
+        animateFloatAsState(
+            targetValue =
+                if (isChecked)
+                    with(LocalDensity.current) {
+                        (width - thumbRadius - gapBetweenThumbAndTrackEdge - 1.dp).toPx()
+                    }
+                else
+                    with(LocalDensity.current) {
+                        (thumbRadius + gapBetweenThumbAndTrackEdge + 1.dp).toPx()
+                    }
+        )
 
     Canvas(
-        modifier = modifier
-            .padding(1.dp)
-            .size(width = width, height = height)
-            .scale(scale = scale)
-            .pointerInput(Unit) {
-                if (onCheckedChange != null) {
-                    detectTapGestures(
-                        onTap = {
-                            onCheckedChange(!isChecked)
-                        }
-                    )
+        modifier =
+            modifier
+                .padding(1.dp)
+                .size(width = width, height = height)
+                .scale(scale = scale)
+                .pointerInput(Unit) {
+                    if (onCheckedChange != null) {
+                        detectTapGestures(onTap = { onCheckedChange(!isChecked) })
+                    }
                 }
-            }
     ) {
         // Track
         drawRoundRect(
             color = thumbColor,
             cornerRadius = CornerRadius(x = 15.dp.toPx(), y = 15.dp.toPx()),
-            style = Stroke(
-                width = 2.dp.toPx(),
-                miter = 6.dp.toPx(),
-                cap = StrokeCap.Square,
-            ),
+            style =
+                Stroke(
+                    width = 2.dp.toPx(),
+                    miter = 6.dp.toPx(),
+                    cap = StrokeCap.Square,
+                ),
         )
 
         // Thumb
         drawCircle(
             color = if (isChecked) thumbCheckedTrackColor else thumbUncheckedTrackColor,
             radius = thumbRadius.toPx(),
-            center = Offset(
-                x = animatePosition.value,
-                y = size.height / 2
-            )
+            center = Offset(x = animatePosition.value, y = size.height / 2)
         )
     }
 

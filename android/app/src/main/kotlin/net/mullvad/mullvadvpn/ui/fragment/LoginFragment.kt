@@ -44,8 +44,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var input: AccountInput
     private lateinit var createAccountButton: Button
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,10 +65,11 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
-            onLogin = loginViewModel::login
-            onClearHistory = loginViewModel::clearAccountHistory
-        }
+        accountLogin =
+            view.findViewById<AccountLogin>(R.id.account_login).apply {
+                onLogin = loginViewModel::login
+                onClearHistory = loginViewModel::clearAccountHistory
+            }
 
         createAccountButton = view.findViewById(R.id.create_account)
         createAccountButton.setOnClickAction(
@@ -80,9 +80,8 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
-        background = view.findViewById<View>(R.id.contents).apply {
-            setOnClickListener { requestFocus() }
-        }
+        background =
+            view.findViewById<View>(R.id.contents).apply { setOnClickListener { requestFocus() } }
 
         scrollToShow(accountLogin)
 
@@ -102,9 +101,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
                 false
             }
         }
-        input.onTextChanged.subscribe(this) {
-            createAccountButton.isEnabled = it.isEmpty()
-        }
+        input.onTextChanged.subscribe(this) { createAccountButton.isEnabled = it.isEmpty() }
     }
 
     override fun onResume() {
@@ -155,41 +152,32 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
             is LoginViewModel.LoginUiState.Default -> {
                 showDefault()
             }
-
             is LoginViewModel.LoginUiState.Success -> {
                 // MainActivity responsible for transition to connect/out-of-time view.
                 showLoggedIn()
             }
-
             is LoginViewModel.LoginUiState.AccountCreated -> {
                 // MainActivity responsible for transition to welcome view.
             }
-
             is LoginViewModel.LoginUiState.CreatingAccount -> {
                 showCreatingAccount()
             }
-
             is LoginViewModel.LoginUiState.Loading -> {
                 showLoading()
             }
-
             is LoginViewModel.LoginUiState.InvalidAccountError -> {
                 loginFailure(resources.getString(R.string.login_fail_description))
             }
-
             is LoginViewModel.LoginUiState.TooManyDevicesError -> {
                 showLoading(overrideSpinnerWithErrorIcon = true)
                 openDeviceListFragment(uiState.accountToken)
             }
-
             is LoginViewModel.LoginUiState.TooManyDevicesMissingListError -> {
                 loginFailure(context?.getString(R.string.failed_to_fetch_devices))
             }
-
             is LoginViewModel.LoginUiState.UnableToCreateAccountError -> {
                 loginFailure(resources.getString(R.string.failed_to_create_account))
             }
-
             is LoginViewModel.LoginUiState.OtherError -> {
                 loginFailure(resources.getString(R.string.error_occurred))
             }
@@ -198,9 +186,10 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
     private fun openDeviceListFragment(accountToken: String) {
 
-        val deviceFragment = DeviceListFragment().apply {
-            arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
-        }
+        val deviceFragment =
+            DeviceListFragment().apply {
+                arguments = Bundle().apply { putString(ACCOUNT_TOKEN_ARGUMENT_KEY, accountToken) }
+            }
 
         parentFragmentManager.beginTransaction().apply {
             setCustomAnimations(
@@ -228,17 +217,19 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
 
-        loggingInStatus.visibility = if (overrideSpinnerWithErrorIcon == false) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        loggingInStatus.visibility =
+            if (overrideSpinnerWithErrorIcon == false) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
-        loginFailStatus.visibility = if (overrideSpinnerWithErrorIcon == false) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
+        loginFailStatus.visibility =
+            if (overrideSpinnerWithErrorIcon == false) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
 
         loggedInStatus.visibility = View.GONE
 

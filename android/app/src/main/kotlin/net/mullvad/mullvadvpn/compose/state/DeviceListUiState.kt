@@ -10,15 +10,9 @@ data class DeviceListUiState(
     val hasTooManyDevices = deviceUiItems.count() >= 5
 
     companion object {
-        val INITIAL = DeviceListUiState(
-            deviceUiItems = emptyList(),
-            isLoading = true,
-            stagedDevice = null
-        )
+        val INITIAL =
+            DeviceListUiState(deviceUiItems = emptyList(), isLoading = true, stagedDevice = null)
     }
 }
 
-data class DeviceListItemUiState(
-    val device: Device,
-    val isLoading: Boolean
-)
+data class DeviceListItemUiState(val device: Device, val isLoading: Boolean)

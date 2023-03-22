@@ -35,22 +35,23 @@ class SplitTunnelingViewModel(
     private val excludedApps: MutableMap<String, AppData> = mutableMapOf()
     private val notExcludedApps: MutableMap<String, AppData> = mutableMapOf()
 
-    private val defaultListItems: List<ListItemData> = listOf(
-        createTextItem(R.string.split_tunneling_description)
-        // We will have search item in future
-    )
+    private val defaultListItems: List<ListItemData> =
+        listOf(
+            createTextItem(R.string.split_tunneling_description)
+            // We will have search item in future
+            )
     private var isSystemAppsVisible = false
 
     init {
         viewModelScope.launch(dispatcher) {
             listItemsSink.emit(defaultListItems + createDivider(0) + createProgressItem())
             // this will be removed after changes on native to ignore enable parameter
-            if (!splitTunneling.enabled)
-                splitTunneling.enabled = true
+            if (!splitTunneling.enabled) splitTunneling.enabled = true
             fetchData()
         }
         viewModelScope.launch(dispatcher) {
-            intentFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed())
+            intentFlow
+                .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
                 .collect(::handleIntents)
         }
     }
@@ -97,7 +98,8 @@ class SplitTunnelingViewModel(
     }
 
     private suspend fun fetchData() {
-        appsProvider.getAppsList()
+        appsProvider
+            .getAppsList()
             .partition { app -> splitTunneling.isAppExcluded(app.packageName) }
             .let { (excludedAppsList, notExcludedAppsList) ->
                 // TODO: remove potential package names from splitTunneling list
@@ -114,9 +116,10 @@ class SplitTunnelingViewModel(
         if (excludedApps.isNotEmpty()) {
             listItems += createDivider(0)
             listItems += createMainItem(R.string.exclude_applications)
-            listItems += excludedApps.values.sortedBy { it.name }.map { info ->
-                createApplicationItem(info, true)
-            }
+            listItems +=
+                excludedApps.values
+                    .sortedBy { it.name }
+                    .map { info -> createApplicationItem(info, true) }
         }
         val shownNotExcludedApps =
             notExcludedApps.filter { app -> !app.value.isSystemApp || isSystemAppsVisible }
@@ -124,9 +127,10 @@ class SplitTunnelingViewModel(
             listItems += createDivider(1)
             listItems += createSwitchItem(R.string.show_system_apps, isSystemAppsVisible)
             listItems += createMainItem(R.string.all_applications)
-            listItems += shownNotExcludedApps.values.sortedBy { it.name }.map { info ->
-                createApplicationItem(info, false)
-            }
+            listItems +=
+                shownNotExcludedApps.values
+                    .sortedBy { it.name }
+                    .map { info -> createApplicationItem(info, false) }
         }
         listItemsSink.emit(listItems)
     }
@@ -137,14 +141,14 @@ class SplitTunnelingViewModel(
             text = appData.name
             iconRes = appData.iconRes
             action = ListItemData.ItemAction(appData.packageName)
-            widget = WidgetState.ImageState(
-                if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
-            )
+            widget =
+                WidgetState.ImageState(
+                    if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
+                )
         }
 
-    private fun createDivider(id: Int): ListItemData = ListItemData.build("space_$id") {
-        type = ListItemData.DIVIDER
-    }
+    private fun createDivider(id: Int): ListItemData =
+        ListItemData.build("space_$id") { type = ListItemData.DIVIDER }
 
     private fun createMainItem(@StringRes text: Int): ListItemData =
         ListItemData.build("header_$text") {
@@ -159,9 +163,8 @@ class SplitTunnelingViewModel(
             action = ListItemData.ItemAction(text.toString())
         }
 
-    private fun createProgressItem(): ListItemData = ListItemData.build(identifier = "progress") {
-        type = ListItemData.PROGRESS
-    }
+    private fun createProgressItem(): ListItemData =
+        ListItemData.build(identifier = "progress") { type = ListItemData.PROGRESS }
 
     private fun createSwitchItem(@StringRes text: Int, checked: Boolean): ListItemData =
         ListItemData.build(identifier = "switch_$text") {

@@ -18,10 +18,7 @@ import org.koin.test.KoinTestRule
 
 class UiModuleTest : KoinTest {
 
-    @get:Rule
-    val koinTestRule = KoinTestRule.create {
-        modules(uiModule)
-    }
+    @get:Rule val koinTestRule = KoinTestRule.create { modules(uiModule) }
 
     @After
     fun tearDown() {
@@ -31,18 +28,17 @@ class UiModuleTest : KoinTest {
     @Test
     fun test_scope_linking() {
         val appsScope: Scope = getKoin().createScope(APPS_SCOPE, named(APPS_SCOPE))
-        val serviceConnectionScope = getKoin().createScope(
-            SERVICE_CONNECTION_SCOPE,
-            named(SERVICE_CONNECTION_SCOPE)
-        )
+        val serviceConnectionScope =
+            getKoin().createScope(SERVICE_CONNECTION_SCOPE, named(SERVICE_CONNECTION_SCOPE))
 
         appsScope.linkTo(serviceConnectionScope)
 
         val mockedMessenger = mockk<Messenger>()
         val mockedEventMessageHandler = mockk<MessageDispatcher<Event>>(relaxed = true)
-        val serviceConnectionSplitTunneling = serviceConnectionScope.get<SplitTunneling>(
-            parameters = { parametersOf(mockedMessenger, mockedEventMessageHandler) }
-        )
+        val serviceConnectionSplitTunneling =
+            serviceConnectionScope.get<SplitTunneling>(
+                parameters = { parametersOf(mockedMessenger, mockedEventMessageHandler) }
+            )
 
         assertEquals(appsScope.get<SplitTunneling>(), serviceConnectionSplitTunneling)
     }

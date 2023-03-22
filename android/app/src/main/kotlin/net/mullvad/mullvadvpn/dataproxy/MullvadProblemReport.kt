@@ -26,9 +26,8 @@ class MullvadProblemReport {
 
     private val commandChannel = spawnActor()
 
-    private val problemReportPath = GlobalScope.async(Dispatchers.Default) {
-        File(logDirectory.await(), PROBLEM_REPORT_FILE)
-    }
+    private val problemReportPath =
+        GlobalScope.async(Dispatchers.Default) { File(logDirectory.await(), PROBLEM_REPORT_FILE) }
 
     private var isCollected = false
 
@@ -65,21 +64,21 @@ class MullvadProblemReport {
         commandChannel.trySendBlocking(Command.Delete())
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            while (true) {
-                val command = channel.receive()
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                while (true) {
+                    val command = channel.receive()
 
-                when (command) {
-                    is Command.Collect -> doCollect()
-                    is Command.Load -> command.logs.complete(doLoad())
-                    is Command.Send -> command.result.complete(doSend())
-                    is Command.Delete -> doDelete()
+                    when (command) {
+                        is Command.Collect -> doCollect()
+                        is Command.Load -> command.logs.complete(doLoad())
+                        is Command.Send -> command.result.complete(doSend())
+                        is Command.Delete -> doDelete()
+                    }
                 }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
+            } catch (exception: ClosedReceiveChannelException) {}
         }
-    }
 
     private suspend fun doCollect() {
         val logDirectoryPath = logDirectory.await().absolutePath
@@ -107,13 +106,14 @@ class MullvadProblemReport {
             doCollect()
         }
 
-        val result = isCollected &&
-            sendProblemReport(
-                userEmail,
-                userMessage,
-                problemReportPath.await().absolutePath,
-                cacheDirectory.await().absolutePath
-            )
+        val result =
+            isCollected &&
+                sendProblemReport(
+                    userEmail,
+                    userMessage,
+                    problemReportPath.await().absolutePath,
+                    cacheDirectory.await().absolutePath
+                )
 
         if (result) {
             doDelete()

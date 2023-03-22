@@ -14,7 +14,9 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.ui.paintStatusBar
 
-class HeaderBar @JvmOverloads constructor(
+class HeaderBar
+@JvmOverloads
+constructor(
     context: Context,
     attributes: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -27,18 +29,20 @@ class HeaderBar @JvmOverloads constructor(
     private val securedColor = ContextCompat.getColor(context, R.color.green)
     private val unsecuredColor = ContextCompat.getColor(context, R.color.red)
 
-    var tunnelState by observable<TunnelState?>(null) { _, _, state ->
-        val backgroundColor = if (state == null) {
-            disabledColor
-        } else if (state.isSecured()) {
-            securedColor
-        } else {
-            unsecuredColor
-        }
+    var tunnelState by
+        observable<TunnelState?>(null) { _, _, state ->
+            val backgroundColor =
+                if (state == null) {
+                    disabledColor
+                } else if (state.isSecured()) {
+                    securedColor
+                } else {
+                    unsecuredColor
+                }
 
-        container.setBackgroundColor(backgroundColor)
-        paintStatusBar(backgroundColor)
-    }
+            container.setBackgroundColor(backgroundColor)
+            paintStatusBar(backgroundColor)
+        }
 
     init {
         gravity = Gravity.CENTER_VERTICAL
@@ -46,9 +50,7 @@ class HeaderBar @JvmOverloads constructor(
 
         settingsButton.apply {
             isEnabled = true
-            setOnClickListener {
-                (context as? MainActivity)?.openSettings()
-            }
+            setOnClickListener { (context as? MainActivity)?.openSettings() }
         }
 
         tunnelState = null

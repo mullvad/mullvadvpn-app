@@ -46,13 +46,12 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 @Composable
 private fun PreviewAdvancedSettings() {
     AdvancedSettingScreen(
-        uiState = AdvancedSettingsUiState.DefaultUiState(
-            mtu = "1337",
-            isCustomDnsEnabled = true,
-            customDnsItems = listOf(
-                CustomDnsItem("0.0.0.0", false)
-            )
-        ),
+        uiState =
+            AdvancedSettingsUiState.DefaultUiState(
+                mtu = "1337",
+                isCustomDnsEnabled = true,
+                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false))
+            ),
         onMtuCellClick = {},
         onMtuInputChange = {},
         onSaveMtuClick = {},
@@ -121,28 +120,23 @@ fun AdvancedSettingScreen(
     val topPadding = 6.dp
 
     CollapsingToolbarTheme {
-
         val state = rememberCollapsingToolbarScaffoldState()
         val progress = state.toolbarState.progress
 
         CollapsableAwareToolbarScaffold(
-            modifier = Modifier
-                .background(MullvadDarkBlue)
-                .fillMaxSize(),
+            modifier = Modifier.background(MullvadDarkBlue).fillMaxSize(),
             state = state,
             scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
             isEnabledWhenCollapsable = true,
             toolbar = {
-                val scaffoldModifier = Modifier
-                    .road(
+                val scaffoldModifier =
+                    Modifier.road(
                         whenCollapsed = Alignment.TopCenter,
                         whenExpanded = Alignment.BottomStart
                     )
                 CollapsingTopBar(
                     backgroundColor = MullvadDarkBlue,
-                    onBackClicked = {
-                        onBackClick()
-                    },
+                    onBackClicked = { onBackClick() },
                     title = stringResource(id = R.string.settings_advanced),
                     progress = progress,
                     modifier = scaffoldModifier,
@@ -151,27 +145,19 @@ fun AdvancedSettingScreen(
             }
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .drawVerticalScrollbar(lazyListState)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .animateContentSize(),
+                modifier =
+                    Modifier.drawVerticalScrollbar(lazyListState)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .animateContentSize(),
                 state = lazyListState
-
             ) {
-                item {
-                    MtuComposeCell(
-                        mtuValue = uiState.mtu,
-                        onEditMtu = { onMtuCellClick() }
-                    )
-                }
+                item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
 
                 item {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.split_tunneling),
-                        onClick = {
-                            onSplitTunnelingNavigationClick.invoke()
-                        }
+                        onClick = { onSplitTunnelingNavigationClick.invoke() }
                     )
                     Divider()
                 }
@@ -179,9 +165,7 @@ fun AdvancedSettingScreen(
                 item {
                     CustomDnsComposeCell(
                         checkboxDefaultState = uiState.isCustomDnsEnabled,
-                        onToggle = { newValue ->
-                            onToggleDnsClick(newValue)
-                        }
+                        onToggle = { newValue -> onToggleDnsClick(newValue) }
                     )
                     Divider()
                 }
@@ -190,8 +174,8 @@ fun AdvancedSettingScreen(
                     itemsIndexed(uiState.customDnsItems) { index, item ->
                         DnsCell(
                             address = item.address,
-                            isUnreachableLocalDnsWarningVisible = item.isLocal &&
-                                uiState.isAllowLanEnabled.not(),
+                            isUnreachableLocalDnsWarningVisible =
+                                item.isLocal && uiState.isAllowLanEnabled.not(),
                             onClick = { onDnsClick(index) },
                             modifier = Modifier.animateItemPlacement(),
                         )
@@ -207,7 +191,7 @@ fun AdvancedSettingScreen(
                                     color = Color.White
                                 )
                             },
-                            bodyView = { },
+                            bodyView = {},
                             subtitle = null,
                             background = MullvadBlue20,
                             startPadding = biggerPadding
@@ -218,8 +202,7 @@ fun AdvancedSettingScreen(
 
                 item {
                     CustomDnsCellSubtitle(
-                        Modifier
-                            .background(MullvadDarkBlue)
+                        Modifier.background(MullvadDarkBlue)
                             .padding(
                                 start = cellHorizontalSpacing,
                                 top = topPadding,

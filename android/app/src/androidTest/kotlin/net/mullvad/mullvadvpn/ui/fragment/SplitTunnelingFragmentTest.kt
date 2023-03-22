@@ -62,12 +62,13 @@ class SplitTunnelingFragmentTest : KoinTest {
     }
 
     @get:Rule
-    val mockProvider = MockProviderRule.create { clazz ->
-        when (clazz) {
-            SplitTunnelingViewModel::class -> mockedViewModel
-            else -> mockkClass(clazz)
+    val mockProvider =
+        MockProviderRule.create { clazz ->
+            when (clazz) {
+                SplitTunnelingViewModel::class -> mockedViewModel
+                else -> mockkClass(clazz)
+            }
         }
-    }
 
     @Before
     fun setUp() {
@@ -95,21 +96,22 @@ class SplitTunnelingFragmentTest : KoinTest {
 
     @Test
     fun test_fragment_loading() {
-        val scenario = launchFragmentInContainer<SplitTunnelingFragment>(
-            themeResId = R.style.AppTheme, initialState = Lifecycle.State.CREATED
-        )
+        val scenario =
+            launchFragmentInContainer<SplitTunnelingFragment>(
+                themeResId = R.style.AppTheme,
+                initialState = Lifecycle.State.CREATED
+            )
         scenario.moveToState(Lifecycle.State.RESUMED)
         sharedFlow.tryEmit(emptyList())
 
-        verifyAll {
-            mockedViewModel.listItems
-        }
+        verifyAll { mockedViewModel.listItems }
     }
 
     @Test
     fun test_fragment_list_displayed() = runBlocking {
         launchFragmentInContainer<SplitTunnelingFragment>(
-            themeResId = R.style.AppTheme, initialState = Lifecycle.State.RESUMED
+            themeResId = R.style.AppTheme,
+            initialState = Lifecycle.State.RESUMED
         )
 
         sharedFlow.emit(
@@ -125,26 +127,26 @@ class SplitTunnelingFragmentTest : KoinTest {
         onView(withRecyclerView(R.id.recyclerView).atPositionOnView(0, R.id.plain_text))
             .check(matches(withText("Test Item")))
 
-        verifyAll {
-            mockedViewModel.listItems
-        }
+        verifyAll { mockedViewModel.listItems }
     }
 
     @Test
     fun test_fragment_list_click_application_item() = runBlocking {
-        val testListItem = ListItemData.build("test.package.name") {
-            type = ListItemData.APPLICATION
-            text = "Test App Name"
-            action = ListItemData.ItemAction("test.package.name")
-            widget = WidgetState.ImageState(R.drawable.ic_icons_add)
-        }
+        val testListItem =
+            ListItemData.build("test.package.name") {
+                type = ListItemData.APPLICATION
+                text = "Test App Name"
+                action = ListItemData.ItemAction("test.package.name")
+                widget = WidgetState.ImageState(R.drawable.ic_icons_add)
+            }
 
         coEvery {
             mockedViewModel.processIntent(ViewIntent.ChangeApplicationGroup(testListItem))
         } just Runs
 
         launchFragmentInContainer<SplitTunnelingFragment>(
-            themeResId = R.style.AppTheme, initialState = Lifecycle.State.RESUMED
+            themeResId = R.style.AppTheme,
+            initialState = Lifecycle.State.RESUMED
         )
 
         sharedFlow.emit(listOf(testListItem))

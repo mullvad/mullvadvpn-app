@@ -45,15 +45,17 @@ class MullvadTileService : TileService() {
                     delay(unlockCheckDelayMillis)
                 }
                 return@withTimeoutOrNull true
-            } ?: false
+            }
+                ?: false
         }
 
         unlockAndRun {
             runBlocking {
-                val isUnlockStatusPropagated = isUnlockStatusPropagatedWithinTimeout(
-                    unlockTimeoutMillis = 1000L,
-                    unlockCheckDelayMillis = 100L
-                )
+                val isUnlockStatusPropagated =
+                    isUnlockStatusPropagatedWithinTimeout(
+                        unlockTimeoutMillis = 1000L,
+                        unlockCheckDelayMillis = 100L
+                    )
 
                 if (isUnlockStatusPropagated) {
                     toggleTunnel()
@@ -73,13 +75,15 @@ class MullvadTileService : TileService() {
     }
 
     private fun toggleTunnel() {
-        val intent = Intent(this, MullvadVpnService::class.java).apply {
-            action = if (qsTile.state == Tile.STATE_INACTIVE) {
-                MullvadVpnService.KEY_CONNECT_ACTION
-            } else {
-                MullvadVpnService.KEY_DISCONNECT_ACTION
+        val intent =
+            Intent(this, MullvadVpnService::class.java).apply {
+                action =
+                    if (qsTile.state == Tile.STATE_INACTIVE) {
+                        MullvadVpnService.KEY_CONNECT_ACTION
+                    } else {
+                        MullvadVpnService.KEY_DISCONNECT_ACTION
+                    }
             }
-        }
 
         // Always start as foreground in case tile is out-of-sync.
         startForegroundService(intent)
@@ -91,9 +95,7 @@ class MullvadTileService : TileService() {
             .tunnelState
             .debounce(300L)
             .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
-            .collect {
-                updateTileState(it)
-            }
+            .collect { updateTileState(it) }
     }
 
     private fun mapToTileState(

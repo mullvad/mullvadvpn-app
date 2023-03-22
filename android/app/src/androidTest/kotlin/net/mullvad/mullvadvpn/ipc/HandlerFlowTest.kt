@@ -15,9 +15,7 @@ class HandlerFlowTest {
     val looper by lazy { Looper.getMainLooper() }
 
     val handler: HandlerFlow<Data?> by lazy {
-        HandlerFlow(looper) { message ->
-            message.data.getParcelable(DATA_KEY)
-        }
+        HandlerFlow(looper) { message -> message.data.getParcelable(DATA_KEY) }
     }
 
     @Test
@@ -32,9 +30,8 @@ class HandlerFlowTest {
     }
 
     private fun sendMessage(messageData: Data) {
-        val message = Message().apply {
-            data = Bundle().apply { putParcelable(DATA_KEY, messageData) }
-        }
+        val message =
+            Message().apply { data = Bundle().apply { putParcelable(DATA_KEY, messageData) } }
 
         handler.handleMessage(message)
     }
@@ -42,7 +39,6 @@ class HandlerFlowTest {
     companion object {
         const val DATA_KEY = "data"
 
-        @Parcelize
-        data class Data(val id: Int) : Parcelable
+        @Parcelize data class Data(val id: Int) : Parcelable
     }
 }

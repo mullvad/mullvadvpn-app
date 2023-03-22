@@ -9,9 +9,9 @@ fun DnsTextField(
     value: String,
     isValidValue: Boolean,
     modifier: Modifier = Modifier,
-    onValueChanged: (String) -> Unit = { },
-    onFocusChanges: (Boolean) -> Unit = { },
-    onSubmit: (String) -> Unit = { },
+    onValueChanged: (String) -> Unit = {},
+    onFocusChanges: (Boolean) -> Unit = {},
+    onSubmit: (String) -> Unit = {},
     placeholderText: String = "",
     isEnabled: Boolean = true
 ) {

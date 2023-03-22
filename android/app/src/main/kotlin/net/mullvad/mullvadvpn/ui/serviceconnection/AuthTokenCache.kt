@@ -12,18 +12,14 @@ class AuthTokenCache(private val connection: Messenger, eventDispatcher: EventDi
 
     init {
         eventDispatcher.registerHandler(Event.AuthToken::class) { event ->
-            synchronized(this@AuthTokenCache) {
-                fetchQueue.poll()?.complete(event.token ?: "")
-            }
+            synchronized(this@AuthTokenCache) { fetchQueue.poll()?.complete(event.token ?: "") }
         }
     }
 
     suspend fun fetchAuthToken(): String {
         val authToken = CompletableDeferred<String>()
 
-        synchronized(this) {
-            fetchQueue.offer(authToken)
-        }
+        synchronized(this) { fetchQueue.offer(authToken) }
 
         connection.send(Request.FetchAuthToken.message)
 

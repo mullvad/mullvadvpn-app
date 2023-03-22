@@ -23,17 +23,13 @@ class SimpleMullvadHttpClient(context: Context) {
         Log.v(LOG_TAG, "Remove all devices")
         val token = login(accountToken)
         val devices = getDeviceList(token)
-        devices.forEach {
-            removeDevice(token, it)
-        }
+        devices.forEach { removeDevice(token, it) }
         Log.v(LOG_TAG, "All devices removed")
     }
 
     fun login(accountToken: String): String {
         Log.v(LOG_TAG, "Attempt login with account token: $accountToken")
-        val json = JSONObject().apply {
-            put("account_number", accountToken)
-        }
+        val json = JSONObject().apply { put("account_number", accountToken) }
         return sendSimpleSynchronousRequest(Request.Method.POST, AUTH_URL, json)!!.let { response ->
             response.getString("access_token").also { accessToken ->
                 Log.v(LOG_TAG, "Successfully logged in and received access token: $accessToken")
@@ -44,21 +40,20 @@ class SimpleMullvadHttpClient(context: Context) {
     fun getDeviceList(accessToken: String): List<String> {
         Log.v(LOG_TAG, "Get devices")
 
-        val response = sendSimpleSynchronousRequestArray(
-            Request.Method.GET,
-            DEVICE_LIST_URL,
-            token = accessToken
-        )
+        val response =
+            sendSimpleSynchronousRequestArray(
+                Request.Method.GET,
+                DEVICE_LIST_URL,
+                token = accessToken
+            )
 
-        return response!!.iterator<JSONObject>().asSequence().toList()
+        return response!!
+            .iterator<JSONObject>()
+            .asSequence()
+            .toList()
             .also {
-                it
-                    .map { jsonObject ->
-                        jsonObject.getString("name")
-                    }
-                    .also { deviceNames ->
-                        Log.v(LOG_TAG, "Devices received: $deviceNames")
-                    }
+                it.map { jsonObject -> jsonObject.getString("name") }
+                    .also { deviceNames -> Log.v(LOG_TAG, "Devices received: $deviceNames") }
             }
             .map { it.getString("id") }
             .toList()
@@ -74,13 +69,8 @@ class SimpleMullvadHttpClient(context: Context) {
     }
 
     fun runConnectionCheck(): ConnCheckState? {
-        return sendSimpleSynchronousRequestString(
-            Request.Method.GET,
-            CONN_CHECK_URL
-        )
-            ?.let { respose ->
-                JSONObject(respose)
-            }
+        return sendSimpleSynchronousRequestString(Request.Method.GET, CONN_CHECK_URL)
+            ?.let { respose -> JSONObject(respose) }
             ?.let { json ->
                 ConnCheckState(
                     isConnected = json.getBoolean("mullvad_exit_ip"),
@@ -96,24 +86,19 @@ class SimpleMullvadHttpClient(context: Context) {
         token: String? = null
     ): JSONObject? {
         val future = RequestFuture.newFuture<JSONObject>()
-        val request = object : JsonObjectRequest(
-            method,
-            url,
-            body,
-            future,
-            future
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                if (body != null) {
-                    headers.put("Content-Type", "application/json")
+        val request =
+            object : JsonObjectRequest(method, url, body, future, future) {
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    if (body != null) {
+                        headers.put("Content-Type", "application/json")
+                    }
+                    if (token != null) {
+                        headers.put("Authorization", "Bearer $token")
+                    }
+                    return headers
                 }
-                if (token != null) {
-                    headers.put("Authorization", "Bearer $token")
-                }
-                return headers
             }
-        }
         queue.add(request)
         return try {
             future.get().also { response ->
@@ -132,28 +117,22 @@ class SimpleMullvadHttpClient(context: Context) {
         token: String? = null
     ): String? {
         val future = RequestFuture.newFuture<String>()
-        val request = object : StringRequest(
-            method,
-            url,
-            future,
-            future
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                if (body != null) {
-                    headers.put("Content-Type", "application/json")
+        val request =
+            object : StringRequest(method, url, future, future) {
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    if (body != null) {
+                        headers.put("Content-Type", "application/json")
+                    }
+                    if (token != null) {
+                        headers.put("Authorization", "Bearer $token")
+                    }
+                    return headers
                 }
-                if (token != null) {
-                    headers.put("Authorization", "Bearer $token")
-                }
-                return headers
             }
-        }
         queue.add(request)
         return try {
-            future.get().also { response ->
-                Log.v(LOG_TAG, "String request response: $response")
-            }
+            future.get().also { response -> Log.v(LOG_TAG, "String request response: $response") }
         } catch (e: Exception) {
             Log.v(LOG_TAG, "String request error: ${e.message}")
             throw TestEventException(REQUEST_ERROR_MESSAGE)
@@ -167,22 +146,17 @@ class SimpleMullvadHttpClient(context: Context) {
         token: String? = null
     ): JSONArray? {
         val future = RequestFuture.newFuture<JSONArray>()
-        val request = object : JsonArrayRequest(
-            method,
-            url,
-            null,
-            future,
-            future
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers.put("Content-Type", "application/json")
-                if (token != null) {
-                    headers.put("Authorization", "Bearer $token")
+        val request =
+            object : JsonArrayRequest(method, url, null, future, future) {
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers.put("Content-Type", "application/json")
+                    if (token != null) {
+                        headers.put("Authorization", "Bearer $token")
+                    }
+                    return headers
                 }
-                return headers
             }
-        }
         queue.add(request)
         return try {
             future.get().also { response ->

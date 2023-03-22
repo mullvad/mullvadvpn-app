@@ -8,28 +8,21 @@ import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
 sealed class TunnelState() : Parcelable {
-    @Parcelize
-    object Disconnected : TunnelState(), Parcelable
+    @Parcelize object Disconnected : TunnelState(), Parcelable
 
     @Parcelize
-    class Connecting(
-        val endpoint: TunnelEndpoint?,
-        val location: GeoIpLocation?
-    ) : TunnelState(), Parcelable
+    class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) :
+        TunnelState(), Parcelable
 
     @Parcelize
-    class Connected(
-        val endpoint: TunnelEndpoint,
-        val location: GeoIpLocation?
-    ) : TunnelState(), Parcelable
+    class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) :
+        TunnelState(), Parcelable
 
     @Parcelize
-    class Disconnecting(
-        val actionAfterDisconnect: ActionAfterDisconnect
-    ) : TunnelState(), Parcelable
+    class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) :
+        TunnelState(), Parcelable
 
-    @Parcelize
-    class Error(val errorState: ErrorState) : TunnelState(), Parcelable
+    @Parcelize class Error(val errorState: ErrorState) : TunnelState(), Parcelable
 
     fun isSecured(): Boolean {
         return when (this) {
@@ -66,23 +59,24 @@ sealed class TunnelState() : Parcelable {
         }
     }
 
-    override fun toString(): String = when (this) {
-        is TunnelState.Disconnected -> DISCONNECTED
-        is TunnelState.Connecting -> CONNECTING
-        is TunnelState.Connected -> CONNECTED
-        is TunnelState.Disconnecting -> {
-            if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
-                RECONNECTING
-            } else {
-                DISCONNECTING
+    override fun toString(): String =
+        when (this) {
+            is TunnelState.Disconnected -> DISCONNECTED
+            is TunnelState.Connecting -> CONNECTING
+            is TunnelState.Connected -> CONNECTED
+            is TunnelState.Disconnecting -> {
+                if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
+                    RECONNECTING
+                } else {
+                    DISCONNECTING
+                }
+            }
+            is TunnelState.Error -> {
+                if (errorState.isBlocking) {
+                    BLOCKING
+                } else {
+                    ERROR
+                }
             }
         }
-        is TunnelState.Error -> {
-            if (errorState.isBlocking) {
-                BLOCKING
-            } else {
-                ERROR
-            }
-        }
-    }
 }

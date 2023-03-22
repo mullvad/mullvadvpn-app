@@ -26,13 +26,15 @@ class RelayListListener(endpoint: ServiceEndpoint) {
     private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
 
-    private var selectedRelayLocation by observable<LocationConstraint?>(null) { _, _, _ ->
-        commandChannel.trySendBlocking(Command.SetRelayLocation)
-    }
+    private var selectedRelayLocation by
+        observable<LocationConstraint?>(null) { _, _, _ ->
+            commandChannel.trySendBlocking(Command.SetRelayLocation)
+        }
 
-    var relayList by observable<RelayList?>(null) { _, _, relays ->
-        endpoint.sendEvent(Event.NewRelayList(relays))
-    }
+    var relayList by
+        observable<RelayList?>(null) { _, _, relays ->
+            endpoint.sendEvent(Event.NewRelayList(relays))
+        }
         private set
 
     init {
@@ -54,9 +56,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
     }
 
     private fun setUpListener(daemon: MullvadDaemon) {
-        daemon.onRelayListChange = { relayLocations ->
-            relayList = relayLocations
-        }
+        daemon.onRelayListChange = { relayLocations -> relayList = relayLocations }
     }
 
     private fun fetchInitialRelayList(daemon: MullvadDaemon) {
@@ -67,22 +67,22 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.CONFLATED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    Command.SetRelayLocation -> updateRelayConstraints()
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.CONFLATED) {
+            try {
+                for (command in channel) {
+                    when (command) {
+                        Command.SetRelayLocation -> updateRelayConstraints()
+                    }
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Closed sender, so stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
         }
-    }
 
     private suspend fun updateRelayConstraints() {
-        val constraint: Constraint<LocationConstraint> = selectedRelayLocation?.let { location ->
-            Constraint.Only(location)
-        } ?: Constraint.Any()
+        val constraint: Constraint<LocationConstraint> =
+            selectedRelayLocation?.let { location -> Constraint.Only(location) } ?: Constraint.Any()
 
         val update = RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint))
 

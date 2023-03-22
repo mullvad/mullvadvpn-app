@@ -49,18 +49,18 @@ open class InformationView : LinearLayout {
     var information by observable<String?>(null) { _, _, _ -> updateStatus() }
 
     var errorColor by observable(context.getColor(R.color.red)) { _, _, _ -> updateStatus() }
-    var informationColor by observable(context.getColor(R.color.white)) { _, _, _ ->
-        updateStatus()
-    }
+    var informationColor by
+        observable(context.getColor(R.color.white)) { _, _, _ -> updateStatus() }
 
     var maxLength by observable(0) { _, _, _ -> updateStatus() }
     var whenMissing by observable(WhenMissing.Nothing) { _, _, _ -> updateStatus() }
 
     var shouldEnable by observable(false) { _, _, _ -> updateEnabled() }
 
-    var onClick by observable<(() -> Unit)?>(null) { _, _, callback ->
-        container.setFocusable(callback != null)
-    }
+    var onClick by
+        observable<(() -> Unit)?>(null) { _, _, callback ->
+            container.setFocusable(callback != null)
+        }
 
     sealed class Masking {
         object None : Masking()
@@ -68,40 +68,40 @@ open class InformationView : LinearLayout {
         data class Show(val transformationMethod: TransformationMethod) : Masking()
     }
 
-    var informationState by observable<Masking>(Masking.None) { _, _, newState ->
-        when (newState) {
-            is Masking.Hide -> {
-                informationDisplay.transformationMethod = newState.transformationMethod
+    var informationState by
+        observable<Masking>(Masking.None) { _, _, newState ->
+            when (newState) {
+                is Masking.Hide -> {
+                    informationDisplay.transformationMethod = newState.transformationMethod
 
-                toggleMaskingButton.apply {
-                    visibility = VISIBLE
-                    contentDescription = context.getString(R.string.show_account_number)
-                    background = AppCompatResources.getDrawable(context, R.drawable.icon_show)
+                    toggleMaskingButton.apply {
+                        visibility = VISIBLE
+                        contentDescription = context.getString(R.string.show_account_number)
+                        background = AppCompatResources.getDrawable(context, R.drawable.icon_show)
+                    }
+                }
+                is Masking.Show -> {
+                    informationDisplay.transformationMethod = newState.transformationMethod
+
+                    toggleMaskingButton.apply {
+                        visibility = VISIBLE
+                        contentDescription = context.getString(R.string.hide_account_number)
+                        background = AppCompatResources.getDrawable(context, R.drawable.icon_hide)
+                    }
+                }
+                is Masking.None -> {
+                    informationDisplay.transformationMethod = null
+                    toggleMaskingButton.visibility = INVISIBLE
                 }
             }
 
-            is Masking.Show -> {
-                informationDisplay.transformationMethod = newState.transformationMethod
-
-                toggleMaskingButton.apply {
-                    visibility = VISIBLE
-                    contentDescription = context.getString(R.string.hide_account_number)
-                    background = AppCompatResources.getDrawable(context, R.drawable.icon_hide)
-                }
-            }
-
-            is Masking.None -> {
-                informationDisplay.transformationMethod = null
-                toggleMaskingButton.visibility = INVISIBLE
-            }
+            updateStatus()
         }
 
-        updateStatus()
-    }
-
-    var onToggleMaskingClicked by observable<(() -> Unit)?>(null) { _, _, callback ->
-        toggleMaskingButton.setOnClickListener { callback?.invoke() }
-    }
+    var onToggleMaskingClicked by
+        observable<(() -> Unit)?>(null) { _, _, callback ->
+            toggleMaskingButton.setOnClickListener { callback?.invoke() }
+        }
 
     constructor(context: Context) : super(context) {}
 
@@ -109,8 +109,11 @@ open class InformationView : LinearLayout {
         loadAttributes(attributes)
     }
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute) {
         loadAttributes(attributes)
     }
 
@@ -146,14 +149,11 @@ open class InformationView : LinearLayout {
                 errorColor = getInteger(R.styleable.InformationView_errorColor, errorColor)
                 maxLength = getInteger(R.styleable.InformationView_maxLength, 0)
 
-                informationColor = getInteger(
-                    R.styleable.InformationView_informationColor,
-                    informationColor
-                )
+                informationColor =
+                    getInteger(R.styleable.InformationView_informationColor, informationColor)
 
-                whenMissing = WhenMissing.fromCode(
-                    getInteger(R.styleable.InformationView_whenMissing, 0)
-                )
+                whenMissing =
+                    WhenMissing.fromCode(getInteger(R.styleable.InformationView_whenMissing, 0))
             } finally {
                 recycle()
             }

@@ -17,8 +17,11 @@ class ListenableScrollView : ScrollView, ListenableScrollableView {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     override fun onScrollChanged(left: Int, top: Int, oldLeft: Int, oldTop: Int) {
         super.onScrollChanged(left, top, oldLeft, oldTop)

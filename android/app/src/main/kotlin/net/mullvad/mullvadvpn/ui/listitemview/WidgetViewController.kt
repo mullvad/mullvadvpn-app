@@ -9,8 +9,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.WidgetState
 
 sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
-    @get:LayoutRes
-    protected abstract val layoutRes: Int
+    @get:LayoutRes protected abstract val layoutRes: Int
 
     init {
         LayoutInflater.from(parent.context).inflate(layoutRes, parent)

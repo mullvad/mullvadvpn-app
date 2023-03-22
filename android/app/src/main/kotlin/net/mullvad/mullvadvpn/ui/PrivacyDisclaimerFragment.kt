@@ -52,10 +52,8 @@ class PrivacyDisclaimerFragment : Fragment(), StatusBarPainter, NavigationBarPai
     }
 
     private fun openPrivacyPolicy() {
-        val privacyPolicyUrlIntent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(getString(R.string.faqs_and_guides_url))
-        )
+        val privacyPolicyUrlIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.faqs_and_guides_url)))
         context?.startActivity(privacyPolicyUrlIntent)
     }
 }

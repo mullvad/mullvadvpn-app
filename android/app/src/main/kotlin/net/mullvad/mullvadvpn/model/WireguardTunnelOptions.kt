@@ -4,7 +4,4 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class WireguardTunnelOptions(
-    val mtu: Int?,
-    val quantumResistant: Boolean?
-) : Parcelable
+data class WireguardTunnelOptions(val mtu: Int?, val quantumResistant: Boolean?) : Parcelable

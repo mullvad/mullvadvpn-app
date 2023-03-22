@@ -18,11 +18,9 @@ import org.junit.Rule
 import org.junit.Test
 
 class DeviceRevokedScreenTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @MockK
-    lateinit var mockedViewModel: DeviceRevokedViewModel
+    @MockK lateinit var mockedViewModel: DeviceRevokedViewModel
 
     @Before
     fun setup() {
@@ -33,59 +31,35 @@ class DeviceRevokedScreenTest {
     @Test
     fun testUnblockWarningShowingWhenSecured() {
         // Arrange
-        every {
-            mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState.SECURED)
+        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.SECURED)
 
         // Act
-        composeTestRule.setContent {
-            AppTheme {
-                DeviceRevokedScreen(mockedViewModel)
-            }
-        }
+        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
 
         // Assert
-        composeTestRule
-            .onNodeWithText(UNBLOCK_WARNING)
-            .assertExists()
+        composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertExists()
     }
 
     @Test
     fun testUnblockWarningNotShowingWhenNotSecured() {
         // Arrange
-        every {
-            mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
+        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
 
         // Act
-        composeTestRule.setContent {
-            AppTheme {
-                DeviceRevokedScreen(mockedViewModel)
-            }
-        }
+        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
 
         // Assert
-        composeTestRule
-            .onNodeWithText(UNBLOCK_WARNING)
-            .assertDoesNotExist()
+        composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
     }
 
     @Test
     fun testGoToLogin() {
         // Arrange
-        every {
-            mockedViewModel.uiState
-        } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
-        composeTestRule.setContent {
-            AppTheme {
-                DeviceRevokedScreen(mockedViewModel)
-            }
-        }
+        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
+        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
 
         // Act
-        composeTestRule
-            .onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT)
-            .performClick()
+        composeTestRule.onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
 
         // Assert
         verify { mockedViewModel.onGoToLoginClicked() }

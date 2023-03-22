@@ -22,11 +22,12 @@ class AccountLogin : RelativeLayout {
         private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
     }
 
-    fun setAccountToken(accountToken: String) { input.input.setText(accountToken) }
-
-    private val focusDebouncer = Debouncer(false).apply {
-        listener = { hasFocus -> focused = hasFocus }
+    fun setAccountToken(accountToken: String) {
+        input.input.setText(accountToken)
     }
+
+    private val focusDebouncer =
+        Debouncer(false).apply { listener = { hasFocus -> focused = hasFocus } }
 
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
@@ -39,22 +40,22 @@ class AccountLogin : RelativeLayout {
     private val accountHistoryList: RecyclerView = container.findViewById(R.id.history)
     private val input: AccountInput = container.findViewById(R.id.input)
 
-    private val historyAdapter = AccountHistoryAdapter().apply {
-        onSelectEntry = { account -> input.loginWith(account) }
-        onChildFocusChanged = { _, hasFocus -> focusDebouncer.rawValue = hasFocus }
-    }
+    private val historyAdapter =
+        AccountHistoryAdapter().apply {
+            onSelectEntry = { account -> input.loginWith(account) }
+            onChildFocusChanged = { _, hasFocus -> focusDebouncer.rawValue = hasFocus }
+        }
 
     private val dividerHeight = resources.getDimensionPixelSize(R.dimen.account_history_divider)
     private val historyEntryHeight =
         resources.getDimensionPixelSize(R.dimen.account_history_entry_height)
 
-    private val historyAnimation = ValueAnimator.ofInt(0, 0).apply {
-        addUpdateListener { animation ->
-            updateHeight(animation.animatedValue as Int)
-        }
+    private val historyAnimation =
+        ValueAnimator.ofInt(0, 0).apply {
+            addUpdateListener { animation -> updateHeight(animation.animatedValue as Int) }
 
-        duration = 350
-    }
+            duration = 350
+        }
 
     private val maxHeight: Int
         get() = MAX_ACCOUNT_HISTORY_ENTRIES * (historyEntryHeight + dividerHeight)
@@ -62,58 +63,65 @@ class AccountLogin : RelativeLayout {
     private val expandedHeight: Int
         get() = collapsedHeight + (historyHeight ?: 0)
 
-    private var historyHeight by observable<Int?>(null) { _, oldHistoryHeight, newHistoryHeight ->
-        if (newHistoryHeight != oldHistoryHeight) {
-            historyAnimation.setIntValues(collapsedHeight, expandedHeight)
-            reposition()
-        }
-    }
-
-    private var collapsedHeight by observable(
-        resources.getDimensionPixelSize(R.dimen.account_login_input_height)
-    ) { _, oldCollapsedHeight, newCollapsedHeight ->
-        if (newCollapsedHeight != oldCollapsedHeight) {
-            historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
-            reposition()
-        }
-    }
-
-    private var focused by observable(false) { _, _, hasFocus ->
-        updateBorder()
-        shouldShowAccountHistory = hasFocus
-
-        if (!hasFocus) {
-            hideKeyboard()
-        }
-    }
-
-    private var shouldShowAccountHistory by observable(false) { _, isShown, show ->
-        if (isShown != show) {
-            if (show) {
-                historyAnimation.start()
-            } else {
-                historyAnimation.reverse()
+    private var historyHeight by
+        observable<Int?>(null) { _, oldHistoryHeight, newHistoryHeight ->
+            if (newHistoryHeight != oldHistoryHeight) {
+                historyAnimation.setIntValues(collapsedHeight, expandedHeight)
+                reposition()
             }
         }
-    }
+
+    private var collapsedHeight by
+        observable(resources.getDimensionPixelSize(R.dimen.account_login_input_height)) {
+            _,
+            oldCollapsedHeight,
+            newCollapsedHeight ->
+            if (newCollapsedHeight != oldCollapsedHeight) {
+                historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
+                reposition()
+            }
+        }
+
+    private var focused by
+        observable(false) { _, _, hasFocus ->
+            updateBorder()
+            shouldShowAccountHistory = hasFocus
+
+            if (!hasFocus) {
+                hideKeyboard()
+            }
+        }
+
+    private var shouldShowAccountHistory by
+        observable(false) { _, isShown, show ->
+            if (isShown != show) {
+                if (show) {
+                    historyAnimation.start()
+                } else {
+                    historyAnimation.reverse()
+                }
+            }
+        }
 
     val hasFocus
         get() = focused
 
-    var accountHistory by observable<String?>(null) { _, _, history ->
-        if (history != null) {
-            historyHeight = historyEntryHeight + dividerHeight
-            historyAdapter.accountHistory = history
-        } else {
-            historyHeight = 0
+    var accountHistory by
+        observable<String?>(null) { _, _, history ->
+            if (history != null) {
+                historyHeight = historyEntryHeight + dividerHeight
+                historyAdapter.accountHistory = history
+            } else {
+                historyHeight = 0
+            }
         }
-    }
 
-    var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
-        input.loginState = newState
+    var state: LoginState by
+        observable(LoginState.Initial) { _, _, newState ->
+            input.loginState = newState
 
-        updateBorder()
-    }
+            updateBorder()
+        }
 
     var onLogin: ((String) -> Unit)?
         get() = input.onLogin
@@ -131,16 +139,17 @@ class AccountLogin : RelativeLayout {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
         border.elevation = elevation + 0.1f
 
         input.apply {
-            onFocusChanged.subscribe(this) { hasFocus ->
-                focusDebouncer.rawValue = hasFocus
-            }
+            onFocusChanged.subscribe(this) { hasFocus -> focusDebouncer.rawValue = hasFocus }
 
             onTextChanged.subscribe(this) { _ ->
                 if (state == LoginState.Failure) {

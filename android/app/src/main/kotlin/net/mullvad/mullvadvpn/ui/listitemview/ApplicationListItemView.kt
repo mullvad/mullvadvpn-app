@@ -22,7 +22,9 @@ import org.koin.core.scope.Scope
 import org.koin.core.scope.inject
 
 @OptIn(KoinApiExtension::class)
-class ApplicationListItemView @JvmOverloads constructor(
+class ApplicationListItemView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = R.attr.applicationListItemViewStyle,
@@ -43,17 +45,11 @@ class ApplicationListItemView @JvmOverloads constructor(
     override fun updateImage() {
         itemIcon.isVisible = true
         updateImageJob?.cancel()
-        updateImageJob = viewScope.launch {
-            loadImage()?.let { drawable ->
-                updateImage(drawable)
-            }
-        }
+        updateImageJob = viewScope.launch { loadImage()?.let { drawable -> updateImage(drawable) } }
     }
 
     override fun updateText() {
-        itemData.text?.let {
-            itemText.text = it
-        }
+        itemData.text?.let { itemText.text = it }
     }
 
     override fun onAttachedToWindow() {
@@ -67,13 +63,14 @@ class ApplicationListItemView @JvmOverloads constructor(
         viewScope.coroutineContext.cancelChildren()
     }
 
-    private suspend fun loadImage(): Drawable? = withContext(Dispatchers.Default) {
-        try {
-            iconManager.getAppIcon(itemData.identifier)
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
+    private suspend fun loadImage(): Drawable? =
+        withContext(Dispatchers.Default) {
+            try {
+                iconManager.getAppIcon(itemData.identifier)
+            } catch (e: PackageManager.NameNotFoundException) {
+                null
+            }
         }
-    }
 
     private fun updateImage(drawable: Drawable) = itemIcon.setImageDrawable(drawable)
 }

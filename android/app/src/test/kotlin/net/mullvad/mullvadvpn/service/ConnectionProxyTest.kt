@@ -26,14 +26,11 @@ import org.junit.Test
 
 class ConnectionProxyTest {
 
-    @MockK
-    private lateinit var mockedMainLooper: Looper
+    @MockK private lateinit var mockedMainLooper: Looper
 
-    @MockK
-    private lateinit var connection: Messenger
+    @MockK private lateinit var connection: Messenger
 
-    @MockK
-    private lateinit var mockedDispatchingHandler: EventDispatcher
+    @MockK private lateinit var mockedDispatchingHandler: EventDispatcher
     lateinit var connectionProxy: ConnectionProxy
 
     @Before
@@ -57,9 +54,7 @@ class ConnectionProxyTest {
     fun test_initialize_connection_proxy() {
         // Arrange
         val eventType = slot<KClass<Event.TunnelStateChange>>()
-        every {
-            mockedDispatchingHandler.registerHandler(capture(eventType), any())
-        } just Runs
+        every { mockedDispatchingHandler.registerHandler(capture(eventType), any()) } just Runs
         // Create ConnectionProxy instance and assert initial Event type
         connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
         assertEquals(Event.TunnelStateChange::class, eventType.captured.java.kotlin)
@@ -69,9 +64,7 @@ class ConnectionProxyTest {
     fun test_tunnel_normal_connect_disconnect() {
         // Arrange
         every { connection.send(any()) } just Runs
-        every {
-            mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any())
-        } just Runs
+        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
         // Act and Assert no crashes
         connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
         connectionProxy.connect()
@@ -82,9 +75,7 @@ class ConnectionProxyTest {
     fun test_tunnel_handle_crash_on_connect() {
         // Arrange
         every { connection.send(any()) } throws DeadObjectException()
-        every {
-            mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any())
-        } just Runs
+        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
         // Act and Assert no crashes
         connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
         connectionProxy.connect()

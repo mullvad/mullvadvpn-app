@@ -8,15 +8,12 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.util.SegmentedTextFormatter
 
 class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
-    private val formatter = SegmentedTextFormatter(' ').apply {
-        isValidInputCharacter = { character ->
-            '0' <= character && character <= '9'
+    private val formatter =
+        SegmentedTextFormatter(' ').apply {
+            isValidInputCharacter = { character -> '0' <= character && character <= '9' }
         }
-    }
 
-    var accountHistory by observable<String?>(null) { _, _, _ ->
-        notifyDataSetChanged()
-    }
+    var accountHistory by observable<String?>(null) { _, _, _ -> notifyDataSetChanged() }
 
     var onSelectEntry: ((String) -> Unit)? = null
     var onRemoveEntry: (() -> Unit)? = null

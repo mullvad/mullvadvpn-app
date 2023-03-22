@@ -19,36 +19,26 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewNavigationCell() {
-    NavigationComposeCell(
-        title = "Navigation sample",
-        onClick = {}
-    )
+    NavigationComposeCell(title = "Navigation sample", onClick = {})
 }
 
 @Composable
 fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
-    bodyView: @Composable () -> Unit = {
-        DefaultNavigationView(chevronContentDescription = title)
-    },
+    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
     onClick: () -> Unit
 ) {
     BaseCell(
         onCellClicked = onClick,
         title = { NavigationTitleView(title = title, modifier = modifier) },
-        bodyView = {
-            bodyView()
-        },
+        bodyView = { bodyView() },
         subtitle = null,
     )
 }
 
 @Composable
-private fun NavigationTitleView(
-    title: String,
-    modifier: Modifier = Modifier
-) {
+private fun NavigationTitleView(title: String, modifier: Modifier = Modifier) {
     val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     Text(
         text = title,
@@ -56,9 +46,7 @@ private fun NavigationTitleView(
         fontWeight = FontWeight.Bold,
         fontSize = textMediumSize,
         color = Color.White,
-        modifier = modifier
-            .wrapContentWidth(align = Alignment.End)
-            .wrapContentHeight()
+        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
     )
 }
 
