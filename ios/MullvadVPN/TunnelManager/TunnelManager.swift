@@ -389,6 +389,12 @@ final class TunnelManager: StorePaymentObserver {
             MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
 
+        // Unsetting the account (ie. logging out) should cancel all other currently ongoing
+        // activity.
+        if case .unset = action {
+            operationQueue.cancelAllOperations()
+        }
+
         operationQueue.addOperation(operation)
     }
 
