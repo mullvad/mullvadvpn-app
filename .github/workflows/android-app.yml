@@ -116,8 +116,9 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
-      # Running the AGP lint here rather than in the separate lint workflow (android-ktlint.yml)
-      # since it's easier to make use of the running container, cache and previously ran tasks.
+      # Running the AGP lint here rather than in the separate lint workflow
+      # (android-kotlin-format-check.yml) since it's easier to make use of the running container,
+      # cache and previously ran tasks.
       - name: Run AGP lint
         uses: burrunan/gradle-cache-action@v1
         with:
