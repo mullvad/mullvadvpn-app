@@ -312,6 +312,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         loggerBuilder.addOSLogOutput(subsystem: bundleIdentifier)
         #endif
 
+        loggerBuilder.logLevel = .debug
+
         loggerBuilder.install()
     }
 

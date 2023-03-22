@@ -42,6 +42,11 @@ struct StoredAccountData: Codable, Equatable {
 
     /// Account expiry.
     var expiry: Date
+
+    /// Returns `true` if account has expired.
+    var isExpired: Bool {
+        return expiry <= Date()
+    }
 }
 
 enum DeviceState: Codable, Equatable {
