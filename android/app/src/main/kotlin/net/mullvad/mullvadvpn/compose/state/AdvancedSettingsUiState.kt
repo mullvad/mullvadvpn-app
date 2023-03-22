@@ -17,18 +17,18 @@ sealed interface AdvancedSettingsUiState {
     ) : AdvancedSettingsUiState
 
     data class MtuDialogUiState(
-        override val mtu: String,
-        override val isCustomDnsEnabled: Boolean,
-        override val isAllowLanEnabled: Boolean,
-        override val customDnsItems: List<CustomDnsItem>,
+        override val mtu: String = "",
+        override val isCustomDnsEnabled: Boolean = false,
+        override val isAllowLanEnabled: Boolean = false,
+        override val customDnsItems: List<CustomDnsItem> = listOf(),
         val mtuEditValue: String
     ) : AdvancedSettingsUiState
 
     data class DnsDialogUiState(
-        override val mtu: String,
-        override val isCustomDnsEnabled: Boolean,
-        override val isAllowLanEnabled: Boolean,
-        override val customDnsItems: List<CustomDnsItem>,
+        override val mtu: String = "",
+        override val isCustomDnsEnabled: Boolean = false,
+        override val isAllowLanEnabled: Boolean = false,
+        override val customDnsItems: List<CustomDnsItem> = listOf(),
         val stagedDns: StagedDns,
     ) : AdvancedSettingsUiState
 }
