@@ -73,19 +73,19 @@ private fun PreviewAdvancedSettings() {
 @Composable
 fun AdvancedSettingScreen(
     uiState: AdvancedSettingsUiState,
-    onMtuCellClick: () -> Unit,
-    onMtuInputChange: (String) -> Unit,
-    onSaveMtuClick: () -> Unit,
-    onRestoreMtuClick: () -> Unit,
-    onCancelMtuDialogClicked: () -> Unit,
-    onSplitTunnelingNavigationClick: () -> Unit,
-    onToggleDnsClick: (Boolean) -> Unit,
-    onDnsClick: (index: Int?) -> Unit,
-    onDnsInputChange: (String) -> Unit,
-    onSaveDnsClick: () -> Unit,
-    onRemoveDnsClick: () -> Unit,
-    onCancelDnsDialogClick: () -> Unit,
-    onBackClick: () -> Unit
+    onMtuCellClick: () -> Unit = {},
+    onMtuInputChange: (String) -> Unit = {},
+    onSaveMtuClick: () -> Unit = {},
+    onRestoreMtuClick: () -> Unit = {},
+    onCancelMtuDialogClicked: () -> Unit = {},
+    onSplitTunnelingNavigationClick: () -> Unit = {},
+    onToggleDnsClick: (Boolean) -> Unit = {},
+    onDnsClick: (index: Int?) -> Unit = {},
+    onDnsInputChange: (String) -> Unit = {},
+    onSaveDnsClick: () -> Unit = {},
+    onRemoveDnsClick: () -> Unit = {},
+    onCancelDnsDialogClick: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
