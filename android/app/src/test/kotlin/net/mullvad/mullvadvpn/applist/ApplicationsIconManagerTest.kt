@@ -58,12 +58,8 @@ class ApplicationsIconManagerTest {
 
         assertEquals(mockedDrawable, result)
         assertEquals(mockedDrawable, result2)
-        verify(exactly = 2) {
-            mockedMainLooper.isCurrentThread
-        }
-        verify(exactly = 1) {
-            mockedPackageManager.getApplicationIcon(testPackageName)
-        }
+        verify(exactly = 2) { mockedMainLooper.isCurrentThread }
+        verify(exactly = 1) { mockedPackageManager.getApplicationIcon(testPackageName) }
     }
 
     @Test

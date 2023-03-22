@@ -8,9 +8,9 @@ fun MtuTextField(
     value: String,
     isValidValue: Boolean,
     modifier: Modifier = Modifier,
-    onValueChanged: (String) -> Unit = { },
-    onFocusChange: (Boolean) -> Unit = { },
-    onSubmit: (String) -> Unit = { },
+    onValueChanged: (String) -> Unit = {},
+    onFocusChange: (Boolean) -> Unit = {},
+    onSubmit: (String) -> Unit = {},
     isEnabled: Boolean = true,
     placeholderText: String = "",
     maxCharLength: Int

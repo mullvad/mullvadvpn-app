@@ -43,59 +43,52 @@ fun DeviceListScreen(
     val state = viewModel.uiState.collectAsState().value
 
     if (state.stagedDevice != null) {
-        ShowDeviceRemovalDialog(
-            viewModel = viewModel,
-            device = state.stagedDevice
-        )
+        ShowDeviceRemovalDialog(viewModel = viewModel, device = state.stagedDevice)
     }
 
     ConstraintLayout(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(colorResource(id = R.color.darkBlue))
+        modifier =
+            Modifier.fillMaxHeight().fillMaxWidth().background(colorResource(id = R.color.darkBlue))
     ) {
         val (content, buttons) = createRefs()
 
         Column(
-            modifier = Modifier
-                .constrainAs(content) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(buttons.top)
-                    height = Dimension.fillToConstraints
-                    width = Dimension.matchParent
-                }
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier.constrainAs(content) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(buttons.top)
+                        height = Dimension.fillToConstraints
+                        width = Dimension.matchParent
+                    }
+                    .verticalScroll(rememberScrollState())
         ) {
-            ConstraintLayout(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
                 val (icon, message, list) = createRefs()
 
                 Image(
-                    painter = painterResource(
-                        id = if (state.hasTooManyDevices) {
-                            R.drawable.icon_fail
-                        } else {
-                            R.drawable.icon_success
-                        }
-                    ),
+                    painter =
+                        painterResource(
+                            id =
+                                if (state.hasTooManyDevices) {
+                                    R.drawable.icon_fail
+                                } else {
+                                    R.drawable.icon_success
+                                }
+                        ),
                     contentDescription = null, // No meaningful user info or action.
-                    modifier = Modifier
-                        .constrainAs(icon) {
-                            top.linkTo(parent.top, margin = 30.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .width(64.dp)
-                        .height(64.dp)
+                    modifier =
+                        Modifier.constrainAs(icon) {
+                                top.linkTo(parent.top, margin = 30.dp)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            }
+                            .width(64.dp)
+                            .height(64.dp)
                 )
 
                 Column(
-                    modifier = Modifier
-                        .constrainAs(message) {
+                    modifier =
+                        Modifier.constrainAs(message) {
                             top.linkTo(icon.bottom, margin = 16.dp)
                             start.linkTo(parent.start, margin = 22.dp)
                             end.linkTo(parent.end, margin = 22.dp)
@@ -103,38 +96,40 @@ fun DeviceListScreen(
                         },
                 ) {
                     Text(
-                        text = stringResource(
-                            id = if (state.hasTooManyDevices) {
-                                R.string.max_devices_warning_title
-                            } else {
-                                R.string.max_devices_resolved_title
-                            }
-                        ),
+                        text =
+                            stringResource(
+                                id =
+                                    if (state.hasTooManyDevices) {
+                                        R.string.max_devices_warning_title
+                                    } else {
+                                        R.string.max_devices_resolved_title
+                                    }
+                            ),
                         fontSize = 24.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
-                        text = stringResource(
-                            id = if (state.hasTooManyDevices) {
-                                R.string.max_devices_warning_description
-                            } else {
-                                R.string.max_devices_resolved_description
-                            }
-                        ),
+                        text =
+                            stringResource(
+                                id =
+                                    if (state.hasTooManyDevices) {
+                                        R.string.max_devices_warning_description
+                                    } else {
+                                        R.string.max_devices_resolved_description
+                                    }
+                            ),
                         color = Color.White,
                         fontSize = 14.sp,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .animateContentSize()
-                            .padding(top = 8.dp)
+                        modifier =
+                            Modifier.wrapContentHeight().animateContentSize().padding(top = 8.dp)
                     )
                 }
 
                 Box(
-                    modifier = Modifier
-                        .constrainAs(list) {
+                    modifier =
+                        Modifier.constrainAs(list) {
                             top.linkTo(message.bottom, margin = 20.dp)
                             height = Dimension.wrapContent
                             width = Dimension.matchParent
@@ -156,8 +151,8 @@ fun DeviceListScreen(
         }
 
         Column(
-            modifier = Modifier
-                .constrainAs(buttons) {
+            modifier =
+                Modifier.constrainAs(buttons) {
                     bottom.linkTo(parent.bottom, margin = 22.dp)
                     start.linkTo(parent.start, margin = 22.dp)
                     end.linkTo(parent.end, margin = 22.dp)
@@ -168,23 +163,24 @@ fun DeviceListScreen(
                 text = stringResource(id = R.string.continue_login),
                 onClick = onContinueWithLogin,
                 isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = colorResource(id = R.color.green),
-                    disabledBackgroundColor = colorResource(id = R.color.green40),
-                    disabledContentColor = colorResource(id = R.color.white80),
-                    contentColor = Color.White
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = colorResource(id = R.color.green),
+                        disabledBackgroundColor = colorResource(id = R.color.green40),
+                        disabledContentColor = colorResource(id = R.color.white80),
+                        contentColor = Color.White
+                    )
             )
 
             ActionButton(
                 text = stringResource(id = R.string.back),
                 onClick = onBackClick,
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = colorResource(id = R.color.blue),
-                    contentColor = Color.White
-                ),
-                modifier = Modifier
-                    .padding(top = 16.dp)
+                colors =
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = colorResource(id = R.color.blue),
+                        contentColor = Color.White
+                    ),
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
     }

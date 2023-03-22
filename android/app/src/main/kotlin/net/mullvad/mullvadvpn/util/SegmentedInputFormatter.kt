@@ -72,19 +72,16 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
     }
 
     private fun isValidInput(string: String): Boolean {
-        return string
-            .asSequence()
-            .withIndex()
-            .all { item ->
-                val index = item.index
-                val character = item.value
+        return string.asSequence().withIndex().all { item ->
+            val index = item.index
+            val character = item.value
 
-                if ((index + 1) % separatorSkipCount == 0) {
-                    character == separator
-                } else {
-                    isValidInputCharacter(character)
-                }
+            if ((index + 1) % separatorSkipCount == 0) {
+                character == separator
+            } else {
+                isValidInputCharacter(character)
             }
+        }
     }
 
     private fun formatInput(input: Editable) {
@@ -97,8 +94,9 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
             val segmentEnd = index + segmentSize - 1
             val separatorPosition = segmentEnd + 1
 
-            changed = formatSegment(input, segmentStart..segmentEnd) ||
-                formatSeparator(input, separatorPosition)
+            changed =
+                formatSegment(input, segmentStart..segmentEnd) ||
+                    formatSeparator(input, separatorPosition)
 
             index = separatorPosition + 1
         }

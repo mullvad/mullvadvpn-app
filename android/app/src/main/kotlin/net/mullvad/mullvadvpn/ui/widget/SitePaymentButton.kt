@@ -10,14 +10,18 @@ class SitePaymentButton : UrlButton {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
-    var newAccount by observable(false) { _, _, isNewAccount ->
-        if (isNewAccount) {
-            label = context.getString(R.string.buy_credit)
-        } else {
-            label = context.getString(R.string.buy_more_credit)
+    var newAccount by
+        observable(false) { _, _, isNewAccount ->
+            if (isNewAccount) {
+                label = context.getString(R.string.buy_credit)
+            } else {
+                label = context.getString(R.string.buy_more_credit)
+            }
         }
-    }
 }

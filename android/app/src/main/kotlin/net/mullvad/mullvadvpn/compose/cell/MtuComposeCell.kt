@@ -22,10 +22,7 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 @Preview
 @Composable
 fun MtuComposeCellPreview() {
-    MtuComposeCell(
-        mtuValue = "1300",
-        onEditMtu = {}
-    )
+    MtuComposeCell(mtuValue = "1300", onEditMtu = {})
 }
 
 @Composable
@@ -38,24 +35,15 @@ fun MtuComposeCell(
 
     BaseCell(
         title = { MtuTitle(modifier = titleModifier) },
-        bodyView = {
-            MtuBodyView(
-                mtuValue = mtuValue,
-                modifier = titleModifier
-            )
-        },
+        bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
         subtitle = { MtuSubtitle(subtitleModifier) },
         subtitleModifier = subtitleModifier,
-        onCellClicked = {
-            onEditMtu.invoke()
-        }
+        onCellClicked = { onEditMtu.invoke() }
     )
 }
 
 @Composable
-private fun MtuTitle(
-    modifier: Modifier
-) {
+private fun MtuTitle(modifier: Modifier) {
     val textSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     Text(
         text = stringResource(R.string.wireguard_mtu),
@@ -63,22 +51,13 @@ private fun MtuTitle(
         fontWeight = FontWeight.Bold,
         fontSize = textSize,
         color = Color.White,
-        modifier = modifier
-            .wrapContentWidth1(align = Alignment.End)
-            .wrapContentHeight()
+        modifier = modifier.wrapContentWidth1(align = Alignment.End).wrapContentHeight()
     )
 }
 
 @Composable
-private fun MtuBodyView(
-    mtuValue: String,
-    modifier: Modifier
-) {
-    Row(
-        modifier = modifier
-            .wrapContentWidth1()
-            .wrapContentHeight()
-    ) {
+private fun MtuBodyView(mtuValue: String, modifier: Modifier) {
+    Row(modifier = modifier.wrapContentWidth1().wrapContentHeight()) {
         Text(
             text = mtuValue.ifEmpty { stringResource(id = R.string.hint_default) },
             color = Color.White

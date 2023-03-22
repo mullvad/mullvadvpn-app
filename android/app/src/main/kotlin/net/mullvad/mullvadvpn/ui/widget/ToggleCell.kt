@@ -4,9 +4,10 @@ import android.content.Context
 import android.util.AttributeSet
 
 class ToggleCell : Cell {
-    private val toggle = CellSwitch(context).apply {
-        layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
-    }
+    private val toggle =
+        CellSwitch(context).apply {
+            layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
+        }
 
     var state
         get() = toggle.state
@@ -24,8 +25,11 @@ class ToggleCell : Cell {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
         onClickListener = { toggle() }

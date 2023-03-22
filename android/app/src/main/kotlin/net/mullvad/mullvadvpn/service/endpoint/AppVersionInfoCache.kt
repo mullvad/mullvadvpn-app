@@ -8,14 +8,16 @@ import net.mullvad.mullvadvpn.service.MullvadDaemon
 class AppVersionInfoCache(endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
 
-    var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, info ->
-        endpoint.sendEvent(Event.AppVersionInfo(info))
-    }
+    var appVersionInfo by
+        observable<AppVersionInfo?>(null) { _, _, info ->
+            endpoint.sendEvent(Event.AppVersionInfo(info))
+        }
         private set
 
-    var currentVersion by observable<String?>(null) { _, _, version ->
-        endpoint.sendEvent(Event.CurrentVersion(version))
-    }
+    var currentVersion by
+        observable<String?>(null) { _, _, version ->
+            endpoint.sendEvent(Event.CurrentVersion(version))
+        }
         private set
 
     init {
@@ -40,9 +42,7 @@ class AppVersionInfoCache(endpoint: ServiceEndpoint) {
 
     private fun registerVersionInfoListener(daemon: MullvadDaemon) {
         daemon.onAppVersionInfoChange = { newAppVersionInfo ->
-            synchronized(this@AppVersionInfoCache) {
-                appVersionInfo = newAppVersionInfo
-            }
+            synchronized(this@AppVersionInfoCache) { appVersionInfo = newAppVersionInfo }
         }
     }
 

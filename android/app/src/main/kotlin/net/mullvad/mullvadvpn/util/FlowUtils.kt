@@ -23,34 +23,36 @@ fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
     return runCatching { trySend(element).isSuccess }.getOrDefault(false)
 }
 
-fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
-    val transitionAnimationListener = object : Animation.AnimationListener {
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationEnd(animation: Animation?) {
-            safeOffer(Unit)
-        }
+fun Animation.transitionFinished(): Flow<Unit> =
+    callbackFlow<Unit> {
+            val transitionAnimationListener =
+                object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation?) {}
+                    override fun onAnimationEnd(animation: Animation?) {
+                        safeOffer(Unit)
+                    }
 
-        override fun onAnimationRepeat(animation: Animation?) {}
-    }
-    setAnimationListener(transitionAnimationListener)
-    awaitClose {
-        Dispatchers.Main.dispatch(EmptyCoroutineContext) {
-            setAnimationListener(null)
+                    override fun onAnimationRepeat(animation: Animation?) {}
+                }
+            setAnimationListener(transitionAnimationListener)
+            awaitClose {
+                Dispatchers.Main.dispatch(EmptyCoroutineContext) { setAnimationListener(null) }
+            }
         }
-    }
-}.take(1)
+        .take(1)
 
 fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult> = callbackFlow {
-    val connectionCallback = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            safeOffer(ServiceResult(binder))
-        }
+    val connectionCallback =
+        object : ServiceConnection {
+            override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+                safeOffer(ServiceResult(binder))
+            }
 
-        override fun onServiceDisconnected(className: ComponentName) {
-            safeOffer(ServiceResult.NOT_CONNECTED)
-            bindService(intent, this, flags)
+            override fun onServiceDisconnected(className: ComponentName) {
+                safeOffer(ServiceResult.NOT_CONNECTED)
+                bindService(intent, this, flags)
+            }
         }
-    }
 
     bindService(intent, connectionCallback, flags)
 
@@ -80,8 +82,9 @@ fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
     }
 }
 
-fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) = callbackFlow<T> {
-    val handler: (T) -> Unit = { value -> trySend(value) }
-    notifier.subscribe(this, handler)
-    awaitClose { notifier.unsubscribe(this) }
-}
+fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) =
+    callbackFlow<T> {
+        val handler: (T) -> Unit = { value -> trySend(value) }
+        notifier.subscribe(this, handler)
+        awaitClose { notifier.unsubscribe(this) }
+    }

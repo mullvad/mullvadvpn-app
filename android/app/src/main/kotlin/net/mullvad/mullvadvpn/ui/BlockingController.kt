@@ -11,12 +11,13 @@ class BlockingController(val blockableView: BlockableView) {
 
     fun action() {
         if (!(job?.isActive ?: false)) {
-            job = GlobalScope.launch(Dispatchers.Main) {
-                blockableView.setEnabled(false)
-                innerJob = blockableView.onClick()
-                innerJob?.join()
-                blockableView.setEnabled(true)
-            }
+            job =
+                GlobalScope.launch(Dispatchers.Main) {
+                    blockableView.setEnabled(false)
+                    innerJob = blockableView.onClick()
+                    innerJob?.join()
+                    blockableView.setEnabled(true)
+                }
         }
     }
 

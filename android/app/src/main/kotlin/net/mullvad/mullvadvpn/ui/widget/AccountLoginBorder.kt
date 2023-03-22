@@ -26,23 +26,26 @@ class AccountLoginBorder : RelativeLayout {
         val verticalBorder: Drawable
     )
 
-    private val unfocusedDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_login_corner, null),
-        resources.getDrawable(R.drawable.account_login_border, null),
-        resources.getDrawable(R.drawable.account_login_border, null)
-    )
+    private val unfocusedDrawables =
+        StateDrawables(
+            resources.getDrawable(R.drawable.account_login_corner, null),
+            resources.getDrawable(R.drawable.account_login_border, null),
+            resources.getDrawable(R.drawable.account_login_border, null)
+        )
 
-    private val focusedDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_login_corner_focused, null),
-        resources.getDrawable(R.drawable.account_login_border_focused, null),
-        resources.getDrawable(R.drawable.account_login_border_focused, null)
-    )
+    private val focusedDrawables =
+        StateDrawables(
+            resources.getDrawable(R.drawable.account_login_corner_focused, null),
+            resources.getDrawable(R.drawable.account_login_border_focused, null),
+            resources.getDrawable(R.drawable.account_login_border_focused, null)
+        )
 
-    private val errorDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_login_corner_error, null),
-        resources.getDrawable(R.drawable.account_login_border_error, null),
-        resources.getDrawable(R.drawable.account_login_border_error, null)
-    )
+    private val errorDrawables =
+        StateDrawables(
+            resources.getDrawable(R.drawable.account_login_corner_error, null),
+            resources.getDrawable(R.drawable.account_login_border_error, null),
+            resources.getDrawable(R.drawable.account_login_border_error, null)
+        )
 
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
@@ -76,8 +79,11 @@ class AccountLoginBorder : RelativeLayout {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     constructor(
         context: Context,

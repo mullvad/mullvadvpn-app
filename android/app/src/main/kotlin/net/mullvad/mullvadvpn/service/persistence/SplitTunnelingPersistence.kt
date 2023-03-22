@@ -15,16 +15,18 @@ class SplitTunnelingPersistence(context: Context) {
     private val appListFile = File(context.filesDir, "split-tunnelling.txt")
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, isEnabled ->
-        preferences.edit().apply {
-            putBoolean(KEY_ENABLED, isEnabled)
-            apply()
+    var enabled by
+        observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, isEnabled ->
+            preferences.edit().apply {
+                putBoolean(KEY_ENABLED, isEnabled)
+                apply()
+            }
         }
-    }
 
-    var excludedApps by observable(loadExcludedApps()) { _, _, excludedAppsSet ->
-        appListFile.writeText(excludedAppsSet.joinToString(separator = "\n"))
-    }
+    var excludedApps by
+        observable(loadExcludedApps()) { _, _, excludedAppsSet ->
+            appListFile.writeText(excludedAppsSet.joinToString(separator = "\n"))
+        }
 
     private fun loadExcludedApps(): Set<String> {
         return when {

@@ -11,59 +11,63 @@ class AdapterWithHeader<H : ViewHolder>(
     val adapter: RecyclerView.Adapter<H>,
     val headerLayoutId: Int
 ) : RecyclerView.Adapter<HeaderOrHolder<H>>() {
-    private val observer = object : RecyclerView.AdapterDataObserver() {
-        override fun onChanged() {
-            notifyDataSetChanged()
-        }
+    private val observer =
+        object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                notifyDataSetChanged()
+            }
 
-        override fun onItemRangeChanged(start: Int, count: Int) {
-            notifyItemRangeChanged(start + 1, count)
-        }
+            override fun onItemRangeChanged(start: Int, count: Int) {
+                notifyItemRangeChanged(start + 1, count)
+            }
 
-        override fun onItemRangeChanged(start: Int, count: Int, payload: Any?) {
-            notifyItemRangeChanged(start + 1, count, payload)
-        }
+            override fun onItemRangeChanged(start: Int, count: Int, payload: Any?) {
+                notifyItemRangeChanged(start + 1, count, payload)
+            }
 
-        override fun onItemRangeInserted(start: Int, count: Int) {
-            notifyItemRangeInserted(start + 1, count)
-        }
+            override fun onItemRangeInserted(start: Int, count: Int) {
+                notifyItemRangeInserted(start + 1, count)
+            }
 
-        override fun onItemRangeMoved(from: Int, to: Int, count: Int) {
-            if (from == to) {
-                notifyItemRangeChanged(from + 1, count)
-            } else {
-                val sourceStart = from + 1
-                val sourceEnd = sourceStart + count
-                val destinationStart = to + 1
-                val destinationEnd = destinationStart + count
-
-                val ascendingIndices =
-                    (sourceStart..sourceEnd).zip(destinationStart..destinationEnd)
-
-                val indices = if (from < to) {
-                    ascendingIndices.asReversed()
+            override fun onItemRangeMoved(from: Int, to: Int, count: Int) {
+                if (from == to) {
+                    notifyItemRangeChanged(from + 1, count)
                 } else {
-                    ascendingIndices
-                }
+                    val sourceStart = from + 1
+                    val sourceEnd = sourceStart + count
+                    val destinationStart = to + 1
+                    val destinationEnd = destinationStart + count
 
-                for ((source, destination) in indices) {
-                    notifyItemMoved(source, destination)
+                    val ascendingIndices =
+                        (sourceStart..sourceEnd).zip(destinationStart..destinationEnd)
+
+                    val indices =
+                        if (from < to) {
+                            ascendingIndices.asReversed()
+                        } else {
+                            ascendingIndices
+                        }
+
+                    for ((source, destination) in indices) {
+                        notifyItemMoved(source, destination)
+                    }
                 }
+            }
+
+            override fun onItemRangeRemoved(start: Int, count: Int) {
+                notifyItemRangeRemoved(start + 1, count)
             }
         }
 
-        override fun onItemRangeRemoved(start: Int, count: Int) {
-            notifyItemRangeRemoved(start + 1, count)
+    private var headerView: View? by
+        observable<View?>(null) { _, _, newView ->
+            newView?.let { view -> onHeaderAvailable?.invoke(view) }
         }
-    }
 
-    private var headerView: View? by observable<View?>(null) { _, _, newView ->
-        newView?.let { view -> onHeaderAvailable?.invoke(view) }
-    }
-
-    var onHeaderAvailable by observable<((View) -> Unit)?>(null) { _, _, listener ->
-        headerView?.let { header -> listener?.invoke(header) }
-    }
+    var onHeaderAvailable by
+        observable<((View) -> Unit)?>(null) { _, _, listener ->
+            headerView?.let { header -> listener?.invoke(header) }
+        }
 
     init {
         adapter.registerAdapterDataObserver(observer)

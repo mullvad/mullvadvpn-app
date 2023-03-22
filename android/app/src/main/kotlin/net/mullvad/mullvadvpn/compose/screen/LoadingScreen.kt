@@ -29,9 +29,7 @@ private fun PreviewLoadingScreen() {
 }
 
 @Composable
-fun LoadingScreen(
-    onSettingsCogClicked: () -> Unit
-) {
+fun LoadingScreen(onSettingsCogClicked: () -> Unit) {
     val backgroundColor = colorResource(id = R.color.blue)
 
     ScaffoldWithTopBar(
@@ -43,10 +41,8 @@ fun LoadingScreen(
         content = {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .background(backgroundColor)
-                    .padding(bottom = 64.dp)
-                    .fillMaxSize()
+                modifier =
+                    Modifier.background(backgroundColor).padding(bottom = 64.dp).fillMaxSize()
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -55,23 +51,19 @@ fun LoadingScreen(
                     Image(
                         painter = painterResource(id = R.drawable.launch_logo),
                         contentDescription = "",
-                        modifier = Modifier
-                            .size(120.dp)
+                        modifier = Modifier.size(120.dp)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.logo_text),
                         contentDescription = "",
                         alpha = 0.6f,
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .height(18.dp)
+                        modifier = Modifier.padding(top = 12.dp).height(18.dp)
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
                         fontSize = 13.sp,
                         color = colorResource(id = R.color.white40),
-                        modifier = Modifier
-                            .padding(top = 12.dp)
+                        modifier = Modifier.padding(top = 12.dp)
                     )
                 }
             }

@@ -52,15 +52,9 @@ fun MtuDialog(
     val smallPadding = 5.dp
 
     Dialog(
-        onDismissRequest = {
-            onDismiss()
-        },
+        onDismissRequest = { onDismiss() },
         content = {
-            Column(
-                Modifier
-                    .background(color = MullvadDarkBlue)
-                    .padding(dialogPadding)
-            ) {
+            Column(Modifier.background(color = MullvadDarkBlue).padding(dialogPadding)) {
                 Text(
                     text = stringResource(id = R.string.wireguard_mtu),
                     color = Color.White,
@@ -68,16 +62,13 @@ fun MtuDialog(
                 )
 
                 Box(
-                    Modifier
-                        .wrapContentSize()
+                    Modifier.wrapContentSize()
                         .clickable { textFieldFocusRequester.requestFocus() }
                         .padding(top = dialogPadding)
                 ) {
                     MtuTextField(
                         value = mtuValue,
-                        onValueChanged = { newMtuValue ->
-                            onMtuValueChanged(newMtuValue)
-                        },
+                        onValueChanged = { newMtuValue -> onMtuValueChanged(newMtuValue) },
                         onFocusChange = {},
                         onSubmit = { newMtuValue ->
                             if (newMtuValue.toIntOrNull()?.isValidMtu() == true) {
@@ -88,59 +79,50 @@ fun MtuDialog(
                         placeholderText = stringResource(R.string.enter_value_placeholder),
                         maxCharLength = 4,
                         isValidValue = isValidMtu,
-                        modifier = Modifier
-                            .focusRequester(textFieldFocusRequester)
+                        modifier = Modifier.focusRequester(textFieldFocusRequester)
                     )
                 }
 
                 Text(
-                    text = stringResource(
-                        id = R.string.wireguard_mtu_footer,
-                        MTU_MIN_VALUE,
-                        MTU_MAX_VALUE
-                    ),
+                    text =
+                        stringResource(
+                            id = R.string.wireguard_mtu_footer,
+                            MTU_MIN_VALUE,
+                            MTU_MAX_VALUE
+                        ),
                     fontSize = textSmallSize,
                     color = MullvadWhite60,
                     modifier = Modifier.padding(top = smallPadding)
                 )
 
                 Button(
-                    modifier = Modifier
-                        .padding(top = mediumPadding)
-                        .height(buttonSize)
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
-                        contentColor = MullvadWhite,
-                        disabledContentColor = MullvadWhite60,
-                        disabledBackgroundColor = MullvadWhite20
-                    ),
+                    modifier =
+                        Modifier.padding(top = mediumPadding).height(buttonSize).fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = MullvadBlue,
+                            contentColor = MullvadWhite,
+                            disabledContentColor = MullvadWhite60,
+                            disabledBackgroundColor = MullvadWhite20
+                        ),
                     enabled = isValidMtu,
-                    onClick = {
-                        onSave()
-                    }
+                    onClick = { onSave() }
                 ) {
-                    Text(
-                        text = stringResource(R.string.submit_button),
-                        fontSize = textMediumSize
-                    )
+                    Text(text = stringResource(R.string.submit_button), fontSize = textMediumSize)
                 }
 
                 Button(
-                    modifier = Modifier
-                        .padding(top = mediumPadding)
-                        .height(buttonSize)
-                        .defaultMinSize(
-                            minHeight = buttonSize
-                        )
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
-                        contentColor = MullvadWhite
-                    ),
-                    onClick = {
-                        onRestoreDefaultValue()
-                    }
+                    modifier =
+                        Modifier.padding(top = mediumPadding)
+                            .height(buttonSize)
+                            .defaultMinSize(minHeight = buttonSize)
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = MullvadBlue,
+                            contentColor = MullvadWhite
+                        ),
+                    onClick = { onRestoreDefaultValue() }
                 ) {
                     Text(
                         text = stringResource(R.string.reset_to_default_button),
@@ -149,25 +131,19 @@ fun MtuDialog(
                 }
 
                 Button(
-                    modifier = Modifier
-                        .padding(top = mediumPadding)
-                        .height(buttonSize)
-                        .defaultMinSize(
-                            minHeight = buttonSize
-                        )
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        onDismiss()
-                    }
+                    modifier =
+                        Modifier.padding(top = mediumPadding)
+                            .height(buttonSize)
+                            .defaultMinSize(minHeight = buttonSize)
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = MullvadBlue,
+                            contentColor = Color.White
+                        ),
+                    onClick = { onDismiss() }
                 ) {
-                    Text(
-                        text = stringResource(R.string.cancel),
-                        fontSize = textMediumSize
-                    )
+                    Text(text = stringResource(R.string.cancel), fontSize = textMediumSize)
                 }
             }
         }

@@ -16,7 +16,5 @@ fun AppVersionInfoCache.appVersionCallbackFlow() = callbackFlow {
             )
         )
     }
-    awaitClose {
-        onUpdate = null
-    }
+    awaitClose { onUpdate = null }
 }

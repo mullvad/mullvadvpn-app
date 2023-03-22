@@ -22,9 +22,7 @@ class VoucherRedeemer(val connection: Messenger, eventDispatcher: MessageDispatc
     suspend fun submit(voucher: String): VoucherSubmissionResult {
         val result = CompletableDeferred<VoucherSubmissionResult>()
 
-        synchronized(this) {
-            activeSubmissions.put(voucher, result)
-        }
+        synchronized(this) { activeSubmissions.put(voucher, result) }
 
         connection.send(Request.SubmitVoucher(voucher).message)
 

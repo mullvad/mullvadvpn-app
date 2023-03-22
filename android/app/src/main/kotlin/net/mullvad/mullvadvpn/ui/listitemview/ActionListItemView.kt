@@ -11,7 +11,9 @@ import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.WidgetState
 
-open class ActionListItemView @JvmOverloads constructor(
+open class ActionListItemView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = R.attr.actionListItemViewStyle,
@@ -24,9 +26,7 @@ open class ActionListItemView @JvmOverloads constructor(
     protected val widgetContainer: ViewGroup = findViewById(R.id.widgetContainer)
 
     protected val clickListener = OnClickListener {
-        itemData.action?.let { _ ->
-            listItemListener?.onItemAction(itemData)
-        }
+        itemData.action?.let { _ -> listItemListener?.onItemAction(itemData) }
     }
 
     override val layoutRes: Int

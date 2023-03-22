@@ -13,21 +13,20 @@ private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 
 fun Context.openAccountPageInBrowser(authToken: String) {
     startActivity(
-        Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(getString(R.string.account_url) + "?token=$authToken")
-        )
+        Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.account_url) + "?token=$authToken"))
     )
 }
 
 fun Context.getAlwaysOnVpnAppName(): String? {
     return resolveAlwaysOnVpnPackageName()
         ?.let { currentAlwaysOnVpn ->
-            packageManager.getInstalledPackagesList(0)
-                .singleOrNull {
-                    it.packageName == currentAlwaysOnVpn && it.packageName != packageName
-                }
-        }?.applicationInfo?.loadLabel(packageManager)?.toString()
+            packageManager.getInstalledPackagesList(0).singleOrNull {
+                it.packageName == currentAlwaysOnVpn && it.packageName != packageName
+            }
+        }
+        ?.applicationInfo
+        ?.loadLabel(packageManager)
+        ?.toString()
 }
 
 fun Fragment.requireMainActivity(): MainActivity {
@@ -44,10 +43,7 @@ fun Fragment.requireMainActivity(): MainActivity {
 // Always-on VPN being disabled or not being able to read the state, NULL will be returned.
 fun Context.resolveAlwaysOnVpnPackageName(): String? {
     return try {
-        Settings.Secure.getString(
-            contentResolver,
-            ALWAYS_ON_VPN_APP
-        )
+        Settings.Secure.getString(contentResolver, ALWAYS_ON_VPN_APP)
     } catch (ex: SecurityException) {
         null
     }

@@ -9,27 +9,28 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.ui.ListItemListener
 
-abstract class ListItemView @JvmOverloads constructor(
+abstract class ListItemView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes) {
-    @get:LayoutRes
-    protected abstract val layoutRes: Int
+    @get:LayoutRes protected abstract val layoutRes: Int
 
-    @get:DimenRes
-    protected abstract val heightRes: Int?
+    @get:DimenRes protected abstract val heightRes: Int?
     protected lateinit var itemData: ListItemData
     var listItemListener: ListItemListener? = null
 
     init {
         val view = LayoutInflater.from(context).inflate(layoutRes, this, true)
-        val height = if (heightRes != null) {
-            resources.getDimensionPixelSize(heightRes!!)
-        } else {
-            LayoutParams.WRAP_CONTENT
-        }
+        val height =
+            if (heightRes != null) {
+                resources.getDimensionPixelSize(heightRes!!)
+            } else {
+                LayoutParams.WRAP_CONTENT
+            }
         view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, height)
     }
 

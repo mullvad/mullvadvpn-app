@@ -34,43 +34,28 @@ fun ListItem(
     val itemColor = colorResource(id = R.color.blue)
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 1.dp)
-            .height(50.dp)
-            .background(itemColor),
+        modifier =
+            Modifier.fillMaxWidth().padding(vertical = 1.dp).height(50.dp).background(itemColor),
     ) {
         Text(
             text = text,
             fontSize = 18.sp,
             color = Color.White,
-            modifier = Modifier
-                .padding(
-                    horizontal = 16.dp
-                )
-                .align(Alignment.CenterStart)
+            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.CenterStart)
         )
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(horizontal = 12.dp)
-        ) {
+        Box(modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 12.dp)) {
             if (isLoading) {
                 CircularProgressIndicator(
                     strokeWidth = 3.dp,
                     color = Color.White,
-                    modifier = Modifier
-                        .height(24.dp)
-                        .width(24.dp)
+                    modifier = Modifier.height(24.dp).width(24.dp)
                 )
             } else if (iconResourceId != null) {
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Remove",
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .clickable { onClick() }
+                    modifier = Modifier.align(Alignment.CenterEnd).clickable { onClick() }
                 )
             }
         }
@@ -78,42 +63,30 @@ fun ListItem(
 }
 
 @Composable
-fun ChangeListItem(
-    text: String
-) {
+fun ChangeListItem(text: String) {
     ConstraintLayout {
         val (bullet, changeLog) = createRefs()
         val smallPadding = dimensionResource(id = R.dimen.small_padding)
         Box(
-            modifier = Modifier
-                .constrainAs(bullet) {
+            modifier =
+                Modifier.constrainAs(bullet) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.absoluteLeft)
                 }
         ) {
-            Text(
-                text = "•",
-                fontSize = 14.sp,
-                color = Color.White
-            )
+            Text(text = "•", fontSize = 14.sp, color = Color.White)
         }
         Box(
-            modifier = Modifier
-                .absolutePadding(left = dimensionResource(id = R.dimen.medium_padding))
-                .constrainAs(changeLog) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom, margin = smallPadding)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+            modifier =
+                Modifier.absolutePadding(left = dimensionResource(id = R.dimen.medium_padding))
+                    .constrainAs(changeLog) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom, margin = smallPadding)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
         ) {
-            Text(
-                text = text,
-                fontSize = 14.sp,
-                color = Color.White,
-                modifier = Modifier
-
-            )
+            Text(text = text, fontSize = 14.sp, color = Color.White, modifier = Modifier)
         }
     }
 }

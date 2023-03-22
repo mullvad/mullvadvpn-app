@@ -28,36 +28,32 @@ import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 
 @Composable
-fun DeviceRevokedScreen(
-    deviceRevokedViewModel: DeviceRevokedViewModel
-) {
+fun DeviceRevokedScreen(deviceRevokedViewModel: DeviceRevokedViewModel) {
     val state = deviceRevokedViewModel.uiState.collectAsState().value
 
     ConstraintLayout(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(colorResource(id = R.color.darkBlue))
+        modifier =
+            Modifier.fillMaxHeight().fillMaxWidth().background(colorResource(id = R.color.darkBlue))
     ) {
         val (icon, body, actionButtons) = createRefs()
 
         Image(
             painter = painterResource(id = R.drawable.icon_fail),
             contentDescription = null, // No meaningful user info or action.
-            modifier = Modifier
-                .constrainAs(icon) {
-                    top.linkTo(parent.top, margin = 30.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-                .padding(horizontal = 12.dp)
-                .width(80.dp)
-                .height(80.dp)
+            modifier =
+                Modifier.constrainAs(icon) {
+                        top.linkTo(parent.top, margin = 30.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .padding(horizontal = 12.dp)
+                    .width(80.dp)
+                    .height(80.dp)
         )
 
         Column(
-            modifier = Modifier
-                .constrainAs(body) {
+            modifier =
+                Modifier.constrainAs(body) {
                     top.linkTo(icon.bottom, margin = 22.dp)
                     start.linkTo(parent.start, margin = 22.dp)
                     end.linkTo(parent.end, margin = 22.dp)
@@ -89,8 +85,8 @@ fun DeviceRevokedScreen(
         }
 
         Column(
-            modifier = Modifier
-                .constrainAs(actionButtons) {
+            modifier =
+                Modifier.constrainAs(actionButtons) {
                     bottom.linkTo(parent.bottom, margin = 22.dp)
                     start.linkTo(parent.start, margin = 22.dp)
                     end.linkTo(parent.end, margin = 22.dp)
@@ -100,16 +96,18 @@ fun DeviceRevokedScreen(
             ActionButton(
                 text = stringResource(id = R.string.go_to_login),
                 onClick = { deviceRevokedViewModel.onGoToLoginClicked() },
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                    backgroundColor = colorResource(
-                        if (state == DeviceRevokedUiState.SECURED) {
-                            R.color.red60
-                        } else {
-                            R.color.blue
-                        }
+                colors =
+                    ButtonDefaults.buttonColors(
+                        contentColor = Color.White,
+                        backgroundColor =
+                            colorResource(
+                                if (state == DeviceRevokedUiState.SECURED) {
+                                    R.color.red60
+                                } else {
+                                    R.color.blue
+                                }
+                            )
                     )
-                )
             )
         }
     }

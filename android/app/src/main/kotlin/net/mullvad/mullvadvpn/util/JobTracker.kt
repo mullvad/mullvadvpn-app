@@ -26,9 +26,7 @@ class JobTracker {
                 GlobalScope.launch(Dispatchers.Default) {
                     job.join()
 
-                    synchronized(jobs) {
-                        jobs.remove(jobId)
-                    }
+                    synchronized(jobs) { jobs.remove(jobId) }
                 }
             )
 
@@ -65,11 +63,7 @@ class JobTracker {
     }
 
     fun cancelJob(name: String) {
-        synchronized(namedJobs) {
-            namedJobs.remove(name)?.let { oldJobId ->
-                cancelJob(oldJobId)
-            }
-        }
+        synchronized(namedJobs) { namedJobs.remove(name)?.let { oldJobId -> cancelJob(oldJobId) } }
     }
 
     fun cancelJob(jobId: Long) {

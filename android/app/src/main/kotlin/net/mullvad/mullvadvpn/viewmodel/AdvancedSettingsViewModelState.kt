@@ -11,52 +11,52 @@ data class AdvancedSettingsViewModelState(
 ) {
     fun toUiState(): AdvancedSettingsUiState {
         return when (dialogState) {
-            is AdvancedSettingsDialogState.MtuDialog -> AdvancedSettingsUiState.MtuDialogUiState(
-                mtu = mtuValue,
-                isCustomDnsEnabled = isCustomDnsEnabled,
-                isAllowLanEnabled = isAllowLanEnabled,
-                customDnsItems = customDnsList,
-                mtuEditValue = dialogState.mtuEditValue,
-            )
-            is AdvancedSettingsDialogState.DnsDialog -> AdvancedSettingsUiState.DnsDialogUiState(
-                mtu = mtuValue,
-                isCustomDnsEnabled = isCustomDnsEnabled,
-                isAllowLanEnabled = isAllowLanEnabled,
-                customDnsItems = customDnsList,
-                stagedDns = dialogState.stagedDns,
-            )
-            else -> AdvancedSettingsUiState.DefaultUiState(
-                mtu = mtuValue,
-                isCustomDnsEnabled = isCustomDnsEnabled,
-                isAllowLanEnabled = isAllowLanEnabled,
-                customDnsItems = customDnsList,
-            )
+            is AdvancedSettingsDialogState.MtuDialog ->
+                AdvancedSettingsUiState.MtuDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    mtuEditValue = dialogState.mtuEditValue,
+                )
+            is AdvancedSettingsDialogState.DnsDialog ->
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    stagedDns = dialogState.stagedDns,
+                )
+            else ->
+                AdvancedSettingsUiState.DefaultUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                )
         }
     }
 
     companion object {
         private const val EMPTY_STRING = ""
 
-        fun default() = AdvancedSettingsViewModelState(
-            mtuValue = EMPTY_STRING,
-            isCustomDnsEnabled = false,
-            customDnsList = listOf(),
-            isAllowLanEnabled = false,
-            dialogState = AdvancedSettingsDialogState.NoDialog
-        )
+        fun default() =
+            AdvancedSettingsViewModelState(
+                mtuValue = EMPTY_STRING,
+                isCustomDnsEnabled = false,
+                customDnsList = listOf(),
+                isAllowLanEnabled = false,
+                dialogState = AdvancedSettingsDialogState.NoDialog
+            )
     }
 }
 
 sealed class AdvancedSettingsDialogState {
     object NoDialog : AdvancedSettingsDialogState()
 
-    data class MtuDialog(
-        val mtuEditValue: String
-    ) : AdvancedSettingsDialogState()
+    data class MtuDialog(val mtuEditValue: String) : AdvancedSettingsDialogState()
 
-    data class DnsDialog(
-        val stagedDns: StagedDns
-    ) : AdvancedSettingsDialogState()
+    data class DnsDialog(val stagedDns: StagedDns) : AdvancedSettingsDialogState()
 }
 
 sealed interface StagedDns {
@@ -83,18 +83,12 @@ sealed interface StagedDns {
     fun isValid() = (validationResult is ValidationResult.Success)
 }
 
-data class CustomDnsItem(
-    val address: String,
-    val isLocal: Boolean
-) {
+data class CustomDnsItem(val address: String, val isLocal: Boolean) {
     companion object {
         private const val EMPTY_STRING = ""
 
         fun default(): CustomDnsItem {
-            return CustomDnsItem(
-                address = EMPTY_STRING,
-                isLocal = false
-            )
+            return CustomDnsItem(address = EMPTY_STRING, isLocal = false)
         }
     }
 }

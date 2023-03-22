@@ -48,9 +48,12 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     init {
         jobTracker.newBackgroundJob("autoFetchAccountExpiry") {
             daemon.await().deviceStateUpdates.collect { deviceState ->
-                accountExpiry = deviceState.token()
-                    .also { cachedAccountToken = it }
-                    ?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
+                accountExpiry =
+                    deviceState
+                        .token()
+                        .also { cachedAccountToken = it }
+                        ?.let { fetchAccountExpiry(it) }
+                        ?: AccountExpiry.Missing
             }
         }
 
@@ -58,9 +61,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             endpoint.sendEvent(Event.AccountHistoryEvent(history))
         }
 
-        onAccountExpiryChange.subscribe(this) {
-            endpoint.sendEvent(Event.AccountExpiryEvent(it))
-        }
+        onAccountExpiryChange.subscribe(this) { endpoint.sendEvent(Event.AccountExpiryEvent(it)) }
 
         endpoint.dispatcher.apply {
             registerHandler(Request.CreateAccount::class) { _ ->
@@ -79,8 +80,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
             registerHandler(Request.FetchAccountExpiry::class) { _ ->
                 jobTracker.newBackgroundJob("fetchAccountExpiry") {
-                    accountExpiry = cachedAccountToken
-                        ?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
+                    accountExpiry =
+                        cachedAccountToken?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
                 }
             }
 
@@ -91,9 +92,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             }
 
             registerHandler(Request.ClearAccountHistory::class) { _ ->
-                jobTracker.newBackgroundJob("clearAccountHistory") {
-                    clearAccountHistory()
-                }
+                jobTracker.newBackgroundJob("clearAccountHistory") { clearAccountHistory() }
             }
         }
     }
@@ -107,19 +106,20 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         commandChannel.close()
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    is Command.CreateAccount -> doCreateAccount()
-                    is Command.Login -> doLogin(command.account)
-                    is Command.Logout -> doLogout()
+    private fun spawnActor() =
+        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+            try {
+                for (command in channel) {
+                    when (command) {
+                        is Command.CreateAccount -> doCreateAccount()
+                        is Command.Login -> doLogin(command.account)
+                        is Command.Logout -> doLogout()
+                    }
                 }
+            } catch (exception: ClosedReceiveChannelException) {
+                // Command channel was closed, stop the actor
             }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Command channel was closed, stop the actor
         }
-    }
 
     private suspend fun clearAccountHistory() {
         daemon.await().clearAccountHistory()
@@ -127,10 +127,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doCreateAccount() {
-        daemon.await().createNewAccount()
-            .also { newAccountToken ->
-                cachedCreatedAccountToken = newAccountToken
-            }
+        daemon
+            .await()
+            .createNewAccount()
+            .also { newAccountToken -> cachedCreatedAccountToken = newAccountToken }
             .let { newAccountToken ->
                 if (newAccountToken != null) {
                     AccountCreationResult.Success(newAccountToken)
@@ -138,9 +138,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                     AccountCreationResult.Failure
                 }
             }
-            .also { result ->
-                endpoint.sendEvent(Event.AccountCreationEvent(result))
-            }
+            .also { result -> endpoint.sendEvent(Event.AccountCreationEvent(result)) }
     }
 
     private suspend fun doLogin(account: String) {
@@ -169,7 +167,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             if (result is GetAccountDataResult.Ok) {
                 result.accountData.expiry.parseAsDateTime()?.let { parsedDateTime ->
                     AccountExpiry.Available(parsedDateTime)
-                } ?: AccountExpiry.Missing
+                }
+                    ?: AccountExpiry.Missing
             } else {
                 AccountExpiry.Missing
             }

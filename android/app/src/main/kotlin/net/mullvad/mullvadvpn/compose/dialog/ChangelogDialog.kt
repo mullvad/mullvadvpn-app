@@ -24,15 +24,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChangeListItem
 
 @Composable
-fun ChangelogDialog(
-    changesList: List<String>,
-    version: String,
-    onDismiss: () -> Unit
-) {
+fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () -> Unit) {
     AlertDialog(
-        onDismissRequest = {
-            onDismiss()
-        },
+        onDismissRequest = { onDismiss() },
         title = {
             Text(
                 text = version,
@@ -40,47 +34,35 @@ fun ChangelogDialog(
                 fontSize = 30.sp,
                 fontStyle = FontStyle.Normal,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         },
-
         text = {
             Column {
                 Text(
                     text = stringResource(R.string.changes_dialog_subtitle),
                     fontSize = 18.sp,
                     color = Color.White,
-                    modifier = Modifier
-                        .padding(
-                            vertical = dimensionResource(id = R.dimen.medium_padding)
-                        )
+                    modifier =
+                        Modifier.padding(vertical = dimensionResource(id = R.dimen.medium_padding))
                 )
 
-                changesList.forEach { changeItem ->
-                    ChangeListItem(
-                        text = changeItem
-                    )
-                }
+                changesList.forEach { changeItem -> ChangeListItem(text = changeItem) }
             }
         },
         buttons = {
             Button(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(all = dimensionResource(id = R.dimen.medium_padding))
-                    .defaultMinSize(
-                        minHeight = dimensionResource(id = R.dimen.button_height)
-                    )
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = colorResource(id = R.color.blue),
-                    contentColor = colorResource(id = R.color.white)
-                ),
-                onClick = {
-                    onDismiss()
-                }
-
+                modifier =
+                    Modifier.wrapContentHeight()
+                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
+                        .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
+                        .fillMaxWidth(),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = colorResource(id = R.color.blue),
+                        contentColor = colorResource(id = R.color.white)
+                    ),
+                onClick = { onDismiss() }
             ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_dismiss_button),
@@ -88,10 +70,11 @@ fun ChangelogDialog(
                 )
             }
         },
-        properties = DialogProperties(
-            dismissOnClickOutside = true,
-            dismissOnBackPress = true,
-        ),
+        properties =
+            DialogProperties(
+                dismissOnClickOutside = true,
+                dismissOnBackPress = true,
+            ),
         backgroundColor = colorResource(id = R.color.darkBlue)
     )
 }
@@ -99,19 +82,16 @@ fun ChangelogDialog(
 @Preview
 @Composable
 private fun PreviewChangelogDialogWithSingleShortItem() {
-    ChangelogDialog(
-        changesList = listOf("Item 1"),
-        version = "1111.1",
-        onDismiss = {}
-    )
+    ChangelogDialog(changesList = listOf("Item 1"), version = "1111.1", onDismiss = {})
 }
 
 @Preview
 @Composable
 private fun PreviewChangelogDialogWithTwoLongItems() {
-    val longPreviewText = "This is a sample changelog item of a Compose Preview visualization. " +
-        "The purpose of this specific sample text is to visualize a long text that will result " +
-        "in multiple lines in the changelog dialog."
+    val longPreviewText =
+        "This is a sample changelog item of a Compose Preview visualization. " +
+            "The purpose of this specific sample text is to visualize a long text that will result " +
+            "in multiple lines in the changelog dialog."
 
     ChangelogDialog(
         changesList = listOf(longPreviewText, longPreviewText),
@@ -124,18 +104,19 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 @Composable
 private fun PreviewChangelogDialogWithTenShortItems() {
     ChangelogDialog(
-        changesList = listOf(
-            "Item 1",
-            "Item 2",
-            "Item 3",
-            "Item 4",
-            "Item 5",
-            "Item 6",
-            "Item 7",
-            "Item 8",
-            "Item 9",
-            "Item 10"
-        ),
+        changesList =
+            listOf(
+                "Item 1",
+                "Item 2",
+                "Item 3",
+                "Item 4",
+                "Item 5",
+                "Item 6",
+                "Item 7",
+                "Item 8",
+                "Item 9",
+                "Item 10"
+            ),
         version = "1111.1",
         onDismiss = {}
     )

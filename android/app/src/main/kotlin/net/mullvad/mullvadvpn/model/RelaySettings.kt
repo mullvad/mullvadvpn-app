@@ -4,9 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class RelaySettings : Parcelable {
-    @Parcelize
-    object CustomTunnelEndpoint : RelaySettings()
+    @Parcelize object CustomTunnelEndpoint : RelaySettings()
 
-    @Parcelize
-    class Normal(val relayConstraints: RelayConstraints) : RelaySettings()
+    @Parcelize class Normal(val relayConstraints: RelayConstraints) : RelaySettings()
 }

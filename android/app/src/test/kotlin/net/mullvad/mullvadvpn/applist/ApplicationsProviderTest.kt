@@ -34,26 +34,41 @@ class ApplicationsProviderTest {
 
         every {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-        } returns listOf(
-            createApplicationInfo(launchWithInternetPackageName, launch = true, internet = true),
-            createApplicationInfo(launchWithoutInternetPackageName, launch = true),
-            createApplicationInfo(nonLaunchWithInternetPackageName, internet = true),
-            createApplicationInfo(nonLaunchWithoutInternetPackageName),
-            createApplicationInfo(
-                leanbackLaunchWithInternetPackageName,
-                leanback = true,
-                internet = true
-            ),
-            createApplicationInfo(leanbackLaunchWithoutInternetPackageName, leanback = true),
-            createApplicationInfo(selfPackageName, internet = true, launch = true)
-        )
+        } returns
+            listOf(
+                createApplicationInfo(
+                    launchWithInternetPackageName,
+                    launch = true,
+                    internet = true
+                ),
+                createApplicationInfo(launchWithoutInternetPackageName, launch = true),
+                createApplicationInfo(nonLaunchWithInternetPackageName, internet = true),
+                createApplicationInfo(nonLaunchWithoutInternetPackageName),
+                createApplicationInfo(
+                    leanbackLaunchWithInternetPackageName,
+                    leanback = true,
+                    internet = true
+                ),
+                createApplicationInfo(leanbackLaunchWithoutInternetPackageName, leanback = true),
+                createApplicationInfo(selfPackageName, internet = true, launch = true)
+            )
 
         val result = testSubject.getAppsList()
-        val expected = listOf(
-            AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName),
-            AppData(nonLaunchWithInternetPackageName, 0, nonLaunchWithInternetPackageName, true),
-            AppData(leanbackLaunchWithInternetPackageName, 0, leanbackLaunchWithInternetPackageName)
-        )
+        val expected =
+            listOf(
+                AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName),
+                AppData(
+                    nonLaunchWithInternetPackageName,
+                    0,
+                    nonLaunchWithInternetPackageName,
+                    true
+                ),
+                AppData(
+                    leanbackLaunchWithInternetPackageName,
+                    0,
+                    leanbackLaunchWithInternetPackageName
+                )
+            )
 
         assertLists(expected, result)
 
@@ -61,31 +76,34 @@ class ApplicationsProviderTest {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
             listOf(
-                launchWithInternetPackageName,
-                launchWithoutInternetPackageName,
-                nonLaunchWithInternetPackageName,
-                nonLaunchWithoutInternetPackageName,
-                leanbackLaunchWithInternetPackageName,
-                leanbackLaunchWithoutInternetPackageName,
-                selfPackageName
-            ).forEach { packageName ->
-                mockedPackageManager.checkPermission(internet, packageName)
-            }
+                    launchWithInternetPackageName,
+                    launchWithoutInternetPackageName,
+                    nonLaunchWithInternetPackageName,
+                    nonLaunchWithoutInternetPackageName,
+                    leanbackLaunchWithInternetPackageName,
+                    leanbackLaunchWithoutInternetPackageName,
+                    selfPackageName
+                )
+                .forEach { packageName ->
+                    mockedPackageManager.checkPermission(internet, packageName)
+                }
 
             listOf(
-                launchWithInternetPackageName,
-                nonLaunchWithInternetPackageName,
-                leanbackLaunchWithInternetPackageName
-            ).forEach { packageName ->
-                mockedPackageManager.getLaunchIntentForPackage(packageName)
-            }
+                    launchWithInternetPackageName,
+                    nonLaunchWithInternetPackageName,
+                    leanbackLaunchWithInternetPackageName
+                )
+                .forEach { packageName ->
+                    mockedPackageManager.getLaunchIntentForPackage(packageName)
+                }
 
             listOf(
-                nonLaunchWithInternetPackageName,
-                leanbackLaunchWithInternetPackageName,
-            ).forEach { packageName ->
-                mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
-            }
+                    nonLaunchWithInternetPackageName,
+                    leanbackLaunchWithInternetPackageName,
+                )
+                .forEach { packageName ->
+                    mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
+                }
         }
     }
 
@@ -103,26 +121,16 @@ class ApplicationsProviderTest {
 
         every { mockApplicationInfo.loadLabel(mockedPackageManager) } returns packageName
 
-        every {
-            mockedPackageManager.getLaunchIntentForPackage(packageName)
-        } returns if (launch || systemApp)
-            mockk()
-        else
-            null
+        every { mockedPackageManager.getLaunchIntentForPackage(packageName) } returns
+            if (launch || systemApp) mockk() else null
 
-        every {
-            mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
-        } returns if (leanback || systemApp)
-            mockk()
-        else
-            null
+        every { mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName) } returns
+            if (leanback || systemApp) mockk() else null
 
         every {
             mockedPackageManager.checkPermission(Manifest.permission.INTERNET, packageName)
-        } returns if (internet)
-            PackageManager.PERMISSION_GRANTED
-        else
-            PackageManager.PERMISSION_DENIED
+        } returns
+            if (internet) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
 
         return mockApplicationInfo
     }

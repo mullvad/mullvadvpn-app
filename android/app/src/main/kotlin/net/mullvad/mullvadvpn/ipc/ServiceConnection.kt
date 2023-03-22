@@ -46,23 +46,26 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
         Channel<ServiceResult.ConnectionState>(Channel.RENDEZVOUS)
 
     init {
-        val dispatcher = handler
-            .filterNotNull()
-            .dispatchTo {
-                listenerRegistrations = subscribeToState(Event.ListenerReady::class, scope) {
-                    Pair(connection, listenerId)
-                }
+        val dispatcher =
+            handler.filterNotNull().dispatchTo {
+                listenerRegistrations =
+                    subscribeToState(Event.ListenerReady::class, scope) {
+                        Pair(connection, listenerId)
+                    }
 
-                val tunnelStateEvents = subscribeToState(
-                    Event.TunnelStateChange::class,
-                    scope,
-                    TunnelState.Disconnected
-                ) { tunnelState }
+                val tunnelStateEvents =
+                    subscribeToState(
+                        Event.TunnelStateChange::class,
+                        scope,
+                        TunnelState.Disconnected
+                    ) {
+                        tunnelState
+                    }
 
-                tunnelState = tunnelStateEvents
-                    .combine(
-                        serviceConnectionStateChannel.consumeAsFlow()
-                    ) { tunnelState, serviceConnectionState ->
+                tunnelState =
+                    tunnelStateEvents.combine(serviceConnectionStateChannel.consumeAsFlow()) {
+                        tunnelState,
+                        serviceConnectionState ->
                         tunnelState to serviceConnectionState
                     }
             }

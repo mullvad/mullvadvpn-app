@@ -29,11 +29,12 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private val fetchRetryDelays = ExponentialBackoff().apply {
-        scale = 50
-        cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
-        count = 17 // ceil(log2(cap / scale) + 1)
-    }
+    private val fetchRetryDelays =
+        ExponentialBackoff().apply {
+            scale = 50
+            cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
+            count = 17 // ceil(log2(cap / scale) + 1)
+        }
 
     private val fetchRequestChannel = runFetcher()
 
@@ -43,36 +44,34 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
 
-    var location: GeoIpLocation? by observable(null) { _, _, newLocation ->
-        endpoint.sendEvent(Event.NewLocation(newLocation))
-    }
+    var location: GeoIpLocation? by
+        observable(null) { _, _, newLocation -> endpoint.sendEvent(Event.NewLocation(newLocation)) }
 
-    var state by observable<TunnelState>(TunnelState.Disconnected) { _, _, newState ->
-        when (newState) {
-            is TunnelState.Disconnected -> {
-                location = lastKnownRealLocation
-                fetchRequestChannel.trySendBlocking(RequestFetch.ForRealLocation)
-            }
-            is TunnelState.Connecting -> location = newState.location
-            is TunnelState.Connected -> {
-                location = newState.location
-                fetchRequestChannel.trySendBlocking(RequestFetch.ForRelayLocation)
-            }
-            is TunnelState.Disconnecting -> {
-                when (newState.actionAfterDisconnect) {
-                    ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
-                    ActionAfterDisconnect.Block -> location = null
-                    ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
+    var state by
+        observable<TunnelState>(TunnelState.Disconnected) { _, _, newState ->
+            when (newState) {
+                is TunnelState.Disconnected -> {
+                    location = lastKnownRealLocation
+                    fetchRequestChannel.trySendBlocking(RequestFetch.ForRealLocation)
                 }
+                is TunnelState.Connecting -> location = newState.location
+                is TunnelState.Connected -> {
+                    location = newState.location
+                    fetchRequestChannel.trySendBlocking(RequestFetch.ForRelayLocation)
+                }
+                is TunnelState.Disconnecting -> {
+                    when (newState.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
+                        ActionAfterDisconnect.Block -> location = null
+                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
+                    }
+                }
+                is TunnelState.Error -> location = null
             }
-            is TunnelState.Error -> location = null
         }
-    }
 
     init {
-        endpoint.connectionProxy.onStateChange.subscribe(this) { newState ->
-            state = newState
-        }
+        endpoint.connectionProxy.onStateChange.subscribe(this) { newState -> state = newState }
 
         endpoint.connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
@@ -91,18 +90,16 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         fetchRequestChannel.close()
     }
 
-    private fun runFetcher() = GlobalScope.actor<RequestFetch>(
-        Dispatchers.Default,
-        Channel.CONFLATED
-    ) {
-        try {
-            fetcherLoop(channel)
-        } catch (exception: ClosedReceiveChannelException) {
+    private fun runFetcher() =
+        GlobalScope.actor<RequestFetch>(Dispatchers.Default, Channel.CONFLATED) {
+            try {
+                fetcherLoop(channel)
+            } catch (exception: ClosedReceiveChannelException) {}
         }
-    }
 
     private suspend fun fetcherLoop(channel: ReceiveChannel<RequestFetch>) {
-        channel.receiveAsFlow()
+        channel
+            .receiveAsFlow()
             .flatMapLatest(::fetchCurrentLocation)
             .collect(::handleFetchedLocation)
     }

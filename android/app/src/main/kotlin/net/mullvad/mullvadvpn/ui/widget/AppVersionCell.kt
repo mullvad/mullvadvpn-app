@@ -12,46 +12,47 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
 class AppVersionCell : UrlCell {
-    private val warningIcon = ImageView(context).apply {
-        val iconSize = resources.getDimensionPixelSize(R.dimen.app_version_warning_icon_size)
+    private val warningIcon =
+        ImageView(context).apply {
+            val iconSize = resources.getDimensionPixelSize(R.dimen.app_version_warning_icon_size)
 
-        layoutParams = LayoutParams(iconSize, iconSize, 0.0f)
+            layoutParams = LayoutParams(iconSize, iconSize, 0.0f)
 
-        resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
-            setPadding(0, 0, padding, 0)
+            resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
+                setPadding(0, 0, padding, 0)
+            }
+
+            setImageResource(R.drawable.icon_alert)
         }
 
-        setImageResource(R.drawable.icon_alert)
-    }
+    private val versionLabel =
+        TextView(context).apply {
+            layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
+            gravity = Gravity.RIGHT
 
-    private val versionLabel = TextView(context).apply {
-        layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
-        gravity = Gravity.RIGHT
+            resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
+                setPadding(padding, 0, padding, 0)
+            }
 
-        resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
-            setPadding(padding, 0, padding, 0)
+            setTextColor(context.getColor(R.color.white60))
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_small))
+            setTypeface(null, Typeface.BOLD)
+
+            text = ""
         }
 
-        setTextColor(context.getColor(R.color.white60))
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_small))
-        setTypeface(null, Typeface.BOLD)
-
-        text = ""
-    }
-
-    var updateAvailable by observable(false) { _, _, updateAvailable ->
-        if (updateAvailable) {
-            warningIcon.visibility = VISIBLE
-            footer?.visibility = VISIBLE
-        } else {
-            warningIcon.visibility = GONE
-            footer?.visibility = GONE
+    var updateAvailable by
+        observable(false) { _, _, updateAvailable ->
+            if (updateAvailable) {
+                warningIcon.visibility = VISIBLE
+                footer?.visibility = VISIBLE
+            } else {
+                warningIcon.visibility = GONE
+                footer?.visibility = GONE
+            }
         }
-    }
 
-    var version by observable("") { _, _, version ->
-        versionLabel.text = version
-    }
+    var version by observable("") { _, _, version -> versionLabel.text = version }
 
     @JvmOverloads
     constructor(

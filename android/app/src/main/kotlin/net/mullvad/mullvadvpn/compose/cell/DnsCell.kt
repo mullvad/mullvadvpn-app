@@ -23,11 +23,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadHelmetYellow
 @Preview
 @Composable
 private fun PreviewDnsCell() {
-    DnsCell(
-        address = "0.0.0.0",
-        isUnreachableLocalDnsWarningVisible = true,
-        onClick = {}
-    )
+    DnsCell(address = "0.0.0.0", isUnreachableLocalDnsWarningVisible = true, onClick = {})
 }
 
 @Composable
@@ -41,12 +37,7 @@ fun DnsCell(
     val startPadding = 54.dp
 
     BaseCell(
-        title = {
-            DnsTitle(
-                address = address,
-                modifier = titleModifier
-            )
-        },
+        title = { DnsTitle(address = address, modifier = titleModifier) },
         bodyView = {
             if (isUnreachableLocalDnsWarningVisible) {
                 Icon(
@@ -64,10 +55,7 @@ fun DnsCell(
 }
 
 @Composable
-private fun DnsTitle(
-    address: String,
-    modifier: Modifier = Modifier
-) {
+private fun DnsTitle(address: String, modifier: Modifier = Modifier) {
     val textSize = dimensionResource(id = R.dimen.text_medium).value.sp
     Text(
         text = address,
@@ -75,8 +63,6 @@ private fun DnsTitle(
         fontSize = textSize,
         fontStyle = FontStyle.Normal,
         textAlign = TextAlign.Start,
-        modifier = modifier
-            .wrapContentWidth(align = Alignment.End)
-            .wrapContentHeight()
+        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
     )
 }

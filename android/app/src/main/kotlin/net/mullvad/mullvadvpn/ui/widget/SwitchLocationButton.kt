@@ -20,9 +20,10 @@ class SwitchLocationButton : FrameLayout {
             inflater.inflate(R.layout.switch_location_button, this)
         }
 
-    private val buttonWithLabel = container.findViewById<View>(R.id.button_with_label).apply {
-        setOnClickListener { onClick?.invoke() }
-    }
+    private val buttonWithLabel =
+        container.findViewById<View>(R.id.button_with_label).apply {
+            setOnClickListener { onClick?.invoke() }
+        }
 
     private val buttonWithLocation =
         container.findViewById<TextView>(R.id.button_with_location).apply {
@@ -31,32 +32,37 @@ class SwitchLocationButton : FrameLayout {
 
     var onClick: (() -> Unit)? = null
 
-    var location by observable<RelayItem?>(null) { _, _, location ->
-        buttonWithLocation.text = location?.locationName ?: ""
-    }
-
-    var tunnelState by observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
-        when (state) {
-            is TunnelState.Disconnected -> showLocation()
-            is TunnelState.Disconnecting -> {
-                when (state.actionAfterDisconnect) {
-                    ActionAfterDisconnect.Nothing -> showLocation()
-                    ActionAfterDisconnect.Block -> showLocation()
-                    ActionAfterDisconnect.Reconnect -> showLabel()
-                }
-            }
-            is TunnelState.Connecting -> showLabel()
-            is TunnelState.Connected -> showLabel()
-            is TunnelState.Error -> showLocation()
+    var location by
+        observable<RelayItem?>(null) { _, _, location ->
+            buttonWithLocation.text = location?.locationName ?: ""
         }
-    }
+
+    var tunnelState by
+        observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
+            when (state) {
+                is TunnelState.Disconnected -> showLocation()
+                is TunnelState.Disconnecting -> {
+                    when (state.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Nothing -> showLocation()
+                        ActionAfterDisconnect.Block -> showLocation()
+                        ActionAfterDisconnect.Reconnect -> showLabel()
+                    }
+                }
+                is TunnelState.Connecting -> showLabel()
+                is TunnelState.Connected -> showLabel()
+                is TunnelState.Error -> showLocation()
+            }
+        }
 
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     private fun showLabel() {
         updateButton(buttonWithLabel, true)
@@ -72,11 +78,12 @@ class SwitchLocationButton : FrameLayout {
         button.apply {
             setEnabled(show)
 
-            visibility = if (show) {
-                View.VISIBLE
-            } else {
-                View.INVISIBLE
-            }
+            visibility =
+                if (show) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
         }
     }
 }

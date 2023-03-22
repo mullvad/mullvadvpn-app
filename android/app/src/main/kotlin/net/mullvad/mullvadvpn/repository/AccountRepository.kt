@@ -36,42 +36,37 @@ class AccountRepository(
             .onEach {
                 _cachedCreatedAccount.value = (it as? AccountCreationResult.Success)?.accountToken
             }
-            .shareIn(
+            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+
+    val accountExpiryState: StateFlow<AccountExpiry> =
+        serviceConnectionManager.connectionState
+            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+                state.container.accountDataSource.accountExpiry
+            }
+            .stateIn(
                 CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed()
+                SharingStarted.WhileSubscribed(),
+                AccountExpiry.Missing
             )
 
-    val accountExpiryState: StateFlow<AccountExpiry> = serviceConnectionManager.connectionState
-        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-            state.container.accountDataSource.accountExpiry
-        }
-        .stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            AccountExpiry.Missing
-        )
+    val accountHistoryEvents: StateFlow<AccountHistory> =
+        serviceConnectionManager.connectionState
+            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+                state.container.accountDataSource.accountHistory
+            }
+            .onStart { fetchAccountHistory() }
+            .stateIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed(),
+                AccountHistory.Missing
+            )
 
-    val accountHistoryEvents: StateFlow<AccountHistory> = serviceConnectionManager.connectionState
-        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-            state.container.accountDataSource.accountHistory
-        }
-        .onStart {
-            fetchAccountHistory()
-        }
-        .stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            AccountHistory.Missing
-        )
-
-    val loginEvents: SharedFlow<Event.LoginEvent> = serviceConnectionManager.connectionState
-        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-            state.container.accountDataSource.loginEvents
-        }
-        .shareIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed()
-        )
+    val loginEvents: SharedFlow<Event.LoginEvent> =
+        serviceConnectionManager.connectionState
+            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+                state.container.accountDataSource.loginEvents
+            }
+            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     fun createAccount() {
         serviceConnectionManager.accountDataSource()?.createAccount()

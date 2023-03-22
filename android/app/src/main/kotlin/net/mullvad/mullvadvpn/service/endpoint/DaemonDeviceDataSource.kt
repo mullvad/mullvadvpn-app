@@ -6,9 +6,7 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class DaemonDeviceDataSource(
-    val endpoint: ServiceEndpoint
-) {
+class DaemonDeviceDataSource(val endpoint: ServiceEndpoint) {
     private val tracker = JobTracker()
 
     init {
@@ -35,15 +33,11 @@ class DaemonDeviceDataSource(
         }
 
         endpoint.dispatcher.registerHandler(Request.GetDevice::class) {
-            tracker.newBackgroundJob("getDeviceJob") {
-                daemon.getAndEmitDeviceState()
-            }
+            tracker.newBackgroundJob("getDeviceJob") { daemon.getAndEmitDeviceState() }
         }
 
         endpoint.dispatcher.registerHandler(Request.RefreshDeviceState::class) {
-            tracker.newBackgroundJob("refreshDeviceJob") {
-                daemon.refreshDevice()
-            }
+            tracker.newBackgroundJob("refreshDeviceJob") { daemon.refreshDevice() }
         }
 
         endpoint.dispatcher.registerHandler(Request.RemoveDevice::class) { request ->

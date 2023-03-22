@@ -29,22 +29,23 @@ class DeviceRepository(
 ) {
     private val cachedDeviceList = MutableStateFlow<DeviceList>(DeviceList.Unavailable)
 
-    val deviceState = serviceConnectionManager.connectionState
-        .flatMapLatest { state ->
-            if (state is ServiceConnectionState.ConnectedReady) {
-                state.container.deviceDataSource.deviceStateUpdates
-            } else {
-                flowOf(DeviceState.Unknown)
+    val deviceState =
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    state.container.deviceDataSource.deviceStateUpdates
+                } else {
+                    flowOf(DeviceState.Unknown)
+                }
             }
-        }
-        .stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            DeviceState.Initial
-        )
+            .stateIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed(),
+                DeviceState.Initial
+            )
 
-    private val deviceListEvents = serviceConnectionManager.connectionState
-        .flatMapLatest { state ->
+    private val deviceListEvents =
+        serviceConnectionManager.connectionState.flatMapLatest { state ->
             if (state is ServiceConnectionState.ConnectedReady) {
                 state.container.deviceDataSource.deviceListUpdates
             } else {
@@ -52,23 +53,21 @@ class DeviceRepository(
             }
         }
 
-    val deviceList = deviceListEvents
-        .map {
-            if (it is DeviceListEvent.Available) {
-                DeviceList.Available(it.devices)
-            } else {
-                DeviceList.Error
+    val deviceList =
+        deviceListEvents
+            .map {
+                if (it is DeviceListEvent.Available) {
+                    DeviceList.Available(it.devices)
+                } else {
+                    DeviceList.Error
+                }
             }
-        }
-        .onStart {
-            if (cachedDeviceList.value is DeviceList.Available) {
-                emit(cachedDeviceList.value)
+            .onStart {
+                if (cachedDeviceList.value is DeviceList.Available) {
+                    emit(cachedDeviceList.value)
+                }
             }
-        }
-        .shareIn(
-            CoroutineScope(Dispatchers.IO),
-            SharingStarted.WhileSubscribed()
-        )
+            .shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed())
 
     val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> =
         serviceConnectionManager.connectionState
@@ -79,10 +78,7 @@ class DeviceRepository(
                     emptyFlow()
                 }
             }
-            .shareIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed()
-            )
+            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     fun refreshDeviceState() {
         serviceConnectionManager.deviceDataSource()?.refreshDevice()
@@ -121,13 +117,12 @@ class DeviceRepository(
             clearCache()
         }
 
-        val result = withTimeoutOrNull(timeoutMillis) {
-            deviceListEvents
-                .onStart {
-                    refreshDeviceList(accountToken)
-                }
-                .firstOrNull() ?: DeviceListEvent.Error
-        } ?: DeviceListEvent.Error
+        val result =
+            withTimeoutOrNull(timeoutMillis) {
+                deviceListEvents.onStart { refreshDeviceList(accountToken) }.firstOrNull()
+                    ?: DeviceListEvent.Error
+            }
+                ?: DeviceListEvent.Error
 
         if (shouldOverrideCache) {
             updateCache(result, accountToken)

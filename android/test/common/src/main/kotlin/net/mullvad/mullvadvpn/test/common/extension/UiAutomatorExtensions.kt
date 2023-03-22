@@ -22,10 +22,7 @@ fun UiDevice.findObjectWithTimeout(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ): UiObject2 {
 
-    wait(
-        Until.hasObject(selector),
-        timeout
-    )
+    wait(Until.hasObject(selector), timeout)
 
     return try {
         findObject(selector)
@@ -50,10 +47,7 @@ fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove(
 
     val selector = By.text("Allow")
 
-    wait(
-        Until.hasObject(selector),
-        timeout
-    )
+    wait(Until.hasObject(selector), timeout)
 
     try {
         findObjectWithTimeout(selector).click()
@@ -69,10 +63,7 @@ fun UiObject2.findObjectWithTimeout(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ): UiObject2 {
 
-    wait(
-        Until.hasObject(selector),
-        timeout
-    )
+    wait(Until.hasObject(selector), timeout)
 
     return try {
         findObject(selector)

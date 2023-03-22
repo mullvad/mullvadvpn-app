@@ -29,13 +29,14 @@ fun ActionButton(
         enabled = isEnabled,
         // Required along with defaultMinSize to control size and padding.
         contentPadding = PaddingValues(0.dp),
-        modifier = modifier
-            .height(dimensionResource(id = R.dimen.button_height))
-            .defaultMinSize(
-                minWidth = 0.dp,
-                minHeight = dimensionResource(id = R.dimen.button_height)
-            )
-            .fillMaxWidth(),
+        modifier =
+            modifier
+                .height(dimensionResource(id = R.dimen.button_height))
+                .defaultMinSize(
+                    minWidth = 0.dp,
+                    minHeight = dimensionResource(id = R.dimen.button_height)
+                )
+                .fillMaxWidth(),
         colors = colors
     ) {
         Text(

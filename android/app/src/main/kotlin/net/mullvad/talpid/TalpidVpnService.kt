@@ -10,17 +10,19 @@ import net.mullvad.mullvadvpn.util.SdkUtils.setMeteredIfSupported
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
-    private var activeTunStatus by observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
-        val oldTunFd = when (oldTunStatus) {
-            is CreateTunResult.Success -> oldTunStatus.tunFd
-            is CreateTunResult.InvalidDnsServers -> oldTunStatus.tunFd
-            else -> null
-        }
+    private var activeTunStatus by
+        observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
+            val oldTunFd =
+                when (oldTunStatus) {
+                    is CreateTunResult.Success -> oldTunStatus.tunFd
+                    is CreateTunResult.InvalidDnsServers -> oldTunStatus.tunFd
+                    else -> null
+                }
 
-        if (oldTunFd != null) {
-            ParcelFileDescriptor.adoptFd(oldTunFd).close()
+            if (oldTunFd != null) {
+                ParcelFileDescriptor.adoptFd(oldTunFd).close()
+            }
         }
-    }
 
     private val tunIsOpen
         get() = activeTunStatus?.isOpen ?: false
@@ -59,9 +61,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun createTun() {
-        synchronized(this) {
-            activeTunStatus = createTun(currentTunConfig)
-        }
+        synchronized(this) { activeTunStatus = createTun(currentTunConfig) }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
@@ -74,15 +74,11 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun closeTun() {
-        synchronized(this) {
-            activeTunStatus = null
-        }
+        synchronized(this) { activeTunStatus = null }
     }
 
     fun markTunAsStale() {
-        synchronized(this) {
-            tunIsStale = true
-        }
+        synchronized(this) { tunIsStale = true }
     }
 
     private fun createTun(config: TunConfig): CreateTunResult {
@@ -93,32 +89,33 @@ open class TalpidVpnService : VpnService() {
 
         var invalidDnsServerAddresses = ArrayList<InetAddress>()
 
-        val builder = Builder().apply {
-            for (address in config.addresses) {
-                addAddress(address, prefixForAddress(address))
-            }
-
-            for (dnsServer in config.dnsServers) {
-                try {
-                    addDnsServer(dnsServer)
-                } catch (exception: IllegalArgumentException) {
-                    invalidDnsServerAddresses.add(dnsServer)
+        val builder =
+            Builder().apply {
+                for (address in config.addresses) {
+                    addAddress(address, prefixForAddress(address))
                 }
-            }
 
-            for (route in config.routes) {
-                addRoute(route.address, route.prefixLength.toInt())
-            }
-
-            disallowedApps?.let { apps ->
-                for (app in apps) {
-                    addDisallowedApplication(app)
+                for (dnsServer in config.dnsServers) {
+                    try {
+                        addDnsServer(dnsServer)
+                    } catch (exception: IllegalArgumentException) {
+                        invalidDnsServerAddresses.add(dnsServer)
+                    }
                 }
+
+                for (route in config.routes) {
+                    addRoute(route.address, route.prefixLength.toInt())
+                }
+
+                disallowedApps?.let { apps ->
+                    for (app in apps) {
+                        addDisallowedApplication(app)
+                    }
+                }
+                setMtu(config.mtu)
+                setBlocking(false)
+                setMeteredIfSupported(false)
             }
-            setMtu(config.mtu)
-            setBlocking(false)
-            setMeteredIfSupported(false)
-        }
 
         val vpnInterface = builder.establish()
         val tunFd = vpnInterface?.detachFd()

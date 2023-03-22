@@ -4,20 +4,15 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class DeviceState : Parcelable {
-    @Parcelize
-    object Initial : DeviceState()
+    @Parcelize object Initial : DeviceState()
 
-    @Parcelize
-    object Unknown : DeviceState()
+    @Parcelize object Unknown : DeviceState()
 
-    @Parcelize
-    data class LoggedIn(val accountAndDevice: AccountAndDevice) : DeviceState()
+    @Parcelize data class LoggedIn(val accountAndDevice: AccountAndDevice) : DeviceState()
 
-    @Parcelize
-    object LoggedOut : DeviceState()
+    @Parcelize object LoggedOut : DeviceState()
 
-    @Parcelize
-    object Revoked : DeviceState()
+    @Parcelize object Revoked : DeviceState()
 
     fun isUnknown(): Boolean {
         return this is Unknown

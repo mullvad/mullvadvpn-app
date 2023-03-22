@@ -53,20 +53,20 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
     private var loadingSpinner = CompletableDeferred<View>()
     private var relayListState = RelayListState.Initializing
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        relayListAdapter = RelayListAdapter(context.resources).apply {
-            onSelect = { relayItem ->
-                serviceConnectionManager.relayListListener()?.selectedRelayLocation =
-                    relayItem?.location
-                serviceConnectionManager.connectionProxy()?.connect()
-                close()
+        relayListAdapter =
+            RelayListAdapter(context.resources).apply {
+                onSelect = { relayItem ->
+                    serviceConnectionManager.relayListListener()?.selectedRelayLocation =
+                        relayItem?.location
+                    serviceConnectionManager.connectionProxy()?.connect()
+                    close()
+                }
             }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,12 +88,14 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
         view.findViewById<CustomRecyclerView>(R.id.relay_list).apply {
             layoutManager = LinearLayoutManager(requireMainActivity())
 
-            adapter = AdapterWithHeader(relayListAdapter, R.layout.select_location_header).apply {
-                onHeaderAvailable = { headerView ->
-                    initializeLoadingSpinner(headerView)
-                    titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
+            adapter =
+                AdapterWithHeader(relayListAdapter, R.layout.select_location_header).apply {
+                    onHeaderAvailable = { headerView ->
+                        initializeLoadingSpinner(headerView)
+                        titleController.expandedTitleView =
+                            headerView.findViewById(R.id.expanded_title)
+                    }
                 }
-            }
 
             addItemDecoration(
                 ListItemDividerDecoration(
@@ -137,14 +139,11 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
             .flatMapLatest { state ->
                 if (state is ServiceConnectionState.ConnectedReady) {
                     callbackFlow {
-                        state.container.relayListListener.onRelayListChange =
-                            { list, item ->
-                                this.trySend(Pair(list, item))
-                            }
-
-                        awaitClose {
-                            state.container.relayListListener.onRelayListChange = null
+                        state.container.relayListListener.onRelayListChange = { list, item ->
+                            this.trySend(Pair(list, item))
                         }
+
+                        awaitClose { state.container.relayListListener.onRelayListChange = null }
                     }
                 } else {
                     emptyFlow()
@@ -187,9 +186,7 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
             // Because this method is executed inside a layout pass, hiding the spinner needs to be
             // done in a new job so that it is executed after the layout pass finishes and can
             // therefore schedule a new layout
-            jobTracker.newUiJob("hideLoadingSpinner") {
-                spinner.visibility = View.GONE
-            }
+            jobTracker.newUiJob("hideLoadingSpinner") { spinner.visibility = View.GONE }
         }
 
         loadingSpinner.complete(spinner)
@@ -201,14 +198,15 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
         selectedItem: RelayItem?
     ) {
         val animationFinished = CompletableDeferred<Unit>()
-        val animationListener = object : AnimationListener {
-            override fun onAnimationEnd(animation: Animation) {
-                animationFinished.complete(Unit)
-            }
+        val animationListener =
+            object : AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    animationFinished.complete(Unit)
+                }
 
-            override fun onAnimationStart(animation: Animation) {}
-            override fun onAnimationRepeat(animation: Animation) {}
-        }
+                override fun onAnimationStart(animation: Animation) {}
+                override fun onAnimationRepeat(animation: Animation) {}
+            }
 
         val fadeOut =
             AnimationUtils.loadAnimation(requireMainActivity(), R.anim.fade_out).apply {

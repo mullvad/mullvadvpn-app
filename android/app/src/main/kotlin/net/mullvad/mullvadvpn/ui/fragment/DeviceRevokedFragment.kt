@@ -30,13 +30,14 @@ class DeviceRevokedFragment : Fragment() {
                 AppTheme {
                     val state = deviceRevokedViewModel.uiState.collectAsState().value
 
-                    val topColor = colorResource(
-                        if (state == DeviceRevokedUiState.SECURED) {
-                            R.color.green
-                        } else {
-                            R.color.red
-                        }
-                    )
+                    val topColor =
+                        colorResource(
+                            if (state == DeviceRevokedUiState.SECURED) {
+                                R.color.green
+                            } else {
+                                R.color.red
+                            }
+                        )
 
                     ScaffoldWithTopBar(
                         topBarColor = topColor,

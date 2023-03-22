@@ -19,11 +19,9 @@ import org.junit.Rule
 import org.junit.Test
 
 class ChangelogDialogTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @MockK
-    lateinit var mockedViewModel: ChangelogViewModel
+    @MockK lateinit var mockedViewModel: ChangelogViewModel
 
     @Before
     fun setup() {
@@ -33,34 +31,25 @@ class ChangelogDialogTest {
     @Test
     fun testShowChangeLogWhenNeeded() {
         // Arrange
-        every {
-            mockedViewModel.changelogDialogUiState
-        } returns MutableStateFlow(ChangelogDialogUiState.Show(listOf(CHANGELOG_ITEM)))
-        every {
-            mockedViewModel.dismissChangelogDialog()
-        } just Runs
+        every { mockedViewModel.changelogDialogUiState } returns
+            MutableStateFlow(ChangelogDialogUiState.Show(listOf(CHANGELOG_ITEM)))
+        every { mockedViewModel.dismissChangelogDialog() } just Runs
 
         composeTestRule.setContent {
             AppTheme {
                 ChangelogDialog(
                     changesList = listOf(CHANGELOG_ITEM),
                     version = CHANGELOG_VERSION,
-                    onDismiss = {
-                        mockedViewModel.dismissChangelogDialog()
-                    }
+                    onDismiss = { mockedViewModel.dismissChangelogDialog() }
                 )
             }
         }
 
         // Check changelog content showed within dialog
-        composeTestRule
-            .onNodeWithText(CHANGELOG_ITEM)
-            .assertExists()
+        composeTestRule.onNodeWithText(CHANGELOG_ITEM).assertExists()
 
         // perform click on Got It button to check if dismiss occur
-        composeTestRule
-            .onNodeWithText(CHANGELOG_BUTTON_TEXT)
-            .performClick()
+        composeTestRule.onNodeWithText(CHANGELOG_BUTTON_TEXT).performClick()
 
         // Assert
         verify { mockedViewModel.dismissChangelogDialog() }

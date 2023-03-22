@@ -8,17 +8,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 
 @Composable
-fun HtmlText(
-    htmlFormattedString: String,
-    textSize: Float,
-    modifier: Modifier = Modifier
-) {
+fun HtmlText(htmlFormattedString: String, textSize: Float, modifier: Modifier = Modifier) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            TextView(context).apply {
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
-            }
+            TextView(context).apply { setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize) }
         },
         update = {
             it.text = HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)

@@ -19,8 +19,7 @@ import org.junit.Test
 
 class ChangelogViewModelTest {
 
-    @MockK
-    private lateinit var mockedChangelogRepository: ChangelogRepository
+    @MockK private lateinit var mockedChangelogRepository: ChangelogRepository
 
     private lateinit var viewModel: ChangelogViewModel
 
@@ -28,9 +27,8 @@ class ChangelogViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
-        every {
-            mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(any())
-        } just Runs
+        every { mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(any()) } just
+            Runs
         viewModel = ChangelogViewModel(mockedChangelogRepository, 1, false)
     }
 
@@ -52,9 +50,8 @@ class ChangelogViewModelTest {
         viewModel.changelogDialogUiState.test {
             // Arrange
             val fakeList = listOf("test")
-            every {
-                mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed()
-            } returns -1
+            every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
+                -1
             every { mockedChangelogRepository.getLastVersionChanges() } returns fakeList
 
             // Assert initial ui state
@@ -76,9 +73,8 @@ class ChangelogViewModelTest {
         viewModel.changelogDialogUiState.test {
             // Arrange
             val fakeEmptyList = emptyList<String>()
-            every {
-                mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed()
-            } returns -1
+            every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
+                -1
             every { mockedChangelogRepository.getLastVersionChanges() } returns fakeEmptyList
 
             // Assert initial ui state

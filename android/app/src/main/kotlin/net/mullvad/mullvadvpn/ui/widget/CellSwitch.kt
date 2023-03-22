@@ -21,13 +21,14 @@ class CellSwitch : LinearLayout {
         OFF
     }
 
-    var state by observable(State.OFF) { _, oldState, newState ->
-        animateToState()
+    var state by
+        observable(State.OFF) { _, oldState, newState ->
+            animateToState()
 
-        if (oldState != newState) {
-            listener?.invoke(newState)
+            if (oldState != newState) {
+                listener?.invoke(newState)
+            }
         }
-    }
 
     var listener: ((State) -> Unit)? = null
 
@@ -35,19 +36,18 @@ class CellSwitch : LinearLayout {
     private val offColor = context.getColor(R.color.red)
 
     private val knobSize = resources.getDimensionPixelSize(R.dimen.cell_switch_knob_size)
-    private val knobImage = ShapeDrawable(OvalShape()).apply {
-        paint.apply {
-            color = offColor
-            style = Style.FILL
+    private val knobImage =
+        ShapeDrawable(OvalShape()).apply {
+            paint.apply {
+                color = offColor
+                style = Style.FILL
+            }
+
+            intrinsicWidth = knobSize
+            intrinsicHeight = knobSize
         }
 
-        intrinsicWidth = knobSize
-        intrinsicHeight = knobSize
-    }
-
-    private val knobView = ImageView(context).apply {
-        setImageDrawable(knobImage)
-    }
+    private val knobView = ImageView(context).apply { setImageDrawable(knobImage) }
 
     private val knobAnimationDuration = 200L
     private val knobMaxTranslation =
@@ -58,98 +58,101 @@ class CellSwitch : LinearLayout {
 
     private var animationIsReversed = false
 
-    private val positionAnimation = ValueAnimator.ofFloat(0f, knobMaxTranslation).apply {
-        addUpdateListener { animation ->
-            knobView.translationX = animation.animatedValue as Float
-        }
-
-        duration = knobAnimationDuration
-    }
-
-    private val colorAnimation = ValueAnimator.ofArgb(offColor, onColor).apply {
-        addUpdateListener { animation ->
-            knobImage.paint.color = animation.animatedValue as Int
-            knobImage.invalidateSelf()
-        }
-
-        duration = knobAnimationDuration
-    }
-
-    private val gestureListener = object : OnGestureListener {
-        private var isScrolling: Boolean = false
-        private var scrollPosition: Float = 0f
-
-        override fun onDown(event: MotionEvent): Boolean {
-            scrollPosition = knobView.translationX
-            return true
-        }
-
-        override fun onFling(
-            downEvent: MotionEvent,
-            upEvent: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            if (velocityX > 0f) {
-                state = State.ON
-            } else if (velocityX < 0f) {
-                state = State.OFF
+    private val positionAnimation =
+        ValueAnimator.ofFloat(0f, knobMaxTranslation).apply {
+            addUpdateListener { animation ->
+                knobView.translationX = animation.animatedValue as Float
             }
 
-            return true
+            duration = knobAnimationDuration
         }
 
-        override fun onLongPress(event: MotionEvent) {}
-
-        override fun onScroll(
-            downEvent: MotionEvent,
-            moveEvent: MotionEvent,
-            distanceX: Float,
-            distanceY: Float
-        ): Boolean {
-            isScrolling = true
-            scrollPosition -= distanceX
-
-            var fraction = scrollPosition / knobMaxTranslation
-            val playTime = (fraction * knobAnimationDuration).toLong()
-
-            colorAnimation.pause()
-            positionAnimation.pause()
-
-            colorAnimation.currentPlayTime = playTime
-            positionAnimation.currentPlayTime = playTime
-
-            return true
-        }
-
-        override fun onShowPress(event: MotionEvent) {}
-
-        override fun onSingleTapUp(event: MotionEvent): Boolean {
-            when (state) {
-                State.ON -> state = State.OFF
-                State.OFF -> state = State.ON
+    private val colorAnimation =
+        ValueAnimator.ofArgb(offColor, onColor).apply {
+            addUpdateListener { animation ->
+                knobImage.paint.color = animation.animatedValue as Int
+                knobImage.invalidateSelf()
             }
 
-            return true
+            duration = knobAnimationDuration
         }
 
-        fun onUp(): Boolean {
-            if (!isScrolling) {
-                return false
+    private val gestureListener =
+        object : OnGestureListener {
+            private var isScrolling: Boolean = false
+            private var scrollPosition: Float = 0f
+
+            override fun onDown(event: MotionEvent): Boolean {
+                scrollPosition = knobView.translationX
+                return true
             }
 
-            if (knobPosition <= 0.5f) {
-                state = State.OFF
-            } else {
-                state = State.ON
+            override fun onFling(
+                downEvent: MotionEvent,
+                upEvent: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (velocityX > 0f) {
+                    state = State.ON
+                } else if (velocityX < 0f) {
+                    state = State.OFF
+                }
+
+                return true
             }
 
-            isScrolling = false
-            scrollPosition = 0f
+            override fun onLongPress(event: MotionEvent) {}
 
-            return true
+            override fun onScroll(
+                downEvent: MotionEvent,
+                moveEvent: MotionEvent,
+                distanceX: Float,
+                distanceY: Float
+            ): Boolean {
+                isScrolling = true
+                scrollPosition -= distanceX
+
+                var fraction = scrollPosition / knobMaxTranslation
+                val playTime = (fraction * knobAnimationDuration).toLong()
+
+                colorAnimation.pause()
+                positionAnimation.pause()
+
+                colorAnimation.currentPlayTime = playTime
+                positionAnimation.currentPlayTime = playTime
+
+                return true
+            }
+
+            override fun onShowPress(event: MotionEvent) {}
+
+            override fun onSingleTapUp(event: MotionEvent): Boolean {
+                when (state) {
+                    State.ON -> state = State.OFF
+                    State.OFF -> state = State.ON
+                }
+
+                return true
+            }
+
+            fun onUp(): Boolean {
+                if (!isScrolling) {
+                    return false
+                }
+
+                if (knobPosition <= 0.5f) {
+                    state = State.OFF
+                } else {
+                    state = State.ON
+                }
+
+                isScrolling = false
+                scrollPosition = 0f
+
+                return true
+            }
         }
-    }
 
     private val gestureDetector = GestureDetector(context, gestureListener)
 
@@ -157,8 +160,11 @@ class CellSwitch : LinearLayout {
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute)
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int
+    ) : super(context, attributes, defaultStyleAttribute)
 
     init {
         setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))

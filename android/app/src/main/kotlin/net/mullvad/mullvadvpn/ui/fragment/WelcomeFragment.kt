@@ -49,8 +49,7 @@ class WelcomeFragment : BaseFragment() {
     private lateinit var headerBar: HeaderBar
     private lateinit var sitePaymentButton: SitePaymentButton
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,13 +63,15 @@ class WelcomeFragment : BaseFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.welcome, container, false)
 
-        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = TunnelState.Disconnected
-        }
+        headerBar =
+            view.findViewById<HeaderBar>(R.id.header_bar).apply {
+                tunnelState = TunnelState.Disconnected
+            }
 
-        accountLabel = view.findViewById<TextView>(R.id.account_number).apply {
-            setOnClickListener { copyAccountTokenToClipboard() }
-        }
+        accountLabel =
+            view.findViewById<TextView>(R.id.account_number).apply {
+                setOnClickListener { copyAccountTokenToClipboard() }
+            }
 
         view.findViewById<TextView>(R.id.pay_to_start_using).text = buildString {
             append(requireActivity().getString(R.string.pay_to_start_using))
@@ -78,17 +79,18 @@ class WelcomeFragment : BaseFragment() {
             append(requireActivity().getString(R.string.add_time_to_account))
         }
 
-        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-            newAccount = true
+        sitePaymentButton =
+            view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+                newAccount = true
 
-            setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                setEnabled(false)
-                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                    context.openAccountPageInBrowser(token)
+                setOnClickAction("openAccountPageInBrowser", jobTracker) {
+                    setEnabled(false)
+                    serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                        context.openAccountPageInBrowser(token)
+                    }
+                    setEnabled(true)
                 }
-                setEnabled(true)
             }
-        }
 
         view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
             prepare(parentFragmentManager, jobTracker)
@@ -114,15 +116,11 @@ class WelcomeFragment : BaseFragment() {
     private fun CoroutineScope.launchUpdateAccountNumberOnDeviceChanges() = launch {
         deviceRepository.deviceState
             .debounce { it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS) }
-            .collect { state ->
-                updateAccountNumber(state.token())
-            }
+            .collect { state -> updateAccountNumber(state.token()) }
     }
 
     private fun CoroutineScope.launchAdvanceToConnectViewOnExpiryExtended() = launch {
-        accountRepository.accountExpiryState.collect {
-            checkExpiry(it.date())
-        }
+        accountRepository.accountExpiryState.collect { checkExpiry(it.date()) }
     }
 
     private fun CoroutineScope.launchExpiryPolling() = launch {
@@ -136,9 +134,7 @@ class WelcomeFragment : BaseFragment() {
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
                 if (state is ServiceConnectionState.ConnectedReady) {
-                    callbackFlowFromNotifier(
-                        state.container.connectionProxy.onStateChange
-                    )
+                    callbackFlowFromNotifier(state.container.connectionProxy.onStateChange)
                 } else {
                     emptyFlow()
                 }
@@ -152,9 +148,7 @@ class WelcomeFragment : BaseFragment() {
     }
 
     private fun updateAccountNumber(rawAccountNumber: String?) {
-        val accountText = rawAccountNumber?.let { account ->
-            addSpacesToAccountText(account)
-        }
+        val accountText = rawAccountNumber?.let { account -> addSpacesToAccountText(account) }
 
         accountLabel.text = accountText ?: ""
         accountLabel.setEnabled(accountText != null && accountText.length > 0)
@@ -168,12 +162,13 @@ class WelcomeFragment : BaseFragment() {
         } else {
             val numParts = (length - 1) / 4 + 1
 
-            val parts = Array(numParts) { index ->
-                val startIndex = index * 4
-                val endIndex = minOf(startIndex + 4, length)
+            val parts =
+                Array(numParts) { index ->
+                    val startIndex = index * 4
+                    val endIndex = minOf(startIndex + 4, length)
 
-                account.substring(startIndex, endIndex)
-            }
+                    account.substring(startIndex, endIndex)
+                }
 
             return parts.joinToString(" ")
         }

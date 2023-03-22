@@ -33,9 +33,7 @@ class ConfirmNoEmailDialogFragment : DialogFragment() {
     ): View {
         val view = inflater.inflate(R.layout.confirm_no_email, container, false)
 
-        view.findViewById<Button>(R.id.back_button).setOnClickListener {
-            activity?.onBackPressed()
-        }
+        view.findViewById<Button>(R.id.back_button).setOnClickListener { activity?.onBackPressed() }
 
         view.findViewById<Button>(R.id.send_button).setOnClickListener {
             confirmNoEmail?.complete(true)

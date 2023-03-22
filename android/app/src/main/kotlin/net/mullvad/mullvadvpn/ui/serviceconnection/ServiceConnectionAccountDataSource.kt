@@ -12,9 +12,7 @@ class ServiceConnectionAccountDataSource(
     private val dispatcher: EventDispatcher
 ) {
     val accountCreationResult = callbackFlow {
-        val handler: (Event.AccountCreationEvent) -> Unit = { event ->
-            trySend(event.result)
-        }
+        val handler: (Event.AccountCreationEvent) -> Unit = { event -> trySend(event.result) }
         dispatcher.registerHandler(Event.AccountCreationEvent::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
@@ -22,9 +20,7 @@ class ServiceConnectionAccountDataSource(
     }
 
     val accountExpiry = callbackFlow {
-        val handler: (Event.AccountExpiryEvent) -> Unit = { event ->
-            trySend(event.expiry)
-        }
+        val handler: (Event.AccountExpiryEvent) -> Unit = { event -> trySend(event.expiry) }
         dispatcher.registerHandler(Event.AccountExpiryEvent::class, handler)
         connection.send(Request.FetchAccountExpiry.message)
         awaitClose {
@@ -33,9 +29,7 @@ class ServiceConnectionAccountDataSource(
     }
 
     val accountHistory = callbackFlow {
-        val handler: (Event.AccountHistoryEvent) -> Unit = { event ->
-            trySend(event.history)
-        }
+        val handler: (Event.AccountHistoryEvent) -> Unit = { event -> trySend(event.history) }
         dispatcher.registerHandler(Event.AccountHistoryEvent::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.
@@ -43,9 +37,7 @@ class ServiceConnectionAccountDataSource(
     }
 
     val loginEvents = callbackFlow {
-        val handler: (Event.LoginEvent) -> Unit = { event ->
-            trySend(event)
-        }
+        val handler: (Event.LoginEvent) -> Unit = { event -> trySend(event) }
         dispatcher.registerHandler(Event.LoginEvent::class, handler)
         awaitClose {
             // The current dispatcher doesn't support unregistration of handlers.

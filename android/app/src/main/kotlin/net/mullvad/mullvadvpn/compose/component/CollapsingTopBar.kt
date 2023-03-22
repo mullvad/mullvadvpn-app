@@ -63,34 +63,24 @@ fun CollapsingTopBar(
     val minTitleSize = 20
 
     Spacer(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(expandedToolbarHeight)
-            .background(backgroundColor)
+        modifier = Modifier.fillMaxWidth().height(expandedToolbarHeight).background(backgroundColor)
     )
 
     Button(
-        modifier = Modifier
-            .wrapContentWidth()
-            .wrapContentHeight(),
+        modifier = Modifier.wrapContentWidth().wrapContentHeight(),
         onClick = onBackClicked,
-        colors = ButtonDefaults.buttonColors(
-            contentColor = Color.White,
-            backgroundColor = MullvadDarkBlue
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+                backgroundColor = MullvadDarkBlue
+            )
     ) {
         Image(
             painter = painterResource(id = R.drawable.icon_back),
             contentDescription = stringResource(id = R.string.back),
-            modifier = Modifier
-                .width(iconSize)
-                .height(iconSize)
+            modifier = Modifier.width(iconSize).height(iconSize)
         )
-        Spacer(
-            modifier = Modifier
-                .width(iconPadding)
-                .fillMaxHeight()
-        )
+        Spacer(modifier = Modifier.width(iconPadding).fillMaxHeight())
         Text(
             text = backTitle,
             color = MullvadWhite60,
@@ -101,23 +91,22 @@ fun CollapsingTopBar(
 
     Text(
         text = title,
-        style = TextStyle(
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.End
-        ),
-        modifier = modifier
-            .padding(
+        style =
+            TextStyle(color = Color.White, fontWeight = FontWeight.Bold, textAlign = TextAlign.End),
+        modifier =
+            modifier.padding(
                 start = sideMargin,
                 end = sideMargin,
                 top = (minTopPadding + (maxTopPadding - minTopPadding) * progress).dp,
                 bottom = verticalMargin
             ),
-        fontSize = topBarSize(
-            progress = progress,
-            minTitleSize = minTitleSize,
-            maxTitleSize = maxTitleSize
-        ).sp
+        fontSize =
+            topBarSize(
+                    progress = progress,
+                    minTitleSize = minTitleSize,
+                    maxTitleSize = maxTitleSize
+                )
+                .sp
     )
 }
 

@@ -12,11 +12,12 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
     private val activeNotifications = PriorityQueue(notificationPrioritizer)
     private val notifications = HashMap<InAppNotification, Int>()
 
-    var current by observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
-        if (oldNotification != newNotification) {
-            onNotificationChanged.invoke(newNotification)
+    var current by
+        observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
+            if (oldNotification != newNotification) {
+                onNotificationChanged.invoke(newNotification)
+            }
         }
-    }
 
     fun register(notification: InAppNotification) {
         notification.controller = this

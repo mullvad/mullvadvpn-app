@@ -110,10 +110,11 @@ class LocationInfo(
         if (endpoint != null) {
             val host = endpoint.address.address.hostAddress
             val port = endpoint.address.port
-            val protocol = when (endpoint.protocol) {
-                TransportProtocol.Tcp -> context.getString(R.string.tcp)
-                TransportProtocol.Udp -> context.getString(R.string.udp)
-            }
+            val protocol =
+                when (endpoint.protocol) {
+                    TransportProtocol.Tcp -> context.getString(R.string.tcp)
+                    TransportProtocol.Udp -> context.getString(R.string.udp)
+                }
 
             inAddress.text = context.getString(R.string.in_address) + "  $host:$port $protocol"
         } else {

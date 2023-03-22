@@ -37,48 +37,36 @@ fun BaseCell(
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .background(background)
-    ) {
-
+    Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .height(cellHeight)
-                .fillMaxWidth()
-                .clickable { onCellClicked.invoke() }
-                .padding(start = startPadding, end = endPadding)
-
+            modifier =
+                Modifier.height(cellHeight)
+                    .fillMaxWidth()
+                    .clickable { onCellClicked.invoke() }
+                    .padding(start = startPadding, end = endPadding)
         ) {
             title()
 
             Spacer(modifier = Modifier.weight(1.0f))
 
-            Column(
-                modifier = modifier
-                    .wrapContentWidth()
-                    .wrapContentHeight()
-            ) {
-                bodyView()
-            }
+            Column(modifier = modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
         }
 
         if (subtitle != null) {
             Row(
-                modifier = subtitleModifier
-                    .background(MullvadDarkBlue)
-                    .padding(
-                        start = startPadding,
-                        top = subtitleVerticalSpacing,
-                        end = endPadding,
-                        bottom = cellVerticalSpacing
-                    )
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                modifier =
+                    subtitleModifier
+                        .background(MullvadDarkBlue)
+                        .padding(
+                            start = startPadding,
+                            top = subtitleVerticalSpacing,
+                            end = endPadding,
+                            bottom = cellVerticalSpacing
+                        )
+                        .fillMaxWidth()
+                        .wrapContentHeight()
             ) {
                 subtitle()
             }

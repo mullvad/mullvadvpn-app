@@ -28,14 +28,11 @@ import org.junit.Test
 
 class LoginViewModelTest {
 
-    @MockK
-    private lateinit var mockedAccountRepository: AccountRepository
+    @MockK private lateinit var mockedAccountRepository: AccountRepository
 
-    @MockK
-    private lateinit var mockedDeviceRepository: DeviceRepository
+    @MockK private lateinit var mockedDeviceRepository: DeviceRepository
 
-    @MockK
-    private lateinit var mockedServiceConnectionContainer: ServiceConnectionContainer
+    @MockK private lateinit var mockedServiceConnectionContainer: ServiceConnectionContainer
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -58,11 +55,12 @@ class LoginViewModelTest {
         serviceConnectionState.value =
             ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
 
-        loginViewModel = LoginViewModel(
-            mockedAccountRepository,
-            mockedDeviceRepository,
-            TestCoroutineDispatcher()
-        )
+        loginViewModel =
+            LoginViewModel(
+                mockedAccountRepository,
+                mockedDeviceRepository,
+                TestCoroutineDispatcher()
+            )
     }
 
     @Test
@@ -109,15 +107,8 @@ class LoginViewModelTest {
     @Test
     fun testLoginWithTooManyDevicesError() = runBlockingTest {
         coEvery {
-            mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns DeviceListEvent.Available(
-            DUMMY_ACCOUNT_TOKEN, listOf()
-        )
+            mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(any(), any(), any(), any())
+        } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
 
         loginViewModel.uiState.test {
             skipDefaultItem()
@@ -125,7 +116,8 @@ class LoginViewModelTest {
             assertEquals(LoginViewModel.LoginUiState.Loading, awaitItem())
             loginTestEvents.emit(Event.LoginEvent(LoginResult.MaxDevicesReached))
             assertEquals(
-                LoginViewModel.LoginUiState.TooManyDevicesError(DUMMY_ACCOUNT_TOKEN), awaitItem()
+                LoginViewModel.LoginUiState.TooManyDevicesError(DUMMY_ACCOUNT_TOKEN),
+                awaitItem()
             )
         }
     }

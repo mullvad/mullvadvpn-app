@@ -7,9 +7,7 @@ private const val EXPIRY_FORMAT = "YYYY-MM-dd HH:mm:ss z"
 
 fun String.capitalizeFirstCharOfEachWord(): String {
     return split(" ")
-        .joinToString(" ") { word ->
-            word.replaceFirstChar { firstChar -> firstChar.uppercase() }
-        }
+        .joinToString(" ") { word -> word.replaceFirstChar { firstChar -> firstChar.uppercase() } }
         .trimEnd()
 }
 

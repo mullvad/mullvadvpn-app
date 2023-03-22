@@ -11,10 +11,8 @@ sealed class CreateTunResult {
             get() = true
     }
 
-    class InvalidDnsServers(
-        val addresses: ArrayList<InetAddress>,
-        val tunFd: Int
-    ) : CreateTunResult() {
+    class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) :
+        CreateTunResult() {
         override val isOpen
             get() = true
     }

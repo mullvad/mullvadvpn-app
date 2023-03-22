@@ -33,9 +33,7 @@ class ViewLogsFragment : BaseFragment() {
     ): View {
         val view = inflater.inflate(R.layout.view_logs, container, false)
 
-        view.findViewById<View>(R.id.back).setOnClickListener {
-            activity?.onBackPressed()
-        }
+        view.findViewById<View>(R.id.back).setOnClickListener { activity?.onBackPressed() }
 
         logArea = view.findViewById<EditText>(R.id.log_area)
 
@@ -46,9 +44,7 @@ class ViewLogsFragment : BaseFragment() {
         super.onStart()
 
         jobTracker.newUiJob("showLogs") {
-            val logs = jobTracker.runOnBackground {
-                problemReport.load()
-            }
+            val logs = jobTracker.runOnBackground { problemReport.load() }
 
             logArea.setText(logs)
         }

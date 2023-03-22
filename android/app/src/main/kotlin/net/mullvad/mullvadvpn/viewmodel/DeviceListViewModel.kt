@@ -41,34 +41,35 @@ class DeviceListViewModel(
     var accountToken: String? = null
     private var cachedDeviceList: List<Device>? = null
 
-    val uiState = combine(
-        deviceRepository.deviceList,
-        _stagedDeviceId,
-        _loadingDevices
-    ) { deviceList, stagedDeviceId, loadingDevices ->
-        val devices = if (deviceList is DeviceList.Available) {
-            deviceList.devices.also { cachedDeviceList = it }
-        } else {
-            cachedDeviceList
-        }
-        val deviceUiItems = devices?.sortedBy { it.creationDate }?.map { device ->
-            DeviceListItemUiState(
-                device,
-                loadingDevices.any { loadingDevice ->
-                    device.id == loadingDevice
-                }
-            )
-        }
-        val isLoading = devices == null
-        val stagedDevice = devices?.firstOrNull { device ->
-            device.id == stagedDeviceId
-        }
-        DeviceListUiState(
-            deviceUiItems = deviceUiItems ?: emptyList(),
-            isLoading = isLoading,
-            stagedDevice = stagedDevice
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
+    val uiState =
+        combine(deviceRepository.deviceList, _stagedDeviceId, _loadingDevices) {
+                deviceList,
+                stagedDeviceId,
+                loadingDevices ->
+                val devices =
+                    if (deviceList is DeviceList.Available) {
+                        deviceList.devices.also { cachedDeviceList = it }
+                    } else {
+                        cachedDeviceList
+                    }
+                val deviceUiItems =
+                    devices
+                        ?.sortedBy { it.creationDate }
+                        ?.map { device ->
+                            DeviceListItemUiState(
+                                device,
+                                loadingDevices.any { loadingDevice -> device.id == loadingDevice }
+                            )
+                        }
+                val isLoading = devices == null
+                val stagedDevice = devices?.firstOrNull { device -> device.id == stagedDeviceId }
+                DeviceListUiState(
+                    deviceUiItems = deviceUiItems ?: emptyList(),
+                    isLoading = isLoading,
+                    stagedDevice = stagedDevice
+                )
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
 
     fun stageDeviceForRemoval(deviceId: DeviceId) {
         _stagedDeviceId.value = deviceId
@@ -85,18 +86,19 @@ class DeviceListViewModel(
         if (token != null && stagedDeviceId != null) {
             viewModelScope.launch {
                 withContext(dispatcher) {
-                    val result = withTimeoutOrNull(DEVICE_REMOVAL_TIMEOUT_MILLIS) {
-                        deviceRepository.deviceRemovalEvent
-                            .onSubscription {
-                                clearStagedDevice()
-                                setLoadingDevice(stagedDeviceId)
-                                deviceRepository.removeDevice(token, stagedDeviceId)
-                            }
-                            .filter { (deviceId, result) ->
-                                deviceId == stagedDeviceId && result == RemoveDeviceResult.Ok
-                            }
-                            .first()
-                    }
+                    val result =
+                        withTimeoutOrNull(DEVICE_REMOVAL_TIMEOUT_MILLIS) {
+                            deviceRepository.deviceRemovalEvent
+                                .onSubscription {
+                                    clearStagedDevice()
+                                    setLoadingDevice(stagedDeviceId)
+                                    deviceRepository.removeDevice(token, stagedDeviceId)
+                                }
+                                .filter { (deviceId, result) ->
+                                    deviceId == stagedDeviceId && result == RemoveDeviceResult.Ok
+                                }
+                                .first()
+                        }
 
                     clearLoadingDevice(stagedDeviceId)
 
@@ -118,9 +120,8 @@ class DeviceListViewModel(
 
     fun refreshDeviceState() = deviceRepository.refreshDeviceState()
 
-    fun refreshDeviceList() = accountToken?.let { token ->
-        deviceRepository.refreshDeviceList(token)
-    }
+    fun refreshDeviceList() =
+        accountToken?.let { token -> deviceRepository.refreshDeviceList(token) }
 
     private fun setLoadingDevice(deviceId: DeviceId) {
         _loadingDevices.value = _loadingDevices.value.toMutableList().apply { add(deviceId) }

@@ -24,28 +24,25 @@ class SettingsRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    val settingsUpdates: StateFlow<Settings?> = serviceConnectionManager.connectionState
-        .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-            callbackFlowFromNotifier(state.container.settingsListener.settingsNotifier)
-        }
-        .onStart { serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent }
-        .stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            null
-        )
+    val settingsUpdates: StateFlow<Settings?> =
+        serviceConnectionManager.connectionState
+            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
+                callbackFlowFromNotifier(state.container.settingsListener.settingsNotifier)
+            }
+            .onStart { serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
 
-    fun setDnsOptions(
-        isCustomDnsEnabled: Boolean,
-        dnsList: List<InetAddress>
-    ) {
-        serviceConnectionManager.customDns()?.setDnsOptions(
-            dnsOptions = DnsOptions(
-                state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
-                customOptions = CustomDnsOptions(ArrayList(dnsList)),
-                defaultOptions = DefaultDnsOptions()
+    fun setDnsOptions(isCustomDnsEnabled: Boolean, dnsList: List<InetAddress>) {
+        serviceConnectionManager
+            .customDns()
+            ?.setDnsOptions(
+                dnsOptions =
+                    DnsOptions(
+                        state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
+                        customOptions = CustomDnsOptions(ArrayList(dnsList)),
+                        defaultOptions = DefaultDnsOptions()
+                    )
             )
-        )
     }
 
     fun isLocalNetworkSharingEnabled(): Boolean {

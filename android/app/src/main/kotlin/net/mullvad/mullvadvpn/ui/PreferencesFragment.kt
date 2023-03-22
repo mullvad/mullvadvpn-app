@@ -34,8 +34,7 @@ class PreferencesFragment : BaseFragment() {
     private lateinit var autoConnectToggle: ToggleCell
     private lateinit var titleController: CollapsibleTitleController
 
-    @Deprecated("Refactor code to instead rely on Lifecycle.")
-    private val jobTracker = JobTracker()
+    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,23 +52,27 @@ class PreferencesFragment : BaseFragment() {
             requireMainActivity().onBackPressed()
         }
 
-        allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
-            listener = { state ->
-                serviceConnectionManager.settingsListener()?.allowLan = when (state) {
-                    CellSwitch.State.ON -> true
-                    else -> false
+        allowLanToggle =
+            view.findViewById<ToggleCell>(R.id.allow_lan).apply {
+                listener = { state ->
+                    serviceConnectionManager.settingsListener()?.allowLan =
+                        when (state) {
+                            CellSwitch.State.ON -> true
+                            else -> false
+                        }
                 }
             }
-        }
 
-        autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
-            listener = { state ->
-                serviceConnectionManager.settingsListener()?.autoConnect = when (state) {
-                    CellSwitch.State.ON -> true
-                    else -> false
+        autoConnectToggle =
+            view.findViewById<ToggleCell>(R.id.auto_connect).apply {
+                listener = { state ->
+                    serviceConnectionManager.settingsListener()?.autoConnect =
+                        when (state) {
+                            CellSwitch.State.ON -> true
+                            else -> false
+                        }
                 }
             }
-        }
 
         titleController = CollapsibleTitleController(view)
 
@@ -82,9 +85,7 @@ class PreferencesFragment : BaseFragment() {
     }
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
-        repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            launchSettingsSubscription()
-        }
+        repeatOnLifecycle(Lifecycle.State.RESUMED) { launchSettingsSubscription() }
     }
 
     private fun CoroutineScope.launchSettingsSubscription() = launch {
@@ -96,9 +97,7 @@ class PreferencesFragment : BaseFragment() {
                     emptyFlow()
                 }
             }
-            .flatMapLatest {
-                callbackFlowFromNotifier(it.settingsListener.settingsNotifier)
-            }
+            .flatMapLatest { callbackFlowFromNotifier(it.settingsListener.settingsNotifier) }
             .collect { settings ->
                 if (settings != null) {
                     updateUi(settings)

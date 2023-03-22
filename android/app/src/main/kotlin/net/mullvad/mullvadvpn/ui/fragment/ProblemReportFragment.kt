@@ -28,15 +28,16 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class ProblemReportFragment : BaseFragment() {
     private val jobTracker = JobTracker()
 
-    private var showingEmail by observable(false) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            if (newValue == true) {
-                parentActivity.enterSecureScreen(this)
-            } else {
-                parentActivity.leaveSecureScreen(this)
+    private var showingEmail by
+        observable(false) { _, oldValue, newValue ->
+            if (oldValue != newValue) {
+                if (newValue == true) {
+                    parentActivity.enterSecureScreen(this)
+                } else {
+                    parentActivity.leaveSecureScreen(this)
+                }
             }
         }
-    }
 
     private lateinit var parentActivity: MainActivity
     private lateinit var problemReport: MullvadProblemReport
@@ -76,9 +77,7 @@ class ProblemReportFragment : BaseFragment() {
     ): View {
         val view = inflater.inflate(R.layout.problem_report, container, false)
 
-        view.findViewById<View>(R.id.back).setOnClickListener {
-            activity?.onBackPressed()
-        }
+        view.findViewById<View>(R.id.back).setOnClickListener { activity?.onBackPressed() }
 
         bodyContainer = view.findViewById<ViewSwitcher>(R.id.body_container)
         userEmailInput = view.findViewById<EditText>(R.id.user_email)
@@ -96,24 +95,14 @@ class ProblemReportFragment : BaseFragment() {
         editMessageButton = view.findViewById<Button>(R.id.edit_message_button)
         tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
 
-        view.findViewById<Button>(R.id.view_logs).setOnClickListener {
-            showLogs()
-        }
+        view.findViewById<Button>(R.id.view_logs).setOnClickListener { showLogs() }
 
-        sendButton.setOnClickListener {
-            jobTracker.newUiJob("sendReport") {
-                sendReport(true)
-            }
-        }
+        sendButton.setOnClickListener { jobTracker.newUiJob("sendReport") { sendReport(true) } }
 
-        editMessageButton.setOnClickListener {
-            showForm()
-        }
+        editMessageButton.setOnClickListener { showForm() }
 
         tryAgainButton.setOnClickListener {
-            jobTracker.newUiJob("sendReport") {
-                sendReport(false)
-            }
+            jobTracker.newUiJob("sendReport") { sendReport(false) }
         }
 
         userEmailInput.setText(problemReport.userEmail)
@@ -244,9 +233,10 @@ class ProblemReportFragment : BaseFragment() {
 
         val colorStyle = ForegroundColorSpan(parentActivity.getColor(R.color.green))
 
-        sendDetailsLabel.text = SpannableStringBuilder("$thanks $weWillLookIntoThis").apply {
-            setSpan(colorStyle, 0, thanks.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        sendDetailsLabel.text =
+            SpannableStringBuilder("$thanks $weWillLookIntoThis").apply {
+                setSpan(colorStyle, 0, thanks.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
 
         sendDetailsLabel.visibility = View.VISIBLE
     }
@@ -262,10 +252,11 @@ class ProblemReportFragment : BaseFragment() {
         val boldStyle = StyleSpan(Typeface.BOLD)
         val colorStyle = ForegroundColorSpan(parentActivity.getColor(R.color.white))
 
-        responseMessageLabel.text = SpannableStringBuilder(responseMessage).apply {
-            setSpan(boldStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(colorStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        responseMessageLabel.text =
+            SpannableStringBuilder(responseMessage).apply {
+                setSpan(boldStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(colorStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
 
         responseMessageLabel.visibility = View.VISIBLE
 

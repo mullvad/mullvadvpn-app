@@ -24,10 +24,7 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewTopBar() {
-    TopBar(
-        backgroundColor = colorResource(R.color.blue),
-        onSettingsClicked = {}
-    )
+    TopBar(backgroundColor = colorResource(R.color.blue), onSettingsClicked = {})
 }
 
 @Composable
@@ -38,11 +35,11 @@ fun TopBar(
     isIconAndLogoVisible: Boolean = true
 ) {
     ConstraintLayout(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(dimensionResource(id = R.dimen.top_bar_height))
-            .background(backgroundColor)
-            .then(modifier),
+        modifier =
+            Modifier.fillMaxWidth()
+                .height(dimensionResource(id = R.dimen.top_bar_height))
+                .background(backgroundColor)
+                .then(modifier),
     ) {
         val (logo, appName, settingsIcon) = createRefs()
 
@@ -50,10 +47,8 @@ fun TopBar(
             Image(
                 painter = painterResource(id = R.drawable.logo_icon),
                 contentDescription = null, // No meaningful user info or action.
-                modifier = Modifier
-                    .width(44.dp)
-                    .height(44.dp)
-                    .constrainAs(logo) {
+                modifier =
+                    Modifier.width(44.dp).height(44.dp).constrainAs(logo) {
                         centerVerticallyTo(parent)
                         start.linkTo(parent.start, margin = 16.dp)
                     }
@@ -63,9 +58,8 @@ fun TopBar(
                 painter = painterResource(id = R.drawable.logo_text),
                 tint = colorResource(id = R.color.white80),
                 contentDescription = null, // No meaningful user info or action.
-                modifier = Modifier
-                    .height(16.dp)
-                    .constrainAs(appName) {
+                modifier =
+                    Modifier.height(16.dp).constrainAs(appName) {
                         centerVerticallyTo(parent)
                         start.linkTo(logo.end, margin = 8.dp)
                     }
@@ -76,13 +70,11 @@ fun TopBar(
             Image(
                 painter = painterResource(R.drawable.icon_settings),
                 contentDescription = stringResource(id = R.string.settings),
-                modifier = Modifier
-                    .clickable { onSettingsClicked() }
-                    .fillMaxHeight()
-                    .padding(horizontal = 16.dp)
-                    .constrainAs(settingsIcon) {
-                        end.linkTo(parent.end)
-                    }
+                modifier =
+                    Modifier.clickable { onSettingsClicked() }
+                        .fillMaxHeight()
+                        .padding(horizontal = 16.dp)
+                        .constrainAs(settingsIcon) { end.linkTo(parent.end) }
             )
         }
     }

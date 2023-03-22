@@ -16,22 +16,17 @@ private constructor(
     val action: ItemAction? = null
 ) {
 
-    @Retention
-    @IntDef(DIVIDER, PLAIN, ACTION)
-    annotation class ItemType
+    @Retention @IntDef(DIVIDER, PLAIN, ACTION) annotation class ItemType
 
     class Builder(private val identifier: String) {
         var text: String? = null
 
-        @StringRes
-        var textRes: Int? = null
+        @StringRes var textRes: Int? = null
 
-        @DrawableRes
-        var iconRes: Int? = null
+        @DrawableRes var iconRes: Int? = null
         var isSelected: Boolean = false
 
-        @ItemType
-        var type: Int = 0
+        @ItemType var type: Int = 0
         var widget: WidgetState? = null
         var action: ItemAction? = null
 
@@ -40,8 +35,14 @@ private constructor(
                 throw IllegalArgumentException("ListItem should be configured with text")
 
             return ListItemData(
-                this.identifier, this.text, this.textRes, this.iconRes,
-                this.isSelected, this.type, this.widget, this.action
+                this.identifier,
+                this.text,
+                this.textRes,
+                this.iconRes,
+                this.isSelected,
+                this.type,
+                this.widget,
+                this.action
             )
         }
     }

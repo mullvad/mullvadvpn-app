@@ -30,11 +30,9 @@ import org.junit.Test
 
 class DeviceRevokedViewModelTest {
 
-    @MockK
-    private lateinit var mockedAccountRepository: AccountRepository
+    @MockK private lateinit var mockedAccountRepository: AccountRepository
 
-    @MockK
-    private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
+    @MockK private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
 
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
@@ -46,11 +44,12 @@ class DeviceRevokedViewModelTest {
         MockKAnnotations.init(this)
         mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
         every { mockedServiceConnectionManager.connectionState } returns serviceConnectionState
-        viewModel = DeviceRevokedViewModel(
-            mockedServiceConnectionManager,
-            mockedAccountRepository,
-            TestCoroutineDispatcher()
-        )
+        viewModel =
+            DeviceRevokedViewModel(
+                mockedServiceConnectionManager,
+                mockedAccountRepository,
+                TestCoroutineDispatcher()
+            )
     }
 
     @After
@@ -79,17 +78,19 @@ class DeviceRevokedViewModelTest {
     @Test
     fun testUiStateWhenServiceConnectedAndReady() = runBlockingTest {
         // Arrange
-        val mockedContainer = mockk<ServiceConnectionContainer>().apply {
-            val eventNotifierMock = mockk<EventNotifier<TunnelState>>().apply {
-                every { callbackFlowFromSubscription(any()) } returns MutableStateFlow(
-                    TunnelState.Connected(mockk(), mockk())
-                )
+        val mockedContainer =
+            mockk<ServiceConnectionContainer>().apply {
+                val eventNotifierMock =
+                    mockk<EventNotifier<TunnelState>>().apply {
+                        every { callbackFlowFromSubscription(any()) } returns
+                            MutableStateFlow(TunnelState.Connected(mockk(), mockk()))
+                    }
+                val mockedConnectionProxy =
+                    mockk<ConnectionProxy>().apply {
+                        every { onUiStateChange } returns eventNotifierMock
+                    }
+                every { connectionProxy } returns mockedConnectionProxy
             }
-            val mockedConnectionProxy = mockk<ConnectionProxy>().apply {
-                every { onUiStateChange } returns eventNotifierMock
-            }
-            every { connectionProxy } returns mockedConnectionProxy
-        }
 
         // Act, Assert
         viewModel.uiState.test {
@@ -102,30 +103,30 @@ class DeviceRevokedViewModelTest {
     @Test
     fun testGoToLoginWhenDisconnected() {
         // Arrange
-        val mockedContainer = mockk<ServiceConnectionContainer>().also {
-            every { it.connectionProxy.state } returns TunnelState.Disconnected
-            every { it.connectionProxy.disconnect() } just Runs
-            every { mockedAccountRepository.logout() } just Runs
-        }
+        val mockedContainer =
+            mockk<ServiceConnectionContainer>().also {
+                every { it.connectionProxy.state } returns TunnelState.Disconnected
+                every { it.connectionProxy.disconnect() } just Runs
+                every { mockedAccountRepository.logout() } just Runs
+            }
         serviceConnectionState.value = ServiceConnectionState.ConnectedReady(mockedContainer)
 
         // Act
         viewModel.onGoToLoginClicked()
 
         // Assert
-        verify {
-            mockedAccountRepository.logout()
-        }
+        verify { mockedAccountRepository.logout() }
     }
 
     @Test
     fun testGoToLoginWhenConnected() {
         // Arrange
-        val mockedContainer = mockk<ServiceConnectionContainer>().also {
-            every { it.connectionProxy.state } returns TunnelState.Connected(mockk(), mockk())
-            every { it.connectionProxy.disconnect() } just Runs
-            every { mockedAccountRepository.logout() } just Runs
-        }
+        val mockedContainer =
+            mockk<ServiceConnectionContainer>().also {
+                every { it.connectionProxy.state } returns TunnelState.Connected(mockk(), mockk())
+                every { it.connectionProxy.disconnect() } just Runs
+                every { mockedAccountRepository.logout() } just Runs
+            }
         serviceConnectionState.value = ServiceConnectionState.ConnectedReady(mockedContainer)
 
         // Act

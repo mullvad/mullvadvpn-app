@@ -62,11 +62,10 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
 
-    private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
-        endpoint.settingsListener.settings?.let { settings ->
-            handlePendingAction(settings)
+    private var pendingAction by
+        observable<PendingAction?>(null) { _, _, _ ->
+            endpoint.settingsListener.settings?.let { settings -> handlePendingAction(settings) }
         }
-    }
 
     private var apiEndpointConfiguration: ApiEndpointConfiguration =
         DefaultApiEndpointConfiguration()
@@ -80,12 +79,13 @@ class MullvadVpnService : TalpidVpnService() {
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
-        endpoint = ServiceEndpoint(
-            Looper.getMainLooper(),
-            daemonInstance.intermittentDaemon,
-            connectivityListener,
-            this
-        )
+        endpoint =
+            ServiceEndpoint(
+                Looper.getMainLooper(),
+                daemonInstance.intermittentDaemon,
+                connectivityListener,
+                this
+            )
 
         endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
             disallowedApps = excludedApps
@@ -93,32 +93,25 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy.reconnect()
         }
 
-        notificationManager = ForegroundNotificationManager(
-            this,
-            connectionProxy,
-            daemonInstance.intermittentDaemon
-        )
+        notificationManager =
+            ForegroundNotificationManager(this, connectionProxy, daemonInstance.intermittentDaemon)
 
-        accountExpiryNotification = AccountExpiryNotification(
-            this,
-            daemonInstance.intermittentDaemon,
-            endpoint.accountCache
-        )
+        accountExpiryNotification =
+            AccountExpiryNotification(
+                this,
+                daemonInstance.intermittentDaemon,
+                endpoint.accountCache
+            )
 
         // Remove any leftover tunnel state persistence data
-        getSharedPreferences("tunnel_state", MODE_PRIVATE)
-            .edit()
-            .clear()
-            .commit()
+        getSharedPreferences("tunnel_state", MODE_PRIVATE).edit().clear().commit()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Starting service")
 
         if (BuildConfig.DEBUG) {
-            intent?.getApiEndpointConfigurationExtras()?.let {
-                apiEndpointConfiguration = it
-            }
+            intent?.getApiEndpointConfigurationExtras()?.let { apiEndpointConfiguration = it }
         }
 
         daemonInstance.apply {
@@ -219,17 +212,18 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Main) {
-        if (state != State.Stopped) {
-            val settings = daemon.getSettings()
+    private fun setUpDaemon(daemon: MullvadDaemon) =
+        GlobalScope.launch(Dispatchers.Main) {
+            if (state != State.Stopped) {
+                val settings = daemon.getSettings()
 
-            if (settings != null) {
-                handlePendingAction(settings)
-            } else {
-                restart()
+                if (settings != null) {
+                    handlePendingAction(settings)
+                } else {
+                    restart()
+                }
             }
         }
-    }
 
     private fun stop() {
         Log.d(TAG, "Stopping service")
@@ -270,10 +264,11 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun openUi() {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
+        val intent =
+            Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
 
         startActivity(intent)
     }

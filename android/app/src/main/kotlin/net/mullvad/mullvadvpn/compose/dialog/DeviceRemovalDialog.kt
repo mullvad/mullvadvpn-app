@@ -34,91 +34,73 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 @Composable
 fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
     AlertDialog(
-        onDismissRequest = {
-            viewModel.clearStagedDevice()
-        },
+        onDismissRequest = { viewModel.clearStagedDevice() },
         title = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(top = 0.dp)
-                    .fillMaxWidth()
+                modifier = Modifier.padding(top = 0.dp).fillMaxWidth()
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_alert),
                     contentDescription = "Remove",
-                    modifier = Modifier
-                        .width(50.dp)
-                        .height(50.dp)
+                    modifier = Modifier.width(50.dp).height(50.dp)
                 )
             }
         },
         text = {
-            val htmlFormattedDialogText = textResource(
-                id = R.string.max_devices_confirm_removal_description,
-                device.name.capitalizeFirstCharOfEachWord()
-            ).let { introText ->
-                if (device.ports.isNotEmpty()) {
-                    introText.plus(" " + stringResource(id = R.string.port_removal_notice))
-                } else {
-                    introText
-                }
-            }
+            val htmlFormattedDialogText =
+                textResource(
+                        id = R.string.max_devices_confirm_removal_description,
+                        device.name.capitalizeFirstCharOfEachWord()
+                    )
+                    .let { introText ->
+                        if (device.ports.isNotEmpty()) {
+                            introText.plus(" " + stringResource(id = R.string.port_removal_notice))
+                        } else {
+                            introText
+                        }
+                    }
 
-            HtmlText(
-                htmlFormattedString = htmlFormattedDialogText,
-                textSize = 16.sp.value
-            )
+            HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },
         buttons = {
-            Column(
-                Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            ) {
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                 Button(
-                    modifier = Modifier
-                        .height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.red),
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        viewModel.confirmRemovalOfStagedDevice()
-                    }
+                    modifier =
+                        Modifier.height(dimensionResource(id = R.dimen.button_height))
+                            .defaultMinSize(
+                                minWidth = 0.dp,
+                                minHeight = dimensionResource(id = R.dimen.button_height)
+                            )
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.red),
+                            contentColor = Color.White
+                        ),
+                    onClick = { viewModel.confirmRemovalOfStagedDevice() }
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.confirm_removal),
-                        fontSize = 18.sp
-                    )
+                    Text(text = stringResource(id = R.string.confirm_removal), fontSize = 18.sp)
                 }
                 Button(
                     contentPadding = PaddingValues(0.dp),
-                    modifier = Modifier
-                        .focusOrder(FocusRequester())
-                        .padding(top = 16.dp)
-                        .height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        viewModel.clearStagedDevice()
-                    }
+                    modifier =
+                        Modifier.focusOrder(FocusRequester())
+                            .padding(top = 16.dp)
+                            .height(dimensionResource(id = R.dimen.button_height))
+                            .defaultMinSize(
+                                minWidth = 0.dp,
+                                minHeight = dimensionResource(id = R.dimen.button_height)
+                            )
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.blue),
+                            contentColor = Color.White
+                        ),
+                    onClick = { viewModel.clearStagedDevice() }
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.back),
-                        fontSize = 18.sp
-                    )
+                    Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
                 }
             }
         },

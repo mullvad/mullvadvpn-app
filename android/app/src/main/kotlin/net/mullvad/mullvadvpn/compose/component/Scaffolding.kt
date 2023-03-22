@@ -78,12 +78,12 @@ fun CollapsableAwareToolbarScaffold(
             BoxWithConstraints(
                 modifier = Modifier.onGloballyPositioned { bodyHeight = it.size.height }
             ) {
-                val minMaxToolbarHeightDiff = with(state) {
-                    toolbarState.maxHeight - toolbarState.minHeight
-                }
-                val isContentHigherThanCollapseThreshold = with(LocalDensity.current) {
-                    bodyHeight > maxHeight.toPx() - minMaxToolbarHeightDiff
-                }
+                val minMaxToolbarHeightDiff =
+                    with(state) { toolbarState.maxHeight - toolbarState.minHeight }
+                val isContentHigherThanCollapseThreshold =
+                    with(LocalDensity.current) {
+                        bodyHeight > maxHeight.toPx() - minMaxToolbarHeightDiff
+                    }
                 isCollapsable = isContentHigherThanCollapseThreshold
                 body()
             }

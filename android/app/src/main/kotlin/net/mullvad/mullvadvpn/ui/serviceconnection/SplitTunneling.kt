@@ -9,11 +9,12 @@ import net.mullvad.mullvadvpn.ipc.Request
 class SplitTunneling(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private var excludedApps: Set<String> = emptySet()
 
-    var enabled by observable(false) { _, wasEnabled, isEnabled ->
-        if (wasEnabled != isEnabled) {
-            connection.send(Request.SetEnableSplitTunneling(isEnabled).message)
+    var enabled by
+        observable(false) { _, wasEnabled, isEnabled ->
+            if (wasEnabled != isEnabled) {
+                connection.send(Request.SetEnableSplitTunneling(isEnabled).message)
+            }
         }
-    }
 
     init {
         eventDispatcher.registerHandler(Event.SplitTunnelingUpdate::class) { event ->

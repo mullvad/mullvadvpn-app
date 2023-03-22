@@ -14,10 +14,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 class DispatchingFlow<T : Any>(private val upstream: Flow<T>) : Flow<T> {
     private val subscribers = ConcurrentHashMap<KClass<out T>, SendChannel<T>>()
 
-    fun <V : T> subscribe(
-        variant: KClass<V>,
-        capacity: Int = Channel.CONFLATED
-    ): Flow<V> {
+    fun <V : T> subscribe(variant: KClass<V>, capacity: Int = Channel.CONFLATED): Flow<V> {
         val channel = Channel<V>(capacity)
 
         // This is safe because `collect` will only send to this channel if the instance class is V

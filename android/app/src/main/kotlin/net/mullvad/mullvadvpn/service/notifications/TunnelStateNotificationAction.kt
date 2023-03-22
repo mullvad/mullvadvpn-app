@@ -12,43 +12,47 @@ enum class TunnelStateNotificationAction {
     Dismiss;
 
     companion object {
-        fun from(tunnelState: TunnelState) = when (tunnelState) {
-            is TunnelState.Disconnected -> Connect
-            is TunnelState.Connecting -> Cancel
-            is TunnelState.Connected -> Disconnect
-            is TunnelState.Disconnecting -> {
-                when (tunnelState.actionAfterDisconnect) {
-                    ActionAfterDisconnect.Reconnect -> Cancel
-                    else -> Connect
+        fun from(tunnelState: TunnelState) =
+            when (tunnelState) {
+                is TunnelState.Disconnected -> Connect
+                is TunnelState.Connecting -> Cancel
+                is TunnelState.Connected -> Disconnect
+                is TunnelState.Disconnecting -> {
+                    when (tunnelState.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Reconnect -> Cancel
+                        else -> Connect
+                    }
+                }
+                is TunnelState.Error -> {
+                    if (tunnelState.errorState.isBlocking) {
+                        Disconnect
+                    } else {
+                        Dismiss
+                    }
                 }
             }
-            is TunnelState.Error -> {
-                if (tunnelState.errorState.isBlocking) {
-                    Disconnect
-                } else {
-                    Dismiss
-                }
-            }
-        }
     }
 
     val text
-        get() = when (this) {
-            Connect -> R.string.connect
-            Disconnect -> R.string.disconnect
-            Cancel -> R.string.cancel
-            Dismiss -> R.string.dismiss
-        }
+        get() =
+            when (this) {
+                Connect -> R.string.connect
+                Disconnect -> R.string.disconnect
+                Cancel -> R.string.cancel
+                Dismiss -> R.string.dismiss
+            }
 
     val key
-        get() = when (this) {
-            Connect -> MullvadVpnService.KEY_CONNECT_ACTION
-            else -> MullvadVpnService.KEY_DISCONNECT_ACTION
-        }
+        get() =
+            when (this) {
+                Connect -> MullvadVpnService.KEY_CONNECT_ACTION
+                else -> MullvadVpnService.KEY_DISCONNECT_ACTION
+            }
 
     val icon
-        get() = when (this) {
-            Connect -> R.drawable.icon_notification_connect
-            else -> R.drawable.icon_notification_disconnect
-        }
+        get() =
+            when (this) {
+                Connect -> R.drawable.icon_notification_connect
+                else -> R.drawable.icon_notification_disconnect
+            }
 }

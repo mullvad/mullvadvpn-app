@@ -26,8 +26,10 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
     fun setItems(items: List<ListItemData?>) = listDiffer.submitList(items)
 
-    override fun onCreateViewHolder(parent: ViewGroup, @ListItemData.ItemType viewType: Int):
-        ListItemsAdapter.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        @ListItemData.ItemType viewType: Int
+    ): ListItemsAdapter.ViewHolder {
         return ViewHolder(
             when (viewType) {
                 ListItemData.DIVIDER -> DividerGroupListItemView(parent.context)
@@ -36,8 +38,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
                 ListItemData.ACTION -> ActionListItemView(parent.context)
                 ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
                 ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)
-                else ->
-                    throw IllegalArgumentException("View type '$viewType' is not supported")
+                else -> throw IllegalArgumentException("View type '$viewType' is not supported")
             }
         )
     }
@@ -54,8 +55,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = listDiffer.currentList.size
 
-    @ListItemData.ItemType
-    override fun getItemViewType(position: Int): Int = getItem(position).type
+    @ListItemData.ItemType override fun getItemViewType(position: Int): Int = getItem(position).type
 
     override fun getItemId(position: Int): Long = getId(getItem(position).identifier)
 
@@ -109,9 +109,9 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
         private val idCounter = AtomicLong(0)
         private val mapIds = hashMapOf<String, Long>()
 
-        internal fun getId(stringId: String): Long = mapIds.computeIfAbsent(stringId) {
-            idCounter.decrementAndGet()
-        }
+        internal fun getId(stringId: String): Long =
+            mapIds.computeIfAbsent(stringId) { idCounter.decrementAndGet() }
     }
 }
+
 typealias DiffCallback = DiffUtil.ItemCallback<ListItemData>
