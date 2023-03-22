@@ -1,0 +1,14 @@
+---
+name: Android - Check kotlin formatting
+on:
+  pull_request:
+    paths: [.github/workflows/android-ktlint.yml, android/**/*.kt]
+  workflow_dispatch:
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run ktfmt check
+        run: android/gradlew -p android ktfmtCheck
