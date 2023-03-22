@@ -2,7 +2,7 @@
 name: Android - Check kotlin formatting
 on:
   pull_request:
-    paths: [.github/workflows/android-ktlint.yml, android/**/*.kt]
+    paths: [.github/workflows/android-kotlin-format-check.yml, android/**/*.kt]
   workflow_dispatch:
 jobs:
   check-formatting:
