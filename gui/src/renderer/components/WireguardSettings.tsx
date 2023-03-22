@@ -37,7 +37,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
-const UDP2TCP_PORTS = [80, 443, 5001];
+const UDP2TCP_PORTS = [80, 5001];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
