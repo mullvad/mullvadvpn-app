@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.test.common.constant.SETTINGS_COG_ID
 import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_INFO_ID
 import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_OUT_ADDRESS_ID
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove
+import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AppInteractor(private val device: UiDevice, private val targetContext: Context) {
@@ -44,7 +44,7 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
     fun launchAndEnsureLoggedIn(accountToken: String) {
         launch()
         device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove()
+        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         attemptLogin(accountToken)
         ensureLoggedIn()
     }

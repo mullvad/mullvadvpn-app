@@ -37,10 +37,10 @@ fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
     findObjectWithTimeout(By.text("Agree and continue")).click()
 }
 
-fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel31AndAbove(
+fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         // Skipping as notification permissions are not shown.
         return
     }
