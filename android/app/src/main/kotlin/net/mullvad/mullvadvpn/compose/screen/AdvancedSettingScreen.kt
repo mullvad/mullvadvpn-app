@@ -124,7 +124,8 @@ fun AdvancedSettingScreen(
         val progress = state.toolbarState.progress
 
         CollapsableAwareToolbarScaffold(
-            modifier = Modifier.background(MullvadDarkBlue).fillMaxSize(),
+            backgroundColor = MullvadDarkBlue,
+            modifier = Modifier.fillMaxSize(),
             state = state,
             scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
             isEnabledWhenCollapsable = true,

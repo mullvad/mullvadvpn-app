@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.Scaffold
@@ -49,7 +50,8 @@ fun ScaffoldWithTopBar(
 @Composable
 @OptIn(ExperimentalToolbarApi::class)
 fun CollapsableAwareToolbarScaffold(
-    modifier: Modifier,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier,
     state: CollapsingToolbarScaffoldState,
     scrollStrategy: ScrollStrategy,
     isEnabledWhenCollapsable: Boolean = true,
@@ -57,6 +59,10 @@ fun CollapsableAwareToolbarScaffold(
     toolbar: @Composable CollapsingToolbarScope.() -> Unit,
     body: @Composable CollapsingToolbarScaffoldScope.() -> Unit
 ) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(backgroundColor)
+    systemUiController.setNavigationBarColor(backgroundColor)
+
     var isCollapsable by remember { mutableStateOf(false) }
 
     LaunchedEffect(isCollapsable) {
@@ -66,7 +72,7 @@ fun CollapsableAwareToolbarScaffold(
     }
 
     CollapsingToolbarScaffold(
-        modifier = modifier,
+        modifier = modifier.background(backgroundColor),
         state = state,
         scrollStrategy = scrollStrategy,
         enabled = isEnabledWhenCollapsable && isCollapsable,
