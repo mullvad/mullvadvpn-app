@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -25,8 +25,13 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
+import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
+import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
+import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
+import net.mullvad.mullvadvpn.ui.paintNavigationBar
+import net.mullvad.mullvadvpn.ui.paintStatusBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy

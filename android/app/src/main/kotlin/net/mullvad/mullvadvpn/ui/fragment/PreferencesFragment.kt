@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
-import net.mullvad.mullvadvpn.ui.fragment.BaseFragment
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.settingsListener
