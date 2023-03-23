@@ -129,7 +129,7 @@ fi
 
 if [[ "$IS_RELEASE" == "true" ]]; then
     log_info "Removing old Rust build artifacts..."
-    cargo clean
+    (shopt -s dotglob; rm -rf "${CARGO_TARGET_DIR:?}/*")
 
     # Will not allow an outdated lockfile in releases
     CARGO_ARGS+=(--locked)

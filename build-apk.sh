@@ -59,7 +59,7 @@ fi
 
 if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     echo "Removing old Rust build artifacts"
-    cargo clean
+    (shopt -s dotglob; rm -rf "${CARGO_TARGET_DIR:?}/*")
     CARGO_ARGS+=" --locked"
 fi
 
