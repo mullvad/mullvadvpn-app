@@ -285,10 +285,22 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func didLogout() {
-        router.dismissAll(.primary, animated: false)
+    private func didDismissSettings(_ reason: SettingsDismissReason) {
+        if isPad {
+            router.dismissAll(.settings, animated: true)
 
-        continueFlow(animated: true)
+            if reason == .userLoggedOut {
+                router.dismissAll(.primary, animated: true)
+                continueFlow(animated: true)
+            }
+        } else {
+            if reason == .userLoggedOut {
+                router.dismissAll(.primary, animated: false)
+                continueFlow(animated: false)
+            }
+
+            router.dismissAll(.settings, animated: true)
+        }
     }
 
     /**
@@ -532,11 +544,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] coordinator, reason in
-            self?.router.dismissAll(.settings, animated: true)
-
-            if reason == .userLoggedOut {
-                self?.didLogout()
-            }
+            self?.didDismissSettings(reason)
         }
 
         coordinator.willNavigate = { [weak self] coordinator, from, to in
