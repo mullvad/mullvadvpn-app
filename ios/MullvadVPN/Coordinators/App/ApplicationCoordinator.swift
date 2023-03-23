@@ -324,21 +324,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      On iPhone this function simply passes the primary navigation container to the `block` and
      nothing else.
      */
-    private func beginHorizontalFlow(_ completion: (() -> Void)? = nil) {
-        if isPad {
-            if secondaryNavigationContainer.presentingViewController == nil {
-                secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
+    private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
+        if isPad, secondaryNavigationContainer.presentingViewController == nil {
+            secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
 
-                primaryNavigationContainer.present(
-                    secondaryNavigationContainer,
-                    animated: true,
-                    completion: completion
-                )
-            } else {
-                completion?()
-            }
+            primaryNavigationContainer.present(
+                secondaryNavigationContainer,
+                animated: animated,
+                completion: completion
+            )
         } else {
-            completion?()
+            completion()
         }
     }
 
@@ -394,7 +390,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start()
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -412,7 +408,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(tunnelCoordinator)
         tunnelCoordinator.start()
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(tunnelCoordinator)
         }
     }
@@ -430,7 +426,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -455,7 +451,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -490,7 +486,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
