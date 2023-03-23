@@ -57,6 +57,10 @@ Line wrap the file at 100 chars.                                              Th
 - Deprecated support for Debian 10. This also means dropping support for glibc older
   than 2.31 and Linux kernels older than 5.10.
 
+### Removed
+- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
+  to free up port 443 for other TCP based obfuscation later.
+
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.
