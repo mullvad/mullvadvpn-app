@@ -1,4 +1,5 @@
 use super::{Error, Result};
+use mullvad_types::relay_constraints::Constraint;
 use mullvad_types::settings::SettingsVersion;
 
 // ======================================================
@@ -24,12 +25,17 @@ pub enum QuantumResistantState {
 ///
 /// The `use_pq_safe_psk` tunnel option is replaced by `quantum_resistant`, which
 /// is optional. `false` is mapped to `None`. `true` is mapped to `Some(true)`.
+///
+/// Migrate WireGuard over TCP port setting away from Only(443) (to auto),
+/// since it's no longer a valid port.
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
     }
 
     migrate_pq_setting(settings)?;
+
+    migrate_udp2tcp_port_443(settings);
 
     // TODO
     // log::info!("Migrating settings format to V7");
@@ -60,6 +66,19 @@ fn migrate_pq_setting(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// If udp2tcp port constraint is set to `Only(443)`, change that to `Any`
+fn migrate_udp2tcp_port_443(settings: &mut serde_json::Value) -> Option<()> {
+    let port_constraint = settings
+        .get_mut("obfuscation_settings")?
+        .get_mut("udp2tcp")?
+        .get_mut("port")?;
+    if port_constraint == &serde_json::json!(Constraint::Only(443)) {
+        log::info!("Migrating udp2tcp port setting from 443 -> any");
+        *port_constraint = serde_json::json!(Constraint::<u16>::Any);
+    }
+    None
 }
 
 fn version_matches(settings: &mut serde_json::Value) -> bool {
@@ -110,7 +129,9 @@ mod test {
   "obfuscation_settings": {
     "selected_obfuscation": "udp2_tcp",
     "udp2tcp": {
-      "port": "any"
+      "port": {
+        "only": 443
+      }
     }
   },
   "bridge_state": "auto",

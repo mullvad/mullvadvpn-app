@@ -101,7 +101,7 @@ class DeviceManagementContentView: UIView {
 
     var handleDeviceDeletion: ((DeviceViewModel, @escaping () -> Void) -> Void)?
 
-    private var currentSnapshot = DataSourceSnapshot<String, String>()
+    private var currentDeviceModels = [DeviceViewModel]()
 
     var canContinue = false {
         didSet {
@@ -186,32 +186,84 @@ class DeviceManagementContentView: UIView {
     }
 
     func setDeviceViewModels(_ newModels: [DeviceViewModel], animated: Bool) {
-        var newSnapshot = DataSourceSnapshot<String, String>()
-        newSnapshot.appendSections([""])
-        newSnapshot.appendItems(newModels.map { $0.id }, in: "")
-
-        let diff = currentSnapshot.difference(newSnapshot)
-        currentSnapshot = newSnapshot
-
-        let applyConfiguration = StackViewApplyDataSnapshotConfiguration { indexPath in
-            let viewModel = newModels[indexPath.row]
-            let view = DeviceRowView(viewModel: viewModel)
-            view.deleteHandler = { [weak self] view in
-                view.showsActivityIndicator = true
-
-                self?.handleDeviceDeletion?(view.viewModel) {
-                    view.showsActivityIndicator = false
-                }
-            }
-
-            return view
+        let difference = newModels.difference(from: currentDeviceModels) { newModel, model in
+            return newModel.id == model.id
         }
 
-        diff.apply(
-            to: deviceStackView,
-            configuration: applyConfiguration,
-            animateDifferences: animated
-        )
+        currentDeviceModels = newModels
+
+        let viewsToAdd: [UIView] = difference.insertions.compactMap {
+            if case let .insert(offset, model, _) = $0 {
+                let view = DeviceRowView(viewModel: model)
+
+                view.isHidden = true
+                view.alpha = 0
+
+                view.deleteHandler = { [weak self] _ in
+                    view.showsActivityIndicator = true
+
+                    self?.handleDeviceDeletion?(view.viewModel) {
+                        view.showsActivityIndicator = false
+                    }
+                }
+
+                deviceStackView.insertArrangedSubview(view, at: offset)
+                return view
+            }
+
+            return nil
+        }
+
+        let viewsToRemove: [UIView] = difference.removals.compactMap {
+            if case let .remove(offset, _, _) = $0 {
+                return deviceStackView.arrangedSubviews[offset]
+            }
+
+            return nil
+        }
+
+        // Layout inserted subviews before running animations to achieve a folding effect.
+        if animated {
+            UIView.performWithoutAnimation {
+                deviceStackView.layoutIfNeeded()
+            }
+        }
+
+        let showHideViews = {
+            viewsToRemove.forEach {
+                $0.alpha = 0
+                $0.isHidden = true
+            }
+
+            viewsToAdd.forEach {
+                $0.alpha = 1
+                $0.isHidden = false
+            }
+        }
+
+        let removeViews = {
+            viewsToRemove.forEach {
+                $0.removeFromSuperview()
+            }
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0,
+                options: [.curveEaseInOut],
+                animations: { [weak self] in
+                    showHideViews()
+                    self?.deviceStackView.layoutIfNeeded()
+                },
+                completion: { isComplete in
+                    removeViews()
+                }
+            )
+        } else {
+            showHideViews()
+            removeViews()
+        }
     }
 
     private func updateView() {

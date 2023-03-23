@@ -43,7 +43,7 @@ const RELAYS_FILENAME: &str = "relays.json";
 const WIREGUARD_EXIT_PORT: Constraint<u16> = Constraint::Only(51820);
 const WIREGUARD_EXIT_IP_VERSION: Constraint<IpVersion> = Constraint::Only(IpVersion::V4);
 
-const UDP2TCP_PORTS: [u16; 3] = [80, 443, 5001];
+const UDP2TCP_PORTS: [u16; 2] = [80, 5001];
 
 /// Minimum number of bridges to keep for selection when filtering by distance.
 const MIN_BRIDGE_COUNT: usize = 5;
