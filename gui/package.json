@@ -33,7 +33,7 @@
     "nseventmonitor": "^1.0.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.27.1",
+    "@playwright/test": "^1.32.0",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-spies": "^1.0.3",
@@ -76,7 +76,7 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^5.0.1",
     "pkg": "^5.8.0",
-    "playwright": "^1.27.1",
+    "playwright": "^1.32.0",
     "prettier": "^2.2.1",
     "sinon": "^14.0.1",
     "ts-node": "^10.9.1",
