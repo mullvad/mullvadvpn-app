@@ -23,6 +23,23 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Update Electron from 21.1.1 to 23.2.0.
+
+#### Android
+- Change Android key rotation interval to 7 days instead of 4.
+
+### Deprecated
+#### Linux
+- Deprecated support for Debian 10. This also means dropping support for glibc older
+  than 2.31 and Linux kernels older than 5.10.
+
+### Removed
+- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
+  to free up port 443 for other TCP based obfuscation later.
+
+
+## [2023.3-beta1] - 2023-03-23
 ### Added
 - Add Kyber1024 KEM algorithm into the Post-Quantum secure key exchange algorithm. This means the
   Quantum-resistant-tunnels feature now mixes both Classic McEliece and Kyber for added protection.
@@ -30,10 +47,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add troubleshooting information to some in-app notifications.
 - Add setting for quantum resistant tunnels to the desktop GUI.
 - Enable `TCP_NODELAY` for the socket used by WireGuard over TCP. Improves latency and performance.
-
-#### Windows
-- Use `SetInterfaceDnsSettings` to config DNS when it's available (on Windows 10, version 1809 and
-  above).
 
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
@@ -44,23 +57,10 @@ Line wrap the file at 100 chars.                                              Th
 - Update OpenVPN to 2.6.0 from 2.5.3.
 - Update OpenSSL to 1.1.1t from 1.1.1j.
 - Post-Quantum secure tunnels and multihop can now be used at the same time.
-- Update Electron from 21.1.1 to 23.2.0.
-
-#### Android
-- Change Android key rotation interval to 7 days instead of 4.
 
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
   deprecating it on Windows.
-
-### Deprecated
-#### Linux
-- Deprecated support for Debian 10. This also means dropping support for glibc older
-  than 2.31 and Linux kernels older than 5.10.
-
-### Removed
-- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
-  to free up port 443 for other TCP based obfuscation later.
 
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
