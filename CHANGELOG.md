@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update OpenVPN to 2.6.0 from 2.5.3.
 - Update OpenSSL to 1.1.1t from 1.1.1j.
 - Post-Quantum secure tunnels and multihop can now be used at the same time.
+- Update Electron from 21.1.1 to 23.2.0.
 
 #### Android
 - Change Android key rotation interval to 7 days instead of 4.
