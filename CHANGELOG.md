@@ -49,6 +49,10 @@ Line wrap the file at 100 chars.                                              Th
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
   deprecating it on Windows.
 
+### Removed
+- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
+  to free up port 443 for other TCP based obfuscation later.
+
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
   in the desktop app.
