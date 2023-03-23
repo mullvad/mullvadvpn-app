@@ -425,7 +425,7 @@ final class ApplicationRouter {
          Check if route can be presented above the last route in the modal stack.
          */
         if let lastRouteGroup = modalStack.last, lastRouteGroup >= route.routeGroup,
-           route.routeGroup.isModal
+           route.routeGroup.isModal, route.isExclusive
         {
             completion(.blockedByModalContext)
             return
