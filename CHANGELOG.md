@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2023.3-beta1] - 2023-03-23
 ### Added
 - Add Kyber1024 KEM algorithm into the Post-Quantum secure key exchange algorithm. This means the
   Quantum-resistant-tunnels feature now mixes both Classic McEliece and Kyber for added protection.
@@ -30,10 +33,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add troubleshooting information to some in-app notifications.
 - Add setting for quantum resistant tunnels to the desktop GUI.
 - Enable `TCP_NODELAY` for the socket used by WireGuard over TCP. Improves latency and performance.
-
-#### Windows
-- Use `SetInterfaceDnsSettings` to config DNS when it's available (on Windows 10, version 1809 and
-  above).
 
 ### Changed
 - Update the Post-Quantum secure key exchange gRPC client to use the stabilized
