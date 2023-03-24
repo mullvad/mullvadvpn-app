@@ -209,4 +209,17 @@
     <string name="add_dns_server_dialog_title">Add DNS server</string>
     <string name="update_dns_server_dialog_title">Update DNS server</string>
     <string name="duplicate_address_warning">This address has already been entered.</string>
+    <string name="dns_content_blockers">DNS content blockers</string>
+    <string name="dns_content_blockers_info">When this feature is enabled it stops the device from
+    contacting certain domains or websites known for distributing ads, malware, trackers and
+    more.</string>
+    <string name="dns_content_blockers_warning">This might cause issues on certain websites,
+    services, and programs.</string>
+    <string name="ads">Ads</string>
+    <string name="trackers">Trackers</string>
+    <string name="malware">Malware</string>
+    <string name="malware_info">Warning: The malware blocker is not an anti-virus and should not be
+    treated as such, this is just an extra layer of protection.</string>
+    <string name="gambling">Gambling</string>
+    <string name="adult_content">Adult content</string>
 </resources>
