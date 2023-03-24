@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+#### Android
+- Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
 ## [2023.3-beta1] - 2023-03-23
 ### Added
@@ -57,9 +59,6 @@ Line wrap the file at 100 chars.                                              Th
   in the desktop app.
 - Retry if PQ PSK negotiation fails for any reason.
 - Fix accumulated tunnel state notifications sometimes displayed after suspend.
-
-#### Android
-- Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
 
 ## [2023.2] - 2023-03-06
