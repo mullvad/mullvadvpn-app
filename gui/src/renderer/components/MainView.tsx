@@ -34,6 +34,7 @@ export default function MainView() {
       setShowAccountExpired({ show: true, expiry: accountExpiry });
     } else if (
       showAccountExpired.show &&
+      accountExpiry &&
       accountExpiry !== showAccountExpired.expiry &&
       !accountHasExpired
     ) {
