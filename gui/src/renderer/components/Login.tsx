@@ -274,7 +274,7 @@ export default class Login extends React.Component<IProps, IState> {
 
     return (
       <>
-        <StyledSubtitle>{this.formSubtitle()}</StyledSubtitle>
+        <StyledSubtitle data-testid="subtitle">{this.formSubtitle()}</StyledSubtitle>
         <StyledAccountInputGroup
           active={allowInteraction && this.state.isActive}
           editable={allowInteraction}
