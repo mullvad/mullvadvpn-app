@@ -285,10 +285,22 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func didLogout() {
-        router.dismissAll(.primary, animated: false)
+    private func didDismissSettings(_ reason: SettingsDismissReason) {
+        if isPad {
+            router.dismissAll(.settings, animated: true)
 
-        continueFlow(animated: true)
+            if reason == .userLoggedOut {
+                router.dismissAll(.primary, animated: true)
+                continueFlow(animated: true)
+            }
+        } else {
+            if reason == .userLoggedOut {
+                router.dismissAll(.primary, animated: false)
+                continueFlow(animated: false)
+            }
+
+            router.dismissAll(.settings, animated: true)
+        }
     }
 
     /**
@@ -312,21 +324,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      On iPhone this function simply passes the primary navigation container to the `block` and
      nothing else.
      */
-    private func beginHorizontalFlow(_ completion: (() -> Void)? = nil) {
-        if isPad {
-            if secondaryNavigationContainer.presentingViewController == nil {
-                secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
+    private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
+        if isPad, secondaryNavigationContainer.presentingViewController == nil {
+            secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
 
-                primaryNavigationContainer.present(
-                    secondaryNavigationContainer,
-                    animated: true,
-                    completion: completion
-                )
-            } else {
-                completion?()
-            }
+            primaryNavigationContainer.present(
+                secondaryNavigationContainer,
+                animated: animated,
+                completion: completion
+            )
         } else {
-            completion?()
+            completion()
         }
     }
 
@@ -382,7 +390,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start()
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -400,7 +408,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(tunnelCoordinator)
         tunnelCoordinator.start()
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(tunnelCoordinator)
         }
     }
@@ -418,7 +426,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -443,7 +451,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -478,7 +486,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow {
+        beginHorizontalFlow(animated: animated) {
             completion(coordinator)
         }
     }
@@ -532,11 +540,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] coordinator, reason in
-            self?.router.dismissAll(.settings, animated: true)
-
-            if reason == .userLoggedOut {
-                self?.didLogout()
-            }
+            self?.didDismissSettings(reason)
         }
 
         coordinator.willNavigate = { [weak self] coordinator, from, to in
