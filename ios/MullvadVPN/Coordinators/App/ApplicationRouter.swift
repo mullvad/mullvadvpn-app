@@ -75,7 +75,7 @@ enum AppRoute: Equatable, Hashable {
     /**
      Routes that are part of primary horizontal navigation group.
      */
-    case tos, login, main, revoked, outOfTime
+    case tos, changelog, login, main, revoked, outOfTime
 
     /**
      Returns `true` when only one route of a kind can be displayed.
@@ -105,7 +105,7 @@ enum AppRoute: Equatable, Hashable {
      */
     var routeGroup: AppRouteGroup {
         switch self {
-        case .tos, .login, .main, .revoked, .outOfTime:
+        case .tos, .changelog, .login, .main, .revoked, .outOfTime:
             return .primary
         case .selectLocation:
             return .selectLocation
