@@ -47,12 +47,72 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
 
-  build:
-    name: Build app and run unit tests
+  generate-relay-list:
+    name: Generate relay list
     needs: prepare
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Get date
+        id: get-date
+        shell: bash
+        run: |
+          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+
+      - name: Cache
+        uses: actions/cache@v3
+        id: cache-relay-list
+        with:
+          path: build/relays.json
+          key: relay-list-${{ steps.get-date.outputs.date }}
+
+      - name: Checkout repository
+        if: steps.cache-relay-list.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+
+      - name: Generate
+        if: steps.cache-relay-list.outputs.cache-hit != 'true'
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
+          mkdir -p build
+          cargo run --bin relay_list > build/relays.json
+
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: relay-list
+          path: build/relays.json
+          if-no-files-found: error
+          retention-days: 1
+
+  build-native:
+    name: Build native
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: "${{ needs.prepare.outputs.container_image }}"
+    strategy:
+      matrix:
+        include:
+          - arch: "x86_64"
+            abi: "x86_64"
+            target: "x86_64-linux-android"
+          - arch: "i686"
+            abi: "x86"
+            target: "i686-linux-android"
+          - arch: "aarch64"
+            abi: "arm64-v8a"
+            target: "aarch64-linux-android"
+          - arch: "armv7"
+            abi: "armeabi-v7a"
+            target: "armv7-linux-androideabi"
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -76,28 +136,58 @@ jobs:
       - name: Cache native libraries
         uses: actions/cache@v3
         id: cache-native-libs
+        env:
+          cache_hash: ${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
         with:
-          path: |
-            ./android/app/build/extraJni
-            ./build/relays.json
-          key: android-native-libs-${{ runner.os }}-x86_64-${{ steps.native-lib-cache-hash.outputs.native_lib_hash}}
+          path: ./android/app/build/extraJni
+          key: android-native-libs-${{ runner.os }}-${{ matrix.abi }}-${{ env.cache_hash }}
 
       - name: Build native libraries
         if: steps.cache-native-libs.outputs.cache-hit != 'true'
         env:
           RUSTFLAGS: --deny warnings
-          ABI: x86_64
-          TARGET: x86_64-linux-android
           BUILD_TYPE: debug
         run: |
-          ARCHITECTURES="$ABI"
-          UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
-          STRIPPED_LIB_PATH="./android/app/build/extraJni/$ABI/libmullvad_jni.so"
+          ARCHITECTURES="${{ matrix.abi }}"
+          UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/${{ matrix.target }}/$BUILD_TYPE/libmullvad_jni.so"
+          STRIPPED_LIB_PATH="./android/app/build/extraJni/${{ matrix.abi }}/libmullvad_jni.so"
           NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/llvm-strip"
           ./wireguard/build-wireguard-go.sh --android --no-docker
-          cargo build --target $TARGET --verbose --package mullvad-jni --features api-override
-          cargo run --bin relay_list > build/relays.json
+          cargo build --target ${{ matrix.target }} --verbose --package mullvad-jni --features api-override
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
+      - name: Upload native libs
+        uses: actions/upload-artifact@v3
+        with:
+          name: native-libs
+          path: android/app/build/extraJni
+          if-no-files-found: error
+          retention-days: 1
+
+  build-app:
+    name: Build app and run unit tests
+    needs: [prepare, build-native, generate-relay-list]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: native-libs
+          path: android/app/build/extraJni
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: relay-list
+          path: build/relays.json
 
       - name: Build Android app
         uses: burrunan/gradle-cache-action@v1
@@ -160,7 +250,7 @@ jobs:
     name: Run instrumented tests
     runs-on: [self-hosted, android-emulator]
     timeout-minutes: 30
-    needs: [build]
+    needs: [build-app]
     strategy:
       fail-fast: false
       matrix:
