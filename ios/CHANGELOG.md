@@ -23,6 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Changed key rotation interval from 4 to 7 days.
+- Swap vertical position of country and city labels on connection view.
+- Display remaining account time in years if equal to or more than two years,
+  otherwise display days.
+
+
+## [2023.1] - 2023-03-21
 ### Added
 - Add option to block gambling and adult content.
 - Add last used account field to login view.
@@ -40,10 +48,6 @@ Line wrap the file at 100 chars.                                              Th
 with the option to buy more time.
 - Use exponential backoff with jitter for delay interval when retrying REST API requests.
 - REST API requests will bypass VPN when tunnel is not functional.
-- Swap vertical position of country and city labels on connection view.
-- Display remaining account time in years if equal to or more than two years,
-  otherwise display days.
-- Changed key rotation interval from 4 to 7 days.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.
