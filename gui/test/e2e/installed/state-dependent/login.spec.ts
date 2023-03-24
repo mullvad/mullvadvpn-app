@@ -57,12 +57,15 @@ test('App should create account', async () => {
 
   expect(await util.waitForNavigation()).toEqual(RoutePath.main);
 
+  const outOfTimeTitle = page.getByTestId('title');
+  await expect(outOfTimeTitle).toHaveText('Congrats!');
+
   const inputValue = await page.getByTestId('account-number').textContent();
   expect(inputValue).toHaveLength(19);
   accountNumber = inputValue!.replaceAll(' ', '');
 });
 
-test('App should log out', async () => {
+test('App should become logged out', async () => {
   expect(await util.waitForNavigation(() => {
     exec('mullvad account logout');
   })).toEqual(RoutePath.login);
@@ -87,6 +90,28 @@ test('App should log in', async () => {
   await expect(subtitle).toHaveText('Valid account number');
 
   expect(await util.waitForNavigation()).toEqual(RoutePath.main);
+
+  const outOfTimeTitle = page.getByTestId('title');
+  await expect(outOfTimeTitle).toHaveText('Out of time');
+});
+
+test('App should log out', async () => {
+  expect(await util.waitForNavigation(() => {
+    void page.getByLabel('Settings').click();
+  })).toEqual(RoutePath.settings);
+
+  expect(await util.waitForNavigation(() => {
+    void page.getByText('Account').click();
+  })).toEqual(RoutePath.accountSettings);
+
+  expect(await util.waitForNavigation(() => {
+    void page.getByText('Log out').click();
+  })).toEqual(RoutePath.login);
+
+  const title = page.locator('h1')
+  const subtitle = page.getByTestId('subtitle');
+  await expect(title).toHaveText('Login');
+  await expect(subtitle).toHaveText('Enter your account number');
 });
 
 function getInput(page: Page): Locator {

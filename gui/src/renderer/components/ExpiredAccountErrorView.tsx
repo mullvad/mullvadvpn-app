@@ -107,7 +107,9 @@ function WelcomeView() {
 
   return (
     <>
-      <StyledTitle>{messages.pgettext('connect-view', 'Congrats!')}</StyledTitle>
+      <StyledTitle data-testid="title">
+        {messages.pgettext('connect-view', 'Congrats!')}
+      </StyledTitle>
       <StyledAccountTokenMessage>
         {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
         <StyledAccountTokenContainer>
@@ -136,7 +138,9 @@ function Content() {
       <StyledStatusIcon>
         <ImageView source="icon-fail" height={60} width={60} />
       </StyledStatusIcon>
-      <StyledTitle>{messages.pgettext('connect-view', 'Out of time')}</StyledTitle>
+      <StyledTitle data-testid="title">
+        {messages.pgettext('connect-view', 'Out of time')}
+      </StyledTitle>
       <StyledMessage>
         {sprintf('%(introduction)s %(recoveryMessage)s', {
           introduction: messages.pgettext(
