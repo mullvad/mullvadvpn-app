@@ -3,8 +3,10 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +16,10 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +33,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
+import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
@@ -116,6 +123,7 @@ fun AdvancedSettingScreen(
     }
 
     val lazyListState = rememberLazyListState()
+    var expandContentBlockersState by remember { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
 
@@ -165,6 +173,68 @@ fun AdvancedSettingScreen(
                 }
 
                 item {
+                    ExpandableComposeCell(
+                        title = stringResource(R.string.dns_content_blockers),
+                        expandState = !expandContentBlockersState,
+                        onInfoClicked = {},
+                        onCellClicked = {
+                            expandContentBlockersState = !expandContentBlockersState
+                        },
+                    )
+                    Divider()
+                }
+
+                if (expandContentBlockersState) {
+                    item {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.ads),
+                            checkboxDefaultState = false,
+                            onCellClicked = {},
+                            background = MullvadBlue20,
+                        )
+                        Divider()
+                    }
+                    item {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.trackers),
+                            checkboxDefaultState = false,
+                            onCellClicked = {},
+                            background = MullvadBlue20,
+                        )
+                        Divider()
+                    }
+                    item {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.malware),
+                            checkboxDefaultState = false,
+                            onCellClicked = {},
+                            onInfoClicked = {},
+                            background = MullvadBlue20,
+                        )
+                        Divider()
+                    }
+                    item {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.gambling),
+                            checkboxDefaultState = false,
+                            onCellClicked = {},
+                            background = MullvadBlue20,
+                        )
+                        Divider()
+                    }
+                    item {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.adult_content),
+                            checkboxDefaultState = false,
+                            onCellClicked = {},
+                            background = MullvadBlue20,
+                        )
+                        Divider()
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(cellVerticalSpacing))
                     SwitchComposeCell(
                         title = stringResource(R.string.enable_custom_dns),
                         checkboxDefaultState = uiState.isCustomDnsEnabled,
