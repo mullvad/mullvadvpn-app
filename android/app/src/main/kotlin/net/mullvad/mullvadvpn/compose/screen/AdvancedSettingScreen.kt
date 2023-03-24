@@ -26,10 +26,10 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
-import net.mullvad.mullvadvpn.compose.cell.CustomDnsComposeCell
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -65,7 +65,7 @@ private fun PreviewAdvancedSettings() {
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
-        onBackClick = {},
+        onBackClick = {}
     )
 }
 
@@ -108,7 +108,7 @@ fun AdvancedSettingScreen(
                 onIpAddressChanged = { onDnsInputChange(it) },
                 onAttemptToSave = { onSaveDnsClick() },
                 onRemove = { onRemoveDnsClick() },
-                onDismiss = { onCancelDnsDialogClick() },
+                onDismiss = { onCancelDnsDialogClick() }
             )
         }
         else -> {
@@ -142,7 +142,7 @@ fun AdvancedSettingScreen(
                     title = stringResource(id = R.string.settings_advanced),
                     progress = progress,
                     modifier = scaffoldModifier,
-                    backTitle = stringResource(id = R.string.settings),
+                    backTitle = stringResource(id = R.string.settings)
                 )
             }
         ) {
@@ -164,9 +164,11 @@ fun AdvancedSettingScreen(
                 }
 
                 itemWithDivider {
-                    CustomDnsComposeCell(
-                        checkboxDefaultState = uiState.isCustomDnsEnabled,
-                        onToggle = { newValue -> onToggleDnsClick(newValue) }
+                    SwitchComposeCell(
+                        title = stringResource(R.string.enable_custom_dns),
+                        isEnabled = true,
+                        isToggled = uiState.isCustomDnsEnabled,
+                        onCellClicked = { newValue -> onToggleDnsClick(newValue) }
                     )
                 }
 
@@ -177,7 +179,7 @@ fun AdvancedSettingScreen(
                             isUnreachableLocalDnsWarningVisible =
                                 item.isLocal && uiState.isAllowLanEnabled.not(),
                             onClick = { onDnsClick(index) },
-                            modifier = Modifier.animateItemPlacement(),
+                            modifier = Modifier.animateItemPlacement()
                         )
                         Divider()
                     }
@@ -188,7 +190,7 @@ fun AdvancedSettingScreen(
                             title = {
                                 Text(
                                     text = stringResource(id = R.string.add_a_server),
-                                    color = Color.White
+                                    color = Color.White,
                                 )
                             },
                             bodyView = {},
@@ -201,13 +203,15 @@ fun AdvancedSettingScreen(
 
                 item {
                     CustomDnsCellSubtitle(
-                        Modifier.background(MullvadDarkBlue)
-                            .padding(
-                                start = cellHorizontalSpacing,
-                                top = topPadding,
-                                end = cellHorizontalSpacing,
-                                bottom = cellVerticalSpacing
-                            )
+                        isCellClickable = true,
+                        modifier =
+                            Modifier.background(MullvadDarkBlue)
+                                .padding(
+                                    start = cellHorizontalSpacing,
+                                    top = topPadding,
+                                    end = cellHorizontalSpacing,
+                                    bottom = cellVerticalSpacing
+                                )
                     )
                 }
             }
