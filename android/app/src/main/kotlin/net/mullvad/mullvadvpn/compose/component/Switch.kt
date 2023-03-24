@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,7 +28,19 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 @Preview
 @Composable
 private fun PreviewSwitch() {
-    CellSwitch(isChecked = false, onCheckedChange = null)
+    Column {
+
+        CellSwitch(
+            isChecked = true,
+            onCheckedChange = null,
+        )
+
+        CellSwitch(
+            isChecked = false,
+            onCheckedChange = null,
+            isEnabled = false,
+        )
+    }
 }
 
 @Composable
@@ -36,6 +49,7 @@ fun CellSwitch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
+    isEnabled: Boolean = true,
     thumbCheckedTrackColor: Color = MullvadGreen,
     thumbUncheckedTrackColor: Color = MullvadRed,
     thumbColor: Color = MullvadWhite
@@ -44,50 +58,57 @@ fun CellSwitch(
     val width: Dp = 46.dp
     val height: Dp = 28.dp
     val thumbRadius = 11.dp
+    val enabledAlpha = 1f
+    val disabledAlpha = 0.4f
 
     // To move the thumb, we need to calculate the position (along x axis)
-    val animatePosition =
-        animateFloatAsState(
-            targetValue =
-                if (isChecked)
-                    with(LocalDensity.current) {
-                        (width - thumbRadius - gapBetweenThumbAndTrackEdge - 1.dp).toPx()
-                    }
-                else
-                    with(LocalDensity.current) {
-                        (thumbRadius + gapBetweenThumbAndTrackEdge + 1.dp).toPx()
-                    }
-        )
+    val animatePosition = animateFloatAsState(
+        targetValue = if (isChecked)
+            with(LocalDensity.current) {
+                (width - thumbRadius - gapBetweenThumbAndTrackEdge - 1.dp).toPx()
+            }
+        else
+            with(LocalDensity.current) {
+                (thumbRadius + gapBetweenThumbAndTrackEdge + 1.dp).toPx()
+            },
+    )
 
     Canvas(
-        modifier =
-            modifier
-                .padding(1.dp)
-                .size(width = width, height = height)
-                .scale(scale = scale)
-                .pointerInput(Unit) {
-                    if (onCheckedChange != null) {
-                        detectTapGestures(onTap = { onCheckedChange(!isChecked) })
-                    }
+        modifier = modifier
+            .padding(1.dp)
+            .size(width = width, height = height)
+            .scale(scale = scale)
+            .pointerInput(Unit) {
+                if (onCheckedChange != null && isEnabled) {
+                    detectTapGestures(
+                        onTap = {
+                            onCheckedChange(!isChecked)
+                        },
+                    )
                 }
+            },
     ) {
         // Track
         drawRoundRect(
             color = thumbColor,
+            alpha = if (isEnabled) enabledAlpha else disabledAlpha,
             cornerRadius = CornerRadius(x = 15.dp.toPx(), y = 15.dp.toPx()),
-            style =
-                Stroke(
-                    width = 2.dp.toPx(),
-                    miter = 6.dp.toPx(),
-                    cap = StrokeCap.Square,
-                ),
+            style = Stroke(
+                width = 2.dp.toPx(),
+                miter = 6.dp.toPx(),
+                cap = StrokeCap.Square,
+            ),
         )
 
         // Thumb
         drawCircle(
             color = if (isChecked) thumbCheckedTrackColor else thumbUncheckedTrackColor,
+            alpha = if (isEnabled) enabledAlpha else disabledAlpha,
             radius = thumbRadius.toPx(),
-            center = Offset(x = animatePosition.value, y = size.height / 2)
+            center = Offset(
+                x = animatePosition.value,
+                y = size.height / 2,
+            ),
         )
     }
 
