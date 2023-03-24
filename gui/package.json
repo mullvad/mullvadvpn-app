@@ -60,7 +60,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^21.1.1",
+    "electron": "^23.2.0",
     "electron-builder": "^23.3.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^11.0.2",
@@ -112,7 +112,7 @@
     "npm": ">=8.3"
   },
   "volta": {
-    "node": "16.16.0",
-    "npm": "8.19.2"
+    "node": "18.12.1",
+    "npm": "9.6.2"
   }
 }
