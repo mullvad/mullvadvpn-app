@@ -63,6 +63,11 @@ ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
     PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
 
+# Enable Cargo's sparse protocol. Allows fetching the index much faster.
+# Is targeted for being the default in Rust 1.70. If that happens, this can be removed.
+# https://blog.rust-lang.org/2023/03/09/Rust-1.68.0.html#cargos-sparse-protocol
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
 # === mold (fast linker) ===
 # Allows linking Rust binaries significantly faster.
 
