@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.compose.theme.AlphaActive
+import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.compose.theme.MullvadRed
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
@@ -27,7 +30,10 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 @Preview
 @Composable
 private fun PreviewSwitch() {
-    CellSwitch(isChecked = false, onCheckedChange = null)
+    Column {
+        CellSwitch(isChecked = true, onCheckedChange = null)
+        CellSwitch(isChecked = false, onCheckedChange = null, isEnabled = false)
+    }
 }
 
 @Composable
@@ -36,6 +42,7 @@ fun CellSwitch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
+    isEnabled: Boolean = true,
     thumbCheckedTrackColor: Color = MullvadGreen,
     thumbUncheckedTrackColor: Color = MullvadRed,
     thumbColor: Color = MullvadWhite
@@ -66,7 +73,7 @@ fun CellSwitch(
                 .size(width = width, height = height)
                 .scale(scale = scale)
                 .pointerInput(Unit) {
-                    if (onCheckedChange != null) {
+                    if (onCheckedChange != null && isEnabled) {
                         detectTapGestures(onTap = { onCheckedChange(!isChecked) })
                     }
                 }
@@ -74,20 +81,26 @@ fun CellSwitch(
         // Track
         drawRoundRect(
             color = thumbColor,
+            alpha = if (isEnabled) AlphaActive else AlphaInactive,
             cornerRadius = CornerRadius(x = 15.dp.toPx(), y = 15.dp.toPx()),
             style =
                 Stroke(
                     width = 2.dp.toPx(),
                     miter = 6.dp.toPx(),
                     cap = StrokeCap.Square,
-                ),
+                )
         )
 
         // Thumb
         drawCircle(
             color = if (isChecked) thumbCheckedTrackColor else thumbUncheckedTrackColor,
+            alpha = if (isEnabled) AlphaActive else AlphaInactive,
             radius = thumbRadius.toPx(),
-            center = Offset(x = animatePosition.value, y = size.height / 2)
+            center =
+                Offset(
+                    x = animatePosition.value,
+                    y = size.height / 2,
+                )
         )
     }
 
