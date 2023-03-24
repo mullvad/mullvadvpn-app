@@ -1,12 +1,15 @@
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import { expect, test } from '@playwright/test';
 import { Locator, Page } from 'playwright';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { TestUtils } from '../../utils';
 
 import { startInstalledApp } from '../installed-utils';
+import { assertDisconnected } from '../../shared/tunnel-state';
 
 // This test expects the daemon to be logged out.
+// Env parameters:
+//   `ACCOUNT_NUMBER`: Account number to use when logging in
 
 let page: Page;
 let util: TestUtils;
@@ -81,7 +84,7 @@ test('App should log in', async () => {
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.type(accountNumber);
+  await loginInput.type(process.env.ACCOUNT_NUMBER!);
   await loginInput.press('Enter');
 
   await expect(title).toHaveText('Logging in...');
@@ -91,8 +94,10 @@ test('App should log in', async () => {
 
   expect(await util.waitForNavigation()).toEqual(RoutePath.main);
 
-  const outOfTimeTitle = page.getByTestId('title');
-  await expect(outOfTimeTitle).toHaveText('Out of time');
+  // Prevent the connect-button from being hovered, and therefore not have the correct color.
+  await page.hover('div');
+
+  await assertDisconnected(page);
 });
 
 test('App should log out', async () => {
@@ -112,6 +117,32 @@ test('App should log out', async () => {
   const subtitle = page.getByTestId('subtitle');
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
+});
+
+test('App should log in to expired account', async () => {
+  expect(await util.currentRoute()).toEqual(RoutePath.login);
+
+  const title = page.locator('h1')
+  const subtitle = page.getByTestId('subtitle');
+  const loginInput = getInput(page);
+
+  await expect(title).toHaveText('Login');
+  await expect(subtitle).toHaveText('Enter your account number');
+
+  await loginInput.type(accountNumber);
+  await loginInput.press('Enter');
+
+  await expect(title).toHaveText('Logging in...');
+  await expect(subtitle).toHaveText('Checking account number');
+  await expect(title).toHaveText('Logged in');
+  await expect(subtitle).toHaveText('Valid account number');
+
+  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
+
+  const outOfTimeTitle = page.getByTestId('title');
+  await expect(outOfTimeTitle).toHaveText('Out of time');
+
+  execSync('mullvad account logout');
 });
 
 function getInput(page: Page): Locator {
