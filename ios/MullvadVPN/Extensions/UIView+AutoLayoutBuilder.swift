@@ -10,161 +10,87 @@ import UIKit
 
 extension UIView {
     /**
-     Pin edges to edges of other view edges.
+     Pin all edges to edges of other view.
      */
-    func pinEdgesTo(
-        _ other: UIView,
-        insets: NSDirectionalEdgeInsets = .zero,
-        excludingEdges: NSDirectionalRectEdge = []
-    ) -> [NSLayoutConstraint] {
-        var constraints = [NSLayoutConstraint]()
+    func pinEdgesTo(_ other: UIView) -> [NSLayoutConstraint] {
+        return pinEdges(.all(), to: other)
+    }
 
-        if !excludingEdges.contains(.top) {
-            constraints.append(
-                topAnchor.constraint(equalTo: other.topAnchor, constant: insets.top)
-            )
+    /**
+     Pin edges to edges of other view.
+     */
+    func pinEdges(_ edges: PinnableEdges, to other: UIView) -> [NSLayoutConstraint] {
+        return edges.inner.map { edge -> NSLayoutConstraint in
+            switch edge {
+            case let .top(inset):
+                return topAnchor.constraint(equalTo: other.topAnchor, constant: inset)
+
+            case let .bottom(inset):
+                return bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: inset)
+
+            case let .leading(inset):
+                return leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: inset)
+
+            case let .trailing(inset):
+                return trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: inset)
+            }
         }
-
-        if !excludingEdges.contains(.bottom) {
-            constraints.append(
-                bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: insets.bottom)
-            )
-        }
-
-        if !excludingEdges.contains(.leading) {
-            constraints.append(
-                leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: insets.leading)
-            )
-        }
-
-        if !excludingEdges.contains(.trailing) {
-            constraints.append(
-                trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: insets.trailing)
-            )
-        }
-
-        return constraints
     }
 
     /**
      Pin edges to superview edges.
      */
-    func pinEdgesToSuperview(
-        insets: NSDirectionalEdgeInsets = .zero,
-        excludingEdges: NSDirectionalRectEdge = []
-    ) -> [NSLayoutConstraint] {
+    func pinEdgesToSuperview(_ edges: PinnableEdges = .all()) -> [NSLayoutConstraint] {
         guard let superview = superview else { return [] }
 
-        return pinEdgesTo(superview, insets: insets, excludingEdges: excludingEdges)
+        return pinEdges(edges, to: superview)
     }
 
     /**
      Pin edges to superview margins.
      */
-    func pinEdgesToSuperviewMargins(
-        insets: NSDirectionalEdgeInsets = .zero,
-        excludingEdges: NSDirectionalRectEdge = []
-    ) -> [NSLayoutConstraint] {
+    func pinEdgesToSuperviewMargins(_ edges: PinnableEdges = .all()) -> [NSLayoutConstraint] {
         guard let superview = superview else { return [] }
 
-        return pinEdgesToMargins(superview, insets: insets, excludingEdges: excludingEdges)
+        return pinEdges(edges, toMarginsOf: superview)
+    }
+
+    /**
+     Pin all edges to other view layout margins.
+     */
+    func pinEdgesToMarginsOf(_ other: UIView) -> [NSLayoutConstraint] {
+        return pinEdges(.all(), toMarginsOf: other)
     }
 
     /**
      Pin edges to other view layout margins.
      */
-    func pinEdgesToMargins(
-        _ other: UIView,
-        insets: NSDirectionalEdgeInsets = .zero,
-        excludingEdges: NSDirectionalRectEdge = []
-    ) -> [NSLayoutConstraint] {
-        return pinEdgesTo(other.layoutMarginsGuide, insets: insets, excludingEdges: excludingEdges)
+    func pinEdges(_ edges: PinnableEdges, toMarginsOf other: UIView) -> [NSLayoutConstraint] {
+        return pinEdges(edges, to: other.layoutMarginsGuide)
     }
 
     /**
      Pin edges to layout guide.
      */
-    func pinEdgesTo(
-        _ layoutGuide: UILayoutGuide,
-        insets: NSDirectionalEdgeInsets = .zero,
-        excludingEdges: NSDirectionalRectEdge = []
-    ) -> [NSLayoutConstraint] {
-        var constraints = [NSLayoutConstraint]()
+    func pinEdges(_ edges: PinnableEdges, to layoutGuide: UILayoutGuide) -> [NSLayoutConstraint] {
+        return edges.inner.map { edge -> NSLayoutConstraint in
+            switch edge {
+            case let .top(inset):
+                return topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: inset)
 
-        if !excludingEdges.contains(.top) {
-            constraints.append(
-                topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: insets.top)
-            )
-        }
+            case let .bottom(inset):
+                return bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: inset)
 
-        if !excludingEdges.contains(.bottom) {
-            constraints.append(
-                bottomAnchor.constraint(
-                    equalTo: layoutGuide.bottomAnchor,
-                    constant: insets.bottom
-                )
-            )
-        }
+            case let .leading(inset):
+                return leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: inset)
 
-        if !excludingEdges.contains(.leading) {
-            constraints.append(
-                leadingAnchor.constraint(
-                    equalTo: layoutGuide.leadingAnchor,
-                    constant: insets.leading
-                )
-            )
-        }
-
-        if !excludingEdges.contains(.trailing) {
-            constraints.append(
-                trailingAnchor.constraint(
+            case let .trailing(inset):
+                return trailingAnchor.constraint(
                     equalTo: layoutGuide.trailingAnchor,
-                    constant: insets.trailing
+                    constant: inset
                 )
-            )
+            }
         }
-
-        return constraints
-    }
-
-    /**
-     Pin horizontal edges to other view edges.
-     */
-    func pinHorizontalEdgesTo(
-        _ other: UIView,
-        leadingInset: CGFloat = .zero,
-        trailingInset: CGFloat = .zero
-    ) -> [NSLayoutConstraint] {
-        return pinEdgesTo(
-            other,
-            insets: NSDirectionalEdgeInsets(
-                top: 0,
-                leading: leadingInset,
-                bottom: 0,
-                trailing: trailingInset
-            ),
-            excludingEdges: [.bottom, .top]
-        )
-    }
-
-    /**
-     Pin horizontal edges to other view layout margins.
-     */
-    func pinHorizontalEdgesToMargins(
-        _ other: UIView,
-        leadingInset: CGFloat = .zero,
-        trailingInset: CGFloat = .zero
-    ) -> [NSLayoutConstraint] {
-        return pinEdgesToMargins(
-            other,
-            insets: NSDirectionalEdgeInsets(
-                top: 0,
-                leading: leadingInset,
-                bottom: 0,
-                trailing: trailingInset
-            ),
-            excludingEdges: [.bottom, .top]
-        )
     }
 }
 
@@ -182,13 +108,12 @@ extension UIView {
  view.addSubview(subview)
 
  NSLayoutConstraint.activate {
-    subview.pinEdgesToSuperview(
-        insets: NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 24),
-        excludingEdges: .bottom
-    )
+    // Pin top, leading and trailing edges to superview.
+    subview.pinEdgesToSuperview(.init([.top(8), .leading(16), .trailing(8)]))
+
+    // Pin bottom to safe area layout guide.
     subview.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
  }
-
  ```
  */
 @resultBuilder enum AutoLayoutBuilder {
@@ -227,5 +152,105 @@ extension NSLayoutConstraint {
      */
     static func activate(@AutoLayoutBuilder builder: () -> [NSLayoutConstraint]) {
         activate(builder())
+    }
+}
+
+extension UIView {
+    /**
+     Add subviews using AutoLayout and configure constraints.
+     */
+    func addConstrainedSubviews(
+        _ subviews: [UIView],
+        @AutoLayoutBuilder builder: () -> [NSLayoutConstraint]
+    ) {
+        for subview in subviews {
+            subview.configureForAutoLayout()
+            addSubview(subview)
+        }
+
+        NSLayoutConstraint.activate(builder())
+    }
+
+    /**
+     Add subviews using AutoLayout without configuring constraints.
+     */
+    func addConstrainedSubviews(_ subviews: [UIView]) {
+        addConstrainedSubviews(subviews) {}
+    }
+
+    /**
+     Configure view for AutoLayout by disabling automatic autoresizing mask translation into
+     constraints.
+     */
+    func configureForAutoLayout() {
+        translatesAutoresizingMaskIntoConstraints = false
+    }
+}
+
+/**
+ Struct describing a relationship between AutoLayout anchors.
+ */
+struct PinnableEdges {
+    /**
+     Enum describing each inidividual edge with associated inset value.
+     */
+    enum Edge: Hashable {
+        case top(CGFloat)
+        case bottom(CGFloat)
+        case leading(CGFloat)
+        case trailing(CGFloat)
+
+        var rectEdge: NSDirectionalRectEdge {
+            switch self {
+            case .top:
+                return .top
+            case .bottom:
+                return .bottom
+            case .leading:
+                return .leading
+            case .trailing:
+                return .trailing
+            }
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(rectEdge.rawValue)
+        }
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.rectEdge == rhs.rectEdge
+        }
+    }
+
+    /**
+     Inner set of `Edge` objects.
+     */
+    var inner: Set<Edge>
+
+    /**
+     Designated initializer.
+     */
+    init(_ edges: Set<Edge>) {
+        inner = edges
+    }
+
+    /**
+     Returns new `PinnableEdges` with the given edge(s) excluded.
+     */
+    func excluding(_ excludeEdges: NSDirectionalRectEdge) -> Self {
+        return Self(inner.filter { !excludeEdges.contains($0.rectEdge) })
+    }
+
+    /**
+     Returns new `PinnableEdges` initialized with four edges and corresponding insets from
+     `NSDirectionalEdgeInsets`.
+     */
+    static func all(_ directionalEdgeInsets: NSDirectionalEdgeInsets = .zero) -> Self {
+        return Self([
+            .top(directionalEdgeInsets.top),
+            .bottom(directionalEdgeInsets.bottom),
+            .leading(directionalEdgeInsets.leading),
+            .trailing(directionalEdgeInsets.trailing),
+        ])
     }
 }
