@@ -3,9 +3,10 @@
 #
 # To build using the image:
 # podman run --rm \
-#     -v /path/to/container_cache/target:/root/.cargo/target:Z \
-#     -v /path/to/container_cache/registry:/root/.cargo/registry:Z \
-#     -v /path/to/container_cache/gradle:/root/.gradle:Z \
+#     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
+#     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
+#     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
+#     -v $ANDROID_CREDENTIALS_DIR:/build/android/credentials:Z \
 #     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build-android ./build-apk.sh --dev-build --no-docker
 #

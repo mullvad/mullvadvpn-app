@@ -7,9 +7,9 @@
 # dependencies and building everything.
 #
 # podman run --rm \
-#     -v /path/to/container_cache/target:/root/.cargo/target:Z \
-#     -v /path/to/container_cache/registry:/root/.cargo/registry:Z \
-#     -v .:/build:Z \
+#     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
+#     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
+#     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build ./build.sh
 #
 # And add -e TARGETS="aarch64-unknown-linux-gnu" to build for ARM64
@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 # === Define toolchain versions and paths ===
 
-ENV CARGO_TARGET_DIR=/root/.cargo/target
+ENV CARGO_TARGET_DIR=/cargo-target/target
 
 ARG GOLANG_VERSION=1.18.5 \
     GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
