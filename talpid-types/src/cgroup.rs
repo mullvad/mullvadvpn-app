@@ -15,7 +15,7 @@ fn find_net_cls_mount_inner(mounts: &[u8]) -> Option<PathBuf> {
 }
 
 fn parse_mount_line(line: &[u8]) -> Option<PathBuf> {
-    // Each line contains multiple values seperated by space.
+    // Each line contains multiple values separated by space.
     // `cgroup /sys/fs/cgroup/net_cls,net_prio cgroup
     // rw,nosuid,nodev,noexec,relatime,net_cls,net_prio 0 0`  Value meanings:
     // 1. device type

@@ -87,7 +87,7 @@ def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
 
       "--output-file", existing_catalogue_file,
 
-      # ensure that the first occurence takes precedence in merge conflict
+      # ensure that the first occurrence takes precedence in merge conflict
       "--use-first",
 
       # sort by msgid

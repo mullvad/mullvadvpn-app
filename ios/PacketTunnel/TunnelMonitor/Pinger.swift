@@ -267,7 +267,7 @@ final class Pinger {
                 throw Error.malformedResponse(.checksumMismatch(clientChecksum, serverChecksum))
             }
 
-            // Ensure endianess before returning ICMP packet to delegate.
+            // Ensure endianness before returning ICMP packet to delegate.
             var icmpHeader = icmpHeaderPointer.pointee
             icmpHeader.identifier = icmpHeader.identifier.bigEndian
             icmpHeader.sequenceNumber = icmpHeader.sequenceNumber.bigEndian

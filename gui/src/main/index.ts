@@ -341,7 +341,7 @@ class ApplicationMain
     }
 
     log.info('Disposable logging outputs disposed');
-    log.info('Quit preperations finished');
+    log.info('Quit preparations finished');
   }
 
   private detectLocale(): string {

@@ -709,7 +709,7 @@ This release is identical to 2021.5-beta2 except that it has translations for ne
 - Fix incorrect location and connection status while disconnecting and incorrect location in the
   beginning while connecting in the desktop app.
 - Improve responsiveness of the controls and status text in the main view in the desktop app.
-- Read macOS scrollbar visibility settings to decide wheter or not the scrollbars should hide when
+- Read macOS scrollbar visibility settings to decide whether or not the scrollbars should hide when
   not scrolling.
 - Fix IPv6 connections to WireGuard servers by not dropping select neighbor advertisements and
   solicitations.
@@ -1949,7 +1949,7 @@ This release is identical to 2019.8-beta1
   the Wi-Fi calling via iPhone when both devices are on the same network.
 - Allow incoming DHCPv4 requests and outgoing responses if allow local network is enabled. Enables
   being a DHCPv4 server.
-- Add GUI translations for Italian, Japanese, Dutch, Portugese, Russian and Turkish.
+- Add GUI translations for Italian, Japanese, Dutch, Portuguese, Russian and Turkish.
 - Add missing GUI translations for Czech Republic, USA and UK in the select location view.
 - Add translations for the current location displayed on the main screen in the GUI.
 - Allow a subset of NDP (Router solicitation, router advertisement and redirects) in the firewall.
@@ -1973,7 +1973,7 @@ This release is identical to 2019.8-beta1
 - Stop allowing the wrong IPv6 net fe02::/16 in the firewall when allow local network was enabled.
   Instead allow the correct multicast nets ff02::/16 and ff05::/16.
 - Fix the regression that allowed to get past the login screen using the invalid account token.
-- Fix the GUI crash caused by a derefence of the already released remote object in Electron.
+- Fix the GUI crash caused by a dereference of the already released remote object in Electron.
 
 #### macOS
 - Raise max number of open files for the daemon to 1024. Should prevent threads from panicking.
@@ -2361,7 +2361,7 @@ This release is identical to 2018.2-beta3
 - Account tokens are now required to have at least ten digits.
 
 #### macOS
-- Rename directores for settings, logs and cache from `mullvad-daemon` to `mullvad-vpn`.
+- Rename directories for settings, logs and cache from `mullvad-daemon` to `mullvad-vpn`.
 
 #### Windows
 - Use local user directory to store system service settings and GUI electron cache, instead of the
@@ -2527,8 +2527,8 @@ This release is identical to 2018.2-beta3
 - The tray icon now indicates whether the app is allowing traffic outside the tunnel or not. If the
   app blocks traffic because the tunnel is not connected the tray icon will indicate this with a
   green lock with a red dot.
-- While connecting, a message telling the user that internet accesss is blocked is shown.
-- Default to selecting servers in Sweden to increase the likelyhood of a fast and stable connection.
+- While connecting, a message telling the user that internet access is blocked is shown.
+- Default to selecting servers in Sweden to increase the likelihood of a fast and stable connection.
 - Scrollbars will automatically hide when not scrolling.
 
 ### Removed

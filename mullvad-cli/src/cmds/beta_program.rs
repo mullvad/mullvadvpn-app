@@ -54,7 +54,7 @@ impl Command for BetaProgram {
                 Ok(())
             }
             _ => {
-                unreachable!("unhandled comand");
+                unreachable!("unhandled command");
             }
         }
     }

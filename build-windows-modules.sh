@@ -69,7 +69,7 @@ function get_solution_output_path {
         "x86") echo "$solution_root/bin/Win32-$build_mode";;
         "x64") echo "$solution_root/bin/x64-$build_mode";;
         *)
-            echo "Unkown build target: $build_target"
+            echo "Unknown build target: $build_target"
             exit 1
             ;;
     esac

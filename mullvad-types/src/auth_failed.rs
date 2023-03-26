@@ -66,7 +66,7 @@ impl TryFrom<&ErrorStateCause> for AuthFailed {
 // The example input string would be split into:
 // * "INVALID_ACCOUNT" - the ID of the failure reason.
 // * "This is not a valid Mullvad account" - human-readable message (ignored).
-// In the case that the message has preceeding whitespace, it will be trimmed.
+// In the case that the message has preceding whitespace, it will be trimmed.
 fn parse_string(reason: &str) -> Option<&str> {
     lazy_static! {
         static ref REASON_REGEX: Regex = Regex::new(r"^\[(\w+)\]\s*").unwrap();

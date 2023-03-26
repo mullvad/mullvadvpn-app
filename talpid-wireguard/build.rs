@@ -9,7 +9,7 @@ fn main() {
     let link_type = match target_os.as_str() {
         "android" => "",
         "linux" | "macos" => "=static",
-        // We would like to avoid panicing on windows even if we can not link correctly
+        // We would like to avoid panicking on windows even if we can not link correctly
         // because we would like to be able to run check and clippy.
         // This does not allow for correct linking or buijding.
         #[cfg(not(windows))]

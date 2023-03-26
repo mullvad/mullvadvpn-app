@@ -4,13 +4,13 @@
 # first if the source SVGs have been updated. More info about how to update them can be found in
 # the readme.
 #
-# Icon guidlines for macOS:
+# Icon guidelines for macOS:
 # https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon/
 #
 # Icon templates for macOS:
 # https://developer.apple.com/design/resources/
 #
-# Icon guidlines for Windows:
+# Icon guidelines for Windows:
 # https://docs.microsoft.com/en-us/windows/uwp/design/style/app-icons-and-logos#target-size-app-icon-assets
 # https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-icons
 

@@ -44,7 +44,7 @@ pub enum Error {
     /// Route manager thread may have panicked
     #[error(display = "The channel sender was dropped")]
     ManagerChannelDown,
-    /// Platform specific error occured
+    /// Platform specific error occurred
     #[error(display = "Internal route manager error")]
     PlatformError(#[error(source)] imp::Error),
     /// Failed to spawn route manager future

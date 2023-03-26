@@ -138,7 +138,7 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
-        /// Desination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will be
+        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will be
         /// redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
         dns_redirect_port: u16,

@@ -26,7 +26,7 @@ impl Command for Tunnel {
             Some(("wireguard", wg_matches)) => Self::handle_wireguard_cmd(wg_matches).await,
             Some(("ipv6", ipv6_matches)) => Self::handle_ipv6_cmd(ipv6_matches).await,
             _ => {
-                unreachable!("unhandled comand");
+                unreachable!("unhandled command");
             }
         }
     }

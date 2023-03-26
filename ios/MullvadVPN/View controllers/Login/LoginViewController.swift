@@ -301,7 +301,7 @@ class LoginViewController: UIViewController, RootContainment {
         case .failure, .default:
             // Disable "Create account" button on iPad as user types in the account token,
             // however leave it enabled on iPhone to avoid confusion to why it's being disabled
-            // since it's likely overlayed by keyboard.
+            // since it's likely overlaid by keyboard.
             if case .pad = traitCollection.userInterfaceIdiom {
                 isEnabled = contentView.accountInputGroup.textField.text?.isEmpty ?? true
             } else {

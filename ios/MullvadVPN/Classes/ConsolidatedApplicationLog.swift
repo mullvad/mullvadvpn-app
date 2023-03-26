@@ -9,7 +9,7 @@
 import Foundation
 
 private let kLogMaxReadBytes: UInt64 = 128 * 1024
-private let kLogDelimeter = "===================="
+private let kLogDelimiter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
 private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
 private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
@@ -81,9 +81,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         print("", to: &stream)
 
         for attachment in logs {
-            print(kLogDelimeter, to: &stream)
+            print(kLogDelimiter, to: &stream)
             print(attachment.label, to: &stream)
-            print(kLogDelimeter, to: &stream)
+            print(kLogDelimiter, to: &stream)
             print(attachment.content, to: &stream)
             print("", to: &stream)
         }

@@ -22,7 +22,7 @@ const EXTRA_BYTES: usize = 32 * 1024;
 /// Fit five logs plus some system information in the report.
 const REPORT_MAX_SIZE: usize = (5 * LOG_MAX_READ_BYTES) + EXTRA_BYTES;
 
-/// Field delimeter in generated problem report
+/// Field delimiter in generated problem report
 const LOG_DELIMITER: &str = "====================";
 
 /// Line separator character sequence

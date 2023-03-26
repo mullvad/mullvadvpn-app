@@ -15,7 +15,7 @@ const StyledContainer = styled.div({
   height: '0px',
 });
 
-// This component is used to determine wheter scrollbars should be always visible or only visible
+// This component is used to determine whether scrollbars should be always visible or only visible
 // while scrolling when the system setting for this is set to "Automatic". This is detected by
 // testing if any space is taken by a scrollbar.
 export default function MacOsScrollbarDetection() {
