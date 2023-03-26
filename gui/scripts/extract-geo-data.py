@@ -35,7 +35,7 @@ RELAY_LOCATIONS_PO_FILENAME = "relay-locations.po"
 
 # Custom locale mapping between the identifiers in the app and Natural Earth datasets
 LOCALE_MAPPING = {
-  # "zh" in Natural Earth Data referes to simplified chinese
+  # "zh" in Natural Earth Data refers to simplified chinese
   "zh-CN": "zh"
 }
 

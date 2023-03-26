@@ -21,7 +21,7 @@ impl Command for SplitTunnel {
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
             Some(("pid", pid_matches)) => Self::handle_pid_cmd(pid_matches).await,
-            _ => unreachable!("unhandled comand"),
+            _ => unreachable!("unhandled command"),
         }
     }
 }

@@ -176,7 +176,7 @@ void RemoveLogsCacheOtherUsers()
 	//
 	// Determine relative path to "local app data" from home directory.
 	//
-	// Beware, the local app data path may be overriden from its default location
+	// Beware, the local app data path may be overridden from its default location
 	// as a node somewhere beneath the home directory.
 	//
 

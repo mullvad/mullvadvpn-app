@@ -24,7 +24,7 @@ export function useOnSelectExitLocation() {
   return useCallback(
     async (relayLocation: LocationSelection<undefined>) => {
       if (relayLocation.value === undefined) {
-        throw new Error('relayLocation should never be undefiend');
+        throw new Error('relayLocation should never be undefined');
       }
 
       history.pop();

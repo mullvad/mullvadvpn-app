@@ -134,7 +134,7 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
 
   private getWindowMargin() {
     if (isWindows11OrNewer()) {
-      // Tray applications are positioned aproximately 10px from the tray in Windows 11.
+      // Tray applications are positioned approximately 10px from the tray in Windows 11.
       return 10;
     } else if (process.platform === 'darwin') {
       return 5;

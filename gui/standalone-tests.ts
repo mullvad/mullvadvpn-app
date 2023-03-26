@@ -3,7 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-// This file is bundled into a standalone executable able to run e2e tests agains an installed
+// This file is bundled into a standalone executable able to run e2e tests against an installed
 // version of the app. This file is the entrypoint in the executable and extracts the required
 // assets and performs the tests. More info in /gui/README.md.
 

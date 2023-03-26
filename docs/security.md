@@ -119,7 +119,7 @@ The firewall allows traffic to the API regardless of tunnel state, so the daemon
 keys, fetch account data, etc. In the [Connected] state, API traffic is only allowed inside the tunnel.
 For the other states, API traffic will bypass the firewall. On Windows, only the Mullvad service and
 problem report tool are able to communicate with the API in any of the blocking states. On macOS and
-Linux all applications runnning as root are able to reach the API in blocking states.
+Linux all applications running as root are able to reach the API in blocking states.
 
 ### Disconnected
 

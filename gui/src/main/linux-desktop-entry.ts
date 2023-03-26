@@ -64,7 +64,7 @@ function parseDesktopEntry(
     { absolutepath } as Partial<DesktopEntry>,
   );
 
-  // If the dekstop entry is lacking some of the required keys it's invalid
+  // If the desktop entry is lacking some of the required keys it's invalid
   if (isDesktopEntry(parsed)) {
     return parsed;
   } else {
@@ -78,7 +78,7 @@ function parseDesktopEntryLine(
   line: string,
   locale?: string,
 ): Partial<DesktopEntry> {
-  // Comments start with `#` and keys and values are seperated by a `=`
+  // Comments start with `#` and keys and values are separated by a `=`
   if (!line.startsWith('#') && line.includes('=')) {
     const firstEqualSign = line.indexOf('=');
     const keyWithLocale = line.slice(0, firstEqualSign).replace(' ', '');

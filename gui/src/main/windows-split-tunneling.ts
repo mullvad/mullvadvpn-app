@@ -127,7 +127,7 @@ export function removeApplicationFromCache(application: IWindowsApplication): vo
 }
 
 // Reads the start-menu directories and adds all shortcuts, targeting applications using networking,
-// to the shortcuts cache. Wheter or not an application use networking is determined by checking for
+// to the shortcuts cache. Whether or not an application use networking is determined by checking for
 // "WS2_32.dll" in it's imports.
 async function updateShortcutCache(): Promise<void> {
   const links = await Promise.all(APPLICATION_PATHS.map(findAllLinks));

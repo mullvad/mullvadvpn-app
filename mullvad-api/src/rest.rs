@@ -264,7 +264,7 @@ impl RequestServiceHandle {
         let _ = self.tx.unbounded_send(RequestCommand::Reset);
     }
 
-    /// Submits a `RestRequest` for exectuion to the request service.
+    /// Submits a `RestRequest` for execution to the request service.
     pub async fn request(&self, request: RestRequest) -> Result<Response> {
         let (completion_tx, completion_rx) = oneshot::channel();
         self.tx

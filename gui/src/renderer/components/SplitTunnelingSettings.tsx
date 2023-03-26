@@ -184,7 +184,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
         type={ModalAlertType.warning}
         iconColor={colors.red}
         message={sprintf(
-          // TRANSLATORS: Error message showed in a dialog when an application failes to launch.
+          // TRANSLATORS: Error message showed in a dialog when an application fails to launch.
           messages.pgettext(
             'split-tunneling-view',
             'Unable to launch selection. %(detailedErrorMessage)s',

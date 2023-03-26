@@ -193,7 +193,7 @@ impl DefaultRouteMonitor {
         // after those notifications are guaranteed to not run. This happens when the
         // DefaultRouteMonitor is dropped and not before then. It also imposes the requirement that
         // ContextAndBurstGuard is `Sync` since we will send references to it to other
-        // threads. This requirement is fullfilled since all fields of `ContextAndBurstGuard` are
+        // threads. This requirement is fulfilled since all fields of `ContextAndBurstGuard` are
         // wrapped in either a Arc<Mutex> or Mutex.
         let context_and_burst = Box::into_raw(Box::new(ContextAndBurstGuard {
             context,
