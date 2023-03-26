@@ -1103,7 +1103,7 @@ msgstr ""
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application fais during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr ""
