@@ -9,659 +9,647 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/any.proto";
 
 service ManagementService {
-	// Control and get tunnel state
-	rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-	rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-	rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-	rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
+  // Control and get tunnel state
+  rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {
+  }
+  rpc DisconnectTunnel(google.protobuf.Empty)
+      returns (google.protobuf.BoolValue) {}
+  rpc ReconnectTunnel(google.protobuf.Empty)
+      returns (google.protobuf.BoolValue) {}
+  rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
 
-	// Control the daemon and receive events
-	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
-	rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  // Control the daemon and receive events
+  rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
+  rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-	rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
+  rpc GetCurrentVersion(google.protobuf.Empty)
+      returns (google.protobuf.StringValue) {}
+  rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
-	rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+  rpc IsPerformingPostUpgrade(google.protobuf.Empty)
+      returns (google.protobuf.BoolValue) {}
 
-	// Relays and tunnel constraints
-	rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}
-	rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
-	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
-	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
-	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
-	rpc SetObfuscationSettings(ObfuscationSettings) returns (google.protobuf.Empty) {}
+  // Relays and tunnel constraints
+  rpc UpdateRelayLocations(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
+  rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {
+  }
+  rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
+  rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
+  rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
+  rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
+  rpc SetObfuscationSettings(ObfuscationSettings)
+      returns (google.protobuf.Empty) {}
 
-	// Settings
-	rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
-	rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetBlockWhenDisconnected(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
-	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
-	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
-	rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
+  // Settings
+  rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
+  rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetShowBetaReleases(google.protobuf.BoolValue)
+      returns (google.protobuf.Empty) {}
+  rpc SetBlockWhenDisconnected(google.protobuf.BoolValue)
+      returns (google.protobuf.Empty) {}
+  rpc SetAutoConnect(google.protobuf.BoolValue)
+      returns (google.protobuf.Empty) {}
+  rpc SetOpenvpnMssfix(google.protobuf.UInt32Value)
+      returns (google.protobuf.Empty) {}
+  rpc SetWireguardMtu(google.protobuf.UInt32Value)
+      returns (google.protobuf.Empty) {}
+  rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {
+  }
+  rpc SetQuantumResistantTunnel(QuantumResistantState)
+      returns (google.protobuf.Empty) {}
+  rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
 
-	// Account management
-	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
-	rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
-	rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
+  // Account management
+  rpc CreateNewAccount(google.protobuf.Empty)
+      returns (google.protobuf.StringValue) {}
+  rpc LoginAccount(google.protobuf.StringValue)
+      returns (google.protobuf.Empty) {}
+  rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
+  rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
+  rpc ClearAccountHistory(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
+  rpc GetWwwAuthToken(google.protobuf.Empty)
+      returns (google.protobuf.StringValue) {}
+  rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
 
-	// Device management
-	rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}
-	rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
-	rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
+  // Device management
+  rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}
+  rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
+  rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
 
-	// WireGuard key management
-	rpc SetWireguardRotationInterval(google.protobuf.Duration) returns (google.protobuf.Empty) {}
-	rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc RotateWireguardKey(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
+  // WireGuard key management
+  rpc SetWireguardRotationInterval(google.protobuf.Duration)
+      returns (google.protobuf.Empty) {}
+  rpc ResetWireguardRotationInterval(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
+  rpc RotateWireguardKey(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
+  rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
-	// Split tunneling (Linux)
-	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
-	rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
-	rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
-	rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  // Split tunneling (Linux)
+  rpc GetSplitTunnelProcesses(google.protobuf.Empty)
+      returns (stream google.protobuf.Int32Value) {}
+  rpc AddSplitTunnelProcess(google.protobuf.Int32Value)
+      returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value)
+      returns (google.protobuf.Empty) {}
+  rpc ClearSplitTunnelProcesses(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
 
-	// Split tunneling (Windows)
-	rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
+  // Split tunneling (Windows)
+  rpc AddSplitTunnelApp(google.protobuf.StringValue)
+      returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelApp(google.protobuf.StringValue)
+      returns (google.protobuf.Empty) {}
+  rpc ClearSplitTunnelApps(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {}
+  rpc SetSplitTunnelState(google.protobuf.BoolValue)
+      returns (google.protobuf.Empty) {}
+  rpc GetExcludedProcesses(google.protobuf.Empty)
+      returns (ExcludedProcessList) {}
 
-	rpc SetUseWireguardNt(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetUseWireguardNt(google.protobuf.BoolValue)
+      returns (google.protobuf.Empty) {}
 
-	// Notify the split tunnel monitor that a volume was mounted or dismounted (Windows).
-	rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  // Notify the split tunnel monitor that a volume was mounted or dismounted
+  // (Windows).
+  rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message RelaySettingsUpdate {
-	oneof type {
-		CustomRelaySettings custom = 1;
-		NormalRelaySettingsUpdate normal = 2;
-	}
+  oneof type {
+    CustomRelaySettings custom = 1;
+    NormalRelaySettingsUpdate normal = 2;
+  }
 }
 
-message AccountData {
-	google.protobuf.Timestamp expiry = 1;
-}
+message AccountData { google.protobuf.Timestamp expiry = 1; }
 
-message AccountHistory {
-	google.protobuf.StringValue token = 1;
-}
+message AccountHistory { google.protobuf.StringValue token = 1; }
 
 message VoucherSubmission {
-	uint64 seconds_added = 1;
-	google.protobuf.Timestamp new_expiry = 2;
+  uint64 seconds_added = 1;
+  google.protobuf.Timestamp new_expiry = 2;
 }
 
 enum AfterDisconnect {
-	NOTHING = 0;
-	BLOCK = 1;
-	RECONNECT = 2;
+  NOTHING = 0;
+  BLOCK = 1;
+  RECONNECT = 2;
 }
 
 message ErrorState {
-	enum Cause {
-		AUTH_FAILED = 0;
-		IPV6_UNAVAILABLE = 1;
-		SET_FIREWALL_POLICY_ERROR = 2;
-		SET_DNS_ERROR = 3;
-		START_TUNNEL_ERROR = 4;
-		TUNNEL_PARAMETER_ERROR = 5;
-		IS_OFFLINE = 6;
-		VPN_PERMISSION_DENIED = 7;
-		SPLIT_TUNNEL_ERROR = 8;
-	}
+  enum Cause {
+    AUTH_FAILED = 0;
+    IPV6_UNAVAILABLE = 1;
+    SET_FIREWALL_POLICY_ERROR = 2;
+    SET_DNS_ERROR = 3;
+    START_TUNNEL_ERROR = 4;
+    TUNNEL_PARAMETER_ERROR = 5;
+    IS_OFFLINE = 6;
+    VPN_PERMISSION_DENIED = 7;
+    SPLIT_TUNNEL_ERROR = 8;
+  }
 
-	enum AuthFailedError {
-		UNKNOWN = 0;
-		INVALID_ACCOUNT = 1;
-		EXPIRED_ACCOUNT = 2;
-		TOO_MANY_CONNECTIONS = 3;
-	}
+  enum AuthFailedError {
+    UNKNOWN = 0;
+    INVALID_ACCOUNT = 1;
+    EXPIRED_ACCOUNT = 2;
+    TOO_MANY_CONNECTIONS = 3;
+  }
 
-	enum GenerationError {
-		NO_MATCHING_RELAY = 0;
-		NO_MATCHING_BRIDGE_RELAY = 1;
-		NO_WIREGUARD_KEY = 2;
-		CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 3;
-	}
+  enum GenerationError {
+    NO_MATCHING_RELAY = 0;
+    NO_MATCHING_BRIDGE_RELAY = 1;
+    NO_WIREGUARD_KEY = 2;
+    CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 3;
+  }
 
-	message FirewallPolicyError {
-		enum ErrorType {
-			GENERIC = 0;
-			LOCKED = 1;
-		}
-		ErrorType type = 1;
+  message FirewallPolicyError {
+    enum ErrorType {
+      GENERIC = 0;
+      LOCKED = 1;
+    }
+    ErrorType type = 1;
 
-		// LOCKED
-		uint32 lock_pid = 2;
-		string lock_name = 3;
-	}
+    // LOCKED
+    uint32 lock_pid = 2;
+    string lock_name = 3;
+  }
 
-	Cause cause = 1;
-	FirewallPolicyError blocking_error = 2;
+  Cause cause = 1;
+  FirewallPolicyError blocking_error = 2;
 
-	// AUTH_FAILED
-	AuthFailedError auth_failed_error = 3;
-	// TUNNEL_PARAMETER_ERROR
-	GenerationError parameter_error = 4;
-	// SET_FIREWALL_POLICY_ERROR
-	FirewallPolicyError policy_error = 5;
+  // AUTH_FAILED
+  AuthFailedError auth_failed_error = 3;
+  // TUNNEL_PARAMETER_ERROR
+  GenerationError parameter_error = 4;
+  // SET_FIREWALL_POLICY_ERROR
+  FirewallPolicyError policy_error = 5;
 }
 
 message TunnelState {
-	message Disconnected {
-	}
-	message Connecting {
-		TunnelStateRelayInfo relay_info = 1;
-	}
-	message Connected {
-		TunnelStateRelayInfo relay_info = 1;
-	}
-	message Disconnecting {
-		AfterDisconnect after_disconnect = 1;
-	}
-	message Error {
-		ErrorState error_state = 1;
-	}
+  message Disconnected {}
+  message Connecting { TunnelStateRelayInfo relay_info = 1; }
+  message Connected { TunnelStateRelayInfo relay_info = 1; }
+  message Disconnecting { AfterDisconnect after_disconnect = 1; }
+  message Error { ErrorState error_state = 1; }
 
-	oneof state {
-		Disconnected disconnected = 1;
-		Connecting connecting = 2;
-		Connected connected = 3;
-		Disconnecting disconnecting = 4;
-		Error error = 5;
-	}
+  oneof state {
+    Disconnected disconnected = 1;
+    Connecting connecting = 2;
+    Connected connected = 3;
+    Disconnecting disconnecting = 4;
+    Error error = 5;
+  }
 }
 
 enum TunnelType {
-	OPENVPN = 0;
-	WIREGUARD = 1;
+  OPENVPN = 0;
+  WIREGUARD = 1;
 }
 
 message TunnelStateRelayInfo {
-	TunnelEndpoint tunnel_endpoint = 1;
-	GeoIpLocation location = 2;
+  TunnelEndpoint tunnel_endpoint = 1;
+  GeoIpLocation location = 2;
 }
 
 message TunnelEndpoint {
-	string address = 1;
-	TransportProtocol protocol = 2;
-	TunnelType tunnel_type = 3;
-	bool quantum_resistant = 4;
-	ProxyEndpoint proxy = 5;
-	ObfuscationEndpoint obfuscation = 6;
-	Endpoint entry_endpoint = 7;
+  string address = 1;
+  TransportProtocol protocol = 2;
+  TunnelType tunnel_type = 3;
+  bool quantum_resistant = 4;
+  ProxyEndpoint proxy = 5;
+  ObfuscationEndpoint obfuscation = 6;
+  Endpoint entry_endpoint = 7;
 }
 
 enum ObfuscationType {
-	UDP2TCP = 0;
+  UDP2TCP = 0;
 }
 
 message ObfuscationEndpoint {
-	string address = 1;
-	uint32 port = 2;
-	TransportProtocol protocol = 3;
-	ObfuscationType obfuscation_type = 4;
+  string address = 1;
+  uint32 port = 2;
+  TransportProtocol protocol = 3;
+  ObfuscationType obfuscation_type = 4;
 }
 
 enum ProxyType {
-	SHADOWSOCKS = 0;
-	CUSTOM = 1;
+  SHADOWSOCKS = 0;
+  CUSTOM = 1;
 }
 
 message Endpoint {
-	string address = 1;
-	TransportProtocol protocol = 2;
+  string address = 1;
+  TransportProtocol protocol = 2;
 }
 
 message ProxyEndpoint {
-	string address = 1;
-	TransportProtocol protocol = 2;
-	ProxyType proxy_type = 3;
+  string address = 1;
+  TransportProtocol protocol = 2;
+  ProxyType proxy_type = 3;
 }
 
 message GeoIpLocation {
-	string ipv4 = 1;
-	string ipv6 = 2;
-	string country = 3;
-	string city = 4;
-	double latitude = 5;
-	double longitude = 6;
-	bool mullvad_exit_ip = 7;
-	string hostname = 8;
-	string bridge_hostname = 9;
-	string entry_hostname = 10;
-	string obfuscator_hostname = 11;
+  string ipv4 = 1;
+  string ipv6 = 2;
+  string country = 3;
+  string city = 4;
+  double latitude = 5;
+  double longitude = 6;
+  bool mullvad_exit_ip = 7;
+  string hostname = 8;
+  string bridge_hostname = 9;
+  string entry_hostname = 10;
+  string obfuscator_hostname = 11;
 }
 
 enum Ownership {
-	ANY = 0;
-	MULLVAD_OWNED = 1;
-	RENTED = 2;
+  ANY = 0;
+  MULLVAD_OWNED = 1;
+  RENTED = 2;
 }
 
 message BridgeSettings {
-	message BridgeConstraints {
-		RelayLocation location = 1;
-		repeated string providers = 2;
-		Ownership ownership = 3;
-	}
+  message BridgeConstraints {
+    RelayLocation location = 1;
+    repeated string providers = 2;
+    Ownership ownership = 3;
+  }
 
-	message LocalProxySettings {
-		uint32 port = 1;
-		string peer = 2;
-	}
-	message RemoteProxySettings {
-		string address = 1;
-		RemoteProxyAuth auth = 2;
-	}
-	message RemoteProxyAuth {
-		string username = 1;
-		string password = 2;
-	}
-	message ShadowsocksProxySettings {
-		string peer = 1;
-		string password = 2;
-		string cipher = 3;
-	}
+  message LocalProxySettings {
+    uint32 port = 1;
+    string peer = 2;
+  }
+  message RemoteProxySettings {
+    string address = 1;
+    RemoteProxyAuth auth = 2;
+  }
+  message RemoteProxyAuth {
+    string username = 1;
+    string password = 2;
+  }
+  message ShadowsocksProxySettings {
+    string peer = 1;
+    string password = 2;
+    string cipher = 3;
+  }
 
-	oneof type {
-		BridgeConstraints normal = 1;
-		LocalProxySettings local = 2;
-		RemoteProxySettings remote = 3;
-		ShadowsocksProxySettings shadowsocks = 4;
-	}
+  oneof type {
+    BridgeConstraints normal = 1;
+    LocalProxySettings local = 2;
+    RemoteProxySettings remote = 3;
+    ShadowsocksProxySettings shadowsocks = 4;
+  }
 }
 
 message RelayLocation {
-	string country = 1;
-	string city = 2;
-	string hostname = 3;
+  string country = 1;
+  string city = 2;
+  string hostname = 3;
 }
 
 message BridgeState {
-	enum State {
-		AUTO = 0;
-		ON = 1;
-		OFF = 2;
-	}
-	State state = 1;
+  enum State {
+    AUTO = 0;
+    ON = 1;
+    OFF = 2;
+  }
+  State state = 1;
 }
 
-message Udp2TcpObfuscationSettings {
-  uint32 port = 1;
-}
+message Udp2TcpObfuscationSettings { uint32 port = 1; }
 
 message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
-	UDP2TCP = 2;
+    UDP2TCP = 2;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
 }
 
 message Settings {
-	RelaySettings relay_settings = 1;
-	BridgeSettings bridge_settings = 2;
-	BridgeState bridge_state = 3;
-	bool allow_lan = 4;
-	bool block_when_disconnected = 5;
-	bool auto_connect = 6;
-	TunnelOptions tunnel_options = 7;
-	bool show_beta_releases = 8;
-	SplitTunnelSettings split_tunnel = 9;
-	ObfuscationSettings obfuscation_settings = 10;
+  RelaySettings relay_settings = 1;
+  BridgeSettings bridge_settings = 2;
+  BridgeState bridge_state = 3;
+  bool allow_lan = 4;
+  bool block_when_disconnected = 5;
+  bool auto_connect = 6;
+  TunnelOptions tunnel_options = 7;
+  bool show_beta_releases = 8;
+  SplitTunnelSettings split_tunnel = 9;
+  ObfuscationSettings obfuscation_settings = 10;
 }
 
 message SplitTunnelSettings {
-	bool enable_exclusions = 1;
-	repeated string apps = 2;
+  bool enable_exclusions = 1;
+  repeated string apps = 2;
 }
 
 message RelaySettings {
-	oneof endpoint {
-		CustomRelaySettings custom = 1;
-		NormalRelaySettings normal = 2;
-	}
+  oneof endpoint {
+    CustomRelaySettings custom = 1;
+    NormalRelaySettings normal = 2;
+  }
 }
 
-message TunnelTypeConstraint {
-	TunnelType tunnel_type = 1;
-}
+message TunnelTypeConstraint { TunnelType tunnel_type = 1; }
 
 message NormalRelaySettings {
-	RelayLocation location = 1;
-	repeated string providers = 2;
-	TunnelTypeConstraint tunnel_type = 3;
-	WireguardConstraints wireguard_constraints = 4;
-	OpenvpnConstraints openvpn_constraints = 5;
-	Ownership ownership = 6;
+  RelayLocation location = 1;
+  repeated string providers = 2;
+  TunnelTypeConstraint tunnel_type = 3;
+  WireguardConstraints wireguard_constraints = 4;
+  OpenvpnConstraints openvpn_constraints = 5;
+  Ownership ownership = 6;
 }
 
 // Constraints are only updated for fields that are provided
 message NormalRelaySettingsUpdate {
-	RelayLocation location = 1;
-	ProviderUpdate providers = 2;
-	TunnelTypeUpdate tunnel_type = 3;
-	WireguardConstraints wireguard_constraints = 4;
-	OpenvpnConstraints openvpn_constraints = 5;
-	OwnershipUpdate ownership = 6;
+  RelayLocation location = 1;
+  ProviderUpdate providers = 2;
+  TunnelTypeUpdate tunnel_type = 3;
+  WireguardConstraints wireguard_constraints = 4;
+  OpenvpnConstraints openvpn_constraints = 5;
+  OwnershipUpdate ownership = 6;
 }
 
-message ProviderUpdate {
-	repeated string providers = 1;
-}
+message ProviderUpdate { repeated string providers = 1; }
 
-message TunnelTypeUpdate {
-	TunnelTypeConstraint tunnel_type = 2;
-}
+message TunnelTypeUpdate { TunnelTypeConstraint tunnel_type = 2; }
 
 message TransportPort {
-	TransportProtocol protocol = 1;
-	uint32 port = 2;
+  TransportProtocol protocol = 1;
+  uint32 port = 2;
 }
 
-message OpenvpnConstraints {
-	TransportPort port = 1;
-}
+message OpenvpnConstraints { TransportPort port = 1; }
 
-message OwnershipUpdate {
-	Ownership ownership = 1;
-}
+message OwnershipUpdate { Ownership ownership = 1; }
 
 enum IpVersion {
-	V4 = 0;
-	V6 = 1;
+  V4 = 0;
+  V6 = 1;
 }
 
-message IpVersionConstraint {
-	IpVersion protocol = 1;
-}
+message IpVersionConstraint { IpVersion protocol = 1; }
 
 message WireguardConstraints {
-	uint32 port = 1;
-	IpVersionConstraint ip_version = 2;
-	bool use_multihop = 3;
-	RelayLocation entry_location = 4;
+  uint32 port = 1;
+  IpVersionConstraint ip_version = 2;
+  bool use_multihop = 3;
+  RelayLocation entry_location = 4;
 }
 
 message CustomRelaySettings {
-	string host = 1;
-	ConnectionConfig config = 2;
+  string host = 1;
+  ConnectionConfig config = 2;
 }
 
 message ConnectionConfig {
-	message OpenvpnConfig {
-		string address = 1;
-		TransportProtocol protocol = 2;
-		string username = 3;
-		string password = 4;
-	}
-	message WireguardConfig {
-		message TunnelConfig {
-			bytes private_key = 1;
-			repeated string addresses = 2;
-		}
-		message PeerConfig {
-			bytes public_key = 1;
-			repeated string allowed_ips = 2;
-			string endpoint = 3;
-		}
+  message OpenvpnConfig {
+    string address = 1;
+    TransportProtocol protocol = 2;
+    string username = 3;
+    string password = 4;
+  }
+  message WireguardConfig {
+    message TunnelConfig {
+      bytes private_key = 1;
+      repeated string addresses = 2;
+    }
+    message PeerConfig {
+      bytes public_key = 1;
+      repeated string allowed_ips = 2;
+      string endpoint = 3;
+    }
 
-		TunnelConfig tunnel = 1;
-		PeerConfig peer = 2;
-		string ipv4_gateway = 3;
-		string ipv6_gateway = 4;
-	}
+    TunnelConfig tunnel = 1;
+    PeerConfig peer = 2;
+    string ipv4_gateway = 3;
+    string ipv6_gateway = 4;
+  }
 
-	oneof config {
-		OpenvpnConfig openvpn = 1;
-		WireguardConfig wireguard = 2;
-	}
+  oneof config {
+    OpenvpnConfig openvpn = 1;
+    WireguardConfig wireguard = 2;
+  }
 }
 
 message QuantumResistantState {
-	enum State {
-		AUTO = 0;
-		ON = 1;
-		OFF = 2;
-	}
-	State state = 1;
+  enum State {
+    AUTO = 0;
+    ON = 1;
+    OFF = 2;
+  }
+  State state = 1;
 }
 
 message TunnelOptions {
-	message OpenvpnOptions {
-		uint32 mssfix = 1;
-	}
-	message WireguardOptions {
-		uint32 mtu = 1;
-		google.protobuf.Duration rotation_interval = 2;
-		bool use_wireguard_nt = 3;
-		QuantumResistantState quantum_resistant = 4;
-	}
-	message GenericOptions {
-		bool enable_ipv6 = 1;
-	}
+  message OpenvpnOptions { uint32 mssfix = 1; }
+  message WireguardOptions {
+    uint32 mtu = 1;
+    google.protobuf.Duration rotation_interval = 2;
+    bool use_wireguard_nt = 3;
+    QuantumResistantState quantum_resistant = 4;
+  }
+  message GenericOptions { bool enable_ipv6 = 1; }
 
-	OpenvpnOptions openvpn = 1;
-	WireguardOptions wireguard = 2;
-	GenericOptions generic = 3;
-	DnsOptions dns_options = 4;
+  OpenvpnOptions openvpn = 1;
+  WireguardOptions wireguard = 2;
+  GenericOptions generic = 3;
+  DnsOptions dns_options = 4;
 }
 
 message DefaultDnsOptions {
-	bool block_ads = 1;
-	bool block_trackers = 2;
-	bool block_malware = 3;
-	bool block_adult_content = 4;
-	bool block_gambling = 5;
+  bool block_ads = 1;
+  bool block_trackers = 2;
+  bool block_malware = 3;
+  bool block_adult_content = 4;
+  bool block_gambling = 5;
 }
 
-message CustomDnsOptions {
-	repeated string addresses = 1;
-}
+message CustomDnsOptions { repeated string addresses = 1; }
 
 message DnsOptions {
-	enum DnsState {
-		DEFAULT = 0;
-		CUSTOM = 1;
-	}
-	DnsState state = 1;
-	DefaultDnsOptions default_options = 2;
-	CustomDnsOptions custom_options = 3;
+  enum DnsState {
+    DEFAULT = 0;
+    CUSTOM = 1;
+  }
+  DnsState state = 1;
+  DefaultDnsOptions default_options = 2;
+  CustomDnsOptions custom_options = 3;
 }
 
 message PublicKey {
-	bytes key = 1;
-	google.protobuf.Timestamp created = 2;
+  bytes key = 1;
+  google.protobuf.Timestamp created = 2;
 }
 
 message ExcludedProcess {
-	uint32 pid = 1;
-	string image = 2;
-	bool inherited = 3;
+  uint32 pid = 1;
+  string image = 2;
+  bool inherited = 3;
 }
 
-message ExcludedProcessList {
-	repeated ExcludedProcess processes = 1;
-}
+message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
 message AppVersionInfo {
-    bool supported = 1;
-    string latest_stable = 2;
-    string latest_beta = 3;
-    string suggested_upgrade = 4;
+  bool supported = 1;
+  string latest_stable = 2;
+  string latest_beta = 3;
+  string suggested_upgrade = 4;
 }
 
 message RelayListCountry {
-	string name = 1;
-	string code = 2;
-	repeated RelayListCity cities = 3;
+  string name = 1;
+  string code = 2;
+  repeated RelayListCity cities = 3;
 }
 
 message RelayListCity {
-	string name = 1;
-	string code = 2;
-	double latitude = 3;
-	double longitude = 4;
-	repeated Relay relays = 5;
+  string name = 1;
+  string code = 2;
+  double latitude = 3;
+  double longitude = 4;
+  repeated Relay relays = 5;
 }
 
 message Relay {
-	enum RelayType {
-		OPENVPN = 0;
-		BRIDGE = 1;
-		WIREGUARD = 2;
-	}
+  enum RelayType {
+    OPENVPN = 0;
+    BRIDGE = 1;
+    WIREGUARD = 2;
+  }
 
-	string hostname = 1;
-	string ipv4_addr_in = 2;
-	string ipv6_addr_in = 3;
-	bool include_in_country = 4;
-	bool active = 5;
-	bool owned = 6;
-	string provider = 7;
-	fixed64 weight = 8;
-	RelayType endpoint_type = 9;
-	google.protobuf.Any endpoint_data = 10;
-	Location location = 11;
+  string hostname = 1;
+  string ipv4_addr_in = 2;
+  string ipv6_addr_in = 3;
+  bool include_in_country = 4;
+  bool active = 5;
+  bool owned = 6;
+  string provider = 7;
+  fixed64 weight = 8;
+  RelayType endpoint_type = 9;
+  google.protobuf.Any endpoint_data = 10;
+  Location location = 11;
 }
 
-message WireguardRelayEndpointData {
-	bytes public_key = 1;
-}
+message WireguardRelayEndpointData { bytes public_key = 1; }
 
 message Location {
-	string country = 1;
-	string country_code = 2;
-	string city = 3;
-	string city_code = 4;
-	double latitude = 5;
-	double longitude = 6;
+  string country = 1;
+  string country_code = 2;
+  string city = 3;
+  string city_code = 4;
+  double latitude = 5;
+  double longitude = 6;
 }
 
 enum TransportProtocol {
-	UDP = 0;
-	TCP = 1;
+  UDP = 0;
+  TCP = 1;
 }
 
 message DaemonEvent {
-	oneof event {
-		TunnelState tunnel_state = 1;
-		Settings settings = 2;
-		RelayList relay_list = 3;
-		AppVersionInfo version_info = 4;
-		DeviceEvent device = 5;
-		RemoveDeviceEvent remove_device = 6;
-	}
+  oneof event {
+    TunnelState tunnel_state = 1;
+    Settings settings = 2;
+    RelayList relay_list = 3;
+    AppVersionInfo version_info = 4;
+    DeviceEvent device = 5;
+    RemoveDeviceEvent remove_device = 6;
+  }
 }
 
 message RelayList {
-	repeated RelayListCountry countries = 1;
-	OpenVpnEndpointData openvpn = 2;
-	BridgeEndpointData bridge = 3;
-	WireguardEndpointData wireguard = 4;
+  repeated RelayListCountry countries = 1;
+  OpenVpnEndpointData openvpn = 2;
+  BridgeEndpointData bridge = 3;
+  WireguardEndpointData wireguard = 4;
 }
 
-message OpenVpnEndpointData {
-    repeated OpenVpnEndpoint endpoints = 1;
-}
+message OpenVpnEndpointData { repeated OpenVpnEndpoint endpoints = 1; }
 
 message OpenVpnEndpoint {
-    uint32 port = 1;
-    TransportProtocol protocol = 2;
+  uint32 port = 1;
+  TransportProtocol protocol = 2;
 }
 
-message BridgeEndpointData {
-    repeated ShadowsocksEndpointData shadowsocks = 1;
-}
+message BridgeEndpointData { repeated ShadowsocksEndpointData shadowsocks = 1; }
 
 message ShadowsocksEndpointData {
-    uint32 port = 1;
-    string cipher = 2;
-    string password = 3;
-    TransportProtocol protocol = 4;
+  uint32 port = 1;
+  string cipher = 2;
+  string password = 3;
+  TransportProtocol protocol = 4;
 }
 
 message WireguardEndpointData {
-	repeated PortRange port_ranges = 1;
-	string ipv4_gateway = 2;
-	string ipv6_gateway = 3;
-	repeated uint32 udp2tcp_ports = 4;
+  repeated PortRange port_ranges = 1;
+  string ipv4_gateway = 2;
+  string ipv6_gateway = 3;
+  repeated uint32 udp2tcp_ports = 4;
 }
 
 message PortRange {
-	uint32 first = 1;
-	uint32 last = 2;
+  uint32 first = 1;
+  uint32 last = 2;
 }
 
 message AccountAndDevice {
-	string account_token = 1;
-	Device device = 2;
+  string account_token = 1;
+  Device device = 2;
 }
 
 message Device {
-	string id = 1;
-	string name = 2;
-	bytes pubkey = 3;
-	repeated DevicePort ports = 4;
-	bool hijack_dns = 5;
-	google.protobuf.Timestamp created = 6;
+  string id = 1;
+  string name = 2;
+  bytes pubkey = 3;
+  repeated DevicePort ports = 4;
+  bool hijack_dns = 5;
+  google.protobuf.Timestamp created = 6;
 }
 
-message DevicePort {
-	string id = 1;
-}
+message DevicePort { string id = 1; }
 
-message DeviceList {
-	repeated Device devices = 1;
-}
+message DeviceList { repeated Device devices = 1; }
 
 message DeviceRemoval {
-	string account_token = 1;
-	string device_id = 2;
+  string account_token = 1;
+  string device_id = 2;
 }
 
 message DeviceState {
-	enum State {
-		LOGGED_IN = 0;
-		LOGGED_OUT = 1;
-		REVOKED = 2;
-	}
-	State state = 1;
-	AccountAndDevice device = 2;
+  enum State {
+    LOGGED_IN = 0;
+    LOGGED_OUT = 1;
+    REVOKED = 2;
+  }
+  State state = 1;
+  AccountAndDevice device = 2;
 }
 
 message DeviceEvent {
-	enum Cause {
-		LOGGED_IN = 0;
-		LOGGED_OUT = 1;
-		REVOKED = 2;
-		UPDATED = 3;
-		ROTATED_KEY = 4;
-	}
-	Cause cause = 1;
-	DeviceState new_state = 2;
+  enum Cause {
+    LOGGED_IN = 0;
+    LOGGED_OUT = 1;
+    REVOKED = 2;
+    UPDATED = 3;
+    ROTATED_KEY = 4;
+  }
+  Cause cause = 1;
+  DeviceState new_state = 2;
 }
 
 message RemoveDeviceEvent {
-	string account_token = 1;
-	repeated Device new_device_list = 2;
+  string account_token = 1;
+  repeated Device new_device_list = 2;
 }
