@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
   to free up port 443 for other TCP based obfuscation later.
 
 ### Fixed
+- Fix location search in desktop app only searching for English location names.
+
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
