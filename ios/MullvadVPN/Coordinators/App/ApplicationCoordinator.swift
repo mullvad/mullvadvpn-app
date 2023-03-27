@@ -138,6 +138,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .login:
             presentLogin(animated: animated, completion: completion)
 
+        case .changelog:
+            presentChangeLog(animated: animated, completion: completion)
+
         case .tos:
             presentTOS(animated: animated, completion: completion)
 
@@ -267,6 +270,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             return .tos
         }
 
+        guard ChangeLog.isSeen else {
+            return .changelog
+        }
+
         switch tunnelManager.deviceState {
         case .revoked:
             return .revoked
@@ -318,11 +325,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      Begins horizontal flow presenting a navigation controller suitable for current user interface
      idiom.
 
-     On iPad this takes care of presenting a secondary navigation context using modal presentation
-     after calling the given `block`.
+     On iPad this takes care of presenting a secondary navigation context using modal presentation.
 
-     On iPhone this function simply passes the primary navigation container to the `block` and
-     nothing else.
+     On iPhone this does nothing.
      */
     private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
         if isPad, secondaryNavigationContainer.presentingViewController == nil {
@@ -389,6 +394,21 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         addChild(coordinator)
         coordinator.start()
+
+        beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        let coordinator = ChangeLogCoordinator(navigationController: horizontalFlowController)
+
+        coordinator.didFinish = { [weak self] coordinator in
+            self?.continueFlow(animated: true)
+        }
+
+        addChild(coordinator)
+        coordinator.start(animated: animated)
 
         beginHorizontalFlow(animated: animated) {
             completion(coordinator)
