@@ -12,7 +12,7 @@ final class ChangeLogContentView: UIView {
     private let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
         titleLabel.allowsDefaultTighteningForTruncation = true
@@ -27,7 +27,7 @@ final class ChangeLogContentView: UIView {
     private let subheadLabel: UILabel = {
         let subheadLabel = UILabel()
         subheadLabel.translatesAutoresizingMaskIntoConstraints = false
-        subheadLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        subheadLabel.font = .systemFont(ofSize: 18, weight: .bold)
         subheadLabel.numberOfLines = 0
         subheadLabel.textColor = .white
         subheadLabel.allowsDefaultTighteningForTruncation = true
