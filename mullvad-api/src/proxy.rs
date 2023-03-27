@@ -86,7 +86,7 @@ impl ApiConnectionMode {
 
     /// Stores this config to `CURRENT_CONFIG_FILENAME`.
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
-        let mut file = crate::fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
+        let mut file = mullvad_fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
         let json = serde_json::to_string_pretty(self)
             .map_err(|_| io::Error::new(io::ErrorKind::Other, "serialization failed"))?;
         file.write_all(json.as_bytes()).await?;

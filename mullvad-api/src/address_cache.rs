@@ -80,7 +80,7 @@ impl AddressCache {
             None => return Ok(()),
         };
 
-        let mut file = crate::fs::AtomicFile::new(write_path.to_path_buf())
+        let mut file = mullvad_fs::AtomicFile::new(write_path.to_path_buf())
             .await
             .map_err(Error::Open)?;
         let mut contents = address.to_string();

@@ -1644,6 +1644,7 @@ dependencies = [
  "hyper",
  "ipnetwork",
  "log",
+ "mullvad-fs",
  "mullvad-types",
  "once_cell",
  "regex",
@@ -1655,7 +1656,6 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-rustls",
- "uuid",
 ]
 
 [[package]]
@@ -1736,6 +1736,16 @@ dependencies = [
  "err-derive",
  "nix 0.23.1",
  "talpid-types",
+]
+
+[[package]]
+name = "mullvad-fs"
+version = "0.0.0"
+dependencies = [
+ "log",
+ "talpid-types",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]
