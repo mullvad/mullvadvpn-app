@@ -1,0 +1,46 @@
+@startuml overview-diagram
+
+title Mullvad VPN Android app overview
+skinparam SequenceMessageAlign center
+skinparam componentStyle rectangle
+skinparam linetype polyline
+
+package "App process" as App {
+  component "App UI (fragments, compose, VMs etc)" as AppUI
+  component "Middle layer (repositories etc)" as AppMiddleLayer
+  component "Messenger" as AppMessenger
+}
+
+package "Vpn Service process" as VpnService {
+  component "VPN Service implementation" as VpnServiceImpl
+  component "Middle layer" as VpnMiddleLayer
+  component "Daemon (rust)" as Daemon
+  component "Messenger" as VpnMessenger
+}
+
+package "Tile Service process" as TileService {
+  component "Tile Service implementation" as TileServiceImpl
+  component "Middle layer" as TileMiddleLayer
+  component "Messenger" as TileMessenger
+}
+
+' Messenger (IPC) connections.
+' Also helps with alignment of plantuml packages.
+[AppMessenger] <-[#blue]r-> [VpnMessenger] : Binder
+[VpnMessenger] <-[#blue]r-> [TileMessenger] : Binder
+
+' App connections
+AppUI <-d-> AppMiddleLayer
+AppMiddleLayer <-d-> AppMessenger
+
+' Vpn service connections
+VpnServiceImpl <-d-> VpnMiddleLayer
+VpnServiceImpl <-[#cyan]r-> Daemon : FFI
+VpnMiddleLayer <-[#cyan]r-> Daemon : FFI
+VpnMiddleLayer <-d-> VpnMessenger
+
+' Tile service connections
+TileServiceImpl <-d-> TileMiddleLayer
+TileMiddleLayer <-d-> TileMessenger
+
+@enduml
