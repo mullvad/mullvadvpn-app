@@ -106,7 +106,7 @@ fn out_of_range_wg_migration_rand_num() -> f32 {
 }
 
 #[cfg(windows)]
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
     pub enable_exclusions: bool,

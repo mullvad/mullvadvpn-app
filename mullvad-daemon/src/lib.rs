@@ -1754,7 +1754,11 @@ where
                     "{}",
                     error.display_chain_with_msg("Unable to save settings")
                 );
-                Self::oneshot_send(tx, Err(error), "use_wireguard_nt response");
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::SettingsError(error)),
+                    "use_wireguard_nt response",
+                );
             }
         }
     }

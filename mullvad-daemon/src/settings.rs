@@ -2,8 +2,6 @@
 use futures::TryFutureExt;
 use mullvad_types::settings::Settings;
 use rand::Rng;
-#[cfg(target_os = "windows")]
-use std::collections::HashSet;
 use std::{
     ops::Deref,
     path::{Path, PathBuf},
