@@ -14,6 +14,7 @@ export default function AccountTokenLabel(props: IAccountTokenLabelProps) {
       displayValue={formatAccountToken(props.accountToken)}
       obscureValue={props.obscureValue}
       className={props.className}
+      data-testid="account-number"
     />
   );
 }

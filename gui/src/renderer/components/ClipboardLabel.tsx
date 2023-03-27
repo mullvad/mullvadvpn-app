@@ -10,12 +10,11 @@ import ImageView from './ImageView';
 
 const COPIED_ICON_DURATION = 2000;
 
-interface IProps {
+interface IProps extends React.HTMLAttributes<HTMLElement> {
   value: string;
   displayValue?: string;
   obscureValue?: boolean;
   message?: string;
-  className?: string;
 }
 
 const StyledLabelContainer = styled.div({
@@ -42,29 +41,30 @@ const StyledCopyButton = styled(StyledButton)({
 });
 
 export default function ClipboardLabel(props: IProps) {
-  const [obscured, , , toggleObscured] = useBoolean(props.obscureValue ?? true);
+  const { value, obscureValue, displayValue, message, ...otherProps } = props;
+
+  const [obscured, , , toggleObscured] = useBoolean(obscureValue ?? true);
   const [justCopied, setJustCopied, resetJustCopied] = useBoolean(false);
 
   const copiedScheduler = useScheduler();
 
   const onCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(props.value);
+      await navigator.clipboard.writeText(value);
       copiedScheduler.schedule(resetJustCopied, COPIED_ICON_DURATION);
       setJustCopied();
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to copy to clipboard: ${error.message}`);
     }
-  }, [props.value, copiedScheduler, setJustCopied, resetJustCopied]);
+  }, [value, copiedScheduler, setJustCopied, resetJustCopied]);
 
-  const value = props.displayValue ?? props.value;
   return (
     <StyledLabelContainer>
-      <StyledLabel className={props.className} aria-hidden={obscured}>
-        {obscured ? '●●●● ●●●● ●●●● ●●●●' : value}
+      <StyledLabel aria-hidden={obscured} {...otherProps}>
+        {obscured ? '●●●● ●●●● ●●●● ●●●●' : displayValue ?? value}
       </StyledLabel>
-      {props.obscureValue !== false && (
+      {obscureValue !== false && (
         <StyledButton
           onClick={toggleObscured}
           aria-label={
