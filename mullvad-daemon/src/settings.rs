@@ -119,20 +119,24 @@ impl SettingsPersister {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
-    /// Serializes the settings and saves them to the file it was loaded from.
     async fn save(&mut self) -> Result<(), Error> {
-        log::debug!("Writing settings to {}", self.path.display());
+        Self::save_inner(&self.path, &self.settings).await
+    }
 
-        let buffer = serde_json::to_string_pretty(&self.settings).map_err(Error::SerializeError)?;
-        let mut file = mullvad_fs::AtomicFile::new(&self.path)
+    /// Serializes the settings and saves them to the given file.
+    async fn save_inner(path: &Path, settings: &Settings) -> Result<(), Error> {
+        log::debug!("Writing settings to {}", path.display());
+
+        let buffer = serde_json::to_string_pretty(settings).map_err(Error::SerializeError)?;
+        let mut file = mullvad_fs::AtomicFile::new(path)
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
         file.write_all(&buffer.into_bytes())
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
         file.finalize()
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
 
         Ok(())
     }
@@ -180,22 +184,17 @@ impl SettingsPersister {
         &mut self,
         update_fn: impl FnOnce(&mut Settings),
     ) -> Result<MadeChanges, Error> {
-        let backup = self.settings.clone();
+        let mut new_settings = self.settings.clone();
 
-        update_fn(&mut self.settings);
+        update_fn(&mut new_settings);
 
-        if self.settings == backup {
+        if self.settings == new_settings {
             return Ok(false);
         }
 
-        match self.save().await {
-            Ok(()) => Ok(true),
-            Err(error) => {
-                // restore state
-                self.settings = backup;
-                Err(error)
-            }
-        }
+        Self::save_inner(&self.path, &new_settings).await?;
+        self.settings = new_settings;
+        Ok(true)
     }
 }
 

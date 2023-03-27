@@ -1733,6 +1733,7 @@ where
         match self
             .settings
             .update(move |settings| settings.tunnel_options.wireguard.use_wireguard_nt = state)
+            .await
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");

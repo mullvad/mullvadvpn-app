@@ -29,6 +29,7 @@ uuid = { version = "0.8", features = ["v4"] }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
+mullvad-fs = { path = "../mullvad-fs" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
@@ -40,7 +41,6 @@ clap = { version = "3.0", features = ["cargo"] }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-fs = { path = "../mullvad-fs" }
 
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
