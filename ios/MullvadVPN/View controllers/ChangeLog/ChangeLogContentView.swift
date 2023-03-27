@@ -120,21 +120,20 @@ final class ChangeLogContentView: UIView {
         }
 
         NSLayoutConstraint.activate {
-            titleLabel.pinEdgesToMargins(self, excludingEdges: .bottom)
-
-            subheadLabel.pinHorizontalEdgesToMargins(self)
+            titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+            subheadLabel.pinEdgesToSuperviewMargins(.horizontal())
             subheadLabel.topAnchor.constraint(
                 equalToSystemSpacingBelow: titleLabel.bottomAnchor,
                 multiplier: 1
             )
 
             textView.topAnchor.constraint(equalTo: subheadLabel.bottomAnchor)
-            textView.pinHorizontalEdgesTo(self)
+            textView.pinEdgesToSuperview(.horizontal())
 
-            footerContainer.pinEdgesTo(self, excludingEdges: .top)
+            footerContainer.pinEdgesToSuperview(.all().excluding(.top))
             footerContainer.topAnchor.constraint(equalTo: textView.bottomAnchor)
 
-            okButton.pinEdgesToMargins(footerContainer)
+            okButton.pinEdgesToSuperviewMargins()
         }
     }
 
