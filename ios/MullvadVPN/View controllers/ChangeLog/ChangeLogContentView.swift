@@ -11,7 +11,6 @@ import UIKit
 final class ChangeLogContentView: UIView {
     private let titleLabel: UILabel = {
         let titleLabel = UILabel()
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
@@ -26,7 +25,6 @@ final class ChangeLogContentView: UIView {
 
     private let subheadLabel: UILabel = {
         let subheadLabel = UILabel()
-        subheadLabel.translatesAutoresizingMaskIntoConstraints = false
         subheadLabel.font = .systemFont(ofSize: 18, weight: .bold)
         subheadLabel.numberOfLines = 0
         subheadLabel.textColor = .white
@@ -47,7 +45,6 @@ final class ChangeLogContentView: UIView {
 
     private let textView: UITextView = {
         let textView = UITextView()
-        textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .clear
         textView.isEditable = false
         textView.textContainerInset = UIMetrics.contentLayoutMargins
@@ -56,7 +53,6 @@ final class ChangeLogContentView: UIView {
 
     private let okButton: AppButton = {
         let button = AppButton(style: .default)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = "OkButton"
         button.setTitle(NSLocalizedString(
             "OK_BUTTON",
@@ -69,7 +65,6 @@ final class ChangeLogContentView: UIView {
 
     private let footerContainer: UIView = {
         let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
         container.layoutMargins = UIMetrics.contentLayoutMargins
         container.backgroundColor = .secondaryColor
         return container
@@ -112,28 +107,25 @@ final class ChangeLogContentView: UIView {
     }
 
     private func addSubviews() {
-        footerContainer.addSubview(okButton)
         footerContainer.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
 
-        for subview in [titleLabel, subheadLabel, textView, footerContainer] {
-            addSubview(subview)
+        footerContainer.addConstrainedSubviews([okButton]) {
+            okButton.pinEdgesToSuperviewMargins()
         }
 
-        NSLayoutConstraint.activate {
+        addConstrainedSubviews([titleLabel, subheadLabel, textView, footerContainer]) {
             titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            subheadLabel.pinEdgesToSuperviewMargins(.horizontal())
+            subheadLabel.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0)]))
             subheadLabel.topAnchor.constraint(
                 equalToSystemSpacingBelow: titleLabel.bottomAnchor,
                 multiplier: 1
             )
 
             textView.topAnchor.constraint(equalTo: subheadLabel.bottomAnchor)
-            textView.pinEdgesToSuperview(.horizontal())
+            textView.pinEdgesToSuperview(.init([.leading(0), .trailing(0)]))
 
             footerContainer.pinEdgesToSuperview(.all().excluding(.top))
             footerContainer.topAnchor.constraint(equalTo: textView.bottomAnchor)
-
-            okButton.pinEdgesToSuperviewMargins()
         }
     }
 
