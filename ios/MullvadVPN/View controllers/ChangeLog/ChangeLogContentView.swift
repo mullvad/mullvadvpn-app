@@ -47,6 +47,7 @@ final class ChangeLogContentView: UIView {
         let textView = UITextView()
         textView.backgroundColor = .clear
         textView.isEditable = false
+        textView.isSelectable = false
         textView.textContainerInset = UIMetrics.contentLayoutMargins
         return textView
     }()
