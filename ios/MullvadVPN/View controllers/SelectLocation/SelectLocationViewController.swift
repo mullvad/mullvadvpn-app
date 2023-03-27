@@ -56,7 +56,7 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "SelectLocation",
-            value: "Select Location",
+            value: "Select location",
             comment: ""
         )
         navigationItem.rightBarButtonItem = UIBarButtonItem(

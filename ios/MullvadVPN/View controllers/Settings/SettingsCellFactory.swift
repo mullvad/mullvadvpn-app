@@ -102,7 +102,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString(
                 "FAQ_AND_GUIDES_CELL_LABEL",
                 tableName: "Settings",
-                value: "FAQ & Guides",
+                value: "FAQs & Guides",
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
