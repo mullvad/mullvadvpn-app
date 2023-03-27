@@ -32,7 +32,7 @@ namespace
 {
 
 //
-// Since the PermitLan rule doesn't specifically address DNS, it will allow DNS requests targetting
+// Since the PermitLan rule doesn't specifically address DNS, it will allow DNS requests targeting
 // a local resolver to leave the machine. From the local resolver the request will either be
 // resolved from cache, or forwarded out onto the Internet.
 //

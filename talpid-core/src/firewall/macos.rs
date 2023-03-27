@@ -55,7 +55,7 @@ impl Firewall {
     pub fn reset_policy(&mut self) -> Result<()> {
         // Implemented this way to not early return on an error.
         // We always want all three methods to run, and then return
-        // the first error it encounterd, if any.
+        // the first error it encountered, if any.
         self.remove_rules()
             .and(self.remove_anchor())
             .and(self.restore_state())
@@ -570,7 +570,7 @@ impl Firewall {
                 .build()?,
         );
 
-        // Outgoing neigbor advertisement to fe80::/10`
+        // Outgoing neighbor advertisement to fe80::/10`
         rules.push(
             ndp_rule_builder
                 .clone()
@@ -580,7 +580,7 @@ impl Firewall {
                 .build()?,
         );
 
-        // Incoming neigbor advertisement from anywhere
+        // Incoming neighbor advertisement from anywhere
         rules.push(
             ndp_rule_builder
                 .clone()

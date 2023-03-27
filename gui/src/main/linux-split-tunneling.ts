@@ -71,7 +71,7 @@ export async function launchApplication(
       if (code === 1) {
         resolve({
           error:
-            // TRANSLATORS: This error message is shown if an application failes during startup.
+            // TRANSLATORS: This error message is shown if an application fails during startup.
             messages.pgettext('split-tunneling-view', 'Please try again or send a problem report.'),
         });
       } else {

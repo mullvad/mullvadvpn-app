@@ -22,7 +22,7 @@ If `icon.svg` is changed. You need to run the following to generate new assets:
 ### `icon-square.svg`
 
 This is the regular mole but instead of being placed in a blue circle the entire background is just blue.
-The mole is placed slighty to the right compared to `icon.svg` to appear more centered. And the mole
+The mole is placed slightly to the right compared to `icon.svg` to appear more centered. And the mole
 is a little bit smaller so it fits better when corners are rounded off during icon creation.
 
 #### Desktop

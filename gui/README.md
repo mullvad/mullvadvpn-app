@@ -18,7 +18,7 @@ The app has unit tests and integration tests located in test/:
   - **test/e2e/installed** (`npm run e2e:installed <tests to run>`): Tests running against the app
   at its install path (See [Standalone test executable](#standalone-test-executable) for more info).
     - **test/e2e/installed/state-dependent** (`npm run e2e:installed state-dependent`): Tests
-    requireing the daemon to be set into a specific state first.
+    requiring the daemon to be set into a specific state first.
 
 ### Standalone test executable
 

@@ -217,7 +217,7 @@ impl RouteManagerInternal {
         //
 
         if ERROR_OBJECT_ALREADY_EXISTS as i32 == status {
-            // SAFETY: DestinationPrefix must be initialzed to a valid prefix. NextHop must have
+            // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
             // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must
             // be set to the interface.
             status = unsafe { SetIpForwardEntry2(&spec) };
@@ -352,7 +352,7 @@ impl RouteManagerInternal {
         r.DestinationPrefix = win_ip_address_prefix_from_ipnetwork_port_zero(route.network);
         r.NextHop = inet_sockaddr_from_socketaddr(route.next_hop);
 
-        // SAFETY: DestinationPrefix must be initialzed to a valid prefix. NextHop must have
+        // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
         // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be
         // set to the interface.
         let status = unsafe { DeleteIpForwardEntry2(&r) };
@@ -575,7 +575,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     //
 
     let mut matches: Vec<_> = adapters
-        // SAFETY: We are not allowed to dereference adapter.Head if it has been aquired in a previous iteration of the iterator
+        // SAFETY: We are not allowed to dereference adapter.Head if it has been acquired in a previous iteration of the iterator
         // we ensure this is upheld by not saving any references to adapter.Head between iterations.
         .iter()
         .filter(|adapter| {
@@ -618,7 +618,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
         })
 }
 
-/// SAFETY: adapter.FirstGatewayAddress must be dereferencable and must live as long as adapter
+/// SAFETY: adapter.FirstGatewayAddress must be dereferenceable and must live as long as adapter
 unsafe fn get_first_gateway_address_reference(
     adapter: &IP_ADAPTER_ADDRESSES_LH,
 ) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
@@ -639,7 +639,7 @@ fn adapter_interface_enabled(
 }
 
 /// SAFETY: `head` must be a linked list where each `head.Next` is either null or
-/// the it and all of its fields has lifetime 'a and are dereferencable.
+/// the it and all of its fields has lifetime 'a and are dereferenceable.
 unsafe fn isolate_gateway_address<'a>(
     head: &'a IP_ADAPTER_GATEWAY_ADDRESS_LH,
     family: ADDRESS_FAMILY,
@@ -648,7 +648,7 @@ unsafe fn isolate_gateway_address<'a>(
 
     let mut gateway = head;
     loop {
-        // SAFETY: The contract states that Address.lpSockaddr is dereferencable if the element is
+        // SAFETY: The contract states that Address.lpSockaddr is dereferenceable if the element is
         // non-null
         if family == (*gateway.Address.lpSockaddr).sa_family {
             // SAFETY: The contract states that this field must have lifetime 'a
@@ -659,7 +659,7 @@ unsafe fn isolate_gateway_address<'a>(
             break;
         }
 
-        // SAFETY: Gateway.Next is not null here and the contract states it must be dereferencable
+        // SAFETY: Gateway.Next is not null here and the contract states it must be dereferenceable
         // if non-null
         gateway = &*gateway.Next;
     }
@@ -669,7 +669,7 @@ unsafe fn isolate_gateway_address<'a>(
 
 fn address_present(hay: Vec<&'_ SOCKET_ADDRESS>, needle: &'_ SOCKADDR_INET) -> Result<bool> {
     for candidate in hay {
-        // SAFETY: Contract states that needle is dereferencable
+        // SAFETY: Contract states that needle is dereferenceable
         if equal_address(needle, candidate)? {
             return Ok(true);
         }
@@ -811,7 +811,7 @@ impl Adapters {
 
 /// SAFETY: You are only allowed to dereference `IP_ADAPTER_ADDRESSES_LH.Next` or any following
 /// `Next` items in the linked list if they were produced by the latest call to `next()`. Any raw
-/// pointers that were aquired before the call to `next()` are not valid to dereference.
+/// pointers that were acquired before the call to `next()` are not valid to dereference.
 struct AdaptersIterator<'a> {
     _adapters: &'a Adapters,
     cur: *const IP_ADAPTER_ADDRESSES_LH,

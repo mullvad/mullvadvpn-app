@@ -26,7 +26,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
     case selectLocation
 
     /**
-     Setings group.
+     Settings group.
      */
     case settings
 
@@ -124,7 +124,7 @@ struct PendingRoute: Equatable {
 }
 
 /**
- Enum type describing an attempt to fullfill the route presentation request.
+ Enum type describing an attempt to fulfill the route presentation request.
  **/
 enum PendingPresentationResult {
     /**
@@ -174,7 +174,7 @@ enum PendingDismissalResult {
 }
 
 /**
- Enum descibing operation over the route.
+ Enum describing operation over the route.
  */
 enum RouteOperation: Equatable {
     /**
@@ -384,7 +384,7 @@ final class ApplicationRouter {
         completion: @escaping (PendingPresentationResult) -> Void
     ) {
         /**
-         Pass sub-route for routes suppporting sub-navigation.
+         Pass sub-route for routes supporting sub-navigation.
          */
         if route.supportsSubNavigation, modalStack.contains(route.routeGroup),
            var presentedRoute = presentedRoutes[route.routeGroup]?.first

@@ -704,7 +704,7 @@ pub fn device_is_ready(device_state: u32) -> bool {
     READY_STATES.contains(&device_state)
 }
 
-// Verify that the contents of /etc/resolv.conf match what NM expectes them to be.
+// Verify that the contents of /etc/resolv.conf match what NM expects them to be.
 fn verify_etc_resolv_conf_contents() -> bool {
     let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
     let actual_resolv_conf = "/etc/resolv.conf";

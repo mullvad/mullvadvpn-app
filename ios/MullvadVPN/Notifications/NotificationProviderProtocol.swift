@@ -14,6 +14,6 @@ protocol NotificationProviderProtocol {
     /// produced by them.
     var identifier: String { get }
 
-    /// Tell notifcation manager to update the associated notification.
+    /// Tell notification manager to update the associated notification.
     func invalidate()
 }

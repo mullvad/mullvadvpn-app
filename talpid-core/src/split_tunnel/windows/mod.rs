@@ -306,7 +306,7 @@ impl SplitTunnel {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(
-                            "get_overlapped_result failed for dequed event"
+                            "get_overlapped_result failed for dequeued event"
                         ),
                     );
                 }

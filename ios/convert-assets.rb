@@ -59,7 +59,7 @@ ADDITIONAL_ASSETS = [
   "IconBackTransitionMask.svg"
 ]
 
-# SVG convertion tool environment variables. 
+# SVG conversion tool environment variables. 
 SVG_CONVERT_ENVIRONMENT_VARIABLES = {
   # Fix PDF "CreationDate" for reproducible output 
   "SOURCE_DATE_EPOCH" => "1596022781"
@@ -105,7 +105,7 @@ def generate_resized_assets()
   end
 end
 
-def genereate_app_icon()
+def generate_app_icon()
   image_name = File.basename(XCASSETS_APPICON_PATH, ".png")
   puts "Generate #{image_name} -> #{XCASSETS_APPICON_PATH}"
   system("rsvg-convert", "--width=#{XCASSETS_APPICON_SIZE}", "--height=#{XCASSETS_APPICON_SIZE}", "--format=png", APPICON_PATH, "--output", XCASSETS_APPICON_PATH)
@@ -156,7 +156,7 @@ OptionParser.new do |opts|
   opts.banner = "Usage: convert-assets.rb [options]"
 
   opts.on("--app-icon", "Generate application icon assets") do |v|
-    genereate_app_icon
+    generate_app_icon
   end
 
   opts.on("--import-desktop-assets", "Import assets from the desktop app") do |v|

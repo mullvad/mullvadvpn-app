@@ -107,7 +107,7 @@ fn wg_version() -> Option<(String, String)> {
     Some(("wireguard".to_string(), wireguard_version))
 }
 
-/// `systemctl --version` usually outpus two lines - one with the version, and another listing
+/// `systemctl --version` usually outputs two lines - one with the version, and another listing
 /// features:
 /// > systemd 246 (246)
 /// > +PAM +AUDIT -SELINUX +IMA +APPARMOR +SMACK -SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT -GNUTLS +ACL

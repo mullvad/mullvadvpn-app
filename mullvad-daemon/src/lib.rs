@@ -2304,7 +2304,7 @@ fn new_selector_config(
     app_version_info: &Option<AppVersionInfo>,
 ) -> SelectorConfig {
     // In case of the app not having a version we safety default to OpenVPN to guard against the
-    // case where some error causes users to not recieve a version and in that case all going to
+    // case where some error causes users to not receive a version and in that case all going to
     // wireguard. Magic number 0.0 implies that 0% of users should use Wireguard.
     // This will be removed in the future when we the migration is done.
     let wg_migration_threshold = app_version_info

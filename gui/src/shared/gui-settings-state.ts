@@ -21,10 +21,10 @@ export interface IGuiSettingsState {
   // Tells the app to hide the main window on start.
   startMinimized: boolean;
 
-  // Tells the app wheter or not it should act as a window or a context menu.
+  // Tells the app whether or not it should act as a window or a context menu.
   unpinnedWindow: boolean;
 
-  // Conains a list of filepaths to applications added to the list of applications, in the split
+  // Contains a list of filepaths to applications added to the list of applications, in the split
   // tunneling view, by the user.
   browsedForSplitTunnelingApplications: Array<string>;
 

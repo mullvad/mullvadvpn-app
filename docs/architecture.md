@@ -241,8 +241,8 @@ On Linux, connectivity is inferred by checking if there exists a route to a publ
 Currently the Mullvad API IP is used, but the actual IP does not matter as long as it's not a local
 one. This is done via Netlink and the route is queried via the exclusion firewall mark - otherwise,
 when a tunnel is connected, the address would always be routable as it'd be routed through the
-tunnel interface. As such, the offline monitor is somewhat coupled to routing and split tunelling on
-Linux.
+tunnel interface. As such, the offline monitor is somewhat coupled to routing and split tunnelling
+on Linux.
 
 #### macOS
 

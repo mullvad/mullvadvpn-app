@@ -19,7 +19,7 @@ Run the following command to trigger a full debug build:
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` enviroment variable to the
+2. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` environment variable to the
 directory configured in step 1:
 ```bash
 ../building/containerized-build.sh android --app-bundle
@@ -32,7 +32,7 @@ therefore not recommended.
 
 *: A container is still used to build `wireguard-go`.
 
-### Setup build enviroment
+### Setup build environment
 These steps explain how to manually setup the build environment on a Linux system.
 
 #### 1. Install `podman`

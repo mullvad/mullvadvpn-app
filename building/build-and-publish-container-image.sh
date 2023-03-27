@@ -78,7 +78,7 @@ fi
 
 cp "$tmp_signature_dir/signature-2" "$signature_dir/"
 
-log_header "Commiting container sigstore signatures"
+log_header "Committing container sigstore signatures"
 git add "$signature_dir"
 GPG_TTY=$(tty) git commit -S -m "Add container signature for $container_name:$tag"
 

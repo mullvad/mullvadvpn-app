@@ -25,7 +25,7 @@ export abstract class IpAddress<G extends number[]> {
 export abstract class IpRange<G extends number[]> {
   public constructor(public readonly groups: G, public readonly prefixSize: number) {}
 
-  // Returns whether or not this subnet includes the privided IP
+  // Returns whether or not this subnet includes the provided IP
   protected includes<T extends IpAddress<G>>(ip: T, groupSize: number): boolean {
     return IpRange.match(groupSize, ip.groups, [this.groups, this.prefixSize]);
   }
@@ -159,7 +159,7 @@ export class IPv6Address extends IpAddress<IPv6Groups> {
     return localSubnets.some((subnet) => subnet.includes(this));
   }
 
-  // Parses IPv6 addresses where the groups are seperated by ':' and supports shortened addresses.
+  // Parses IPv6 addresses where the groups are separated by ':' and supports shortened addresses.
   public static fromString(ip: string): IPv6Address {
     try {
       const groups = IPv6Address.groupsFromString(ip);

@@ -180,7 +180,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         this.state.currentItem.view.props.routePath === candidate.props.routePath
       ) {
         // There's no transition in progress and the newest candidate has the same path as the
-        // current. In this sitation the app should just remain in the same view.
+        // current. In this situation the app should just remain in the same view.
         this.setState(
           {
             currentItem: TransitionContainer.makeItem(this.props),
