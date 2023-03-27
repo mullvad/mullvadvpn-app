@@ -40,6 +40,15 @@ enum ChangeLog {
      */
     static func readFromFile() throws -> String {
         return try String(contentsOfFile: try getPathToChangesFile())
+            .split(whereSeparator: { $0.isNewline })
+            .compactMap { line in
+                let trimmedString = line.trimmingCharacters(in: .whitespaces)
+
+                guard !trimmedString.isEmpty else { return nil }
+
+                return "• \(trimmedString)"
+            }
+            .joined(separator: "\n")
     }
 
     /**
