@@ -76,7 +76,7 @@ class LoginContentView: UIView {
         textLabel.text = NSLocalizedString(
             "CREATE_BUTTON_HEADER_LABEL",
             tableName: "Login",
-            value: "Don't have an account number?",
+            value: "Don’t have an account number?",
             comment: ""
         )
         return textLabel
