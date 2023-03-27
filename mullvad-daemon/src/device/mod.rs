@@ -448,6 +448,12 @@ impl AccountManager {
         let mut current_api_call = api::CurrentApiCall::new();
 
         loop {
+            if current_api_call.is_idle() {
+                if let Some(timed_rotation) = self.spawn_timed_key_rotation() {
+                    current_api_call.set_timed_rotation(Box::pin(timed_rotation))
+                }
+            }
+
             futures::select! {
                 api_result = current_api_call => {
                     self.consume_api_result(api_result, &mut current_api_call).await;
@@ -521,12 +527,6 @@ impl AccountManager {
                             break;
                         }
                     }
-                }
-            }
-
-            if current_api_call.is_idle() {
-                if let Some(timed_rotation) = self.spawn_timed_key_rotation() {
-                    current_api_call.set_timed_rotation(Box::pin(timed_rotation))
                 }
             }
         }
