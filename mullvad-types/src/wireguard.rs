@@ -122,7 +122,7 @@ impl Default for RotationInterval {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(

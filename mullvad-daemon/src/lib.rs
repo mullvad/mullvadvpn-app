@@ -1160,12 +1160,12 @@ where
         let save_result = match update {
             ExcludedPathsUpdate::SetState(state) => self
                 .settings
-                .set_split_tunnel_state(state)
+                .update(move |settings| settings.split_tunnel.enable_exclusions = state)
                 .await
                 .map_err(Error::SettingsError),
             ExcludedPathsUpdate::SetPaths(paths) => self
                 .settings
-                .set_split_tunnel_apps(paths)
+                .update(move |settings| settings.split_tunnel.apps = paths)
                 .await
                 .map_err(Error::SettingsError),
         };
@@ -1730,12 +1730,11 @@ where
 
     #[cfg(windows)]
     async fn on_use_wireguard_nt(&mut self, tx: ResponseTx<(), Error>, state: bool) {
-        let save_result = self
+        match self
             .settings
-            .set_use_wireguard_nt(state)
+            .update(move |settings| settings.tunnel_options.wireguard.use_wireguard_nt = state)
             .await
-            .map_err(Error::SettingsError);
-        match save_result {
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");
                 if settings_changed {
@@ -1755,7 +1754,11 @@ where
                     "{}",
                     error.display_chain_with_msg("Unable to save settings")
                 );
-                Self::oneshot_send(tx, Err(error), "use_wireguard_nt response");
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::SettingsError(error)),
+                    "use_wireguard_nt response",
+                );
             }
         }
     }
@@ -1772,8 +1775,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         update: RelaySettingsUpdate,
     ) {
-        let save_result = self.settings.update_relay_settings(update).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.update_relay_settings(update))
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "update_relay_settings response");
                 if settings_changed {
@@ -1793,8 +1799,11 @@ where
     }
 
     async fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
-        let save_result = self.settings.set_allow_lan(allow_lan).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.allow_lan = allow_lan)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
                 if settings_changed {
@@ -1815,8 +1824,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         enabled: bool,
     ) {
-        let save_result = self.settings.set_show_beta_releases(enabled).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.show_beta_releases = enabled)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
@@ -1838,11 +1850,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         block_when_disconnected: bool,
     ) {
-        let save_result = self
+        match self
             .settings
-            .set_block_when_disconnected(block_when_disconnected)
-            .await;
-        match save_result {
+            .update(move |settings| settings.block_when_disconnected = block_when_disconnected)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                 if settings_changed {
@@ -1865,8 +1877,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         auto_connect: bool,
     ) {
-        let save_result = self.settings.set_auto_connect(auto_connect).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.auto_connect = auto_connect)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set auto-connect response");
                 if settings_changed {
@@ -1884,10 +1899,13 @@ where
     async fn on_set_openvpn_mssfix(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        mssfix_arg: Option<u16>,
+        mssfix: Option<u16>,
     ) {
-        let save_result = self.settings.set_openvpn_mssfix(mssfix_arg).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.tunnel_options.openvpn.mssfix = mssfix)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
                 if settings_changed {
@@ -1916,7 +1934,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         new_settings: BridgeSettings,
     ) {
-        match self.settings.set_bridge_settings(new_settings).await {
+        match self
+            .settings
+            .update(move |settings| settings.bridge_settings = new_settings)
+            .await
+        {
             Ok(settings_changes) => {
                 if settings_changes {
                     self.event_listener
@@ -1946,7 +1968,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         new_settings: ObfuscationSettings,
     ) {
-        match self.settings.set_obfuscation_settings(new_settings).await {
+        match self
+            .settings
+            .update(move |settings| settings.obfuscation_settings = new_settings)
+            .await
+        {
             Ok(settings_changed) => {
                 if settings_changed {
                     self.event_listener
@@ -1972,7 +1998,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         bridge_state: BridgeState,
     ) {
-        let result = match self.settings.set_bridge_state(bridge_state).await {
+        let result = match self
+            .settings
+            .update(move |settings| settings.bridge_state = bridge_state)
+            .await
+        {
             Ok(settings_changed) => {
                 if settings_changed {
                     self.event_listener
@@ -1996,8 +2026,11 @@ where
     }
 
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
-        let save_result = self.settings.set_enable_ipv6(enable_ipv6).await;
-        match save_result {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.generic.enable_ipv6 = enable_ipv6)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
                 if settings_changed {
@@ -2022,11 +2055,13 @@ where
         tx: ResponseTx<(), settings::Error>,
         quantum_resistant: QuantumResistantState,
     ) {
-        let save_result = self
+        match self
             .settings
-            .set_quantum_resistant_tunnel(quantum_resistant)
-            .await;
-        match save_result {
+            .update(|settings| {
+                settings.tunnel_options.wireguard.quantum_resistant = quantum_resistant
+            })
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
                 if settings_changed {
@@ -2053,8 +2088,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         dns_options: DnsOptions,
     ) {
-        let save_result = self.settings.set_dns_options(dns_options.clone()).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.tunnel_options.dns_options = dns_options)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
@@ -2080,8 +2118,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         mtu: Option<u16>,
     ) {
-        let save_result = self.settings.set_wireguard_mtu(mtu).await;
-        match save_result {
+        match self
+            .settings
+            .update(move |settings| settings.tunnel_options.wireguard.mtu = mtu)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
                 if settings_changed {
@@ -2110,11 +2151,11 @@ where
         tx: ResponseTx<(), settings::Error>,
         interval: Option<RotationInterval>,
     ) {
-        let save_result = self
+        match self
             .settings
-            .set_wireguard_rotation_interval(interval)
-            .await;
-        match save_result {
+            .update(move |settings| settings.tunnel_options.wireguard.rotation_interval = interval)
+            .await
+        {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_rotation_interval response");
                 if settings_changed {
@@ -2324,7 +2365,7 @@ fn new_selector_config(
 
     SelectorConfig {
         relay_settings: settings.get_relay_settings(),
-        bridge_state: settings.get_bridge_state(),
+        bridge_state: settings.bridge_state,
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,

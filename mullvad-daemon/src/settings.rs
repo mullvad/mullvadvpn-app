@@ -1,13 +1,7 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
-use mullvad_types::{
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
-    settings::{DnsOptions, Settings},
-    wireguard::{QuantumResistantState, RotationInterval},
-};
+use mullvad_types::settings::Settings;
 use rand::Rng;
-#[cfg(target_os = "windows")]
-use std::collections::HashSet;
 use std::{
     ops::Deref,
     path::{Path, PathBuf},
@@ -46,6 +40,8 @@ pub struct SettingsPersister {
     path: PathBuf,
 }
 
+pub type MadeChanges = bool;
+
 impl SettingsPersister {
     /// Loads user settings from file. If it fails, it returns the defaults.
     pub async fn load(settings_dir: &Path) -> Self {
@@ -78,11 +74,12 @@ impl SettingsPersister {
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
-            should_save |=
-                Self::update_field(&mut settings.tunnel_options.generic.enable_ipv6, true);
+            should_save |= !settings.tunnel_options.generic.enable_ipv6;
+            settings.tunnel_options.generic.enable_ipv6 = true;
         }
         if crate::version::is_beta_version() {
-            should_save |= Self::update_field(&mut settings.show_beta_releases, true);
+            should_save |= !settings.show_beta_releases;
+            settings.show_beta_releases = true;
         }
 
         let mut persister = SettingsPersister { settings, path };
@@ -120,24 +117,24 @@ impl SettingsPersister {
         serde_json::from_slice(bytes).map_err(Error::ParseError)
     }
 
-    /// Serializes the settings and saves them to the file it was loaded from.
     async fn save(&mut self) -> Result<(), Error> {
-        log::debug!("Writing settings to {}", self.path.display());
+        Self::save_inner(&self.path, &self.settings).await
+    }
 
-        let buffer = serde_json::to_string_pretty(&self.settings).map_err(Error::SerializeError)?;
-        let mut file = fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(&self.path)
+    /// Serializes the settings and saves them to the given file.
+    async fn save_inner(path: &Path, settings: &Settings) -> Result<(), Error> {
+        log::debug!("Writing settings to {}", path.display());
+
+        let buffer = serde_json::to_string_pretty(settings).map_err(Error::SerializeError)?;
+        let mut file = mullvad_fs::AtomicFile::new(path)
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
         file.write_all(&buffer.into_bytes())
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
-        file.sync_all()
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+        file.finalize()
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
 
         Ok(())
     }
@@ -176,158 +173,26 @@ impl SettingsPersister {
         settings
     }
 
-    pub async fn update_relay_settings(
+    /// Edit the settings in a closure, and write the changes, if any, to disk.
+    ///
+    /// On success, the function returns a boolean indicating whether any settings were changed.
+    /// If the settings could not be written to disk, all changes are rolled back, and an error is
+    /// returned.
+    pub async fn update(
         &mut self,
-        update: RelaySettingsUpdate,
-    ) -> Result<bool, Error> {
-        let should_save = self.settings.update_relay_settings(update);
-        self.update(should_save).await
-    }
+        update_fn: impl FnOnce(&mut Settings),
+    ) -> Result<MadeChanges, Error> {
+        let mut new_settings = self.settings.clone();
 
-    pub async fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(&mut self.settings.allow_lan, allow_lan);
-        self.update(should_save).await
-    }
+        update_fn(&mut new_settings);
 
-    pub async fn set_block_when_disconnected(
-        &mut self,
-        block_when_disconnected: bool,
-    ) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.block_when_disconnected,
-            block_when_disconnected,
-        );
-        self.update(should_save).await
-    }
-
-    pub async fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(&mut self.settings.auto_connect, auto_connect);
-        self.update(should_save).await
-    }
-
-    pub async fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.openvpn.mssfix,
-            openvpn_mssfix,
-        );
-        self.update(should_save).await
-    }
-
-    pub async fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.generic.enable_ipv6,
-            enable_ipv6,
-        );
-        self.update(should_save).await
-    }
-
-    pub async fn set_quantum_resistant_tunnel(
-        &mut self,
-        quantum_resistant: QuantumResistantState,
-    ) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.wireguard.quantum_resistant,
-            quantum_resistant,
-        );
-        self.update(should_save).await
-    }
-
-    pub async fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
-        let should_save =
-            Self::update_field(&mut self.settings.tunnel_options.dns_options, options);
-        self.update(should_save).await
-    }
-
-    pub async fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
-        let should_save = Self::update_field(&mut self.settings.tunnel_options.wireguard.mtu, mtu);
-        self.update(should_save).await
-    }
-
-    pub async fn set_wireguard_rotation_interval(
-        &mut self,
-        interval: Option<RotationInterval>,
-    ) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.wireguard.rotation_interval,
-            interval,
-        );
-        self.update(should_save).await
-    }
-
-    pub async fn set_show_beta_releases(
-        &mut self,
-        show_beta_releases: bool,
-    ) -> Result<bool, Error> {
-        let should_save =
-            Self::update_field(&mut self.settings.show_beta_releases, show_beta_releases);
-        self.update(should_save).await
-    }
-
-    pub async fn set_bridge_settings(
-        &mut self,
-        bridge_settings: BridgeSettings,
-    ) -> Result<bool, Error> {
-        let should_save = Self::update_field(&mut self.settings.bridge_settings, bridge_settings);
-        self.update(should_save).await
-    }
-
-    pub async fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
-        let should_save = self.settings.set_bridge_state(bridge_state);
-        self.update(should_save).await
-    }
-
-    #[cfg(windows)]
-    pub async fn set_split_tunnel_apps(&mut self, paths: HashSet<PathBuf>) -> Result<bool, Error> {
-        let should_save = paths != self.settings.split_tunnel.apps;
-        if should_save {
-            self.settings.split_tunnel.apps = paths;
+        if self.settings == new_settings {
+            return Ok(false);
         }
-        self.update(should_save).await
-    }
 
-    #[cfg(windows)]
-    pub async fn set_split_tunnel_state(&mut self, enabled: bool) -> Result<bool, Error> {
-        let should_save =
-            Self::update_field(&mut self.settings.split_tunnel.enable_exclusions, enabled);
-        self.update(should_save).await
-    }
-
-    #[cfg(windows)]
-    pub async fn set_use_wireguard_nt(&mut self, state: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.wireguard.use_wireguard_nt,
-            state,
-        );
-        self.update(should_save).await
-    }
-
-    fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
-        if *field != new_value {
-            *field = new_value;
-            true
-        } else {
-            false
-        }
-    }
-
-    pub async fn set_obfuscation_settings(
-        &mut self,
-        obfuscation_settings: ObfuscationSettings,
-    ) -> Result<bool, Error> {
-        let should_save = Self::update_field(
-            &mut self.settings.obfuscation_settings,
-            obfuscation_settings,
-        );
-
-        self.update(should_save).await
-    }
-
-    async fn update(&mut self, should_save: bool) -> Result<bool, Error> {
-        if should_save {
-            self.save().await.map(|_| true)
-        } else {
-            Ok(false)
-        }
+        Self::save_inner(&self.path, &new_settings).await?;
+        self.settings = new_settings;
+        Ok(true)
     }
 }
 
