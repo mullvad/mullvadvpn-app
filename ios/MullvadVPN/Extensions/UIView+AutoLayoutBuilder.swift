@@ -108,13 +108,12 @@ extension UIView {
  view.addSubview(subview)
 
  NSLayoutConstraint.activate {
-    // Pin top, leading and trailing edges to superview with associated margins.
-    subview.pinEdgesToSuperview(.top(8).leading(16).trailing(24))
+    // Pin top, leading and trailing edges to superview.
+    subview.pinEdgesToSuperview(.init([.top(8), .leading(16), .trailing(8)]))
 
     // Pin bottom to safe area layout guide.
     subview.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
  }
-
  ```
  */
 @resultBuilder enum AutoLayoutBuilder {
