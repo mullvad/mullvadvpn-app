@@ -20,33 +20,21 @@ extension UIView {
      Pin edges to edges of other view.
      */
     func pinEdges(_ edges: PinnableEdges, to other: UIView) -> [NSLayoutConstraint] {
-        var constraints = [NSLayoutConstraint]()
+        return edges.inner.map { edge -> NSLayoutConstraint in
+            switch edge {
+            case let .top(inset):
+                return topAnchor.constraint(equalTo: other.topAnchor, constant: inset)
 
-        if edges.contains(.top) {
-            constraints.append(
-                topAnchor.constraint(equalTo: other.topAnchor, constant: edges.top)
-            )
+            case let .bottom(inset):
+                return bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: inset)
+
+            case let .leading(inset):
+                return leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: inset)
+
+            case let .trailing(inset):
+                return trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: inset)
+            }
         }
-
-        if edges.contains(.bottom) {
-            constraints.append(
-                bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: edges.bottom)
-            )
-        }
-
-        if edges.contains(.leading) {
-            constraints.append(
-                leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: edges.leading)
-            )
-        }
-
-        if edges.contains(.trailing) {
-            constraints.append(
-                trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: edges.trailing)
-            )
-        }
-
-        return constraints
     }
 
     /**
@@ -85,42 +73,24 @@ extension UIView {
      Pin edges to layout guide.
      */
     func pinEdges(_ edges: PinnableEdges, to layoutGuide: UILayoutGuide) -> [NSLayoutConstraint] {
-        var constraints = [NSLayoutConstraint]()
+        return edges.inner.map { edge -> NSLayoutConstraint in
+            switch edge {
+            case let .top(inset):
+                return topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: inset)
 
-        if edges.contains(.top) {
-            constraints.append(
-                topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: edges.top)
-            )
-        }
+            case let .bottom(inset):
+                return bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: inset)
 
-        if edges.contains(.bottom) {
-            constraints.append(
-                bottomAnchor.constraint(
-                    equalTo: layoutGuide.bottomAnchor,
-                    constant: edges.bottom
-                )
-            )
-        }
+            case let .leading(inset):
+                return leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: inset)
 
-        if edges.contains(.leading) {
-            constraints.append(
-                leadingAnchor.constraint(
-                    equalTo: layoutGuide.leadingAnchor,
-                    constant: edges.leading
-                )
-            )
-        }
-
-        if edges.contains(.trailing) {
-            constraints.append(
-                trailingAnchor.constraint(
+            case let .trailing(inset):
+                return trailingAnchor.constraint(
                     equalTo: layoutGuide.trailingAnchor,
-                    constant: edges.trailing
+                    constant: inset
                 )
-            )
+            }
         }
-
-        return constraints
     }
 }
 
@@ -186,149 +156,102 @@ extension NSLayoutConstraint {
     }
 }
 
+extension UIView {
+    /**
+     Add subviews using AutoLayout and configure constraints.
+     */
+    func addConstrainedSubviews(
+        _ subviews: [UIView],
+        @AutoLayoutBuilder builder: () -> [NSLayoutConstraint]
+    ) {
+        for subview in subviews {
+            subview.configureForAutoLayout()
+            addSubview(subview)
+        }
+
+        NSLayoutConstraint.activate(builder())
+    }
+
+    /**
+     Add subviews using AutoLayout without configuring constraints.
+     */
+    func addConstrainedSubviews(_ subviews: [UIView]) {
+        addConstrainedSubviews(subviews) {}
+    }
+
+    /**
+     Configure view for AutoLayout by disabling automatic autoresizing mask translation into
+     constraints.
+     */
+    func configureForAutoLayout() {
+        translatesAutoresizingMaskIntoConstraints = false
+    }
+}
+
 /**
- Struct describing which edges to pin when creating AutoLayout constraints.
+ Struct describing a relationship between AutoLayout anchors.
  */
 struct PinnableEdges {
-    /// Edges that will be pinned.
-    private var rectEdge: NSDirectionalRectEdge = []
+    /**
+     Enum describing each inidividual edge with associated inset value.
+     */
+    enum Edge: Hashable {
+        case top(CGFloat)
+        case bottom(CGFloat)
+        case leading(CGFloat)
+        case trailing(CGFloat)
 
-    /// Container used for hoding edge insets.
-    private var insets: NSDirectionalEdgeInsets = .zero
-
-    /// Returns edges configured to pin to the top anchor.
-    static func top(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().top(inset)
-    }
-
-    /// Returns edges configured to pin to leading anchor.
-    static func leading(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().leading(inset)
-    }
-
-    /// Returns edges configured to pin to trailing anchor.
-    static func trailing(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().trailing(inset)
-    }
-
-    /// Returns edges configured to pin to bottom anchor.
-    static func bottom(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().bottom(inset)
-    }
-
-    /// Returns edges configured to pin to horizontal (leading and trailing) anchors.
-    static func horizontal(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().horizontal(inset)
-    }
-
-    /// Returns edges configured to pin to vertical (top and bottom) anchors.
-    static func vertical(_ inset: CGFloat = 0) -> Self {
-        return PinnableEdges().vertical(inset)
-    }
-
-    /// Returns edges configured to pin to all anchors, optionally accepting insets for all edges.
-    static func all(_ directionalEdgeInsets: NSDirectionalEdgeInsets = .zero) -> PinnableEdges {
-        return PinnableEdges(rectEdge: .all, insets: directionalEdgeInsets)
-    }
-
-    /// Returns `true` if the struct is configured to pin the given edge.
-    func contains(_ edge: NSDirectionalRectEdge) -> Bool {
-        return rectEdge.contains(edge)
-    }
-
-    /// Top edge inset.
-    var top: CGFloat {
-        return insets.top
-    }
-
-    /// Leading edge inset.
-    var leading: CGFloat {
-        return insets.leading
-    }
-
-    /// Trailing edge inset.
-    var trailing: CGFloat {
-        return insets.trailing
-    }
-
-    /// Bottom edge inset.
-    var bottom: CGFloat {
-        return insets.bottom
-    }
-
-    /// Returns a copy of struct with the given edges excluded and corresponding insets being
-    /// zeroed.
-    func excluding(_ edges: NSDirectionalRectEdge) -> Self {
-        var newEdges = self
-
-        if edges.contains(.top) {
-            newEdges.insets.top = 0
+        var rectEdge: NSDirectionalRectEdge {
+            switch self {
+            case .top:
+                return .top
+            case .bottom:
+                return .bottom
+            case .leading:
+                return .leading
+            case .trailing:
+                return .trailing
+            }
         }
 
-        if edges.contains(.bottom) {
-            newEdges.insets.bottom = 0
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(rectEdge.rawValue)
         }
 
-        if edges.contains(.leading) {
-            newEdges.insets.leading = 0
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.rectEdge == rhs.rectEdge
         }
-
-        if edges.contains(.trailing) {
-            newEdges.insets.trailing = 0
-        }
-
-        newEdges.rectEdge.remove(edges)
-
-        return newEdges
     }
 
-    /// Returns edges configured to pin to horizontal (leading and trailing) anchors.
-    func horizontal(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.leading = inset
-        newEdges.insets.trailing = inset
-        newEdges.rectEdge.formUnion([.leading, .trailing])
-        return newEdges
+    /**
+     Inner set of `Edge` objects.
+     */
+    var inner: Set<Edge>
+
+    /**
+     Designated initializer.
+     */
+    init(_ edges: Set<Edge>) {
+        inner = edges
     }
 
-    /// Returns edges configured to pin to vertical (top and bottom) anchors.
-    func vertical(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.top = inset
-        newEdges.insets.bottom = inset
-        newEdges.rectEdge.formUnion([.top, .bottom])
-        return newEdges
+    /**
+     Returns new `PinnableEdges` with the given edge(s) excluded.
+     */
+    func excluding(_ excludeEdges: NSDirectionalRectEdge) -> Self {
+        return Self(inner.filter { !excludeEdges.contains($0.rectEdge) })
     }
 
-    /// Returns edges configured to pin to the top anchor.
-    func top(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.top = inset
-        newEdges.rectEdge.insert(.top)
-        return newEdges
-    }
-
-    /// Returns edges configured to pin to leading anchor.
-    func leading(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.leading = inset
-        newEdges.rectEdge.insert(.leading)
-        return newEdges
-    }
-
-    /// Returns edges configured to pin to trailing anchor.
-    func trailing(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.trailing = inset
-        newEdges.rectEdge.insert(.trailing)
-        return newEdges
-    }
-
-    /// Returns edges configured to pin to bottom anchor.
-    func bottom(_ inset: CGFloat = 0) -> Self {
-        var newEdges = self
-        newEdges.insets.bottom = inset
-        newEdges.rectEdge.insert(.bottom)
-        return newEdges
+    /**
+     Returns new `PinnableEdges` initialized with four edges and corresponding insets from
+     `NSDirectionalEdgeInsets`.
+     */
+    static func all(_ directionalEdgeInsets: NSDirectionalEdgeInsets = .zero) -> Self {
+        return Self([
+            .top(directionalEdgeInsets.top),
+            .bottom(directionalEdgeInsets.bottom),
+            .leading(directionalEdgeInsets.leading),
+            .trailing(directionalEdgeInsets.trailing),
+        ])
     }
 }
