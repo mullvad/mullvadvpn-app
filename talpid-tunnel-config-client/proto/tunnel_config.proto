@@ -80,6 +80,4 @@ message KemPubkeyV1 {
   bytes key_data = 2;
 }
 
-message PskResponseV1 {
-  repeated bytes ciphertexts = 1;
-}
+message PskResponseV1 { repeated bytes ciphertexts = 1; }
