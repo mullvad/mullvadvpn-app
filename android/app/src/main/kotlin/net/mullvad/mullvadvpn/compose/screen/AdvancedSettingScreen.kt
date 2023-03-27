@@ -40,7 +40,9 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfo
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
+import net.mullvad.mullvadvpn.compose.dialog.MalwareInfo
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
@@ -71,6 +73,9 @@ private fun PreviewAdvancedSettings() {
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
+        onContentsBlockerInfoClicked = {},
+        onMalwareInfoClicked = {},
+        onDismissInfoClicked = {},
         onBackClick = {},
     )
 }
@@ -92,6 +97,9 @@ fun AdvancedSettingScreen(
     onSaveDnsClick: () -> Unit = {},
     onRemoveDnsClick: () -> Unit = {},
     onCancelDnsDialogClick: () -> Unit = {},
+    onContentsBlockerInfoClicked: () -> Unit = {},
+    onMalwareInfoClicked: () -> Unit = {},
+    onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
@@ -117,6 +125,12 @@ fun AdvancedSettingScreen(
                 onDismiss = { onCancelDnsDialogClick() },
             )
         }
+        is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
+            ContentBlockersInfo(onDismissInfoClicked)
+        }
+        is AdvancedSettingsUiState.MalwareInfoDialogUiState -> {
+            MalwareInfo(onDismissInfoClicked)
+        }
         else -> {
             // NOOP
         }
@@ -126,7 +140,6 @@ fun AdvancedSettingScreen(
     var expandContentBlockersState by remember { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
-
     CollapsingToolbarTheme {
         val state = rememberCollapsingToolbarScaffoldState()
         val progress = state.toolbarState.progress
@@ -176,7 +189,7 @@ fun AdvancedSettingScreen(
                     ExpandableComposeCell(
                         title = stringResource(R.string.dns_content_blockers),
                         expandState = !expandContentBlockersState,
-                        onInfoClicked = {},
+                        onInfoClicked = { onContentsBlockerInfoClicked() },
                         onCellClicked = {
                             expandContentBlockersState = !expandContentBlockersState
                         },
@@ -208,7 +221,7 @@ fun AdvancedSettingScreen(
                             title = stringResource(R.string.malware),
                             checkboxDefaultState = false,
                             onCellClicked = {},
-                            onInfoClicked = {},
+                            onInfoClicked = { onMalwareInfoClicked() },
                             background = MullvadBlue20,
                         )
                         Divider()
