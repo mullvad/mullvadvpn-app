@@ -28,7 +28,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             bridge_settings: Some(proto::BridgeSettings::from(
                 settings.bridge_settings.clone(),
             )),
-            bridge_state: Some(proto::BridgeState::from(settings.get_bridge_state())),
+            bridge_state: Some(proto::BridgeState::from(settings.bridge_state)),
             allow_lan: settings.allow_lan,
             block_when_disconnected: settings.block_when_disconnected,
             auto_connect: settings.auto_connect,

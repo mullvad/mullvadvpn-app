@@ -60,7 +60,7 @@ impl Serialize for SettingsVersion {
 }
 
 /// Mullvad daemon settings.
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
@@ -71,7 +71,7 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub obfuscation_settings: ObfuscationSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    bridge_state: BridgeState,
+    pub bridge_state: BridgeState,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -149,7 +149,7 @@ impl Settings {
         self.relay_settings.clone()
     }
 
-    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> bool {
+    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) {
         let update_supports_bridge = update.supports_bridge();
         let new_settings = self.relay_settings.merge(update);
         if self.relay_settings != new_settings {
@@ -163,22 +163,6 @@ impl Settings {
             );
 
             self.relay_settings = new_settings;
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn get_bridge_state(&self) -> BridgeState {
-        self.bridge_state
-    }
-
-    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {
-        if self.bridge_state != bridge_state {
-            self.bridge_state = bridge_state;
-            true
-        } else {
-            false
         }
     }
 
@@ -188,7 +172,7 @@ impl Settings {
 }
 
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
