@@ -115,7 +115,7 @@ final class ChangeLogContentView: UIView {
 
         addConstrainedSubviews([titleLabel, subheadLabel, textView, footerContainer]) {
             titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            subheadLabel.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0)]))
+            subheadLabel.pinEdgesToSuperviewMargins(.init([.leading(0), .trailing(0)]))
             subheadLabel.topAnchor.constraint(
                 equalToSystemSpacingBelow: titleLabel.bottomAnchor,
                 multiplier: 1
