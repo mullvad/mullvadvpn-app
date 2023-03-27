@@ -13,7 +13,7 @@ sealed interface AdvancedSettingsUiState {
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf()
+        override val customDnsItems: List<CustomDnsItem> = listOf(),
     ) : AdvancedSettingsUiState
 
     data class MtuDialogUiState(
@@ -30,5 +30,19 @@ sealed interface AdvancedSettingsUiState {
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         val stagedDns: StagedDns,
+    ) : AdvancedSettingsUiState
+
+    data class ContentBlockersInfoDialogUiState(
+        override val mtu: String = "",
+        override val isCustomDnsEnabled: Boolean = false,
+        override val isAllowLanEnabled: Boolean = false,
+        override val customDnsItems: List<CustomDnsItem> = listOf()
+    ) : AdvancedSettingsUiState
+
+    data class MalwareInfoDialogUiState(
+        override val mtu: String = "",
+        override val isCustomDnsEnabled: Boolean = false,
+        override val isAllowLanEnabled: Boolean = false,
+        override val customDnsItems: List<CustomDnsItem> = listOf()
     ) : AdvancedSettingsUiState
 }

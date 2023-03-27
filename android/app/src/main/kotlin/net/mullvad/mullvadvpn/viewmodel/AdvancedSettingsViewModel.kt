@@ -31,18 +31,18 @@ class AdvancedSettingsViewModel(
 
     private val vmState =
         combine(repository.settingsUpdates, dialogState) { settings, interaction ->
-                AdvancedSettingsViewModelState(
-                    mtuValue = settings?.mtuString() ?: "",
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
-                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    isAllowLanEnabled = settings?.allowLan ?: false,
-                    dialogState = interaction
-                )
-            }
+            AdvancedSettingsViewModelState(
+                mtuValue = settings?.mtuString() ?: "",
+                isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                isAllowLanEnabled = settings?.allowLan ?: false,
+                dialogState = interaction,
+            )
+        }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AdvancedSettingsViewModelState.default()
+                AdvancedSettingsViewModelState.default(),
             )
 
     val uiState =
@@ -51,7 +51,7 @@ class AdvancedSettingsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AdvancedSettingsUiState.DefaultUiState()
+                AdvancedSettingsUiState.DefaultUiState(),
             )
 
     fun onMtuCellClick() {
@@ -80,6 +80,18 @@ class AdvancedSettingsViewModel(
         }
 
     fun onCancelDialogClick() {
+        hideDialog()
+    }
+
+    fun onContentsBlockerInfoClicked() {
+        dialogState.update { AdvancedSettingsDialogState.ContentsBlockerInfoDialog }
+    }
+
+    fun onMalwareInfoClicked() {
+        dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
+    }
+
+    fun onDismissInfoClicked() {
         hideDialog()
     }
 
@@ -115,26 +127,26 @@ class AdvancedSettingsViewModel(
 
             return@update AdvancedSettingsDialogState.DnsDialog(
                 stagedDns =
-                    if (dialog.stagedDns is StagedDns.EditDns) {
-                        StagedDns.EditDns(
-                            item =
-                                CustomDnsItem(
-                                    address = ipAddress,
-                                    isLocal = ipAddress.isLocalAddress()
-                                ),
-                            validationResult = error,
-                            index = dialog.stagedDns.index
-                        )
-                    } else {
-                        StagedDns.NewDns(
-                            item =
-                                CustomDnsItem(
-                                    address = ipAddress,
-                                    isLocal = ipAddress.isLocalAddress()
-                                ),
-                            validationResult = error
-                        )
-                    }
+                if (dialog.stagedDns is StagedDns.EditDns) {
+                    StagedDns.EditDns(
+                        item =
+                        CustomDnsItem(
+                            address = ipAddress,
+                            isLocal = ipAddress.isLocalAddress(),
+                        ),
+                        validationResult = error,
+                        index = dialog.stagedDns.index,
+                    )
+                } else {
+                    StagedDns.NewDns(
+                        item =
+                        CustomDnsItem(
+                            address = ipAddress,
+                            isLocal = ipAddress.isLocalAddress(),
+                        ),
+                        validationResult = error,
+                    )
+                },
             )
         }
     }
@@ -174,7 +186,7 @@ class AdvancedSettingsViewModel(
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
                 isEnabled,
-                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList()
+                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
             )
         }
 
@@ -192,7 +204,7 @@ class AdvancedSettingsViewModel(
 
             repository.setDnsOptions(
                 isCustomDnsEnabled = vmState.value.isCustomDnsEnabled && updatedList.isNotEmpty(),
-                dnsList = updatedList
+                dnsList = updatedList,
             )
 
             hideDialog()

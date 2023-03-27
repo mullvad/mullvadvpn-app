@@ -7,9 +7,8 @@ import net.mullvad.mullvadvpn.R
 @Composable
 fun ContentBlockersInfoDialog(onDismiss: () -> Unit) {
     InfoDialog(
-        message =
-        "${stringResource(id = R.string.dns_content_blockers_info)} \n\n\n " +
-            "${stringResource(id = R.string.dns_content_blockers_warning)}",
+        message = stringResource(id = R.string.dns_content_blockers_info),
+        additionalInfo = stringResource(id = R.string.dns_content_blockers_warning),
         onDismiss = onDismiss
     )
 }
