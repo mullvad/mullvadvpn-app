@@ -1702,6 +1702,7 @@ dependencies = [
  "log",
  "log-panics",
  "mullvad-api",
+ "mullvad-fs",
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-relay-selector",

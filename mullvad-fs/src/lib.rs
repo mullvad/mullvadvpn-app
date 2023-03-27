@@ -15,7 +15,8 @@ pub struct AtomicFile {
 }
 
 impl AtomicFile {
-    pub async fn new(target_path: PathBuf) -> io::Result<Self> {
+    pub async fn new<P: AsRef<Path>>(target_path: P) -> io::Result<Self> {
+        let target_path = PathBuf::from(target_path.as_ref());
         let temp_path = target_path.with_file_name(uuid::Uuid::new_v4().to_string());
         Ok(Self {
             file: Some(fs::File::create(&temp_path).await?),

@@ -124,17 +124,13 @@ impl SettingsPersister {
         log::debug!("Writing settings to {}", self.path.display());
 
         let buffer = serde_json::to_string_pretty(&self.settings).map_err(Error::SerializeError)?;
-        let mut file = fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(&self.path)
+        let mut file = mullvad_fs::AtomicFile::new(&self.path)
             .await
             .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
         file.write_all(&buffer.into_bytes())
             .await
             .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
-        file.sync_all()
+        file.finalize()
             .await
             .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
 
