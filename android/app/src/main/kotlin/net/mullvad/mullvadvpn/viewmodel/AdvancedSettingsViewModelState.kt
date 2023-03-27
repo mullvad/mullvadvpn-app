@@ -27,6 +27,20 @@ data class AdvancedSettingsViewModelState(
                     customDnsItems = customDnsList,
                     stagedDns = dialogState.stagedDns,
                 )
+            is AdvancedSettingsDialogState.ContentsBlockerInfoDialog ->
+                AdvancedSettingsUiState.ContentBlockersInfoDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList
+                )
+            is AdvancedSettingsDialogState.MalwareInfoDialog ->
+                AdvancedSettingsUiState.MalwareInfoDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList
+                )
             else ->
                 AdvancedSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
@@ -57,6 +71,10 @@ sealed class AdvancedSettingsDialogState {
     data class MtuDialog(val mtuEditValue: String) : AdvancedSettingsDialogState()
 
     data class DnsDialog(val stagedDns: StagedDns) : AdvancedSettingsDialogState()
+
+    object ContentsBlockerInfoDialog : AdvancedSettingsDialogState()
+
+    object MalwareInfoDialog : AdvancedSettingsDialogState()
 }
 
 sealed interface StagedDns {
