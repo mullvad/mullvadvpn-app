@@ -46,14 +46,15 @@ fun DnsDialog(
 ) {
     val buttonSize = dimensionResource(id = R.dimen.button_height)
     val mediumPadding = dimensionResource(id = R.dimen.medium_padding)
-    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
-    val textFieldFocusRequester = FocusRequester()
-
-    val textSmallSize = dimensionResource(id = R.dimen.text_small).value.sp
-    val textBigSize = dimensionResource(id = R.dimen.text_big).value.sp
     val dialogPadding = 20.dp
     val midPadding = 10.dp
     val smallPadding = 5.dp
+
+    val textSmallSize = dimensionResource(id = R.dimen.text_small).value.sp
+    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
+    val textBigSize = dimensionResource(id = R.dimen.text_big).value.sp
+
+    val textFieldFocusRequester = FocusRequester()
 
     Dialog(
         // Fix for https://issuetracker.google.com/issues/221643630

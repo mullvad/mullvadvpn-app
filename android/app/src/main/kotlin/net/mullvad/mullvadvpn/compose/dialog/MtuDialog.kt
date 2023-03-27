@@ -13,6 +13,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
@@ -33,6 +35,7 @@ import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.util.isValidMtu
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MtuDialog(
     mtuValue: String,
@@ -43,28 +46,37 @@ fun MtuDialog(
 ) {
     val buttonSize = dimensionResource(id = R.dimen.button_height)
     val mediumPadding = dimensionResource(id = R.dimen.medium_padding)
-    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
-    val isValidMtu = mtuValue.toIntOrNull()?.isValidMtu() == true
-    val textFieldFocusRequester = FocusRequester()
-
-    val textSmallSize = dimensionResource(id = R.dimen.text_small).value.sp
-    val dialogPadding = 10.dp
+    val dialogPadding = 20.dp
+    val midPadding = 10.dp
     val smallPadding = 5.dp
 
+    val textSmallSize = dimensionResource(id = R.dimen.text_small).value.sp
+    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
+    val textBigSize = dimensionResource(id = R.dimen.text_big).value.sp
+
+    val textFieldFocusRequester = FocusRequester()
+    val isValidMtu = mtuValue.toIntOrNull()?.isValidMtu() == true
+
     Dialog(
+        // Fix for https://issuetracker.google.com/issues/221643630
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = { onDismiss() },
         content = {
-            Column(Modifier.background(color = MullvadDarkBlue).padding(dialogPadding)) {
+            Column(
+                Modifier
+                    // Related to the fix for https://issuetracker.google.com/issues/221643630
+                    .fillMaxWidth(0.8f)
+                    .background(color = MullvadDarkBlue)
+                    .padding(dialogPadding)
+            ) {
                 Text(
                     text = stringResource(id = R.string.wireguard_mtu),
                     color = Color.White,
-                    fontSize = textMediumSize
+                    fontSize = textBigSize
                 )
 
                 Box(
-                    Modifier.wrapContentSize()
-                        .clickable { textFieldFocusRequester.requestFocus() }
-                        .padding(top = dialogPadding)
+                    Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
                 ) {
                     MtuTextField(
                         value = mtuValue,
@@ -79,7 +91,9 @@ fun MtuDialog(
                         placeholderText = stringResource(R.string.enter_value_placeholder),
                         maxCharLength = 4,
                         isValidValue = isValidMtu,
-                        modifier = Modifier.focusRequester(textFieldFocusRequester)
+                        modifier =
+                            Modifier.padding(top = midPadding)
+                                .focusRequester(textFieldFocusRequester)
                     )
                 }
 
