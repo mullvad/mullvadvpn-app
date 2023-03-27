@@ -1,6 +1,6 @@
-• Add built in Mullvad device management - this simplifies managing the devices on your Mullvad account. 📱
-• Add content blockers for gambling and adult content 🎰
-• Remember last used account when logged out 🧠
-• Improved tunnel connection stability 🕵️
-• Fixed bugs and crashes 💥
-• Deprecate iOS 12 🚮
+Add built in Mullvad device management - this simplifies managing the devices on your Mullvad account. 📱
+Add content blockers for gambling and adult content 🎰
+Remember last used account when logged out 🧠
+Improved tunnel connection stability 🕵️
+Fixed bugs and crashes 💥
+Deprecate iOS 12 🚮
