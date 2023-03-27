@@ -30,13 +30,13 @@ class AdvancedSettingsViewModel(
         MutableStateFlow<AdvancedSettingsDialogState>(AdvancedSettingsDialogState.NoDialog)
 
     private val vmState =
-        combine(repository.settingsUpdates, dialogState) { settings, interaction ->
+        combine(repository.settingsUpdates, dialogState) { settings, dialogState ->
                 AdvancedSettingsViewModelState(
                     mtuValue = settings?.mtuString() ?: "",
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     isAllowLanEnabled = settings?.allowLan ?: false,
-                    dialogState = interaction
+                    dialogState = dialogState
                 )
             }
             .stateIn(
@@ -80,6 +80,18 @@ class AdvancedSettingsViewModel(
         }
 
     fun onCancelDialogClick() {
+        hideDialog()
+    }
+
+    fun onContentsBlockerInfoClicked() {
+        dialogState.update { AdvancedSettingsDialogState.ContentBlockersInfoDialog }
+    }
+
+    fun onMalwareInfoClicked() {
+        dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
+    }
+
+    fun onDismissInfoClicked() {
         hideDialog()
     }
 
