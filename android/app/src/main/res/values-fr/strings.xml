@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
+    <string name="custom_dns_hint">Saisir l\'IP</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>

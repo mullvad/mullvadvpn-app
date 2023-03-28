@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">CREAZIONE CONNESSIONE PROTETTA</string>
     <string name="critical_error">Errore critico (è necessario intervenire)</string>
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
+    <string name="custom_dns_hint">Inserisci IP</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere il nome host del server personalizzato</string>
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>

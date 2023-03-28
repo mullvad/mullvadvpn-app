@@ -126,6 +126,7 @@
     settings</string>
     <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced
     settings.</string>
+    <string name="custom_dns_hint">Enter IP</string>
     <string name="custom_tunnel_host_resolution_error">Failed to resolve the hostname of custom
     server</string>
     <string name="is_offline">This device is offline, no tunnels can be established</string>

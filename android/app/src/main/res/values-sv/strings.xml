@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">SKAPAR SÄKER ANSLUTNING</string>
     <string name="critical_error">Kritiskt fel (kräver din uppmärksamhet)</string>
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
+    <string name="custom_dns_hint">Ange IP</string>
     <string name="custom_tunnel_host_resolution_error">Det gick inte att lösa värdnamnet för den anpassade servern</string>
     <string name="device_inactive_description">Du har tagit bort den här enheten. Du måste logga in igen för att återansluta.</string>
     <string name="device_inactive_title">Enheten är inaktiv</string>

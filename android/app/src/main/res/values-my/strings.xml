@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
+    <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
     <string name="device_inactive_description">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</string>
     <string name="device_inactive_title">စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ</string>

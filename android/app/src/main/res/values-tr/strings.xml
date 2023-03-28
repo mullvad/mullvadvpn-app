@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
+    <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>

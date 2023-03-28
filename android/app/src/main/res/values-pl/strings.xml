@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">TWORZENIE BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
+    <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać nazwy hosta serwera niestandardowego</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>

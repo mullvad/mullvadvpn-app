@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">CREANDO CONEXIÓN SEGURA</string>
     <string name="critical_error">Error crítico (precisa su atención)</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
+    <string name="custom_dns_hint">Escriba la IP</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el nombre de host del servidor personalizado</string>
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
