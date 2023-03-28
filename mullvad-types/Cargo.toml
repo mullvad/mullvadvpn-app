@@ -19,5 +19,7 @@ rand = "0.8"
 
 talpid-types = { path = "../talpid-types" }
 
+clap = { version = "4.2.7", features = ["derive"], optional = true }
+
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5", features = ["derive"] }

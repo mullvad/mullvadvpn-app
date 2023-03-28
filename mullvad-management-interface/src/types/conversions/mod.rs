@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+mod account;
 mod custom_tunnel;
 mod device;
 mod location;
@@ -7,12 +8,15 @@ mod net;
 pub mod relay_constraints;
 mod relay_list;
 mod settings;
+#[cfg(target_os = "windows")]
+mod split_tunnel;
 mod states;
 mod version;
 mod wireguard;
 
-#[derive(Debug)]
+#[derive(err_derive::Error, Debug)]
 pub enum FromProtobufTypeError {
+    #[error(display = "Invalid argument for type conversion: {}", _0)]
     InvalidArgument(&'static str),
 }
 

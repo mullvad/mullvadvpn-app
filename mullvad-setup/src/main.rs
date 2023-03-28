@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, App};
 use mullvad_api::{self, proxy::ApiConnectionMode};
-use mullvad_management_interface::new_rpc_client;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
 use talpid_core::{
@@ -41,7 +41,7 @@ pub enum Error {
     RpcConnectionError(#[error(source)] mullvad_management_interface::Error),
 
     #[error(display = "RPC call failed")]
-    DaemonRpcError(#[error(source)] mullvad_management_interface::Status),
+    DaemonRpcError(#[error(source)] mullvad_management_interface::Error),
 
     #[error(display = "This command cannot be run if the daemon is active")]
     DaemonIsRunning,
@@ -132,16 +132,16 @@ fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
 }
 
 async fn prepare_restart() -> Result<(), Error> {
-    let mut rpc = new_rpc_client().await.map_err(Error::RpcConnectionError)?;
-    rpc.prepare_restart(())
+    let mut rpc = MullvadProxyClient::new()
         .await
-        .map_err(Error::DaemonRpcError)?;
+        .map_err(Error::RpcConnectionError)?;
+    rpc.prepare_restart().await.map_err(Error::DaemonRpcError)?;
     Ok(())
 }
 
 async fn reset_firewall() -> Result<(), Error> {
     // Ensure that the daemon isn't running
-    if new_rpc_client().await.is_ok() {
+    if MullvadProxyClient::new().await.is_ok() {
         return Err(Error::DaemonIsRunning);
     }
 
