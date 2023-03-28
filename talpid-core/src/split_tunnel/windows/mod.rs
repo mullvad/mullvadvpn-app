@@ -20,7 +20,7 @@ use std::{
     time::Duration,
 };
 use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
-use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
+use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause, ErrorExt};
 use talpid_windows_net::{get_ip_address_for_interface, AddressFamily};
 use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
 
@@ -129,18 +129,6 @@ struct InterfaceAddresses {
     tunnel_ipv6: Option<Ipv6Addr>,
     internet_ipv4: Option<Ipv4Addr>,
     internet_ipv6: Option<Ipv6Addr>,
-}
-
-/// Represents a process that is being excluded from the tunnel.
-#[derive(Debug, Clone)]
-pub struct ExcludedProcess {
-    /// Process identifier.
-    pub pid: u32,
-    /// Path to the image that this process is an instance of.
-    pub image: PathBuf,
-    /// If true, then the process is split because its parent was split,
-    /// not due to its path being in the config.
-    pub inherited: bool,
 }
 
 /// Cloneable handle for interacting with the split tunnel module.

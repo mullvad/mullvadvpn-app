@@ -1,157 +1,139 @@
-use std::{ffi::OsStr, path::Path};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
-use crate::{new_rpc_client, Command, Result};
+use clap::Subcommand;
+use mullvad_management_interface::MullvadProxyClient;
 
-pub struct SplitTunnel;
+use super::super::on_off_parser;
+use crate::Result;
 
-#[mullvad_management_interface::async_trait]
-impl Command for SplitTunnel {
-    fn name(&self) -> &'static str {
-        "split-tunnel"
-    }
+/// Set options for applications to exclude from the tunnel.
+#[derive(Subcommand, Debug)]
+pub enum SplitTunnel {
+    /// Display the split tunnel status and apps
+    Get {
+        /// List processes that are currently being excluded, as well as whether they are
+        /// excluded because of their executable paths or because they're subprocesses of
+        /// such processes
+        #[arg(long)]
+        list_processes: bool,
+    },
 
-    fn clap_subcommand(&self) -> clap::App<'static> {
-        clap::App::new(self.name())
-            .about("Set options for applications to exclude from the tunnel")
-            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(create_app_subcommand())
-            .subcommand(
-                clap::App::new("set")
-                    .about("Enable or disable split tunnel")
-                    .arg(
-                        clap::Arg::new("policy")
-                            .required(true)
-                            .possible_values(&["on", "off"]),
-                    ),
-            )
-            .subcommand(clap::App::new("get").about("Display the split tunnel status"))
-            .subcommand(create_pid_subcommand())
-    }
+    /// Enable or disable split tunnel
+    Set {
+        #[arg(value_parser = on_off_parser())]
+        policy: bool,
+    },
 
-    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        match matches.subcommand() {
-            Some(("app", matches)) => Self::handle_app_subcommand(matches).await,
-            Some(("pid", matches)) => Self::handle_pid_subcommand(matches).await,
-            Some(("get", _)) => self.get().await,
-            Some(("set", matches)) => {
-                let enabled = matches.value_of("policy").expect("missing policy");
-                self.set(enabled == "on").await
-            }
-            _ => {
-                unreachable!("unhandled command");
-            }
-        }
-    }
+    /// Manage applications to exclude from the tunnel
+    #[clap(subcommand)]
+    App(App),
 }
 
-fn create_app_subcommand() -> clap::App<'static> {
-    clap::App::new("app")
-        .about("Manage applications to exclude from the tunnel")
-        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(clap::App::new("list"))
-        .subcommand(clap::App::new("add").arg(clap::Arg::new("path").required(true)))
-        .subcommand(clap::App::new("remove").arg(clap::Arg::new("path").required(true)))
-        .subcommand(clap::App::new("clear"))
-}
-
-fn create_pid_subcommand() -> clap::App<'static> {
-    clap::App::new("pid")
-        .about("Manages processes (PIDs) excluded from the tunnel")
-        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(clap::App::new("list")
-            .about("List processes that are currently being excluded, i.e. their PIDs, as well as whether \
-                    they are excluded because of their executable paths or because they're subprocesses of \
-                    such processes"))
+#[derive(Subcommand, Debug)]
+pub enum App {
+    #[command(hide = true)]
+    List,
+    Add {
+        path: PathBuf,
+    },
+    Remove {
+        path: PathBuf,
+    },
+    Clear,
 }
 
 impl SplitTunnel {
-    async fn handle_app_subcommand(matches: &clap::ArgMatches) -> Result<()> {
-        match matches.subcommand() {
-            Some(("list", _)) => {
-                let paths = new_rpc_client()
+    pub async fn handle(self) -> Result<()> {
+        match self {
+            SplitTunnel::Get { list_processes } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let settings = rpc.get_settings().await?.split_tunnel;
+
+                println!(
+                    "Split tunneling state: {}",
+                    if settings.enable_exclusions {
+                        "on"
+                    } else {
+                        "off"
+                    }
+                );
+
+                println!("Excluded applications:");
+                for path in &settings.apps {
+                    println!("{}", path.display());
+                }
+
+                if list_processes {
+                    let processes = rpc.get_excluded_processes().await?;
+                    for process in &processes {
+                        let subproc = if process.inherited { "subprocess" } else { "" };
+                        println!(
+                            "{:<7}{subproc:<12}{}",
+                            process.pid,
+                            Path::new(&process.image)
+                                .file_name()
+                                .unwrap_or(OsStr::new("unknown"))
+                                .to_string_lossy()
+                        );
+                    }
+                }
+
+                Ok(())
+            }
+            SplitTunnel::Set { policy } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                rpc.set_split_tunnel_state(policy).await?;
+                println!("Set split tunnel policy");
+                Ok(())
+            }
+            SplitTunnel::App(subcmd) => Self::app(subcmd).await,
+        }
+    }
+
+    async fn app(subcmd: App) -> Result<()> {
+        match subcmd {
+            App::List => {
+                let paths = MullvadProxyClient::new()
                     .await?
-                    .get_settings(())
+                    .get_settings()
                     .await?
-                    .into_inner()
                     .split_tunnel
-                    .unwrap()
                     .apps;
 
                 println!("Excluded applications:");
                 for path in &paths {
-                    println!("    {}", path);
+                    println!("{}", path.display());
                 }
 
                 Ok(())
             }
-            Some(("add", matches)) => {
-                let path: String = matches.value_of_t_or_exit("path");
-                new_rpc_client().await?.add_split_tunnel_app(path).await?;
+            App::Add { path } => {
+                MullvadProxyClient::new()
+                    .await?
+                    .add_split_tunnel_app(path)
+                    .await?;
+                println!("Added path to excluded apps list");
                 Ok(())
             }
-            Some(("remove", matches)) => {
-                let path: String = matches.value_of_t_or_exit("path");
-                new_rpc_client()
+            App::Remove { path } => {
+                MullvadProxyClient::new()
                     .await?
                     .remove_split_tunnel_app(path)
                     .await?;
+                println!("Stopped excluding app from tunnel");
                 Ok(())
             }
-            Some(("clear", _)) => {
-                new_rpc_client().await?.clear_split_tunnel_apps(()).await?;
-                Ok(())
-            }
-            _ => unreachable!("unhandled subcommand"),
-        }
-    }
-
-    async fn handle_pid_subcommand(matches: &clap::ArgMatches) -> Result<()> {
-        match matches.subcommand() {
-            Some(("list", _)) => {
-                let processes = new_rpc_client()
+            App::Clear => {
+                MullvadProxyClient::new()
                     .await?
-                    .get_excluded_processes(())
-                    .await?
-                    .into_inner();
-
-                for process in &processes.processes {
-                    let subproc = if process.inherited { "subprocess" } else { "" };
-                    println!(
-                        "{:<7}{subproc:<12}{}",
-                        process.pid,
-                        Path::new(&process.image)
-                            .file_name()
-                            .unwrap_or(OsStr::new("unknown"))
-                            .to_string_lossy()
-                    );
-                }
-
+                    .clear_split_tunnel_apps()
+                    .await?;
+                println!("Stopped excluding all apps");
                 Ok(())
             }
-            _ => unreachable!("unhandled subcommand"),
         }
-    }
-
-    async fn set(&self, enabled: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_split_tunnel_state(enabled).await?;
-        println!("Changed split tunnel setting");
-        Ok(())
-    }
-
-    async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let enabled = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .split_tunnel
-            .unwrap()
-            .enable_exclusions;
-        println!(
-            "Split tunnel status: {}",
-            if enabled { "on" } else { "off" }
-        );
-        Ok(())
     }
 }

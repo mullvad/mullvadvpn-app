@@ -10,6 +10,9 @@ pub mod tunnel;
 #[cfg(target_os = "linux")]
 pub mod cgroup;
 
+#[cfg(target_os = "windows")]
+pub mod split_tunnel;
+
 /// Used to generate string representations of error chains.
 pub trait ErrorExt {
     /// Creates a string representation of the entire error chain.
