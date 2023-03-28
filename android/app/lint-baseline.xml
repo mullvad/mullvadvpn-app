@@ -8,7 +8,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="118"
+            line="136"
             column="18"/>
     </issue>
 
@@ -29,19 +29,8 @@
         errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/ConfirmDnsDialogFragment.kt"
-            line="42"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="ResourceAsColor"
-        message="Should pass resolved color instead of resource id here: `getResources().getColor(android.R.color.transparent)`"
-        errorLine1="        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/ConfirmNoEmailDialogFragment.kt"
-            line="52"
+            line="50"
             column="60"/>
     </issue>
 
@@ -103,12 +92,12 @@
     <issue
         id="ApplySharedPref"
         message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="            .commit()"
-        errorLine2="             ~~~~~~~~">
+        errorLine1="        getSharedPreferences(&quot;tunnel_state&quot;, MODE_PRIVATE).edit().clear().commit()"
+        errorLine2="                                                                          ~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/service/MullvadVpnService.kt"
-            line="112"
-            column="14"/>
+            line="107"
+            column="75"/>
     </issue>
 
     <issue
@@ -118,7 +107,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/util/SegmentedInputFormatter.kt"
-            line="119"
+            line="117"
             column="74"/>
     </issue>
 
@@ -173,7 +162,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="315"
+            line="340"
             column="58"/>
     </issue>
 
@@ -206,7 +195,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="34"
+            line="36"
             column="17"/>
     </issue>
 
@@ -217,7 +206,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="37"
+            line="39"
             column="17"/>
     </issue>
 
@@ -228,7 +217,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="38"
+            line="40"
             column="17"/>
     </issue>
 
@@ -250,107 +239,107 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/SplitTunnelingFragment.kt"
-            line="130"
+            line="123"
             column="28"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_corner, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_corner, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
             line="31"
-            column="9"/>
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border, null)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
             line="32"
-            column="9"/>
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_corner_focused, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border, null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="36"
-            column="9"/>
+            line="33"
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border_focused, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border_focused, null)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_corner_focused, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
             line="38"
-            column="9"/>
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_corner_error, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border_focused, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="42"
-            column="9"/>
+            line="39"
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border_error, null),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border_focused, null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="43"
-            column="9"/>
+            line="40"
+            column="13"/>
     </issue>
 
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.account_login_border_error, null)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resources.getDrawable(R.drawable.account_login_corner_error, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
-            line="44"
-            column="9"/>
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border_error, null),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="46"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `ResourcesCompat.getDrawable()`"
+        errorLine1="            resources.getDrawable(R.drawable.account_login_border_error, null)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountLoginBorder.kt"
+            line="47"
+            column="13"/>
     </issue>
 
     <issue
@@ -360,7 +349,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
-            line="164"
+            line="170"
             column="23"/>
     </issue>
 
@@ -393,7 +382,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/NotificationBanner.kt"
-            line="64"
+            line="66"
             column="30"/>
     </issue>
 
@@ -404,7 +393,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/NotificationBanner.kt"
-            line="65"
+            line="67"
             column="32"/>
     </issue>
 
@@ -437,7 +426,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/UrlButton.kt"
-            line="17"
+            line="20"
             column="29"/>
     </issue>
 
@@ -549,28 +538,6 @@
             file="src/main/res/values-fr/plurals.xml"
             line="39"
             column="5"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="&quot;imkan&quot; is a common misspelling; did you mean &quot;imkân&quot;?"
-        errorLine1="    &lt;string name=&quot;confirm_no_email&quot;>Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.&lt;/string>"
-        errorLine2="                                                                              ^">
-        <location
-            file="src/main/res/values-tr/strings.xml"
-            line="31"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="&quot;imkan&quot; is a common misspelling; did you mean &quot;imkân&quot;?"
-        errorLine1="    &lt;string name=&quot;split_tunneling_description&quot;>Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar.&lt;/string>"
-        errorLine2="                                                                                                                                         ^">
-        <location
-            file="src/main/res/values-tr/strings.xml"
-            line="132"
-            column="138"/>
     </issue>
 
     <issue
@@ -796,12 +763,12 @@
     <issue
         id="UseCheckPermission"
         message="The result of `checkPermission` is not used"
-        errorLine1="                mockedPackageManager.checkPermission(internet, packageName)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                    mockedPackageManager.checkPermission(internet, packageName)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/kotlin/net/mullvad/mullvadvpn/applist/ApplicationsProviderTest.kt"
-            line="72"
-            column="17"/>
+            line="88"
+            column="21"/>
     </issue>
 
     <issue
@@ -829,34 +796,23 @@
     <issue
         id="NotifyDataSetChanged"
         message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
-        errorLine1="        notifyDataSetChanged()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    var accountHistory by observable&lt;String?>(null) { _, _, _ -> notifyDataSetChanged() }"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountHistoryAdapter.kt"
-            line="18"
-            column="9"/>
+            line="16"
+            column="66"/>
     </issue>
 
     <issue
         id="NotifyDataSetChanged"
         message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
-        errorLine1="            notifyDataSetChanged()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                notifyDataSetChanged()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/util/AdapterWithHeader.kt"
-            line="16"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NotifyDataSetChanged"
-        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
-        errorLine1="            notifyDataSetChanged()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/customdns/CustomDnsAdapter.kt"
-            line="38"
-            column="13"/>
+            line="17"
+            column="17"/>
     </issue>
 
     <issue
@@ -868,50 +824,6 @@
             file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
             line="64"
             column="13"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `FrameLayout`: `layout_alignParentLeft`"
-        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="18"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `FrameLayout`: `layout_alignParentRight`"
-        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="19"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `FrameLayout`: `layout_alignParentLeft`"
-        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="18"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `FrameLayout`: `layout_alignParentRight`"
-        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="19"
-            column="11"/>
     </issue>
 
     <issue
@@ -996,17 +908,6 @@
             file="src/main/res/layout/main.xml"
             line="1"
             column="1"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="                  android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/confirm_dns.xml"
-            line="17"
-            column="19"/>
     </issue>
 
     <issue
@@ -1110,28 +1011,6 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/blue40` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/blue40&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="4"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/advanced.xml"
-            line="5"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
         message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
         errorLine1="                                                     android:background=&quot;@color/darkBlue&quot;"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1139,28 +1018,6 @@
             file="src/main/res/layout/collapsed_title_layout.xml"
             line="8"
             column="54"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/blue40` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/blue40&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="4"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/white` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="              android:background=&quot;@color/white&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="4"
-            column="15"/>
     </issue>
 
     <issue
@@ -1247,7 +1104,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="23"
+            line="22"
             column="12"/>
     </issue>
 
@@ -1258,7 +1115,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="24"
+            line="23"
             column="12"/>
     </issue>
 
@@ -1269,7 +1126,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="26"
+            line="25"
             column="12"/>
     </issue>
 
@@ -1346,7 +1203,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="132"
+            line="133"
             column="13"/>
     </issue>
 
@@ -1357,7 +1214,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="147"
+            line="148"
             column="13"/>
     </issue>
 
@@ -1445,7 +1302,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1456,7 +1313,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1467,7 +1324,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1478,7 +1335,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1489,7 +1346,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1500,7 +1357,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1511,7 +1368,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1522,7 +1379,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1533,7 +1390,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1544,7 +1401,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1555,7 +1412,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1566,7 +1423,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1577,7 +1434,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1588,7 +1445,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1599,7 +1456,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1610,7 +1467,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1621,7 +1478,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="36"
+            line="35"
             column="41"/>
     </issue>
 
@@ -1632,7 +1489,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1643,7 +1500,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1654,7 +1511,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1665,7 +1522,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1676,7 +1533,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1687,7 +1544,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1698,7 +1555,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1709,7 +1566,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1720,7 +1577,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1731,7 +1588,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1742,7 +1599,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1753,7 +1610,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1764,7 +1621,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1775,7 +1632,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1786,7 +1643,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="42"
+            line="41"
             column="41"/>
     </issue>
 
@@ -1808,7 +1665,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1819,7 +1676,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1830,7 +1687,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1841,7 +1698,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1852,7 +1709,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1863,7 +1720,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1874,7 +1731,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1885,7 +1742,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1896,7 +1753,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1907,7 +1764,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1918,7 +1775,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1929,7 +1786,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1940,7 +1797,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1951,7 +1808,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1962,7 +1819,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1973,7 +1830,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1984,7 +1841,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="88"
+            line="87"
             column="37"/>
     </issue>
 
@@ -1995,7 +1852,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2006,7 +1863,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2017,7 +1874,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2028,7 +1885,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2039,7 +1896,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2050,7 +1907,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2061,7 +1918,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2072,7 +1929,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2083,7 +1940,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2094,7 +1951,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2105,7 +1962,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2116,7 +1973,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2127,7 +1984,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2138,7 +1995,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2149,7 +2006,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2160,7 +2017,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2171,7 +2028,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="120"
+            line="119"
             column="28"/>
     </issue>
 
@@ -2210,17 +2067,6 @@
     <issue
         id="TextFields"
         message="This text field does not specify an `inputType`"
-        errorLine1="    &lt;EditText android:id=&quot;@+id/input&quot;"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="6"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
         errorLine1="                        &lt;EditText android:id=&quot;@+id/user_message&quot;"
         errorLine2="                         ~~~~~~~~">
         <location
@@ -2249,28 +2095,6 @@
             file="src/main/res/layout/account_input.xml"
             line="2"
             column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText android:id=&quot;@+id/input&quot;"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="6"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="&lt;EditText xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
-        <location
-            file="src/main/res/layout/mtu_edit_text.xml"
-            line="1"
-            column="2"/>
     </issue>
 
     <issue
@@ -2324,7 +2148,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
-            line="174"
+            line="180"
             column="18"/>
     </issue>
 
@@ -2441,17 +2265,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton android:id=&quot;@+id/add&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="23"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
         errorLine2="     ~~~~~~~~~">
         <location
@@ -2469,17 +2282,6 @@
             file="src/main/res/layout/button.xml"
             line="16"
             column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:layout_width=&quot;44dp&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/confirm_dns.xml"
-            line="11"
-            column="10"/>
     </issue>
 
     <issue
@@ -2513,28 +2315,6 @@
             file="src/main/res/layout/connect.xml"
             line="137"
             column="26"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton android:id=&quot;@+id/remove&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="23"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton android:id=&quot;@+id/save&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="21"
-            column="6"/>
     </issue>
 
     <issue
@@ -2742,7 +2522,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="118"
+            line="119"
             column="30"/>
     </issue>
 
@@ -2753,7 +2533,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="118"
+            line="119"
             column="71"/>
     </issue>
 
@@ -2764,7 +2544,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="140"
+            line="141"
             column="31"/>
     </issue>
 
@@ -2775,7 +2555,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="140"
+            line="141"
             column="73"/>
     </issue>
 
@@ -2793,45 +2573,45 @@
     <issue
         id="RtlHardcoded"
         message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        gravity = Gravity.RIGHT"
-        errorLine2="                          ~~~~~">
+        errorLine1="            gravity = Gravity.RIGHT"
+        errorLine2="                              ~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
-            line="23"
-            column="27"/>
+            line="24"
+            column="31"/>
     </issue>
 
     <issue
         id="RtlHardcoded"
         message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        gravity = Gravity.RIGHT"
-        errorLine2="                          ~~~~~">
+        errorLine1="            gravity = Gravity.RIGHT"
+        errorLine2="                              ~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
-            line="23"
-            column="27"/>
+            line="24"
+            column="31"/>
     </issue>
 
     <issue
         id="RtlHardcoded"
         message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        gravity = Gravity.RIGHT"
-        errorLine2="                          ~~~~~">
+        errorLine1="            gravity = Gravity.RIGHT"
+        errorLine2="                              ~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
-            line="29"
-            column="27"/>
+            line="31"
+            column="31"/>
     </issue>
 
     <issue
         id="RtlHardcoded"
         message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        gravity = Gravity.RIGHT"
-        errorLine2="                          ~~~~~">
+        errorLine1="            gravity = Gravity.RIGHT"
+        errorLine2="                              ~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
-            line="29"
-            column="27"/>
+            line="31"
+            column="31"/>
     </issue>
 
     <issue
@@ -2841,7 +2621,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/BackButton.kt"
-            line="45"
+            line="48"
             column="54"/>
     </issue>
 
@@ -2852,7 +2632,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/BackButton.kt"
-            line="45"
+            line="48"
             column="54"/>
     </issue>
 
@@ -2990,83 +2770,6 @@
 
     <issue
         id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="8"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="18"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="19"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="                 android:layout_gravity=&quot;right&quot;"
-        errorLine2="                                         ~~~~~">
-        <location
-            file="src/main/res/layout/add_custom_dns_server.xml"
-            line="26"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="             android:gravity=&quot;left&quot;>"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/res/layout/advanced.xml"
-            line="6"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="              android:gravity=&quot;left&quot;>"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/res/layout/advanced_header.xml"
-            line="6"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/advanced_header.xml"
-            line="11"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
         message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;4dp&quot;` to better support right-to-left layouts"
         errorLine1="                 android:layout_marginRight=&quot;4dp&quot;"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -3115,17 +2818,6 @@
         errorLine1="                  android:gravity=&quot;left&quot;>"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/res/layout/confirm_dns.xml"
-            line="10"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="                  android:gravity=&quot;left&quot;>"
-        errorLine2="                                   ~~~~">
-        <location
             file="src/main/res/layout/confirm_no_email.xml"
             line="10"
             column="36"/>
@@ -3140,72 +2832,6 @@
             file="src/main/res/layout/connect.xml"
             line="140"
             column="38"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="9"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="          android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="18"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="          android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="19"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="                 android:layout_gravity=&quot;right&quot;"
-        errorLine2="                                         ~~~~~">
-        <location
-            file="src/main/res/layout/custom_dns_server.xml"
-            line="26"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;54dp&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_marginLeft=&quot;54dp&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="10"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="                 android:layout_gravity=&quot;right&quot;"
-        errorLine2="                                         ~~~~~">
-        <location
-            file="src/main/res/layout/edit_custom_dns_server.xml"
-            line="25"
-            column="42"/>
     </issue>
 
     <issue
