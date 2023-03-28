@@ -1677,12 +1677,6 @@ msgstr ""
 msgid "Mullvad account number"
 msgstr ""
 
-msgid "No bridge relay server matches the current settings"
-msgstr ""
-
-msgid "No relay server matches the current settings"
-msgstr ""
-
 msgid "Preferences"
 msgstr ""
 

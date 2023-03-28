@@ -105,8 +105,6 @@
     <string name="max_devices_warning_description">Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
-    <string name="no_matching_bridge_relay">Ingen bro-reléserver samsvarer med de gjeldende innstillingene</string>
-    <string name="no_matching_relay">Ingen reléservere passer til innstillingene</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
     <string name="out_address">Utgående</string>

@@ -105,8 +105,6 @@
     <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="mullvad_account_number">Mullvad 帳號</string>
-    <string name="no_matching_bridge_relay">沒有與目前設定相符的橋接中繼伺服器</string>
-    <string name="no_matching_relay">沒有與目前設定相符的中繼伺服器</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
     <string name="out_address">出境</string>

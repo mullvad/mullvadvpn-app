@@ -105,8 +105,6 @@
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
     <string name="mullvad_account_number">Mullvadアカウント番号</string>
-    <string name="no_matching_bridge_relay">現在の設定に一致するブリッジ中継サーバーはありません</string>
-    <string name="no_matching_relay">現在の設定に一致する中継サーバーはありません</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
     <string name="out_address">外側</string>

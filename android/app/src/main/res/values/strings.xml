@@ -121,9 +121,8 @@
     <string name="start_tunnel_error">Failed to start tunnel connection</string>
     <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel.
     Please try connecting again.</string>
-    <string name="no_matching_relay">No relay server matches the current settings</string>
-    <string name="no_matching_bridge_relay">No bridge relay server matches the current
-    settings</string>
+    <string name="no_matching_relay">No servers match your settings, try changing server or other
+    settings.</string>
     <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced
     settings.</string>
     <string name="custom_dns_hint">Enter IP</string>

@@ -105,8 +105,6 @@
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="mullvad_account_number">Mullvad 계정 번호</string>
-    <string name="no_matching_bridge_relay">현재 설정과 일치하는 브리지 릴레이 서버가 없습니다.</string>
-    <string name="no_matching_relay">현재 설정과 일치하는 릴레이 서버가 없습니다.</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
     <string name="out_address">아웃</string>
