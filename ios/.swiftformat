@@ -6,7 +6,7 @@
 
 # format options
 --indent 4
---maxwidth 100
+--maxwidth 120
 --wraparguments before-first
 --wrapcollections before-first
 --wrapternary before-operators
