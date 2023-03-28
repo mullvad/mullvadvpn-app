@@ -26,6 +26,7 @@ fun BaseCell(
     title: @Composable () -> Unit,
     bodyView: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     subtitleModifier: Modifier = Modifier,
@@ -38,14 +39,18 @@ fun BaseCell(
     val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
 
     Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
+        var rowModifier = if (isRowEnabled) {
+            Modifier.clickable { onCellClicked.invoke() }
+        } else {
+            Modifier
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier =
-                Modifier.height(cellHeight)
-                    .fillMaxWidth()
-                    .clickable { onCellClicked.invoke() }
-                    .padding(start = startPadding, end = endPadding)
+            rowModifier.height(cellHeight)
+                .fillMaxWidth()
+                .padding(start = startPadding, end = endPadding)
         ) {
             title()
 
@@ -56,17 +61,16 @@ fun BaseCell(
 
         if (subtitle != null) {
             Row(
-                modifier =
-                    subtitleModifier
-                        .background(MullvadDarkBlue)
-                        .padding(
-                            start = startPadding,
-                            top = subtitleVerticalSpacing,
-                            end = endPadding,
-                            bottom = cellVerticalSpacing
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight()
+                modifier = subtitleModifier
+                    .background(MullvadDarkBlue)
+                    .padding(
+                        start = startPadding,
+                        top = subtitleVerticalSpacing,
+                        end = endPadding,
+                        bottom = cellVerticalSpacing
+                    )
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
                 subtitle()
             }

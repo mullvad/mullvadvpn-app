@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -46,12 +47,14 @@ fun SwitchComposeCell(
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val titleModifier = Modifier
-    val bodyViewModifier = Modifier
+    val alpha = if (checkboxEnableState) 1f else 0.3f
+    val titleModifier = Modifier.alpha(alpha)
+    val bodyViewModifier = Modifier.alpha(alpha)
     val subtitleModifier = Modifier
 
     BaseCell(
         title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        isRowEnabled = checkboxEnableState,
         bodyView = {
             SwitchCellView(
                 switchTriggered = null,
