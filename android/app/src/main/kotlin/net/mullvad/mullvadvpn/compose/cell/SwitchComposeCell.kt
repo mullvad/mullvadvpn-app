@@ -58,6 +58,7 @@ fun SwitchComposeCell(
 
     BaseCell(
         title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
                 onSwitchClicked = null,

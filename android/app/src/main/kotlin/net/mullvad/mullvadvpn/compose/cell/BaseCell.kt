@@ -26,6 +26,7 @@ fun BaseCell(
     title: @Composable () -> Unit,
     bodyView: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     subtitleModifier: Modifier = Modifier,
@@ -38,13 +39,19 @@ fun BaseCell(
     val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
 
     Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
+        val rowModifier =
+            Modifier.let {
+                if (isRowEnabled) {
+                    it.clickable { onCellClicked() }
+                } else it
+            }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier =
-                Modifier.height(cellHeight)
+                rowModifier
+                    .height(cellHeight)
                     .fillMaxWidth()
-                    .clickable { onCellClicked.invoke() }
                     .padding(start = startPadding, end = endPadding)
         ) {
             title()
