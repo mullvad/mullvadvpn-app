@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">正在创建安全连接</string>
     <string name="critical_error">严重错误（需要注意）</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
+    <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>

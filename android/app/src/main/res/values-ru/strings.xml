@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
+    <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского сервера</string>
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>

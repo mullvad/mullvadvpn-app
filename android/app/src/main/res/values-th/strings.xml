@@ -42,6 +42,7 @@
     <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
+    <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>

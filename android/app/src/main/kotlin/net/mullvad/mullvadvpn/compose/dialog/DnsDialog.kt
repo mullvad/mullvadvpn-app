@@ -89,7 +89,7 @@ fun DnsDialog(
                         onFocusChanges = {},
                         onSubmit = { onAttemptToSave() },
                         isEnabled = true,
-                        placeholderText = stringResource(R.string.enter_value_placeholder),
+                        placeholderText = stringResource(R.string.custom_dns_hint),
                         modifier =
                             Modifier.padding(top = midPadding)
                                 .focusRequester(textFieldFocusRequester)
