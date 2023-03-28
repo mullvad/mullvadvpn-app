@@ -45,6 +45,8 @@ class AdvancedFragment : BaseFragment() {
                     onCancelDnsDialogClick = vm::onCancelDialogClick,
                     onContentsBlockerInfoClicked = vm::onContentsBlockerInfoClicked,
                     onMalwareInfoClicked = vm::onMalwareInfoClicked,
+                    checkAllPropertiesAreDisable = vm::checkAllPropertiesAreDisable,
+                    getContentBlockersHeaderAlpha = vm::getContentBlockersHeaderAlpha,
                     onDismissInfoClicked = vm::onDismissInfoClicked,
                     onBackClick = { activity?.onBackPressed() }
                 )
