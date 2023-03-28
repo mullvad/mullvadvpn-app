@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <!-- This lint issue doesn't match our translation workflow. -->
+    <!-- Ignore the following rules as they don't match our localization workflow. -->
+    <issue id="ExtraTranslation" severity="ignore" />
     <issue id="MissingTranslation" severity="ignore" />
+    <issue id="Typos" severity="ignore" />
 </lint>
