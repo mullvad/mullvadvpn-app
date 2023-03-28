@@ -108,6 +108,16 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
             return renderer
         }
 
+        if let multiPolygon = overlay as? MKMultiPolygon {
+            let renderer = MKMultiPolygonRenderer(multiPolygon: multiPolygon)
+            renderer.fillColor = .primaryColor
+            renderer.strokeColor = .secondaryColor
+            renderer.lineWidth = 1
+            renderer.lineCap = .round
+            renderer.lineJoin = .round
+            return renderer
+        }
+
         if let tileOverlay = overlay as? MKTileOverlay {
             return CustomOverlayRenderer(overlay: tileOverlay)
         }
@@ -171,7 +181,21 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
 
         do {
             let data = try Data(contentsOf: fileURL)
-            let overlays = try GeoJSON.decodeGeoJSON(data)
+            guard let features = try MKGeoJSONDecoder().decode(data) as? [MKGeoJSONFeature] else { return }
+
+            var overlays = [MKOverlay]()
+
+            for feature in features {
+                for geometry in feature.geometry {
+                    if let polygon = geometry as? MKPolygon {
+                        overlays.append(polygon)
+                    }
+
+                    if let multiPolygon = geometry as? MKMultiPolygon {
+                        overlays.append(multiPolygon)
+                    }
+                }
+            }
 
             mapView.addOverlays(overlays, level: .aboveLabels)
         } catch {
