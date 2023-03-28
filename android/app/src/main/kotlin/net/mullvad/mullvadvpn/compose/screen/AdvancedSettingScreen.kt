@@ -68,6 +68,11 @@ private fun PreviewAdvancedSettings() {
         onCancelMtuDialogClicked = {},
         onSplitTunnelingNavigationClick = {},
         onToggleDnsClick = {},
+        onToggleBlockAds = {},
+        onToggleBlockTracker = {},
+        onToggleBlockMalware = {},
+        onToggleBlockAdultContent = {},
+        onToggleBlockGambling = {},
         onDnsClick = {},
         onDnsInputChange = {},
         onSaveDnsClick = {},
@@ -92,6 +97,11 @@ fun AdvancedSettingScreen(
     onCancelMtuDialogClicked: () -> Unit = {},
     onSplitTunnelingNavigationClick: () -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
+    onToggleBlockAds: (Boolean) -> Unit = {},
+    onToggleBlockTracker: (Boolean) -> Unit = {},
+    onToggleBlockMalware: (Boolean) -> Unit = {},
+    onToggleBlockAdultContent: (Boolean) -> Unit = {},
+    onToggleBlockGambling: (Boolean) -> Unit = {},
     onDnsClick: (index: Int?) -> Unit = {},
     onDnsInputChange: (String) -> Unit = {},
     onSaveDnsClick: () -> Unit = {},
@@ -201,8 +211,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_ads_title),
-                            checkboxDefaultState = false,
-                            onCellClicked = {},
+                            checkboxDefaultState = uiState.contentBlockersOptions.blockAds,
+                            onCellClicked = { onToggleBlockAds(it) },
                             background = MullvadBlue20,
                         )
                         Divider()
@@ -210,8 +220,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_trackers_title),
-                            checkboxDefaultState = false,
-                            onCellClicked = {},
+                            checkboxDefaultState = uiState.contentBlockersOptions.blockTrackers,
+                            onCellClicked = { onToggleBlockTracker(it) },
                             background = MullvadBlue20,
                         )
                         Divider()
@@ -219,8 +229,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_malware_title),
-                            checkboxDefaultState = false,
-                            onCellClicked = {},
+                            checkboxDefaultState = uiState.contentBlockersOptions.blockMalware,
+                            onCellClicked = { onToggleBlockMalware(it) },
                             onInfoClicked = { onMalwareInfoClicked() },
                             background = MullvadBlue20,
                         )
@@ -229,8 +239,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_gambling_title),
-                            checkboxDefaultState = false,
-                            onCellClicked = {},
+                            checkboxDefaultState = uiState.contentBlockersOptions.blockGambling,
+                            onCellClicked = { onToggleBlockGambling(it) },
                             background = MullvadBlue20,
                         )
                         Divider()
@@ -238,8 +248,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_adult_content_title),
-                            checkboxDefaultState = false,
-                            onCellClicked = {},
+                            checkboxDefaultState = uiState.contentBlockersOptions.blockAdultContent,
+                            onCellClicked = { onToggleBlockAdultContent(it) },
                             background = MullvadBlue20,
                         )
                         Divider()
