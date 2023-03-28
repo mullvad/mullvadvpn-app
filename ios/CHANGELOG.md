@@ -25,9 +25,6 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Changed key rotation interval from 4 to 7 days.
-- Swap vertical position of country and city labels on connection view.
-- Display remaining account time in years if equal to or more than two years,
-  otherwise display days.
 
 
 ## [2023.1] - 2023-03-21
