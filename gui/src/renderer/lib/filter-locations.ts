@@ -1,4 +1,5 @@
 import { Ownership, RelayEndpointType, RelayLocation } from '../../shared/daemon-rpc-types';
+import { relayLocations } from '../../shared/gettext';
 import { SpecialLocation } from '../components/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
@@ -97,7 +98,8 @@ export function searchForLocations(
   return countries.reduce((countries, country) => {
     const matchingCities = searchCities(country.cities, searchTerm);
     const expanded = matchingCities.length > 0;
-    const match = search(searchTerm, country.code) || search(searchTerm, country.name);
+    const match =
+      search(searchTerm, country.code) || search(searchTerm, relayLocations.gettext(country.name));
     const resultingCities = match ? country.cities : matchingCities;
     return expanded || match ? [...countries, { ...country, cities: resultingCities }] : countries;
   }, [] as Array<IRelayLocationRedux>);
@@ -110,7 +112,8 @@ function searchCities(
   return cities.reduce((cities, city) => {
     const matchingRelays = city.relays.filter((relay) => search(searchTerm, relay.hostname));
     const expanded = matchingRelays.length > 0;
-    const match = search(searchTerm, city.code) || search(searchTerm, city.name);
+    const match =
+      search(searchTerm, city.code) || search(searchTerm, relayLocations.gettext(city.name));
     const resultingRelays = match ? city.relays : matchingRelays;
     return expanded || match ? [...cities, { ...city, relays: resultingRelays }] : cities;
   }, [] as Array<IRelayLocationCityRedux>);
