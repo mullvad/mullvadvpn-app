@@ -82,6 +82,17 @@ impl DeviceState {
             _ => None,
         }
     }
+
+    pub fn is_logged_in(&self) -> bool {
+        matches!(self, Self::LoggedIn(_))
+    }
+
+    pub fn get_account(&self) -> Option<&AccountAndDevice> {
+        match self {
+            DeviceState::LoggedIn(ref account) => Some(account),
+            _ => None,
+        }
+    }
 }
 
 /// A [Device] and its associated account token.

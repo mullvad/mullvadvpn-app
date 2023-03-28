@@ -1,4 +1,5 @@
 use crate::types::{proto, FromProtobufTypeError};
+use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
 use talpid_types::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
@@ -95,6 +96,102 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             #[cfg(target_os = "android")]
             dns_options: None,
+        }
+    }
+}
+
+impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: proto::Settings) -> Result<Self, Self::Error> {
+        let relay_settings =
+            settings
+                .relay_settings
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing relay settings",
+                ))?;
+        let bridge_settings =
+            settings
+                .bridge_settings
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing bridge settings",
+                ))?;
+        let bridge_state = settings
+            .bridge_state
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing bridge state",
+            ))
+            .and_then(|state| try_bridge_state_from_i32(state.state))?;
+        let tunnel_options =
+            settings
+                .tunnel_options
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing tunnel options",
+                ))?;
+        let obfuscation_settings =
+            settings
+                .obfuscation_settings
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing obfuscation settings",
+                ))?;
+        #[cfg(windows)]
+        let split_tunnel = settings
+            .split_tunnel
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing split tunnel options",
+            ))?;
+
+        Ok(Self {
+            relay_settings: mullvad_types::relay_constraints::RelaySettings::try_from(
+                relay_settings,
+            )?,
+            bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
+                bridge_settings,
+            )?,
+            bridge_state,
+            allow_lan: settings.allow_lan,
+            block_when_disconnected: settings.block_when_disconnected,
+            auto_connect: settings.auto_connect,
+            tunnel_options: mullvad_types::settings::TunnelOptions::try_from(tunnel_options)?,
+            show_beta_releases: settings.show_beta_releases,
+            #[cfg(windows)]
+            split_tunnel: mullvad_types::settings::SplitTunnelSettings::from(split_tunnel),
+            obfuscation_settings: mullvad_types::relay_constraints::ObfuscationSettings::try_from(
+                obfuscation_settings,
+            )?,
+            // NOTE: This field is meaningless when obtained from gRPC
+            wg_migration_rand_num: std::f32::NAN,
+            // NOTE: This field is set based on mullvad-types. It's not based on the actual settings version.
+            settings_version: CURRENT_SETTINGS_VERSION,
+        })
+    }
+}
+
+pub fn try_bridge_state_from_i32(
+    bridge_state: i32,
+) -> Result<mullvad_types::relay_constraints::BridgeState, FromProtobufTypeError> {
+    match proto::bridge_state::State::from_i32(bridge_state) {
+        Some(proto::bridge_state::State::Auto) => {
+            Ok(mullvad_types::relay_constraints::BridgeState::Auto)
+        }
+        Some(proto::bridge_state::State::On) => {
+            Ok(mullvad_types::relay_constraints::BridgeState::On)
+        }
+        Some(proto::bridge_state::State::Off) => {
+            Ok(mullvad_types::relay_constraints::BridgeState::Off)
+        }
+        None => Err(FromProtobufTypeError::InvalidArgument(
+            "invalid bridge state",
+        )),
+    }
+}
+
+#[cfg(windows)]
+impl From<proto::SplitTunnelSettings> for mullvad_types::settings::SplitTunnelSettings {
+    fn from(value: proto::SplitTunnelSettings) -> Self {
+        mullvad_types::settings::SplitTunnelSettings {
+            enable_exclusions: value.enable_exclusions,
+            apps: std::collections::HashSet::from(value.apps),
         }
     }
 }

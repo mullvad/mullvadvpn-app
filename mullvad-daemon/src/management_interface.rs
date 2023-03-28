@@ -423,14 +423,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))?;
         let result = self.wait_for_result(rx).await?;
         result
-            .map(|account_data| {
-                Response::new(types::AccountData {
-                    expiry: Some(types::Timestamp {
-                        seconds: account_data.expiry.timestamp(),
-                        nanos: 0,
-                    }),
-                })
-            })
+            .map(|account_data| Response::new(types::AccountData::from(account_data)))
             .map_err(|error: RestError| {
                 log::error!(
                     "Unable to get account data from API: {}",
@@ -483,15 +476,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))?;
         let result = self.wait_for_result(rx).await?;
         result
-            .map(|submission| {
-                Response::new(types::VoucherSubmission {
-                    seconds_added: submission.time_added,
-                    new_expiry: Some(types::Timestamp {
-                        seconds: submission.new_expiry.timestamp(),
-                        nanos: 0,
-                    }),
-                })
-            })
+            .map(|submission| Response::new(types::VoucherSubmission::from(submission)))
             .map_err(map_daemon_error)
     }
 

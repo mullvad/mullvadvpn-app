@@ -65,7 +65,7 @@ impl Serialize for SettingsVersion {
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Settings {
-    relay_settings: RelaySettings,
+    pub relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -98,7 +98,7 @@ pub struct Settings {
     pub wg_migration_rand_num: f32,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
-    settings_version: SettingsVersion,
+    pub settings_version: SettingsVersion,
 }
 
 fn out_of_range_wg_migration_rand_num() -> f32 {
@@ -164,10 +164,6 @@ impl Settings {
 
             self.relay_settings = new_settings;
         }
-    }
-
-    pub fn get_settings_version(&self) -> SettingsVersion {
-        self.settings_version
     }
 }
 

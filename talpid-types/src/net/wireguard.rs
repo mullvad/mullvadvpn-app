@@ -154,7 +154,7 @@ impl<'de> Deserialize<'de> for PrivateKey {
 #[derive(Clone)]
 pub struct PublicKey(x25519_dalek::PublicKey);
 
-/// Error returned if a base64 string represents an invalid key
+/// Error returned if an input represents an invalid key
 #[derive(Debug)]
 pub struct InvalidKeyError(());
 
@@ -188,6 +188,15 @@ impl<'a> From<&'a x25519_dalek::StaticSecret> for PublicKey {
 impl From<[u8; 32]> for PublicKey {
     fn from(public_key: [u8; 32]) -> PublicKey {
         PublicKey(x25519_dalek::PublicKey::from(public_key))
+    }
+}
+
+impl TryFrom<&[u8]> for PublicKey {
+    type Error = InvalidKeyError;
+
+    fn try_from(public_key: &[u8]) -> Result<PublicKey, Self::Error> {
+        let key: [u8; 32] = <[u8; 32]>::try_from(public_key).map_err(|_| InvalidKeyError(()))?;
+        Ok(PublicKey(x25519_dalek::PublicKey::from(key)))
     }
 }
 
