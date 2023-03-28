@@ -143,6 +143,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             urlRequestProxy.cancelRequest(identifier: id)
 
             completionHandler?(nil)
+
+        case .privateKeyRotation:
+            completionHandler?(nil)
         }
     }
 

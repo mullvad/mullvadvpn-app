@@ -86,6 +86,11 @@ class RotateKeyOperation: ResultOperation<Bool> {
     }
 
     private func didRotateKey(newPrivateKey: PrivateKey, result: Result<REST.Device, Error>) {
+        guard let tunnel = interactor.tunnel else {
+            finish(result: .failure(UnsetTunnelError()))
+            return
+        }
+
         switch result {
         case let .success(device):
             logger.debug("Successfully rotated device key. Persisting settings...")
@@ -100,7 +105,9 @@ class RotateKeyOperation: ResultOperation<Bool> {
 
                 interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
 
-                finish(result: .success(true))
+                _ = tunnel.notifyKeyRotation { [weak self] _ in
+                    self?.finish(result: .success(true))
+                }
             default:
                 finish(result: .failure(InvalidDeviceStateError()))
             }

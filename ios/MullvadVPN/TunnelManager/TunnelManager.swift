@@ -504,9 +504,7 @@ final class TunnelManager: StorePaymentObserver {
 
             switch result {
             case .success:
-                self.reconnectTunnel(selectNewRelay: true) { _ in
-                    completionHandler(result)
-                }
+                completionHandler(result)
 
             case let .failure(error):
                 if !error.isOperationCancellationError {
