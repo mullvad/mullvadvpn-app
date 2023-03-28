@@ -93,6 +93,20 @@ class AdvancedSettingsViewModel(
         dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
     }
 
+    fun checkAllPropertiesAreDisable(contentBlockersOption: DefaultDnsOptions): Boolean {
+        return !(
+            contentBlockersOption.blockAds ||
+                contentBlockersOption.blockTrackers||
+                contentBlockersOption.blockMalware||
+                contentBlockersOption.blockAdultContent||
+                contentBlockersOption.blockGambling
+            )
+    }
+
+    fun getContentBlockersHeaderAlpha(isEnabled: Boolean): Float {
+        return if (isEnabled) 1f else 0.3f
+    }
+
     fun onDismissInfoClicked() {
         hideDialog()
     }
