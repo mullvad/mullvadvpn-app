@@ -1,4 +1,4 @@
-use mullvad_management_interface::types::RelayLocation;
+use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
 
 pub fn get_subcommand() -> clap::App<'static> {
     clap::App::new("location")
@@ -18,7 +18,7 @@ pub fn get_subcommand() -> clap::App<'static> {
         .arg(clap::Arg::new("hostname").help("The hostname").index(3))
 }
 
-pub fn get_constraint_from_args(matches: &clap::ArgMatches) -> RelayLocation {
+pub fn get_constraint_from_args(matches: &clap::ArgMatches) -> Constraint<LocationConstraint> {
     let country = matches.value_of("country").unwrap();
     let city = matches.value_of("city");
     let hostname = matches.value_of("hostname");
@@ -29,33 +29,24 @@ pub fn get_constraint<T: AsRef<str>>(
     country: T,
     city: Option<T>,
     hostname: Option<T>,
-) -> RelayLocation {
+) -> Constraint<LocationConstraint> {
     let country_original = country.as_ref();
     let country = country_original.to_lowercase();
     let city = city.map(|s| s.as_ref().to_lowercase());
     let hostname = hostname.map(|s| s.as_ref().to_lowercase());
 
     match (country_original, city, hostname) {
-        ("any", None, None) => RelayLocation::default(),
+        ("any", None, None) => Constraint::Any,
         ("any", ..) => clap::Error::raw(
             clap::ErrorKind::InvalidValue,
             "City can't be given when selecting 'any' country",
         )
         .exit(),
-        (_, None, None) => RelayLocation {
-            country,
-            ..Default::default()
-        },
-        (_, Some(city), None) => RelayLocation {
-            country,
-            city,
-            ..Default::default()
-        },
-        (_, Some(city), Some(hostname)) => RelayLocation {
-            country,
-            city,
-            hostname,
-        },
+        (_, None, None) => Constraint::Only(LocationConstraint::Country(country)),
+        (_, Some(city), None) => Constraint::Only(LocationConstraint::City(country, city)),
+        (_, Some(city), Some(hostname)) => {
+            Constraint::Only(LocationConstraint::Hostname(country, city, hostname))
+        }
         (..) => clap::Error::raw(
             clap::ErrorKind::InvalidValue,
             "Invalid country, city and hostname combination given",

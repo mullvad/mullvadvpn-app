@@ -14,6 +14,25 @@ impl From<mullvad_types::wireguard::PublicKey> for proto::PublicKey {
     }
 }
 
+impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(public_key: proto::PublicKey) -> Result<Self, Self::Error> {
+        let created = public_key
+            .created
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing 'created' timestamp",
+            ))?;
+        let ndt = chrono::NaiveDateTime::from_timestamp(created.seconds, created.nanos as u32);
+
+        Ok(mullvad_types::wireguard::PublicKey {
+            key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())
+                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wireguard key"))?,
+            created: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
+        })
+    }
+}
+
 impl From<mullvad_types::wireguard::QuantumResistantState> for proto::QuantumResistantState {
     fn from(state: mullvad_types::wireguard::QuantumResistantState) -> Self {
         match state {

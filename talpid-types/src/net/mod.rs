@@ -125,6 +125,24 @@ impl fmt::Display for TunnelType {
     }
 }
 
+impl FromStr for TunnelType {
+    type Err = TunnelTypeParseError;
+
+    fn from_str(s: &str) -> Result<TunnelType, Self::Err> {
+        match s {
+            "openvpn" => Ok(TunnelType::OpenVpn),
+            "wireguard" => Ok(TunnelType::Wireguard),
+            _ => Err(TunnelTypeParseError),
+        }
+    }
+}
+
+/// Returned when `TunnelType::from_str` fails to convert a string into a
+/// [`TunnelType`] object.
+#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
+#[error(display = "Not a valid tunnel protocol")]
+pub struct TunnelTypeParseError;
+
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -321,6 +339,24 @@ impl fmt::Display for IpVersion {
     }
 }
 
+impl FromStr for IpVersion {
+    type Err = IpVersionParseError;
+
+    fn from_str(s: &str) -> Result<IpVersion, Self::Err> {
+        match s {
+            "v4" | "ipv4" => Ok(IpVersion::V4),
+            "v6" | "ipv6" => Ok(IpVersion::V6),
+            _ => Err(IpVersionParseError),
+        }
+    }
+}
+
+/// Returned when `IpVersion::from_str` fails to convert a string into a
+/// [`IpVersion`] object.
+#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
+#[error(display = "Not a valid IP protocol")]
+pub struct IpVersionParseError;
+
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -356,14 +392,9 @@ impl fmt::Display for TransportProtocol {
 
 /// Returned when `TransportProtocol::from_str` fails to convert a string into a
 /// [`TransportProtocol`] object.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
+#[error(display = "Not a valid transport protocol")]
 pub struct TransportProtocolParseError;
-
-impl fmt::Display for TransportProtocolParseError {
-    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt.write_str("Not a valid transport protocol")
-    }
-}
 
 /// Holds optional settings that can apply to different kinds of tunnels
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]

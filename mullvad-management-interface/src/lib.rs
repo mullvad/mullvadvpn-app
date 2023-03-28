@@ -1,3 +1,4 @@
+pub mod client;
 pub mod types;
 
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
@@ -51,8 +52,45 @@ pub enum Error {
     #[cfg(unix)]
     #[error(display = "Failed to set group ID")]
     SetGidError(#[error(source)] nix::Error),
+
+    #[error(display = "gRPC call returned error")]
+    Rpc(#[error(source)] tonic::Status),
+
+    #[error(display = "Failed to parse gRPC response")]
+    InvalidResponse(#[error(source)] types::FromProtobufTypeError),
+
+    #[error(display = "Duration is too large")]
+    DurationTooLarge,
+
+    #[error(display = "Unexpected non-UTF8 string")]
+    PathMustBeUtf8,
+
+    #[error(display = "Missing daemon event")]
+    MissingDaemonEvent,
+
+    #[error(display = "This voucher code is invalid")]
+    InvalidVoucher,
+
+    #[error(display = "This voucher code has already been used")]
+    UsedVoucher,
+
+    #[error(display = "There are too many devices on the account")]
+    TooManyDevices,
+
+    #[error(display = "You are already logged in")]
+    AlreadyLoggedIn,
+
+    #[error(display = "The account does not exist")]
+    InvalidAccount,
+
+    #[error(display = "There is no such device")]
+    DeviceNotFound,
+
+    #[error(display = "Location data is unavailable")]
+    NoLocationData,
 }
 
+#[deprecated(note = "Prefer MullvadProxyClient")]
 pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
@@ -66,6 +104,8 @@ pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
 
     Ok(ManagementServiceClient::new(channel))
 }
+
+pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<Result<(), Error>>;
 
