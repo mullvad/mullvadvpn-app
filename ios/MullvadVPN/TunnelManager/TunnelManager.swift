@@ -354,6 +354,31 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
+    func notifyKeyRotation(completionHandler: ((Error?) -> Void)? = nil) {
+        let operation = NotifyKeyRotationOperation(
+            dispatchQueue: internalQueue,
+            interactor: TunnelInteractorProxy(self)
+        )
+
+        operation.completionQueue = .main
+        operation.completionHandler = { result in
+            completionHandler?(result.error)
+        }
+
+        operation.addObserver(
+            BackgroundObserver(
+                application: application,
+                name: "Notify key rotation",
+                cancelUponExpiration: true
+            )
+        )
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.manageTunnel.category)
+        )
+
+        operationQueue.addOperation(operation)
+    }
+
     func setNewAccount(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
         setAccount(action: .new) { result in
             completion(result.map { $0! })
@@ -504,7 +529,7 @@ final class TunnelManager: StorePaymentObserver {
 
             switch result {
             case .success:
-                self.reconnectTunnel(selectNewRelay: true) { _ in
+                self.notifyKeyRotation { _ in
                     completionHandler(result)
                 }
 
