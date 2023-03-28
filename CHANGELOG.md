@@ -42,6 +42,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 
+#### macOS
+- Fix tray window behaviour when opening mission control and switching between full-screen workspaces.
+
 ## [2023.3-beta1] - 2023-03-23
 ### Added
 - Add Kyber1024 KEM algorithm into the Post-Quantum secure key exchange algorithm. This means the

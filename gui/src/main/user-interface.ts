@@ -259,6 +259,7 @@ export default class UserInterface implements WindowControllerDelegate {
           minimizable: unpinnedWindow,
           closable: unpinnedWindow,
           transparent: !unpinnedWindow,
+          hiddenInMissionControl: !unpinnedWindow,
         });
 
         // make the window visible on all workspaces and prevent the icon from showing in the dock
@@ -266,7 +267,7 @@ export default class UserInterface implements WindowControllerDelegate {
         if (unpinnedWindow) {
           void app.dock.show();
         } else {
-          appWindow.setVisibleOnAllWorkspaces(true);
+          appWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
           app.dock.hide();
         }
 
