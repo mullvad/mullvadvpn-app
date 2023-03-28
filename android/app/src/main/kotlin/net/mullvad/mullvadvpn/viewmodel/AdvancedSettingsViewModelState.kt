@@ -1,12 +1,14 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 
 data class AdvancedSettingsViewModelState(
     val mtuValue: String,
     val isCustomDnsEnabled: Boolean,
     val isAllowLanEnabled: Boolean,
     val customDnsList: List<CustomDnsItem>,
+    val contentBlockersOptions: DefaultDnsOptions,
     val dialogState: AdvancedSettingsDialogState
 ) {
     fun toUiState(): AdvancedSettingsUiState {
@@ -17,6 +19,7 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
                     mtuEditValue = dialogState.mtuEditValue,
                 )
             is AdvancedSettingsDialogState.DnsDialog ->
@@ -25,6 +28,7 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
                     stagedDns = dialogState.stagedDns,
                 )
             is AdvancedSettingsDialogState.ContentsBlockerInfoDialog ->
@@ -32,14 +36,16 @@ data class AdvancedSettingsViewModelState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
-                    customDnsItems = customDnsList
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
                 )
             is AdvancedSettingsDialogState.MalwareInfoDialog ->
                 AdvancedSettingsUiState.MalwareInfoDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
-                    customDnsItems = customDnsList
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
                 )
             else ->
                 AdvancedSettingsUiState.DefaultUiState(
@@ -47,6 +53,7 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
                 )
         }
     }
@@ -59,6 +66,7 @@ data class AdvancedSettingsViewModelState(
                 mtuValue = EMPTY_STRING,
                 isCustomDnsEnabled = false,
                 customDnsList = listOf(),
+                contentBlockersOptions = DefaultDnsOptions(),
                 isAllowLanEnabled = false,
                 dialogState = AdvancedSettingsDialogState.NoDialog
             )
