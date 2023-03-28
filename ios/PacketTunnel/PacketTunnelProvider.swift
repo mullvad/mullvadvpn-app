@@ -21,6 +21,9 @@ import WireGuardKit
 /// Restart interval (in seconds) for the tunnel that failed to start early on.
 private let tunnelStartupFailureRestartInterval: TimeInterval = 2
 
+/// Delay before trying to reconnect tunnel after private key rotation.
+private let keyRotationTunnelReconnectionDelay = 60 * 2
+
 class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Tunnel provider logger.
     private let providerLogger: Logger
@@ -92,6 +95,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
+
+    /// Timer for tunnel reconnection. Used to delay reconnection when a private key has just been
+    /// rotated, to account for latency in key propagation to relays.
+    private var tunnelReconnectionTimer: DispatchSourceTimer?
+
+    /// Current device state for the tunnel.
+    private var currentDeviceState: DeviceState?
 
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
@@ -263,6 +273,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.providerLogger.debug("Stop the tunnel: \(reason)")
 
             self.isStopping = true
+            self.cancelTunnelReconnectionTimer()
             self.cancelTunnelStartupFailureRecovery()
             self.startTunnelCompletionHandler = nil
 
@@ -348,6 +359,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             case let .cancelURLRequest(id):
                 self.urlRequestProxy.cancelRequest(identifier: id)
                 completionHandler?(nil)
+
+            case .privateKeyRotation:
+                self.startTunnelReconnectionTimer(reconnectionDelay: keyRotationTunnelReconnectionDelay)
+                completionHandler?(nil)
             }
         }
     }
@@ -414,6 +429,41 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     // MARK: - Private
+
+    private func startTunnelReconnectionTimer(reconnectionDelay: Int) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        providerLogger.debug("Delaying tunnel reconnection by \(reconnectionDelay) seconds...")
+
+        let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
+
+        timer.setEventHandler { [weak self] in
+            self?.providerLogger.debug("Reconnecting the tunnel...")
+
+            let nextRelay: NextRelay = self?.selectorResult
+                .map { .set($0) } ?? .automatic
+
+            self?.currentDeviceState = nil
+            self?.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
+        }
+
+        timer.setCancelHandler { [weak self] in
+            self?.currentDeviceState = nil
+        }
+
+        timer.schedule(deadline: .now() + .seconds(reconnectionDelay))
+        timer.activate()
+
+        tunnelReconnectionTimer?.cancel()
+        tunnelReconnectionTimer = timer
+    }
+
+    private func cancelTunnelReconnectionTimer() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        tunnelReconnectionTimer?.cancel()
+        tunnelReconnectionTimer = nil
+    }
 
     private func beginTunnelStartupFailureRecovery() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
@@ -493,8 +543,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         throws -> PacketTunnelConfiguration
     {
         let tunnelSettings = try SettingsManager.readSettings()
-        let deviceState = try SettingsManager.readDeviceState()
         let selectorResult: RelaySelectorResult
+
+        let deviceState: DeviceState
+        if let currentDeviceState = currentDeviceState {
+            deviceState = currentDeviceState
+        } else {
+            deviceState = try SettingsManager.readDeviceState()
+            currentDeviceState = deviceState
+        }
 
         switch nextRelay {
         case .automatic:

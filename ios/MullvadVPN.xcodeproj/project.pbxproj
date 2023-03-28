@@ -354,6 +354,7 @@
 		58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB45260A028D00A621A8 /* GeoJSON.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
+		7A09C97F29D2E7AB000C2CAC /* NotifyKeyRotationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C97E29D2E7AB000C2CAC /* NotifyKeyRotationOperation.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -931,6 +932,7 @@
 		58FEEB45260A028D00A621A8 /* GeoJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSON.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		7A09C97E29D2E7AB000C2CAC /* NotifyKeyRotationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyKeyRotationOperation.swift; sourceTree = "<group>"; };
 		7AD8490C29BA1EC500878E53 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
 		7AD8490E29BA26B000878E53 /* CellFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellFactoryProtocol.swift; sourceTree = "<group>"; };
 		7AD8491029BA316500878E53 /* PreferencesCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesCellFactory.swift; sourceTree = "<group>"; };
@@ -1206,6 +1208,7 @@
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
 				5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */,
+				7A09C97E29D2E7AB000C2CAC /* NotifyKeyRotationOperation.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -2627,6 +2630,7 @@
 				58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */,
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
+				7A09C97F29D2E7AB000C2CAC /* NotifyKeyRotationOperation.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* StorePaymentManagerDelegate.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,

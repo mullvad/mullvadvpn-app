@@ -39,7 +39,9 @@ class ReconnectTunnelOperation: ResultOperation<Void> {
             let selectorResult = selectNewRelay ? try interactor.selectRelay() : nil
 
             task = tunnel
-                .reconnectTunnel(relaySelectorResult: selectorResult) { [weak self] result in
+                .reconnectTunnel(
+                    relaySelectorResult: selectorResult
+                ) { [weak self] result in
                     self?.finish(result: result)
                 }
         } catch {
