@@ -93,4 +93,21 @@ extension Tunnel {
 
         return operation
     }
+
+    /// Notify tunnel about private key rotation.
+    func notifyKeyRotation(
+        completionHandler: @escaping (Result<Void, Error>) -> Void
+    ) -> Cancellable {
+        let operation = SendTunnelProviderMessageOperation(
+            dispatchQueue: dispatchQueue,
+            application: .shared,
+            tunnel: self,
+            message: .privateKeyRotation,
+            completionHandler: completionHandler
+        )
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
 }

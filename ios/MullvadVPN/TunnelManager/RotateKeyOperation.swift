@@ -100,7 +100,13 @@ class RotateKeyOperation: ResultOperation<Bool> {
 
                 interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
 
-                finish(result: .success(true))
+                if let tunnel = interactor.tunnel {
+                    _ = tunnel.notifyKeyRotation { [weak self] _ in
+                        self?.finish(result: .success(true))
+                    }
+                } else {
+                    finish(result: .success(true))
+                }
             default:
                 finish(result: .failure(InvalidDeviceStateError()))
             }

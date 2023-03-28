@@ -24,6 +24,9 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Cancel HTTP request sent outside of VPN tunnel.
     case cancelURLRequest(UUID)
 
+    /// Notify tunnel about private key rotation.
+    case privateKeyRotation
+
     public var description: String {
         switch self {
         case .reconnectTunnel:
@@ -34,6 +37,8 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "send-http-request"
         case .cancelURLRequest:
             return "cancel-http-request"
+        case .privateKeyRotation:
+            return "private-key-rotation"
         }
     }
 
