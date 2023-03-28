@@ -93,6 +93,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue()
 
+    /// Timer for tunnel reconnection. Used to delay reconnection when a private key has just been
+    /// rotated, to account for latency when relays are synched.
+    private var tunnelReconnectionTimer: DispatchSourceTimer?
+
+    /// Temporary device state for the tunnel. Set when a private key has just been rotated and
+    /// tunnel has not yet reconnected, reset when tunnel reconnects.
+    private var temporaryDeviceState: DeviceState?
+
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         let errors: [PacketTunnelErrorWrapper?] = [
@@ -263,6 +271,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.providerLogger.debug("Stop the tunnel: \(reason)")
 
             self.isStopping = true
+            self.cancelTunnelReconnectionTimer()
             self.cancelTunnelStartupFailureRecovery()
             self.startTunnelCompletionHandler = nil
 
@@ -308,13 +317,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             self.providerLogger.trace("Received app message: \(message)")
 
             switch message {
-            case let .reconnectTunnel(appSelectorResult):
-                self.providerLogger.debug("Reconnecting the tunnel...")
-
-                let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult)
-                    .map { .set($0) } ?? .automatic
-
-                self.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
+            case let .reconnectTunnel(appSelectorResult, reconnectionDelay):
+                self.startTunnelReconnectionTimer(
+                    appSelectorResult: appSelectorResult,
+                    reconnectionDelay: reconnectionDelay
+                )
 
                 completionHandler?(nil)
 
@@ -415,6 +422,46 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     // MARK: - Private
 
+    private func startTunnelReconnectionTimer(
+        appSelectorResult: RelaySelectorResult?,
+        reconnectionDelay: Int?
+    ) {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        let reconnectionDelay = reconnectionDelay ?? 0
+        providerLogger.debug("Delaying tunnel reconnection by \(reconnectionDelay) seconds...")
+
+        temporaryDeviceState = try? SettingsManager.readDeviceState()
+        let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
+
+        timer.setEventHandler { [weak self] in
+            self?.providerLogger.debug("Reconnecting the tunnel...")
+
+            let nextRelay: NextRelay = (appSelectorResult ?? self?.selectorResult)
+                .map { .set($0) } ?? .automatic
+
+            self?.temporaryDeviceState = nil
+            self?.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
+        }
+
+        timer.setCancelHandler { [weak self] in
+            self?.temporaryDeviceState = nil
+        }
+
+        timer.schedule(deadline: .now() + .seconds(reconnectionDelay))
+        timer.activate()
+
+        tunnelReconnectionTimer?.cancel()
+        tunnelReconnectionTimer = timer
+    }
+
+    private func cancelTunnelReconnectionTimer() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        tunnelReconnectionTimer?.cancel()
+        tunnelReconnectionTimer = nil
+    }
+
     private func beginTunnelStartupFailureRecovery() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
@@ -493,7 +540,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         throws -> PacketTunnelConfiguration
     {
         let tunnelSettings = try SettingsManager.readSettings()
-        let deviceState = try SettingsManager.readDeviceState()
+        let deviceState = try temporaryDeviceState ?? SettingsManager.readDeviceState()
         let selectorResult: RelaySelectorResult
 
         switch nextRelay {

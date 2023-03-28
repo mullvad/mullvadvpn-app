@@ -44,6 +44,8 @@ with the option to buy more time.
 - Display remaining account time in years if equal to or more than two years,
   otherwise display days.
 - Changed key rotation interval from 4 to 7 days.
+- Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency when
+  relays are synched.
 
 ### Fixed
 - Improve random port distribution. Should be less biased towards port 53.

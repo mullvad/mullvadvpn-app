@@ -13,7 +13,7 @@ import RelaySelector
 public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel to reconnect.
     /// The packet tunnel reconnects to the current relay when selector result is `nil`.
-    case reconnectTunnel(RelaySelectorResult?)
+    case reconnectTunnel(RelaySelectorResult?, Int?)
 
     /// Request the tunnel status.
     case getTunnelStatus

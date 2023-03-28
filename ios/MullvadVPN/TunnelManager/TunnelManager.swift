@@ -33,6 +33,9 @@ private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 7
 /// Private key rotation retry interval (in seconds).
 private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
 
+/// Delay before trying to reconnect tunnel after private key rotation.
+private let tunnelReconnectionDelay = 60 * 2
+
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
 final class TunnelManager: StorePaymentObserver {
@@ -325,12 +328,14 @@ final class TunnelManager: StorePaymentObserver {
 
     func reconnectTunnel(
         selectNewRelay: Bool,
+        reconnectionDelay: Int? = nil,
         completionHandler: ((Error?) -> Void)? = nil
     ) {
         let operation = ReconnectTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
-            selectNewRelay: selectNewRelay
+            selectNewRelay: selectNewRelay,
+            reconnectionDelay: reconnectionDelay
         )
 
         operation.completionQueue = .main
@@ -504,7 +509,10 @@ final class TunnelManager: StorePaymentObserver {
 
             switch result {
             case .success:
-                self.reconnectTunnel(selectNewRelay: true) { _ in
+                self.reconnectTunnel(
+                    selectNewRelay: true,
+                    reconnectionDelay: tunnelReconnectionDelay
+                ) { _ in
                     completionHandler(result)
                 }
 

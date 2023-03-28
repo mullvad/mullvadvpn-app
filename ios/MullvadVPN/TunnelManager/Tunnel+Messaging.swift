@@ -27,13 +27,14 @@ extension Tunnel {
     /// Packet tunnel will reconnect to the current relay if relay selector result is not provided.
     func reconnectTunnel(
         relaySelectorResult: RelaySelectorResult?,
+        reconnectionDelay: Int?,
         completionHandler: @escaping (Result<Void, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             application: .shared,
             tunnel: self,
-            message: .reconnectTunnel(relaySelectorResult),
+            message: .reconnectTunnel(relaySelectorResult, reconnectionDelay),
             completionHandler: completionHandler
         )
 

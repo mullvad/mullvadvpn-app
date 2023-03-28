@@ -117,7 +117,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
             completionHandler?(reply)
 
-        case let .reconnectTunnel(aSelectorResult):
+        case let .reconnectTunnel(aSelectorResult, _):
             reasserting = true
             if let aSelectorResult = aSelectorResult {
                 selectorResult = aSelectorResult

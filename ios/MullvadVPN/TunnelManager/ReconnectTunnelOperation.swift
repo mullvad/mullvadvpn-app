@@ -16,15 +16,18 @@ import RelaySelector
 class ReconnectTunnelOperation: ResultOperation<Void> {
     private let interactor: TunnelInteractor
     private let selectNewRelay: Bool
+    private let reconnectionDelay: Int?
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
-        selectNewRelay: Bool
+        selectNewRelay: Bool,
+        reconnectionDelay: Int?
     ) {
         self.interactor = interactor
         self.selectNewRelay = selectNewRelay
+        self.reconnectionDelay = reconnectionDelay
 
         super.init(dispatchQueue: dispatchQueue)
     }
@@ -39,7 +42,10 @@ class ReconnectTunnelOperation: ResultOperation<Void> {
             let selectorResult = selectNewRelay ? try interactor.selectRelay() : nil
 
             task = tunnel
-                .reconnectTunnel(relaySelectorResult: selectorResult) { [weak self] result in
+                .reconnectTunnel(
+                    relaySelectorResult: selectorResult,
+                    reconnectionDelay: reconnectionDelay
+                ) { [weak self] result in
                     self?.finish(result: result)
                 }
         } catch {
