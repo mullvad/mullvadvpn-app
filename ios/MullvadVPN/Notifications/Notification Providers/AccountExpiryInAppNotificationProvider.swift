@@ -11,8 +11,7 @@ import Foundation
 private let triggerInterval = 3
 private let refreshInterval = 60
 
-final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider
-{
+final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry: Date?
     private var tunnelObserver: TunnelBlockObserver?
     private var timer: DispatchSourceTimer?
