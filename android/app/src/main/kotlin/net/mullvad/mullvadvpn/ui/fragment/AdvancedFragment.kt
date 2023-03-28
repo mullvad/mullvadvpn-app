@@ -33,14 +33,19 @@ class AdvancedFragment : BaseFragment() {
                     onCancelMtuDialogClicked = vm::onCancelDialogClick,
                     onSplitTunnelingNavigationClick = ::openSplitTunnelingFragment,
                     onToggleDnsClick = vm::onToggleDnsClick,
+                    onToggleBlockAds = vm::onToggleBlockAds,
+                    onToggleBlockTrackers = vm::onToggleBlockTrackers,
+                    onToggleBlockMalware = vm::onToggleBlockMalware,
+                    onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
+                    onToggleBlockGambling = vm::onToggleBlockGambling,
                     onDnsClick = vm::onDnsClick,
                     onDnsInputChange = vm::onDnsInputChange,
                     onSaveDnsClick = vm::onSaveDnsClick,
                     onRemoveDnsClick = vm::onRemoveDnsClick,
                     onCancelDnsDialogClick = vm::onCancelDialogClick,
-                    onContentsBlockerInfoClicked = vm::onContentsBlockerInfoClicked,
-                    onMalwareInfoClicked = vm::onMalwareInfoClicked,
-                    onDismissInfoClicked = vm::onDismissInfoClicked,
+                    onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
+                    onMalwareInfoClicked = vm::onMalwareInfoClick,
+                    onDismissInfoClicked = vm::onDismissInfoClick,
                     onBackClick = { activity?.onBackPressed() }
                 )
             }
