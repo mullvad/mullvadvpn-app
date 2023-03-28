@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -35,6 +36,8 @@ class AdvancedSettingsViewModel(
                     mtuValue = settings?.mtuString() ?: "",
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                    contentBlockersOptions = settings?.contentBlockersSettings()
+                            ?: DefaultDnsOptions(),
                     isAllowLanEnabled = settings?.allowLan ?: false,
                     dialogState = dialogState
                 )
@@ -83,15 +86,15 @@ class AdvancedSettingsViewModel(
         hideDialog()
     }
 
-    fun onContentsBlockerInfoClicked() {
+    fun onContentsBlockerInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.ContentBlockersInfoDialog }
     }
 
-    fun onMalwareInfoClicked() {
+    fun onMalwareInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
     }
 
-    fun onDismissInfoClicked() {
+    fun onDismissInfoClick() {
         hideDialog()
     }
 
@@ -177,7 +180,11 @@ class AdvancedSettingsViewModel(
                         }
                     }
 
-            repository.setDnsOptions(isCustomDnsEnabled = true, dnsList = updatedList)
+            repository.setDnsOptions(
+                isCustomDnsEnabled = true,
+                dnsList = updatedList,
+                contentBlockersOptions = vmState.value.contentBlockersOptions
+            )
 
             hideDialog()
         }
@@ -186,9 +193,40 @@ class AdvancedSettingsViewModel(
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
                 isEnabled,
-                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList()
+                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
+                contentBlockersOptions = vmState.value.contentBlockersOptions
             )
         }
+
+    fun onToggleBlockAds(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockAds = isEnabled)
+        )
+    }
+
+    fun onToggleBlockTrackers(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockTrackers = isEnabled)
+        )
+    }
+
+    fun onToggleBlockMalware(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockMalware = isEnabled)
+        )
+    }
+
+    fun onToggleBlockAdultContent(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockAdultContent = isEnabled)
+        )
+    }
+
+    fun onToggleBlockGambling(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockGambling = isEnabled)
+        )
+    }
 
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
@@ -204,10 +242,19 @@ class AdvancedSettingsViewModel(
 
             repository.setDnsOptions(
                 isCustomDnsEnabled = vmState.value.isCustomDnsEnabled && updatedList.isNotEmpty(),
-                dnsList = updatedList
+                dnsList = updatedList,
+                contentBlockersOptions = vmState.value.contentBlockersOptions
             )
-
             hideDialog()
+        }
+
+    private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
+        viewModelScope.launch(dispatcher) {
+            repository.setDnsOptions(
+                isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
+                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
+                contentBlockersOptions = contentBlockersOption
+            )
         }
 
     private fun hideDialog() {
@@ -240,6 +287,8 @@ class AdvancedSettingsViewModel(
     private fun Settings.isCustomDnsEnabled() = tunnelOptions.dnsOptions.state == DnsState.Custom
 
     private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
+
+    private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
 
     private fun String.isValidIp(): Boolean {
         return inetAddressValidator.isValid(this)
