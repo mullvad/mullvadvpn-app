@@ -3,7 +3,7 @@ use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{convert::TryFrom, fmt, time::Duration};
+use std::{convert::TryFrom, fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
 
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
@@ -16,6 +16,7 @@ const QUANTUM_RESISTANT_AUTO_STATE: bool = false;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
     Auto,
     On,
@@ -31,6 +32,25 @@ impl fmt::Display for QuantumResistantState {
         }
     }
 }
+
+impl FromStr for QuantumResistantState {
+    type Err = QuantumResistantStateParseError;
+
+    fn from_str(s: &str) -> Result<QuantumResistantState, Self::Err> {
+        match s {
+            "any" | "auto" => Ok(QuantumResistantState::Auto),
+            "on" => Ok(QuantumResistantState::On),
+            "off" => Ok(QuantumResistantState::Off),
+            _ => Err(QuantumResistantStateParseError),
+        }
+    }
+}
+
+/// Returned when `QuantumResistantState::from_str` fails to convert a string into a
+/// [`QuantumResistantState`] object.
+#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
+#[error(display = "Not a valid state")]
+pub struct QuantumResistantStateParseError;
 
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -117,6 +137,38 @@ impl TryFrom<Duration> for RotationInterval {
 
     fn try_from(duration: Duration) -> Result<RotationInterval, RotationIntervalError> {
         RotationInterval::new(duration)
+    }
+}
+
+impl fmt::Display for RotationInterval {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} hours", self.as_duration().as_secs() / 60 / 60)
+    }
+}
+
+#[cfg(feature = "clap")]
+impl clap::builder::ValueParserFactory for RotationInterval {
+    type Parser = clap::builder::RangedU64ValueParser<RotationInterval>;
+
+    fn value_parser() -> Self::Parser {
+        clap::builder::RangedU64ValueParser::new().range(
+            (MIN_ROTATION_INTERVAL.as_secs() / 60 / 60)
+                ..(MAX_ROTATION_INTERVAL.as_secs() / 60 / 60),
+        )
+    }
+}
+
+impl TryFrom<u64> for RotationInterval {
+    type Error = RotationIntervalError;
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        // Convert a u64, specified in hours, to a `RotationInterval`
+        let val = value
+            .checked_mul(60)
+            .ok_or(RotationIntervalError::TooLarge)?
+            .checked_mul(60)
+            .ok_or(RotationIntervalError::TooLarge)?;
+        RotationInterval::new(Duration::from_secs(val))
     }
 }
 

@@ -1,674 +1,182 @@
-use crate::{location, new_rpc_client, Command, Error, Result};
+use clap::Subcommand;
 use itertools::Itertools;
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::{
+    location::Hostname,
+    relay_constraints::{
+        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
+        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
+        WireguardConstraints,
+    },
+    relay_list::{RelayEndpointData, RelayListCountry},
+    ConnectionConfig, CustomTunnelEndpoint,
+};
 use std::{
-    convert::TryFrom,
-    io::{self, BufRead},
+    io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
-    str::FromStr,
+};
+use talpid_types::net::{
+    all_of_the_internet, openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType,
 };
 
-use mullvad_management_interface::{types, ManagementServiceClient};
-use mullvad_types::relay_constraints::{Constraint, RelaySettings};
-use talpid_types::net::all_of_the_internet;
+use crate::{Error, Result};
 
-pub struct Relay;
+use super::{on_off_parser, relay_constraints::LocationArgs};
 
-#[mullvad_management_interface::async_trait]
-impl Command for Relay {
-    fn name(&self) -> &'static str {
-        "relay"
-    }
+#[derive(Subcommand, Debug)]
+pub enum Relay {
+    /// Display the current relay constraints
+    Get,
 
-    fn clap_subcommand(&self) -> clap::App<'static> {
-        clap::App::new(self.name())
-            .about("Manage relay and tunnel constraints")
-            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(
-                clap::App::new("set")
-                    .about(
-                        "Set relay server selection parameters. Such as location and port/protocol",
-                    )
-                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                    .subcommand(
-                        clap::App::new("custom")
-                            .about("Set a custom VPN relay")
-                            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                            .subcommand(clap::App::new("wireguard")
-                                .arg(
-                                    clap::Arg::new("host")
-                                        .help("Hostname or IP")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("port")
-                                        .help("Remote network port")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("peer-pubkey")
-                                        .help("Base64 encoded peer public key")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("v4-gateway")
-                                        .help("IPv4 gateway address")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("addr")
-                                        .help("Local address of wireguard tunnel")
-                                        .required(true)
-                                        .multiple_values(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("v6-gateway")
-                                        .help("IPv6 gateway address")
-                                        .long("v6-gateway")
-                                        .takes_value(true),
-                                )
-                            )
-                            .subcommand(clap::App::new("openvpn")
-                                .arg(
-                                    clap::Arg::new("host")
-                                        .help("Hostname or IP")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("port")
-                                        .help("Remote network port")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("username")
-                                        .help("Username to be used with the OpenVpn relay")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("password")
-                                        .help("Password to be used with the OpenVpn relay")
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::new("protocol")
-                                        .help("Transport protocol")
-                                        .long("protocol")
-                                        .default_value("udp")
-                                        .possible_values(["udp", "tcp"]),
-                                )
-                            )
-                    )
-                    .subcommand(
-                        location::get_subcommand()
-                            .about("Set country or city to select relays from. Use the 'list' \
-                                   command to show available alternatives.")
-                    )
-                    .subcommand(
-                        clap::App::new("hostname")
-                            .about("Set the exact relay to use via its hostname. Shortcut for \
-                                'location <country> <city> <hostname>'.")
-                            .arg(
-                                clap::Arg::new("hostname")
-                                    .help("The hostname")
-                                    .required(true),
-                            ),
-                    )
-                    .subcommand(
-                        clap::App::new("provider")
-                            .about("Set hosting provider(s) to select relays from. The 'list' \
-                                   command shows the available relays and their providers.")
-                            .arg(
-                                clap::Arg::new("provider")
-                                .help("The hosting provider(s) to use, or 'any' for no preference.")
-                                .multiple_values(true)
-                                .required(true)
-                            )
-                    )
-                    .subcommand(
-                        clap::App::new("ownership")
-                            .about("Filters relays based on ownership. The 'list' \
-                                   command shows the available relays and whether they're rented.")
-                            .arg(
-                                clap::Arg::new("ownership")
-                                .help("Ownership preference, or 'any' for no preference.")
-                                .possible_values(["any", "owned", "rented"])
-                                .required(true)
-                            )
-                    )
-                    .subcommand(
-                        clap::App::new("tunnel")
-                            .about("Set tunnel protocol-specific constraints.")
-                            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                            .subcommand(
-                                clap::App::new("openvpn")
-                                    .about("Set OpenVPN-specific constraints")
-                                    .setting(clap::AppSettings::ArgRequiredElseHelp)
-                                    .arg(
-                                        clap::Arg::new("port")
-                                            .help("Port to use. Either 'any' or a specific port")
-                                            .long("port")
-                                            .takes_value(true),
-                                    )
-                                    .arg(
-                                        clap::Arg::new("transport protocol")
-                                            .help("Transport protocol")
-                                            .long("protocol")
-                                            .possible_values(["any", "udp", "tcp"])
-                                            .takes_value(true),
-                                    )
-                            )
-                            .subcommand(
-                                clap::App::new("wireguard")
-                                    .about("Set WireGuard-specific constraints")
-                                    .setting(clap::AppSettings::ArgRequiredElseHelp)
-                                    .arg(
-                                        clap::Arg::new("port")
-                                            .help("Port to use. Either 'any' or a specific port")
-                                            .long("port")
-                                            .takes_value(true),
-                                    )
-                                    .arg(
-                                        clap::Arg::new("ip version")
-                                            .long("ipv")
-                                            .possible_values(["any", "4", "6"])
-                                            .takes_value(true),
-                                    )
-                                    .arg(
-                                        clap::Arg::new("entry location")
-                                            .help("Entry endpoint to use. This can be 'any', 'none', or \
-                                                   any location that is valid with 'set location', \
-                                                   such as 'se got'.")
-                                            .long("entry-location")
-                                            .min_values(1)
-                                            .max_values(3),
-                                    )
-                            )
-                    )
-                    .subcommand(clap::App::new("tunnel-protocol")
-                                .about("Set tunnel protocol")
-                                .arg(
-                                    clap::Arg::new("tunnel protocol")
-                                    .required(true)
-                                    .index(1)
-                                    .possible_values(["any", "wireguard", "openvpn", ]),
-                                    )
-                                ),
-            )
-            .subcommand(clap::App::new("get"))
-            .subcommand(
-                clap::App::new("list").about("List available countries and cities"),
-            )
-            .subcommand(
-                clap::App::new("update")
-                    .about("Update the list of available countries and cities"),
-            )
-    }
+    /// Set relay constraints, such as location and port
+    #[clap(subcommand)]
+    Set(SetCommands),
 
-    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(set_matches) = matches.subcommand_matches("set") {
-            self.set(set_matches).await
-        } else if matches.subcommand_matches("get").is_some() {
-            self.get().await
-        } else if matches.subcommand_matches("list").is_some() {
-            self.list().await
-        } else if matches.subcommand_matches("update").is_some() {
-            self.update().await
-        } else {
-            unreachable!("No relay command given");
-        }
-    }
+    /// List available relays
+    List,
+
+    /// Update the relay list
+    Update,
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum SetCommands {
+    /// Set country or city to select relays from. Use the 'list'
+    /// command to show available alternatives.
+    Location(LocationArgs),
+
+    /// Set the location using only a hostname
+    Hostname {
+        /// A hostname, such as "se3-wireguard".
+        hostname: Hostname,
+    },
+
+    /// Set hosting provider(s) to select relays from. The 'list'
+    /// command shows the available relays and their providers.
+    Providers {
+        #[arg(required(true), num_args = 1..)]
+        providers: Vec<Provider>,
+    },
+
+    /// Filter relays based on ownership. The 'list' command
+    /// shows the available relays and whether they're rented.
+    Ownership {
+        /// Servers to select from: 'any', 'owned', or 'rented'.
+        ownership: Constraint<Ownership>,
+    },
+
+    /// Set tunnel protocol specific constraints
+    #[clap(subcommand)]
+    Tunnel(SetTunnelCommands),
+
+    /// Set tunnel protocol to use: 'any', 'wireguard', or 'openvpn'.
+    TunnelProtocol { protocol: Constraint<TunnelType> },
+
+    /// Set a custom VPN relay to use
+    #[clap(subcommand)]
+    Custom(SetCustomCommands),
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum SetTunnelCommands {
+    /// Set OpenVPN-specific constraints
+    #[clap(arg_required_else_help = true)]
+    Openvpn {
+        /// Port to use, or 'any'
+        #[arg(long, short = 'p', requires = "transport_protocol")]
+        port: Option<Constraint<u16>>,
+
+        /// Transport protocol to use, or 'any'
+        #[arg(long, short = 't')]
+        transport_protocol: Option<Constraint<TransportProtocol>>,
+    },
+
+    /// Set WireGuard-specific constraints
+    #[clap(arg_required_else_help = true)]
+    Wireguard {
+        /// Port to use, or 'any'
+        #[arg(long, short = 'p')]
+        port: Option<Constraint<u16>>,
+
+        /// IP protocol to use, or 'any'
+        #[arg(long, short = 'i')]
+        ip_version: Option<Constraint<IpVersion>>,
+
+        /// Whether to enable multihop. The location constraints are specified with
+        /// 'entry-location'.
+        #[arg(long, short = 'm', value_parser = on_off_parser())]
+        use_multihop: Option<bool>,
+
+        #[clap(subcommand)]
+        entry_location: Option<EntryLocation>,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum EntryLocation {
+    /// Entry endpoint to use. This can be 'any' or any location that is valid with 'set location',
+    /// such as 'se got'.
+    EntryLocation(LocationArgs),
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum SetCustomCommands {
+    /// Use a custom OpenVPN relay
+    #[clap(arg_required_else_help = true)]
+    Openvpn {
+        /// Hostname or IP
+        host: String,
+        /// Remote port
+        port: u16,
+        /// Username for authentication
+        username: String,
+        /// Password for authentication
+        password: String,
+        /// Transport protocol to use
+        #[arg(default_value_t = TransportProtocol::Udp)]
+        transport_protocol: TransportProtocol,
+    },
+
+    /// Use a custom WireGuard relay
+    #[clap(arg_required_else_help = true)]
+    Wireguard {
+        /// Hostname or IP
+        host: String,
+        /// Remote port
+        port: u16,
+        /// Base64 encoded public key of remote peer
+        // TODO: parse
+        peer_pubkey: String,
+        /// IP addresses of local tunnel interface
+        // TODO: at least one
+        tunnel_ip: Vec<IpAddr>,
+        /// IPv4 gateway address
+        #[arg(long)]
+        v4_gateway: Ipv4Addr,
+        /// IPv6 gateway address
+        #[arg(long)]
+        v6_gateway: Option<Ipv6Addr>,
+    },
 }
 
 impl Relay {
-    async fn update_constraints(&self, update: types::RelaySettingsUpdate) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.update_relay_settings(update)
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to update relay settings", error))?;
-        println!("Relay constraints updated");
+    pub async fn handle(self) -> Result<()> {
+        match self {
+            Relay::Get => Self::get().await,
+            Relay::List => Self::list().await,
+            Relay::Update => Self::update().await,
+            Relay::Set(subcmd) => Self::set(subcmd).await,
+        }
+    }
+
+    async fn get() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let relay_settings = rpc.get_settings().await?.relay_settings;
+        println!("Current constraints: {relay_settings}");
         Ok(())
     }
 
-    async fn set(&self, matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(custom_matches) = matches.subcommand_matches("custom") {
-            self.set_custom(custom_matches).await
-        } else if let Some(location_matches) = matches.subcommand_matches("location") {
-            self.set_location(location_matches).await
-        } else if let Some(relay_matches) = matches.subcommand_matches("hostname") {
-            self.set_hostname(relay_matches).await
-        } else if let Some(providers_matches) = matches.subcommand_matches("provider") {
-            self.set_providers(providers_matches).await
-        } else if let Some(ownership_matches) = matches.subcommand_matches("ownership") {
-            self.set_ownership(ownership_matches).await
-        } else if let Some(matches) = matches.subcommand_matches("tunnel") {
-            if let Some(tunnel_matches) = matches.subcommand_matches("openvpn") {
-                self.set_openvpn_constraints(tunnel_matches).await
-            } else if let Some(tunnel_matches) = matches.subcommand_matches("wireguard") {
-                self.set_wireguard_constraints(tunnel_matches).await
-            } else {
-                unreachable!("Invalid tunnel protocol");
-            }
-        } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
-            self.set_tunnel_protocol(tunnel_matches).await
-        } else {
-            unreachable!("No set relay command given");
-        }
-    }
-
-    async fn set_custom(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let custom_endpoint = match matches.subcommand() {
-            Some(("openvpn", openvpn_matches)) => Self::read_custom_openvpn_relay(openvpn_matches),
-            Some(("wireguard", wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
-            _ => unreachable!("No set relay command given"),
-        };
-
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Custom(custom_endpoint)),
-        })
-        .await
-    }
-
-    fn read_custom_openvpn_relay(matches: &clap::ArgMatches) -> types::CustomRelaySettings {
-        let host = matches.value_of_t_or_exit("host");
-        let port = matches.value_of_t_or_exit("port");
-        let username = matches.value_of_t_or_exit("username");
-        let password = matches.value_of_t_or_exit("password");
-        let protocol: String = matches.value_of_t_or_exit("protocol");
-
-        let protocol = Self::validate_transport_protocol(&protocol);
-
-        types::CustomRelaySettings {
-            host,
-            config: Some(types::ConnectionConfig {
-                config: Some(types::connection_config::Config::Openvpn(
-                    types::connection_config::OpenvpnConfig {
-                        address: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port)
-                            .to_string(),
-                        protocol: protocol as i32,
-                        username,
-                        password,
-                    },
-                )),
-            }),
-        }
-    }
-
-    fn read_custom_wireguard_relay(matches: &clap::ArgMatches) -> types::CustomRelaySettings {
-        use types::connection_config::wireguard_config;
-
-        let host = matches.value_of_t_or_exit("host");
-        let port = matches.value_of_t_or_exit("port");
-        let addresses: Vec<IpAddr> = matches.values_of_t_or_exit("addr");
-        let peer_key_str: String = matches.value_of_t_or_exit("peer-pubkey");
-        let ipv4_gateway: Ipv4Addr = matches.value_of_t_or_exit("v4-gateway");
-        let ipv6_gateway = match matches.value_of_t::<Ipv6Addr>("v6-gateway") {
-            Ok(gateway) => Some(gateway),
-            Err(e) => match e.kind {
-                clap::ErrorKind::ArgumentNotFound => None,
-                _ => e.exit(),
-            },
-        };
-        let mut private_key_str = String::new();
-        println!("Reading private key from standard input");
-        let _ = io::stdin().lock().read_line(&mut private_key_str);
-        if private_key_str.trim().is_empty() {
-            eprintln!("Expected to read private key from standard input");
-        }
-        let private_key = Self::validate_wireguard_key(&private_key_str);
-        let peer_public_key = Self::validate_wireguard_key(&peer_key_str);
-
-        types::CustomRelaySettings {
-            host,
-            config: Some(types::ConnectionConfig {
-                config: Some(types::connection_config::Config::Wireguard(
-                    types::connection_config::WireguardConfig {
-                        tunnel: Some(wireguard_config::TunnelConfig {
-                            private_key: private_key.to_vec(),
-                            addresses: addresses
-                                .iter()
-                                .map(|address| address.to_string())
-                                .collect(),
-                        }),
-                        peer: Some(wireguard_config::PeerConfig {
-                            public_key: peer_public_key.to_vec(),
-                            allowed_ips: all_of_the_internet()
-                                .iter()
-                                .map(|address| address.to_string())
-                                .collect(),
-                            endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port)
-                                .to_string(),
-                        }),
-                        ipv4_gateway: ipv4_gateway.to_string(),
-                        ipv6_gateway: ipv6_gateway
-                            .as_ref()
-                            .map(|addr| addr.to_string())
-                            .unwrap_or_default(),
-                    },
-                )),
-            }),
-        }
-    }
-
-    fn validate_wireguard_key(key_str: &str) -> [u8; 32] {
-        let key_bytes = base64::decode(key_str.trim()).unwrap_or_else(|e| {
-            eprintln!("Failed to decode wireguard key: {e}");
-            std::process::exit(1);
-        });
-
-        let mut key = [0u8; 32];
-        if key_bytes.len() != 32 {
-            eprintln!(
-                "Expected key length to be 32 bytes, got {}",
-                key_bytes.len()
-            );
-            std::process::exit(1);
-        }
-
-        key.copy_from_slice(&key_bytes);
-        key
-    }
-
-    fn validate_transport_protocol(protocol: &str) -> types::TransportProtocol {
-        match protocol {
-            "udp" => types::TransportProtocol::Udp,
-            "tcp" => types::TransportProtocol::Tcp,
-            _ => clap::Error::raw(
-                clap::ErrorKind::ValueValidation,
-                "invalid transport protocol",
-            )
-            .exit(),
-        }
-    }
-
-    async fn set_hostname(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let hostname = matches.value_of("hostname").unwrap();
-        let countries = Self::get_filtered_relays().await?;
-
-        let find_relay = || {
-            for country in countries {
-                for city in country.cities {
-                    for relay in city.relays {
-                        if relay.hostname.to_lowercase() == hostname.to_lowercase() {
-                            return Some(types::RelayLocation {
-                                country: country.code,
-                                city: city.code,
-                                hostname: relay.hostname,
-                            });
-                        }
-                    }
-                }
-            }
-            None
-        };
-
-        if let Some(location) = find_relay() {
-            println!(
-                "Setting location constraint to {} in {}, {}",
-                location.hostname, location.city, location.country
-            );
-
-            self.update_constraints(types::RelaySettingsUpdate {
-                r#type: Some(types::relay_settings_update::Type::Normal(
-                    types::NormalRelaySettingsUpdate {
-                        location: Some(location),
-                        ..Default::default()
-                    },
-                )),
-            })
-            .await
-        } else {
-            clap::Error::raw(clap::ErrorKind::ValueValidation, "No matching server found").exit()
-        }
-    }
-
-    async fn set_location(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let location_constraint = location::get_constraint_from_args(matches);
-        let mut found = false;
-
-        if !location_constraint.country.is_empty() {
-            // TODO: `mullvad_types::relay_constraints::LocationConstraint::matches(&relay)`
-            //       could be used to guarantee consistency with the daemon.
-            let countries = Self::get_filtered_relays().await?;
-            for country in &countries {
-                if country.code != location_constraint.country {
-                    continue;
-                }
-
-                if location_constraint.city.is_empty() {
-                    found = true;
-                    break;
-                }
-
-                for city in &country.cities {
-                    if city.code != location_constraint.city {
-                        continue;
-                    }
-
-                    if location_constraint.hostname.is_empty() {
-                        found = true;
-                        break;
-                    }
-
-                    for relay in &city.relays {
-                        if relay.hostname != location_constraint.hostname {
-                            continue;
-                        }
-                        found = true;
-                        break;
-                    }
-
-                    break;
-                }
-                break;
-            }
-
-            if !found {
-                eprintln!("Warning: No matching relay was found.");
-            }
-        }
-
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    location: Some(location_constraint),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn set_providers(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let providers: Vec<String> = matches.values_of_t_or_exit("provider");
-        let providers = if providers.get(0).map(String::as_str) == Some("any") {
-            vec![]
-        } else {
-            providers
-        };
-
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    providers: Some(types::ProviderUpdate { providers }),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn set_ownership(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let ownership = parse_ownership_constraint(matches.value_of("ownership").unwrap());
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    ownership: Some(types::OwnershipUpdate {
-                        ownership: ownership as i32,
-                    }),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn set_openvpn_constraints(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut openvpn_constraints = {
-            let mut rpc = new_rpc_client().await?;
-            self.get_openvpn_constraints(&mut rpc).await?
-        };
-        openvpn_constraints.port = parse_transport_port(matches, &mut openvpn_constraints.port)?;
-
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    openvpn_constraints: Some(openvpn_constraints),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn get_openvpn_constraints(
-        &self,
-        rpc: &mut ManagementServiceClient,
-    ) -> Result<types::OpenvpnConstraints> {
-        match rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .relay_settings
-            .unwrap()
-            .endpoint
-            .unwrap()
-        {
-            types::relay_settings::Endpoint::Normal(settings) => {
-                Ok(settings.openvpn_constraints.unwrap())
-            }
-            types::relay_settings::Endpoint::Custom(_settings) => {
-                println!("Clearing custom tunnel constraints");
-                Ok(types::OpenvpnConstraints::default())
-            }
-        }
-    }
-
-    async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let relay_list = rpc
-            .get_relay_locations(())
-            .await?
-            .into_inner()
-            .wireguard
-            .unwrap();
-        let mut wireguard_constraints = self.get_wireguard_constraints(&mut rpc).await?;
-
-        if let Some(port) = matches.value_of("port") {
-            wireguard_constraints.port = match parse_port_constraint(port)? {
-                Constraint::Any => 0,
-                Constraint::Only(specific_port) => {
-                    let specific_port = u32::from(specific_port);
-
-                    let is_valid_port = relay_list
-                        .port_ranges
-                        .iter()
-                        .any(|range| range.first <= specific_port && specific_port <= range.last);
-                    if !is_valid_port {
-                        return Err(Error::CommandFailed("The specified port is invalid"));
-                    }
-
-                    specific_port
-                }
-            }
-        }
-
-        if let Some(ipv) = matches.value_of("ip version") {
-            wireguard_constraints.ip_version =
-                parse_ip_version_constraint(ipv).option().map(|protocol| {
-                    types::IpVersionConstraint {
-                        protocol: protocol as i32,
-                    }
-                });
-        }
-        if let Some(entry) = matches.values_of("entry location") {
-            wireguard_constraints.entry_location = parse_entry_location_constraint(entry);
-            let use_multihop = wireguard_constraints.entry_location.is_some();
-            wireguard_constraints.use_multihop = use_multihop;
-        }
-
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    wireguard_constraints: Some(wireguard_constraints),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn get_wireguard_constraints(
-        &self,
-        rpc: &mut ManagementServiceClient,
-    ) -> Result<types::WireguardConstraints> {
-        match rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .relay_settings
-            .unwrap()
-            .endpoint
-            .unwrap()
-        {
-            types::relay_settings::Endpoint::Normal(settings) => {
-                Ok(settings.wireguard_constraints.unwrap())
-            }
-            types::relay_settings::Endpoint::Custom(_settings) => {
-                println!("Clearing custom tunnel constraints");
-                Ok(types::WireguardConstraints::default())
-            }
-        }
-    }
-
-    async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let tunnel_type = match matches.value_of("tunnel protocol").unwrap() {
-            "wireguard" => Some(types::TunnelType::Wireguard),
-            "openvpn" => Some(types::TunnelType::Openvpn),
-            "any" => None,
-            _ => unreachable!(),
-        };
-        self.update_constraints(types::RelaySettingsUpdate {
-            r#type: Some(types::relay_settings_update::Type::Normal(
-                types::NormalRelaySettingsUpdate {
-                    tunnel_type: Some(types::TunnelTypeUpdate {
-                        tunnel_type: tunnel_type.map(|tunnel_type| types::TunnelTypeConstraint {
-                            tunnel_type: tunnel_type as i32,
-                        }),
-                    }),
-                    ..Default::default()
-                },
-            )),
-        })
-        .await
-    }
-
-    async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let relay_settings = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .relay_settings
-            .unwrap();
-
-        println!(
-            "Current constraints: {}",
-            RelaySettings::try_from(relay_settings).unwrap()
-        );
-
-        Ok(())
-    }
-
-    async fn list(&self) -> Result<()> {
+    async fn list() -> Result<()> {
         let mut countries = Self::get_filtered_relays().await?;
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in countries {
@@ -684,9 +192,9 @@ impl Relay {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
-                    let support_msg = match relay.endpoint_type {
-                        i if i == i32::from(types::relay::RelayType::Openvpn) => "OpenVPN",
-                        i if i == i32::from(types::relay::RelayType::Wireguard) => "WireGuard",
+                    let support_msg = match relay.endpoint_data {
+                        RelayEndpointData::Openvpn => "OpenVPN",
+                        RelayEndpointData::Wireguard(_) => "WireGuard",
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };
                     let ownership = if relay.owned {
@@ -694,9 +202,9 @@ impl Relay {
                     } else {
                         "rented"
                     };
-                    let mut addresses = vec![&relay.ipv4_addr_in];
-                    if !relay.ipv6_addr_in.is_empty() {
-                        addresses.push(&relay.ipv6_addr_in);
+                    let mut addresses: Vec<IpAddr> = vec![relay.ipv4_addr_in.into()];
+                    if let Some(ipv6_addr) = relay.ipv6_addr_in {
+                        addresses.push(ipv6_addr.into());
                     }
                     println!(
                         "\t\t{} ({}) - {}, hosted by {} ({ownership})",
@@ -712,21 +220,20 @@ impl Relay {
         Ok(())
     }
 
-    async fn update(&self) -> Result<()> {
-        new_rpc_client().await?.update_relay_locations(()).await?;
+    async fn update() -> Result<()> {
+        MullvadProxyClient::new()
+            .await?
+            .update_relay_locations()
+            .await?;
         println!("Updating relay list in the background...");
         Ok(())
     }
 
-    async fn get_filtered_relays() -> Result<Vec<types::RelayListCountry>> {
-        let mut rpc = new_rpc_client().await?;
-        let relay_list = rpc
-            .get_relay_locations(())
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
-            .into_inner();
+    async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let relay_list = rpc.get_relay_locations().await?;
 
-        let mut countries = Vec::new();
+        let mut countries = vec![];
 
         for mut country in relay_list.countries {
             country.cities = country
@@ -734,8 +241,7 @@ impl Relay {
                 .into_iter()
                 .filter_map(|mut city| {
                     city.relays.retain(|relay| {
-                        relay.active
-                            && relay.endpoint_type != (types::relay::RelayType::Bridge as i32)
+                        relay.active && relay.endpoint_data != RelayEndpointData::Bridge
                     });
                     if !city.relays.is_empty() {
                         Some(city)
@@ -751,108 +257,336 @@ impl Relay {
 
         Ok(countries)
     }
-}
 
-fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
-    match raw_port.to_lowercase().as_str() {
-        "any" => Ok(Constraint::Any),
-        port => Ok(Constraint::Only(u16::from_str(port).map_err(|_| {
-            Error::InvalidCommand("Invalid port. Must be \"any\" or 0-65535.")
-        })?)),
-    }
-}
-
-fn parse_protocol(raw_protocol: &str) -> Constraint<types::TransportProtocol> {
-    match raw_protocol {
-        "any" => Constraint::Any,
-        "udp" => Constraint::Only(types::TransportProtocol::Udp),
-        "tcp" => Constraint::Only(types::TransportProtocol::Tcp),
-        _ => unreachable!(),
-    }
-}
-
-fn parse_ip_version_constraint(raw_protocol: &str) -> Constraint<types::IpVersion> {
-    match raw_protocol {
-        "any" => Constraint::Any,
-        "4" => Constraint::Only(types::IpVersion::V4),
-        "6" => Constraint::Only(types::IpVersion::V6),
-        _ => unreachable!(),
-    }
-}
-
-fn parse_entry_location_constraint<'a, T: Iterator<Item = &'a str>>(
-    mut location: T,
-) -> Option<types::RelayLocation> {
-    let country = location.next().unwrap();
-
-    if country == "none" {
-        return None;
+    async fn update_constraints(update: RelaySettingsUpdate) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.update_relay_settings(update).await?;
+        println!("Relay constraints updated");
+        Ok(())
     }
 
-    Some(location::get_constraint(
-        country,
-        location.next(),
-        location.next(),
-    ))
+    async fn set(subcmd: SetCommands) -> Result<()> {
+        match subcmd {
+            SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
+            SetCommands::Location(location) => Self::set_location(location).await,
+            SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
+            SetCommands::Providers { providers } => Self::set_providers(providers).await,
+            SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
+            SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
+            SetCommands::TunnelProtocol { protocol } => Self::set_tunnel_protocol(protocol).await,
+        }
+    }
+
+    async fn set_tunnel(subcmd: SetTunnelCommands) -> Result<()> {
+        match subcmd {
+            SetTunnelCommands::Openvpn {
+                port,
+                transport_protocol,
+            } => Self::set_openvpn_constraints(port, transport_protocol).await,
+            SetTunnelCommands::Wireguard {
+                port,
+                ip_version,
+                use_multihop,
+                entry_location,
+            } => {
+                Self::set_wireguard_constraints(port, ip_version, use_multihop, entry_location)
+                    .await
+            }
+        }
+    }
+
+    async fn set_custom(subcmd: SetCustomCommands) -> Result<()> {
+        let custom_endpoint = match subcmd {
+            SetCustomCommands::Openvpn {
+                host,
+                port,
+                username,
+                password,
+                transport_protocol,
+            } => {
+                Self::read_custom_openvpn_relay(host, port, username, password, transport_protocol)
+            }
+            SetCustomCommands::Wireguard {
+                host,
+                port,
+                peer_pubkey,
+                tunnel_ip,
+                v4_gateway,
+                v6_gateway,
+            } => {
+                Self::read_custom_wireguard_relay(
+                    host,
+                    port,
+                    peer_pubkey,
+                    tunnel_ip,
+                    v4_gateway,
+                    v6_gateway,
+                )
+                .await?
+            }
+        };
+        Self::update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(custom_endpoint)).await
+    }
+
+    fn read_custom_openvpn_relay(
+        host: String,
+        port: u16,
+        username: String,
+        password: String,
+        protocol: TransportProtocol,
+    ) -> CustomTunnelEndpoint {
+        CustomTunnelEndpoint {
+            host,
+            config: ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
+                endpoint: Endpoint::from_socket_address(
+                    SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
+                    protocol,
+                ),
+                username,
+                password,
+            }),
+        }
+    }
+
+    async fn read_custom_wireguard_relay(
+        host: String,
+        port: u16,
+        peer_pubkey: String,
+        tunnel_ip: Vec<IpAddr>,
+        ipv4_gateway: Ipv4Addr,
+        ipv6_gateway: Option<Ipv6Addr>,
+    ) -> Result<CustomTunnelEndpoint> {
+        println!("Reading private key from standard input");
+
+        let private_key_str = tokio::task::spawn_blocking(|| {
+            let mut private_key_str = String::new();
+            let _ = std::io::stdin().lock().read_line(&mut private_key_str);
+            if private_key_str.trim().is_empty() {
+                eprintln!("Expected to read private key from standard input");
+            }
+            private_key_str
+        })
+        .await
+        .unwrap();
+
+        let peer_public_key = wireguard::PublicKey::from_base64(&peer_pubkey)
+            .map_err(|_| Error::InvalidCommand("invalid public key"))?;
+        let private_key = wireguard::PrivateKey::from_base64(&private_key_str)
+            .map_err(|_| Error::InvalidCommand("invalid private key"))?;
+
+        Ok(CustomTunnelEndpoint {
+            host,
+            config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+                tunnel: wireguard::TunnelConfig {
+                    private_key,
+                    addresses: tunnel_ip,
+                },
+                peer: wireguard::PeerConfig {
+                    public_key: peer_public_key,
+                    allowed_ips: all_of_the_internet(),
+                    endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
+                    psk: None,
+                },
+                exit_peer: None,
+                ipv4_gateway,
+                ipv6_gateway,
+                // NOTE: Ignored in gRPC
+                #[cfg(target_os = "linux")]
+                fwmark: None,
+            }),
+        })
+    }
+
+    async fn set_hostname(hostname: String) -> Result<()> {
+        let countries = Self::get_filtered_relays().await?;
+
+        let find_relay = || {
+            for country in countries {
+                for city in country.cities {
+                    for relay in city.relays {
+                        if relay.hostname.to_lowercase() == hostname.to_lowercase() {
+                            return Some(LocationConstraint::Hostname(
+                                country.code,
+                                city.code,
+                                relay.hostname,
+                            ));
+                        }
+                    }
+                }
+            }
+            None
+        };
+
+        let location = find_relay().ok_or(Error::InvalidCommand("hostname not found"))?;
+
+        println!("Setting location constraint to {location}");
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            location: Some(Constraint::Only(location)),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn set_location(location_constraint: LocationArgs) -> Result<()> {
+        let location_constraint = Constraint::from(location_constraint);
+        match &location_constraint {
+            Constraint::Any => (),
+            Constraint::Only(constraint) => {
+                let countries = Self::get_filtered_relays().await?;
+
+                let found = countries
+                    .into_iter()
+                    .flat_map(|country| country.cities)
+                    .flat_map(|city| city.relays)
+                    .any(|relay| constraint.matches(&relay));
+
+                if !found {
+                    eprintln!("Warning: No matching relay was found.");
+                }
+            }
+        }
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            location: Some(location_constraint),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn set_providers(providers: Vec<String>) -> Result<()> {
+        let providers = if providers[0].eq_ignore_ascii_case("any") {
+            Constraint::Any
+        } else {
+            Constraint::Only(Providers::new(providers.into_iter()).unwrap())
+        };
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            providers: Some(providers),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn set_ownership(ownership: Constraint<Ownership>) -> Result<()> {
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            ownership: Some(ownership),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn set_openvpn_constraints(
+        port: Option<Constraint<u16>>,
+        protocol: Option<Constraint<TransportProtocol>>,
+    ) -> Result<()> {
+        let mut openvpn_constraints = {
+            let mut rpc = MullvadProxyClient::new().await?;
+            Self::get_openvpn_constraints(&mut rpc).await?
+        };
+        openvpn_constraints.port =
+            parse_transport_port(port, protocol, &mut openvpn_constraints.port);
+
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            openvpn_constraints: Some(openvpn_constraints),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn get_openvpn_constraints(rpc: &mut MullvadProxyClient) -> Result<OpenVpnConstraints> {
+        match rpc.get_settings().await?.relay_settings {
+            RelaySettings::Normal(settings) => Ok(settings.openvpn_constraints),
+            RelaySettings::CustomTunnelEndpoint(_settings) => {
+                println!("Clearing custom tunnel constraints");
+                Ok(OpenVpnConstraints::default())
+            }
+        }
+    }
+
+    async fn set_wireguard_constraints(
+        port: Option<Constraint<u16>>,
+        ip_version: Option<Constraint<IpVersion>>,
+        use_multihop: Option<bool>,
+        entry_location: Option<EntryLocation>,
+    ) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let wireguard = rpc.get_relay_locations().await?.wireguard;
+        let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
+
+        if let Some(port) = port {
+            wireguard_constraints.port = match port {
+                Constraint::Any => Constraint::Any,
+                Constraint::Only(specific_port) => {
+                    let is_valid_port = wireguard
+                        .port_ranges
+                        .into_iter()
+                        .any(|(first, last)| first <= specific_port && specific_port <= last);
+                    if !is_valid_port {
+                        return Err(Error::CommandFailed("The specified port is invalid"));
+                    }
+                    Constraint::Only(specific_port)
+                }
+            }
+        }
+
+        if let Some(ipv) = ip_version {
+            wireguard_constraints.ip_version = ipv;
+        }
+        if let Some(use_multihop) = use_multihop {
+            wireguard_constraints.use_multihop = use_multihop;
+        }
+        if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
+            wireguard_constraints.entry_location = Constraint::from(entry);
+        }
+
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            wireguard_constraints: Some(wireguard_constraints),
+            ..Default::default()
+        }))
+        .await
+    }
+
+    async fn get_wireguard_constraints(
+        rpc: &mut MullvadProxyClient,
+    ) -> Result<WireguardConstraints> {
+        match rpc.get_settings().await?.relay_settings {
+            RelaySettings::Normal(settings) => Ok(settings.wireguard_constraints),
+            RelaySettings::CustomTunnelEndpoint(_settings) => {
+                println!("Clearing custom tunnel constraints");
+                Ok(WireguardConstraints::default())
+            }
+        }
+    }
+
+    async fn set_tunnel_protocol(protocol: Constraint<TunnelType>) -> Result<()> {
+        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            tunnel_protocol: Some(protocol),
+            ..Default::default()
+        }))
+        .await
+    }
 }
 
 fn parse_transport_port(
-    matches: &clap::ArgMatches,
-    current_constraint: &mut Option<types::TransportPort>,
-) -> Result<Option<types::TransportPort>> {
-    let protocol = match matches.value_of("transport protocol") {
-        Some(protocol) => parse_protocol(protocol),
-        None => {
-            if let Some(ref transport_port) = current_constraint {
-                Constraint::Only(
-                    types::TransportProtocol::from_i32(transport_port.protocol).unwrap(),
-                )
-            } else {
-                Constraint::Any
-            }
-        }
+    port: Option<Constraint<u16>>,
+    protocol: Option<Constraint<TransportProtocol>>,
+    current_constraint: &mut Constraint<TransportPort>,
+) -> Constraint<TransportPort> {
+    let port = match port {
+        Some(port) => port,
+        None => current_constraint
+            .map(|p| p.port)
+            .unwrap_or(Constraint::Any),
     };
-    let mut port = match matches.value_of("port") {
-        Some(port) => parse_port_constraint(port)?,
-        None => {
-            if let Some(ref transport_port) = current_constraint {
-                if transport_port.port != 0 {
-                    Constraint::Only(transport_port.port as u16)
-                } else {
-                    Constraint::Any
-                }
-            } else {
-                Constraint::Any
-            }
-        }
+    let protocol = match protocol {
+        Some(protocol) => protocol,
+        None => current_constraint.map(|p| p.protocol),
     };
-    if port.is_only() && protocol.is_any() && !matches.is_present("port") {
-        // Reset the port if the transport protocol is set to any.
-        println!("The port constraint was set to 'any'");
-        port = Constraint::Any;
-    }
     match (port, protocol) {
-        (Constraint::Any, Constraint::Any) => Ok(None),
-        (Constraint::Any, Constraint::Only(protocol)) => Ok(Some(types::TransportPort {
-            protocol: protocol as i32,
-            // If no port was specified, set it to "any"
-            ..types::TransportPort::default()
-        })),
-        (Constraint::Only(port), Constraint::Only(protocol)) => Ok(Some(types::TransportPort {
-            protocol: protocol as i32,
-            port: u32::from(port),
-        })),
-        (Constraint::Only(_), Constraint::Any) => Err(Error::InvalidCommand(
-            "a transport protocol must be given to select a specific port",
-        )),
-    }
-}
-
-pub fn parse_ownership_constraint(constraint: &str) -> types::Ownership {
-    match constraint {
-        "any" => types::Ownership::Any,
-        "owned" => types::Ownership::MullvadOwned,
-        "rented" => types::Ownership::Rented,
-        _ => unreachable!(),
+        (port, Constraint::Any) => {
+            if port.is_only() {
+                println!("The port constraint was set to 'any'");
+            }
+            Constraint::Any
+        }
+        (port, Constraint::Only(protocol)) => Constraint::Only(TransportPort { protocol, port }),
     }
 }

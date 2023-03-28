@@ -72,6 +72,8 @@ use talpid_core::{
 };
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
+#[cfg(target_os = "windows")]
+use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     net::{TunnelEndpoint, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
@@ -275,7 +277,7 @@ pub enum DaemonCommand {
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
     /// Returns all processes currently being excluded from the tunnel
     #[cfg(windows)]
-    GetSplitTunnelProcesses(ResponseTx<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>),
+    GetSplitTunnelProcesses(ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>),
     /// Toggle wireguard-nt on or off
     #[cfg(target_os = "windows")]
     UseWireGuardNt(ResponseTx<(), Error>, bool),
@@ -1715,7 +1717,7 @@ where
     #[cfg(windows)]
     fn on_get_split_tunnel_processes(
         &self,
-        tx: ResponseTx<Vec<split_tunnel::ExcludedProcess>, split_tunnel::Error>,
+        tx: ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>,
     ) {
         Self::oneshot_send(
             tx,

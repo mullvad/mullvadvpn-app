@@ -1,161 +1,88 @@
-use crate::{new_rpc_client, Command, Result};
-use mullvad_management_interface::types;
-use mullvad_types::settings::{DnsOptions, DnsState};
-use std::{convert::TryInto, net::IpAddr};
+use clap::Subcommand;
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::settings::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
+use std::net::IpAddr;
 
-pub struct Dns;
+use crate::Result;
 
-#[mullvad_management_interface::async_trait]
-impl Command for Dns {
-    fn name(&self) -> &'static str {
-        "dns"
-    }
+#[derive(Subcommand, Debug)]
+pub enum Dns {
+    /// Display the current DNS settings
+    Get,
 
-    fn clap_subcommand(&self) -> clap::App<'static> {
-        clap::App::new(self.name())
-            .about("Configure DNS servers to use when connected")
-            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(clap::App::new("get").about("Display the current DNS settings"))
-            .subcommand(
-                clap::App::new("set")
-                    .about("Set DNS servers to use")
-                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-                    .subcommand(
-                        clap::App::new("default")
-                            .about("Use default DNS servers")
-                            .arg(
-                                clap::Arg::new("block ads")
-                                    .long("block-ads")
-                                    .takes_value(false)
-                                    .help("Block domain names used for ads"),
-                            )
-                            .arg(
-                                clap::Arg::new("block trackers")
-                                    .long("block-trackers")
-                                    .takes_value(false)
-                                    .help("Block domain names used for tracking"),
-                            )
-                            .arg(
-                                clap::Arg::new("block malware")
-                                    .long("block-malware")
-                                    .takes_value(false)
-                                    .help("Block domains known to be used by malware"),
-                            )
-                            .arg(
-                                clap::Arg::new("block adult content")
-                                    .long("block-adult-content")
-                                    .takes_value(false)
-                                    .help("Block domains known to be used for adult content"),
-                            )
-                            .arg(
-                                clap::Arg::new("block gambling")
-                                    .long("block-gambling")
-                                    .takes_value(false)
-                                    .help("Block domains known to be used for gambling"),
-                            ),
-                    )
-                    .subcommand(
-                        clap::App::new("custom")
-                            .about("Set a list of custom DNS servers")
-                            .arg(
-                                clap::Arg::new("servers")
-                                    .multiple_occurrences(true)
-                                    .help("One or more IP addresses pointing to DNS resolvers.")
-                                    .required(true),
-                            ),
-                    ),
-            )
-    }
+    /// Set DNS servers to use
+    Set {
+        #[clap(subcommand)]
+        cmd: DnsSet,
+    },
+}
 
-    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        match matches.subcommand() {
-            Some(("set", matches)) => match matches.subcommand() {
-                Some(("default", matches)) => {
-                    self.set_default(
-                        matches.is_present("block ads"),
-                        matches.is_present("block trackers"),
-                        matches.is_present("block malware"),
-                        matches.is_present("block adult content"),
-                        matches.is_present("block gambling"),
-                    )
-                    .await
-                }
-                Some(("custom", matches)) => {
-                    let servers = match matches.values_of_t::<IpAddr>("servers") {
-                        Ok(servers) => Some(servers),
-                        Err(e) => match e.kind {
-                            clap::ErrorKind::ArgumentNotFound => None,
-                            _ => e.exit(),
-                        },
-                    };
-                    self.set_custom(servers).await
-                }
-                _ => unreachable!("No custom-dns server command given"),
-            },
-            Some(("get", _)) => self.get().await,
-            _ => unreachable!("No custom-dns command given"),
-        }
-    }
+#[derive(Subcommand, Debug, Clone)]
+pub enum DnsSet {
+    /// Use a default DNS server, with or without content
+    /// blocking.
+    Default {
+        /// Block domains known to be used for ads
+        #[arg(long)]
+        block_ads: bool,
+
+        /// Block domains known to be used for tracking
+        #[arg(long)]
+        block_trackers: bool,
+
+        /// Block domains known to be used by malware
+        #[arg(long)]
+        block_malware: bool,
+
+        /// Block domains known to be used for adult content
+        #[arg(long)]
+        block_adult_content: bool,
+
+        /// Block domains known to be used for gambling
+        #[arg(long)]
+        block_gambling: bool,
+    },
+
+    /// Set a list of custom DNS servers
+    Custom {
+        /// One or more IP addresses pointing to DNS resolvers
+        #[arg(required(true), num_args = 1..)]
+        servers: Vec<IpAddr>,
+    },
 }
 
 impl Dns {
-    async fn set_default(
-        &self,
-        block_ads: bool,
-        block_trackers: bool,
-        block_malware: bool,
-        block_adult_content: bool,
-        block_gambling: bool,
-    ) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        rpc.set_dns_options(types::DnsOptions {
-            state: types::dns_options::DnsState::Default as i32,
-            default_options: Some(types::DefaultDnsOptions {
-                block_ads,
-                block_trackers,
-                block_malware,
-                block_adult_content,
-                block_gambling,
-            }),
-            ..settings.tunnel_options.unwrap().dns_options.unwrap()
-        })
-        .await?;
-        println!("Updated DNS settings");
-        Ok(())
+    pub async fn handle(self) -> Result<()> {
+        match self {
+            Dns::Get => Self::get().await,
+            Dns::Set {
+                cmd:
+                    DnsSet::Default {
+                        block_ads,
+                        block_trackers,
+                        block_malware,
+                        block_adult_content,
+                        block_gambling,
+                    },
+            } => {
+                Self::set_default(
+                    block_ads,
+                    block_trackers,
+                    block_malware,
+                    block_adult_content,
+                    block_gambling,
+                )
+                .await
+            }
+            Dns::Set {
+                cmd: DnsSet::Custom { servers },
+            } => Self::set_custom(servers).await,
+        }
     }
 
-    async fn set_custom(&self, servers: Option<Vec<IpAddr>>) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        rpc.set_dns_options(types::DnsOptions {
-            state: types::dns_options::DnsState::Custom as i32,
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: servers
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(|a| a.to_string())
-                    .collect(),
-            }),
-            ..settings.tunnel_options.unwrap().dns_options.unwrap()
-        })
-        .await?;
-        println!("Updated DNS settings");
-        Ok(())
-    }
-
-    async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let options: DnsOptions = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .tunnel_options
-            .unwrap()
-            .dns_options
-            .unwrap()
-            .try_into()
-            .unwrap();
+    async fn get() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let options = rpc.get_settings().await?.tunnel_options.dns_options;
 
         match options.state {
             DnsState::Default => {
@@ -177,6 +104,44 @@ impl Dns {
             }
         }
 
+        Ok(())
+    }
+
+    async fn set_default(
+        block_ads: bool,
+        block_trackers: bool,
+        block_malware: bool,
+        block_adult_content: bool,
+        block_gambling: bool,
+    ) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        rpc.set_dns_options(DnsOptions {
+            state: DnsState::Default,
+            default_options: DefaultDnsOptions {
+                block_ads,
+                block_trackers,
+                block_malware,
+                block_adult_content,
+                block_gambling,
+            },
+            ..settings.tunnel_options.dns_options
+        })
+        .await?;
+        println!("Updated DNS settings");
+        Ok(())
+    }
+
+    async fn set_custom(servers: Vec<IpAddr>) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        rpc.set_dns_options(DnsOptions {
+            state: DnsState::Custom,
+            custom_options: CustomDnsOptions { addresses: servers },
+            ..settings.tunnel_options.dns_options
+        })
+        .await?;
+        println!("Updated DNS settings");
         Ok(())
     }
 }
