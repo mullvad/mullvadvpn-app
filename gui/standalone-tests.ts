@@ -71,7 +71,12 @@ function handleResult(result: SpawnSyncReturns<string>) {
 
 function removeTmpDir() {
   if (fs.existsSync(tmpDir)) {
-    fs.rmSync(tmpDir, { recursive: true });
+    try {
+      fs.rmSync(tmpDir, { recursive: true });
+    } catch (e) {
+      const error = e as Error;
+      console.error('Failed to remove tmp dir:', error.message);
+    }
   }
 }
 
