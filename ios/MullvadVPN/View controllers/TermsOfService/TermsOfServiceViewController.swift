@@ -6,13 +6,11 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import SafariServices
 import UIKit
 
-class TermsOfServiceViewController: UIViewController, RootContainment,
-    SFSafariViewControllerDelegate
-{
-    var completionHandler: ((UIViewController) -> Void)?
+class TermsOfServiceViewController: UIViewController, RootContainment {
+    var showPrivacyPolicy: (() -> Void)?
+    var completionHandler: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -58,26 +56,10 @@ class TermsOfServiceViewController: UIViewController, RootContainment,
     // MARK: - Actions
 
     @objc private func handlePrivacyPolicyButton(_ sender: Any) {
-        let safariController = SFSafariViewController(
-            url: ApplicationConfiguration
-                .privacyPolicyURL
-        )
-        safariController.delegate = self
-
-        present(safariController, animated: true)
+        showPrivacyPolicy?()
     }
 
     @objc private func handleAgreeButton(_ sender: Any) {
-        completionHandler?(self)
-    }
-
-    // MARK: - SFSafariViewControllerDelegate
-
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: true)
-    }
-
-    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: false)
+        completionHandler?()
     }
 }

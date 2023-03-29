@@ -8,8 +8,12 @@
 
 import UIKit
 
-class TermsOfServiceCoordinator: Coordinator {
+class TermsOfServiceCoordinator: Coordinator, Presenting {
     private let navigationController: RootContainerViewController
+
+    var presentationContext: UIViewController {
+        return navigationController
+    }
 
     var didFinish: ((TermsOfServiceCoordinator) -> Void)?
 
@@ -20,7 +24,11 @@ class TermsOfServiceCoordinator: Coordinator {
     func start() {
         let controller = TermsOfServiceViewController()
 
-        controller.completionHandler = { [weak self] controller in
+        controller.showPrivacyPolicy = { [weak self] in
+            self?.presentChild(SafariCoordinator(url: ApplicationConfiguration.privacyPolicyURL), animated: true)
+        }
+
+        controller.completionHandler = { [weak self] in
             guard let self = self else { return }
 
             TermsOfService.setAgreed()

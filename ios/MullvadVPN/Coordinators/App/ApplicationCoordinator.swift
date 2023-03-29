@@ -569,9 +569,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             }
         }
 
-        coordinator.navigate(to: route ?? .root, animated: false)
-
-        coordinator.start()
+        coordinator.start(initialRoute: route)
 
         presentChild(
             coordinator,

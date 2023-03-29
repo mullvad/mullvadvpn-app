@@ -8,7 +8,6 @@
 
 import MullvadLogging
 import Operations
-import SafariServices
 import UIKit
 
 enum SettingsNavigationRoute: Equatable {
@@ -24,17 +23,22 @@ enum SettingsDismissReason: Equatable {
     case userLoggedOut
 }
 
-final class SettingsCoordinator: Coordinator, Presentable, SettingsViewControllerDelegate,
-    AccountViewControllerDelegate, UINavigationControllerDelegate, SFSafariViewControllerDelegate
+final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
+    AccountViewControllerDelegate, UINavigationControllerDelegate
 {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private let interactorFactory: SettingsInteractorFactory
     private var currentRoute: SettingsNavigationRoute?
+    private var modalRoute: SettingsNavigationRoute?
 
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
+        return navigationController
+    }
+
+    var presentationContext: UIViewController {
         return navigationController
     }
 
@@ -54,27 +58,46 @@ final class SettingsCoordinator: Coordinator, Presentable, SettingsViewControlle
         self.interactorFactory = interactorFactory
     }
 
-    func start() {
+    func start(initialRoute: SettingsNavigationRoute? = nil) {
         navigationController.navigationBar.prefersLargeTitles = true
         navigationController.delegate = self
-        navigationController.pushViewController(makeViewController(for: .root), animated: false)
+
+        if let rootController = makeViewController(for: .root) {
+            navigationController.pushViewController(rootController, animated: false)
+        }
+
+        if let initialRoute = initialRoute, initialRoute != .root,
+           let nextController = makeViewController(for: initialRoute)
+        {
+            navigationController.pushViewController(nextController, animated: false)
+        }
     }
 
     // MARK: - Navigation
 
-    func navigate(
-        to route: SettingsNavigationRoute,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
+    func navigate(to route: SettingsNavigationRoute, animated: Bool, completion: (() -> Void)? = nil) {
         switch route {
         case .root:
             navigationController.popToRootViewController(animated: animated)
+            completion?()
 
         case .faq:
-            let safariController = makeViewController(for: route)
+            guard modalRoute == nil else {
+                completion?()
+                return
+            }
 
-            navigationController.present(safariController, animated: true)
+            modalRoute = route
+
+            logger.debug("Show modal \(route)")
+
+            let safariCoordinator = SafariCoordinator(url: ApplicationConfiguration.faqAndGuidesURL)
+
+            safariCoordinator.didFinish = { [weak self] in
+                self?.modalRoute = nil
+            }
+
+            presentChild(safariCoordinator, animated: animated, completion: completion)
 
         default:
             let nextViewController = makeViewController(for: route)
@@ -82,12 +105,14 @@ final class SettingsCoordinator: Coordinator, Presentable, SettingsViewControlle
 
             if let rootController = viewControllers.first, viewControllers.count > 1 {
                 navigationController.setViewControllers(
-                    [rootController, nextViewController],
+                    [rootController, nextViewController].compactMap { $0 },
                     animated: animated
                 )
-            } else {
+            } else if let nextViewController = nextViewController {
                 navigationController.pushViewController(nextViewController, animated: animated)
             }
+
+            completion?()
         }
     }
 
@@ -128,19 +153,9 @@ final class SettingsCoordinator: Coordinator, Presentable, SettingsViewControlle
         didFinish?(self, .userLoggedOut)
     }
 
-    // MARK: - SFSafariViewControllerDelegate
-
-    func safariViewControllerWillOpenInBrowser(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: false)
-    }
-
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        controller.dismiss(animated: true)
-    }
-
     // MARK: - Route mapping
 
-    private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController {
+    private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController? {
         switch route {
         case .root:
             let controller = SettingsViewController(
@@ -167,12 +182,7 @@ final class SettingsCoordinator: Coordinator, Presentable, SettingsViewControlle
             )
 
         case .faq:
-            let safariController = SFSafariViewController(
-                url: ApplicationConfiguration
-                    .faqAndGuidesURL
-            )
-            safariController.delegate = self
-            return safariController
+            return nil
         }
     }
 
