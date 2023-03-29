@@ -1207,17 +1207,17 @@
 				58F2E143276A13F300A79513 /* StartTunnelOperation.swift */,
 				58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */,
 				58E0A98727C8F46300FE6BDD /* Tunnel.swift */,
-				5803B4B12940A48700C23744 /* TunnelStore.swift */,
-				5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */,
 				5875960926F371FC00BF6711 /* Tunnel+Messaging.swift */,
+				5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */,
+				5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */,
 				58968FAD28743E2000B799DC /* TunnelInteractor.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
 				5820676326E771DB00655B05 /* TunnelManagerErrors.swift */,
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
+				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
-				5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
