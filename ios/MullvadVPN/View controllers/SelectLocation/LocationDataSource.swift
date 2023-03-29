@@ -34,8 +34,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
     private var nodeByLocation = [RelayLocation: Node]()
     private var locationList = [RelayLocation]()
-    private var rootNode = makeRootNode()
-    private(set) var selectedRelayLocation: RelayLocation?
+    private var currentSearchString = ""
 
     private let tableView: UITableView
     private let locationCellFactory: LocationCellFactory
@@ -51,6 +50,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         )
     }
 
+    var selectedRelayLocation: RelayLocation?
     var didSelectRelayLocation: ((RelayLocation) -> Void)?
 
     init(tableView: UITableView) {
@@ -71,21 +71,6 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
         defaultRowAnimation = .fade
         registerClasses()
-    }
-
-    func setSelectedRelayLocation(
-        _ relayLocation: RelayLocation?,
-        animated: Bool
-    ) {
-        selectedRelayLocation = relayLocation
-
-        let selectedLocationTree = selectedRelayLocation?.ascendants ?? []
-        selectedLocationTree.forEach { location in
-            nodeByLocation[location]?.showsChildren = true
-        }
-
-        updateCellFactory(with: nodeByLocation)
-        updateDataSnapshot(with: locationList, animated: animated)
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse) {
@@ -153,41 +138,75 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         rootNode.sortChildrenRecursive()
         rootNode.computeActiveChildrenRecursive()
         self.nodeByLocation = nodeByLocation
-        self.rootNode = rootNode
         locationList = rootNode.flatRelayLocationList()
 
-        updateCellFactory(with: nodeByLocation)
-        updateDataSnapshot(with: locationList)
+        filterRelays(by: currentSearchString)
     }
 
     func indexPathForSelectedRelay() -> IndexPath? {
         return selectedRelayLocation.flatMap { indexPath(for: $0) }
     }
 
-    private func updateDataSnapshot(
-        with locations: [RelayLocation],
-        animated: Bool = false,
-        completion: (() -> Void)? = nil
-    ) {
-        var snapshot = NSDiffableDataSourceSnapshot<Int, RelayLocation>()
-        snapshot.appendSections([0])
+    func filterRelays(by searchString: String) {
+        currentSearchString = searchString
 
-        for location in locations {
-            snapshot.appendItems([location])
+        if currentSearchString.isEmpty {
+            return resetLocationList()
+        }
 
-            guard let countryNode = nodeByLocation[location], countryNode.showsChildren else {
-                continue
+        var filteredLocations = [RelayLocation]()
+
+        locationList.forEach { location in
+            guard let countryNode = nodeByLocation[location] else { return }
+            countryNode.showsChildren = false
+
+            if searchString.isEmpty || countryNode.displayName.fuzzyMatch(searchString) {
+                filteredLocations.append(countryNode.location)
             }
 
             for cityNode in countryNode.children {
-                snapshot.appendItems([cityNode.location])
+                cityNode.showsChildren = false
 
-                guard cityNode.showsChildren else {
-                    continue
+                let relaysContainSearchString = cityNode.children.contains(where: { node in
+                    node.displayName.fuzzyMatch(searchString)
+                })
+
+                if cityNode.displayName.fuzzyMatch(searchString) || relaysContainSearchString {
+                    if !filteredLocations.contains(countryNode.location) {
+                        filteredLocations.append(countryNode.location)
+                    }
+
+                    filteredLocations.append(cityNode.location)
+                    countryNode.showsChildren = true
+
+                    if relaysContainSearchString {
+                        filteredLocations.append(contentsOf: cityNode.children.map { $0.location })
+                        cityNode.showsChildren = true
+                    }
                 }
-
-                snapshot.appendItems(cityNode.children.map { $0.location })
             }
+        }
+
+        updateDataSnapshot(with: filteredLocations, reloadExisting: true) { [weak self] in
+            self?.scrollToTop(animated: false)
+        }
+    }
+
+    private func updateDataSnapshot(
+        with locations: [RelayLocation],
+        reloadExisting: Bool = false,
+        animated: Bool = false,
+        completion: (() -> Void)? = nil
+    ) {
+        updateCellFactory(with: nodeByLocation)
+
+        var snapshot = NSDiffableDataSourceSnapshot<Int, RelayLocation>()
+
+        snapshot.appendSections([0])
+        snapshot.appendItems(locations)
+
+        if reloadExisting {
+            snapshot.reloadItems(locations)
         }
 
         apply(snapshot, animatingDifferences: animated, completion: completion)
@@ -206,22 +225,56 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         locationCellFactory.nodeByLocation = nodeByLocation
     }
 
+    private func setSelectedRelayLocation(
+        _ relayLocation: RelayLocation?,
+        animated: Bool,
+        completion: (() -> Void)? = nil
+    ) {
+        selectedRelayLocation = relayLocation
+        var locationList = snapshot().itemIdentifiers
+
+        guard let selectedRelayLocation = selectedRelayLocation,
+              !locationList.contains(selectedRelayLocation) else { return }
+
+        let selectedLocationTree = selectedRelayLocation.ascendants + [selectedRelayLocation]
+
+        guard let topLocation = selectedLocationTree.first,
+              let topNode = nodeByLocation[topLocation],
+              let indexPath = indexPath(for: topLocation)
+        else {
+            return
+        }
+
+        selectedLocationTree.forEach { location in
+            nodeByLocation[location]?.showsChildren = true
+        }
+
+        locationList.addLocations(topNode.flatRelayLocationList(), at: indexPath.row + 1)
+        updateDataSnapshot(with: locationList, reloadExisting: true, animated: animated, completion: completion)
+    }
+
     private func toggleChildren(
         _ relayLocation: RelayLocation,
         show: Bool,
         animated: Bool
     ) {
-        guard let node = nodeByLocation[relayLocation] else { return }
+        guard let node = nodeByLocation[relayLocation],
+              let indexPath = indexPath(for: node.location),
+              let cell = tableView.cellForRow(at: indexPath) else { return }
 
         node.showsChildren = show
+        locationCellFactory.configureCell(cell, item: node.location, indexPath: indexPath)
 
-        if let indexPath = indexPath(for: node.location),
-           let cell = tableView.cellForRow(at: indexPath)
-        {
-            locationCellFactory.configureCell(cell, item: node.location, indexPath: indexPath)
+        var locationList = snapshot().itemIdentifiers
+        let locationsToEdit = node.flatRelayLocationList()
+
+        if show {
+            locationList.addLocations(locationsToEdit, at: indexPath.row + 1)
+        } else {
+            locationsToEdit.forEach { nodeByLocation[$0]?.showsChildren = false }
+            locationList.removeLocations(locationsToEdit)
         }
 
-        updateCellFactory(with: nodeByLocation)
         updateDataSnapshot(with: locationList, animated: animated) { [weak self] in
             guard let visibleIndexPaths = self?.tableView.indexPathsForVisibleRows else { return }
 
@@ -257,8 +310,23 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         }
     }
 
+    private func resetLocationList() {
+        nodeByLocation.values.forEach { $0.showsChildren = false }
+
+        updateDataSnapshot(with: locationList, reloadExisting: true)
+        setSelectedRelayLocation(selectedRelayLocation, animated: false)
+
+        if let indexPath = indexPathForSelectedRelay() {
+            tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
+        }
+    }
+
     private func item(for indexPath: IndexPath) -> LocationDataSourceItemProtocol? {
         return itemIdentifier(for: indexPath).flatMap { nodeByLocation[$0] }
+    }
+
+    private func scrollToTop(animated: Bool) {
+        tableView.setContentOffset(.zero, animated: animated)
     }
 }
 
@@ -284,7 +352,11 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let item = item(for: indexPath) else { return }
+        guard let item = item(for: indexPath),
+              item.location != selectedRelayLocation
+        else {
+            return
+        }
 
         if let indexPath = indexPathForSelectedRelay(),
            let cell = tableView.cellForRow(at: indexPath)
@@ -392,18 +464,9 @@ extension LocationDataSource {
             }
         }
 
-        func countChildrenRecursive(where condition: @escaping (Node) -> Bool) -> Int {
-            return children.reduce(into: 0) { numVisibleChildren, node in
-                numVisibleChildren += 1
-                if condition(node) {
-                    numVisibleChildren += node.countChildrenRecursive(where: condition)
-                }
-            }
-        }
-
-        func flatRelayLocationList() -> [RelayLocation] {
+        func flatRelayLocationList(includeHiddenChildren: Bool = false) -> [RelayLocation] {
             return children.reduce(into: []) { array, node in
-                Self.flatten(node: node, into: &array)
+                Self.flatten(node: node, into: &array, includeHiddenChildren: includeHiddenChildren)
             }
         }
 
@@ -425,11 +488,11 @@ extension LocationDataSource {
             }
         }
 
-        private class func flatten(node: Node, into array: inout [RelayLocation]) {
+        private class func flatten(node: Node, into array: inout [RelayLocation], includeHiddenChildren: Bool) {
             array.append(node.location)
-            if node.showsChildren {
+            if includeHiddenChildren || node.showsChildren {
                 for child in node.children {
-                    Self.flatten(node: child, into: &array)
+                    Self.flatten(node: child, into: &array, includeHiddenChildren: includeHiddenChildren)
                 }
             }
         }
@@ -442,4 +505,20 @@ private func lexicalSortComparator(_ a: String, _ b: String) -> Bool {
 
 private func fileSortComparator(_ a: String, _ b: String) -> Bool {
     return a.localizedStandardCompare(b) == .orderedAscending
+}
+
+private extension Array where Element == RelayLocation {
+    mutating func addLocations(_ locations: [RelayLocation], at index: Int) {
+        if index < count {
+            insert(contentsOf: locations, at: index)
+        } else {
+            append(contentsOf: locations)
+        }
+    }
+
+    mutating func removeLocations(_ locations: [RelayLocation]) {
+        removeAll(where: { location in
+            locations.contains(location)
+        })
+    }
 }
