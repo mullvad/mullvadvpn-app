@@ -11,14 +11,13 @@ import MullvadTypes
 import RelayCache
 import UIKit
 
-final class SelectLocationViewController: UITableViewController {
+final class SelectLocationViewController: UIViewController {
+    private let searchBar = UISearchBar()
+    private let tableView = UITableView()
     private var dataSource: LocationDataSource?
 
     private var cachedRelays: CachedRelays?
-    private var relayLocation: RelayLocation?
-    private var scrollPosition: UITableView.ScrollPosition?
-
-    private var isViewAppeared = false
+    var relayLocation: RelayLocation?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -27,20 +26,12 @@ final class SelectLocationViewController: UITableViewController {
     var didSelectRelay: ((RelayLocation) -> Void)?
     var didFinish: (() -> Void)?
 
-    var scrollToSelectedRelayOnViewWillAppear = true
-
-    init() {
-        super.init(style: .plain)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = .secondaryColor
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
@@ -55,35 +46,17 @@ final class SelectLocationViewController: UITableViewController {
         )
 
         setupDataSource()
+        setupTableView()
+        setupSearchBar()
 
-        tableView.backgroundColor = .secondaryColor
-        tableView.separatorColor = .secondaryColor
-        tableView.separatorInset = .zero
-        tableView.estimatedRowHeight = 53
-        tableView.indicatorStyle = .white
-        tableView.dataSource = dataSource
-    }
+        let searchBarTopMargin: CGFloat = splitViewController == nil ? 0 : 16
+        view.addConstrainedSubviews([searchBar.searchTextField, tableView]) {
+            searchBar.searchTextField.pinEdgesToSuperviewMargins(.init([.top(searchBarTopMargin)]))
+            searchBar.searchTextField.pinEdgesToSuperview(.init([.leading(16), .trailing(16)]))
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        if let indexPath = dataSource?.indexPathForSelectedRelay(),
-           scrollToSelectedRelayOnViewWillAppear, !isViewAppeared
-        {
-            tableView?.scrollToRow(at: indexPath, at: scrollPosition ?? .middle, animated: false)
+            tableView.pinEdgesToSuperview(.all().excluding(.top))
+            tableView.topAnchor.constraint(equalTo: searchBar.searchTextField.bottomAnchor, constant: 16)
         }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        isViewAppeared = true
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-
-        isViewAppeared = false
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -92,7 +65,7 @@ final class SelectLocationViewController: UITableViewController {
         coordinator.animate(alongsideTransition: nil) { context in
             guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
 
-            self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
+            self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
         }
     }
 
@@ -104,18 +77,11 @@ final class SelectLocationViewController: UITableViewController {
         dataSource?.setRelays(cachedRelays.relays)
     }
 
-    func setSelectedRelayLocation(
-        _ relayLocation: RelayLocation?,
-        animated: Bool,
-        scrollPosition: UITableView.ScrollPosition
-    ) {
-        self.relayLocation = relayLocation
-        self.scrollPosition = scrollPosition
-
-        dataSource?.setSelectedRelayLocation(relayLocation, animated: animated)
-    }
-
     // MARK: - Private
+
+    @objc private func handleDone() {
+        didFinish?()
+    }
 
     private func setupDataSource() {
         dataSource = LocationDataSource(tableView: tableView)
@@ -123,16 +89,74 @@ final class SelectLocationViewController: UITableViewController {
             self?.didSelectRelay?(location)
         }
 
+        dataSource?.selectedRelayLocation = relayLocation
+
         if let cachedRelays = cachedRelays {
             dataSource?.setRelays(cachedRelays.relays)
         }
-
-        if let relayLocation = relayLocation {
-            dataSource?.setSelectedRelayLocation(relayLocation, animated: false)
-        }
     }
 
-    @objc private func handleDone() {
-        didFinish?()
+    private func setupTableView() {
+        tableView.backgroundColor = view.backgroundColor
+        tableView.separatorColor = .secondaryColor
+        tableView.separatorInset = .zero
+        tableView.estimatedRowHeight = 53
+        tableView.indicatorStyle = .white
+        tableView.keyboardDismissMode = .onDrag
+        tableView.dataSource = dataSource
+    }
+
+    private func setupSearchBar() {
+        searchBar.delegate = self
+        searchBar.layer.cornerRadius = 8
+        searchBar.clipsToBounds = true
+        searchBar.placeholder = NSLocalizedString(
+            "SEARCHBAR_PLACEHOLDER",
+            tableName: "SelectLocation",
+            value: "Search for...",
+            comment: ""
+        )
+
+        setSearchBarInactiveTheme()
+    }
+
+    private func setSearchBarActiveTheme() {
+        searchBar.searchTextField.leftView?.tintColor = .primaryColor
+        searchBar.searchTextField.tintColor = .black
+        searchBar.searchTextField.textColor = .black
+        searchBar.searchTextField.backgroundColor = .white
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(
+            string: searchBar.placeholder ?? "",
+            attributes: [
+                .foregroundColor: UIColor.primaryColor,
+            ]
+        )
+    }
+
+    private func setSearchBarInactiveTheme() {
+        searchBar.searchTextField.leftView?.tintColor = .white
+        searchBar.searchTextField.tintColor = .white
+        searchBar.searchTextField.textColor = .white
+        searchBar.searchTextField.backgroundColor = .secondaryColor
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(
+            string: searchBar.placeholder ?? "",
+            attributes: [
+                .foregroundColor: UIColor.white,
+            ]
+        )
+    }
+}
+
+extension SelectLocationViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        dataSource?.filterRelays(by: searchText)
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        setSearchBarActiveTheme()
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        setSearchBarInactiveTheme()
     }
 }
