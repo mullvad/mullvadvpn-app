@@ -6,8 +6,8 @@ import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.TransportProtocol
+import net.mullvad.talpid.net.TunnelEndpoint
 
 class LocationInfo(
     parentView: View,
@@ -26,7 +26,7 @@ class LocationInfo(
     private val inAddress: TextView = parentView.findViewById(R.id.in_address)
     private val outAddress: TextView = parentView.findViewById(R.id.out_address)
 
-    private var endpoint: Endpoint? = null
+    private var tunnelEndpoint: TunnelEndpoint? = null
     private var isTunnelInfoVisible = false
 
     var isTunnelInfoExpanded = false
@@ -52,15 +52,15 @@ class LocationInfo(
 
             when (value) {
                 is TunnelState.Connecting -> {
-                    endpoint = value.endpoint?.endpoint
+                    tunnelEndpoint = value.endpoint
                     isTunnelInfoVisible = true
                 }
                 is TunnelState.Connected -> {
-                    endpoint = value.endpoint.endpoint
+                    tunnelEndpoint = value.endpoint
                     isTunnelInfoVisible = true
                 }
                 else -> {
-                    endpoint = null
+                    tunnelEndpoint = null
                     isTunnelInfoVisible = false
                 }
             }
@@ -95,7 +95,7 @@ class LocationInfo(
             hostname.setTextColor(hostnameColorExpanded)
             chevron.rotation = 180.0F
             protocol.setText(R.string.wireguard)
-            showInAddress(endpoint)
+            showInAddress(tunnelEndpoint)
             updateOutAddress(location)
         } else {
             hostname.setTextColor(hostnameColorCollapsed)
@@ -106,16 +106,16 @@ class LocationInfo(
         }
     }
 
-    private fun showInAddress(endpoint: Endpoint?) {
-        if (endpoint != null) {
-            val host = endpoint.address.address.hostAddress
-            val port = endpoint.address.port
+    private fun showInAddress(tunnelEndpoint: TunnelEndpoint?) {
+        if (tunnelEndpoint != null) {
+            val relayEndpoint = tunnelEndpoint.obfuscation?.endpoint ?: tunnelEndpoint.endpoint
+            val host = relayEndpoint.address.address.hostAddress
+            val port = relayEndpoint.address.port
             val protocol =
-                when (endpoint.protocol) {
+                when (relayEndpoint.protocol) {
                     TransportProtocol.Tcp -> context.getString(R.string.tcp)
                     TransportProtocol.Udp -> context.getString(R.string.udp)
                 }
-
             inAddress.text = context.getString(R.string.in_address) + "  $host:$port $protocol"
         } else {
             inAddress.text = ""
