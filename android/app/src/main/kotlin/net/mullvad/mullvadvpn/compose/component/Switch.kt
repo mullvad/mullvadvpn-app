@@ -29,7 +29,6 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 @Composable
 private fun PreviewSwitch() {
     Column {
-
         CellSwitch(
             isChecked = true,
             onCheckedChange = null,

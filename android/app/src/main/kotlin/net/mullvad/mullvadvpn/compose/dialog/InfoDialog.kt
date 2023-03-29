@@ -27,28 +27,44 @@ import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 
+@Preview
+@Composable
+private fun PreviewChangelogDialogWithTwoLongItems() {
+    val longPreviewText =
+        "This is a sample changelog item of a Compose Preview visualization. " +
+            "The purpose of this specific sample text is to visualize a long text that will " +
+            "result in multiple lines in the changelog dialog."
+
+    InfoDialog(
+        info = longPreviewText,
+        warning = longPreviewText,
+        onDismiss = {},
+    )
+}
+
 @Composable
 fun ContentBlockersInfo(onDismiss: () -> Unit) {
     InfoDialog(
         info = stringResource(id = R.string.dns_content_blockers_info),
-        warnings = stringResource(id = R.string.dns_content_blockers_warning),
+        warning = stringResource(id = R.string.dns_content_blockers_warning),
         onDismiss
     )
 }
 
 @Composable
 fun MalwareInfo(onDismiss: () -> Unit) {
-    InfoDialog(info = null, warnings = stringResource(id = R.string.malware_info), onDismiss)
+    InfoDialog(info = null, warning = stringResource(id = R.string.malware_info), onDismiss)
 }
 
 @Composable
-fun InfoDialog(info: String?, warnings: String?, onDismiss: () -> Unit) {
-    var verticalSpacing = 24.dp
+fun InfoDialog(info: String?, warning: String?, onDismiss: () -> Unit) {
+    val verticalSpacing = 24.dp
+    val iconHeight = 44.dp
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
             Icon(
-                modifier = Modifier.fillMaxWidth().height(44.dp),
+                modifier = Modifier.fillMaxWidth().height(iconHeight),
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = "",
                 tint = MullvadWhite,
@@ -69,9 +85,9 @@ fun InfoDialog(info: String?, warnings: String?, onDismiss: () -> Unit) {
                         modifier = Modifier.padding(bottom = verticalSpacing).fillMaxWidth()
                     )
                 }
-                if (warnings != null) {
+                if (warning != null) {
                     Text(
-                        text = warnings,
+                        text = warning,
                         color = colorResource(id = R.color.white),
                         fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
                         fontStyle = FontStyle.Normal,
@@ -107,20 +123,5 @@ fun InfoDialog(info: String?, warnings: String?, onDismiss: () -> Unit) {
             dismissOnBackPress = true,
         ),
         backgroundColor = colorResource(id = R.color.darkBlue),
-    )
-}
-
-@Preview
-@Composable
-private fun PreviewChangelogDialogWithTwoLongItems() {
-    val longPreviewText =
-        "This is a sample changelog item of a Compose Preview visualization. " +
-            "The purpose of this specific sample text is to visualize a long text that will " +
-            "result in multiple lines in the changelog dialog."
-
-    InfoDialog(
-        info = longPreviewText,
-        warnings = longPreviewText,
-        onDismiss = {},
     )
 }

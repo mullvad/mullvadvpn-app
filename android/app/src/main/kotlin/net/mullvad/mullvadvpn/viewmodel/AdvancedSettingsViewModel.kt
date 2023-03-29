@@ -85,29 +85,15 @@ class AdvancedSettingsViewModel(
         hideDialog()
     }
 
-    fun onContentsBlockerInfoClicked() {
+    fun onContentsBlockerInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.ContentsBlockerInfoDialog }
     }
 
-    fun onMalwareInfoClicked() {
+    fun onMalwareInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
     }
 
-    fun checkAllPropertiesAreDisable(contentBlockersOption: DefaultDnsOptions): Boolean {
-        return !(
-            contentBlockersOption.blockAds ||
-                contentBlockersOption.blockTrackers||
-                contentBlockersOption.blockMalware||
-                contentBlockersOption.blockAdultContent||
-                contentBlockersOption.blockGambling
-            )
-    }
-
-    fun getContentBlockersHeaderAlpha(isEnabled: Boolean): Float {
-        return if (isEnabled) 1f else 0.3f
-    }
-
-    fun onDismissInfoClicked() {
+    fun onDismissInfoClick() {
         hideDialog()
     }
 

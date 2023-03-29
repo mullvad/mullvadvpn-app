@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.CellSwitch
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
+import net.mullvad.mullvadvpn.compose.theme.MullvadNotTransparent
+import net.mullvad.mullvadvpn.compose.theme.MullvadTransparent20
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 
@@ -31,8 +33,8 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 private fun PreviewSwitchComposeCell() {
     SwitchComposeCell(
         title = "Checkbox Title",
-        checkboxEnableState = true,
-        checkboxDefaultState = true,
+        isEnabled = true,
+        isToggled = true,
         onCellClicked = {},
         onInfoClicked = {},
     )
@@ -41,31 +43,31 @@ private fun PreviewSwitchComposeCell() {
 @Composable
 fun SwitchComposeCell(
     title: String,
-    checkboxDefaultState: Boolean,
-    checkboxEnableState: Boolean = true,
+    isToggled: Boolean,
+    isEnabled: Boolean = true,
     background: Color = MullvadBlue,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val alpha = if (checkboxEnableState) 1f else 0.3f
+    val alpha = if (isEnabled) MullvadNotTransparent else MullvadTransparent20
     val titleModifier = Modifier.alpha(alpha)
     val bodyViewModifier = Modifier.alpha(alpha)
     val subtitleModifier = Modifier
 
     BaseCell(
         title = { SwitchCellTitle(title = title, modifier = titleModifier) },
-        isRowEnabled = checkboxEnableState,
+        isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
-                switchTriggered = null,
-                isEnabled = checkboxEnableState,
-                isToggled = checkboxDefaultState,
+                onSwitchClicked = null,
+                isEnabled = isEnabled,
+                isToggled = isToggled,
                 modifier = bodyViewModifier,
                 onInfoClicked = onInfoClicked,
             )
         },
         background = background,
-        onCellClicked = { onCellClicked(!checkboxDefaultState) },
+        onCellClicked = { onCellClicked(!isToggled) },
         subtitleModifier = subtitleModifier,
     )
 }
@@ -93,7 +95,7 @@ fun SwitchCellView(
     isEnabled: Boolean,
     isToggled: Boolean,
     modifier: Modifier,
-    switchTriggered: ((Boolean) -> Unit)? = null,
+    onSwitchClicked: ((Boolean) -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null
 ) {
     val horizontalPadding = dimensionResource(id = R.dimen.medium_padding)
@@ -125,7 +127,7 @@ fun SwitchCellView(
         CellSwitch(
             isChecked = isToggled,
             isEnabled = isEnabled,
-            onCheckedChange = switchTriggered,
+            onCheckedChange = onSwitchClicked,
         )
     }
 }

@@ -43,11 +43,9 @@ class AdvancedFragment : BaseFragment() {
                     onSaveDnsClick = vm::onSaveDnsClick,
                     onRemoveDnsClick = vm::onRemoveDnsClick,
                     onCancelDnsDialogClick = vm::onCancelDialogClick,
-                    onContentsBlockerInfoClicked = vm::onContentsBlockerInfoClicked,
-                    onMalwareInfoClicked = vm::onMalwareInfoClicked,
-                    checkAllPropertiesAreDisable = vm::checkAllPropertiesAreDisable,
-                    getContentBlockersHeaderAlpha = vm::getContentBlockersHeaderAlpha,
-                    onDismissInfoClicked = vm::onDismissInfoClicked,
+                    onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
+                    onMalwareInfoClicked = vm::onMalwareInfoClick,
+                    onDismissInfoClicked = vm::onDismissInfoClick,
                     onBackClick = { activity?.onBackPressed() }
                 )
             }

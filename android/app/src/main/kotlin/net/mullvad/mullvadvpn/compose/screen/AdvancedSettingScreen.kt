@@ -48,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -79,10 +78,8 @@ private fun PreviewAdvancedSettings() {
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
-        onContentsBlockerInfoClicked = {},
+        onContentsBlockersInfoClicked = {},
         onMalwareInfoClicked = {},
-        checkAllPropertiesAreDisable = { false },
-        getContentBlockersHeaderAlpha = { 1f },
         onDismissInfoClicked = {},
         onBackClick = {},
     )
@@ -110,10 +107,8 @@ fun AdvancedSettingScreen(
     onSaveDnsClick: () -> Unit = {},
     onRemoveDnsClick: () -> Unit = {},
     onCancelDnsDialogClick: () -> Unit = {},
-    onContentsBlockerInfoClicked: () -> Unit = {},
+    onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
-    checkAllPropertiesAreDisable: (DefaultDnsOptions) -> Boolean = { true },
-    getContentBlockersHeaderAlpha: (Boolean) -> Float = { 1f },
     onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
@@ -204,8 +199,8 @@ fun AdvancedSettingScreen(
                     ExpandableComposeCell(
                         title = stringResource(R.string.dns_content_blockers),
                         expandState = !expandContentBlockersState,
-                        titleAlpha = getContentBlockersHeaderAlpha(!uiState.isCustomDnsEnabled),
-                        onInfoClicked = { onContentsBlockerInfoClicked() },
+                        isTitleEnable = !uiState.isCustomDnsEnabled,
+                        onInfoClicked = { onContentsBlockersInfoClicked() },
                         onCellClicked = {
                             expandContentBlockersState = !expandContentBlockersState
                         },
@@ -217,8 +212,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.ads),
-                            checkboxDefaultState = uiState.contentBlockersOptions.blockAds,
-                            checkboxEnableState = !uiState.isCustomDnsEnabled,
+                            isToggled = uiState.contentBlockersOptions.blockAds,
+                            isEnabled = !uiState.isCustomDnsEnabled,
                             onCellClicked = { onToggleBlockAds(it) },
                             background = MullvadBlue20,
                         )
@@ -227,8 +222,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.trackers),
-                            checkboxDefaultState = uiState.contentBlockersOptions.blockTrackers,
-                            checkboxEnableState = !uiState.isCustomDnsEnabled,
+                            isToggled = uiState.contentBlockersOptions.blockTrackers,
+                            isEnabled = !uiState.isCustomDnsEnabled,
                             onCellClicked = { onToggleBlockTracker(it) },
                             background = MullvadBlue20,
                         )
@@ -237,8 +232,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.malware),
-                            checkboxDefaultState = uiState.contentBlockersOptions.blockMalware,
-                            checkboxEnableState = !uiState.isCustomDnsEnabled,
+                            isToggled = uiState.contentBlockersOptions.blockMalware,
+                            isEnabled = !uiState.isCustomDnsEnabled,
                             onCellClicked = { onToggleBlockMalware(it) },
                             onInfoClicked = { onMalwareInfoClicked() },
                             background = MullvadBlue20,
@@ -248,8 +243,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.gambling),
-                            checkboxDefaultState = uiState.contentBlockersOptions.blockGambling,
-                            checkboxEnableState = !uiState.isCustomDnsEnabled,
+                            isToggled = uiState.contentBlockersOptions.blockGambling,
+                            isEnabled = !uiState.isCustomDnsEnabled,
                             onCellClicked = { onToggleBlockGambling(it) },
                             background = MullvadBlue20,
                         )
@@ -258,8 +253,8 @@ fun AdvancedSettingScreen(
                     item {
                         SwitchComposeCell(
                             title = stringResource(R.string.adult_content),
-                            checkboxDefaultState = uiState.contentBlockersOptions.blockAdultContent,
-                            checkboxEnableState = !uiState.isCustomDnsEnabled,
+                            isToggled = uiState.contentBlockersOptions.blockAdultContent,
+                            isEnabled = !uiState.isCustomDnsEnabled,
                             onCellClicked = { onToggleBlockAdultContent(it) },
                             background = MullvadBlue20,
                         )
@@ -271,9 +266,8 @@ fun AdvancedSettingScreen(
                     Spacer(modifier = Modifier.height(cellVerticalSpacing))
                     SwitchComposeCell(
                         title = stringResource(R.string.enable_custom_dns),
-                        checkboxDefaultState = uiState.isCustomDnsEnabled,
-                        checkboxEnableState =
-                        checkAllPropertiesAreDisable(uiState.contentBlockersOptions),
+                        isToggled = uiState.isCustomDnsEnabled,
+                        isEnabled = uiState.isCustomDnsClickable,
                         onCellClicked = { newValue ->
                             onToggleDnsClick(newValue)
                         },
