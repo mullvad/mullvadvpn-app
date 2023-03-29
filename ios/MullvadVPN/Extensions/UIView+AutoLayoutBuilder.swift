@@ -26,13 +26,13 @@ extension UIView {
                 return topAnchor.constraint(equalTo: other.topAnchor, constant: inset)
 
             case let .bottom(inset):
-                return bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: inset)
+                return bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: -inset)
 
             case let .leading(inset):
                 return leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: inset)
 
             case let .trailing(inset):
-                return trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: inset)
+                return trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: -inset)
             }
         }
     }
@@ -79,7 +79,7 @@ extension UIView {
                 return topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: inset)
 
             case let .bottom(inset):
-                return bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: inset)
+                return bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: -inset)
 
             case let .leading(inset):
                 return leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: inset)
@@ -87,7 +87,7 @@ extension UIView {
             case let .trailing(inset):
                 return trailingAnchor.constraint(
                     equalTo: layoutGuide.trailingAnchor,
-                    constant: inset
+                    constant: -inset
                 )
             }
         }
