@@ -13,6 +13,7 @@ import UIKit
 
 final class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var tableView: UITableView?
+    private let searchController = UISearchController(searchResultsController: nil)
 
     private let tableHeaderFooterView = SelectLocationHeaderView()
     private var tableHeaderFooterViewTopConstraints: [NSLayoutConstraint] = []
@@ -64,6 +65,21 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
             target: self,
             action: #selector(handleDone)
         )
+
+        searchController.searchResultsUpdater = self
+        searchController.automaticallyShowsCancelButton = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.searchTextField.leftView?.tintColor = .primaryColor
+        searchController.searchBar.searchTextField.backgroundColor = .white
+        searchController.searchBar.placeholder = NSLocalizedString(
+            "SEARCHBAR_PLACEHOLDER",
+            tableName: "SelectLocation",
+            value: "Search for...",
+            comment: ""
+        )
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
 
         let tableView = UITableView(frame: view.bounds, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -141,6 +157,10 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
         isViewAppeared = true
 
         tableView?.flashScrollIndicators()
+
+        DispatchQueue.main.async { [weak self] in
+            self?.searchController.searchBar.searchTextField.becomeFirstResponder()
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -225,5 +245,11 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
 
     @objc private func handleDone() {
         didFinish?(self)
+    }
+}
+
+extension SelectLocationViewController: UISearchResultsUpdating {
+    public func updateSearchResults(for searchController: UISearchController) {
+        dataSource?.filterRelays(by: searchController.searchBar.text ?? "")
     }
 }

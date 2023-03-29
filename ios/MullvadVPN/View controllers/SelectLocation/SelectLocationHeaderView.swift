@@ -41,7 +41,7 @@ class SelectLocationHeaderView: UIView {
         addSubview(textContentLabel)
 
         NSLayoutConstraint.activate([
-            textContentLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            textContentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             textContentLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             textContentLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             textContentLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),

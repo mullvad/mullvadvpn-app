@@ -34,6 +34,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
     private var nodeByLocation = [RelayLocation: Node]()
     private var locationList = [RelayLocation]()
+    private var filteredLocationList = [RelayLocation]()
     private var rootNode = makeRootNode()
     private(set) var selectedRelayLocation: RelayLocation?
 
@@ -155,6 +156,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         self.nodeByLocation = nodeByLocation
         self.rootNode = rootNode
         locationList = rootNode.flatRelayLocationList()
+        filteredLocationList = locationList
 
         updateCellFactory(with: nodeByLocation)
         updateDataSnapshot(with: locationList)
@@ -162,6 +164,49 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
     func indexPathForSelectedRelay() -> IndexPath? {
         return selectedRelayLocation.flatMap { indexPath(for: $0) }
+    }
+
+    func filterRelays(by searchString: String) {
+        tableView.scrollRectToVisible(.zero, animated: false)
+
+        guard searchString.count > 1 else {
+            filteredLocationList = locationList
+            updateDataSnapshot(with: filteredLocationList)
+            return
+        }
+
+        var locations = [RelayLocation]()
+
+        locationList.forEach { location in
+            guard let countryNode = nodeByLocation[location] else { return }
+
+            if countryNode.displayName.fuzzyMatch(searchString) {
+                locations.append(countryNode.location)
+            }
+
+            for cityNode in countryNode.children {
+                if cityNode.displayName.fuzzyMatch(searchString) {
+                    if !locations.contains(countryNode.location) {
+                        locations.append(countryNode.location)
+                    }
+
+                    locations.append(cityNode.location)
+
+                    for relayNode in cityNode.children {
+                        if relayNode.displayName.fuzzyMatch(searchString) {
+                            if !locations.contains(cityNode.location) {
+                                locations.append(cityNode.location)
+                            }
+
+                            locations.append(relayNode.location)
+                        }
+                    }
+                }
+            }
+        }
+
+        filteredLocationList = locations
+        updateDataSnapshot(with: filteredLocationList)
     }
 
     private func updateDataSnapshot(
@@ -222,7 +267,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         }
 
         updateCellFactory(with: nodeByLocation)
-        updateDataSnapshot(with: locationList, animated: animated) { [weak self] in
+        updateDataSnapshot(with: filteredLocationList, animated: animated) { [weak self] in
             guard let visibleIndexPaths = self?.tableView.indexPathsForVisibleRows else { return }
 
             let scrollToNodeTop = {
@@ -442,4 +487,32 @@ private func lexicalSortComparator(_ a: String, _ b: String) -> Bool {
 
 private func fileSortComparator(_ a: String, _ b: String) -> Bool {
     return a.localizedStandardCompare(b) == .orderedAscending
+}
+
+private extension String {
+    func fuzzyMatch(_ needle: String) -> Bool {
+        guard !needle.isEmpty else {
+            return true
+        }
+
+        let haystack = lowercased()
+        let needle = needle.lowercased()
+
+        var indices: [Index] = []
+        var remainder = needle[...].utf8
+
+        for index in haystack.utf8.indices {
+            let character = haystack.utf8[index]
+            if character == remainder[remainder.startIndex] {
+                indices.append(index)
+                remainder.removeFirst()
+
+                if remainder.isEmpty {
+                    return !indices.isEmpty
+                }
+            }
+        }
+
+        return false
+    }
 }
