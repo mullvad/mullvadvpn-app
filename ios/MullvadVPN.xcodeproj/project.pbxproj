@@ -132,6 +132,7 @@
 		5867771429097BCD006F721F /* PaymentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771329097BCD006F721F /* PaymentState.swift */; };
 		5867771629097C5B006F721F /* ProductState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771529097C5B006F721F /* ProductState.swift */; };
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
+		586891CD29D452E4002A8278 /* SafariCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586891CC29D452E4002A8278 /* SafariCoordinator.swift */; };
 		586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675D26E6839900655B05 /* PresentAlertOperation.swift */; };
 		586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
@@ -758,6 +759,7 @@
 		5867771329097BCD006F721F /* PaymentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentState.swift; sourceTree = "<group>"; };
 		5867771529097C5B006F721F /* ProductState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductState.swift; sourceTree = "<group>"; };
 		5868585424054096000B8131 /* AppButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
+		586891CC29D452E4002A8278 /* SafariCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariCoordinator.swift; sourceTree = "<group>"; };
 		586A95112901321B007BAF2B /* IPv6Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Endpoint.swift; sourceTree = "<group>"; };
 		586A951329013235007BAF2B /* AnyIPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPEndpoint.swift; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
@@ -1601,6 +1603,7 @@
 				5847D58C29B7740F008C3808 /* RevokedCoordinator.swift */,
 				583FE00D29C0D586006E85F9 /* OutOfTimeCoordinator.swift */,
 				5878F50129CDB989003D4BE2 /* ChangeLogCoordinator.swift */,
+				586891CC29D452E4002A8278 /* SafariCoordinator.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2725,6 +2728,7 @@
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				5872D6E8286304DE00DB5F4E /* TermsOfService.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
+				586891CD29D452E4002A8278 /* SafariCoordinator.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
