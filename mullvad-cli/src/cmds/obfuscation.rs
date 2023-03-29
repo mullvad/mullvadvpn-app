@@ -1,10 +1,5 @@
-use crate::{new_rpc_client, Command, Result};
-
-use mullvad_management_interface::{types as grpc_types, ManagementServiceClient};
-
-use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
-
-use std::convert::TryFrom;
+use crate::{Command, MullvadProxyClient, Result};
+use mullvad_types::relay_constraints::SelectedObfuscation;
 
 pub struct Obfuscation;
 
@@ -40,20 +35,20 @@ impl Obfuscation {
         match matches.subcommand() {
             Some(("mode", mode_matches)) => {
                 let obfuscator_type = mode_matches.value_of("mode").unwrap();
-                let mut rpc = new_rpc_client().await?;
-                let mut settings = Self::get_obfuscation_settings(&mut rpc).await?;
+                let mut rpc = MullvadProxyClient::new().await?;
+                let mut settings = rpc.get_settings().await?.obfuscation_settings;
                 settings.selected_obfuscation = match obfuscator_type {
                     "auto" => SelectedObfuscation::Auto,
                     "off" => SelectedObfuscation::Off,
                     "udp2tcp" => SelectedObfuscation::Udp2Tcp,
                     _ => unreachable!("Unhandled obfuscator mode"),
                 };
-                Self::set_obfuscation_settings(&mut rpc, &settings).await?;
+                rpc.set_obfuscation_settings(settings).await?;
             }
             Some(("udp2tcp", settings_matches)) => {
                 let port: String = settings_matches.value_of_t_or_exit("port");
-                let mut rpc = new_rpc_client().await?;
-                let mut settings = Self::get_obfuscation_settings(&mut rpc).await?;
+                let mut rpc = MullvadProxyClient::new().await?;
+                let mut settings = rpc.get_settings().await?.obfuscation_settings;
                 settings.udp2tcp.port = if port == "any" {
                     mullvad_types::relay_constraints::Constraint::Any
                 } else {
@@ -61,7 +56,7 @@ impl Obfuscation {
                         port.parse::<u16>().expect("Invalid port number"),
                     )
                 };
-                Self::set_obfuscation_settings(&mut rpc, &settings).await?;
+                rpc.set_obfuscation_settings(settings).await?;
             }
             _ => unreachable!("unhandled command"),
         }
@@ -69,36 +64,13 @@ impl Obfuscation {
     }
 
     async fn handle_get() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let obfuscation_settings = Self::get_obfuscation_settings(&mut rpc).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        let obfuscation_settings = rpc.get_settings().await?.obfuscation_settings;
         println!(
             "Obfuscation mode: {}",
             obfuscation_settings.selected_obfuscation
         );
         println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
-        Ok(())
-    }
-
-    async fn get_obfuscation_settings(
-        rpc: &mut ManagementServiceClient,
-    ) -> Result<ObfuscationSettings> {
-        let settings = rpc.get_settings(()).await?.into_inner();
-
-        let obfuscation_settings = ObfuscationSettings::try_from(
-            settings
-                .obfuscation_settings
-                .expect("No obfuscation settings"),
-        )
-        .expect("failed to parse obfuscation settings");
-        Ok(obfuscation_settings)
-    }
-
-    async fn set_obfuscation_settings(
-        rpc: &mut ManagementServiceClient,
-        settings: &ObfuscationSettings,
-    ) -> Result<()> {
-        let grpc_settings: grpc_types::ObfuscationSettings = settings.into();
-        let _ = rpc.set_obfuscation_settings(grpc_settings).await?;
         Ok(())
     }
 }

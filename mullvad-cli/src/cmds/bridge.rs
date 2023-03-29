@@ -1,12 +1,14 @@
-use crate::{location, new_rpc_client, Command, Error, Result};
-
-use mullvad_management_interface::types;
-use mullvad_types::relay_constraints::{
-    BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+use crate::{location, Command, MullvadProxyClient, Result};
+use mullvad_types::{
+    relay_constraints::{
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
+        Providers,
+    },
+    relay_list::RelayEndpointData,
 };
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use std::{convert::TryFrom, net::SocketAddr};
+use std::net::SocketAddr;
 
 pub struct Bridge;
 
@@ -211,14 +213,10 @@ impl Bridge {
     }
 
     async fn handle_get() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        let bridge_settings = BridgeSettings::try_from(settings.bridge_settings.unwrap()).unwrap();
-        println!(
-            "Bridge state: {}",
-            BridgeState::try_from(settings.bridge_state.unwrap()).unwrap()
-        );
-        match bridge_settings {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        println!("Bridge state: {}", settings.bridge_state);
+        match settings.bridge_settings {
             BridgeSettings::Custom(proxy) => match proxy {
                 openvpn::ProxySettings::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
                 openvpn::ProxySettings::Remote(remote_proxy) => {
@@ -247,9 +245,9 @@ impl Bridge {
     async fn handle_set_bridge_provider(matches: &clap::ArgMatches) -> Result<()> {
         let providers: Vec<String> = matches.values_of_t_or_exit("provider");
         let providers = if providers.get(0).map(String::as_str) == Some("any") {
-            vec![]
+            Constraint::Any
         } else {
-            providers
+            Constraint::Only(Providers::new(providers.into_iter()).unwrap())
         };
 
         Self::update_bridge_settings(None, Some(providers), None).await
@@ -262,54 +260,34 @@ impl Bridge {
     }
 
     async fn update_bridge_settings(
-        location: Option<types::RelayLocation>,
-        providers: Option<Vec<String>>,
-        ownership: Option<types::Ownership>,
+        location: Option<Constraint<LocationConstraint>>,
+        providers: Option<Constraint<Providers>>,
+        ownership: Option<Constraint<Ownership>>,
     ) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
+        let mut rpc = MullvadProxyClient::new().await?;
 
-        let bridge_settings = BridgeSettings::try_from(settings.bridge_settings.unwrap()).unwrap();
-        let constraints = match bridge_settings {
+        let constraints = match rpc.get_settings().await?.bridge_settings {
             BridgeSettings::Normal(mut constraints) => {
                 if let Some(new_location) = location {
-                    constraints.location = Constraint::<LocationConstraint>::from(new_location);
+                    constraints.location = new_location;
                 }
                 if let Some(new_providers) = providers {
-                    constraints.providers =
-                        types::relay_constraints::try_providers_constraint_from_proto(
-                            &new_providers,
-                        )
-                        .unwrap();
+                    constraints.providers = new_providers;
                 }
                 if let Some(new_ownership) = ownership {
-                    constraints.ownership =
-                        types::relay_constraints::ownership_constraint_from_proto(new_ownership);
+                    constraints.ownership = new_ownership;
                 }
                 constraints
             }
-            _ => {
-                let location = Constraint::<LocationConstraint>::from(location.unwrap_or_default());
-                let providers = types::relay_constraints::try_providers_constraint_from_proto(
-                    &providers.unwrap_or_default(),
-                )
-                .unwrap();
-                let ownership = ownership
-                    .map(types::relay_constraints::ownership_constraint_from_proto)
-                    .unwrap_or_default();
-
-                BridgeConstraints {
-                    location,
-                    providers,
-                    ownership,
-                }
-            }
+            _ => BridgeConstraints {
+                location: location.unwrap_or(Constraint::Any),
+                providers: providers.unwrap_or(Constraint::Any),
+                ownership: ownership.unwrap_or(Constraint::Any),
+            },
         };
 
-        rpc.set_bridge_settings(
-            types::BridgeSettings::try_from(BridgeSettings::Normal(constraints)).unwrap(),
-        )
-        .await?;
+        rpc.set_bridge_settings(BridgeSettings::Normal(constraints))
+            .await?;
         Ok(())
     }
 
@@ -320,9 +298,8 @@ impl Bridge {
             "off" => BridgeState::Off,
             _ => unreachable!(),
         };
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_bridge_state(types::BridgeState::from(state))
-            .await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_bridge_state(state).await?;
         Ok(())
     }
 
@@ -341,11 +318,9 @@ impl Bridge {
                 panic!("{}", error);
             }
 
-            let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
-                packed_proxy,
-            )))
-            .await?;
+            let mut rpc = MullvadProxyClient::new().await?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
+                .await?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
             let remote_ip = args.value_of_t_or_exit("remote-ip");
             let remote_port = args.value_of_t_or_exit("remote-port");
@@ -368,11 +343,9 @@ impl Bridge {
                 panic!("{}", error);
             }
 
-            let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
-                packed_proxy,
-            )))
-            .await?;
+            let mut rpc = MullvadProxyClient::new().await?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
+                .await?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
             let remote_ip = args.value_of_t_or_exit("remote-ip");
             let remote_port = args.value_of_t_or_exit("remote-port");
@@ -391,11 +364,9 @@ impl Bridge {
                 panic!("{}", error);
             }
 
-            let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
-                packed_proxy,
-            )))
-            .await?;
+            let mut rpc = MullvadProxyClient::new().await?;
+            rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
+                .await?;
         } else {
             unreachable!("unhandled proxy type");
         }
@@ -430,12 +401,8 @@ impl Bridge {
     }
 
     async fn list_bridge_relays() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let relay_list = rpc
-            .get_relay_locations(())
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
-            .into_inner();
+        let mut rpc = MullvadProxyClient::new().await?;
+        let relay_list = rpc.get_relay_locations().await?;
 
         let mut countries = Vec::new();
 
@@ -445,8 +412,7 @@ impl Bridge {
                 .into_iter()
                 .filter_map(|mut city| {
                     city.relays.retain(|relay| {
-                        relay.active
-                            && relay.endpoint_type == (types::relay::RelayType::Bridge as i32)
+                        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Bridge)
                     });
                     if !city.relays.is_empty() {
                         Some(city)

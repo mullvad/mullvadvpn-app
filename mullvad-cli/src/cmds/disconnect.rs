@@ -1,4 +1,4 @@
-use crate::{format, new_rpc_client, state, Command, Error, Result};
+use crate::{format, state, Command, Error, MullvadProxyClient, Result};
 use futures::StreamExt;
 
 pub struct Disconnect;
@@ -21,7 +21,7 @@ impl Command for Disconnect {
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
 
         let receiver_option = if matches.is_present("wait") {
             Some(state::state_listen(rpc.clone()))
@@ -29,7 +29,7 @@ impl Command for Disconnect {
             None
         };
 
-        if rpc.disconnect_tunnel(()).await?.into_inner() {
+        if rpc.disconnect_tunnel().await? {
             if let Some(mut receiver) = receiver_option {
                 while let Some(state) = receiver.next().await {
                     let state = state?;

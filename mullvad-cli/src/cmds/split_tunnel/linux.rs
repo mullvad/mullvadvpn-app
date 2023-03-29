@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{Command, MullvadProxyClient, Result};
 
 pub struct SplitTunnel;
 
@@ -41,7 +41,7 @@ impl SplitTunnel {
         match matches.subcommand() {
             Some(("add", matches)) => {
                 let pid: i32 = matches.value_of_t_or_exit("pid");
-                new_rpc_client()
+                MullvadProxyClient::new()
                     .await?
                     .add_split_tunnel_process(pid)
                     .await?;
@@ -49,28 +49,27 @@ impl SplitTunnel {
             }
             Some(("delete", matches)) => {
                 let pid: i32 = matches.value_of_t_or_exit("pid");
-                new_rpc_client()
+                MullvadProxyClient::new()
                     .await?
                     .remove_split_tunnel_process(pid)
                     .await?;
                 Ok(())
             }
             Some(("clear", _)) => {
-                new_rpc_client()
+                MullvadProxyClient::new()
                     .await?
-                    .clear_split_tunnel_processes(())
+                    .clear_split_tunnel_processes()
                     .await?;
                 Ok(())
             }
             Some(("list", _)) => {
-                let mut pids_stream = new_rpc_client()
+                let pids = MullvadProxyClient::new()
                     .await?
-                    .get_split_tunnel_processes(())
-                    .await?
-                    .into_inner();
-                println!("Excluded PIDs:");
+                    .get_split_tunnel_processes()
+                    .await?;
 
-                while let Some(pid) = pids_stream.message().await? {
+                println!("Excluded PIDs:");
+                for pid in &pids {
                     println!("    {pid}");
                 }
 

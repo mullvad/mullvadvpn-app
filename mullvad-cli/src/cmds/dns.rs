@@ -1,7 +1,6 @@
-use crate::{new_rpc_client, Command, Result};
-use mullvad_management_interface::types;
-use mullvad_types::settings::{DnsOptions, DnsState};
-use std::{convert::TryInto, net::IpAddr};
+use crate::{Command, MullvadProxyClient, Result};
+use mullvad_types::settings::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
+use std::net::IpAddr;
 
 pub struct Dns;
 
@@ -107,18 +106,18 @@ impl Dns {
         block_adult_content: bool,
         block_gambling: bool,
     ) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        rpc.set_dns_options(types::DnsOptions {
-            state: types::dns_options::DnsState::Default as i32,
-            default_options: Some(types::DefaultDnsOptions {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        rpc.set_dns_options(DnsOptions {
+            state: DnsState::Default,
+            default_options: DefaultDnsOptions {
                 block_ads,
                 block_trackers,
                 block_malware,
                 block_adult_content,
                 block_gambling,
-            }),
-            ..settings.tunnel_options.unwrap().dns_options.unwrap()
+            },
+            ..settings.tunnel_options.dns_options
         })
         .await?;
         println!("Updated DNS settings");
@@ -126,18 +125,14 @@ impl Dns {
     }
 
     async fn set_custom(&self, servers: Option<Vec<IpAddr>>) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        rpc.set_dns_options(types::DnsOptions {
-            state: types::dns_options::DnsState::Custom as i32,
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: servers
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(|a| a.to_string())
-                    .collect(),
-            }),
-            ..settings.tunnel_options.unwrap().dns_options.unwrap()
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        rpc.set_dns_options(DnsOptions {
+            state: DnsState::Custom,
+            custom_options: CustomDnsOptions {
+                addresses: servers.unwrap_or_default(),
+            },
+            ..settings.tunnel_options.dns_options
         })
         .await?;
         println!("Updated DNS settings");
@@ -145,17 +140,8 @@ impl Dns {
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let options: DnsOptions = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .tunnel_options
-            .unwrap()
-            .dns_options
-            .unwrap()
-            .try_into()
-            .unwrap();
+        let mut rpc = MullvadProxyClient::new().await?;
+        let options = rpc.get_settings().await?.tunnel_options.dns_options;
 
         match options.state {
             DnsState::Default => {

@@ -1,7 +1,9 @@
-use crate::{new_rpc_client, Command, Error, Result};
-use mullvad_management_interface::types::{self, Timestamp, TunnelOptions};
-use mullvad_types::wireguard::DEFAULT_ROTATION_INTERVAL;
-use std::{convert::TryFrom, time::Duration};
+use crate::{Command, Error, MullvadProxyClient, Result};
+use mullvad_types::{
+    settings::TunnelOptions,
+    wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
+};
+use std::time::Duration;
 
 pub struct Tunnel;
 
@@ -199,62 +201,48 @@ impl Tunnel {
 
     async fn process_wireguard_mtu_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        let mtu = tunnel_options.wireguard.unwrap().mtu;
-        println!(
-            "mtu: {}",
-            if mtu != 0 {
-                mtu.to_string()
-            } else {
-                "unset".to_string()
-            },
-        );
+        match tunnel_options.wireguard.mtu {
+            Some(mssfix) => println!("mtu: {mssfix}"),
+            None => println!("mtu: unset"),
+        }
         Ok(())
     }
 
     async fn process_wireguard_mtu_set(matches: &clap::ArgMatches) -> Result<()> {
         let mtu = matches.value_of_t_or_exit::<u16>("mtu");
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_wireguard_mtu(mtu as u32).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_wireguard_mtu(Some(mtu)).await?;
         println!("Wireguard MTU has been updated");
         Ok(())
     }
 
     async fn process_wireguard_mtu_unset() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_wireguard_mtu(0).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_wireguard_mtu(None).await?;
         println!("Wireguard MTU has been unset");
         Ok(())
     }
 
     async fn process_wireguard_quantum_resistant_tunnel_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        match tunnel_options
-            .wireguard
-            .unwrap()
-            .quantum_resistant
-            .and_then(|state| types::quantum_resistant_state::State::from_i32(state.state))
-        {
-            Some(types::quantum_resistant_state::State::On) => println!("enabled"),
-            Some(types::quantum_resistant_state::State::Off) => println!("disabled"),
-            None | Some(types::quantum_resistant_state::State::Auto) => println!("auto"),
-        }
+        println!(
+            "Quantum resistant state: {}",
+            tunnel_options.wireguard.quantum_resistant
+        );
         Ok(())
     }
 
     async fn process_wireguard_quantum_resistant_tunnel_set(
         matches: &clap::ArgMatches,
     ) -> Result<()> {
-        let quantum_resistant = match matches.value_of("policy").unwrap() {
-            "auto" => types::quantum_resistant_state::State::Auto,
-            "on" => types::quantum_resistant_state::State::On,
-            "off" => types::quantum_resistant_state::State::Off,
+        let state = match matches.value_of("policy").unwrap() {
+            "auto" => QuantumResistantState::Auto,
+            "on" => QuantumResistantState::On,
+            "off" => QuantumResistantState::Off,
             _ => unreachable!("invalid PQ state"),
         };
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_quantum_resistant_tunnel(types::QuantumResistantState {
-            state: i32::from(quantum_resistant),
-        })
-        .await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_quantum_resistant_tunnel(state).await?;
         println!("Updated quantum resistant tunnel setting");
         Ok(())
     }
@@ -262,7 +250,7 @@ impl Tunnel {
     #[cfg(windows)]
     async fn process_wireguard_use_wg_nt_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        if tunnel_options.wireguard.unwrap().use_wireguard_nt {
+        if tunnel_options.wireguard.use_wireguard_nt {
             println!("enabled");
         } else {
             println!("disabled");
@@ -273,30 +261,30 @@ impl Tunnel {
     #[cfg(windows)]
     async fn process_wireguard_use_wg_nt_set(matches: &clap::ArgMatches) -> Result<()> {
         let new_state = matches.value_of("policy").unwrap() == "on";
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_use_wireguard_nt(new_state).await?;
         println!("Updated wireguard-nt setting");
         Ok(())
     }
 
     async fn process_wireguard_key_check() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let key = rpc.get_wireguard_key(()).await;
-        let key = match key {
-            Ok(response) => Some(response.into_inner()),
-            Err(status) => {
-                if status.code() == mullvad_management_interface::Code::NotFound {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let key = match rpc.get_wireguard_key().await {
+            Ok(response) => Some(response),
+            Err(ref error) => match error {
+                mullvad_management_interface::Error::Rpc(status)
+                    if status.code() == mullvad_management_interface::Code::NotFound =>
+                {
                     None
-                } else {
-                    return Err(Error::RpcFailedExt("Failed to obtain key", status));
                 }
-            }
+                _ => return Err(Error::Other("Failed to obtain key")),
+            },
         };
         if let Some(key) = key {
-            println!("Current key    : {}", base64::encode(&key.key));
+            println!("Current key    : {}", key.key.to_base64());
             println!(
                 "Key created on : {}",
-                Self::format_key_timestamp(&key.created.unwrap())
+                key.created.with_timezone(&chrono::Local),
             );
         } else {
             println!("No key is set");
@@ -306,17 +294,17 @@ impl Tunnel {
     }
 
     async fn process_wireguard_key_generate() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.rotate_wireguard_key(()).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.rotate_wireguard_key().await?;
         println!("Rotated WireGuard key");
         Ok(())
     }
 
     async fn process_wireguard_rotation_interval_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        match tunnel_options.wireguard.unwrap().rotation_interval {
+        match tunnel_options.wireguard.rotation_interval {
             Some(interval) => {
-                let hours = duration_hours(&Duration::try_from(interval).unwrap());
+                let hours = duration_hours(interval.as_duration());
                 println!("Rotation interval: {hours} hour(s)");
             }
             None => println!(
@@ -329,9 +317,9 @@ impl Tunnel {
 
     async fn process_wireguard_rotation_interval_set(matches: &clap::ArgMatches) -> Result<()> {
         let rotate_interval = matches.value_of_t_or_exit::<u64>("interval");
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_wireguard_rotation_interval(
-            types::Duration::try_from(Duration::from_secs(60 * 60 * rotate_interval))
+            RotationInterval::new(Duration::from_secs(60 * 60 * rotate_interval))
                 .expect("Failed to convert rotation interval to prost_types::Duration"),
         )
         .await?;
@@ -340,8 +328,8 @@ impl Tunnel {
     }
 
     async fn process_wireguard_rotation_interval_reset() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.reset_wireguard_rotation_interval(()).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.reset_wireguard_rotation_interval().await?;
         println!(
             "Set key rotation interval: default ({} hours)",
             duration_hours(&DEFAULT_ROTATION_INTERVAL)
@@ -361,39 +349,29 @@ impl Tunnel {
 
     async fn process_openvpn_mssfix_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        let mssfix = tunnel_options.openvpn.unwrap().mssfix;
-        println!(
-            "mssfix: {}",
-            if mssfix != 0 {
-                mssfix.to_string()
-            } else {
-                "unset".to_string()
-            },
-        );
+        match tunnel_options.openvpn.mssfix {
+            Some(mssfix) => println!("mssfix: {mssfix}"),
+            None => println!("mssfix: unset"),
+        }
         Ok(())
     }
 
     async fn get_tunnel_options() -> Result<TunnelOptions> {
-        let mut rpc = new_rpc_client().await?;
-        Ok(rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .tunnel_options
-            .unwrap())
+        let mut rpc = MullvadProxyClient::new().await?;
+        Ok(rpc.get_settings().await?.tunnel_options)
     }
 
     async fn process_openvpn_mssfix_unset() -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_openvpn_mssfix(0).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_openvpn_mssfix(None).await?;
         println!("mssfix parameter has been unset");
         Ok(())
     }
 
     async fn process_openvpn_mssfix_set(matches: &clap::ArgMatches) -> Result<()> {
         let new_value = matches.value_of_t_or_exit::<u16>("mssfix");
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_openvpn_mssfix(new_value as u32).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_openvpn_mssfix(Some(new_value)).await?;
         println!("mssfix parameter has been updated");
         Ok(())
     }
@@ -402,7 +380,7 @@ impl Tunnel {
         let tunnel_options = Self::get_tunnel_options().await?;
         println!(
             "IPv6: {}",
-            if tunnel_options.generic.unwrap().enable_ipv6 {
+            if tunnel_options.generic.enable_ipv6 {
                 "on"
             } else {
                 "off"
@@ -414,7 +392,7 @@ impl Tunnel {
     async fn process_ipv6_set(matches: &clap::ArgMatches) -> Result<()> {
         let enabled = matches.value_of("policy").unwrap() == "on";
 
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_enable_ipv6(enabled).await?;
         if enabled {
             println!("Enabled IPv6");
@@ -422,12 +400,6 @@ impl Tunnel {
             println!("Disabled IPv6");
         }
         Ok(())
-    }
-
-    fn format_key_timestamp(timestamp: &Timestamp) -> String {
-        let ndt = chrono::NaiveDateTime::from_timestamp(timestamp.seconds, timestamp.nanos as u32);
-        let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
-        utc.with_timezone(&chrono::Local).to_string()
     }
 }
 

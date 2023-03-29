@@ -104,6 +104,16 @@ impl PrivateKey {
     pub fn to_base64(&self) -> String {
         base64::encode(self.0.to_bytes())
     }
+
+    pub fn from_base64(key: &str) -> Result<Self, InvalidKeyError> {
+        let bytes = base64::decode(key).map_err(|_| InvalidKeyError(()))?;
+        if bytes.len() != 32 {
+            return Err(InvalidKeyError(()));
+        }
+        let mut key = [0u8; 32];
+        key.copy_from_slice(&bytes);
+        Ok(From::from(key))
+    }
 }
 
 impl From<[u8; 32]> for PrivateKey {

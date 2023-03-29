@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Error, Result};
+use crate::{Command, MullvadProxyClient, Result};
 
 pub struct Version;
 
@@ -14,25 +14,14 @@ impl Command for Version {
     }
 
     async fn run(&self, _: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let current_version = rpc
-            .get_current_version(())
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to obtain current version", error))?
-            .into_inner();
+        let mut rpc = MullvadProxyClient::new().await?;
+        let current_version = rpc.get_current_version().await?;
         println!("{:21}: {}", "Current version", current_version);
-        let version_info = rpc
-            .get_version_info(())
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to obtain version info", error))?
-            .into_inner();
+        let version_info = rpc.get_version_info().await?;
         println!("{:21}: {}", "Is supported", version_info.supported);
 
-        if !version_info.suggested_upgrade.is_empty() {
-            println!(
-                "{:21}: {}",
-                "Suggested upgrade", version_info.suggested_upgrade
-            );
+        if let Some(suggested_upgrade) = version_info.suggested_upgrade {
+            println!("{:21}: {}", "Suggested upgrade", suggested_upgrade);
         } else {
             println!("{:21}: none", "Suggested upgrade");
         }
@@ -44,7 +33,7 @@ impl Command for Version {
             );
         }
 
-        let settings = rpc.get_settings(()).await?.into_inner();
+        let settings = rpc.get_settings().await?;
         if settings.show_beta_releases {
             println!("{:21}: {}", "Latest beta version", version_info.latest_beta);
         };

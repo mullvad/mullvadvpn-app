@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{Command, MullvadProxyClient, Result};
 
 pub struct BlockWhenDisconnected;
 
@@ -41,7 +41,7 @@ impl Command for BlockWhenDisconnected {
 
 impl BlockWhenDisconnected {
     async fn set(&self, block_when_disconnected: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_block_when_disconnected(block_when_disconnected)
             .await?;
         println!("Changed lockdown mode setting");
@@ -49,12 +49,8 @@ impl BlockWhenDisconnected {
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let block_when_disconnected = rpc
-            .get_settings(())
-            .await?
-            .into_inner()
-            .block_when_disconnected;
+        let mut rpc = MullvadProxyClient::new().await?;
+        let block_when_disconnected = rpc.get_settings().await?.block_when_disconnected;
         println!(
             "Network traffic will be {} when the VPN is disconnected",
             if block_when_disconnected {

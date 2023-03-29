@@ -7,7 +7,7 @@ use mullvad_management_interface::async_trait;
 use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
 
-pub use mullvad_management_interface::{self, new_rpc_client};
+pub use mullvad_management_interface::{self, MullvadProxyClient};
 
 mod cmds;
 mod format;

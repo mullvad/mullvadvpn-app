@@ -1,10 +1,6 @@
-use crate::{new_rpc_client, Command, Error, Result};
+use crate::{Command, Error, MullvadProxyClient, Result};
 use itertools::Itertools;
-use mullvad_management_interface::{
-    types::{self, Timestamp},
-    Code, ManagementServiceClient, Status,
-};
-use mullvad_types::{account::AccountToken, device::Device};
+use mullvad_types::{account::AccountToken, device::DeviceState};
 use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
@@ -112,14 +108,14 @@ impl Command for Account {
 
 impl Account {
     async fn create(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.create_new_account(()).await.map_err(map_device_error)?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.create_new_account().await.map_err(map_device_error)?;
         println!("New account created!");
         self.get(false).await
     }
 
     async fn login(&self, token: AccountToken) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.login_account(token.clone())
             .await
             .map_err(map_device_error)?;
@@ -128,56 +124,43 @@ impl Account {
     }
 
     async fn logout(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.logout_account(()).await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.logout_account().await?;
         println!("Removed device from Mullvad account");
         Ok(())
     }
 
     async fn get(&self, verbose: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
+        let _ = rpc.update_device().await;
 
-        let _ = rpc.update_device(()).await;
+        let state = rpc.get_device().await.map_err(map_device_error)?;
 
-        let state = rpc
-            .get_device(())
-            .await
-            .map_err(map_device_error)?
-            .into_inner();
-
-        use types::device_state::State;
-
-        match State::from_i32(state.state).unwrap() {
-            State::LoggedIn => {
-                let device = state.device.expect("Device must be provided if logged in");
+        match state {
+            DeviceState::LoggedIn(device) => {
                 println!("Mullvad account: {}", device.account_token);
-                let inner_device = Device::try_from(device.device.unwrap()).unwrap();
-                println!("Device name    : {}", inner_device.pretty_name());
+                println!("Device name    : {}", device.device.pretty_name());
                 if verbose {
-                    println!("Device id      : {}", inner_device.id);
-                    println!("Device pubkey  : {}", inner_device.pubkey);
+                    println!("Device id      : {}", device.device.id);
+                    println!("Device pubkey  : {}", device.device.pubkey);
                     println!(
                         "Device created : {}",
-                        inner_device.created.with_timezone(&chrono::Local)
+                        device.device.created.with_timezone(&chrono::Local),
                     );
-                    for port in inner_device.ports {
+                    for port in device.device.ports {
                         println!("Device port    : {port}");
                     }
                 }
-                let expiry = rpc
-                    .get_account_data(device.account_token)
-                    .await
-                    .map_err(|error| Error::RpcFailedExt("Failed to fetch account data", error))?
-                    .into_inner();
+                let expiry = rpc.get_account_data(device.account_token).await?;
                 println!(
                     "Expires at     : {}",
-                    Self::format_expiry(&expiry.expiry.unwrap())
+                    expiry.expiry.with_timezone(&chrono::Local),
                 );
             }
-            State::LoggedOut => {
+            DeviceState::LoggedOut => {
                 println!("{NOT_LOGGED_IN_MESSAGE}");
             }
-            State::Revoked => {
+            DeviceState::Revoked => {
                 println!("{REVOKED_MESSAGE}");
             }
         }
@@ -186,22 +169,15 @@ impl Account {
     }
 
     async fn list_devices(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
-        let mut device_list = rpc
-            .list_devices(token)
-            .await
-            .map_err(map_device_error)?
-            .into_inner();
+        let mut device_list = rpc.list_devices(token).await.map_err(map_device_error)?;
 
         let verbose = matches.is_present("verbose");
 
         println!("Devices on the account:");
-        device_list
-            .devices
-            .sort_unstable_by_key(|dev| dev.created.as_ref().map(|dt| dt.seconds).unwrap_or(0));
-        for device in device_list.devices {
-            let device = Device::try_from(device.clone()).unwrap();
+        device_list.sort_unstable_by_key(|dev| dev.created.timestamp());
+        for device in device_list {
             if verbose {
                 println!();
                 println!("Name      : {}", device.pretty_name());
@@ -223,7 +199,7 @@ impl Account {
     }
 
     async fn revoke_device(&self, matches: &clap::ArgMatches) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
 
         let token = self.parse_account_else_current(&mut rpc, matches).await?;
         let device_to_revoke = parse_device_name(matches);
@@ -231,10 +207,8 @@ impl Account {
         let device_list = rpc
             .list_devices(token.clone())
             .await
-            .map_err(map_device_error)?
-            .into_inner();
+            .map_err(map_device_error)?;
         let device_id = device_list
-            .devices
             .into_iter()
             .find(|dev| {
                 dev.name.eq_ignore_ascii_case(&device_to_revoke)
@@ -243,64 +217,44 @@ impl Account {
             .map(|dev| dev.id)
             .ok_or(Error::Other(DEVICE_NOT_FOUND_ERROR))?;
 
-        rpc.remove_device(types::DeviceRemoval {
-            account_token: token,
-            device_id,
-        })
-        .await
-        .map_err(map_device_error)?;
+        rpc.remove_device(token, device_id)
+            .await
+            .map_err(map_device_error)?;
         println!("Removed device");
         Ok(())
     }
 
     async fn parse_account_else_current(
         &self,
-        rpc: &mut ManagementServiceClient,
+        rpc: &mut MullvadProxyClient,
         matches: &clap::ArgMatches,
     ) -> Result<String> {
         match matches.value_of("account").map(str::to_string) {
             Some(token) => Ok(token),
             None => {
-                let state = rpc
-                    .get_device(())
-                    .await
-                    .map_err(|error| Error::RpcFailedExt("Failed to obtain device", error))?
-                    .into_inner();
-                if state.state != types::device_state::State::LoggedIn as i32 {
-                    return Err(Error::Other("Log in or specify an account"));
+                let state = rpc.get_device().await?;
+                match state {
+                    DeviceState::LoggedIn(account) => Ok(account.account_token),
+                    _ => Err(Error::Other("Log in or specify an account")),
                 }
-                Ok(state.device.unwrap().account_token)
             }
         }
     }
 
     async fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         voucher.retain(|c| c.is_alphanumeric());
 
-        match rpc.submit_voucher(voucher).await {
-            Ok(submission) => {
-                let submission = submission.into_inner();
-                println!(
-                    "Added {} to the account",
-                    Self::format_duration(submission.seconds_added)
-                );
-                println!(
-                    "New expiry date: {}",
-                    Self::format_expiry(&submission.new_expiry.unwrap())
-                );
-                Ok(())
-            }
-            Err(err) => {
-                match err.code() {
-                    Code::NotFound | Code::ResourceExhausted => {
-                        eprintln!("Failed to submit voucher: {}", err.message());
-                    }
-                    _ => return Err(Error::RpcFailed(err)),
-                }
-                std::process::exit(1);
-            }
-        }
+        let submission = rpc.submit_voucher(voucher).await?;
+        println!(
+            "Added {} to the account",
+            Self::format_duration(submission.time_added)
+        );
+        println!(
+            "New expiry date: {}",
+            submission.new_expiry.with_timezone(&chrono::Local),
+        );
+        Ok(())
     }
 
     fn format_duration(seconds: u64) -> String {
@@ -315,21 +269,17 @@ impl Account {
             format!("{} seconds", dur.num_seconds())
         }
     }
-
-    fn format_expiry(expiry: &Timestamp) -> String {
-        let ndt = chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32);
-        let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
-        utc.with_timezone(&chrono::Local).to_string()
-    }
 }
 
-fn map_device_error(error: Status) -> Error {
-    match error.code() {
-        Code::ResourceExhausted => Error::Other(TOO_MANY_DEVICES_ERROR),
-        Code::Unauthenticated => Error::Other(INVALID_ACCOUNT_ERROR),
-        Code::AlreadyExists => Error::Other(ALREADY_LOGGED_IN_ERROR),
-        Code::NotFound => Error::Other(DEVICE_NOT_FOUND_ERROR),
-        _other => Error::RpcFailed(error),
+fn map_device_error(error: mullvad_management_interface::Error) -> Error {
+    match &error {
+        mullvad_management_interface::Error::TooManyDevices => Error::Other(TOO_MANY_DEVICES_ERROR),
+        mullvad_management_interface::Error::InvalidAccount => Error::Other(INVALID_ACCOUNT_ERROR),
+        mullvad_management_interface::Error::AlreadyLoggedIn => {
+            Error::Other(ALREADY_LOGGED_IN_ERROR)
+        }
+        mullvad_management_interface::Error::DeviceNotFound => Error::Other(DEVICE_NOT_FOUND_ERROR),
+        _other => Error::ManagementInterfaceError(error),
     }
 }
 

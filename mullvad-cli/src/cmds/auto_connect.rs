@@ -1,4 +1,6 @@
-use crate::{new_rpc_client, Command, Result};
+use mullvad_management_interface::MullvadProxyClient;
+
+use crate::{Command, Result};
 
 pub struct AutoConnect;
 
@@ -38,15 +40,15 @@ impl Command for AutoConnect {
 
 impl AutoConnect {
     async fn set(&self, auto_connect: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_auto_connect(auto_connect).await?;
         println!("Changed auto-connect setting");
         Ok(())
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let auto_connect = rpc.get_settings(()).await?.into_inner().auto_connect;
+        let mut rpc = MullvadProxyClient::new().await?;
+        let auto_connect = rpc.get_settings().await?.auto_connect;
         println!("Autoconnect: {}", if auto_connect { "on" } else { "off" });
         Ok(())
     }

@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{Command, MullvadProxyClient, Result};
 
 pub struct Lan;
 
@@ -38,15 +38,15 @@ impl Command for Lan {
 
 impl Lan {
     async fn set(&self, allow_lan: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
+        let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_allow_lan(allow_lan).await?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let allow_lan = rpc.get_settings(()).await?.into_inner().allow_lan;
+        let mut rpc = MullvadProxyClient::new().await?;
+        let allow_lan = rpc.get_settings().await?.allow_lan;
         println!(
             "Local network sharing setting: {}",
             if allow_lan { "allow" } else { "block" }

@@ -1,4 +1,6 @@
-use crate::{new_rpc_client, Command, Error, Result};
+use mullvad_management_interface::MullvadProxyClient;
+
+use crate::{Command, Error, Result};
 
 pub struct BetaProgram;
 
@@ -27,8 +29,8 @@ impl Command for BetaProgram {
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
         match matches.subcommand() {
             Some(("get", _)) => {
-                let mut rpc = new_rpc_client().await?;
-                let settings = rpc.get_settings(()).await?.into_inner();
+                let mut rpc = MullvadProxyClient::new().await?;
+                let settings = rpc.get_settings().await?;
                 let enabled_str = if settings.show_beta_releases {
                     "on"
                 } else {
@@ -47,7 +49,7 @@ impl Command for BetaProgram {
                     ));
                 }
 
-                let mut rpc = new_rpc_client().await?;
+                let mut rpc = MullvadProxyClient::new().await?;
                 rpc.set_show_beta_releases(enable).await?;
 
                 println!("Beta program: {enable_str}");

@@ -1,8 +1,7 @@
-use crate::{format, new_rpc_client, Command, Error, Result};
-use mullvad_management_interface::{
-    types::daemon_event::Event as EventType, ManagementServiceClient,
-};
-use mullvad_types::{location::GeoIpLocation, states::TunnelState};
+use crate::{format, Command, Error, MullvadProxyClient, Result};
+use futures::StreamExt;
+use mullvad_management_interface::client::DaemonEvent;
+use mullvad_types::states::TunnelState;
 
 pub struct Status;
 
@@ -40,13 +39,12 @@ impl Command for Status {
         let verbose = matches.is_present("verbose");
         let show_full_location = matches.is_present("location");
 
-        let mut rpc = new_rpc_client().await?;
-        let state = rpc.get_tunnel_state(()).await?.into_inner();
+        let mut rpc = MullvadProxyClient::new().await?;
+        let state = rpc.get_tunnel_state().await?;
 
         if debug {
             println!("Tunnel state: {state:#?}");
         } else {
-            let state = TunnelState::try_from(state).expect("invalid tunnel state");
             format::print_state(&state, verbose);
         }
 
@@ -55,14 +53,9 @@ impl Command for Status {
         }
 
         if matches.subcommand_matches("listen").is_some() {
-            let mut events = rpc.events_listen(()).await?.into_inner();
-
-            while let Some(event) = events.message().await? {
-                match event.event.unwrap() {
-                    EventType::TunnelState(new_state) => {
-                        let new_state =
-                            TunnelState::try_from(new_state).expect("invalid tunnel state");
-
+            while let Some(event) = rpc.events_listen().await?.next().await {
+                match event? {
+                    DaemonEvent::TunnelState(new_state) => {
                         if debug {
                             println!("New tunnel state: {new_state:#?}");
                         } else {
@@ -78,27 +71,27 @@ impl Command for Status {
                             _ => {}
                         }
                     }
-                    EventType::Settings(settings) => {
+                    DaemonEvent::Settings(settings) => {
                         if debug {
                             println!("New settings: {settings:#?}");
                         }
                     }
-                    EventType::RelayList(relay_list) => {
+                    DaemonEvent::RelayList(relay_list) => {
                         if debug {
                             println!("New relay list: {relay_list:#?}");
                         }
                     }
-                    EventType::VersionInfo(app_version_info) => {
+                    DaemonEvent::AppVersionInfo(app_version_info) => {
                         if debug {
                             println!("New app version info: {app_version_info:#?}");
                         }
                     }
-                    EventType::Device(device) => {
+                    DaemonEvent::Device(device) => {
                         if debug {
                             println!("Device event: {device:#?}");
                         }
                     }
-                    EventType::RemoveDevice(device) => {
+                    DaemonEvent::RemoveDevice(device) => {
                         if debug {
                             println!("Remove device event: {device:#?}");
                         }
@@ -111,17 +104,16 @@ impl Command for Status {
     }
 }
 
-async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
-    let location = match rpc.get_current_location(()).await {
-        Ok(response) => GeoIpLocation::try_from(response.into_inner()).expect("invalid geoip data"),
-        Err(status) => {
-            if status.code() == mullvad_management_interface::Code::NotFound {
+async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
+    let location = match rpc.get_current_location().await {
+        Ok(location) => location,
+        Err(error) => match &error {
+            mullvad_management_interface::Error::NoLocationData => {
                 println!("Location data unavailable");
                 return Ok(());
-            } else {
-                return Err(Error::RpcFailed(status));
             }
-        }
+            _ => return Err(Error::ManagementInterfaceError(error)),
+        },
     };
     if let Some(ipv4) = location.ipv4 {
         println!("IPv4: {ipv4}");

@@ -22,6 +22,16 @@ pub enum QuantumResistantState {
     Off,
 }
 
+impl fmt::Display for QuantumResistantState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            QuantumResistantState::Auto => f.write_str("auto"),
+            QuantumResistantState::On => f.write_str("on"),
+            QuantumResistantState::Off => f.write_str("off"),
+        }
+    }
+}
+
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct WireguardData {
