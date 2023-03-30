@@ -14,10 +14,11 @@ function main() {
 
   const nodeBin = process.argv[0];
   const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
+  const configPath = path.join(tmpDir, 'test', 'e2e', 'installed', 'playwright.config.js');
 
   // Tests need to be run sequentially since they interact with the same daemon instance.
   // Arguments are forwarded to playwright to make it possible to run specific tests.
-  const args = [playwrightBin, 'test', '--workers', '1', ...process.argv.slice(2)];
+  const args = [playwrightBin, 'test', '-c', configPath, ...process.argv.slice(2)];
   const result = spawnSync(nodeBin, args, { encoding: 'utf8', cwd: tmpDir });
 
   removeTmpDir();
