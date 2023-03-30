@@ -8,16 +8,12 @@ import path from 'path';
 // assets and performs the tests. More info in /gui/README.md.
 
 const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
-const rootDir = path.join(__dirname, '..');
-const nodeModulesDir = path.join(rootDir, 'node_modules');
-const srcDir = path.join(rootDir, 'build', 'src');
-const testDir = path.join(rootDir, 'build', 'test');
-
-const nodeBin = process.argv[0];
-const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
 
 function main() {
   extract();
+
+  const nodeBin = process.argv[0];
+  const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
 
   // Tests need to be run sequentially since they interact with the same daemon instance.
   // Arguments are forwarded to playwright to make it possible to run specific tests.
@@ -29,6 +25,11 @@ function main() {
 }
 
 function extract() {
+  const rootDir = path.join(__dirname, '..');
+  const nodeModulesDir = path.join(rootDir, 'node_modules');
+  const srcDir = path.join(rootDir, 'build', 'src');
+  const testDir = path.join(rootDir, 'build', 'test');
+
   // Remove old directory if already existing and create new clean one
   removeTmpDir();
   fs.mkdirSync(tmpDir);
