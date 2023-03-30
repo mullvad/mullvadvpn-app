@@ -55,7 +55,7 @@ function runTests(): Promise<number> {
   return new Promise((resolve) => {
     // Tests need to be run sequentially since they interact with the same daemon instance.
     // Arguments are forwarded to playwright to make it possible to run specific tests.
-    const args = [playwrightBin, 'test', '-c', configPath, ...process.argv.slice(2)];
+    const args = [playwrightBin, 'test', '-x', '-c', configPath, ...process.argv.slice(2)];
     const proc = spawn(nodeBin, args, { cwd: tmpDir });
 
     proc.stdout.on('data', (data) => console.log(data.toString()));
