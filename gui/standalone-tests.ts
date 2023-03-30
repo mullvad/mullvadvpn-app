@@ -1,4 +1,4 @@
-import { spawnSync, SpawnSyncReturns } from 'child_process';
+import { spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -9,20 +9,12 @@ import path from 'path';
 
 const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
 
-function main() {
+async function main() {
   extract();
-
-  const nodeBin = process.argv[0];
-  const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
-  const configPath = path.join(tmpDir, 'test', 'e2e', 'installed', 'playwright.config.js');
-
-  // Tests need to be run sequentially since they interact with the same daemon instance.
-  // Arguments are forwarded to playwright to make it possible to run specific tests.
-  const args = [playwrightBin, 'test', '-c', configPath, ...process.argv.slice(2)];
-  const result = spawnSync(nodeBin, args, { encoding: 'utf8', cwd: tmpDir });
+  const code = await runTests();
 
   removeTmpDir();
-  handleResult(result);
+  process.exit(code);
 }
 
 function extract() {
@@ -55,20 +47,27 @@ function copyRecursively(source: string, target: string) {
   }
 }
 
-function handleResult(result: SpawnSyncReturns<string>) {
-  // Forward all output from playwright
-  console.log(result.stdout);
-  console.error(result.stderr);
-  if (result.error) {
-    console.error(result.error);
-  }
+function runTests(): Promise<number> {
+  const nodeBin = process.argv[0];
+  const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
+  const configPath = path.join(tmpDir, 'test', 'e2e', 'installed', 'playwright.config.js');
 
-  // Exit with the same exit code as playwright
-  if (result.status === null) {
-    process.exit(1);
-  } else {
-    process.exit(result.status);
-  }
+  return new Promise((resolve) => {
+    // Tests need to be run sequentially since they interact with the same daemon instance.
+    // Arguments are forwarded to playwright to make it possible to run specific tests.
+    const args = [playwrightBin, 'test', '-c', configPath, ...process.argv.slice(2)];
+    const proc = spawn(nodeBin, args, { cwd: tmpDir });
+
+    proc.stdout.on('data', (data) => console.log(data.toString()));
+    proc.stderr.on('data', (data) => console.error(data.toString()));
+    proc.on('close', (code, signal) => {
+      if (signal) {
+        console.log('Received signal:', signal);
+      }
+
+      resolve(code ?? (signal ? 1 : 0));
+    });
+  });
 }
 
 function removeTmpDir() {
@@ -82,4 +81,4 @@ function removeTmpDir() {
   }
 }
 
-main();
+void main();
