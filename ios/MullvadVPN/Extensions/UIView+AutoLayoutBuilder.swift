@@ -192,13 +192,13 @@ struct PinnableEdges {
                 return firstView.topAnchor.constraint(equalTo: secondView.topAnchor, constant: inset)
 
             case let .bottom(inset):
-                return firstView.bottomAnchor.constraint(equalTo: secondView.bottomAnchor, constant: inset)
+                return firstView.bottomAnchor.constraint(equalTo: secondView.bottomAnchor, constant: -inset)
 
             case let .leading(inset):
                 return firstView.leadingAnchor.constraint(equalTo: secondView.leadingAnchor, constant: inset)
 
             case let .trailing(inset):
-                return firstView.trailingAnchor.constraint(equalTo: secondView.trailingAnchor, constant: inset)
+                return firstView.trailingAnchor.constraint(equalTo: secondView.trailingAnchor, constant: -inset)
             }
         }
     }
