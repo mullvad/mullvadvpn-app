@@ -11,11 +11,14 @@ import UIKit
 final class PreferencesDataSource: UITableViewDiffableDataSource<
     PreferencesDataSource.Section,
     PreferencesDataSource.Item
->, UITableViewDelegate {
+>, UITableViewDelegate, PreferencesCellEventHandler {
     enum CellReuseIdentifiers: String, CaseIterable {
         case settingSwitch
         case dnsServer
         case addDNSServer
+        case addConnectedNetwork
+        case addTrustedNetwork
+        case trustedNetwork
 
         var reusableViewClass: AnyClass {
             switch self {
@@ -23,8 +26,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return SettingsSwitchCell.self
             case .dnsServer:
                 return SettingsDNSTextCell.self
-            case .addDNSServer:
-                return SettingsAddDNSEntryCell.self
+            case .addDNSServer, .addTrustedNetwork:
+                return SettingsAddEntryCell.self
+            case .addConnectedNetwork:
+                return AddConnectedNetworkCell.self
+            case .trustedNetwork:
+                return TrustedNetworkTextCell.self
             }
         }
     }
@@ -46,6 +53,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     enum Section: String, Hashable {
         case mullvadDNS
         case customDNS
+        case trustedNetworks
     }
 
     enum Item: Hashable {
@@ -54,9 +62,15 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case blockMalware
         case blockAdultContent
         case blockGambling
+
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
+
+        case useTrustedNetworks
+        case addConnectedNetwork
+        case addTrustedNetwork
+        case trustedNetwork(_ uniqueID: UUID)
 
         var accessibilityIdentifier: String {
             switch self {
@@ -76,6 +90,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return "addDNSServer"
             case let .dnsServer(uuid):
                 return "dnsServer(\(uuid.uuidString))"
+            case .useTrustedNetworks:
+                return "useTrustedNetworks"
+            case .addConnectedNetwork:
+                return "addConnectedNetwork"
+            case .addTrustedNetwork:
+                return "addTrustedNetwork"
+            case let .trustedNetwork(uuid):
+                return "trustedNetwork(\(uuid.uuidString))"
             }
         }
 
@@ -125,10 +147,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         if editing {
             viewModelBeforeEditing = viewModel
         } else {
-            viewModel.sanitizeCustomDNSEntries()
+            viewModel.sanitizeData()
         }
 
-        updateSnapshot()
+        updateSnapshot(animated: true)
         reloadCustomDNSFooter()
 
         updateCellFactory(with: viewModel)
@@ -141,8 +163,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    func update(from dnsSettings: DNSSettings) {
-        let newViewModel = PreferencesViewModel(from: dnsSettings)
+    func update(from tunnelSettings: TunnelSettingsV2) {
+        let newViewModel = PreferencesViewModel(from: tunnelSettings)
         let mergedViewModel = viewModel.merged(newViewModel)
 
         if viewModel != mergedViewModel {
@@ -154,6 +176,19 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         reloadCustomDNSFooter()
     }
 
+    func setConnectedWifiNetwork(_ network: ConnectedWifiNetwork?) {
+        var newViewModel = viewModel
+
+        newViewModel.connectedNetwork = network
+
+        if viewModel != newViewModel {
+            viewModel = newViewModel
+
+            updateCellFactory(with: newViewModel)
+            updateSnapshot(animated: true)
+        }
+    }
+
     // MARK: - UITableViewDataSource
 
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -163,7 +198,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let item = itemIdentifier(for: indexPath)
 
         switch item {
-        case .dnsServer, .addDNSServer:
+        case .dnsServer, .addDNSServer, .addConnectedNetwork, .addTrustedNetwork, .trustedNetwork:
             return true
         default:
             return false
@@ -178,11 +213,23 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let item = itemIdentifier(for: indexPath)
 
         if case .addDNSServer = item, editingStyle == .insert {
-            addDNSServerEntry()
+            addDNSEntry()
         }
 
         if case let .dnsServer(entryIdentifier) = item, editingStyle == .delete {
             deleteDNSServerEntry(entryIdentifier: entryIdentifier)
+        }
+
+        if case .addTrustedNetwork = item {
+            addTrustedNetworkEntry(ssid: nil, beginEditing: true)
+        }
+
+        if case .addConnectedNetwork = item, let ssid = viewModel.connectedNetwork?.ssid, editingStyle == .insert {
+            addTrustedNetworkEntry(ssid: ssid, beginEditing: false)
+        }
+
+        if case let .trustedNetwork(entryIdentifier) = item, editingStyle == .delete {
+            deleteTrustedNetworkEntry(entryIdentifier: entryIdentifier)
         }
     }
 
@@ -225,38 +272,55 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
-        )
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .mullvadDNS, .customDNS:
+            return tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+            )
+
+        case .trustedNetworks:
+            return nil
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .mullvadDNS, .trustedNetworks:
             return nil
 
         case .customDNS:
-            let reusableView = tableView
-                .dequeueReusableHeaderFooterView(
-                    withIdentifier: HeaderFooterReuseIdentifiers
-                        .customDNSFooter.rawValue
-                ) as! SettingsStaticTextFooterView
+            guard let reusableView = tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.customDNSFooter.rawValue
+            ) as? SettingsStaticTextFooterView else {
+                return nil
+            }
+
             configureFooterView(reusableView)
+
             return reusableView
         }
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .mullvadDNS, .customDNS:
+            return UIMetrics.sectionSpacing
+        case .trustedNetworks:
+            return UITableView.automaticDimension
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .mullvadDNS, .trustedNetworks:
             return 0
 
         case .customDNS:
@@ -269,16 +333,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        editingStyleForRowAt indexPath: IndexPath
-    ) -> UITableViewCell.EditingStyle {
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle
+    {
         let item = itemIdentifier(for: indexPath)
 
         switch item {
-        case .dnsServer:
+        case .dnsServer, .trustedNetwork:
             return .delete
-        case .addDNSServer:
+        case .addDNSServer, .addConnectedNetwork, .addTrustedNetwork:
             return .insert
         default:
             return .none
@@ -338,29 +400,42 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.mullvadDNS, .customDNS])
+        snapshot.appendSections([.mullvadDNS, .customDNS, .trustedNetworks])
         snapshot.appendItems(
             [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling],
             toSection: .mullvadDNS
         )
         snapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
-        let dnsServerItems = viewModel.customDNSDomains.map { entry in
-            return Item.dnsServer(entry.identifier)
-        }
+        let dnsServerItems = viewModel.customDNSDomains.map { Item.dnsServer($0.identifier) }
         snapshot.appendItems(dnsServerItems, toSection: .customDNS)
 
         if isEditing, viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
             snapshot.appendItems([.addDNSServer], toSection: .customDNS)
         }
 
-        apply(snapshot, completion: completion)
+        snapshot.appendItems([.useTrustedNetworks], toSection: .trustedNetworks)
+
+        if !viewModel.trustedNetworks.isEmpty {
+            let trustedNetworkItems = viewModel.trustedNetworks.map { Item.trustedNetwork($0.identifier) }
+            snapshot.appendItems(trustedNetworkItems, toSection: .trustedNetworks)
+        }
+
+        if isEditing {
+            snapshot.appendItems([.addTrustedNetwork], toSection: .trustedNetworks)
+        }
+
+        if let connectedNetwork = viewModel.connectedNetwork,
+           !viewModel.containsTrustedNetwork(ssid: connectedNetwork.ssid), isEditing
+        {
+            snapshot.appendItems([.addConnectedNetwork], toSection: .trustedNetworks)
+        }
+
+        apply(snapshot, animatingDifferences: animated, completion: completion)
     }
 
     private func reload(item: Item) {
-        if let indexPath = indexPath(for: item),
-           let cell = tableView?.cellForRow(at: indexPath)
-        {
+        if let indexPath = indexPath(for: item), let cell = tableView?.cellForRow(at: indexPath) {
             preferencesCellFactory.configureCell(cell, item: item, indexPath: indexPath)
         }
     }
@@ -449,7 +524,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private func handleDNSEntryChange(with identifier: UUID, inputString: String) -> Bool {
+    func didChangeDNSEntry(with identifier: UUID, inputString: String) {
         let oldViewModel = viewModel
 
         viewModel.updateDNSEntry(entryIdentifier: identifier, newAddress: inputString)
@@ -457,11 +532,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
         }
-
-        return viewModel.validateDNSDomainUserInput(inputString)
     }
 
-    private func addDNSServerEntry() {
+    func addDNSEntry() {
         let oldViewModel = viewModel
 
         let newDNSEntry = DNSServerEntry(address: "")
@@ -518,9 +591,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         reload(item: .useCustomDNS)
 
         let sectionIndex = snapshot().indexOfSection(.customDNS)!
-        if let reusableView = tableView?
-            .footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView
-        {
+        if let reusableView = tableView?.footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView {
             configureFooterView(reusableView)
         }
     }
@@ -531,9 +602,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
             .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
     }
-}
 
-extension PreferencesDataSource: PreferencesCellEventHandler {
     func didChangeState(for item: Item, isOn: Bool) {
         switch item {
         case .blockAdvertising:
@@ -554,19 +623,67 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
         case .useCustomDNS:
             setEnableCustomDNS(isOn)
 
+        case .useTrustedNetworks:
+            setEnableTrustedNetworks(isOn)
+
         default:
             break
         }
     }
 
-    func addDNSEntry() {
-        addDNSServerEntry()
+    private func setEnableTrustedNetworks(_ isEnabled: Bool) {
+        viewModel.useTrustedNetworks = isEnabled
+
+        if !isEditing {
+            delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
+        }
     }
 
-    func didChangeDNSEntry(
-        with identifier: UUID,
-        inputString: String
-    ) -> Bool {
-        return handleDNSEntryChange(with: identifier, inputString: inputString)
+    func addTrustedNetworkEntry(ssid: String?, beginEditing: Bool) {
+        guard let newTrustedNetworkEntry = viewModel.addTrustedNetwork(ssid) else { return }
+
+        updateCellFactory(with: viewModel)
+        updateSnapshot(animated: true) { [weak self] in
+            guard let self = self, beginEditing else { return }
+
+            // Focus on the new entry text field.
+            let lastTrustedNetworkEntry = self.snapshot().itemIdentifiers(inSection: .trustedNetworks)
+                .last { item in
+                    if case let .trustedNetwork(entryIdentifier) = item {
+                        return entryIdentifier == newTrustedNetworkEntry.identifier
+                    } else {
+                        return false
+                    }
+                }
+
+            if let lastTrustedNetworkEntry = lastTrustedNetworkEntry,
+               let indexPath = self.indexPath(for: lastTrustedNetworkEntry)
+            {
+                let cell = self.tableView?.cellForRow(at: indexPath) as? TrustedNetworkTextCell
+
+                self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                cell?.textField.becomeFirstResponder()
+            }
+        }
+
+        reload(item: .useTrustedNetworks)
+    }
+
+    func deleteTrustedNetworkEntry(entryIdentifier: UUID) {
+        viewModel.deleteTrustedNetwork(entryIdentifier: entryIdentifier)
+
+        updateCellFactory(with: viewModel)
+        updateSnapshot(animated: true)
+
+        reload(item: .useTrustedNetworks)
+    }
+
+    func didChangeTrustedNetworkEntry(with identifier: UUID, newSsid: String) {
+        viewModel.updateTrustedNetwork(entryIdentifier: identifier, newSsid: newSsid)
+
+        updateCellFactory(with: viewModel)
+        updateSnapshot()
+
+        reload(item: .useTrustedNetworks)
     }
 }

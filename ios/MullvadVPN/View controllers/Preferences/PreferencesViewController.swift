@@ -44,11 +44,25 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         )
         navigationItem.rightBarButtonItem = editButtonItem
 
-        interactor.dnsSettingsDidChange = { [weak self] newDNSSettings in
-            self?.dataSource?.update(from: newDNSSettings)
+        interactor.tunnelSettingsDidChange = { [weak self] tunnelSettings in
+            self?.dataSource?.update(from: tunnelSettings)
         }
 
-        dataSource?.update(from: interactor.dnsSettings)
+        dataSource?.update(from: interactor.tunnelSettings)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        interactor.startCurrentWifiNetworkRefresh { [weak self] network in
+            self?.dataSource?.setConnectedWifiNetwork(network)
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        interactor.stopCurrentWifiNetworkRefresh()
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -68,8 +82,9 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         _ dataSource: PreferencesDataSource,
         didChangeViewModel dataModel: PreferencesViewModel
     ) {
-        let dnsSettings = dataModel.asDNSSettings()
-
-        interactor.setDNSSettings(dnsSettings)
+        interactor.updatTunnelSettings(
+            dnsSettings: dataModel.asDNSSettings(),
+            trustedNetworkSettings: dataModel.asTrustedNetworkSettings()
+        )
     }
 }

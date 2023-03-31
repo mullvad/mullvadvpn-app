@@ -76,6 +76,16 @@ enum CustomDNSPrecondition {
 struct DNSServerEntry: Equatable, Hashable {
     var identifier = UUID()
     var address: String
+
+    /// Returns true if address is empty or a valid IP address.
+    var isValid: Bool {
+        return address.isEmpty || AnyIPAddress(address) != nil
+    }
+}
+
+struct TrustedNetworkEntry: Equatable, Hashable {
+    var identifier = UUID()
+    var ssid: String
 }
 
 struct PreferencesViewModel: Equatable {
@@ -85,6 +95,20 @@ struct PreferencesViewModel: Equatable {
     private(set) var blockAdultContent: Bool
     private(set) var blockGambling: Bool
     private(set) var enableCustomDNS: Bool
+
+    var connectedNetwork: ConnectedWifiNetwork?
+    private(set) var trustedNetworks: [TrustedNetworkEntry]
+    var useTrustedNetworks: Bool
+
+    /// Effective state of the custom DNS setting.
+    var effectiveUseTrustedNetworks: Bool {
+        return useTrustedNetworks && hasValidTrustedNetworks
+    }
+
+    var hasValidTrustedNetworks: Bool {
+        return trustedNetworks.contains { !$0.ssid.isEmpty }
+    }
+
     var customDNSDomains: [DNSServerEntry]
 
     mutating func setBlockAdvertising(_ newValue: Bool) {
@@ -140,16 +164,19 @@ struct PreferencesViewModel: Equatable {
         return customDNSPrecondition == .satisfied && enableCustomDNS
     }
 
-    init(from dnsSettings: DNSSettings = DNSSettings()) {
+    init(from tunnelSettings: TunnelSettingsV2 = .init()) {
+        let dnsSettings = tunnelSettings.dnsSettings
+        let trustedNetworkSettings = tunnelSettings.trustedNetworkSettings
+
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)
         blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
         blockAdultContent = dnsSettings.blockingOptions.contains(.blockAdultContent)
         blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
         enableCustomDNS = dnsSettings.enableCustomDNS
-        customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
-            return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
-        }
+        customDNSDomains = dnsSettings.customDNSDomains.map { DNSServerEntry(address: "\($0)") }
+        trustedNetworks = trustedNetworkSettings.ssids.map { TrustedNetworkEntry(ssid: $0) }
+        useTrustedNetworks = trustedNetworkSettings.isEnabled
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.
@@ -162,6 +189,24 @@ struct PreferencesViewModel: Equatable {
         mergedViewModel.blockAdultContent = other.blockAdultContent
         mergedViewModel.blockGambling = other.blockGambling
         mergedViewModel.enableCustomDNS = other.enableCustomDNS
+        mergedViewModel.useTrustedNetworks = other.useTrustedNetworks
+        mergedViewModel.connectedNetwork = other.connectedNetwork
+
+        var oldTrustedNetworks = trustedNetworks
+        for otherEntry in other.trustedNetworks {
+            let sameEntryIndex = oldTrustedNetworks.firstIndex { entry in
+                return entry.ssid == otherEntry.ssid
+            }
+
+            if let sameEntryIndex = sameEntryIndex {
+                let sourceEntry = oldTrustedNetworks[sameEntryIndex]
+
+                mergedViewModel.trustedNetworks.append(sourceEntry)
+                oldTrustedNetworks.remove(at: sameEntryIndex)
+            } else {
+                mergedViewModel.trustedNetworks.append(otherEntry)
+            }
+        }
 
         var oldDNSDomains = customDNSDomains
         for otherEntry in other.customDNSDomains {
@@ -182,8 +227,26 @@ struct PreferencesViewModel: Equatable {
         return mergedViewModel
     }
 
+    mutating func sanitizeData() {
+        sanitizeCustomDNSEntries()
+        sanitizeTrustedNetworkEntries()
+    }
+
+    private mutating func sanitizeTrustedNetworkEntries() {
+        // Discard duplicate and trusted networks that are empty strings
+        trustedNetworks = trustedNetworks.reduce(into: []) { partialResult, entry in
+            if !partialResult.contains(where: { $0.ssid == entry.ssid }), !entry.ssid.isEmpty {
+                partialResult.append(entry)
+            }
+        }
+
+        if trustedNetworks.isEmpty {
+            useTrustedNetworks = false
+        }
+    }
+
     /// Sanitize custom DNS entries.
-    mutating func sanitizeCustomDNSEntries() {
+    private mutating func sanitizeCustomDNSEntries() {
         // Sanitize DNS domains, drop invalid entries.
         customDNSDomains = customDNSDomains.compactMap { entry in
             if let canonicalAddress = AnyIPAddress(entry.address) {
@@ -249,14 +312,51 @@ struct PreferencesViewModel: Equatable {
         var dnsSettings = DNSSettings()
         dnsSettings.blockingOptions = blockingOptions
         dnsSettings.enableCustomDNS = enableCustomDNS
-        dnsSettings.customDNSDomains = customDNSDomains.compactMap { entry in
-            return AnyIPAddress(entry.address)
-        }
+        dnsSettings.customDNSDomains = customDNSDomains.compactMap { AnyIPAddress($0.address) }
         return dnsSettings
     }
 
-    /// Returns true if the given string is empty or a valid IP address.
-    func validateDNSDomainUserInput(_ string: String) -> Bool {
-        return string.isEmpty || AnyIPAddress(string) != nil
+    func asTrustedNetworkSettings() -> TrustedNetworkSettings {
+        return TrustedNetworkSettings(
+            isEnabled: useTrustedNetworks,
+            ssids: trustedNetworks.map { $0.ssid }.filter { !$0.isEmpty }
+        )
+    }
+
+    func trustedNetwork(entryIdentifier: UUID) -> TrustedNetworkEntry? {
+        return trustedNetworks.first { entry in
+            return entry.identifier == entryIdentifier
+        }
+    }
+
+    mutating func addTrustedNetwork(_ ssid: String? = nil) -> TrustedNetworkEntry? {
+        let ssid = ssid ?? ""
+
+        if !trustedNetworks.contains(where: { $0.ssid == ssid }) {
+            let entry = TrustedNetworkEntry(ssid: ssid)
+            trustedNetworks.append(entry)
+
+            return entry
+        } else {
+            return nil
+        }
+    }
+
+    mutating func updateTrustedNetwork(entryIdentifier: UUID, newSsid: String) {
+        guard let index = indexOfTrustedNetwork(entryIdentifier: entryIdentifier) else { return }
+
+        trustedNetworks[index].ssid = newSsid
+    }
+
+    func indexOfTrustedNetwork(entryIdentifier: UUID) -> Int? {
+        return trustedNetworks.firstIndex(where: { $0.identifier == entryIdentifier })
+    }
+
+    func containsTrustedNetwork(ssid: String) -> Bool {
+        return trustedNetworks.contains { $0.ssid == ssid }
+    }
+
+    mutating func deleteTrustedNetwork(entryIdentifier: UUID) {
+        trustedNetworks.removeAll { $0.identifier == entryIdentifier }
     }
 }
