@@ -11,7 +11,6 @@ import UIKit
 class SettingsStaticTextFooterView: UITableViewHeaderFooterView {
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 14)
         titleLabel.textColor = .white
         titleLabel.numberOfLines = 0
@@ -22,17 +21,12 @@ class SettingsStaticTextFooterView: UITableViewHeaderFooterView {
         super.init(reuseIdentifier: reuseIdentifier)
 
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
-        contentView.addSubview(titleLabel)
 
-        contentView.addConstraints([
-            titleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            titleLabel.leadingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            titleLabel.trailingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
+        contentView.addConstrainedSubviews([titleLabel]) {
+            titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
             titleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
-                .withPriority(.defaultLow),
-        ])
+                .withPriority(.defaultLow)
+        }
     }
 
     required init?(coder: NSCoder) {
