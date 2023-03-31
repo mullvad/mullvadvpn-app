@@ -79,30 +79,24 @@ class SettingsCell: UITableViewCell {
         titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         detailTitleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(detailTitleLabel)
-
         setLayoutMargins()
 
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            titleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            titleLabel.bottomAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+        contentView.addConstrainedSubviews([titleLabel, detailTitleLabel]) {
+            switch style {
+            case .subtitle:
+                titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+                detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.top))
+                detailTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1)
 
-            detailTitleLabel.leadingAnchor.constraint(
-                greaterThanOrEqualToSystemSpacingAfter: titleLabel.trailingAnchor,
-                multiplier: 1
-            ),
-
-            detailTitleLabel.trailingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            detailTitleLabel.topAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            detailTitleLabel.bottomAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
-        ])
+            default:
+                titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+                detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+                detailTitleLabel.leadingAnchor.constraint(
+                    greaterThanOrEqualToSystemSpacingAfter: titleLabel.trailingAnchor,
+                    multiplier: 1
+                )
+            }
+        }
     }
 
     required init?(coder: NSCoder) {
