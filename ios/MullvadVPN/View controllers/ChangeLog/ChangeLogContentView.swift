@@ -93,15 +93,23 @@ final class ChangeLogContentView: UIView {
     }
 
     func setChangeLogText(_ string: String) {
+        let bullet = "• "
+        let font = UIFont.systemFont(ofSize: 18)
+
+        let bulletList = string.split(whereSeparator: { $0.isNewline })
+            .map { "\(bullet)\($0)" }
+            .joined(separator: "\n")
+
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.5
         paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
 
         textView.attributedText = NSAttributedString(
-            string: string,
+            string: bulletList,
             attributes: [
                 .paragraphStyle: paragraphStyle,
-                .font: UIFont.systemFont(ofSize: 18),
+                .font: font,
                 .foregroundColor: UIColor.white,
             ]
         )

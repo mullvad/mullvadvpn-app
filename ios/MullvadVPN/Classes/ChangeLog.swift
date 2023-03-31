@@ -44,9 +44,7 @@ enum ChangeLog {
             .compactMap { line in
                 let trimmedString = line.trimmingCharacters(in: .whitespaces)
 
-                guard !trimmedString.isEmpty else { return nil }
-
-                return "• \(trimmedString)"
+                return trimmedString.isEmpty ? nil : trimmedString
             }
             .joined(separator: "\n")
     }
