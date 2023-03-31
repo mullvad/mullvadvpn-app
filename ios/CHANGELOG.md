@@ -23,6 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added 
+- Add trusted networks configuration under VPN settings. Enables you to specify Wi-Fi network SSIDs,
+  while connected to which, device should automatically disconnect the active VPN tunnel and prevent 
+  it from starting automatically (on-demand). The tunnel is automatically re-established once device 
+  left the trusted network.
+
 ### Changed
 - Changed key rotation interval from 4 to 7 days.
 - Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency in key
