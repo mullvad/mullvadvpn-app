@@ -35,7 +35,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
     func start() {
         let controller = SelectLocationViewController()
 
-        controller.didSelectRelay = { [weak self] _, relay in
+        controller.didSelectRelay = { [weak self] relay in
             guard let self = self else { return }
 
             let newConstraints = RelayConstraints(location: .only(relay))
@@ -47,7 +47,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
             self.didFinish?(self, relay)
         }
 
-        controller.didFinish = { [weak self] _ in
+        controller.didFinish = { [weak self] in
             guard let self = self else { return }
 
             self.didFinish?(self, nil)
