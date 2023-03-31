@@ -31,6 +31,19 @@ struct TunnelSettingsV2: Codable, Equatable {
 
     /// DNS settings.
     var dnsSettings = DNSSettings()
+
+    /// Trusted network settings.
+    /// Added in 2023.2
+    var trustedNetworkSettings = TrustedNetworkSettings()
+}
+
+struct TrustedNetworkSettings: Codable, Equatable {
+    var isEnabled = false
+    var ssids: [String] = []
+
+    var effectiveIsEnabled: Bool {
+        return isEnabled && !ssids.isEmpty
+    }
 }
 
 struct StoredAccountData: Codable, Equatable {
