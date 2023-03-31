@@ -40,7 +40,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
 
             let newConstraints = RelayConstraints(location: .only(relay))
 
-            self.tunnelManager.setRelayConstraints(newConstraints) {
+            self.tunnelManager.updateSettings(request: .init(relayConstraints: newConstraints)) {
                 self.tunnelManager.startTunnel()
             }
 

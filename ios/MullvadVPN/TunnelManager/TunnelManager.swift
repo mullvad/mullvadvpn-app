@@ -543,27 +543,55 @@ final class TunnelManager: StorePaymentObserver {
         return operation
     }
 
-    func setRelayConstraints(
-        _ newConstraints: RelayConstraints,
-        completionHandler: (() -> Void)? = nil
-    ) {
-        scheduleSettingsUpdate(
-            taskName: "Set relay constraints",
-            modificationBlock: { settings in
-                settings.relayConstraints = newConstraints
-            },
-            completionHandler: completionHandler
-        )
-    }
+    func updateSettings(request: UpdateSettingsRequest, completionHandler: (() -> Void)?) {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
+            let currentSettings = self._tunnelSettings
+            var updatedSettings = currentSettings
 
-    func setDNSSettings(_ newDNSSettings: DNSSettings, completionHandler: (() -> Void)? = nil) {
-        scheduleSettingsUpdate(
-            taskName: "Set DNS settings",
-            modificationBlock: { settings in
-                settings.dnsSettings = newDNSSettings
-            },
-            completionHandler: completionHandler
+            if let relayConstraints = request.relayConstraints {
+                updatedSettings.relayConstraints = relayConstraints
+            }
+
+            if let dnsSettings = request.dnsSettings {
+                updatedSettings.dnsSettings = dnsSettings
+            }
+
+            if let trustedNetworksSettings = request.trustedNetworkSettings {
+                updatedSettings.trustedNetworkSettings = trustedNetworksSettings
+            }
+
+            // Select new relay only when relay constraints change.
+            let currentConstraints = currentSettings.relayConstraints
+            let updatedConstraints = updatedSettings.relayConstraints
+            let selectNewRelay = currentConstraints != updatedConstraints
+
+            self.setSettings(updatedSettings, persist: true)
+
+            if currentSettings.trustedNetworkSettings != updatedSettings.trustedNetworkSettings {
+                self.updateOnDemandRules { error in
+                    self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
+                }
+            } else {
+                self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
+            }
+        }
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                completionHandler?()
+            }
+        }
+
+        operation.addObserver(BackgroundObserver(
+            application: application,
+            name: "Update settings",
+            cancelUponExpiration: false
+        ))
+        operation.addCondition(
+            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
+
+        operationQueue.addOperation(operation)
     }
 
     // MARK: - Tunnel observeration
@@ -920,44 +948,6 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    private func scheduleSettingsUpdate(
-        taskName: String,
-        modificationBlock: @escaping (inout TunnelSettingsV2) -> Void,
-        completionHandler: (() -> Void)?
-    ) {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            let currentSettings = self._tunnelSettings
-            var updatedSettings = self._tunnelSettings
-
-            modificationBlock(&updatedSettings)
-
-            // Select new relay only when relay constraints change.
-            let currentConstraints = currentSettings.relayConstraints
-            let updatedConstraints = updatedSettings.relayConstraints
-            let selectNewRelay = currentConstraints != updatedConstraints
-
-            self.setSettings(updatedSettings, persist: true)
-            self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
-        }
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                completionHandler?()
-            }
-        }
-
-        operation.addObserver(BackgroundObserver(
-            application: application,
-            name: taskName,
-            cancelUponExpiration: false
-        ))
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
-    }
-
     private func scheduleDeviceStateUpdate(
         taskName: String,
         reconnectTunnel: Bool = true,
@@ -988,8 +978,40 @@ final class TunnelManager: StorePaymentObserver {
             cancelUponExpiration: false
         ))
         operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
+            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
+
+        operationQueue.addOperation(operation)
+    }
+
+    private func updateOnDemandRules(completionHandler: ((Error?) -> Void)? = nil) {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { operation in
+            guard let tunnel = self.tunnel else {
+                operation.finish(error: UnsetTunnelError())
+                return
+            }
+
+            let onDemandRules = self.settings.makeOnDemandRules()
+
+            tunnel.setOnDemandRules(onDemandRules)
+            tunnel.saveToPreferences { error in
+                operation.finish(error: error)
+            }
+        }
+
+        operation.addObserver(BackgroundObserver(
+            application: application,
+            name: "Update on-demand rules",
+            cancelUponExpiration: false
+        ))
+
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                completionHandler?(operation.error)
+            }
+        }
 
         operationQueue.addOperation(operation)
     }
@@ -1093,4 +1115,18 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     func selectRelay() throws -> RelaySelectorResult {
         return try tunnelManager.selectRelay()
     }
+}
+
+/**
+ Struct used to apply single or batch of changes to tunnel settings.
+ */
+struct UpdateSettingsRequest {
+    /// New relay constraints if set.
+    var relayConstraints: RelayConstraints?
+
+    /// New DNS settings if set.
+    var dnsSettings: DNSSettings?
+
+    /// New trusted network settings if set.
+    var trustedNetworkSettings: TrustedNetworkSettings?
 }
