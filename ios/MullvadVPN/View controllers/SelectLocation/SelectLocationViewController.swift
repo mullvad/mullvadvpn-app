@@ -29,7 +29,7 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
     var scrollToSelectedRelayOnViewWillAppear = true
 
     init() {
-        super.init(nibName: nil, bundle: nil)
+        super.init(style: .plain)
     }
 
     required init?(coder: NSCoder) {
@@ -71,8 +71,6 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
         super.viewDidAppear(animated)
 
         isViewAppeared = true
-
-        tableView?.flashScrollIndicators()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
