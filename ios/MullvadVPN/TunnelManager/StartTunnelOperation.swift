@@ -111,29 +111,11 @@ class StartTunnelOperation: ResultOperation<Void> {
     private func makeTunnelProvider(completionHandler: @escaping (Result<Tunnel, Error>) -> Void) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = Self.makeTunnelConfiguration()
+        let configuration = interactor.settings.makeTunnelConfiguration()
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
             completionHandler(error.map { .failure($0) } ?? .success(tunnel))
         }
-    }
-
-    private class func makeTunnelConfiguration() -> TunnelConfiguration {
-        let protocolConfig = NETunnelProviderProtocol()
-        protocolConfig.providerBundleIdentifier = ApplicationConfiguration
-            .packetTunnelExtensionIdentifier
-        protocolConfig.serverAddress = ""
-
-        let alwaysOnRule = NEOnDemandRuleConnect()
-        alwaysOnRule.interfaceTypeMatch = .any
-
-        return TunnelConfiguration(
-            isEnabled: true,
-            localizedDescription: "WireGuard",
-            protocolConfiguration: protocolConfig,
-            onDemandRules: [alwaysOnRule],
-            isOnDemandEnabled: true
-        )
     }
 }

@@ -231,6 +231,7 @@
 		58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */; };
 		58B3F30F2742708B00A2DD38 /* HeaderBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B3F30E2742708B00A2DD38 /* HeaderBarButton.swift */; };
 		58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */; };
+		58B6CE9A29D717D100DC873D /* TunnelSettingsV2+VPN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6CE9929D717D100DC873D /* TunnelSettingsV2+VPN.swift */; };
 		58B8644529C7971B005E107C /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
 		58B8644629C7972F005E107C /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
@@ -854,6 +855,7 @@
 		58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerDelegate.swift; sourceTree = "<group>"; };
 		58B3F30E2742708B00A2DD38 /* HeaderBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarButton.swift; sourceTree = "<group>"; };
 		58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlView.swift; sourceTree = "<group>"; };
+		58B6CE9929D717D100DC873D /* TunnelSettingsV2+VPN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelSettingsV2+VPN.swift"; sourceTree = "<group>"; };
 		58B93A1226C3F13600A55733 /* TunnelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelState.swift; sourceTree = "<group>"; };
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
@@ -1215,6 +1217,7 @@
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
+				58B6CE9929D717D100DC873D /* TunnelSettingsV2+VPN.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -2725,6 +2728,7 @@
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */,
+				58B6CE9A29D717D100DC873D /* TunnelSettingsV2+VPN.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
