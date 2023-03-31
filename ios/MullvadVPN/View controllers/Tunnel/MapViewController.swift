@@ -171,7 +171,33 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
 
         do {
             let data = try Data(contentsOf: fileURL)
-            let overlays = try GeoJSON.decodeGeoJSON(data)
+            guard let features = try MKGeoJSONDecoder().decode(data) as? [MKGeoJSONFeature]
+            else { return }
+
+            var overlays = [MKOverlay]()
+
+            for feature in features {
+                for geometry in feature.geometry {
+                    if let polygon = geometry as? MKPolygon {
+                        if let interiorPolygons = polygon.interiorPolygons,
+                           !interiorPolygons.isEmpty
+                        {
+                            overlays
+                                .append(MKPolygon(
+                                    points: polygon.points(),
+                                    count: polygon.pointCount
+                                ))
+                            overlays.append(contentsOf: interiorPolygons)
+                        } else {
+                            overlays.append(polygon)
+                        }
+                    }
+
+                    if let multiPolygon = geometry as? MKMultiPolygon {
+                        overlays.append(contentsOf: multiPolygon.polygons)
+                    }
+                }
+            }
 
             mapView.addOverlays(overlays, level: .aboveLabels)
         } catch {
