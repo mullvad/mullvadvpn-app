@@ -9,6 +9,7 @@ pub mod bridge;
 pub mod custom_list;
 pub mod debug;
 pub mod dns;
+pub mod interactive;
 pub mod lan;
 pub mod lockdown;
 pub mod obfuscation;

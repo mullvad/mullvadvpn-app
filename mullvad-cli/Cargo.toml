@@ -20,8 +20,14 @@ chrono = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
+crossterm = { version = "0.25.0", features = ["event-stream"] }
+flume = "0.10.14"
+futures-timer = "3.0.2"
 itertools = "0.10"
 natord = "1.0.9"
+parking_lot = "0.12.1"
+tokio-stream = "0.1.11"
+tui = "0.19.0"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
 mullvad-version = { path = "../mullvad-version" }
