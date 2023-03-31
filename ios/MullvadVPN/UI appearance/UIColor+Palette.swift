@@ -61,7 +61,6 @@ extension UIColor {
 
     // Navigation bars
     enum NavigationBar {
-        static let backgroundColor = UIColor.secondaryColor
         static let backButtonIndicatorColor = UIColor(white: 1.0, alpha: 0.4)
         static let backButtonTitleColor = UIColor(white: 1.0, alpha: 0.6)
         static let titleColor = UIColor.white

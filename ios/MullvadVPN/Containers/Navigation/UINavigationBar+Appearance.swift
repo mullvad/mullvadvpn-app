@@ -9,24 +9,6 @@
 import UIKit
 
 extension UINavigationBar {
-    var titleLabelBottomInset: CGFloat {
-        // Go two levels deep only
-        let subviewsToExamine = subviews.flatMap { view -> [UIView] in
-            return [view] + view.subviews
-        }
-
-        let titleLabel = subviewsToExamine.first { view -> Bool in
-            return view is UILabel
-        }
-
-        if let titleLabel = titleLabel {
-            let titleFrame = titleLabel.convert(titleLabel.bounds, to: self)
-            return max(bounds.maxY - titleFrame.maxY, 0)
-        } else {
-            return 0
-        }
-    }
-
     func configureCustomAppeareance() {
         var margins = layoutMargins
         margins.left = UIMetrics.contentLayoutMargins.left
@@ -34,14 +16,12 @@ extension UINavigationBar {
 
         layoutMargins = margins
         tintColor = UIColor.NavigationBar.titleColor
-        backgroundColor = UIColor.NavigationBar.backgroundColor
-        isTranslucent = false
 
-        standardAppearance = makeNavigationBarAppearance()
-        scrollEdgeAppearance = makeNavigationBarAppearance()
+        standardAppearance = makeNavigationBarAppearance(isTransparent: false)
+        scrollEdgeAppearance = makeNavigationBarAppearance(isTransparent: true)
     }
 
-    private func makeNavigationBarAppearance() -> UINavigationBarAppearance {
+    private func makeNavigationBarAppearance(isTransparent: Bool) -> UINavigationBarAppearance {
         let backIndicatorImage = UIImage(named: "IconBack")?.withTintColor(
             UIColor.NavigationBar.backButtonIndicatorColor,
             renderingMode: .alwaysOriginal
@@ -57,7 +37,14 @@ extension UINavigationBar {
         ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.configureWithTransparentBackground()
+
+        if isTransparent {
+            navigationBarAppearance.configureWithTransparentBackground()
+        } else {
+            navigationBarAppearance.configureWithDefaultBackground()
+            navigationBarAppearance.backgroundEffect = UIBlurEffect(style: .dark)
+        }
+
         navigationBarAppearance.titleTextAttributes = titleTextAttributes
         navigationBarAppearance.largeTitleTextAttributes = titleTextAttributes
 
