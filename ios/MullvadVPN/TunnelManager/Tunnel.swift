@@ -117,6 +117,10 @@ final class Tunnel: Equatable {
         configuration.apply(to: tunnelProvider)
     }
 
+    func setOnDemandRules(_ onDemandRules: [NEOnDemandRule]) {
+        tunnelProvider.onDemandRules = onDemandRules
+    }
+
     func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
         tunnelProvider.saveToPreferences { error in
             if let error = error {
