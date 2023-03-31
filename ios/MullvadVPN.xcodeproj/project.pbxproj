@@ -74,7 +74,7 @@
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
-		5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */; };
+		5819C2172729595500D6EC38 /* SettingsAddEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819C2162729595500D6EC38 /* SettingsAddEntryCell.swift */; };
 		5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerErrors.swift */; };
 		5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDA8288FE064006BF4E4 /* DeviceManagementInteractor.swift */; };
 		5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDAA288FF0D2006BF4E4 /* DeviceRowView.swift */; };
@@ -685,7 +685,7 @@
 		581943E228F8010400B0CB5E /* Date+LogFormat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Date+LogFormat.swift"; sourceTree = "<group>"; };
 		581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFormatLogHandler.swift; sourceTree = "<group>"; };
 		581943E428F8010400B0CB5E /* OSLogHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
-		5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAddDNSEntryCell.swift; sourceTree = "<group>"; };
+		5819C2162729595500D6EC38 /* SettingsAddEntryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAddEntryCell.swift; sourceTree = "<group>"; };
 		5820675A26E6576800655B05 /* RelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCache.swift; sourceTree = "<group>"; };
 		5820675D26E6839900655B05 /* PresentAlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentAlertOperation.swift; sourceTree = "<group>"; };
 		5820676326E771DB00655B05 /* TunnelManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerErrors.swift; sourceTree = "<group>"; };
@@ -1283,10 +1283,9 @@
 				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
 				584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
-				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
+				5819C2162729595500D6EC38 /* SettingsAddEntryCell.swift */,
 				58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */,
 				58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */,
-				584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1311,6 +1310,7 @@
 				58ACF6482655365700ACE4B7 /* PreferencesViewController.swift */,
 				5871167E2910035700D41AAC /* PreferencesInteractor.swift */,
 				587EB671271451E300123C75 /* PreferencesViewModel.swift */,
+				584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */,
 			);
 			path = Preferences;
 			sourceTree = "<group>";
@@ -2694,7 +2694,7 @@
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				58CAF9F82983D36800BE19F7 /* Coordinator.swift in Sources */,
-				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
+				5819C2172729595500D6EC38 /* SettingsAddEntryCell.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,

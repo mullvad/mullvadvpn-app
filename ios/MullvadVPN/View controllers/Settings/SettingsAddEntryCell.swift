@@ -1,5 +1,5 @@
 //
-//  SettingsAddDNSEntryCell.swift
+//  SettingsAddEntryCell.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 27/10/2021.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SettingsAddDNSEntryCell: SettingsCell {
+class SettingsAddEntryCell: SettingsCell {
     var action: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
