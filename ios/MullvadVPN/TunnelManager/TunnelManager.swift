@@ -323,21 +323,34 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func reconnectTunnel(
-        selectNewRelay: Bool,
-        completionHandler: ((Error?) -> Void)? = nil
-    ) {
-        let operation = ReconnectTunnelOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            selectNewRelay: selectNewRelay
-        )
+    func reconnectTunnel(selectNewRelay: Bool, completionHandler: ((Error?) -> Void)? = nil) {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { operation in
+            guard let tunnel = self.tunnel else {
+                operation.finish(error: UnsetTunnelError())
+                return
+            }
 
-        operation.completionQueue = .main
-        operation.completionHandler = { [weak self] result in
-            self?.didReconnectTunnel(error: result.error)
+            do {
+                let selectorResult = selectNewRelay ? try self.selectRelay() : nil
 
-            completionHandler?(result.error)
+                let task = tunnel.reconnectTunnel(relaySelectorResult: selectorResult) { result in
+                    operation.finish(error: result.error)
+                }
+
+                operation.addCancellationBlock {
+                    task.cancel()
+                }
+            } catch {
+                operation.finish(error: error)
+            }
+        }
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                self.didReconnectTunnel(error: operation.error)
+
+                completionHandler?(operation.error)
+            }
         }
 
         operation.addObserver(
@@ -347,9 +360,7 @@ final class TunnelManager: StorePaymentObserver {
                 cancelUponExpiration: true
             )
         )
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.manageTunnel.category)
-        )
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
     }
