@@ -11,13 +11,12 @@ import MullvadTypes
 import RelayCache
 import UIKit
 
-final class SelectLocationViewController: UIViewController, UITableViewDelegate {
-    private var tableView: UITableView?
+final class SelectLocationViewController: UIViewController {
+    private let searchBar = UISearchBar()
+    private let tableView = UITableView()
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
-    private var relayLocation: RelayLocation?
-    private var scrollPosition: UITableView.ScrollPosition?
-    private var isViewAppeared = false
+    var relayLocation: RelayLocation?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -26,20 +25,12 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
     var didSelectRelay: ((RelayLocation) -> Void)?
     var didFinish: (() -> Void)?
 
-    var scrollToSelectedRelayOnViewWillAppear = true
-
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = .secondaryColor
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
@@ -53,32 +44,26 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
             action: #selector(handleDone)
         )
 
-        setupTableView()
         setupDataSource()
-    }
+        setupTableView()
+        setupSearchBar()
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        let searchBarTopMargin: CGFloat = splitViewController == nil ? -16 : 0
+        view.addConstrainedSubviews([searchBar, tableView]) {
+            searchBar.pinEdges(
+                .init([.top(searchBarTopMargin), .leading(8), .trailing(8)]),
+                to: view.safeAreaLayoutGuide
+            )
 
-        if let indexPath = dataSource?.indexPathForSelectedRelay(),
-           scrollToSelectedRelayOnViewWillAppear, !isViewAppeared
-        {
-            tableView?.scrollToRow(at: indexPath, at: scrollPosition ?? .middle, animated: false)
+            tableView.pinEdgesToSuperview(.all().excluding(.top))
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
         }
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        isViewAppeared = true
-
-        tableView?.flashScrollIndicators()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-
-        isViewAppeared = false
+        tableView.flashScrollIndicators()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -87,7 +72,7 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
         coordinator.animate(alongsideTransition: nil) { context in
             guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
 
-            self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
+            self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
         }
     }
 
@@ -99,56 +84,60 @@ final class SelectLocationViewController: UIViewController, UITableViewDelegate 
         dataSource?.setRelays(cachedRelays.relays)
     }
 
-    func setSelectedRelayLocation(
-        _ relayLocation: RelayLocation?,
-        animated: Bool,
-        scrollPosition: UITableView.ScrollPosition
-    ) {
-        self.relayLocation = relayLocation
-        self.scrollPosition = scrollPosition
-
-        dataSource?.setSelectedRelayLocation(relayLocation, animated: animated)
-    }
-
     // MARK: - Private
 
-    private func setupTableView() {
-        let tableView = UITableView(frame: view.bounds, style: .plain)
-        tableView.backgroundColor = .clear
-        tableView.backgroundColor = .secondaryColor
-        tableView.separatorColor = .secondaryColor
-        tableView.separatorInset = .zero
-        tableView.estimatedRowHeight = 53
-        tableView.indicatorStyle = .white
-        tableView.delegate = self
-
-        view.backgroundColor = .secondaryColor
-
-        view.addConstrainedSubviews([tableView]) {
-            tableView.pinEdgesToSuperview()
-        }
-
-        self.tableView = tableView
+    @objc private func handleDone() {
+        didFinish?()
     }
 
     private func setupDataSource() {
-        guard let tableView = tableView else { return }
-
         dataSource = LocationDataSource(tableView: tableView)
         dataSource?.didSelectRelayLocation = { [weak self] location in
             self?.didSelectRelay?(location)
         }
 
+        dataSource?.selectedRelayLocation = relayLocation
+
         if let cachedRelays = cachedRelays {
             dataSource?.setRelays(cachedRelays.relays)
         }
-
-        if let relayLocation = relayLocation {
-            dataSource?.setSelectedRelayLocation(relayLocation, animated: false)
-        }
     }
 
-    @objc private func handleDone() {
-        didFinish?()
+    private func setupTableView() {
+        tableView.backgroundColor = view.backgroundColor
+        tableView.separatorColor = .secondaryColor
+        tableView.separatorInset = .zero
+        tableView.estimatedRowHeight = 53
+        tableView.indicatorStyle = .white
+        tableView.keyboardDismissMode = .onDrag
+    }
+
+    private func setupSearchBar() {
+        searchBar.delegate = self
+        searchBar.searchBarStyle = .minimal
+        searchBar.layer.cornerRadius = 8
+        searchBar.clipsToBounds = true
+        searchBar.placeholder = NSLocalizedString(
+            "SEARCHBAR_PLACEHOLDER",
+            tableName: "SelectLocation",
+            value: "Search for...",
+            comment: ""
+        )
+
+        UISearchBar.SearchBarAppearance.inactive.apply(to: searchBar)
+    }
+}
+
+extension SelectLocationViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        dataSource?.filterRelays(by: searchText)
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        UISearchBar.SearchBarAppearance.active.apply(to: searchBar)
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        UISearchBar.SearchBarAppearance.inactive.apply(to: searchBar)
     }
 }
