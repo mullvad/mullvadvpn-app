@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.compose.theme
 
 import androidx.compose.ui.graphics.Color
 
+const val MullvadNotTransparent = 1f
+const val MullvadTransparent20 = 0.33f
 val MullvadBeige = Color(0xFFFFCD86)
 val MullvadBlue = Color(0xFF294D73)
 val MullvadBlue60 = Color(0x99294D73)

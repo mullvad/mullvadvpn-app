@@ -12,11 +12,19 @@ data class AdvancedSettingsViewModelState(
     val dialogState: AdvancedSettingsDialogState
 ) {
     fun toUiState(): AdvancedSettingsUiState {
+        val isCustomDnsClickable = !(
+            contentBlockersOptions.blockAds ||
+                contentBlockersOptions.blockTrackers||
+                contentBlockersOptions.blockMalware||
+                contentBlockersOptions.blockAdultContent||
+                contentBlockersOptions.blockGambling
+            )
         return when (dialogState) {
             is AdvancedSettingsDialogState.MtuDialog ->
                 AdvancedSettingsUiState.MtuDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
+                    isCustomDnsClickable = isCustomDnsClickable,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
@@ -26,15 +34,17 @@ data class AdvancedSettingsViewModelState(
                 AdvancedSettingsUiState.DnsDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
+                    isCustomDnsClickable = isCustomDnsClickable,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     stagedDns = dialogState.stagedDns,
                 )
-            is AdvancedSettingsDialogState.ContentsBlockerInfoDialog ->
+            is AdvancedSettingsDialogState.ContentBlockersInfoDialog ->
                 AdvancedSettingsUiState.ContentBlockersInfoDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
+                    isCustomDnsClickable = isCustomDnsClickable,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
@@ -43,6 +53,7 @@ data class AdvancedSettingsViewModelState(
                 AdvancedSettingsUiState.MalwareInfoDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
+                    isCustomDnsClickable = isCustomDnsClickable,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
@@ -51,6 +62,7 @@ data class AdvancedSettingsViewModelState(
                 AdvancedSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
+                    isCustomDnsClickable = isCustomDnsClickable,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
@@ -80,7 +92,7 @@ sealed class AdvancedSettingsDialogState {
 
     data class DnsDialog(val stagedDns: StagedDns) : AdvancedSettingsDialogState()
 
-    object ContentsBlockerInfoDialog : AdvancedSettingsDialogState()
+    object ContentBlockersInfoDialog : AdvancedSettingsDialogState()
 
     object MalwareInfoDialog : AdvancedSettingsDialogState()
 }

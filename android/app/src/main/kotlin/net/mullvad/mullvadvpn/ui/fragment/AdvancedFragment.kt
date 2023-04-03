@@ -34,7 +34,7 @@ class AdvancedFragment : BaseFragment() {
                     onSplitTunnelingNavigationClick = ::openSplitTunnelingFragment,
                     onToggleDnsClick = vm::onToggleDnsClick,
                     onToggleBlockAds = vm::onToggleBlockAds,
-                    onToggleBlockTracker = vm::onToggleBlockTrackers,
+                    onToggleBlockTrackers = vm::onToggleBlockTrackers,
                     onToggleBlockMalware = vm::onToggleBlockMalware,
                     onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
                     onToggleBlockGambling = vm::onToggleBlockGambling,
@@ -43,11 +43,9 @@ class AdvancedFragment : BaseFragment() {
                     onSaveDnsClick = vm::onSaveDnsClick,
                     onRemoveDnsClick = vm::onRemoveDnsClick,
                     onCancelDnsDialogClick = vm::onCancelDialogClick,
-                    onContentsBlockerInfoClicked = vm::onContentsBlockerInfoClicked,
-                    onMalwareInfoClicked = vm::onMalwareInfoClicked,
-                    checkAllPropertiesAreDisable = vm::checkAllPropertiesAreDisable,
-                    getContentBlockersHeaderAlpha = vm::getContentBlockersHeaderAlpha,
-                    onDismissInfoClicked = vm::onDismissInfoClicked,
+                    onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
+                    onMalwareInfoClicked = vm::onMalwareInfoClick,
+                    onDismissInfoClicked = vm::onDismissInfoClick,
                     onBackClick = { activity?.onBackPressed() }
                 )
             }

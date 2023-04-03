@@ -85,29 +85,15 @@ class AdvancedSettingsViewModel(
         hideDialog()
     }
 
-    fun onContentsBlockerInfoClicked() {
-        dialogState.update { AdvancedSettingsDialogState.ContentsBlockerInfoDialog }
+    fun onContentsBlockerInfoClick() {
+        dialogState.update { AdvancedSettingsDialogState.ContentBlockersInfoDialog }
     }
 
-    fun onMalwareInfoClicked() {
+    fun onMalwareInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
     }
 
-    fun checkAllPropertiesAreDisable(contentBlockersOption: DefaultDnsOptions): Boolean {
-        return !(
-            contentBlockersOption.blockAds ||
-                contentBlockersOption.blockTrackers||
-                contentBlockersOption.blockMalware||
-                contentBlockersOption.blockAdultContent||
-                contentBlockersOption.blockGambling
-            )
-    }
-
-    fun getContentBlockersHeaderAlpha(isEnabled: Boolean): Float {
-        return if (isEnabled) 1f else 0.3f
-    }
-
-    fun onDismissInfoClicked() {
+    fun onDismissInfoClick() {
         hideDialog()
     }
 
@@ -212,58 +198,33 @@ class AdvancedSettingsViewModel(
         }
 
     fun onToggleBlockAds(isEnabled: Boolean) {
-        var contentBlockerOptions = DefaultDnsOptions(
-            blockAds = isEnabled,
-            blockTrackers = vmState.value.contentBlockersOptions.blockTrackers,
-            blockMalware = vmState.value.contentBlockersOptions.blockMalware,
-            blockAdultContent = vmState.value.contentBlockersOptions.blockAdultContent,
-            blockGambling = vmState.value.contentBlockersOptions.blockGambling,
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockAds = isEnabled)
         )
-        onContentBlockerSettingsChanged(contentBlockerOptions)
     }
 
     fun onToggleBlockTrackers(isEnabled: Boolean) {
-        var contentBlockerOptions = DefaultDnsOptions(
-            blockAds = vmState.value.contentBlockersOptions.blockAds,
-            blockTrackers = isEnabled,
-            blockMalware = vmState.value.contentBlockersOptions.blockMalware,
-            blockAdultContent = vmState.value.contentBlockersOptions.blockAdultContent,
-            blockGambling = vmState.value.contentBlockersOptions.blockGambling,
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockTrackers = isEnabled)
         )
-        onContentBlockerSettingsChanged(contentBlockerOptions)
     }
 
     fun onToggleBlockMalware(isEnabled: Boolean) {
-        var contentBlockerOptions = DefaultDnsOptions(
-            blockAds = vmState.value.contentBlockersOptions.blockAds,
-            blockTrackers = vmState.value.contentBlockersOptions.blockTrackers,
-            blockMalware = isEnabled,
-            blockAdultContent = vmState.value.contentBlockersOptions.blockAdultContent,
-            blockGambling = vmState.value.contentBlockersOptions.blockGambling,
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockMalware = isEnabled)
         )
-        onContentBlockerSettingsChanged(contentBlockerOptions)
     }
 
     fun onToggleBlockAdultContent(isEnabled: Boolean) {
-        var contentBlockerOptions = DefaultDnsOptions(
-            blockAds = vmState.value.contentBlockersOptions.blockAds,
-            blockTrackers = vmState.value.contentBlockersOptions.blockTrackers,
-            blockMalware = vmState.value.contentBlockersOptions.blockMalware,
-            blockAdultContent = isEnabled,
-            blockGambling = vmState.value.contentBlockersOptions.blockGambling,
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockAdultContent = isEnabled)
         )
-        onContentBlockerSettingsChanged(contentBlockerOptions)
     }
 
     fun onToggleBlockGambling(isEnabled: Boolean) {
-        var contentBlockerOptions = DefaultDnsOptions(
-            blockAds = vmState.value.contentBlockersOptions.blockAds,
-            blockTrackers = vmState.value.contentBlockersOptions.blockTrackers,
-            blockMalware = vmState.value.contentBlockersOptions.blockMalware,
-            blockAdultContent = vmState.value.contentBlockersOptions.blockAdultContent,
-            blockGambling = isEnabled,
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockGambling = isEnabled)
         )
-        onContentBlockerSettingsChanged(contentBlockerOptions)
     }
 
     fun onRemoveDnsClick() =
@@ -286,7 +247,7 @@ class AdvancedSettingsViewModel(
             hideDialog()
         }
 
-    private fun onContentBlockerSettingsChanged(contentBlockersOption: DefaultDnsOptions) =
+    private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
                 isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
