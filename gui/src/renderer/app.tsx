@@ -363,6 +363,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.testApiAccessMethodById(id);
   public testCustomApiAccessMethod = (method: CustomProxy) =>
     IpcRendererEventChannel.settings.testCustomApiAccessMethod(method);
+  public getMapData = () => IpcRendererEventChannel.map.getData();
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
