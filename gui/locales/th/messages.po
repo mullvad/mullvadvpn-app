@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -107,6 +107,7 @@ msgstr "เชื่อมต่อแล้ว"
 msgid "Connecting"
 msgstr "กำลังเชื่อมต่อ"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "กำลังสร้างการเชื่อมต่อควอนตัมที่ปลอดภัย"
 
@@ -146,6 +147,9 @@ msgstr "ไม่สามารถเชื่อมต่ออย่างป
 msgid "Filter"
 msgstr "ตัวกรอง"
 
+msgid "Go to System Settings"
+msgstr "ไปที่การตั้งค่าระบบ"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "รับทราบ!"
@@ -183,6 +187,7 @@ msgstr "เปิด"
 msgid "Open URL"
 msgstr "Open URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "การเชื่อมต่อควอนตัมที่ปลอดภัย"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
+
+msgid "Troubleshoot"
+msgstr "การแก้ไขปัญหา"
 
 msgid "Try a different search."
 msgstr "ลองใช้การค้นหาอื่น"
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "โปรดออกและเปิดแอปขึ้นมาใหม่"
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "ส่งรายงานปัญหา"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "มีการอัปเดตให้ใช้งาน"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "กำลังเชื่อมต่อบริการของระบบ Mullvad..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "สิทธิ์การเข้าถึงบริการ Mullvad VPN ได้ถูกเพิกถอนแล้ว โปรดเข้าไปยังการตั้งค่าระบบ แล้วให้สิทธิ์อนุญาต Mullvad VPN ภายใต้การตั้งค่า \"อนุญาตในพื้นหลัง\""
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "ตัดการเชื่อมต่อและไม่ปลอดภัย"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "ไม่พบเซิร์ฟเวอร์ในตำแหน่งที่คุณเลือกที่ตรงกับการตั้งค่าของคุณ"
+msgid "Lockdown mode active, connection blocked"
+msgstr "เปิดใช้โหมดล็อกดาวน์ ปิดกั้นการเชื่อมต่อแล้ว"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "ไม่สามารถใช้งานกฎไฟร์วอลล์ได้"
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "ไม่สามารถใช้งานกฎไฟร์วอลล์ได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สาม"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "ไม่สามารถใช้งานกฎไฟร์วอลล์ได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สามชั่วคราว"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สาม หรือส่งรายงานปัญหา"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองปิดใช้งานซอฟต์แวร์ป้องกันไวรัส หรือซอฟต์แวร์รักษาความปลอดภัยของบุคคลที่สามชั่วคราว หรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1219,6 +1239,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "กำลังเชื่อมต่อ %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "หากขั้นตอนเหล่านี้ใช้ไม่ได้ผล โปรดส่งรายงานปัญหา"
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "โปรดตรวจสอบให้แน่ใจว่าคุณมีการรองรับตาราง NF"
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "นี่อาจเกิดขึ้นได้ เนื่องจากเคอร์เนลล้าสมัย หรือคุณได้ลบเคอร์เนลออกไป"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "ข้อผิดพลาดนี้อาจเกิดขึ้น ในขณะที่อย่างอื่นนอกเหนือจาก Mullvad กำลังอัปเดต DNS อยู่"
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "ลองเชื่อมต่อใหม่"
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "ลองรีสตาร์ตอุปกรณ์ของคุณ"
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "ลองปิดการโทรผ่าน Wi-Fi ในการตั้งค่าแอป FaceTime แล้วจึงรีสตาร์ต Mac"
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "ไม่สามารถสื่อสารกับไดรเวอร์เคอร์เนล Mullvad ได้"
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "ถอนการติดตั้ง หรือปิดใช้งานแอป DNS, เครือข่าย และแอปที่ปิดกั้นโฆษณา/เว็บไซต์อื่นๆ"
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "อัปเดตเคอร์เนลของคุณ"
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "รักษาความปลอดภัยในการเชื่อมต่อ"
@@ -1466,6 +1526,10 @@ msgid "IP version"
 msgstr "เวอร์ชัน IP"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่"
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1548,13 @@ msgstr "เปิด (UDP-ผ่าน-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "พอร์ต"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "ช่องทางการสกัดกั้นควอนตัม"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1508,6 +1579,10 @@ msgstr "พอร์ตแบบกำหนดเองอาจมีค่า
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง %(wireguard)s ได้"
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "ฟีเจอร์นี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

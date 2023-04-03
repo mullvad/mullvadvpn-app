@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -55,6 +55,10 @@ msgstr "Bélgica"
 #. RS BEG
 msgid "Belgrade"
 msgstr "Belgrado"
+
+#. CO BOG
+msgid "Bogota"
+msgstr "Bogotá"
 
 #. US BOS
 msgid "Boston, MA"
@@ -111,6 +115,10 @@ msgstr "Chisináu"
 #. US CLE
 msgid "Cleveland, OH"
 msgstr "Cleveland, OH"
+
+#. CO
+msgid "Colombia"
+msgstr "Colombia"
 
 #. DK CPH
 msgid "Copenhagen"

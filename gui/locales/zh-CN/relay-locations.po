@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -55,6 +55,10 @@ msgstr "比利时"
 #. RS BEG
 msgid "Belgrade"
 msgstr "贝尔格莱德"
+
+#. CO BOG
+msgid "Bogota"
+msgstr "波哥大"
 
 #. US BOS
 msgid "Boston, MA"
@@ -111,6 +115,10 @@ msgstr "基希讷乌"
 #. US CLE
 msgid "Cleveland, OH"
 msgstr "俄亥俄州克里夫兰"
+
+#. CO
+msgid "Colombia"
+msgstr "哥伦比亚"
 
 #. DK CPH
 msgid "Copenhagen"
