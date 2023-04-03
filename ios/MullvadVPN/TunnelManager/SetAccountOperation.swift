@@ -401,6 +401,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
             self.logger.debug("Saving settings...")
 
             let device = input.device
+            let keyCreationDate = Date()
+
             let newDeviceState = DeviceState.loggedIn(
                 input.accountData,
                 StoredDeviceData(
@@ -411,7 +413,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     ipv4Address: device.ipv4Address,
                     ipv6Address: device.ipv6Address,
                     wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
+                        creationDate: keyCreationDate,
+                        lastRotationAttemptDate: nil,
                         privateKey: input.privateKey
                     )
                 )

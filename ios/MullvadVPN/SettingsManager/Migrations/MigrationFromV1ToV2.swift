@@ -140,6 +140,7 @@ final class MigrationFromV1ToV2: Migration {
                     ipv6Address: device.ipv6Address,
                     wgKeyData: StoredWgKeyData(
                         creationDate: privateKeyWithMetadata.creationDate,
+                        lastRotationAttemptDate: nil,
                         privateKey: privateKeyWithMetadata.privateKey
                     )
                 )

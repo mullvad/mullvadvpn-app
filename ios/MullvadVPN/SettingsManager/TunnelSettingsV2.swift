@@ -114,6 +114,9 @@ struct StoredWgKeyData: Codable, Equatable {
     /// Private key creation date.
     var creationDate: Date
 
+    /// Last date a rotation was attempted. Nil if last attempt was successful.
+    var lastRotationAttemptDate: Date?
+
     /// Private key.
     var privateKey: PrivateKey
 }
