@@ -343,6 +343,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.customLists.deleteCustomList(id);
   public updateCustomList = (customList: ICustomList) =>
     IpcRendererEventChannel.customLists.updateCustomList(customList);
+  public getMapData = () => IpcRendererEventChannel.map.getData();
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;

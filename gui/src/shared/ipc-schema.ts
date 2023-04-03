@@ -29,6 +29,7 @@ interface ILogEntry {
   level: LogLevel;
   message: string;
 }
+import { MapData } from '../renderer/lib/3dmap';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   IChangelog,
@@ -115,6 +116,9 @@ export interface IAppStateSnapshot {
 export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
+  },
+  map: {
+    getData: invoke<void, MapData>(),
   },
   window: {
     shape: notifyRenderer<IWindowShapeParameters>(),
