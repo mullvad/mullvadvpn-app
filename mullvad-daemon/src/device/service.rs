@@ -206,7 +206,7 @@ impl DeviceService {
                 ))
             },
             should_retry_backoff,
-            retry_strategy(),
+            rotate_retry_strategy(),
         )
         .await
         .map_err(map_rest_error)?;
@@ -442,4 +442,8 @@ fn retry_strategy() -> Jittered<ExponentialBackoff> {
         )
         .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
     )
+}
+
+fn rotate_retry_strategy() -> impl Iterator<Item = Duration> {
+    Jittered::jitter(std::iter::repeat(RETRY_BACKOFF_INTERVAL_MAX))
 }
