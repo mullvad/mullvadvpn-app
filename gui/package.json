@@ -16,6 +16,7 @@
     "argv-split": "^2.0.1",
     "d3-geo": "^1.12.1",
     "gettext-parser": "^6.0.0",
+    "gl-matrix": "^3.4.3",
     "google-protobuf": "^3.21.0",
     "node-gettext": "^3.0.0",
     "rbush": "^3.0.1",
