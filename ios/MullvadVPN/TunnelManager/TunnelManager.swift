@@ -31,7 +31,7 @@ private let establishedTunnelStatusPollInterval: TimeInterval = 5
 private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 14
 
 /// Private key rotation retry interval (in seconds).
-private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15
+private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 60 * 24
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
