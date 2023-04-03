@@ -1,129 +1,134 @@
-import * as React from 'react';
+import { mat4 } from 'gl-matrix';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import styled from 'styled-components';
 
-import SvgMap from './SvgMap';
+import GLMap, { Coordinate } from '../lib/map/3dmap';
 
-// Higher zoom level is more zoomed in
-export enum ZoomLevel {
-  high,
-  medium,
-  low,
-}
+// The angle in degrees that the camera sees in
+const angleOfView = 70;
 
 export enum MarkerStyle {
   secure,
   unsecure,
 }
 
-interface IProps {
-  center: [number, number]; // longitude, latitude
-  offset: [number, number]; // offset [x, y] from the center of the map
-  zoomLevel: ZoomLevel;
-  showMarker: boolean;
+const StyledCanvas = styled.canvas({
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+});
+
+interface MapParams {
+  location: Coordinate;
+  connectionState: boolean;
+}
+
+interface MapProps {
+  location: [number, number];
   markerStyle: MarkerStyle;
-  className?: string;
 }
 
-interface IState {
-  bounds: {
-    width: number;
-    height: number;
-  };
+export default function Map(props: MapProps) {
+  const coordinate = useMemo(() => new Coordinate(props.location[1], props.location[0]), [
+    ...props.location,
+  ]);
+  const newParams = useRef<MapParams>();
+
+  const canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
+    if (!canvas) {
+      return;
+    }
+
+    const innerFrameCallback = getAnimationFramRenderer(
+      canvas,
+      coordinate,
+      props.markerStyle === MarkerStyle.secure,
+    );
+
+    const frameCallback = (now: number) => {
+      innerFrameCallback(now, newParams.current);
+      newParams.current = undefined;
+
+      requestAnimationFrame(frameCallback);
+    };
+
+    requestAnimationFrame(frameCallback);
+  }, []);
+
+  useEffect(() => {
+    newParams.current = {
+      location: coordinate,
+      connectionState: props.markerStyle === MarkerStyle.secure,
+    };
+  }, [coordinate, props.markerStyle]);
+
+  return <StyledCanvas ref={canvasRef} id="glcanvas" width={window.innerWidth} height="493" />;
 }
 
-export default class Map extends React.Component<IProps, IState> {
-  public state: IState = {
-    bounds: {
-      width: 0,
-      height: 0,
-    },
+type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
+
+function getAnimationFramRenderer(
+  canvas: HTMLCanvasElement,
+  startingCoordinate: Coordinate,
+  connectionState: boolean,
+): AnimationFrameCallback {
+  const gl = canvas.getContext('webgl2', { antialias: true })!;
+  setGlOptions(gl);
+
+  const projectionMatrix = getProjectionMatrix(gl);
+
+  const map = new GLMap(gl, startingCoordinate, connectionState);
+
+  const drawScene = (now: number) => {
+    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+    gl.clearDepth(1.0); // Clear everything
+    gl.enable(gl.DEPTH_TEST); // Enable depth testing
+    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+
+    // Clear the canvas before we start drawing on it.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    map.draw(projectionMatrix, now);
   };
 
-  private containerRef = React.createRef<HTMLDivElement>();
+  const frameCallback = (now: number, newParams?: MapParams) => {
+    now *= 0.001; // convert to seconds
 
-  public render() {
-    const { width, height } = this.state.bounds;
-    const readyToRenderTheMap = width > 0 && height > 0;
-    return (
-      <div className={this.props.className} ref={this.containerRef}>
-        {readyToRenderTheMap && (
-          <SvgMap
-            width={width}
-            height={height}
-            center={this.props.center}
-            offset={this.props.offset}
-            zoomLevel={this.zoomLevel(this.props.zoomLevel)}
-            showMarker={this.props.showMarker}
-            markerImagePath={this.markerImage(this.props.markerStyle)}
-          />
-        )}
-      </div>
-    );
-  }
-
-  public componentDidMount() {
-    this.updateBounds();
-  }
-
-  public componentDidUpdate() {
-    this.updateBounds();
-  }
-
-  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
-    const oldProps = this.props;
-    const oldState = this.state;
-    return (
-      oldProps.center[0] !== nextProps.center[0] ||
-      oldProps.center[1] !== nextProps.center[1] ||
-      oldProps.offset[0] !== nextProps.offset[0] ||
-      oldProps.offset[1] !== nextProps.offset[1] ||
-      oldProps.zoomLevel !== nextProps.zoomLevel ||
-      oldProps.showMarker !== nextProps.showMarker ||
-      oldProps.markerStyle !== nextProps.markerStyle ||
-      oldState.bounds.width !== nextState.bounds.width ||
-      oldState.bounds.height !== nextState.bounds.height
-    );
-  }
-
-  private updateBounds() {
-    const containerRect = this.containerRef.current?.getBoundingClientRect();
-    if (containerRect) {
-      this.setState((state) => {
-        if (
-          containerRect.width === state.bounds.width &&
-          containerRect.height === state.bounds.height
-        ) {
-          return null;
-        } else {
-          return {
-            bounds: {
-              width: containerRect.width,
-              height: containerRect.height,
-            },
-          };
-        }
-      });
+    if (newParams) {
+      map.setLocation(newParams.location, newParams.connectionState, now);
     }
-  }
 
-  // TODO: Remove zoom level in favor of center + coordinate span
-  // TODO: Zoomlevels below 2.22 makes australia invisible
-  private zoomLevel(variant: ZoomLevel) {
-    switch (variant) {
-      case ZoomLevel.low:
-        return 1;
-      case ZoomLevel.medium:
-        return 2.22;
-      case ZoomLevel.high:
-        return 5;
-    }
-  }
+    drawScene(now);
+  };
 
-  private markerImage(style: MarkerStyle): string {
-    switch (style) {
-      case MarkerStyle.secure:
-        return '../../assets/images/location-marker-secure.svg';
-      case MarkerStyle.unsecure:
-        return '../../assets/images/location-marker-unsecure.svg';
-    }
-  }
+  return frameCallback;
+}
+
+function setGlOptions(gl: WebGL2RenderingContext) {
+  // Hide triangles not facing the camera
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+
+  // Enable transparency (alpha < 1.0)
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+}
+
+function getProjectionMatrix(gl: WebGL2RenderingContext): mat4 {
+  // Enables using gl.UNSIGNED_INT for indexes. Allows 32 bit integer
+  // indexes. Needed to have more than 2^16 vertices in one buffer.
+  // Not needed on WebGL2 canvases where it's enabled by default
+  // const ext = gl.getExtension('OES_element_index_uint');
+
+  // Create a perspective matrix, a special matrix that is
+  // used to simulate the distortion of perspective in a camera.
+  const fieldOfView = (angleOfView / 180) * Math.PI; // in radians
+  // @ts-ignore
+  const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+  const zNear = 0.1;
+  const zFar = 10;
+  const projectionMatrix = mat4.create();
+  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+  return projectionMatrix;
 }
