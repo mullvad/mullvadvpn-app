@@ -7,4 +7,4 @@ MARKETING_VERSION = 2023.2
 // Build number
 // Normally we reset the build number to 1 after bumping MARKETING_VERSION.
 // Otherwise increment it for each subsequent TestFlight submission.
-CURRENT_PROJECT_VERSION = 2
+CURRENT_PROJECT_VERSION = 3
