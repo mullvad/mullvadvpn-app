@@ -8,33 +8,33 @@
 
 import UIKit
 
+/**
+ Protocol that describes common AutoLayout properties of `UIView` and `UILayoutGuide` and helps to remove distinction
+ between two of them when creating constraints.
+ */
+protocol AutoLayoutAnchorsProtocol {
+    var topAnchor: NSLayoutYAxisAnchor { get }
+    var bottomAnchor: NSLayoutYAxisAnchor { get }
+    var leadingAnchor: NSLayoutXAxisAnchor { get }
+    var trailingAnchor: NSLayoutXAxisAnchor { get }
+}
+
+extension UIView: AutoLayoutAnchorsProtocol {}
+extension UILayoutGuide: AutoLayoutAnchorsProtocol {}
+
 extension UIView {
     /**
      Pin all edges to edges of other view.
      */
-    func pinEdgesTo(_ other: UIView) -> [NSLayoutConstraint] {
+    func pinEdgesTo(_ other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
         return pinEdges(.all(), to: other)
     }
 
     /**
      Pin edges to edges of other view.
      */
-    func pinEdges(_ edges: PinnableEdges, to other: UIView) -> [NSLayoutConstraint] {
-        return edges.inner.map { edge -> NSLayoutConstraint in
-            switch edge {
-            case let .top(inset):
-                return topAnchor.constraint(equalTo: other.topAnchor, constant: inset)
-
-            case let .bottom(inset):
-                return bottomAnchor.constraint(equalTo: other.bottomAnchor, constant: inset)
-
-            case let .leading(inset):
-                return leadingAnchor.constraint(equalTo: other.leadingAnchor, constant: inset)
-
-            case let .trailing(inset):
-                return trailingAnchor.constraint(equalTo: other.trailingAnchor, constant: inset)
-            }
-        }
+    func pinEdges(_ edges: PinnableEdges, to other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
+        return edges.makeConstraints(firstView: self, secondView: other)
     }
 
     /**
@@ -52,45 +52,7 @@ extension UIView {
     func pinEdgesToSuperviewMargins(_ edges: PinnableEdges = .all()) -> [NSLayoutConstraint] {
         guard let superview = superview else { return [] }
 
-        return pinEdges(edges, toMarginsOf: superview)
-    }
-
-    /**
-     Pin all edges to other view layout margins.
-     */
-    func pinEdgesToMarginsOf(_ other: UIView) -> [NSLayoutConstraint] {
-        return pinEdges(.all(), toMarginsOf: other)
-    }
-
-    /**
-     Pin edges to other view layout margins.
-     */
-    func pinEdges(_ edges: PinnableEdges, toMarginsOf other: UIView) -> [NSLayoutConstraint] {
-        return pinEdges(edges, to: other.layoutMarginsGuide)
-    }
-
-    /**
-     Pin edges to layout guide.
-     */
-    func pinEdges(_ edges: PinnableEdges, to layoutGuide: UILayoutGuide) -> [NSLayoutConstraint] {
-        return edges.inner.map { edge -> NSLayoutConstraint in
-            switch edge {
-            case let .top(inset):
-                return topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: inset)
-
-            case let .bottom(inset):
-                return bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor, constant: inset)
-
-            case let .leading(inset):
-                return leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: inset)
-
-            case let .trailing(inset):
-                return trailingAnchor.constraint(
-                    equalTo: layoutGuide.trailingAnchor,
-                    constant: inset
-                )
-            }
-        }
+        return pinEdges(edges, to: superview.layoutMarginsGuide)
     }
 }
 
@@ -220,6 +182,25 @@ struct PinnableEdges {
         static func == (lhs: Self, rhs: Self) -> Bool {
             return lhs.rectEdge == rhs.rectEdge
         }
+
+        func makeConstraint(
+            firstView: AutoLayoutAnchorsProtocol,
+            secondView: AutoLayoutAnchorsProtocol
+        ) -> NSLayoutConstraint {
+            switch self {
+            case let .top(inset):
+                return firstView.topAnchor.constraint(equalTo: secondView.topAnchor, constant: inset)
+
+            case let .bottom(inset):
+                return firstView.bottomAnchor.constraint(equalTo: secondView.bottomAnchor, constant: inset)
+
+            case let .leading(inset):
+                return firstView.leadingAnchor.constraint(equalTo: secondView.leadingAnchor, constant: inset)
+
+            case let .trailing(inset):
+                return firstView.trailingAnchor.constraint(equalTo: secondView.trailingAnchor, constant: inset)
+            }
+        }
     }
 
     /**
@@ -252,5 +233,15 @@ struct PinnableEdges {
             .leading(directionalEdgeInsets.leading),
             .trailing(directionalEdgeInsets.trailing),
         ])
+    }
+
+    /**
+     Returns new constraints pinning edges of the corresponding views.
+     */
+    func makeConstraints(
+        firstView: AutoLayoutAnchorsProtocol,
+        secondView: AutoLayoutAnchorsProtocol
+    ) -> [NSLayoutConstraint] {
+        return inner.map { $0.makeConstraint(firstView: firstView, secondView: secondView) }
     }
 }
