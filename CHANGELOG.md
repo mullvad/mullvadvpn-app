@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Change WireGuard key rotation interval to 14 days. It was 7 days on desktop and 4 days on
+  Android.
+
 ### Fixed
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
