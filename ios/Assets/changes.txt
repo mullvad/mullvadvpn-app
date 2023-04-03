@@ -1,4 +1,4 @@
 Improve connection stability during key rotation
 Fix crash in login screen
 Improve reliability of the app during bad network conditions
-Increase key rotation interval from 4 to 7 days
+Increase key rotation interval from 4 to 14 days
