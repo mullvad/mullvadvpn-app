@@ -28,7 +28,7 @@ private let establishingTunnelStatusPollInterval: TimeInterval = 3
 private let establishedTunnelStatusPollInterval: TimeInterval = 5
 
 /// Private key rotation interval (in seconds).
-private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 7
+private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 14
 
 /// Private key rotation retry interval (in seconds).
 private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 15

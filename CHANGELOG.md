@@ -25,9 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
-
-#### Android
-- Change Android key rotation interval to 7 days instead of 4.
+- Change WireGuard key rotation interval to 14 days. It was 7 days on desktop and 4 days on
+  Android.
 
 ### Deprecated
 #### Linux
