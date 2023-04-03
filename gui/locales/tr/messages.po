@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -118,6 +118,7 @@ msgstr "Bağlandı"
 msgid "Connecting"
 msgstr "Bağlanılıyor"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR"
 
@@ -157,6 +158,9 @@ msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 msgid "Filter"
 msgstr "Filtrele"
 
+msgid "Go to System Settings"
+msgstr "Sistem Ayarlarına Git"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Anladım!"
@@ -194,6 +198,7 @@ msgstr "Açık"
 msgid "Open URL"
 msgstr "URL'yi aç"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI"
 
@@ -221,6 +226,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
+
+msgid "Troubleshoot"
+msgstr "Sorun Giderme"
 
 msgid "Try a different search."
 msgstr "Farklı bir arama deneyin."
@@ -609,6 +617,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Lütfen uygulamadan çıkış yapın ve yeniden başlatın."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Hata raporu gönder"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -628,6 +640,10 @@ msgstr "GÜNCELLEME MEVCUT"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN hizmetinin izni iptal edildi. Lütfen Sistem Ayarları'na giderek \"Arka Planda İzin Ver\" seçeneğinden Mullvad VPN'e izin verin."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -778,8 +794,12 @@ msgid "Disconnected and unsecure"
 msgstr "Bağlantı kesildi ve güvenli değil"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Seçtiğiniz konumdaki hiçbir sunucu ayarlarınızla eşleşmiyor."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Kilitleme modu etkin, bağlantı engellendi"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -794,8 +814,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Güvenlik duvarı kuralları uygulanamıyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Üçüncü taraf antivirüs veya güvenlik yazılımını geçici olarak devre dışı bırakmayı deneyin."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -806,8 +826,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin ya da bir hata raporu gönderin."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını geçici olarak devre dışı bırakmayı deneyin ya da bir hata raporu gönderin."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1230,6 +1250,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Bağlanılıyor. %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Bu adımlar işe yaramazsa lütfen bir hata raporu gönderin."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "NFtables desteğinizin olduğundan emin olun."
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "Bu durum, çekirdeğin eski olmasından veya bir çekirdeği kaldırmış olmanızdan kaynaklanıyor olabilir."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Bu hata, Mullvad dışındaki bir yazılımın DNS'yi aktif olarak güncellemesi sırasında ortaya çıkabilir."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Yeniden bağlanmayı deneyin."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Cihazınızı yeniden başlatmayı deneyin."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTime uygulama ayarlarından Wi-Fi Aramasını kapatmayı deneyin ve Mac'i yeniden başlatın."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Diğer DNS, ağ iletişimi ve reklamları/web sitesi engelleme uygulamalarını kaldırın veya devre dışı bırakın."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Çekirdeğinizi güncelleyin."
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Bağlantımı güvenceye al"
@@ -1477,6 +1537,10 @@ msgid "IP version"
 msgstr "IP sürümü"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1495,6 +1559,13 @@ msgstr "Açık (TCP üzerinden UDP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Kuantuma dayanıklı tünel"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1519,6 +1590,10 @@ msgstr "Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: 
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Bu, sadece IPv6'yı destekleyen cihazlarda %(wireguard)s için erişim izni sağlar."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

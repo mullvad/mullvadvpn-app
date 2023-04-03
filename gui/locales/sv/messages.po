@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s har lagts till. Kontot är betalt till och med %(expiry)s."
@@ -118,6 +118,7 @@ msgstr "Ansluten"
 msgid "Connecting"
 msgstr "Ansluter"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "SKAPAR KVANTSÄKER ANSLUTNING"
 
@@ -157,6 +158,9 @@ msgstr "DET GICK INTE ATT SÄKRA ANSLUTNINGEN"
 msgid "Filter"
 msgstr "Filtrera"
 
+msgid "Go to System Settings"
+msgstr "Gå till systeminställningarna"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Jag förstår!"
@@ -194,6 +198,7 @@ msgstr "På"
 msgid "Open URL"
 msgstr "Öppna URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTSÄKER ANSLUTNING"
 
@@ -221,6 +226,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Den här inställningen ökar fördröjningen. Använd bara vid behov."
+
+msgid "Troubleshoot"
+msgstr "Felsök"
 
 msgid "Try a different search."
 msgstr "Testa en annan sökning."
@@ -609,6 +617,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Avsluta och starta om appen."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Skicka problemrapport"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -628,6 +640,10 @@ msgstr "UPPDATERING TILLGÄNGLIG"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Ansluter till Mullvads systemtjänst..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Behörighet för Mullvad VPN-tjänsten har återkallats. Gå till systeminställningarna och tillåt Mullvad VPN under inställningen \"Tillåt i bakgrunden\"."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -778,8 +794,12 @@ msgid "Disconnected and unsecure"
 msgstr "Frånkopplad och osäker"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Inga servrar på din valda plats överensstämmer med dina inställningar."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Låsningsläget är aktivt, anslutning blockerad"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Inga servrar matchar dina inställningar. Försök att ändra server eller med andra inställningar."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -794,8 +814,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Det går inte att använda brandväggsregler."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Det går inte att använda brandväggsregler. Försök att inaktivera antivirus- eller säkerhetsprogram från tredje part."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Det går inte att använda brandväggsregler. Försök att tillfälligt inaktivera antivirus- eller säkerhetsprogram från tredje part."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -806,8 +826,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "Det går inte att blockera all nätverkstrafik. Testa att inaktivera antivirus- eller säkerhetsprogram från tredje part eller skicka en problemrapport."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Det går inte att blockera all nätverkstrafik. Försök att tillfälligt inaktivera antivirus- eller säkerhetsprogram från tredje part eller skicka en problemrapport."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1230,6 +1250,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Ansluter. %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Om dessa steg inte fungerar kan du skicka en problemrapport."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "Se till att du har stöd för Nftables."
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "Det kan inträffa om kernel är gammal eller om du tagit bort en kernel."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Det här felet kan inträffa när något annat än Mullvad aktivt uppdaterar DNS."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Försök att återansluta."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Försök att återansluta din enhet."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "Försök att inaktivera wifi-samtal i inställningarna i appen FaceTime och starta om din Mac."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Det går inte att kommunicera med Mullvads kerneldrivrutin."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Avinstallera eller inaktivera andra appar som blockerar DNS, nätverk, annonser och webbplatser."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Uppdatera din kernel."
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Skydda min anslutning"
@@ -1477,6 +1537,10 @@ msgid "IP version"
 msgstr "IP-version"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1495,6 +1559,13 @@ msgstr "På (UDP över TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Kvantresistent tunnel"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1519,6 +1590,10 @@ msgstr "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %(
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Detta ger %(wireguard)s åtkomst till enheter som bara stöder IPv6."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

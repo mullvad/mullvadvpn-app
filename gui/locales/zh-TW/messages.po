@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -107,6 +107,7 @@ msgstr "已連線"
 msgid "Connecting"
 msgstr "正在連線"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "正在建立量子安全連線"
 
@@ -146,6 +147,9 @@ msgstr "保護連線失敗"
 msgid "Filter"
 msgstr "篩選"
 
+msgid "Go to System Settings"
+msgstr "前往「系統設定」"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "知道了！"
@@ -183,6 +187,7 @@ msgstr "開啟"
 msgid "Open URL"
 msgstr "開啟 URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子安全連線"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "此設定會助長延遲。請僅在需要時使用。"
+
+msgid "Troubleshoot"
+msgstr "故障排除"
 
 msgid "Try a different search."
 msgstr "請嘗試使用其他關鍵字。"
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "請退出應用程式並重新啟動。"
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "傳送問題回報"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "可用的更新"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN 服務的權限已遭到撤銷。請前往「系統設定」，並在「允許在背景中執行」設定下允許 Mullvad VPN。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "已中斷連線且未受保護"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "所選位置沒有伺服器與您的設定相符。"
+msgid "Lockdown mode active, connection blocked"
+msgstr "鎖定模式已啟用，連線已封鎖"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "無法套用防火牆規則。"
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "無法套用防火牆規則。請嘗試停用任何第三方防毒軟體或安全軟體。"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "無法套用防火牆規則。請嘗試暫時停用任何第三方防毒軟體或安全軟體。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "無法封鎖所有網路流量。請排除故障或傳送問題回報。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "無法封鎖所有網路流量。請嘗試停用任何第三方防毒軟體或安全軟體，或傳送問題回報。"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "無法封鎖所有網路流量。請嘗試暫時停用任何第三方防毒軟體或安全軟體，或傳送問題回報。"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1219,6 +1239,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "正在連線。%(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "如果以上步驟仍無法解決問題，請傳送問題回報。"
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "請務必確認您能支援 nftables。"
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "由於核心版本較舊，或者您已移除了核心，因此出現此錯誤。"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "如果 Mullvad 以外的其他服務正在主動更新 DNS，即可能出現此錯誤。"
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "嘗試重新連線。"
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "嘗試重新啟動裝置。"
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "嘗試在 FaceTime App 設定中關閉 Wi-Fi 通話，並重新啟動 Mac。"
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "無法與 Mullvad 核心驅動程式通訊。"
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "將其他 DNS、網路和廣告/網站攔截應用程式解除安裝或停用。"
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "更新核心。"
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "保護我的連線"
@@ -1466,6 +1526,10 @@ msgid "IP version"
 msgstr "IP 版本"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。"
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1548,13 @@ msgstr "開 (UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "連接埠"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "抗量子通道"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1508,6 +1579,10 @@ msgstr "自訂連接埠可以是有效範圍內的任何值：%(portRanges)s。"
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

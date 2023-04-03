@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -107,6 +107,7 @@ msgstr "연결됨"
 msgid "Connecting"
 msgstr "연결 중"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "양자 보안 연결 생성 중"
 
@@ -146,6 +147,9 @@ msgstr "보안 연결 실패"
 msgid "Filter"
 msgstr "필터"
 
+msgid "Go to System Settings"
+msgstr "시스템 설정으로 이동"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "확인!"
@@ -183,6 +187,7 @@ msgstr "켜기"
 msgid "Open URL"
 msgstr "URL 열기"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "양자 보안 연결"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "이 설정을 사용하면 대기 시간이 길어집니다. 필요한 경우에만 사용하세요."
+
+msgid "Troubleshoot"
+msgstr "문제 해결"
 
 msgid "Try a different search."
 msgstr "다른 검색어를 시도하세요."
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "앱을 종료한 후 다시 시작하세요."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "문제 보고서 보내기"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "업데이트 사용 가능"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad 시스템 서비스에 연결하는 중..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN 서비스에 대한 권한이 취소되었습니다. 시스템 설정으로 이동한 다음, \"백그라운드에서 허용\" 설정에서 Mullvad VPN을 허용하세요."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "연결이 끊기고 안전하지 않음"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "선택한 위치에 설정과 일치하는 서버가 없습니다."
+msgid "Lockdown mode active, connection blocked"
+msgstr "잠금 모드 활성, 연결 차단"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "방화벽 규칙을 적용할 수 없습니다."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "방화벽 규칙을 적용할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화해 보세요."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "방화벽 규칙을 적용할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 일시적으로 비활성화해 보세요."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화하거나 문제 보고서를 보내주세요."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 일시적으로 비활성화하거나 문제 보고서를 보내주세요."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1219,6 +1239,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "연결 중. %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "이러한 단계로 문제가 해결되지 않으면 문제 보고서를 보내주세요."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "NF 테이블이 지원되는지 확인하세요."
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "이는 커널이 오래되었거나 커널을 제거한 경우 발생할 수 있습니다."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "이 오류는 Mullvad 이외의 항목이 DNS를 활발히 업데이트하고 있을 때 발생할 수 있습니다."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "다시 연결해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "장치를 다시 시작해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTime 앱 설정에서 Wi-Fi 통화를 끄고 Mac을 다시 시작해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvad 커널 드라이버와 통신할 수 없습니다."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "다른 DNS, 네트워킹 및 광고/웹사이트 차단 앱을 제거하거나 비활성화하세요."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "커널을 업데이트하세요."
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "내 연결 보안 유지"
@@ -1466,6 +1526,10 @@ msgid "IP version"
 msgstr "IP 버전"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1548,13 @@ msgstr "켜기(UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "포트"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "양자 저항 터널"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1508,6 +1579,10 @@ msgstr "사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "이를 통해 IPv6만 지원하는 장치에서 %(wireguard)s에 액세스할 수 있습니다."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
