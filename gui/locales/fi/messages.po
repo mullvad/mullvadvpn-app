@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -118,6 +118,7 @@ msgstr "Yhdistetty"
 msgid "Connecting"
 msgstr "Yhdistetään"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "LUODAAN KVANTTISUOJATTU YHTEYS"
 
@@ -157,6 +158,9 @@ msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 msgid "Filter"
 msgstr "Suodatin"
 
+msgid "Go to System Settings"
+msgstr "Siirry järjestelmäasetuksiin"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Selvä!"
@@ -194,6 +198,7 @@ msgstr "Päällä"
 msgid "Open URL"
 msgstr "Avaa URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTTISUOJATTU YHTEYS"
 
@@ -221,6 +226,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Tämä asetus lisää viivettä. Käytä vain tarvittaessa."
+
+msgid "Troubleshoot"
+msgstr "Vianetsintä"
 
 msgid "Try a different search."
 msgstr "Kokeile toista hakua."
@@ -609,6 +617,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Sammuta sovellus ja käynnistä se uudelleen."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Lähetä ongelmaraportti"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -628,6 +640,10 @@ msgstr "PÄIVITYS SAATAVILLA"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Yhdistetään Mullvad-järjestelmäpalveluun..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN -palvelun käyttöoikeus on peruutettu. Siirry järjestelmäasetuksiin sallimaan Mullvad VPN \"Salli taustalla\" -asetuksen kautta."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -778,8 +794,12 @@ msgid "Disconnected and unsecure"
 msgstr "Yhteys katkaistu ja suojaamaton"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Yksikään palvelin valitsemassasi sijainnissa ei vastaa asetuksiasi."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Lukitustila on käytössä ja yhteys estetty"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Mikään palvelin ei vastaa asetuksiasi. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -794,8 +814,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Palomuurisääntöjä ei voida soveltaa."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Palomuurisääntöjä ei voida soveltaa. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Palomuurisääntöjä ei voida soveltaa. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä väliaikaisesti."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -806,8 +826,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä tai lähetä ongelmaraportti."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kolmannen osapuolen virustorjunta- tai tietoturvaohjelmistot käytöstä väliaikaisesti tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1230,6 +1250,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Yhdistetään. %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Jos ongelma ei ratkea näillä ohjeilla, lähetä siitä raportti."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "Varmista, että käytössäsi on Nftables-tuki."
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "Ongelma saattaa johtua vanhentuneesta ytimestä tai ytimen poistamisesta."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Tämä virhe voi tapahtua, kun DNS:ää päivittää aktiivisesti jokin muu instanssi kuin Mullvad."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Kokeile yhdistää uudelleen."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Kokeile käynnistää laitteesi uudelleen."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "Yritä poistaa Wi-Fi-puhelut käytöstä FaceTime-sovelluksen asetuksista ja käynnistä Mac uudelleen."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Kommunikointi Mullvad-ytimen ohjaimen kanssa ei onnistu."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Poista muut DNS:t ja verkot ja mainosten ja verkkosivustojen estosovellukset käytöstä tai poista niiden asennus."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Päivitä ydin."
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Suojaa yhteyteni"
@@ -1477,6 +1537,10 @@ msgid "IP version"
 msgstr "IP-versio"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1495,6 +1559,13 @@ msgstr "Käytössä (UDP TCP:n kautta)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Portti"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Kvanttihyökkäyksiä kestävä tunneli"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1519,6 +1590,10 @@ msgstr "Mukautettu portti voi olla mikä tahansa sallittu arvo: %(portRanges)s."
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Tämä mahdollistaa pääsyn %(wireguard)siin laitteille, jotka tukevat vain IPv6-protokollaa."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

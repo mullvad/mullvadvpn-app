@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -107,6 +107,7 @@ msgstr "接続済み"
 msgid "Connecting"
 msgstr "接続中"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "量子セキュア保護接続を確立中"
 
@@ -146,6 +147,9 @@ msgstr "セキュリティ保護接続を確立できませんでした"
 msgid "Filter"
 msgstr "絞り込み"
 
+msgid "Go to System Settings"
+msgstr "システム設定に移動"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "了解"
@@ -183,6 +187,7 @@ msgstr "オン"
 msgid "Open URL"
 msgstr "URLを開く"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子セキュア保護接続"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "この設定を有効にすると、遅延が増加します。必要な場合にのみご利用ください。"
+
+msgid "Troubleshoot"
+msgstr "トラブルシューティング"
 
 msgid "Try a different search."
 msgstr "別の検索をお試しください。"
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "アプリをいったん終了して、再起動してください。"
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "問題の報告を送信"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "アップデート可"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPNサービスの許可が無効化されました。システム設定に移動して、「バックグラウンドでの実行を許可」設定でMullvad VPNを許可してください。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "接続が解除され、セキュリティ保護されていません"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "選択した場所には設定に一致するサーバーがありません。"
+msgid "Lockdown mode active, connection blocked"
+msgstr "ロックダウンモードがアクティブです。接続はブロックされています"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "ファイアウォール規則を適用できません。"
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "ファイアウォール規則を適用できません。サードパーティのウイルス対策ソフトウェアか、セキュリティソフトウェアを無効にしてみてください。"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "ファイアウォール規則を適用できません。サードパーティのウイルス対策ソフトウェアか、セキュリティソフトウェアを一時的に無効にしてみてください。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "すべてのネットワークトラフィックをブロックできません。問題に対処するか、問題の報告を送信してください。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "すべてのネットワークトラフィックをブロックできません。サードパーティのウイルス対策ソフトウェアまたはセキュリティソフトウェアを無効にするか、問題の報告を送信してください。"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "すべてのネットワークトラフィックをブロックできません。サードパーティのウイルス対策ソフトウェアまたはセキュリティソフトウェアを一時的に無効にするか、問題の報告を送信してください。"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1219,6 +1239,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "接続中です。%(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "これらの手順で解決できない場合は、問題の報告を送信してください。"
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "nftablesがサポートされていることを確認します。"
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "これはカーネルが古いか、カーネルを削除した場合に起こることがあります。"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "このエラーは、Mullvad以外の何かがDNSを積極的に更新している場合に起こることがあります。"
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "再接続してください。"
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "デバイスを再起動してください。"
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTimeアプリの設定でWi-Fi通話をオフにしてからMacを再起動してください。"
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvadカーネルドライバーと通信できません。"
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "他のDNS、ネットワーク、および広告/Webサイトブロックアプリをアンインストールまたは無効にします。"
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "カーネルを更新します。"
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "接続を保護する"
@@ -1466,6 +1526,10 @@ msgid "IP version"
 msgstr "IPバージョン"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。"
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1548,13 @@ msgstr "オン (UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "ポート"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "耐量子トンネル"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1508,6 +1579,10 @@ msgstr "カスタムポートは次の有効範囲内の任意の値に設定で
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "これにより、IPv6のみをサポートするデバイスでも%(wireguard)sにアクセスできるようになります。"
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

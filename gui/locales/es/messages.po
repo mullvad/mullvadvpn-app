@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Tiempo añadido: %(duration)s. Cuenta pagada hasta el %(expiry)s."
@@ -118,6 +118,7 @@ msgstr "Conectado"
 msgid "Connecting"
 msgstr "Conectando"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "CREANDO CONEXIÓN CON SEGURIDAD CUÁNTICA"
 
@@ -157,6 +158,9 @@ msgstr "NO SE PUDO PROTEGER LA CONEXIÓN"
 msgid "Filter"
 msgstr "Filtrar"
 
+msgid "Go to System Settings"
+msgstr "Ir a la configuración del sistema"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "¡Entendido!"
@@ -194,6 +198,7 @@ msgstr "Activado"
 msgid "Open URL"
 msgstr "Abrir URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "CONEXIÓN CON SEGURIDAD CUÁNTICA"
 
@@ -221,6 +226,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Este ajuste incrementa la latencia. Solo use esta opción si es necesario."
+
+msgid "Troubleshoot"
+msgstr "Solución de problemas"
 
 msgid "Try a different search."
 msgstr "Pruebe con otra búsqueda."
@@ -609,6 +617,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Reinicie la aplicación."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Enviar informe de problemas"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -628,6 +640,10 @@ msgstr "ACTUALIZACIÓN DISPONIBLE"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Conectando al servicio del sistema Mullvad…"
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Se ha revocado el permiso para el servicio de Mullvad VPN. Vaya a la configuración del sistema y permita a Mullvad VPN bajo el ajuste «Permitir en Segundo Plano»."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -778,8 +794,12 @@ msgid "Disconnected and unsecure"
 msgstr "Desconectado y sin protección"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Ningún servidor en la ubicación seleccionada coincide con su configuración."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Modo de bloqueo activo, conexión bloqueada"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Ningún servidor coincide con su configuración, pruebe con otro servidor u otra configuración."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -794,8 +814,8 @@ msgid "Unable to apply firewall rules."
 msgstr "No se pueden aplicar las reglas del firewall."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "No se pueden aplicar las reglas del firewall. Pruebe a deshabilitar el software de seguridad o antivirus de terceros."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "No se pueden aplicar las reglas del firewall. Pruebe a deshabilitar temporalmente el software de seguridad o antivirus de terceros."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -806,8 +826,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "No se puede bloquear todo el tráfico de red. Intente solucionar el problema o envíe un informe de problemas."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "No se puede bloquear todo el tráfico de red. Pruebe a deshabilitar el software de seguridad o antivirus de terceros, o envíe un informe de problemas."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "No se puede bloquear todo el tráfico de red. Pruebe a deshabilitar temporalmente el software de seguridad o antivirus de terceros, o envíe un informe de problemas."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1230,6 +1250,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Conectando. %(location)s"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Si estos pasos no funcionan, envíe un informe de problemas."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "Asegúrese de tener compatibilidad con tablas NF."
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "Esto puede suceder porque el kernel es antiguo, o si ha eliminado un kernel."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Este error puede suceder cuando algo que no es Mullvad está actualizando activamente el DNS."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Intente volver a establecer la conexión."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Intente reiniciar su dispositivo."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "Intente desactivar la llamada wifi en la configuración de la aplicación FaceTime y reiniciar el Mac."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "No se puede comunicar con el controlador del kernel de Mullvad."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Desinstale o deshabilite otras aplicaciones de bloqueo de DNS, conexión en red y anuncios/sitios web."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Actualice su kernel."
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "Proteger mi conexión"
@@ -1477,6 +1537,10 @@ msgid "IP version"
 msgstr "Versión de IP"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Lo hace al realizar un intercambio de claves adicional usando un algoritmo cuántico seguro y combinando el resultado en el cifrado normal de WireGuard. Este paso extra utiliza aproximadamente 500 kiB de tráfico cada vez que se establece un nuevo túnel."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1495,6 +1559,13 @@ msgstr "Activado (UDP sobre TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Puerto"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Túnel con resistencia cuántica"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1519,6 +1590,10 @@ msgstr "El puerto personalizado pueder ser cualquier valor dentro de los rangos 
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Esto permite acceder a %(wireguard)s desde dispositivos que solo sean compatibles con IPv6."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Esta característica permite que el túnel de WireGuard resista posibles ataques de ordenadores cuánticos."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

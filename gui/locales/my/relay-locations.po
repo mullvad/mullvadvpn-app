@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -55,6 +55,10 @@ msgstr "ဘယ်လ်ဂျီယံ"
 #. RS BEG
 msgid "Belgrade"
 msgstr "ဘဲလ်ဂရိတ်"
+
+#. CO BOG
+msgid "Bogota"
+msgstr "ဘိုဂိုတာ"
 
 #. US BOS
 msgid "Boston, MA"
@@ -111,6 +115,10 @@ msgstr "ခိရှီနို"
 #. US CLE
 msgid "Cleveland, OH"
 msgstr "ကလိဗ်လန့် ၊ အိုဟိုင်းယိုး"
+
+#. CO
+msgid "Colombia"
+msgstr "ကိုလံဘီယာ"
 
 #. DK CPH
 msgid "Copenhagen"
