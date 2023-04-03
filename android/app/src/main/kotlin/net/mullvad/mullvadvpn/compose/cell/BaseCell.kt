@@ -39,10 +39,8 @@ fun BaseCell(
     val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
 
     Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
-        var rowModifier = if (isRowEnabled) {
-            Modifier.clickable { onCellClicked.invoke() }
-        } else {
-            Modifier
+        val rowModifier = Modifier.let {
+            if (isRowEnabled) { it.clickable { onCellClicked() } } else it
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,

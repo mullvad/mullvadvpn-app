@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.viewmodel.StagedDns
 sealed interface AdvancedSettingsUiState {
     val mtu: String
     val isCustomDnsEnabled: Boolean
+    val isCustomDnsClickable: Boolean
     val customDnsItems: List<CustomDnsItem>
     val contentBlockersOptions: DefaultDnsOptions
     val isAllowLanEnabled: Boolean
@@ -14,6 +15,7 @@ sealed interface AdvancedSettingsUiState {
     data class DefaultUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
+        override val isCustomDnsClickable: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
@@ -22,6 +24,7 @@ sealed interface AdvancedSettingsUiState {
     data class MtuDialogUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
+        override val isCustomDnsClickable: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
@@ -31,6 +34,7 @@ sealed interface AdvancedSettingsUiState {
     data class DnsDialogUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
+        override val isCustomDnsClickable: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
@@ -40,6 +44,7 @@ sealed interface AdvancedSettingsUiState {
     data class ContentBlockersInfoDialogUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
+        override val isCustomDnsClickable: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
@@ -48,6 +53,7 @@ sealed interface AdvancedSettingsUiState {
     data class MalwareInfoDialogUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
+        override val isCustomDnsClickable: Boolean = false,
         override val isAllowLanEnabled: Boolean = false,
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
