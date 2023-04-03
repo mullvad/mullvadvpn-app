@@ -114,6 +114,24 @@ struct StoredWgKeyData: Codable, Equatable {
     /// Private key creation date.
     var creationDate: Date
 
+    /// Last date a rotation was attempted. Nil if last attempt was successful.
+    var lastRotationAttemptDate: Date?
+
     /// Private key.
     var privateKey: PrivateKey
+}
+
+extension StoredWgKeyData {
+    struct KeyRotationConfiguration {
+        let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
+        let retryInterval: TimeInterval = 60 * 60 * 24
+    }
+
+    func getNextRotationDate(for configuration: KeyRotationConfiguration) -> Date {
+        return max(
+            Date(),
+            lastRotationAttemptDate?.addingTimeInterval(configuration.retryInterval) ?? creationDate
+                .addingTimeInterval(configuration.rotationInterval)
+        )
+    }
 }
