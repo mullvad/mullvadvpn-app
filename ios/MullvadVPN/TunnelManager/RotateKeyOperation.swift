@@ -19,18 +19,18 @@ class RotateKeyOperation: ResultOperation<Bool> {
     private let devicesProxy: REST.DevicesProxy
     private var task: Cancellable?
 
-    private let rotationInterval: TimeInterval?
+    private let keyRotationConfiguration: StoredWgKeyData.KeyRotationConfiguration
     private let logger = Logger(label: "ReplaceKeyOperation")
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         devicesProxy: REST.DevicesProxy,
-        rotationInterval: TimeInterval?
+        keyRotationConfiguration: StoredWgKeyData.KeyRotationConfiguration
     ) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy
-        self.rotationInterval = rotationInterval
+        self.keyRotationConfiguration = keyRotationConfiguration
 
         super.init(
             dispatchQueue: dispatchQueue,
@@ -40,26 +40,23 @@ class RotateKeyOperation: ResultOperation<Bool> {
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case .loggedIn(let accountData, var deviceData) = interactor.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
 
-        if let rotationInterval = rotationInterval {
-            let creationDate = deviceData.wgKeyData.creationDate
-            let nextRotationDate = creationDate.addingTimeInterval(rotationInterval)
+        let nextRotationDate = deviceData.wgKeyData.getNextRotationDate(for: keyRotationConfiguration)
+        if nextRotationDate > Date() {
+            logger.debug("Throttle private key rotation.")
 
-            if nextRotationDate > Date() {
-                logger.debug("Throttle private key rotation.")
-
-                finish(result: .success(false))
-                return
-            } else {
-                logger.debug("Private key is old enough, rotate right away.")
-            }
+            finish(result: .success(false))
+            return
         } else {
-            logger.debug("Rotate private key right away.")
+            logger.debug("Private key is old enough, rotate right away.")
         }
+
+        deviceData.wgKeyData.lastRotationAttemptDate = Date()
+        interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
 
         logger.debug("Replacing old key with new key on server...")
 
@@ -93,8 +90,10 @@ class RotateKeyOperation: ResultOperation<Bool> {
             switch interactor.deviceState {
             case .loggedIn(let accountData, var deviceData):
                 deviceData.update(from: device)
+
                 deviceData.wgKeyData = StoredWgKeyData(
                     creationDate: Date(),
+                    lastRotationAttemptDate: nil,
                     privateKey: newPrivateKey
                 )
 
@@ -118,6 +117,16 @@ class RotateKeyOperation: ResultOperation<Bool> {
                     message: "Failed to rotate device key."
                 )
             }
+
+            switch interactor.deviceState {
+            case .loggedIn(let accountData, var deviceData):
+                deviceData.wgKeyData.lastRotationAttemptDate = Date()
+                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+
+            default:
+                finish(result: .failure(InvalidDeviceStateError()))
+            }
+
             finish(result: .failure(error))
         }
     }

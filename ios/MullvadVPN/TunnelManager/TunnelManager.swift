@@ -27,12 +27,6 @@ private let establishingTunnelStatusPollInterval: TimeInterval = 3
 /// is established.
 private let establishedTunnelStatusPollInterval: TimeInterval = 5
 
-/// Private key rotation interval (in seconds).
-private let privateKeyRotationInterval: TimeInterval = 60 * 60 * 24 * 14
-
-/// Private key rotation retry interval (in seconds).
-private let privateKeyRotationFailureRetryInterval: TimeInterval = 60 * 60 * 24
-
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
 final class TunnelManager: StorePaymentObserver {
@@ -65,10 +59,6 @@ final class TunnelManager: StorePaymentObserver {
     private let observerList = ObserverList<TunnelObserver>()
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
-    private var lastKeyRotationData: (
-        attempt: Date,
-        completion: Result<Bool, Error>
-    )?
     private var isRunningPeriodicPrivateKeyRotation = false
 
     private var tunnelStatusPollTimer: DispatchSourceTimer?
@@ -139,37 +129,7 @@ final class TunnelManager: StorePaymentObserver {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard case let .loggedIn(_, deviceData) = deviceState else {
-            return nil
-        }
-
-        if case .some(let (lastAttemptDate, completion)) = lastKeyRotationData {
-            if completion.error is InvalidDeviceStateError {
-                return nil
-            }
-
-            // Do not rotate the key if account or device is not found.
-            if let restError = completion.error as? REST.Error,
-               restError.compareErrorCode(.invalidAccount) ||
-               restError.compareErrorCode(.deviceNotFound)
-            {
-                return nil
-            }
-
-            // Retry at equal interval if failed or cancelled.
-            if !completion.isSuccess {
-                let date = lastAttemptDate.addingTimeInterval(
-                    privateKeyRotationFailureRetryInterval
-                )
-
-                return max(date, Date())
-            }
-        }
-
-        // Rotate at long intervals otherwise.
-        let date = deviceData.wgKeyData.creationDate.addingTimeInterval(privateKeyRotationInterval)
-
-        return max(date, Date())
+        return deviceState.deviceData?.wgKeyData.getNextRotationDate(for: StoredWgKeyData.KeyRotationConfiguration())
     }
 
     private func updatePrivateKeyRotationTimer() {
@@ -185,7 +145,7 @@ final class TunnelManager: StorePaymentObserver {
         let timer = DispatchSource.makeTimerSource(queue: .main)
 
         timer.setEventHandler { [weak self] in
-            _ = self?.rotatePrivateKey(forceRotate: false) { _ in
+            _ = self?.rotatePrivateKey { _ in
                 // no-op
             }
         }
@@ -196,22 +156,6 @@ final class TunnelManager: StorePaymentObserver {
         privateKeyRotationTimer = timer
 
         logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatDate()).")
-    }
-
-    private func setFinishedKeyRotation(_ result: Result<Bool, Error>) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        lastKeyRotationData = (Date(), result)
-        updatePrivateKeyRotationTimer()
-    }
-
-    private func resetKeyRotationData() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        lastKeyRotationData = nil
-        updatePrivateKeyRotationTimer()
     }
 
     // MARK: - Public methods
@@ -383,7 +327,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
-            self?.resetKeyRotationData()
+            self?.updatePrivateKeyRotationTimer()
 
             completionHandler(result)
         }
@@ -480,27 +424,19 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(
-        forceRotate: Bool,
-        completionHandler: @escaping (Result<Bool, Error>) -> Void
-    ) -> Cancellable {
-        var rotationInterval: TimeInterval?
-        if !forceRotate {
-            rotationInterval = privateKeyRotationInterval
-        }
-
+    func rotatePrivateKey(completionHandler: @escaping (Result<Bool, Error>) -> Void) -> Cancellable {
         let operation = RotateKeyOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             devicesProxy: devicesProxy,
-            rotationInterval: rotationInterval
+            keyRotationConfiguration: StoredWgKeyData.KeyRotationConfiguration()
         )
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
             guard let self = self else { return }
 
-            self.setFinishedKeyRotation(result)
+            self.updatePrivateKeyRotationTimer()
 
             switch result {
             case .success:

@@ -412,6 +412,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     ipv6Address: device.ipv6Address,
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
+                        lastRotationAttemptDate: nil,
                         privateKey: input.privateKey
                     )
                 )

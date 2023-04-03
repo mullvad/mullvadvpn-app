@@ -186,7 +186,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
             using: nil
         ) { task in
-            let handle = self.tunnelManager.rotatePrivateKey(forceRotate: false) { completion in
+            let handle = self.tunnelManager.rotatePrivateKey { completion in
                 self.scheduleKeyRotationTask()
 
                 task.setTaskCompleted(success: completion.isSuccess)
