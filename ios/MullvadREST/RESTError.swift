@@ -106,6 +106,8 @@ extension REST {
         public static let maxDevicesReached = ServerResponseCode(rawValue: "MAX_DEVICES_REACHED")
         public static let invalidAccessToken = ServerResponseCode(rawValue: "INVALID_ACCESS_TOKEN")
         public static let deviceNotFound = ServerResponseCode(rawValue: "DEVICE_NOT_FOUND")
+        public static let serviceUnavailable = ServerResponseCode(rawValue: "SERVICE_UNAVAILABLE")
+        public static let tooManyRequests = ServerResponseCode(rawValue: "TOO_MANY_REQUESTS")
 
         public let rawValue: String
         public init(rawValue: String) {

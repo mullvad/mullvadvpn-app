@@ -51,6 +51,22 @@ extension REST.Error: DisplayError {
                     comment: ""
                 )
 
+            case .serviceUnavailable:
+                return NSLocalizedString(
+                    "SERVICE_UNAVAILABLE",
+                    tableName: "REST",
+                    value: "Mullvad is currently under heavy load. Please try again later.",
+                    comment: ""
+                )
+
+            case .tooManyRequests:
+                return NSLocalizedString(
+                    "TOO_MANY_REQUESTS",
+                    tableName: "REST",
+                    value: "Mullvad is currently under heavy load. Please try again later.",
+                    comment: ""
+                )
+
             default:
                 return String(
                     format: NSLocalizedString(
