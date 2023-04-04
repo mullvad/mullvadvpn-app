@@ -363,6 +363,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func startInitialization(application: UIApplication) {
+        checkWipeSettings()
+
         let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             self.tunnelStore.loadPersistentTunnels { error in
                 if let error = error {
@@ -435,6 +437,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func checkWipeSettings() {
+        if !FirstTimeLaunch.hasFinished, SettingsManager.getShouldWipeSettings() {
+            SettingsManager.resetStore(completely: true)
+        }
+
+        FirstTimeLaunch.setHasFinished()
+        SettingsManager.setShouldWipeSettings()
     }
 
     // MARK: - StorePaymentManagerDelegate
