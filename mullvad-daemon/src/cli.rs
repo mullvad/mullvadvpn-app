@@ -1,57 +1,4 @@
-use clap::{crate_authors, crate_description, crate_name, App, Arg};
-
-#[derive(Debug)]
-pub struct Config {
-    pub log_level: log::LevelFilter,
-    pub log_to_file: bool,
-    pub log_stdout_timestamps: bool,
-    pub run_as_service: bool,
-    pub register_service: bool,
-    #[cfg(target_os = "macos")]
-    pub launch_daemon_status: bool,
-    #[cfg(target_os = "linux")]
-    pub initialize_firewall_and_exit: bool,
-}
-
-pub fn get_config() -> &'static Config {
-    lazy_static::lazy_static! {
-        static ref CONFIG: Config = create_config();
-    }
-    &CONFIG
-}
-
-pub fn create_config() -> Config {
-    let app = create_app();
-    let matches = app.get_matches();
-
-    let log_level = match matches.occurrences_of("v") {
-        0 => log::LevelFilter::Info,
-        1 => log::LevelFilter::Debug,
-        _ => log::LevelFilter::Trace,
-    };
-    let log_to_file = !matches.is_present("disable_log_to_file");
-    let log_stdout_timestamps = !matches.is_present("disable_stdout_timestamps");
-
-    #[cfg(target_os = "linux")]
-    let initialize_firewall_and_exit =
-        cfg!(target_os = "linux") && matches.is_present("initialize-early-boot-firewall");
-    let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
-    let register_service = cfg!(windows) && matches.is_present("register_service");
-    #[cfg(target_os = "macos")]
-    let launch_daemon_status = matches.is_present("launch_daemon_status");
-
-    Config {
-        #[cfg(target_os = "linux")]
-        initialize_firewall_and_exit,
-        log_level,
-        log_to_file,
-        log_stdout_timestamps,
-        run_as_service,
-        register_service,
-        #[cfg(target_os = "macos")]
-        launch_daemon_status,
-    }
-}
+use clap::Parser;
 
 lazy_static::lazy_static! {
     static ref ENV_DESC: String = format!(
@@ -74,54 +21,81 @@ lazy_static::lazy_static! {
         mullvad_paths::get_default_rpc_socket_path().display());
 }
 
-fn create_app() -> App<'static> {
-    let mut app = App::new(crate_name!())
-        .version(mullvad_version::VERSION)
-        .author(crate_authors!(", "))
-        .about(crate_description!())
-        .after_help(ENV_DESC.as_str())
-        .arg(
-            Arg::new("v")
-                .short('v')
-                .multiple_occurrences(true)
-                .help("Sets the level of verbosity"),
-        )
-        .arg(
-            Arg::new("disable_log_to_file")
-                .long("disable-log-to-file")
-                .help("Disable logging to file"),
-        )
-        .arg(
-            Arg::new("disable_stdout_timestamps")
-                .long("disable-stdout-timestamps")
-                .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
-        );
+#[derive(Debug, Parser)]
+#[command(author, version = mullvad_version::VERSION, about, long_about = None, after_help = &*ENV_DESC)]
+struct Cli {
+    /// Set the level of verbosity
+    #[arg(short='v', action = clap::ArgAction::Count)]
+    verbosity: u8,
+    /// Disable logging to file
+    #[arg(long)]
+    disable_log_to_file: bool,
+    /// Don't log timestamps when logging to stdout, useful when running as a systemd service
+    #[arg(long)]
+    disable_stdout_timestamps: bool,
 
-    if cfg!(windows) {
-        app = app.arg(
-            Arg::new("run_as_service")
-                .long("run-as-service")
-                .help("Run as a system service. On Windows this option must be used when running a system service"),
-        )
-        .arg(
-            Arg::new("register_service")
-                .long("register-service")
-                .help("Register itself as a system service"),
-        )
-    }
+    /// Run as a system service
+    #[cfg(target_os = "windows")]
+    #[arg(long)]
+    run_as_service: bool,
+    /// Register Mullvad daemon as a system service
+    #[cfg(target_os = "windows")]
+    #[arg(long)]
+    register_service: bool,
 
-    if cfg!(target_os = "linux") {
-        app = app.arg(
-            Arg::new("initialize-early-boot-firewall")
-                .long("initialize-early-boot-firewall")
-                .help("Initialize firewall to be used during early boot and exit"),
-        )
-    }
+    /// Initialize firewall to be used during early boot and exit
+    #[cfg(target_os = "linux")]
+    #[arg(long)]
+    initialize_early_boot_firewall: bool,
 
-    if cfg!(target_os = "macos") {
-        app = app.arg(Arg::new("launch_daemon_status").long("launch-daemon-status").help(
-            "Checks the status of the launch daemon. The exit code represents the current status",
-        ))
+    /// Check the status of the launch daemon. The exit code represents the current status
+    #[cfg(target_os = "macos")]
+    #[arg(long)]
+    launch_daemon_status: bool,
+}
+
+#[derive(Debug)]
+pub struct Config {
+    pub log_level: log::LevelFilter,
+    pub log_to_file: bool,
+    pub log_stdout_timestamps: bool,
+    #[cfg(target_os = "windows")]
+    pub run_as_service: bool,
+    #[cfg(target_os = "windows")]
+    pub register_service: bool,
+    #[cfg(target_os = "macos")]
+    pub launch_daemon_status: bool,
+    #[cfg(target_os = "linux")]
+    pub initialize_firewall_and_exit: bool,
+}
+
+pub fn get_config() -> &'static Config {
+    lazy_static::lazy_static! {
+        static ref CONFIG: Config = create_config();
     }
-    app
+    &CONFIG
+}
+
+fn create_config() -> Config {
+    let app = Cli::parse();
+
+    let log_level = match app.verbosity {
+        0 => log::LevelFilter::Info,
+        1 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
+    };
+
+    Config {
+        log_level,
+        log_to_file: !app.disable_log_to_file,
+        log_stdout_timestamps: !app.disable_stdout_timestamps,
+        #[cfg(target_os = "windows")]
+        run_as_service: app.run_as_service,
+        #[cfg(target_os = "windows")]
+        register_service: app.register_service,
+        #[cfg(target_os = "macos")]
+        launch_daemon_status: app.launch_daemon_status,
+        #[cfg(target_os = "linux")]
+        initialize_firewall_and_exit: app.initialize_early_boot_firewall,
+    }
 }
