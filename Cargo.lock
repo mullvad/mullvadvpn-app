@@ -2040,7 +2040,7 @@ dependencies = [
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
- "clap 3.2.23",
+ "clap 4.2.7",
  "env_logger 0.10.0",
  "err-derive",
  "lazy_static",
