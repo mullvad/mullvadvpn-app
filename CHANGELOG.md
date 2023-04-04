@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
+- Redesign parts of CLI interface.
 
 #### Android
 - Clarify some of the error messages showed in notifications.
