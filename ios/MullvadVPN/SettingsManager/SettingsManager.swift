@@ -68,6 +68,36 @@ enum SettingsManager {
         }
     }
 
+    // MARK: - Previous app version
+
+    static func getPreviousAppVersion() throws -> String {
+        let data = try store.read(key: .previousAppVersion)
+
+        if let string = String(data: data, encoding: .utf8) {
+            return string
+        } else {
+            throw StringDecodingError(data: data)
+        }
+    }
+
+    static func setPreviousAppVersion(_ string: String?) throws {
+        if let string = string {
+            guard let data = string.data(using: .utf8) else {
+                throw StringEncodingError(string: string)
+            }
+
+            try store.write(data, for: .previousAppVersion)
+        } else {
+            do {
+                try store.delete(key: .previousAppVersion)
+            } catch let error as KeychainError where error == .itemNotFound {
+                return
+            } catch {
+                throw error
+            }
+        }
+    }
+
     // MARK: - Settings
 
     static func readSettings() throws -> TunnelSettingsV2 {
@@ -153,6 +183,48 @@ enum SettingsManager {
         }
     }
 
+    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
+    /// account number stored.
+    static func resetStore(completely: Bool = false) {
+        logger.debug("Reset store.")
+
+        do {
+            try store.delete(key: .deviceState)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete device state.")
+            }
+        }
+
+        do {
+            try store.delete(key: .settings)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete settings.")
+            }
+        }
+
+        if completely {
+            do {
+                try store.delete(key: .lastUsedAccount)
+            } catch {
+                if (error as? KeychainError) != .itemNotFound {
+                    logger.error(error: error, message: "Failed to delete last used account.")
+                }
+            }
+
+            do {
+                try store.delete(key: .previousAppVersion)
+            } catch {
+                if (error as? KeychainError) != .itemNotFound {
+                    logger.error(error: error, message: "Failed to delete previous app version.")
+                }
+            }
+        }
+
+        Self.deleteAllLegacySettings()
+    }
+
     // MARK: - Private
 
     private static func migrateLegacySettings(
@@ -210,30 +282,6 @@ enum SettingsManager {
         logger.error(error: error, message: "Encountered an unknown version.")
 
         throw error
-    }
-
-    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
-    /// account number stored.
-    private static func resetStore() {
-        logger.debug("Reset store.")
-
-        do {
-            try store.delete(key: .deviceState)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete device state.")
-            }
-        }
-
-        do {
-            try store.delete(key: .settings)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete settings.")
-            }
-        }
-
-        Self.deleteAllLegacySettings()
     }
 
     // MARK: - Legacy settings
@@ -409,6 +457,7 @@ enum SettingsKey: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case lastUsedAccount = "LastUsedAccount"
+    case previousAppVersion = "PreviousAppVersion"
 }
 
 /// An error type describing a failure to read or parse settings version.

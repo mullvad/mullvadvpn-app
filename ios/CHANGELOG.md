@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Wipe all settings on app reinstall.
+
 ### Changed
 - Changed key rotation interval from 4 to 14 days.
 - Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency in key
