@@ -363,6 +363,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func startInitialization(application: UIApplication) {
+        checkWipeSettings()
+
         let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             self.tunnelStore.loadPersistentTunnels { error in
                 if let error = error {
@@ -435,6 +437,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func checkWipeSettings() {
+        guard var previousAppVersion = try? SettingsManager.getPreviousAppVersion() else { return }
+
+        let previousAppVersionIsCompatible = previousAppVersion >= FirstTimeLaunch.compatibleAppVersion
+
+        if !FirstTimeLaunch.hasFinished, previousAppVersionIsCompatible {
+            SettingsManager.resetStore(completely: true)
+        }
+
+        FirstTimeLaunch.setHasFinished()
+
+        do {
+            try SettingsManager.setPreviousAppVersion(Bundle.main.shortVersion)
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to set previous app version (\(Bundle.main.shortVersion))."
+            )
+        }
     }
 
     // MARK: - StorePaymentManagerDelegate
