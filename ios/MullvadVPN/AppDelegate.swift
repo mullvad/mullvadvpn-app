@@ -363,6 +363,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func startInitialization(application: UIApplication) {
+        let wipeSettingsOperation = getWipeSettingsOperation()
+
         let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             self.tunnelStore.loadPersistentTunnels { error in
                 if let error = error {
@@ -395,7 +397,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 migrationUIHandler.showMigrationError(error, completionHandler: finishHandler)
             }
         }
-        migrateSettingsOperation.addDependency(loadTunnelStoreOperation)
+        migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
 
         let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             self.tunnelManager.loadConfiguration { error in
@@ -428,6 +430,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         operationQueue.addOperations(
             [
+                wipeSettingsOperation,
                 loadTunnelStoreOperation,
                 migrateSettingsOperation,
                 initTunnelManagerOperation,
@@ -435,6 +438,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func getWipeSettingsOperation() -> AsyncBlockOperation {
+        return AsyncBlockOperation {
+            if !FirstTimeLaunch.hasFinished, SettingsManager.getShouldWipeSettings() {
+                if let deviceState = try? SettingsManager.readDeviceState(),
+                   let accountData = deviceState.accountData,
+                   let deviceData = deviceState.deviceData
+                {
+                    _ = self.devicesProxy.deleteDevice(
+                        accountNumber: accountData.number,
+                        identifier: deviceData.identifier,
+                        retryStrategy: .noRetry
+                    ) { _ in
+                        // Do nothing.
+                    }
+                }
+
+                SettingsManager.resetStore(completely: true)
+            }
+
+            FirstTimeLaunch.setHasFinished()
+            SettingsManager.setShouldWipeSettings()
+        }
     }
 
     // MARK: - StorePaymentManagerDelegate
