@@ -40,7 +40,7 @@ test('App should fail to login', async () => {
   await expect(title).toHaveText('Login failed');
   await expect(subtitle).toHaveText('Invalid account number');
 
-  loginInput.fill('');
+  await loginInput.fill('');
 });
 
 test('App should create account', async () => {
