@@ -423,7 +423,6 @@ dependencies = [
  "bitflags",
  "clap_lex 0.2.4",
  "indexmap",
- "once_cell",
  "strsim 0.10.0",
  "termcolor",
  "textwrap",
@@ -1791,7 +1790,7 @@ dependencies = [
  "android_logger",
  "cfg-if",
  "chrono",
- "clap 3.2.23",
+ "clap 4.1.6",
  "ctrlc",
  "dirs-next",
  "duct",
@@ -1920,7 +1919,7 @@ dependencies = [
 name = "mullvad-problem-report"
 version = "0.0.0"
 dependencies = [
- "clap 3.2.23",
+ "clap 4.1.6",
  "dirs-next",
  "duct",
  "env_logger 0.10.0",
@@ -1965,7 +1964,7 @@ dependencies = [
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
- "clap 3.2.23",
+ "clap 4.1.6",
  "env_logger 0.10.0",
  "err-derive",
  "lazy_static",
