@@ -68,6 +68,16 @@ enum SettingsManager {
         }
     }
 
+    // MARK: - Previous app version
+
+    static func getIsSettingsWipeCompatible() -> Bool {
+        return (try? store.read(key: .isSettingsWipeCompatible)) != nil
+    }
+
+    static func setIsSettingsWipeCompatible() throws {
+        try store.write(Data(), for: .isSettingsWipeCompatible)
+    }
+
     // MARK: - Settings
 
     static func readSettings() throws -> TunnelSettingsV2 {
@@ -153,6 +163,48 @@ enum SettingsManager {
         }
     }
 
+    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
+    /// account number stored.
+    static func resetStore(completely: Bool = false) {
+        logger.debug("Reset store.")
+
+        do {
+            try store.delete(key: .deviceState)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete device state.")
+            }
+        }
+
+        do {
+            try store.delete(key: .settings)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete settings.")
+            }
+        }
+
+        if completely {
+            do {
+                try store.delete(key: .lastUsedAccount)
+            } catch {
+                if (error as? KeychainError) != .itemNotFound {
+                    logger.error(error: error, message: "Failed to delete last used account.")
+                }
+            }
+
+            do {
+                try store.delete(key: .isSettingsWipeCompatible)
+            } catch {
+                if (error as? KeychainError) != .itemNotFound {
+                    logger.error(error: error, message: "Failed to delete settings wipe compatibility.")
+                }
+            }
+        }
+
+        Self.deleteAllLegacySettings()
+    }
+
     // MARK: - Private
 
     private static func migrateLegacySettings(
@@ -210,30 +262,6 @@ enum SettingsManager {
         logger.error(error: error, message: "Encountered an unknown version.")
 
         throw error
-    }
-
-    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
-    /// account number stored.
-    private static func resetStore() {
-        logger.debug("Reset store.")
-
-        do {
-            try store.delete(key: .deviceState)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete device state.")
-            }
-        }
-
-        do {
-            try store.delete(key: .settings)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete settings.")
-            }
-        }
-
-        Self.deleteAllLegacySettings()
     }
 
     // MARK: - Legacy settings
@@ -409,6 +437,7 @@ enum SettingsKey: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case lastUsedAccount = "LastUsedAccount"
+    case isSettingsWipeCompatible = "IsSettingsWipeCompatible"
 }
 
 /// An error type describing a failure to read or parse settings version.

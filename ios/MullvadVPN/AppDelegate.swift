@@ -363,6 +363,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func startInitialization(application: UIApplication) {
+        checkWipeSettings()
+
         let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
             self.tunnelStore.loadPersistentTunnels { error in
                 if let error = error {
@@ -435,6 +437,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func checkWipeSettings() {
+        if !FirstTimeLaunch.hasFinished, SettingsManager.getIsSettingsWipeCompatible() {
+            SettingsManager.resetStore(completely: true)
+        }
+
+        FirstTimeLaunch.setHasFinished()
+
+        do {
+            try SettingsManager.setIsSettingsWipeCompatible()
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to set settings wipe compatibility."
+            )
+        }
     }
 
     // MARK: - StorePaymentManagerDelegate
