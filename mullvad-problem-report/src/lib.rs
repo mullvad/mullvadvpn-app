@@ -106,8 +106,8 @@ pub enum LogError {
     NoLocalAppDataDir,
 }
 
-pub fn collect_report(
-    extra_logs: &[&Path],
+pub fn collect_report<P: AsRef<Path>>(
+    extra_logs: &[P],
     output_path: &Path,
     redact_custom_strings: Vec<String>,
     #[cfg(target_os = "android")] android_log_dir: &Path,
