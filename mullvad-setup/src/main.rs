@@ -1,4 +1,4 @@
-use clap::{crate_authors, crate_description, crate_name, App};
+use clap::Parser;
 use mullvad_api::{self, proxy::ApiConnectionMode};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
@@ -71,47 +71,39 @@ pub enum Error {
     ParseVersionStringError,
 }
 
+#[derive(Debug, Parser)]
+#[command(author, version = mullvad_version::VERSION, about, long_about = None)]
+#[command(propagate_version = true)]
+enum Cli {
+    /// Move a running daemon into a blocking state and save its target state
+    PrepareRestart,
+    /// Remove any firewall rules introduced by the daemon
+    ResetFirewall,
+    /// Remove the current device from the active account
+    RemoveDevice,
+    /// Checks whether the given version is older than the current version
+    IsOlderVersion {
+        /// Version string to compare the current version
+        #[arg(required = true)]
+        old_version: String,
+    },
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
 
-    let subcommands = vec![
-        App::new("prepare-restart")
-            .about("Move a running daemon into a blocking state and save its target state"),
-        App::new("reset-firewall").about("Remove any firewall rules introduced by the daemon"),
-        App::new("remove-device").about("Remove the current device from the active account"),
-        App::new("is-older-version")
-            .about("Checks whether the given version is older than the current version")
-            .arg(
-                clap::Arg::new("OLDVERSION")
-                    .required(true)
-                    .help("Version string to compare the current version"),
-            ),
-    ];
-
-    let app = clap::App::new(crate_name!())
-        .version(mullvad_version::VERSION)
-        .author(crate_authors!())
-        .about(crate_description!())
-        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .global_setting(clap::AppSettings::DisableHelpSubcommand)
-        .global_setting(clap::AppSettings::DisableVersionFlag)
-        .subcommands(subcommands);
-
-    let matches = app.get_matches();
-    let result = match matches.subcommand() {
-        Some(("prepare-restart", _)) => prepare_restart().await,
-        Some(("reset-firewall", _)) => reset_firewall().await,
-        Some(("remove-device", _)) => remove_device().await,
-        Some(("is-older-version", sub_matches)) => {
-            let old_version = sub_matches.value_of("OLDVERSION").unwrap();
-            match is_older_version(old_version) {
+    let result = match Cli::parse() {
+        Cli::PrepareRestart => prepare_restart().await,
+        Cli::ResetFirewall => reset_firewall().await,
+        Cli::RemoveDevice => remove_device().await,
+        Cli::IsOlderVersion { old_version } => {
+            match is_older_version(&old_version) {
                 // Returning exit status
                 Ok(status) => process::exit(status as i32),
                 Err(error) => Err(error),
             }
         }
-        _ => unreachable!("No command matched"),
     };
 
     if let Err(e) = result {
