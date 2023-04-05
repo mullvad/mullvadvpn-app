@@ -32,15 +32,11 @@ class RotateKeyOperation: ResultOperation<Bool> {
         self.devicesProxy = devicesProxy
         self.rotationInterval = rotationInterval
 
-        super.init(
-            dispatchQueue: dispatchQueue,
-            completionQueue: nil,
-            completionHandler: nil
-        )
+        super.init(dispatchQueue: dispatchQueue, completionQueue: nil, completionHandler: nil)
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case .loggedIn(let accountData, var deviceData) = interactor.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -63,7 +59,18 @@ class RotateKeyOperation: ResultOperation<Bool> {
 
         logger.debug("Replacing old key with new key on server...")
 
-        let newPrivateKey = PrivateKey()
+        let newPrivateKey: PrivateKey
+        if let nextPrivateKey = deviceData.wgKeyData.nextPrivateKey {
+            logger.debug("Next private key is already stored in Keychain. Using it.")
+
+            newPrivateKey = nextPrivateKey
+        } else {
+            logger.debug("Create next private key and store it in Keychain.")
+
+            newPrivateKey = PrivateKey()
+            deviceData.wgKeyData.nextPrivateKey = newPrivateKey
+            interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+        }
 
         task = devicesProxy.rotateDeviceKey(
             accountNumber: accountData.number,
@@ -72,10 +79,7 @@ class RotateKeyOperation: ResultOperation<Bool> {
             retryStrategy: .default
         ) { result in
             self.dispatchQueue.async {
-                self.didRotateKey(
-                    newPrivateKey: newPrivateKey,
-                    result: result
-                )
+                self.didRotateKey(newPrivateKey: newPrivateKey, result: result)
             }
         }
     }
