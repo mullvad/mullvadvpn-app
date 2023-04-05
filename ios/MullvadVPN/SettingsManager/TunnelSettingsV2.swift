@@ -119,6 +119,10 @@ struct StoredWgKeyData: Codable, Equatable {
 
     /// Private key.
     var privateKey: PrivateKey
+
+    /// Next private key we're trying to rotate to.
+    /// Added in 2023.3
+    var nextPrivateKey: PrivateKey?
 }
 
 extension StoredWgKeyData {
