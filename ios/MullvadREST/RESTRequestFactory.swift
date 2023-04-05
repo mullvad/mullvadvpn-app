@@ -18,12 +18,13 @@ extension REST {
 
         class func withDefaultAPICredentials(
             pathPrefix: String,
-            bodyEncoder: JSONEncoder
+            bodyEncoder: JSONEncoder,
+            networkTimeout: TimeInterval = REST.defaultRequestNetworkTimeout
         ) -> RequestFactory {
             return RequestFactory(
                 hostname: defaultAPIHostname,
                 pathPrefix: pathPrefix,
-                networkTimeout: defaultAPINetworkTimeout,
+                networkTimeout: networkTimeout,
                 bodyEncoder: bodyEncoder
             )
         }
@@ -43,7 +44,8 @@ extension REST {
         func createRequest(
             endpoint: AnyIPEndpoint,
             method: HTTPMethod,
-            pathTemplate: URLPathTemplate
+            pathTemplate: URLPathTemplate,
+            networkTimeout: TimeInterval? = nil
         ) throws -> REST.Request {
             var urlComponents = URLComponents()
             urlComponents.scheme = "https"
@@ -57,7 +59,7 @@ extension REST {
             var request = URLRequest(
                 url: requestURL,
                 cachePolicy: .useProtocolCachePolicy,
-                timeoutInterval: networkTimeout
+                timeoutInterval: networkTimeout ?? self.networkTimeout
             )
             request.httpShouldHandleCookies = false
             request.addValue(hostname, forHTTPHeaderField: HTTPHeader.host)
@@ -75,12 +77,14 @@ extension REST {
         func createRequestBuilder(
             endpoint: AnyIPEndpoint,
             method: HTTPMethod,
-            pathTemplate: URLPathTemplate
+            pathTemplate: URLPathTemplate,
+            networkTimeout: TimeInterval? = nil
         ) throws -> RequestBuilder {
             let request = try createRequest(
                 endpoint: endpoint,
                 method: method,
-                pathTemplate: pathTemplate
+                pathTemplate: pathTemplate,
+                networkTimeout: networkTimeout
             )
 
             return RequestBuilder(

@@ -15,12 +15,14 @@ public struct ProxyURLRequest: Codable {
     public let method: String?
     public let httpBody: Data?
     public let httpHeaders: [String: String]?
+    public let timeoutInterval: TimeInterval
 
     public var urlRequest: URLRequest {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = method
         urlRequest.httpBody = httpBody
         urlRequest.allHTTPHeaderFields = httpHeaders
+        urlRequest.timeoutInterval = timeoutInterval
         return urlRequest
     }
 
@@ -34,6 +36,7 @@ public struct ProxyURLRequest: Codable {
         method = urlRequest.httpMethod
         httpBody = urlRequest.httpBody
         httpHeaders = urlRequest.allHTTPHeaderFields
+        timeoutInterval = urlRequest.timeoutInterval
     }
 }
 

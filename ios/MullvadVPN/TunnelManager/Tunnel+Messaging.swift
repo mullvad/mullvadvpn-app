@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadREST
 import MullvadTypes
 import Operations
 import RelaySelector
@@ -19,8 +18,8 @@ private let operationQueue = AsyncOperationQueue()
 /// Shared queue used by IPC operations.
 private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
 
-/// Timeout for proxy requests.
-private let proxyRequestTimeout = REST.defaultAPINetworkTimeout + 2
+/// Timeout overhead for proxy requests to account for IPC delays in handling requests and responses.
+private let proxyRequestTimeoutOverhead: TimeInterval = 2
 
 extension Tunnel {
     /// Request packet tunnel process to reconnect the tunnel with the given relay selector result.
@@ -69,7 +68,7 @@ extension Tunnel {
             application: .shared,
             tunnel: self,
             message: .sendURLRequest(proxyRequest),
-            timeout: proxyRequestTimeout,
+            timeout: proxyRequest.timeoutInterval + proxyRequestTimeoutOverhead,
             completionHandler: completionHandler
         )
 
