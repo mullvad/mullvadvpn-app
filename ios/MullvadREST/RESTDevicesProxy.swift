@@ -132,7 +132,8 @@ extension REST {
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
                         endpoint: endpoint,
                         method: .post,
-                        pathTemplate: "devices"
+                        pathTemplate: "devices",
+                        networkTimeout: REST.expensiveRequestNetworkTimeout
                     )
                     requestBuilder.setAuthorization(authorization)
 
@@ -176,12 +177,12 @@ extension REST {
                         allowedCharacters: .urlPathAllowed
                     )
 
-                    var requestBuilder = try self.requestFactory
-                        .createRequestBuilder(
-                            endpoint: endpoint,
-                            method: .delete,
-                            pathTemplate: path
-                        )
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
+                        endpoint: endpoint,
+                        method: .delete,
+                        pathTemplate: path,
+                        networkTimeout: REST.expensiveRequestNetworkTimeout
+                    )
 
                     requestBuilder.setAuthorization(authorization)
 
@@ -238,12 +239,12 @@ extension REST {
                         allowedCharacters: .urlPathAllowed
                     )
 
-                    var requestBuilder = try self.requestFactory
-                        .createRequestBuilder(
-                            endpoint: endpoint,
-                            method: .put,
-                            pathTemplate: path
-                        )
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
+                        endpoint: endpoint,
+                        method: .put,
+                        pathTemplate: path,
+                        networkTimeout: REST.expensiveRequestNetworkTimeout
+                    )
 
                     requestBuilder.setAuthorization(authorization)
 

@@ -16,6 +16,9 @@ extension REST {
     /// Default API endpoint.
     public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.223.196:443")!
 
-    /// Default network timeout for API requests.
-    public static let defaultAPINetworkTimeout: TimeInterval = 10
+    /// Network timeout for API requests that usually execute quickly.
+    public static let defaultRequestNetworkTimeout: TimeInterval = 10
+
+    /// Network timeout for API requests that may take time to execute.
+    public static let expensiveRequestNetworkTimeout: TimeInterval = 30
 }
