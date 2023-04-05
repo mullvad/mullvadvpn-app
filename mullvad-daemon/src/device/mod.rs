@@ -46,6 +46,9 @@ const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 /// to set up a WireGuard tunnel.
 const WG_DEVICE_CHECK_THRESHOLD: usize = 2;
 
+/// How long to wait before rotating the key rotation timer starts, if the key is too old.
+const MIN_INITIAL_KEY_ROTATION_DELAY: Duration = Duration::from_secs(60);
+
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "The account already has a maximum number of devices")]
@@ -960,7 +963,7 @@ impl AccountManager {
             );
             let time_until_next_rotation = std::cmp::max(
                 rotation_interval.as_duration().saturating_sub(key_age),
-                Duration::from_secs(60),
+                MIN_INITIAL_KEY_ROTATION_DELAY,
             );
 
             log::trace!(
