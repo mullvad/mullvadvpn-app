@@ -132,8 +132,7 @@ extension REST {
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
                         endpoint: endpoint,
                         method: .post,
-                        pathTemplate: "devices",
-                        networkTimeout: REST.expensiveRequestNetworkTimeout
+                        pathTemplate: "devices"
                     )
                     requestBuilder.setAuthorization(authorization)
 
@@ -180,8 +179,7 @@ extension REST {
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
                         endpoint: endpoint,
                         method: .delete,
-                        pathTemplate: path,
-                        networkTimeout: REST.expensiveRequestNetworkTimeout
+                        pathTemplate: path
                     )
 
                     requestBuilder.setAuthorization(authorization)
