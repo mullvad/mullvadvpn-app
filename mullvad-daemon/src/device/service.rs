@@ -164,12 +164,11 @@ impl DeviceService {
         &self,
         token: AccountToken,
         device: DeviceId,
+        new_private_key: PrivateKey,
     ) -> Result<WireguardData, Error> {
-        let private_key = PrivateKey::new_from_random();
-
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let pubkey = private_key.public_key();
+        let pubkey = new_private_key.public_key();
         let addresses = retry_future_n(
             move || proxy.replace_wg_key(token.clone(), device.clone(), pubkey.clone()),
             move |result| should_retry(result, &api_handle),
@@ -180,7 +179,7 @@ impl DeviceService {
         .map_err(map_rest_error)?;
 
         Ok(WireguardData {
-            private_key,
+            private_key: new_private_key,
             addresses,
             created: Utc::now(),
         })
@@ -190,12 +189,11 @@ impl DeviceService {
         &self,
         token: AccountToken,
         device: DeviceId,
+        new_private_key: PrivateKey,
     ) -> Result<WireguardData, Error> {
-        let private_key = PrivateKey::new_from_random();
-
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let pubkey = private_key.public_key();
+        let pubkey = new_private_key.public_key();
 
         let addresses = retry_future(
             move || {
@@ -212,7 +210,7 @@ impl DeviceService {
         .map_err(map_rest_error)?;
 
         Ok(WireguardData {
-            private_key,
+            private_key: new_private_key,
             addresses,
             created: Utc::now(),
         })

@@ -23,7 +23,11 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_types::{net::TunnelType, tunnel::TunnelStateTransition, ErrorExt};
+use talpid_types::{
+    net::{wireguard::PrivateKey, TunnelType},
+    tunnel::TunnelStateTransition,
+    ErrorExt,
+};
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -398,6 +402,7 @@ pub(crate) struct AccountManager {
     data: PrivateDeviceState,
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<AccountEvent> + Send>>,
+    unused_wireguard_key: Option<PrivateKey>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     expiry_requests: Vec<ResponseTx<DateTime<Utc>>>,
@@ -430,6 +435,7 @@ impl AccountManager {
             data: data.clone(),
             rotation_interval: initial_rotation_interval,
             listeners: vec![Box::new(listener_tx)],
+            unused_wireguard_key: None,
             last_validation: None,
             validation_requests: vec![],
             expiry_requests: vec![],
@@ -744,14 +750,20 @@ impl AccountManager {
                         }
                     }
                 } else {
-                    log::debug!("Rotating invalid WireGuard key for device");
+                    log::debug!("Rotating inconsistent WireGuard key for device");
+
+                    // If the local pubkey doesn't match the actual, remote key, rotate it.
                     if self.rotation_requests.is_empty() {
                         if let Some(updated_config) = self.data.device() {
                             let device_service = self.device_service.clone();
                             let token = updated_config.account_token.clone();
                             let device_id = updated_config.device.id.clone();
+                            let private_key = self.next_private_key().clone();
+
                             api_call.set_oneshot_rotation(Box::pin(async move {
-                                device_service.rotate_key(token, device_id).await
+                                device_service
+                                    .rotate_key(token, device_id, private_key)
+                                    .await
                             }));
                         }
                     }
@@ -773,6 +785,13 @@ impl AccountManager {
         }
     }
 
+    /// Return the next WireGuard key to use for rotation. This should be reset when the key has been
+    /// successfully replaced.
+    fn next_private_key(&mut self) -> &PrivateKey {
+        self.unused_wireguard_key
+            .get_or_insert_with(PrivateKey::new_from_random)
+    }
+
     async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
         let mut config = self
             .data
@@ -783,7 +802,12 @@ impl AccountManager {
         match api_result {
             Ok(wg_data) => {
                 log::debug!("Replacing WireGuard key");
+
                 config.device.wg_data = wg_data;
+
+                // Replace stored WireGuard key so the next rotation attempt will generate a new key.
+                self.unused_wireguard_key = None;
+
                 match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
@@ -823,7 +847,7 @@ impl AccountManager {
     }
 
     fn spawn_timed_key_rotation(
-        &self,
+        &mut self,
     ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
         let config = self.data.device()?;
         let key_rotation_timer = self.key_rotation_timer(config.device.wg_data.created);
@@ -832,10 +856,12 @@ impl AccountManager {
         let account_token = config.account_token.clone();
         let device_id = config.device.id.clone();
 
+        let private_key = self.next_private_key().clone();
+
         Some(async move {
             key_rotation_timer.await;
             device_service
-                .rotate_key_with_backoff(account_token, device_id)
+                .rotate_key_with_backoff(account_token, device_id, private_key)
                 .await
         })
     }
@@ -935,13 +961,16 @@ impl AccountManager {
     }
 
     fn initiate_key_rotation(
-        &self,
+        &mut self,
     ) -> Result<impl Future<Output = Result<WireguardData, Error>>, Error> {
         let data = self.data.device().cloned().ok_or(Error::NoDevice)?;
         let device_service = self.device_service.clone();
+
+        let private_key = self.next_private_key().clone();
+
         Ok(async move {
             device_service
-                .rotate_key(data.account_token, data.device.id)
+                .rotate_key(data.account_token, data.device.id, private_key)
                 .await
         })
     }
