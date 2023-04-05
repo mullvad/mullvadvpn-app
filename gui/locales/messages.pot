@@ -1249,7 +1249,7 @@ msgid "Make sure you have NF tables support."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgid "This can happen because the kernel is old."
 msgstr ""
 
 msgctxt "troubleshoot"

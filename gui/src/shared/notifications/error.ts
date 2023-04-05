@@ -213,10 +213,7 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
     return {
       type: 'troubleshoot-dialog',
       troubleshoot: {
-        details: messages.pgettext(
-          'troubleshoot',
-          'This can happen because the kernel is old, or if you have removed a kernel.',
-        ),
+        details: messages.pgettext('troubleshoot', 'This can happen because the kernel is old.'),
         steps: [
           messages.pgettext('troubleshoot', 'Update your kernel.'),
           messages.pgettext('troubleshoot', 'Make sure you have NF tables support.'),
