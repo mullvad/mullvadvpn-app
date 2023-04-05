@@ -31,13 +31,13 @@ pub struct Config {
     pub obfuscator_config: Option<ObfuscatorConfig>,
 }
 
-#[cfg(not(target_os = "android"))]
-const DEFAULT_MTU: u16 = 1380;
-
 /// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
 /// carriers that do a lot of encapsulation.
-#[cfg(target_os = "android")]
-const DEFAULT_MTU: u16 = 1280;
+const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
+    1280
+} else {
+    1380
+};
 
 /// Configuration errors
 #[derive(err_derive::Error, Debug)]

@@ -894,9 +894,10 @@ where
             }
         }
 
-        match tunnel_state {
+        match &tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
-            TunnelState::Error(ref error_state) => {
+            TunnelState::Connecting { .. } => log::debug!("{}", self.settings.summary()),
+            TunnelState::Error(error_state) => {
                 if error_state.is_blocking() {
                     log::info!(
                         "Blocking all network connections, reason: {}",

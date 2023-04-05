@@ -676,6 +676,8 @@ impl WireguardMonitor {
         #[cfg(windows)] route_manager_handle: crate::routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
+        log::debug!("Tunnel MTU: {}", config.mtu);
+
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
             if will_nm_manage_dns() {

@@ -1,11 +1,16 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
-use mullvad_types::settings::Settings;
+use mullvad_types::{
+    relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
+    settings::{DnsState, Settings},
+};
 use rand::Rng;
 use std::{
+    fmt::{self, Display},
     ops::Deref,
     path::{Path, PathBuf},
 };
+use talpid_core::firewall::is_local_address;
 use talpid_types::ErrorExt;
 use tokio::{
     fs,
@@ -194,6 +199,13 @@ impl SettingsPersister {
         self.settings = new_settings;
         Ok(true)
     }
+
+    /// Return a compact summary of important settings
+    pub fn summary(&self) -> SettingsSummary<'_> {
+        SettingsSummary {
+            settings: &self.settings,
+        }
+    }
 }
 
 impl Deref for SettingsPersister {
@@ -201,6 +213,152 @@ impl Deref for SettingsPersister {
 
     fn deref(&self) -> &Self::Target {
         &self.settings
+    }
+}
+
+/// A compact summary of important settings
+pub struct SettingsSummary<'a> {
+    settings: &'a Settings,
+}
+
+impl<'a> Display for SettingsSummary<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let bool_to_label = |state| {
+            if state {
+                "on"
+            } else {
+                "off"
+            }
+        };
+
+        let relay_settings = self.settings.get_relay_settings();
+
+        write!(f, "ovpn mssfix: ")?;
+        Self::fmt_option(f, self.settings.tunnel_options.openvpn.mssfix)?;
+        write!(f, ", wg mtu: ")?;
+        Self::fmt_option(f, self.settings.tunnel_options.wireguard.mtu)?;
+
+        if let RelaySettings::Normal(RelayConstraints {
+            wireguard_constraints: WireguardConstraints { ip_version, .. },
+            ..
+        }) = relay_settings
+        {
+            write!(f, ", wg ip: {ip_version}")?;
+        }
+
+        let multihop = matches!(
+            relay_settings,
+            RelaySettings::Normal(RelayConstraints {
+                wireguard_constraints: WireguardConstraints {
+                    use_multihop: true,
+                    ..
+                },
+                ..
+            })
+        );
+
+        write!(
+            f,
+            ", multihop: {}, ipv6 (tun): {}, lan: {}, pq: {}, obfs: {}",
+            bool_to_label(multihop),
+            bool_to_label(self.settings.tunnel_options.generic.enable_ipv6),
+            bool_to_label(self.settings.allow_lan),
+            self.settings.tunnel_options.wireguard.quantum_resistant,
+            self.settings.obfuscation_settings.selected_obfuscation,
+        )?;
+
+        // Print DNS options
+
+        match self.settings.tunnel_options.dns_options.state {
+            DnsState::Default => {
+                let mut content = vec!["default"];
+
+                if self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .default_options
+                    .block_ads
+                {
+                    content.push("ads");
+                }
+                if self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .default_options
+                    .block_trackers
+                {
+                    content.push("trackers");
+                }
+                if self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .default_options
+                    .block_malware
+                {
+                    content.push("malware");
+                }
+                if self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .default_options
+                    .block_adult_content
+                {
+                    content.push("adult");
+                }
+                if self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .default_options
+                    .block_gambling
+                {
+                    content.push("gambling");
+                }
+
+                write!(f, ", dns: {}", content.join(" "))?;
+            }
+            DnsState::Custom => {
+                // NOTE: Technically inaccurate, as the gateway IP is a local IP but isn't treated as one.
+                let contains_local = self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .custom_options
+                    .addresses
+                    .iter()
+                    .any(is_local_address);
+                let contains_public = self
+                    .settings
+                    .tunnel_options
+                    .dns_options
+                    .custom_options
+                    .addresses
+                    .iter()
+                    .any(|addr| !is_local_address(addr));
+
+                match (contains_public, contains_local) {
+                    (true, true) => f.write_str(", dns: custom, public, local")?,
+                    (true, false) => f.write_str(", dns: custom, public")?,
+                    (false, false) => f.write_str(", dns: custom, no addrs")?,
+                    (false, true) => f.write_str(", dns: custom, local")?,
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+impl<'a> SettingsSummary<'a> {
+    fn fmt_option<T: Display>(f: &mut fmt::Formatter<'_>, val: Option<T>) -> fmt::Result {
+        if let Some(inner) = &val {
+            inner.fmt(f)
+        } else {
+            f.write_str("unset")
+        }
     }
 }
 
