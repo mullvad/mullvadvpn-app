@@ -745,6 +745,16 @@ impl AccountManager {
                     }
                 } else {
                     log::debug!("Rotating invalid WireGuard key for device");
+                    if self.rotation_requests.is_empty() {
+                        if let Some(updated_config) = self.data.device() {
+                            let device_service = self.device_service.clone();
+                            let token = updated_config.account_token.clone();
+                            let device_id = updated_config.device.id.clone();
+                            api_call.set_oneshot_rotation(Box::pin(async move {
+                                device_service.rotate_key(token, device_id).await
+                            }));
+                        }
+                    }
                 }
             }
             Err(Error::InvalidAccount) => {
@@ -759,17 +769,6 @@ impl AccountManager {
                 Self::drain_requests(&mut self.validation_requests, || {
                     Err(Error::ResponseFailure(cloneable_err.clone()))
                 });
-            }
-        }
-
-        if !self.rotation_requests.is_empty() || !self.validation_requests.is_empty() {
-            if let Some(updated_config) = self.data.device() {
-                let device_service = self.device_service.clone();
-                let token = updated_config.account_token.clone();
-                let device_id = updated_config.device.id.clone();
-                api_call.set_oneshot_rotation(Box::pin(async move {
-                    device_service.rotate_key(token, device_id).await
-                }));
             }
         }
     }
