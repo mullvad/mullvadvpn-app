@@ -1249,11 +1249,11 @@ msgid "Make sure you have NF tables support."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgid "This might be caused by an outdated kernel."
 msgstr ""
 
 msgctxt "troubleshoot"
