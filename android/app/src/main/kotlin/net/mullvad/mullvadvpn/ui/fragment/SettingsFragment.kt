@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -114,6 +115,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
     private fun initializeUiState() {
         updateLoggedInStatus(deviceRepository.deviceState.value is DeviceState.LoggedIn)
         accountMenu.accountExpiry = accountRepository.accountExpiryState.value.date()
+        appVersionMenu.version = BuildConfig.VERSION_NAME
         serviceConnectionManager.appVersionInfoCache().let { cache ->
             updateVersionInfo(
                 if (cache != null) {
@@ -189,6 +191,5 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
     private fun updateVersionInfo(versionInfo: VersionInfo) {
         appVersionMenu.updateAvailable = versionInfo.isOutdated || !versionInfo.isSupported
-        appVersionMenu.version = versionInfo.currentVersion ?: ""
     }
 }
