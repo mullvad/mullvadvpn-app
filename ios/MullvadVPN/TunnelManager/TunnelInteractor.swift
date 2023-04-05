@@ -34,6 +34,7 @@ protocol TunnelInteractor {
     func setConfigurationLoaded()
     func setSettings(_ settings: TunnelSettingsV2, persist: Bool)
     func setDeviceState(_ deviceState: DeviceState, persist: Bool)
+    func handleRestError(_ error: Error)
 
     func startTunnel()
     func prepareForVPNConfigurationDeletion()

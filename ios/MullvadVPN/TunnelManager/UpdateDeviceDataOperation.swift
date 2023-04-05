@@ -68,6 +68,10 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
             }
         }
 
+        if let error = result.error {
+            interactor.handleRestError(error)
+        }
+
         finish(result: result)
     }
 }
