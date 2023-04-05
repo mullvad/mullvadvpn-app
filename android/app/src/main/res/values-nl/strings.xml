@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
     <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="app_version">Appversie</string>
-    <string name="auth_failed">Met welke TCP-poort mory het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
+    <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="auto_connect">Automatisch verbinden</string>
     <string name="auto_connect_footer">Automatisch verbinden met een server wanneer de app wordt gestart.</string>
     <string name="back">Terug</string>
@@ -48,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;DNS-contentblokkeringen&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
-    <string name="custom_tunnel_host_resolution_error">Kon de hostnaam van de aangepaste server niet omzetten</string>
+    <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
@@ -68,7 +68,7 @@
     <string name="error_occurred">Er is een fout opgetreden.</string>
     <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
     <string name="exclude_applications">Uitgesloten toepassingen</string>
-    <string name="failed_to_block_internet">Kon alle netwerkverkeer niet blokkeren. Los het probleem op of meld het aan ons.</string>
+    <string name="failed_to_block_internet">Kan niet alle netwerkverkeer blokkeren. Los problemen op of stuur een probleemmelding.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_fetch_devices">Ophalen van lijst van apparaten mislukt</string>
     <string name="failed_to_remove_device">Verwijderen van apparaat mislukt</string>
@@ -84,8 +84,8 @@
     <string name="in_address">In</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
-    <string name="ipv6_unavailable">Kon IPv6 niet configureren</string>
-    <string name="is_offline">Dit apparaat is offline, er kunnen geen tunnels tot stand worden gebracht</string>
+    <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
+    <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_a_minute_ago">minder dan een minuut geleden</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
@@ -128,8 +128,7 @@
     <string name="sent">Verzonden</string>
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
-    <string name="set_dns_error">Instellen DNS-server van systeem mislukt</string>
-    <string name="set_firewall_policy_error">Toepassen van firewallregels mislukt. Het apparaat is mogelijk niet beveiligd</string>
+    <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_advanced">Geavanceerd</string>
@@ -137,7 +136,7 @@
     <string name="show_account_number">Accountnummer weergeven</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Split tunneling maakt het mogelijk te kiezen welke toepassingen niet via de VPN-tunnel moeten worden geleid.</string>
-    <string name="start_tunnel_error">Starten van tunnelverbinding mislukt</string>
+    <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>

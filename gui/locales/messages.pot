@@ -1593,9 +1593,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
-msgid "Account authentication failed."
-msgstr ""
-
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
@@ -1632,9 +1629,6 @@ msgstr ""
 msgid "Copied to clipboard"
 msgstr ""
 
-msgid "Could not configure IPv6"
-msgstr ""
-
 msgid "Critical error (your attention is required)"
 msgstr ""
 
@@ -1650,22 +1644,7 @@ msgstr ""
 msgid "Excluded applications"
 msgstr ""
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr ""
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr ""
-
 msgid "Failed to fetch list of devices"
-msgstr ""
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr ""
-
-msgid "Failed to set system DNS server"
-msgstr ""
-
-msgid "Failed to start tunnel connection"
 msgstr ""
 
 msgid "Going to login will unblock the internet on this device."
@@ -1719,13 +1698,13 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
-msgid "This device is offline, no tunnels can be established"
-msgstr ""
-
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
 msgid "Toggle VPN"
+msgstr ""
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."

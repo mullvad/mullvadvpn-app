@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à une autre application</string>
     <string name="app_version">Version de l\'application</string>
-    <string name="auth_failed">Connexion au compte échouée.</string>
+    <string name="auth_failed">Impossible d\'authentifier le compte. Veuillez envoyer un rapport de problème.</string>
     <string name="auto_connect">Connexion automatique</string>
     <string name="auto_connect_footer">Connexion automatique à un serveur dès le démarrage de l\'application.</string>
     <string name="back">Retour</string>
@@ -48,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;bloqueurs de contenu DNS&lt;/b&gt; pour activer ce paramètre.</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
-    <string name="custom_tunnel_host_resolution_error">Échec de la résolution du nom d\'hôte du serveur personnalisé</string>
+    <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
@@ -68,7 +68,7 @@
     <string name="error_occurred">Une erreur est survenue.</string>
     <string name="error_state">ÉCHEC DE LA SÉCURISATION DE LA CONNEXION</string>
     <string name="exclude_applications">Applications exclues</string>
-    <string name="failed_to_block_internet">Impossible de bloquer tout le trafic du réseau. Veuillez dépanner ou nous signaler le problème.</string>
+    <string name="failed_to_block_internet">Impossible de bloquer tout le trafic réseau. Veuillez dépanner ou envoyer un rapport de problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
     <string name="failed_to_fetch_devices">Impossible de récupérer la liste des appareils</string>
     <string name="failed_to_remove_device">Impossible de supprimer l\'appareil</string>
@@ -84,8 +84,8 @@
     <string name="in_address">Entrante</string>
     <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
-    <string name="ipv6_unavailable">Impossible de configurer IPv6</string>
-    <string name="is_offline">Cet appareil est hors ligne. Aucun tunnel ne peut être établi</string>
+    <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
+    <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_a_minute_ago">il y a moins d\'une minute</string>
     <string name="local_network_sharing">Partage réseau local</string>
@@ -128,8 +128,7 @@
     <string name="sent">Envoyé</string>
     <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
     <string name="sent_thanks">Merci !</string>
-    <string name="set_dns_error">Échec de la configuration du serveur DNS système</string>
-    <string name="set_firewall_policy_error">Échec de l\'application des règles du pare-feu. L\'appareil est potentiellement non sécurisé à l\'heure actuelle</string>
+    <string name="set_dns_error">Impossible de définir le serveur DNS système. Veuillez envoyer un rapport de problème.</string>
     <string name="settings">Paramètres</string>
     <string name="settings_account">Compte</string>
     <string name="settings_advanced">Avancé</string>
@@ -137,7 +136,7 @@
     <string name="show_account_number">Afficher le numéro de compte</string>
     <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling_description">Le split tunneling permet de sélectionner quelles applications ne doivent pas passer par le tunnel VPN.</string>
-    <string name="start_tunnel_error">Échec du démarrage de la connexion tunnel</string>
+    <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
     <string name="switch_location">Changer de localisation</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>

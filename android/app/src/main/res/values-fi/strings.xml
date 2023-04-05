@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
     <string name="always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="app_version">Sovelluksen versio</string>
-    <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
+    <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
     <string name="auto_connect_footer">Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan.</string>
     <string name="back">Takaisin</string>
@@ -48,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Voit ottaa asetuksen käyttöön poistamalla ensin kaikki &lt;b&gt;DNS-sisällönestotoiminnot&lt;/b&gt; käytöstä yltä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
-    <string name="custom_tunnel_host_resolution_error">Mukautetun palvelimen isäntänimen selvittäminen epäonnistui</string>
+    <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
@@ -68,7 +68,7 @@
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
-    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai ilmoita meille ongelmasta.</string>
+    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
     <string name="failed_to_remove_device">Laitteen poistaminen epäonnistui</string>
@@ -84,8 +84,8 @@
     <string name="in_address">Saapuva</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
-    <string name="ipv6_unavailable">IPv6:n määritys epäonnistui</string>
-    <string name="is_offline">Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda.</string>
+    <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
+    <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_a_minute_ago">alle minuutti sitten</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
@@ -128,8 +128,7 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
-    <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen epäonnistui</string>
-    <string name="set_firewall_policy_error">Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu.</string>
+    <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
     <string name="settings_advanced">Lisäasetukset</string>
@@ -137,7 +136,7 @@
     <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta.</string>
-    <string name="start_tunnel_error">Tunneliyhteyden muodostaminen epäonnistui</string>
+    <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>

@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
     <string name="app_version">Wersja aplikacji</string>
-    <string name="auth_failed">Niepowodzenie uwierzytelnienia konta.</string>
+    <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
     <string name="auto_connect">Automatyczne łączenie</string>
     <string name="auto_connect_footer">Automatycznie łącz z serwerem po uruchomieniu aplikacji.</string>
     <string name="back">Wstecz</string>
@@ -48,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Aby to aktywować to ustawienie, wyłącz wszystkie &lt;b&gt;funkcje blokowania treści DNS&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
-    <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać nazwy hosta serwera niestandardowego</string>
+    <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
     <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>
@@ -68,7 +68,7 @@
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
     <string name="exclude_applications">Wykluczone aplikacje</string>
-    <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
+    <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
     <string name="failed_to_remove_device">Niepowodzenie usunięcia urządzenia</string>
@@ -84,8 +84,8 @@
     <string name="in_address">Wejście</string>
     <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
-    <string name="ipv6_unavailable">Nie można skonfigurować IPv6</string>
-    <string name="is_offline">To urządzenie jest offline, nie można ustanowić tuneli</string>
+    <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
+    <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_a_minute_ago">mniej niż minutę temu</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
@@ -128,8 +128,7 @@
     <string name="sent">Wysłano</string>
     <string name="sent_contact">W razie potrzeby skontaktujemy się z Tobą pod adresem %1$s</string>
     <string name="sent_thanks">Dziękujemy!</string>
-    <string name="set_dns_error">Niepowodzenie ustawienia systemowego serwera DNS</string>
-    <string name="set_firewall_policy_error">Błąd stosowania reguł zapory. Urządzenie może być obecnie niezabezpieczone</string>
+    <string name="set_dns_error">Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problemu.</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Zaawansowane</string>
@@ -137,7 +136,7 @@
     <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN.</string>
-    <string name="start_tunnel_error">Niepowodzenie uruchomienia połączenia tunelowego</string>
+    <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Przełącz VPN</string>
