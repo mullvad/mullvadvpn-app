@@ -181,6 +181,8 @@ pub struct PrivateDevice {
     // no longer need to be supported.
     #[serde(default = "Utc::now")]
     pub created: DateTime<Utc>,
+    /// Key to use for the next key rotation attempt
+    pub next_wireguard_key: Option<PrivateKey>,
 }
 
 impl PrivateDevice {
@@ -200,6 +202,7 @@ impl PrivateDevice {
             ports: device.ports,
             hijack_dns: device.hijack_dns,
             created: device.created,
+            next_wireguard_key: None,
         })
     }
 
@@ -402,7 +405,6 @@ pub(crate) struct AccountManager {
     data: PrivateDeviceState,
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<AccountEvent> + Send>>,
-    unused_wireguard_key: Option<PrivateKey>,
     last_validation: Option<SystemTime>,
     validation_requests: Vec<ResponseTx<()>>,
     expiry_requests: Vec<ResponseTx<DateTime<Utc>>>,
@@ -435,7 +437,6 @@ impl AccountManager {
             data: data.clone(),
             rotation_interval: initial_rotation_interval,
             listeners: vec![Box::new(listener_tx)],
-            unused_wireguard_key: None,
             last_validation: None,
             validation_requests: vec![],
             expiry_requests: vec![],
@@ -458,7 +459,7 @@ impl AccountManager {
 
         loop {
             if current_api_call.is_idle() {
-                if let Some(timed_rotation) = self.spawn_timed_key_rotation() {
+                if let Some(timed_rotation) = self.spawn_timed_key_rotation().await {
                     current_api_call.set_timed_rotation(Box::pin(timed_rotation))
                 }
             }
@@ -505,7 +506,7 @@ impl AccountManager {
                                 self.rotation_requests.push(tx);
                                 continue
                             }
-                            match self.initiate_key_rotation() {
+                            match self.initiate_key_rotation().await {
                                 Ok(api_call) => {
                                     current_api_call.set_oneshot_rotation(Box::pin(api_call));
                                     self.rotation_requests.push(tx);
@@ -758,7 +759,7 @@ impl AccountManager {
                             let device_service = self.device_service.clone();
                             let token = updated_config.account_token.clone();
                             let device_id = updated_config.device.id.clone();
-                            let private_key = self.next_private_key().clone();
+                            let private_key = self.next_private_key().await;
 
                             api_call.set_oneshot_rotation(Box::pin(async move {
                                 device_service
@@ -785,11 +786,27 @@ impl AccountManager {
         }
     }
 
-    /// Return the next WireGuard key to use for rotation. This should be reset when the key has been
-    /// successfully replaced.
-    fn next_private_key(&mut self) -> &PrivateKey {
-        self.unused_wireguard_key
-            .get_or_insert_with(PrivateKey::new_from_random)
+    /// Obtain the next key to use for key rotation, and persists it to disk if needed
+    async fn next_private_key(&mut self) -> PrivateKey {
+        if let PrivateDeviceState::LoggedIn(state) = &mut self.data {
+            if let Some(key) = &mut state.device.next_wireguard_key {
+                // Reuse key for rotation, unless we're already using it
+                if key != &state.device.wg_data.private_key {
+                    return key.clone();
+                }
+            }
+
+            let new_key = PrivateKey::new_from_random();
+            state.device.next_wireguard_key.replace(new_key.clone());
+
+            // Commit changes to disk
+            let _ = self.cacher.write(&self.data).await;
+
+            new_key
+        } else {
+            log::warn!("Key in logged out state is not persisted");
+            PrivateKey::new_from_random()
+        }
     }
 
     async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
@@ -802,12 +819,7 @@ impl AccountManager {
         match api_result {
             Ok(wg_data) => {
                 log::debug!("Replacing WireGuard key");
-
                 config.device.wg_data = wg_data;
-
-                // Replace stored WireGuard key so the next rotation attempt will generate a new key.
-                self.unused_wireguard_key = None;
-
                 match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
@@ -846,7 +858,7 @@ impl AccountManager {
         }
     }
 
-    fn spawn_timed_key_rotation(
+    async fn spawn_timed_key_rotation(
         &mut self,
     ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
         let config = self.data.device()?;
@@ -856,7 +868,7 @@ impl AccountManager {
         let account_token = config.account_token.clone();
         let device_id = config.device.id.clone();
 
-        let private_key = self.next_private_key().clone();
+        let private_key = self.next_private_key().await;
 
         Some(async move {
             key_rotation_timer.await;
@@ -960,13 +972,13 @@ impl AccountManager {
         Ok(())
     }
 
-    fn initiate_key_rotation(
+    async fn initiate_key_rotation(
         &mut self,
     ) -> Result<impl Future<Output = Result<WireguardData, Error>>, Error> {
         let data = self.data.device().cloned().ok_or(Error::NoDevice)?;
         let device_service = self.device_service.clone();
 
-        let private_key = self.next_private_key().clone();
+        let private_key = self.next_private_key().await;
 
         Ok(async move {
             device_service
