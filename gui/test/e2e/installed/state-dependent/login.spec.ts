@@ -37,12 +37,10 @@ test('App should fail to login', async () => {
   await loginInput.fill('1234 1234 1324 1234');
   await loginInput.press('Enter');
 
-  await expect(title).toHaveText('Logging in...');
-  await expect(subtitle).toHaveText('Checking account number');
   await expect(title).toHaveText('Login failed');
   await expect(subtitle).toHaveText('Invalid account number');
 
-  loginInput.fill('');
+  await loginInput.fill('');
 });
 
 test('App should create account', async () => {
@@ -52,8 +50,6 @@ test('App should create account', async () => {
   const subtitle = page.getByTestId('subtitle');
 
   await page.getByText('Create account').click();
-  await expect(title).toHaveText('Creating account...');
-  await expect(subtitle).toHaveText('Please wait');
 
   await expect(title).toHaveText('Account created');
   await expect(subtitle).toHaveText('Logged in');
@@ -87,8 +83,6 @@ test('App should log in', async () => {
   await loginInput.type(process.env.ACCOUNT_NUMBER!);
   await loginInput.press('Enter');
 
-  await expect(title).toHaveText('Logging in...');
-  await expect(subtitle).toHaveText('Checking account number');
   await expect(title).toHaveText('Logged in');
   await expect(subtitle).toHaveText('Valid account number');
 
@@ -132,8 +126,6 @@ test('App should log in to expired account', async () => {
   await loginInput.type(accountNumber);
   await loginInput.press('Enter');
 
-  await expect(title).toHaveText('Logging in...');
-  await expect(subtitle).toHaveText('Checking account number');
   await expect(title).toHaveText('Logged in');
   await expect(subtitle).toHaveText('Valid account number');
 

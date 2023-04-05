@@ -1,4 +1,4 @@
-import { spawnSync, SpawnSyncReturns } from 'child_process';
+import { spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -8,27 +8,21 @@ import path from 'path';
 // assets and performs the tests. More info in /gui/README.md.
 
 const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
-const rootDir = path.join(__dirname, '..');
-const nodeModulesDir = path.join(rootDir, 'node_modules');
-const srcDir = path.join(rootDir, 'build', 'src');
-const testDir = path.join(rootDir, 'build', 'test');
 
-const nodeBin = process.argv[0];
-const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
-
-function main() {
+async function main() {
   extract();
-
-  // Tests need to be run sequentially since they interact with the same daemon instance.
-  // Arguments are forwarded to playwright to make it possible to run specific tests.
-  const args = [playwrightBin, 'test', '--workers', '1', ...process.argv.slice(2)];
-  const result = spawnSync(nodeBin, args, { encoding: 'utf8', cwd: tmpDir });
+  const code = await runTests();
 
   removeTmpDir();
-  handleResult(result);
+  process.exit(code);
 }
 
 function extract() {
+  const rootDir = path.join(__dirname, '..');
+  const nodeModulesDir = path.join(rootDir, 'node_modules');
+  const srcDir = path.join(rootDir, 'build', 'src');
+  const testDir = path.join(rootDir, 'build', 'test');
+
   // Remove old directory if already existing and create new clean one
   removeTmpDir();
   fs.mkdirSync(tmpDir);
@@ -53,26 +47,38 @@ function copyRecursively(source: string, target: string) {
   }
 }
 
-function handleResult(result: SpawnSyncReturns<string>) {
-  // Forward all output from playwright
-  console.log(result.stdout);
-  console.error(result.stderr);
-  if (result.error) {
-    console.error(result.error);
-  }
+function runTests(): Promise<number> {
+  const nodeBin = process.argv[0];
+  const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
+  const configPath = path.join(tmpDir, 'test', 'e2e', 'installed', 'playwright.config.js');
 
-  // Exit with the same exit code as playwright
-  if (result.status === null) {
-    process.exit(1);
-  } else {
-    process.exit(result.status);
-  }
+  return new Promise((resolve) => {
+    // Tests need to be run sequentially since they interact with the same daemon instance.
+    // Arguments are forwarded to playwright to make it possible to run specific tests.
+    const args = [playwrightBin, 'test', '-x', '-c', configPath, ...process.argv.slice(2)];
+    const proc = spawn(nodeBin, args, { cwd: tmpDir });
+
+    proc.stdout.on('data', (data) => console.log(data.toString()));
+    proc.stderr.on('data', (data) => console.error(data.toString()));
+    proc.on('close', (code, signal) => {
+      if (signal) {
+        console.log('Received signal:', signal);
+      }
+
+      resolve(code ?? (signal ? 1 : 0));
+    });
+  });
 }
 
 function removeTmpDir() {
   if (fs.existsSync(tmpDir)) {
-    fs.rmSync(tmpDir, { recursive: true });
+    try {
+      fs.rmSync(tmpDir, { recursive: true });
+    } catch (e) {
+      const error = e as Error;
+      console.error('Failed to remove tmp dir:', error.message);
+    }
   }
 }
 
-main();
+void main();
