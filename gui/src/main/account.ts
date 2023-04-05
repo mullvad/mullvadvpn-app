@@ -181,6 +181,7 @@ export default class Account {
     try {
       await this.daemonRpc.logoutAccount();
 
+      this.delegate.closeNotificationsInCategory(SystemNotificationCategory.expiry);
       this.expiryNotificationFrequencyScheduler.cancel();
       this.firstExpiryNotificationScheduler.cancel();
     } catch (e) {
