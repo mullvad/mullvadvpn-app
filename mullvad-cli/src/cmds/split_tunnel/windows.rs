@@ -7,7 +7,7 @@ use std::{
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
-use super::super::on_off_parser;
+use super::super::BooleanOption;
 
 /// Set options for applications to exclude from the tunnel.
 #[derive(Subcommand, Debug)]
@@ -22,10 +22,7 @@ pub enum SplitTunnel {
     },
 
     /// Enable or disable split tunnel
-    Set {
-        #[arg(value_parser = on_off_parser())]
-        policy: bool,
-    },
+    Set { policy: BooleanOption },
 
     /// Manage applications to exclude from the tunnel
     #[clap(subcommand)]
@@ -46,14 +43,9 @@ impl SplitTunnel {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let settings = rpc.get_settings().await?.split_tunnel;
 
-                println!(
-                    "Split tunneling state: {}",
-                    if settings.enable_exclusions {
-                        "on"
-                    } else {
-                        "off"
-                    }
-                );
+                let enable_exclusions = BooleanOption::from(settings.enable_exclusions);
+
+                println!("Split tunneling state: {enable_exclusions}");
 
                 println!("Excluded applications:");
                 for path in &settings.apps {
@@ -79,8 +71,8 @@ impl SplitTunnel {
             }
             SplitTunnel::Set { policy } => {
                 let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_split_tunnel_state(policy).await?;
-                println!("Set split tunnel policy");
+                rpc.set_split_tunnel_state(*policy).await?;
+                println!("Split tunnel policy: {policy}");
                 Ok(())
             }
             SplitTunnel::App(subcmd) => Self::app(subcmd).await,

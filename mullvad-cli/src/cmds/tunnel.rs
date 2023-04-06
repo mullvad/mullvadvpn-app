@@ -1,4 +1,3 @@
-use super::on_off_parser;
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
@@ -6,6 +5,8 @@ use mullvad_types::{
     relay_constraints::Constraint,
     wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
 };
+
+use super::BooleanOption;
 
 #[derive(Subcommand, Debug)]
 pub enum Tunnel {
@@ -46,10 +47,7 @@ pub enum TunnelOptions {
 
     /// Enable or disable IPv6 in the tunnel
     #[clap(arg_required_else_help = true)]
-    Ipv6 {
-        #[arg(value_parser = on_off_parser())]
-        state: bool,
-    },
+    Ipv6 { state: BooleanOption },
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -144,14 +142,10 @@ impl Tunnel {
         }
     }
 
-    async fn handle_ipv6(state: bool) -> Result<()> {
+    async fn handle_ipv6(state: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_enable_ipv6(state).await?;
-        if state {
-            println!("Enabled IPv6");
-        } else {
-            println!("Disabled IPv6");
-        }
+        rpc.set_enable_ipv6(*state).await?;
+        println!("IPv6: {state}");
         Ok(())
     }
 

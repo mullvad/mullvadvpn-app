@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
-use super::on_off_parser_custom;
+use super::BooleanOption;
 
 #[derive(Subcommand, Debug)]
 pub enum Lan {
@@ -11,8 +11,8 @@ pub enum Lan {
 
     /// Change allow LAN setting
     Set {
-        #[arg(value_parser = on_off_parser_custom("allow", "block"))]
-        policy: bool,
+        #[arg(value_parser = BooleanOption::custom_parser("allow", "block"))]
+        policy: BooleanOption,
     },
 }
 
@@ -24,20 +24,18 @@ impl Lan {
         }
     }
 
-    async fn set(policy: bool) -> Result<()> {
+    async fn set(policy: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_allow_lan(policy).await?;
+        rpc.set_allow_lan(*policy).await?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let allow_lan = rpc.get_settings().await?.allow_lan;
-        println!(
-            "Local network sharing setting: {}",
-            if allow_lan { "allow" } else { "block" }
-        );
+        let allow_lan =
+            BooleanOption::with_labels(rpc.get_settings().await?.allow_lan, "allow", "block");
+        println!("Local network sharing setting: {allow_lan}");
         Ok(())
     }
 }
