@@ -30,11 +30,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
+        case contentBlockerHeader
         case customDNSFooter
         case spacer
 
         var reusableViewClass: AnyClass {
             switch self {
+            case .contentBlockerHeader:
+                return SettingsContentBlockersHeaderView.self
             case .customDNSFooter:
                 return SettingsStaticTextFooterView.self
             case .spacer:
@@ -44,7 +47,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     enum Section: String, Hashable {
-        case mullvadDNS
+        case contentBlockers
         case customDNS
     }
 
@@ -225,16 +228,27 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
-        )
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            let view = tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
+            )
+
+
+        case .customDNS:
+            return tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+            )
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return nil
 
         case .customDNS:
@@ -249,14 +263,22 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            return UITableView.automaticDimension
+
+        case .customDNS:
+            return UIMetrics.sectionSpacing
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return 0
 
         case .customDNS:
@@ -338,10 +360,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.mullvadDNS, .customDNS])
+        snapshot.appendSections([.contentBlockers, .customDNS])
         snapshot.appendItems(
             [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling],
-            toSection: .mullvadDNS
+            toSection: .contentBlockers
         )
         snapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
@@ -523,6 +545,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         {
             configureFooterView(reusableView)
         }
+    }
+
+    private func configureContentBlockersHeader(_ reusableView: SettingsContentBlockersHeaderView) {
+        
     }
 
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
