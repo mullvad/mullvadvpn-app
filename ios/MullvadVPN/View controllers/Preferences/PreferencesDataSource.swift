@@ -12,6 +12,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     PreferencesDataSource.Section,
     PreferencesDataSource.Item
 >, UITableViewDelegate {
+    typealias InfoButtonHandler = (PreferencesDataSource.Item) -> Void
+
     enum CellReuseIdentifiers: String, CaseIterable {
         case settingSwitch
         case dnsServer
@@ -30,11 +32,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
+        case contentBlockerHeader
         case customDNSFooter
         case spacer
 
         var reusableViewClass: AnyClass {
             switch self {
+            case .contentBlockerHeader:
+                return SettingsContentBlockersHeaderView.self
             case .customDNSFooter:
                 return SettingsStaticTextFooterView.self
             case .spacer:
@@ -43,8 +48,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    enum Section: String, Hashable {
-        case mullvadDNS
+    enum Section: String, Hashable, CaseIterable {
+        case contentBlockers
         case customDNS
     }
 
@@ -57,6 +62,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
+
+        static var contentBlockers: [Item] {
+            return [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
+        }
 
         var accessibilityIdentifier: String {
             switch self {
@@ -225,16 +234,29 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
-        )
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            let view = tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
+                ) as! SettingsContentBlockersHeaderView
+            configureContentBlockHeader(view)
+            return view
+
+        case .customDNS:
+            return tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+            )
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return nil
 
         case .customDNS:
@@ -249,14 +271,22 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            return UITableView.automaticDimension
+
+        case .customDNS:
+            return UIMetrics.sectionSpacing
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return 0
 
         case .customDNS:
@@ -336,25 +366,30 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.mullvadDNS, .customDNS])
-        snapshot.appendItems(
-            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling],
-            toSection: .mullvadDNS
-        )
-        snapshot.appendItems([.useCustomDNS], toSection: .customDNS)
+        newSnapshot.appendSections(Section.allCases)
+
+        let oldSnapshot = snapshot()
+        if oldSnapshot.indexOfSection(.contentBlockers) != nil {
+            newSnapshot.appendItems(
+                oldSnapshot.itemIdentifiers(inSection: .contentBlockers),
+                toSection: .contentBlockers
+            )
+        }
+
+        newSnapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
             return Item.dnsServer(entry.identifier)
         }
-        snapshot.appendItems(dnsServerItems, toSection: .customDNS)
+        newSnapshot.appendItems(dnsServerItems, toSection: .customDNS)
 
         if isEditing, viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
-            snapshot.appendItems([.addDNSServer], toSection: .customDNS)
+            newSnapshot.appendItems([.addDNSServer], toSection: .customDNS)
         }
 
-        apply(snapshot, completion: completion)
+        apply(newSnapshot, completion: completion)
     }
 
     private func reload(item: Item) {
@@ -373,6 +408,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.setBlockAdvertising(isEnabled)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -387,6 +423,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.setBlockTracking(isEnabled)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -401,6 +438,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.setBlockMalware(isEnabled)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -415,6 +453,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.setBlockAdultContent(isEnabled)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -429,6 +468,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.setBlockGambling(isEnabled)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -441,6 +481,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     private func setEnableCustomDNS(_ isEnabled: Bool) {
         viewModel.setEnableCustomDNS(isEnabled)
+        updateCellFactory(with: viewModel)
 
         reloadCustomDNSFooter()
 
@@ -453,6 +494,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         viewModel.updateDNSEntry(entryIdentifier: identifier, newAddress: inputString)
+        updateCellFactory(with: viewModel)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadCustomDNSFooter()
@@ -514,7 +556,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func reloadCustomDNSFooter() {
-        updateCellFactory(with: viewModel)
         reload(item: .useCustomDNS)
 
         let sectionIndex = snapshot().indexOfSection(.customDNS)!
@@ -525,11 +566,46 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func configureContentBlockHeader(_ reusableView: SettingsContentBlockersHeaderView) {
+        reusableView.titleLabel.text = NSLocalizedString(
+            "BLOCK_ADS_CELL_LABEL",
+            tableName: "Preferences",
+            value: "DNS content blockers",
+            comment: ""
+        )
+
+        reusableView.infoButtonHandler = { [weak self] in
+            if let self = self {
+                self.delegate?.preferencesDataSource(self, didPressInfoButton: nil)
+            }
+        }
+
+        reusableView.didCollapseHandler = { [weak self] headerView in
+            guard let self = self else { return }
+
+            var snapshot = self.snapshot()
+
+            if headerView.isExpanded {
+                snapshot.deleteItems(Item.contentBlockers)
+            } else {
+                snapshot.appendItems(Item.contentBlockers, toSection: .contentBlockers)
+            }
+
+            headerView.isExpanded.toggle()
+            self.apply(snapshot, animatingDifferences: true)
+        }
+    }
+
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
         let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 
-        reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
-            .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
+        UIView.performWithoutAnimation {
+            tableView?.beginUpdates()
+            reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
+                .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
+            tableView?.endUpdates()
+        }
+
     }
 }
 
@@ -568,5 +644,9 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
         inputString: String
     ) -> Bool {
         return handleDNSEntryChange(with: identifier, inputString: inputString)
+    }
+
+    func didPressInfoButton(for item: Item) {
+        delegate?.preferencesDataSource(self, didPressInfoButton: item)
     }
 }
