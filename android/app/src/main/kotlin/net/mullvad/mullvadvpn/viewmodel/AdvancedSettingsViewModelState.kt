@@ -12,13 +12,7 @@ data class AdvancedSettingsViewModelState(
     val dialogState: AdvancedSettingsDialogState
 ) {
     fun toUiState(): AdvancedSettingsUiState {
-        val isCustomDnsClickable = !(
-            contentBlockersOptions.blockAds ||
-                contentBlockersOptions.blockTrackers||
-                contentBlockersOptions.blockMalware||
-                contentBlockersOptions.blockAdultContent||
-                contentBlockersOptions.blockGambling
-            )
+        val isCustomDnsClickable = !contentBlockersOptions.isAnyBlockerEnabled()
         return when (dialogState) {
             is AdvancedSettingsDialogState.MtuDialog ->
                 AdvancedSettingsUiState.MtuDialogUiState(

@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
@@ -187,15 +188,14 @@ fun AdvancedSettingScreen(
             ) {
                 item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
 
-                item {
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.split_tunneling),
                         onClick = { onSplitTunnelingNavigationClick.invoke() },
                     )
-                    Divider()
                 }
 
-                item {
+                itemWithDivider {
                     ExpandableComposeCell(
                         title = stringResource(R.string.dns_content_blockers_title),
                         expandState = !expandContentBlockersState,
@@ -205,11 +205,10 @@ fun AdvancedSettingScreen(
                             expandContentBlockersState = !expandContentBlockersState
                         },
                     )
-                    Divider()
                 }
 
                 if (expandContentBlockersState) {
-                    item {
+                    itemWithDivider {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_ads_title),
                             isToggled = uiState.contentBlockersOptions.blockAds,
@@ -217,9 +216,8 @@ fun AdvancedSettingScreen(
                             onCellClicked = { onToggleBlockAds(it) },
                             background = MullvadBlue20,
                         )
-                        Divider()
                     }
-                    item {
+                    itemWithDivider {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_trackers_title),
                             isToggled = uiState.contentBlockersOptions.blockTrackers,
@@ -227,9 +225,8 @@ fun AdvancedSettingScreen(
                             onCellClicked = { onToggleBlockTrackers(it) },
                             background = MullvadBlue20,
                         )
-                        Divider()
                     }
-                    item {
+                    itemWithDivider {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_malware_title),
                             isToggled = uiState.contentBlockersOptions.blockMalware,
@@ -238,9 +235,8 @@ fun AdvancedSettingScreen(
                             onInfoClicked = { onMalwareInfoClicked() },
                             background = MullvadBlue20,
                         )
-                        Divider()
                     }
-                    item {
+                    itemWithDivider {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_gambling_title),
                             isToggled = uiState.contentBlockersOptions.blockGambling,
@@ -248,9 +244,8 @@ fun AdvancedSettingScreen(
                             onCellClicked = { onToggleBlockGambling(it) },
                             background = MullvadBlue20,
                         )
-                        Divider()
                     }
-                    item {
+                    itemWithDivider {
                         SwitchComposeCell(
                             title = stringResource(R.string.block_adult_content_title),
                             isToggled = uiState.contentBlockersOptions.blockAdultContent,
@@ -258,11 +253,10 @@ fun AdvancedSettingScreen(
                             onCellClicked = { onToggleBlockAdultContent(it) },
                             background = MullvadBlue20,
                         )
-                        Divider()
                     }
                 }
 
-                item {
+                itemWithDivider {
                     Spacer(modifier = Modifier.height(cellVerticalSpacing))
                     SwitchComposeCell(
                         title = stringResource(R.string.enable_custom_dns),
@@ -272,7 +266,6 @@ fun AdvancedSettingScreen(
                             onToggleDnsClick(newValue)
                         },
                     )
-                    Divider()
                 }
 
                 if (uiState.isCustomDnsEnabled) {
@@ -287,7 +280,7 @@ fun AdvancedSettingScreen(
                         Divider()
                     }
 
-                    item {
+                    itemWithDivider {
                         BaseCell(
                             onCellClicked = { onDnsClick(null) },
                             title = {
@@ -301,7 +294,6 @@ fun AdvancedSettingScreen(
                             background = MullvadBlue20,
                             startPadding = biggerPadding,
                         )
-                        Divider()
                     }
                 }
 
