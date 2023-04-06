@@ -896,7 +896,9 @@ where
 
         match &tunnel_state {
             TunnelState::Disconnected => self.state.disconnected(),
-            TunnelState::Connecting { .. } => log::debug!("{}", self.settings.summary()),
+            TunnelState::Connecting { .. } => {
+                log::debug!("Settings: {}", self.settings.summary())
+            }
             TunnelState::Error(error_state) => {
                 if error_state.is_blocking() {
                     log::info!(
