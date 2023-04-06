@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Log select settings on each connection attempt.
+
 #### Android
 - Add DNS content blockers.
 
