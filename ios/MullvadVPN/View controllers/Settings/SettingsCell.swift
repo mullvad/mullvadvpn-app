@@ -29,9 +29,12 @@ enum SettingsDisclosureType {
 }
 
 class SettingsCell: UITableViewCell {
+    typealias InfoButtonHandler = () -> Void
+
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
     let disclosureImageView = UIImageView(image: nil)
+    var infoButtonHandler: InfoButtonHandler?
 
     var disclosureType: SettingsDisclosureType = .none {
         didSet {
@@ -52,6 +55,15 @@ class SettingsCell: UITableViewCell {
         }
     }
 
+    private let buttonWidth: CGFloat = 24
+    private let infoButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "InfoButton"
+        button.tintColor = .white
+        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        return button
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -64,6 +76,13 @@ class SettingsCell: UITableViewCell {
         separatorInset = .zero
         backgroundColor = .clear
         contentView.backgroundColor = .clear
+
+        infoButton.isHidden = true
+        infoButton.addTarget(
+            self,
+            action: #selector(handleInfoButton(_:)),
+            for: .touchUpInside
+        )
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
@@ -81,21 +100,30 @@ class SettingsCell: UITableViewCell {
 
         setLayoutMargins()
 
-        contentView.addConstrainedSubviews([titleLabel, detailTitleLabel]) {
+        let buttonAreaWidth = UIMetrics.contentLayoutMargins.left + UIMetrics.contentLayoutMargins.right + buttonWidth
+
+        contentView.addConstrainedSubviews([titleLabel, infoButton, detailTitleLabel]) {
             switch style {
             case .subtitle:
-                titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+                titleLabel.pinEdgesToSuperviewMargins(.init([.top(0), .leading(0)]))
                 detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.top))
                 detailTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1)
+                infoButton.trailingAnchor.constraint(greaterThanOrEqualTo: contentView.trailingAnchor)
 
             default:
                 titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
                 detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
-                detailTitleLabel.leadingAnchor.constraint(
-                    greaterThanOrEqualToSystemSpacingAfter: titleLabel.trailingAnchor,
-                    multiplier: 1
-                )
+                detailTitleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: infoButton.trailingAnchor)
             }
+
+            infoButton.pinEdgesToSuperview(.init([.top(0)]))
+            infoButton.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor)
+            infoButton.leadingAnchor.constraint(
+                equalTo: titleLabel.trailingAnchor,
+                constant: -UIMetrics.interButtonSpacing
+            )
+            infoButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
+            infoButton.widthAnchor.constraint(equalToConstant: buttonAreaWidth)
         }
     }
 
@@ -107,6 +135,19 @@ class SettingsCell: UITableViewCell {
         super.prepareForReuse()
 
         setLayoutMargins()
+    }
+
+    func applySubCellStyling() {
+        contentView.layoutMargins.left += UIMetrics.cellIndentationWidth
+        backgroundView?.backgroundColor = UIColor.SubCell.backgroundColor
+    }
+
+    func setInfoButtonIsVisible(_ visible: Bool) {
+        infoButton.isHidden = !visible
+    }
+
+    @objc private func handleInfoButton(_ sender: UIControl) {
+        infoButtonHandler?()
     }
 
     private func setLayoutMargins() {
