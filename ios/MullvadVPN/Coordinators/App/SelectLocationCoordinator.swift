@@ -59,13 +59,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
             controller.setCachedRelays(cachedRelays)
         }
 
-        let relayConstraints = tunnelManager.settings.relayConstraints
-
-        controller.setSelectedRelayLocation(
-            relayConstraints.location.value,
-            animated: false,
-            scrollPosition: .middle
-        )
+        controller.relayLocation = tunnelManager.settings.relayConstraints.location.value
 
         navigationController.pushViewController(controller, animated: false)
     }
