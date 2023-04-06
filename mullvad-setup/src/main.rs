@@ -74,6 +74,11 @@ pub enum Error {
 #[derive(Debug, Parser)]
 #[command(author, version = mullvad_version::VERSION, about, long_about = None)]
 #[command(propagate_version = true)]
+#[command(
+    arg_required_else_help = true,
+    disable_help_subcommand = true,
+    disable_version_flag = true
+)]
 enum Cli {
     /// Move a running daemon into a blocking state and save its target state
     PrepareRestart,
