@@ -1,10 +1,9 @@
+use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_constraints::{
     Constraint, ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings,
 };
-
-use crate::Result;
 
 #[derive(Subcommand, Debug)]
 pub enum Obfuscation {

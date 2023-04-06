@@ -1,20 +1,12 @@
-use std::io::{self, Write};
-
+use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{account::AccountToken, device::DeviceState};
-
-use crate::{Error, Result};
+use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
 const REVOKED_MESSAGE: &str = "The current device has been revoked";
-const DEVICE_NOT_FOUND_ERROR: &str = "There is no such device";
-const INVALID_ACCOUNT_ERROR: &str = "The account does not exist";
-const TOO_MANY_DEVICES_ERROR: &str =
-    "There are too many devices on this account. Revoke one to log in";
-const ALREADY_LOGGED_IN_ERROR: &str =
-    "You are already logged in. Please log out before creating a new account";
 
 #[derive(Subcommand, Debug)]
 pub enum Account {
@@ -90,15 +82,13 @@ impl Account {
     }
 
     async fn create(rpc: &mut MullvadProxyClient) -> Result<()> {
-        rpc.create_new_account().await.map_err(map_device_error)?;
+        rpc.create_new_account().await?;
         println!("New account created!");
         Self::get(rpc, false).await
     }
 
     async fn login(rpc: &mut MullvadProxyClient, token: AccountToken) -> Result<()> {
-        rpc.login_account(token.clone())
-            .await
-            .map_err(map_device_error)?;
+        rpc.login_account(token.clone()).await?;
         println!("Mullvad account \"{token}\" set");
         Ok(())
     }
@@ -112,7 +102,7 @@ impl Account {
     async fn get(rpc: &mut MullvadProxyClient, verbose: bool) -> Result<()> {
         let _ = rpc.update_device().await;
 
-        let state = rpc.get_device().await.map_err(map_device_error)?;
+        let state = rpc.get_device().await?;
 
         match state {
             DeviceState::LoggedIn(device) => {
@@ -149,7 +139,7 @@ impl Account {
         verbose: bool,
     ) -> Result<()> {
         let token = account_else_current(rpc, account).await?;
-        let mut device_list = rpc.list_devices(token).await.map_err(map_device_error)?;
+        let mut device_list = rpc.list_devices(token).await?;
 
         println!("Devices on the account:");
         device_list.sort_unstable_by_key(|dev| dev.created.timestamp());
@@ -181,21 +171,16 @@ impl Account {
     ) -> Result<()> {
         let token = account_else_current(rpc, account).await?;
 
-        let device_list = rpc
-            .list_devices(token.clone())
-            .await
-            .map_err(map_device_error)?;
+        let device_list = rpc.list_devices(token.clone()).await?;
         let device_id = device_list
             .into_iter()
             .find(|dev| {
                 dev.name.eq_ignore_ascii_case(&device) || dev.id.eq_ignore_ascii_case(&device)
             })
             .map(|dev| dev.id)
-            .ok_or(Error::Other(DEVICE_NOT_FOUND_ERROR))?;
+            .ok_or(mullvad_management_interface::Error::DeviceNotFound)?;
 
-        rpc.remove_device(token, device_id)
-            .await
-            .map_err(map_device_error)?;
+        rpc.remove_device(token, device_id).await?;
         println!("Removed device");
         Ok(())
     }
@@ -216,18 +201,6 @@ impl Account {
     }
 }
 
-fn map_device_error(error: mullvad_management_interface::Error) -> Error {
-    match &error {
-        mullvad_management_interface::Error::TooManyDevices => Error::Other(TOO_MANY_DEVICES_ERROR),
-        mullvad_management_interface::Error::InvalidAccount => Error::Other(INVALID_ACCOUNT_ERROR),
-        mullvad_management_interface::Error::AlreadyLoggedIn => {
-            Error::Other(ALREADY_LOGGED_IN_ERROR)
-        }
-        mullvad_management_interface::Error::DeviceNotFound => Error::Other(DEVICE_NOT_FOUND_ERROR),
-        _other => Error::ManagementInterfaceError(error),
-    }
-}
-
 async fn account_else_current(
     rpc: &mut MullvadProxyClient,
     token: Option<String>,
@@ -238,7 +211,7 @@ async fn account_else_current(
             let state = rpc.get_device().await?;
             match state {
                 DeviceState::LoggedIn(account) => Ok(account.account_token),
-                _ => Err(Error::Other("Log in or specify an account")),
+                _ => Err(anyhow!("Log in or specify an account")),
             }
         }
     }
