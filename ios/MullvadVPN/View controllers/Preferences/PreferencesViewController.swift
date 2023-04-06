@@ -11,6 +11,7 @@ import UIKit
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
     private let interactor: PreferencesInteractor
     private var dataSource: PreferencesDataSource?
+    private let alertPresenter = AlertPresenter()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -51,6 +52,12 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         dataSource?.update(from: interactor.dnsSettings)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.tableHeaderView =
+            UIView(frame: .init(origin: .zero, size: .init(width: 0, height: UIMetrics.sectionSpacing)))
+    }
+
     override func setEditing(_ editing: Bool, animated: Bool) {
         dataSource?.setEditing(editing, animated: animated)
 
@@ -62,6 +69,23 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         super.setEditing(editing, animated: animated)
     }
 
+    private func showContentBlockerInfo(with message: String) {
+        let alertController = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        alertController.addAction(
+            UIAlertAction(title: NSLocalizedString(
+                "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
+                tableName: "ContentBlockers",
+                value: "Got it!",
+                comment: ""
+            ), style: .cancel)
+        )
+        alertPresenter.enqueue(alertController, presentingController: self)
+    }
+
     // MARK: - PreferencesDataSourceDelegate
 
     func preferencesDataSource(
@@ -71,5 +95,32 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         let dnsSettings = dataModel.asDNSSettings()
 
         interactor.setDNSSettings(dnsSettings)
+    }
+
+    func preferencesDataSource(
+        _ dataSource: PreferencesDataSource,
+        didPressInfoButton item: PreferencesDataSource.Item?
+    ) {
+        let message: String
+
+        switch item {
+        case .blockMalware:
+            message = NSLocalizedString(
+                "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
+                tableName: "ContentBlockers",
+                value: "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.",
+                comment: ""
+            )
+
+        default:
+            message = NSLocalizedString(
+                "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
+                tableName: "ContentBlockers",
+                value: "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. This might cause issues on certain websites, services, and programs.",
+                comment: ""
+            )
+        }
+
+        showContentBlockerInfo(with: message)
     }
 }

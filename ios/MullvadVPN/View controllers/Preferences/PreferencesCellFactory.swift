@@ -12,6 +12,7 @@ protocol PreferencesCellEventHandler {
     func addDNSEntry()
     func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
     func didChangeState(for item: PreferencesDataSource.Item, isOn: Bool)
+    func didPressInfoButton(for item: PreferencesDataSource.Item)
 }
 
 final class PreferencesCellFactory: CellFactoryProtocol {
@@ -67,6 +68,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityHint = nil
+            cell.applySubCellStyling()
             cell.setOn(viewModel.blockAdvertising, animated: false)
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(
@@ -85,6 +87,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityHint = nil
+            cell.applySubCellStyling()
             cell.setOn(viewModel.blockTracking, animated: false)
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(
@@ -103,7 +106,12 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+            cell.setInfoButtonIsVisible(true)
             cell.setOn(viewModel.blockMalware, animated: false)
+            cell.infoButtonHandler = { [weak self] in
+                self?.delegate?.didPressInfoButton(for: .blockMalware)
+            }
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(for: .blockMalware, isOn: isOn)
             }
@@ -118,6 +126,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityHint = nil
+            cell.applySubCellStyling()
             cell.setOn(viewModel.blockAdultContent, animated: false)
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(
@@ -136,6 +145,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityHint = nil
+            cell.applySubCellStyling()
             cell.setOn(viewModel.blockGambling, animated: false)
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(
