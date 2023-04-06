@@ -30,6 +30,12 @@ case "$ENV_TARGET" in
     ;;
   x86_64-*-darwin*)
     export MACOSX_DEPLOYMENT_TARGET="10.7"
+
+    if [[ $HOST != "$ENV_TARGET" ]]; then
+        # Required for building daemon
+        SDKROOT=$(xcrun --show-sdk-path)
+        export SDKROOT
+    fi
     ;;
   aarch64-*-darwin*)
     export MACOSX_DEPLOYMENT_TARGET="11.0"
