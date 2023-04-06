@@ -105,14 +105,8 @@ impl PrivateKey {
         base64::encode(self.0.to_bytes())
     }
 
-    pub fn from_base64(key: &str) -> Result<Self, InvalidKeyError> {
-        let bytes = base64::decode(key).map_err(|_| InvalidKeyError(()))?;
-        if bytes.len() != 32 {
-            return Err(InvalidKeyError(()));
-        }
-        let mut key = [0u8; 32];
-        key.copy_from_slice(&bytes);
-        Ok(From::from(key))
+    pub fn from_base64(key: &str) -> Result<Self, InvalidKey> {
+        key_from_base64(key)
     }
 }
 
@@ -165,8 +159,13 @@ impl<'de> Deserialize<'de> for PrivateKey {
 pub struct PublicKey(x25519_dalek::PublicKey);
 
 /// Error returned if an input represents an invalid key
-#[derive(Debug)]
-pub struct InvalidKeyError(());
+#[derive(Debug, err_derive::Error)]
+pub enum InvalidKey {
+    #[error(display = "Invalid key: {}", _0)]
+    Format(#[error(source)] base64::DecodeError),
+    #[error(display = "Invalid key length: {}", _0)]
+    Length(usize),
+}
 
 impl PublicKey {
     /// Get the public key as bytes
@@ -178,14 +177,8 @@ impl PublicKey {
         base64::encode(self.as_bytes())
     }
 
-    pub fn from_base64(key: &str) -> Result<Self, InvalidKeyError> {
-        let bytes = base64::decode(key).map_err(|_| InvalidKeyError(()))?;
-        if bytes.len() != 32 {
-            return Err(InvalidKeyError(()));
-        }
-        let mut key = [0u8; 32];
-        key.copy_from_slice(&bytes);
-        Ok(From::from(key))
+    pub fn from_base64(key: &str) -> Result<Self, InvalidKey> {
+        key_from_base64(key)
     }
 }
 
@@ -202,10 +195,11 @@ impl From<[u8; 32]> for PublicKey {
 }
 
 impl TryFrom<&[u8]> for PublicKey {
-    type Error = InvalidKeyError;
+    type Error = InvalidKey;
 
     fn try_from(public_key: &[u8]) -> Result<PublicKey, Self::Error> {
-        let key: [u8; 32] = <[u8; 32]>::try_from(public_key).map_err(|_| InvalidKeyError(()))?;
+        let key: [u8; 32] =
+            <[u8; 32]>::try_from(public_key).map_err(|_| InvalidKey::Length(public_key.len()))?;
         Ok(PublicKey(x25519_dalek::PublicKey::from(key)))
     }
 }
@@ -294,16 +288,15 @@ where
     use serde::de::Error;
 
     String::deserialize(deserializer)
-        .and_then(|string| base64::decode(string).map_err(|err| Error::custom(err.to_string())))
-        .and_then(|buffer| {
-            let mut key = [0u8; 32];
-            if buffer.len() != 32 {
-                return Err(Error::custom(format!(
-                    "Key has unexpected length: {}",
-                    buffer.len()
-                )));
-            }
-            key.copy_from_slice(&buffer);
-            Ok(From::from(key))
-        })
+        .and_then(|string| key_from_base64(&string).map_err(|err| Error::custom(err.to_string())))
+}
+
+fn key_from_base64<K: From<[u8; 32]>>(key: &str) -> Result<K, InvalidKey> {
+    let bytes = base64::decode(key).map_err(InvalidKey::Format)?;
+    if bytes.len() != 32 {
+        return Err(InvalidKey::Length(bytes.len()));
+    }
+    let mut key = [0u8; 32];
+    key.copy_from_slice(&bytes);
+    Ok(From::from(key))
 }
