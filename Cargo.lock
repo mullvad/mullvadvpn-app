@@ -1698,12 +1698,12 @@ dependencies = [
 name = "mullvad-cli"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "base64",
  "chrono",
  "clap 4.1.6",
  "clap_complete",
  "env_logger 0.10.0",
- "err-derive",
  "futures",
  "itertools",
  "mullvad-management-interface",

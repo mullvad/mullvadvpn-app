@@ -1,9 +1,8 @@
+use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::settings::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
 use std::net::IpAddr;
-
-use crate::Result;
 
 #[derive(Subcommand, Debug)]
 pub enum Dns {

@@ -1,7 +1,6 @@
+use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
-
-use crate::Result;
 
 /// Manage split tunneling. To launch applications outside the tunnel, use the program
 /// 'mullvad-exclude' instead of this command

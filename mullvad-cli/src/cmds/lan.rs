@@ -1,8 +1,8 @@
+use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
 use super::on_off_parser_custom;
-use crate::Result;
 
 #[derive(Subcommand, Debug)]
 pub enum Lan {
