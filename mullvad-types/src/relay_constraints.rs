@@ -31,6 +31,15 @@ pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Only(T),
 }
 
+impl<T: fmt::Debug + fmt::Display + Clone + Eq> fmt::Display for Constraint<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Constraint::Any => "any".fmt(f),
+            Constraint::Only(value) => fmt::Display::fmt(value, f),
+        }
+    }
+}
+
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
     pub fn unwrap(self) -> T {
         match self {
