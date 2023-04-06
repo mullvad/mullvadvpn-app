@@ -1,3 +1,4 @@
+use anyhow::Result;
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -7,7 +8,6 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
 use super::super::on_off_parser;
-use crate::Result;
 
 /// Set options for applications to exclude from the tunnel.
 #[derive(Subcommand, Debug)]

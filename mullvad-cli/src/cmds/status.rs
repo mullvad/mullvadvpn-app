@@ -1,9 +1,10 @@
+use anyhow::Result;
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::states::TunnelState;
 
-use crate::{format, Error, Result};
+use crate::format;
 
 #[derive(Subcommand, Debug, PartialEq)]
 pub enum Status {
@@ -105,7 +106,7 @@ async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
                 println!("Location data unavailable");
                 return Ok(());
             }
-            _ => return Err(Error::ManagementInterfaceError(error)),
+            _ => return Err(error.into()),
         },
     };
     if let Some(ipv4) = location.ipv4 {

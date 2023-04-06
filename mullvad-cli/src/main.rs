@@ -1,54 +1,15 @@
 #![deny(rust_2018_idioms)]
 
+#[cfg(all(unix, not(target_os = "android")))]
+use anyhow::anyhow;
+use anyhow::Result;
 use clap::Parser;
-use std::io;
-use talpid_types::ErrorExt;
-
-pub use mullvad_management_interface::{self, MullvadProxyClient};
 
 mod cmds;
 mod format;
-
 use cmds::*;
 
 pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
-
-pub type Result<T> = std::result::Result<T, Error>;
-
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    #[error(display = "Failed to connect to daemon")]
-    DaemonNotRunning(#[error(source)] io::Error),
-
-    #[error(display = "Management interface error")]
-    ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
-
-    #[error(display = "RPC failed")]
-    RpcFailed(#[error(source)] mullvad_management_interface::Status),
-
-    #[error(display = "RPC failed: {}", _0)]
-    RpcFailedExt(
-        &'static str,
-        #[error(source)] mullvad_management_interface::Status,
-    ),
-
-    /// The given command is not correct in some way
-    #[error(display = "Invalid command: {}", _0)]
-    InvalidCommand(&'static str),
-
-    #[error(display = "Command failed: {}", _0)]
-    CommandFailed(&'static str),
-
-    #[error(display = "Failed to listen for status updates")]
-    StatusListenerFailed,
-
-    #[cfg(all(unix, not(target_os = "android")))]
-    #[error(display = "Failed to generate shell completions")]
-    CompletionsError(#[error(source, no_from)] io::Error),
-
-    #[error(display = "{}", _0)]
-    Other(&'static str),
-}
 
 #[derive(Debug, Parser)]
 #[command(author, version = mullvad_version::VERSION, about, long_about = None)]
@@ -154,29 +115,7 @@ enum Cli {
 }
 
 #[tokio::main]
-async fn main() {
-    let exit_code = match run().await {
-        Ok(_) => 0,
-        Err(error) => {
-            match &error {
-                Error::RpcFailed(status) => {
-                    eprintln!("{}: {:?}: {}", error, status.code(), status.message())
-                }
-                Error::RpcFailedExt(_message, status) => eprintln!(
-                    "{}\nCaused by: {:?}: {}",
-                    error,
-                    status.code(),
-                    status.message()
-                ),
-                error => eprintln!("{}", error.display_chain()),
-            }
-            1
-        }
-    };
-    std::process::exit(exit_code);
-}
-
-async fn run() -> Result<()> {
+async fn main() -> Result<()> {
     env_logger::init();
 
     match Cli::parse() {
@@ -206,8 +145,8 @@ async fn run() -> Result<()> {
             // FIXME: The shell completions include hidden commands (including "shell-completions")
             println!("Generating shell completions to {}", dir.display());
             clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
-                .map(|_| ())
-                .map_err(Error::CompletionsError)
+                .map_err(|_| anyhow!("Failed to generate shell completions"))?;
+            Ok(())
         }
     }
 }

@@ -1,6 +1,7 @@
-use crate::{format, Error, MullvadProxyClient, Result};
+use crate::format;
+use anyhow::{anyhow, Result};
 use futures::{Stream, StreamExt};
-use mullvad_management_interface::client::DaemonEvent;
+use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::states::TunnelState;
 
 pub async fn connect(wait: bool) -> Result<()> {
@@ -16,7 +17,7 @@ pub async fn connect(wait: bool) -> Result<()> {
         if let Some(receiver) = listener {
             wait_for_tunnel_state(receiver, |state| match state {
                 TunnelState::Connected { .. } => Ok(true),
-                TunnelState::Error(_) => Err(Error::CommandFailed("connect")),
+                TunnelState::Error(_) => Err(anyhow!("Failed to connect")),
                 _ => Ok(false),
             })
             .await?;
@@ -57,7 +58,7 @@ pub async fn reconnect(wait: bool) -> Result<()> {
         if let Some(receiver) = listener {
             wait_for_tunnel_state(receiver, |state| match state {
                 TunnelState::Connected { .. } => Ok(true),
-                TunnelState::Error(_) => Err(Error::CommandFailed("reconnect")),
+                TunnelState::Error(_) => Err(anyhow!("Failed to reconnect")),
                 _ => Ok(false),
             })
             .await?;
@@ -80,5 +81,5 @@ async fn wait_for_tunnel_state(
             }
         }
     }
-    Err(Error::StatusListenerFailed)
+    Err(anyhow!("Failed to wait for expected tunnel state"))
 }

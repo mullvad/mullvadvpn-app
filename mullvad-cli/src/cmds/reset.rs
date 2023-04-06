@@ -1,6 +1,6 @@
+use anyhow::Result;
+use mullvad_management_interface::MullvadProxyClient;
 use std::io::stdin;
-
-use crate::{MullvadProxyClient, Result};
 
 pub async fn handle() -> Result<()> {
     if receive_confirmation().await {
@@ -24,7 +24,7 @@ async fn receive_confirmation() -> bool {
         match buf.trim() {
             "Yes" => return true,
             "No" | "no" | "" => return false,
-            _ => println!("Unexpected response. Please enter \"Yes\" or \"No\""),
+            _ => eprintln!("Unexpected response. Please enter \"Yes\" or \"No\""),
         }
     })
     .await

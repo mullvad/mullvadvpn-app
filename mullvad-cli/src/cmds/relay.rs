@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Context, Result};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
@@ -18,8 +19,6 @@ use std::{
 use talpid_types::net::{
     all_of_the_internet, openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType,
 };
-
-use crate::{Error, Result};
 
 use super::{on_off_parser, relay_constraints::LocationArgs};
 
@@ -369,8 +368,8 @@ impl Relay {
         .await
         .unwrap();
 
-        let private_key = wireguard::PrivateKey::from_base64(&private_key_str)
-            .map_err(|_| Error::InvalidCommand("invalid private key"))?;
+        let private_key =
+            wireguard::PrivateKey::from_base64(&private_key_str).context("Invalid private key")?;
 
         Ok(CustomTunnelEndpoint {
             host,
@@ -415,7 +414,7 @@ impl Relay {
             None
         };
 
-        let location = find_relay().ok_or(Error::InvalidCommand("hostname not found"))?;
+        let location = find_relay().ok_or(anyhow!("Hostname not found"))?;
 
         println!("Setting location constraint to {location}");
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
@@ -518,7 +517,7 @@ impl Relay {
                         .into_iter()
                         .any(|(first, last)| first <= specific_port && specific_port <= last);
                     if !is_valid_port {
-                        return Err(Error::CommandFailed("The specified port is invalid"));
+                        return Err(anyhow!("The specified port is invalid"));
                     }
                     Constraint::Only(specific_port)
                 }
