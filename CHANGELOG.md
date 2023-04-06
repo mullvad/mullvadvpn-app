@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Log select settings on each connection attempt.
+
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
 
