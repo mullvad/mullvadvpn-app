@@ -10,7 +10,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use crate::{Error, Result};
+use crate::Result;
 
 use super::relay_constraints::LocationArgs;
 
@@ -113,20 +113,9 @@ pub enum SetCustomCommands {
         password: String,
 
         /// Password for authentication
-        #[arg(value_parser = check_cipher, default_value = "aes-256-gcm")]
+        #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
     },
-}
-
-pub fn check_cipher(cipher: &str) -> Result<String> {
-    if SHADOWSOCKS_CIPHERS.contains(&cipher) {
-        return Ok(cipher.to_string());
-    }
-    eprintln!(
-        "The following ciphers are valid: {}",
-        SHADOWSOCKS_CIPHERS.join(" ")
-    );
-    Err(Error::InvalidCommand("invalid cipher"))
 }
 
 impl Bridge {

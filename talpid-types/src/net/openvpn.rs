@@ -134,7 +134,7 @@ impl ShadowsocksProxySettings {
 
 /// List of ciphers usable by a Shadowsocks proxy.
 /// Cf. [`ShadowsocksProxySettings::cipher`].
-pub static SHADOWSOCKS_CIPHERS: &[&str] = &[
+pub const SHADOWSOCKS_CIPHERS: [&str; 19] = [
     // Stream ciphers.
     "aes-128-cfb",
     "aes-128-cfb1",
