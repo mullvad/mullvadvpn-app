@@ -31,6 +31,7 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
@@ -256,6 +257,21 @@ fun AdvancedSettingScreen(
                     }
                 }
 
+                if (uiState.isCustomDnsEnabled) {
+                    item {
+                        ContentBlockersDisableModeCellSubtitle(
+                            Modifier
+                                .background(MullvadDarkBlue)
+                                .padding(
+                                    start = cellHorizontalSpacing,
+                                    top = topPadding,
+                                    end = cellHorizontalSpacing,
+                                    bottom = cellVerticalSpacing,
+                                ),
+                        )
+                    }
+                }
+
                 itemWithDivider {
                     Spacer(modifier = Modifier.height(cellVerticalSpacing))
                     SwitchComposeCell(
@@ -299,6 +315,7 @@ fun AdvancedSettingScreen(
 
                 item {
                     CustomDnsCellSubtitle(
+                        uiState.isCustomDnsClickable,
                         Modifier
                             .background(MullvadDarkBlue)
                             .padding(

@@ -133,10 +133,16 @@ fun SwitchCellView(
 }
 
 @Composable
-fun CustomDnsCellSubtitle(modifier: Modifier) {
+fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
     val textSize = dimensionResource(id = R.dimen.text_small).value.sp
     Text(
-        text = stringResource(R.string.custom_dns_footer),
+        text = stringResource(
+            if (isCellClickable) {
+                R.string.custom_dns_footer
+            } else {
+                R.string.custom_dns_disable_mode_subtitle
+            }
+        ),
         fontSize = textSize,
         color = MullvadWhite60,
         modifier = modifier,
