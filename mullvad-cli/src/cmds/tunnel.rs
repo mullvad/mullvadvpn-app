@@ -37,9 +37,12 @@ pub enum TunnelOptions {
         /// Configure quantum-resistant key exchange
         #[arg(long)]
         quantum_resistant: Option<QuantumResistantState>,
-        /// Manage your WireGuard key
+        /// The key rotation interval. Number of hours, or 'any'
+        #[arg(long)]
+        rotation_interval: Option<Constraint<RotationInterval>>,
+        /// Rotate WireGuard key
         #[clap(subcommand)]
-        key: Option<KeyOptions>,
+        rotate_key: Option<RotateKey>,
     },
 
     /// Enable or disable IPv6 in the tunnel
@@ -48,14 +51,9 @@ pub enum TunnelOptions {
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum KeyOptions {
+pub enum RotateKey {
     /// Replace the WireGuard key with a new one
     RotateKey,
-    /// Manage how often to replace the WireGuard key automatically
-    RotationInterval {
-        /// The key rotation interval (hours)
-        interval: Constraint<RotationInterval>,
-    },
 }
 
 impl Tunnel {
@@ -135,8 +133,11 @@ impl Tunnel {
             TunnelOptions::Wireguard {
                 mtu,
                 quantum_resistant,
-                key,
-            } => Self::handle_wireguard(mtu, quantum_resistant, key).await,
+                rotation_interval,
+                rotate_key,
+            } => {
+                Self::handle_wireguard(mtu, quantum_resistant, rotation_interval, rotate_key).await
+            }
             TunnelOptions::Ipv6 { state } => Self::handle_ipv6(state).await,
         }
     }
@@ -166,7 +167,8 @@ impl Tunnel {
     async fn handle_wireguard(
         mtu: Option<Constraint<u16>>,
         quantum_resistant: Option<QuantumResistantState>,
-        key_options: Option<KeyOptions>,
+        rotation_interval: Option<Constraint<RotationInterval>>,
+        rotate_key: Option<RotateKey>,
     ) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
 
@@ -180,21 +182,13 @@ impl Tunnel {
             println!("MTU parameter has been updated");
         }
 
-        if let Some(key_options) = key_options {
-            match key_options {
-                KeyOptions::RotateKey => {
-                    rpc.rotate_wireguard_key().await?;
-                    println!("Rotated WireGuard key");
-                }
-                KeyOptions::RotationInterval {
-                    interval: Constraint::Only(interval),
-                } => {
+        if let Some(interval) = rotation_interval {
+            match interval {
+                Constraint::Only(interval) => {
                     rpc.set_wireguard_rotation_interval(interval).await?;
                     println!("Set key rotation interval to {}", interval);
                 }
-                KeyOptions::RotationInterval {
-                    interval: Constraint::Any,
-                } => {
+                Constraint::Any => {
                     rpc.reset_wireguard_rotation_interval().await?;
                     println!(
                         "Reset key rotation interval to {}",
@@ -202,6 +196,11 @@ impl Tunnel {
                     );
                 }
             }
+        }
+
+        if matches!(rotate_key, Some(RotateKey::RotateKey)) {
+            rpc.rotate_wireguard_key().await?;
+            println!("Rotated WireGuard key");
         }
 
         Ok(())
