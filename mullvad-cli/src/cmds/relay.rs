@@ -20,7 +20,7 @@ use talpid_types::net::{
     all_of_the_internet, openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType,
 };
 
-use super::{on_off_parser, relay_constraints::LocationArgs};
+use super::{relay_constraints::LocationArgs, BooleanOption};
 
 #[derive(Subcommand, Debug)]
 pub enum Relay {
@@ -103,8 +103,8 @@ pub enum SetTunnelCommands {
 
         /// Whether to enable multihop. The location constraints are specified with
         /// 'entry-location'.
-        #[arg(long, short = 'm', value_parser = on_off_parser())]
-        use_multihop: Option<bool>,
+        #[arg(long, short = 'm')]
+        use_multihop: Option<BooleanOption>,
 
         #[clap(subcommand)]
         entry_location: Option<EntryLocation>,
@@ -501,7 +501,7 @@ impl Relay {
     async fn set_wireguard_constraints(
         port: Option<Constraint<u16>>,
         ip_version: Option<Constraint<IpVersion>>,
-        use_multihop: Option<bool>,
+        use_multihop: Option<BooleanOption>,
         entry_location: Option<EntryLocation>,
     ) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
@@ -528,7 +528,7 @@ impl Relay {
             wireguard_constraints.ip_version = ipv;
         }
         if let Some(use_multihop) = use_multihop {
-            wireguard_constraints.use_multihop = use_multihop;
+            wireguard_constraints.use_multihop = *use_multihop;
         }
         if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
             wireguard_constraints.entry_location = Constraint::from(entry);

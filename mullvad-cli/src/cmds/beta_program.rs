@@ -2,17 +2,14 @@ use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
-use super::on_off_parser;
+use super::BooleanOption;
 
 #[derive(Subcommand, Debug)]
 pub enum BetaProgram {
     /// Get beta notifications setting
     Get,
     /// Change beta notifications setting
-    Set {
-        #[arg(value_parser = on_off_parser())]
-        policy: bool,
-    },
+    Set { policy: BooleanOption },
 }
 
 impl BetaProgram {
@@ -23,31 +20,24 @@ impl BetaProgram {
         }
     }
 
-    async fn set(enable: bool) -> Result<()> {
-        if !enable && mullvad_version::VERSION.contains("beta") {
+    async fn set(state: BooleanOption) -> Result<()> {
+        if !*state && mullvad_version::VERSION.contains("beta") {
             return Err(anyhow!(
                 "The beta program must be enabled while running a beta version",
             ));
         }
 
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_show_beta_releases(enable).await?;
+        rpc.set_show_beta_releases(*state).await?;
 
-        if enable {
-            println!("Beta program: on");
-        } else {
-            println!("Beta program: off");
-        }
+        println!("Beta program: {state}");
         Ok(())
     }
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        if rpc.get_settings().await?.show_beta_releases {
-            println!("Beta program: on");
-        } else {
-            println!("Beta program: off");
-        }
+        let opt = BooleanOption::from(rpc.get_settings().await?.show_beta_releases);
+        println!("Beta program: {opt}");
         Ok(())
     }
 }
