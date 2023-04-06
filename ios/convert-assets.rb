@@ -6,7 +6,7 @@ SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
 ROOT_DIR = File.dirname(SCRIPT_DIR)
 
 # assets catalogue root
-XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Assets.xcassets")
+XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Supporting Files/Assets.xcassets")
 
 # graphical assets sources
 APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-square.svg")
@@ -26,6 +26,7 @@ GRAPHICAL_ASSETS = [
   "icon-chevron.svg",
   "icon-extLink.svg",
   "icon-fail.svg",
+  "icon-info.svg",
   "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",
@@ -59,9 +60,9 @@ ADDITIONAL_ASSETS = [
   "IconBackTransitionMask.svg"
 ]
 
-# SVG conversion tool environment variables. 
+# SVG conversion tool environment variables.
 SVG_CONVERT_ENVIRONMENT_VARIABLES = {
-  # Fix PDF "CreationDate" for reproducible output 
+  # Fix PDF "CreationDate" for reproducible output
   "SOURCE_DATE_EPOCH" => "1596022781"
 }
 

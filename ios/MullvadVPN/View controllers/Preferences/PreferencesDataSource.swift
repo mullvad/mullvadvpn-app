@@ -12,6 +12,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     PreferencesDataSource.Section,
     PreferencesDataSource.Item
 >, UITableViewDelegate {
+    typealias InfoButtonHandler = (PreferencesDataSource.Item) -> Void
+
     enum CellReuseIdentifiers: String, CaseIterable {
         case settingSwitch
         case dnsServer
@@ -30,11 +32,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
+        case contentBlockerHeader
         case customDNSFooter
         case spacer
 
         var reusableViewClass: AnyClass {
             switch self {
+            case .contentBlockerHeader:
+                return SettingsContentBlockersHeaderView.self
             case .customDNSFooter:
                 return SettingsStaticTextFooterView.self
             case .spacer:
@@ -44,7 +49,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     enum Section: String, Hashable {
-        case mullvadDNS
+        case contentBlockers
         case customDNS
     }
 
@@ -225,16 +230,29 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
-        )
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            let view = tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
+                ) as! SettingsContentBlockersHeaderView
+            configureContentBlockHeader(view)
+            return view
+
+        case .customDNS:
+            return tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+            )
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return nil
 
         case .customDNS:
@@ -249,14 +267,22 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        switch sectionIdentifier {
+        case .contentBlockers:
+            return UITableView.automaticDimension
+
+        case .customDNS:
+            return UIMetrics.sectionSpacing
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .mullvadDNS:
+        case .contentBlockers:
             return 0
 
         case .customDNS:
@@ -336,25 +362,30 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.mullvadDNS, .customDNS])
-        snapshot.appendItems(
-            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling],
-            toSection: .mullvadDNS
-        )
-        snapshot.appendItems([.useCustomDNS], toSection: .customDNS)
+        newSnapshot.appendSections([.contentBlockers, .customDNS])
+
+        let oldSnapshot = snapshot()
+        if oldSnapshot.indexOfSection(.contentBlockers) != nil {
+            newSnapshot.appendItems(
+                oldSnapshot.itemIdentifiers(inSection: .contentBlockers),
+                toSection: .contentBlockers
+            )
+        }
+
+        newSnapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
             return Item.dnsServer(entry.identifier)
         }
-        snapshot.appendItems(dnsServerItems, toSection: .customDNS)
+        newSnapshot.appendItems(dnsServerItems, toSection: .customDNS)
 
         if isEditing, viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
-            snapshot.appendItems([.addDNSServer], toSection: .customDNS)
+            newSnapshot.appendItems([.addDNSServer], toSection: .customDNS)
         }
 
-        apply(snapshot, completion: completion)
+        apply(newSnapshot, completion: completion)
     }
 
     private func reload(item: Item) {
@@ -525,6 +556,43 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func configureContentBlockHeader(_ reusableView: SettingsContentBlockersHeaderView) {
+        reusableView.titleLabel.text = NSLocalizedString(
+            "BLOCK_ADS_CELL_LABEL",
+            tableName: "Preferences",
+            value: "DNS content blockers",
+            comment: ""
+        )
+
+        reusableView.infoButtonHandler = { [weak self] in
+            if let self = self {
+                self.delegate?.preferencesDataSource(self, didPressInfoButton: nil)
+            }
+        }
+
+        reusableView.didCollapseHandler = { [weak self] headerView in
+            guard let self = self else { return }
+
+            var snapshot = self.snapshot()
+            let contentBlockers: [Item] = [
+                .blockAdvertising,
+                .blockTracking,
+                .blockMalware,
+                .blockAdultContent,
+                .blockGambling,
+            ]
+
+            if headerView.isExpanded {
+                snapshot.deleteItems(contentBlockers)
+            } else {
+                snapshot.appendItems(contentBlockers, toSection: .contentBlockers)
+            }
+
+            headerView.isExpanded.toggle()
+            self.apply(snapshot, animatingDifferences: true)
+        }
+    }
+
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
         let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 
@@ -568,5 +636,9 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
         inputString: String
     ) -> Bool {
         return handleDNSEntryChange(with: identifier, inputString: inputString)
+    }
+
+    func didPressInfoButton(for item: Item) {
+        delegate?.preferencesDataSource(self, didPressInfoButton: item)
     }
 }
