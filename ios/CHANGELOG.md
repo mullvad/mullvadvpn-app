@@ -30,7 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Changed key rotation interval from 4 to 14 days.
 - Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency in key
   propagation to relays.
-
+- Move content content blockers to separate section in settings view.
 
 ## [2023.1] - 2023-03-21
 ### Added
