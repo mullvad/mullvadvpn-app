@@ -13,7 +13,6 @@ pub fn state_listen(mut rpc: MullvadProxyClient) -> Receiver<Result<TunnelState>
     tokio::spawn(async move {
         match rpc.events_listen().await {
             Ok(mut events) => {
-                //let mut events = events.into_inner();
                 loop {
                     let forward = match events.next().await {
                         Some(Ok(event)) => {
