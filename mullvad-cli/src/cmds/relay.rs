@@ -145,10 +145,10 @@ pub enum SetCustomCommands {
         /// Remote port
         port: u16,
         /// Base64 encoded public key of remote peer
-        // TODO: parse
-        peer_pubkey: String,
+        #[arg(value_parser = wireguard::PublicKey::from_base64)]
+        peer_pubkey: wireguard::PublicKey,
         /// IP addresses of local tunnel interface
-        // TODO: at least one
+        #[arg(required = true, num_args = 1..)]
         tunnel_ip: Vec<IpAddr>,
         /// IPv4 gateway address
         #[arg(long)]
@@ -351,7 +351,7 @@ impl Relay {
     async fn read_custom_wireguard_relay(
         host: String,
         port: u16,
-        peer_pubkey: String,
+        peer_pubkey: wireguard::PublicKey,
         tunnel_ip: Vec<IpAddr>,
         ipv4_gateway: Ipv4Addr,
         ipv6_gateway: Option<Ipv6Addr>,
@@ -369,8 +369,6 @@ impl Relay {
         .await
         .unwrap();
 
-        let peer_public_key = wireguard::PublicKey::from_base64(&peer_pubkey)
-            .map_err(|_| Error::InvalidCommand("invalid public key"))?;
         let private_key = wireguard::PrivateKey::from_base64(&private_key_str)
             .map_err(|_| Error::InvalidCommand("invalid private key"))?;
 
@@ -382,7 +380,7 @@ impl Relay {
                     addresses: tunnel_ip,
                 },
                 peer: wireguard::PeerConfig {
-                    public_key: peer_public_key,
+                    public_key: peer_pubkey,
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
