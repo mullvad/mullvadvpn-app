@@ -74,10 +74,10 @@ pub enum Error {
     #[error(display = "This voucher code has already been used")]
     UsedVoucher,
 
-    #[error(display = "There are too many devices on the account")]
+    #[error(display = "There are too many devices on the account. One must be revoked to log in")]
     TooManyDevices,
 
-    #[error(display = "You are already logged in")]
+    #[error(display = "You are already logged in. Log out to create a new account")]
     AlreadyLoggedIn,
 
     #[error(display = "The account does not exist")]

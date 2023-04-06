@@ -1,8 +1,8 @@
+use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
 use super::on_off_parser;
-use crate::{Error, Result};
 
 #[derive(Subcommand, Debug)]
 pub enum BetaProgram {
@@ -25,7 +25,7 @@ impl BetaProgram {
 
     async fn set(enable: bool) -> Result<()> {
         if !enable && mullvad_version::VERSION.contains("beta") {
-            return Err(Error::InvalidCommand(
+            return Err(anyhow!(
                 "The beta program must be enabled while running a beta version",
             ));
         }

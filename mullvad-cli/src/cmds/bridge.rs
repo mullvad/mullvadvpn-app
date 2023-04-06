@@ -1,3 +1,4 @@
+use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
@@ -9,8 +10,6 @@ use mullvad_types::{
 };
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
-
-use crate::Result;
 
 use super::relay_constraints::LocationArgs;
 
