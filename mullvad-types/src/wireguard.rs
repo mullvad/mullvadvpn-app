@@ -164,9 +164,7 @@ impl TryFrom<u64> for RotationInterval {
     fn try_from(value: u64) -> Result<Self, Self::Error> {
         // Convert a u64, specified in hours, to a `RotationInterval`
         let val = value
-            .checked_mul(60)
-            .ok_or(RotationIntervalError::TooLarge)?
-            .checked_mul(60)
+            .checked_mul(60 * 60)
             .ok_or(RotationIntervalError::TooLarge)?;
         RotationInterval::new(Duration::from_secs(val))
     }
