@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
@@ -155,20 +156,18 @@ fun AdvancedSettingScreen(
             ) {
                 item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
 
-                item {
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.split_tunneling),
                         onClick = { onSplitTunnelingNavigationClick.invoke() }
                     )
-                    Divider()
                 }
 
-                item {
+                itemWithDivider {
                     CustomDnsComposeCell(
                         checkboxDefaultState = uiState.isCustomDnsEnabled,
                         onToggle = { newValue -> onToggleDnsClick(newValue) }
                     )
-                    Divider()
                 }
 
                 if (uiState.isCustomDnsEnabled) {
@@ -183,7 +182,7 @@ fun AdvancedSettingScreen(
                         Divider()
                     }
 
-                    item {
+                    itemWithDivider {
                         BaseCell(
                             onCellClicked = { onDnsClick(null) },
                             title = {
@@ -197,7 +196,6 @@ fun AdvancedSettingScreen(
                             background = MullvadBlue20,
                             startPadding = biggerPadding
                         )
-                        Divider()
                     }
                 }
 
