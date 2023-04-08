@@ -17,11 +17,9 @@ use super::relay_constraints::LocationArgs;
 pub enum Bridge {
     /// Get current bridge settings
     Get,
-
     /// Set bridge state and settings, such as provider
     #[clap(subcommand)]
     Set(SetCommands),
-
     /// List available bridge relays
     List,
 }
@@ -66,6 +64,13 @@ pub enum SetCustomCommands {
         )
     )]
     #[cfg_attr(
+        target_os = "windows",
+        clap(
+            about = "Registers a local SOCKS5 proxy. The server must be excluded using \
+        split tunneling in order to bypass firewall restrictions"
+        )
+    )]
+    #[cfg_attr(
         target_os = "macos",
         clap(
             about = "Registers a local SOCKS5 proxy. The server must run as root to bypass \
@@ -75,10 +80,8 @@ pub enum SetCustomCommands {
     Local {
         /// The port that the server on localhost is listening on
         local_port: u16,
-
         /// The IP of the remote peer
         remote_ip: IpAddr,
-
         /// The port of the remote peer
         remote_port: u16,
     },
@@ -87,14 +90,14 @@ pub enum SetCustomCommands {
     Remote {
         /// The IP of the remote proxy server
         remote_ip: IpAddr,
-
         /// The port of the remote proxy server
         remote_port: u16,
 
         /// Username for authentication
+        #[arg(requires = "password")]
         username: Option<String>,
-
         /// Password for authentication
+        #[arg(requires = "username")]
         password: Option<String>,
     },
 
@@ -102,7 +105,6 @@ pub enum SetCustomCommands {
     Shadowsocks {
         /// The IP of the remote Shadowsocks server
         remote_ip: IpAddr,
-
         /// The port of the remote Shadowsocks server
         #[arg(default_value = "443")]
         remote_port: u16,
@@ -111,7 +113,7 @@ pub enum SetCustomCommands {
         #[arg(default_value = "mullvad")]
         password: String,
 
-        /// Password for authentication
+        /// Cipher to use
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
     },
