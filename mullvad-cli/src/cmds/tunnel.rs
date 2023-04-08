@@ -133,11 +133,7 @@ impl Tunnel {
     async fn handle_ipv6(state: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.set_enable_ipv6(*state).await?;
-        if *state {
-            println!("Enabled IPv6");
-        } else {
-            println!("Disabled IPv6");
-        }
+        println!("IPv6: {state}");
         Ok(())
     }
 
