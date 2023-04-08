@@ -36,6 +36,7 @@ pub enum SetCommands {
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
     Providers {
+        /// Either 'any', or provider to select from.
         #[arg(required(true), num_args = 1..)]
         providers: Vec<Provider>,
     },
