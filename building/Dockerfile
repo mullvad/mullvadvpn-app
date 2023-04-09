@@ -32,7 +32,7 @@ ARG GOLANG_VERSION=1.18.5 \
     GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 
 # The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
-ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
+ARG MOLD_COMMIT_REF=cca255e6be069cdbc135c83fd16036d86b98b85e
 
 # === Install/set up the image ===
 
