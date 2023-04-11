@@ -285,7 +285,7 @@ export default class NotificationController {
       return NotificationSuppressReason.windowVisible;
     } else if (
       !areSystemNotificationsEnabled &&
-      notification.severity >= SystemNotificationSeverityType.low
+      notification.severity <= SystemNotificationSeverityType.low
     ) {
       return NotificationSuppressReason.preference;
     } else if (this.suppressDueToAlreadyPresented(notification)) {
