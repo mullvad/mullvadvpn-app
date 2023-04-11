@@ -18,6 +18,11 @@
     <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
     <string name="back">Geri</string>
+    <string name="block_ads_title">Reklamlar</string>
+    <string name="block_adult_content_title">Yetişkinlere özel içerik</string>
+    <string name="block_gambling_title">Kumar</string>
+    <string name="block_malware_title">Kötü amaçlı yazılım</string>
+    <string name="block_trackers_title">İzleyiciler</string>
     <string name="blocked_connection">ENGELLENEN BAĞLANTI</string>
     <string name="blocking_all_connections">Tüm bağlantılar engelleniyor</string>
     <string name="blocking_internet">İnternet bağlantısı engelleniyor</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
+    <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki tüm &lt;b&gt;DNS içerik engelleyicileri&lt;/b&gt; devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnecting">Bağlantı kesiliyor</string>
     <string name="dismiss">Reddet</string>
+    <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
+    <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki &lt;b&gt;%1$s&lt;/b&gt; seçeneğini devre dışı bırakın.</string>
+    <string name="dns_content_blockers_title">DNS içerik engelleyiciler</string>
+    <string name="dns_content_blockers_warning">Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir.</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
     <string name="edit_message">Mesajı düzenle</string>
     <string name="enable">Etkinleştir</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Geçersiz hesap numarası</string>
     <string name="login_fail_title">Oturum açma başarısız</string>
     <string name="login_title">Oturum Aç</string>
+    <string name="malware_info">Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="max_devices_resolved_description">Artık bu cihazda oturum açmaya devam edebilirsiniz.</string>
     <string name="max_devices_resolved_title">Süper!</string>

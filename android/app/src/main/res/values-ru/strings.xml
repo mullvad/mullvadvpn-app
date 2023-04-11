@@ -18,6 +18,11 @@
     <string name="auto_connect">Автоподключение</string>
     <string name="auto_connect_footer">Автоматически подключаться к серверу при запуске приложения.</string>
     <string name="back">Назад</string>
+    <string name="block_ads_title">Реклама</string>
+    <string name="block_adult_content_title">Контент для взрослых</string>
+    <string name="block_gambling_title">Азартные игры</string>
+    <string name="block_malware_title">Вредоносное ПО</string>
+    <string name="block_trackers_title">Трекеры</string>
     <string name="blocked_connection">ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО</string>
     <string name="blocking_all_connections">Блокируются все подключения</string>
     <string name="blocking_internet">Блокируется доступ в Интернет</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Создание учетной записи...</string>
     <string name="creating_secure_connection">СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
+    <string name="custom_dns_disable_mode_subtitle">Чтобы активировать эту опцию, отключите все &lt;b&gt;DNS-блокировщики контента&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского сервера</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Отключить</string>
     <string name="disconnecting">Отключение</string>
     <string name="dismiss">Закрыть</string>
+    <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
+    <string name="dns_content_blockers_subtitle">Чтобы активировать эти параметры, отключите опцию &lt;b&gt;%1$s&lt;/b&gt; ниже.</string>
+    <string name="dns_content_blockers_title">DNS-блокировщики контента</string>
+    <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и программ.</string>
     <string name="dont_have_an_account">У вас нет номера учетной записи?</string>
     <string name="edit_message">Изменить сообщение</string>
     <string name="enable">Включить</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Недействительный номер учетной записи</string>
     <string name="login_fail_title">Ошибка входа</string>
     <string name="login_title">Вход</string>
+    <string name="malware_info">Внимание! Блокировщик вредоносного ПО — это просто дополнительный уровень защиты, а не антивирус.</string>
     <string name="max_devices_confirm_removal_description">Действительно выйти из профиля на устройстве &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Теперь можно войти в учетную запись на этом устройстве.</string>
     <string name="max_devices_resolved_title">Отлично!</string>

@@ -18,6 +18,11 @@
     <string name="auto_connect">Automatyczne łączenie</string>
     <string name="auto_connect_footer">Automatycznie łącz z serwerem po uruchomieniu aplikacji.</string>
     <string name="back">Wstecz</string>
+    <string name="block_ads_title">Reklamy</string>
+    <string name="block_adult_content_title">Treści dla dorosłych</string>
+    <string name="block_gambling_title">Hazard</string>
+    <string name="block_malware_title">Złośliwe oprogramowanie</string>
+    <string name="block_trackers_title">Trackery</string>
     <string name="blocked_connection">ZABLOKOWANE POŁĄCZENIE</string>
     <string name="blocking_all_connections">Blokowanie wszystkich połączeń</string>
     <string name="blocking_internet">Blokowanie Internetu</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Tworzenie konta...</string>
     <string name="creating_secure_connection">TWORZENIE BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
+    <string name="custom_dns_disable_mode_subtitle">Aby to aktywować to ustawienie, wyłącz wszystkie &lt;b&gt;funkcje blokowania treści DNS&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać nazwy hosta serwera niestandardowego</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Rozłącz</string>
     <string name="disconnecting">Rozłączanie</string>
     <string name="dismiss">Odrzuć</string>
+    <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
+    <string name="dns_content_blockers_subtitle">Aby aktywować te ustawienia, wyłącz &lt;b&gt;%1$s&lt;/b&gt; poniżej.</string>
+    <string name="dns_content_blockers_title">Funkcje blokowania treści DNS</string>
+    <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami, usługami i programami.</string>
     <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="edit_message">Edytuj wiadomość</string>
     <string name="enable">Włącz</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
     <string name="login_title">Logowanie</string>
+    <string name="malware_info">Ostrzeżenie: funkcja blokowania złośliwego oprogramowania nie jest programem antywirusowym i nie należy jej tak traktować. To jedynie dodatkowa warstwa zabezpieczeń.</string>
     <string name="max_devices_confirm_removal_description">Czy na pewno chcesz wylogować &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Teraz można kontynuować logowanie się na tym urządzeniu.</string>
     <string name="max_devices_resolved_title">Super!</string>

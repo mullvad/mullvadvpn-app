@@ -18,6 +18,11 @@
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
     <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="back">နောက်သို့</string>
+    <string name="block_ads_title">ကြောငြာများ</string>
+    <string name="block_adult_content_title">လူကြီး အကြောင်းအရာ</string>
+    <string name="block_gambling_title">လောင်းကစား</string>
+    <string name="block_malware_title">မဲလ်ဝဲရ်</string>
+    <string name="block_trackers_title">ခြေရာခံများ</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
     <string name="blocking_all_connections">ချိတ်ဆက်မှု အားလုံးကို ပိတ်ဆို့ထားပါသည်</string>
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
     <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
+    <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ပါ &lt;b&gt;DNS content blockers&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
+    <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
+    <string name="dns_content_blockers_subtitle">ဤဆက်တင်တို့ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ပါ &lt;b&gt;%1$s&lt;/b&gt; ကို ပိတ်ပါ။</string>
+    <string name="dns_content_blockers_title">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
+    <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် ပရိုဂရမ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
     <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
     <string name="edit_message">မက်ဆေ့ချ် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">အကောင့်နံပါတ် မှားယွင်းနေပါသည်</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
     <string name="login_title">ဝင်ရန်</string>
+    <string name="malware_info">သတိပေးချက်- မဲလ်ဝဲရ် ပိတ်ဆို့မှုသည် အပိုအကာအကွယ်လွှာ တစ်ခုသာဖြစ်ပြီး ဗိုင်းရပ်စ် ကာကွယ်ရေး (anti-virus) မဟုတ်၍ ၎င်းအဖြစ် မမှတ်ယူသင့်ပါ။</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; မှ ထွက်လိုသည်မှာ သေချာပါသလား။</string>
     <string name="max_devices_resolved_description">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</string>
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>

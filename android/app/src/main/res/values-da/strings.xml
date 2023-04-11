@@ -18,6 +18,11 @@
     <string name="auto_connect">Auto-tilslutning</string>
     <string name="auto_connect_footer">Opret automatisk forbindelse til en server, når appen starter.</string>
     <string name="back">Tilbage</string>
+    <string name="block_ads_title">Annoncer</string>
+    <string name="block_adult_content_title">Voksenindhold</string>
+    <string name="block_gambling_title">Hasardspil</string>
+    <string name="block_malware_title">Malware</string>
+    <string name="block_trackers_title">Trackere</string>
     <string name="blocked_connection">FORBINDELSE BLOKERET</string>
     <string name="blocking_all_connections">Blokerer alle forbindelser</string>
     <string name="blocking_internet">Blokerer internettet</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Opretter konto...</string>
     <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
+    <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;DNS-indholdsblokkere&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værtsnavnet på den tilpassede server</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Afbryd forbindelse</string>
     <string name="disconnecting">Afbryder</string>
     <string name="dismiss">Afvis</string>
+    <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>
+    <string name="dns_content_blockers_subtitle">Deaktiver &lt;b&gt;%1$s&lt;/b&gt; nedenfor for at aktivere disse indstillinger.</string>
+    <string name="dns_content_blockers_title">DNS-indholdsblokkere</string>
+    <string name="dns_content_blockers_warning">Dette kan forårsage problemer på visse websteder, tjenester og programmer.</string>
     <string name="dont_have_an_account">Har du ikke noget kontonummer?</string>
     <string name="edit_message">Rediger meddelelse</string>
     <string name="enable">Aktiver</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Ugyldigt kontonummer</string>
     <string name="login_fail_title">Login mislykkedes</string>
     <string name="login_title">Log ind</string>
+    <string name="malware_info">Advarsel: Malware-blokkeren er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse.</string>
     <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; ud?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>

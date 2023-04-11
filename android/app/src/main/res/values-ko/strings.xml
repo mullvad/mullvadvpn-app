@@ -18,6 +18,11 @@
     <string name="auto_connect">자동 연결</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
     <string name="back">뒤로</string>
+    <string name="block_ads_title">광고</string>
+    <string name="block_adult_content_title">성인 콘텐츠</string>
+    <string name="block_gambling_title">도박</string>
+    <string name="block_malware_title">맬웨어</string>
+    <string name="block_trackers_title">트래커</string>
     <string name="blocked_connection">연결 차단됨</string>
     <string name="blocking_all_connections">모든 연결 차단 중</string>
     <string name="blocking_internet">인터넷 차단</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">계정 생성 중...</string>
     <string name="creating_secure_connection">보안 연결 생성 중</string>
     <string name="critical_error">심각한 오류(주의가 필요함)</string>
+    <string name="custom_dns_disable_mode_subtitle">이 설정을 활성화하려면 위의 모든 &lt;b&gt;DNS 콘텐츠 차단기&lt;/b&gt;를 비활성화하세요.</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못함</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">연결 끊기</string>
     <string name="disconnecting">연결 해제 중</string>
     <string name="dismiss">해제</string>
+    <string name="dns_content_blockers_info">이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다.</string>
+    <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 &lt;b&gt;%1$s&lt;/b&gt;을(를) 비활성화하세요.</string>
+    <string name="dns_content_blockers_title">DNS 콘텐츠 차단기</string>
+    <string name="dns_content_blockers_warning">이 기능을 사용하면 특정 웹 사이트, 서비스 및 프로그램에서 문제가 발생할 수 있습니다.</string>
     <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
     <string name="edit_message">메시지 편집</string>
     <string name="enable">사용</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">유효하지 않은 계정 번호</string>
     <string name="login_fail_title">로그인 실패</string>
     <string name="login_title">로그인</string>
+    <string name="malware_info">경고: 맬웨어 차단기는 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
