@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -114,7 +113,7 @@ fun SwitchCellView(
                         )
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
-                contentDescription = stringResource(id = R.string.confirm_local_dns),
+                contentDescription = null,
                 tint = MullvadWhite
             )
         }

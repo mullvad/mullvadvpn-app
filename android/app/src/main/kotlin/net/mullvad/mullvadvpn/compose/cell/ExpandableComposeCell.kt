@@ -85,7 +85,7 @@ private fun ExpandableComposeCellBody(
                         )
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
-                contentDescription = stringResource(id = R.string.confirm_local_dns),
+                contentDescription = null,
                 tint = MullvadWhite
             )
         }
