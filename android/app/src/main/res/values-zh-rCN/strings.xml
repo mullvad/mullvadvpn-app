@@ -18,6 +18,11 @@
     <string name="auto_connect">自动连接</string>
     <string name="auto_connect_footer">在应用启动时自动连接到服务器。</string>
     <string name="back">返回</string>
+    <string name="block_ads_title">广告</string>
+    <string name="block_adult_content_title">成人内容</string>
+    <string name="block_gambling_title">博彩</string>
+    <string name="block_malware_title">恶意软件</string>
+    <string name="block_trackers_title">跟踪器</string>
     <string name="blocked_connection">已阻止连接</string>
     <string name="blocking_all_connections">正在阻止所有连接</string>
     <string name="blocking_internet">正在阻止网络</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="creating_secure_connection">正在创建安全连接</string>
     <string name="critical_error">严重错误（需要注意）</string>
+    <string name="custom_dns_disable_mode_subtitle">禁用上方的所有 &lt;b&gt;DNS 内容阻止程序&lt;/b&gt;以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">断开连接</string>
     <string name="disconnecting">正在断开连接</string>
     <string name="dismiss">关闭</string>
+    <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
+    <string name="dns_content_blockers_subtitle">禁用下方的&lt;b&gt;%1$s&lt;/b&gt;以激活这些设置。</string>
+    <string name="dns_content_blockers_title">DNS 内容阻止程序</string>
+    <string name="dns_content_blockers_warning">这可能会导致某些网站、服务和程序出现问题。</string>
     <string name="dont_have_an_account">没有帐号？</string>
     <string name="edit_message">编辑消息</string>
     <string name="enable">启用</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">帐号无效</string>
     <string name="login_fail_title">登录失败</string>
     <string name="login_title">登录</string>
+    <string name="malware_info">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</string>
     <string name="max_devices_confirm_removal_description">确定要退出&lt;b&gt;%1$s&lt;/b&gt;吗？</string>
     <string name="max_devices_resolved_description">您现在可以继续在此设备上登录。</string>
     <string name="max_devices_resolved_title">太棒了！</string>

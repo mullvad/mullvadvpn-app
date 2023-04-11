@@ -18,6 +18,11 @@
     <string name="auto_connect">Automatische Verbindung</string>
     <string name="auto_connect_footer">Stellt automatisch eine Verbindung zum Server her, wenn die App startet.</string>
     <string name="back">Zurück</string>
+    <string name="block_ads_title">Werbung</string>
+    <string name="block_adult_content_title">Inhalte für Erwachsene</string>
+    <string name="block_gambling_title">Glücksspiel</string>
+    <string name="block_malware_title">Malware</string>
+    <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">GESPERRTE VERBINDUNG</string>
     <string name="blocking_all_connections">Alle Verbindungen werden blockiert</string>
     <string name="blocking_internet">Internet wird gesperrt</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Konto wird erstellt ...</string>
     <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit ist erforderlich)</string>
+    <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle &lt;b&gt;DNS-Inhaltssperren&lt;/b&gt;, um diese Einstellung zu aktivieren.</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
     <string name="custom_dns_hint">IP eingeben</string>
     <string name="custom_tunnel_host_resolution_error">Der Hostname des benutzerdefinierten Servers konnte nicht aufgelöst werden</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Verbindung trennen</string>
     <string name="disconnecting">Verbindung wird getrennt</string>
     <string name="dismiss">Ausblenden</string>
+    <string name="dns_content_blockers_info">Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Trackern und mehr bekannt sind.</string>
+    <string name="dns_content_blockers_subtitle">Deaktivieren Sie unten &lt;b&gt;%1$s&lt;/b&gt;, um diese Einstellungen zu aktivieren.</string>
+    <string name="dns_content_blockers_title">DNS-Inhaltssperren</string>
+    <string name="dns_content_blockers_warning">Dies kann bei bestimmten Websites, Diensten und Programmen zu Problemen führen.</string>
     <string name="dont_have_an_account">Sie haben keine Kontonummer?</string>
     <string name="edit_message">Nachricht bearbeiten</string>
     <string name="enable">Aktivieren</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Ungültige Kontonummer</string>
     <string name="login_fail_title">Anmeldung fehlgeschlagen</string>
     <string name="login_title">Anmelden</string>
+    <string name="malware_info">Der Malware-Blocker ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht.</string>
     <string name="max_devices_confirm_removal_description">Möchten Sie &lt;b&gt;%1$s&lt;/b&gt; wirklich abmelden?</string>
     <string name="max_devices_resolved_description">Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren.</string>
     <string name="max_devices_resolved_title">Super!</string>
