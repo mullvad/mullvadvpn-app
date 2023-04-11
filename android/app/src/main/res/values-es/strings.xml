@@ -18,6 +18,11 @@
     <string name="auto_connect">Conexión automática</string>
     <string name="auto_connect_footer">Al iniciarse la aplicación, se conecta automáticamente a un servidor.</string>
     <string name="back">Volver</string>
+    <string name="block_ads_title">Anuncios</string>
+    <string name="block_adult_content_title">Contenido para adultos</string>
+    <string name="block_gambling_title">Juegos de azar</string>
+    <string name="block_malware_title">Malware</string>
+    <string name="block_trackers_title">Rastreadores</string>
     <string name="blocked_connection">CONEXIÓN BLOQUEADA</string>
     <string name="blocking_all_connections">Bloqueando todas las conexiones</string>
     <string name="blocking_internet">Internet bloqueado</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Creando cuenta…</string>
     <string name="creating_secure_connection">CREANDO CONEXIÓN SEGURA</string>
     <string name="critical_error">Error crítico (precisa su atención)</string>
+    <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los &lt;b&gt;bloqueadores de contenido DNS&lt;/b&gt; de arriba para activar este ajuste.</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
     <string name="custom_dns_hint">Escriba la IP</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el nombre de host del servidor personalizado</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Desconectar</string>
     <string name="disconnecting">Desconectando</string>
     <string name="dismiss">Descartar</string>
+    <string name="dns_content_blockers_info">Al activar esta opción se evita que el dispositivo contacte con determinados dominios o sitios web que se sabe que distribuyen anuncios, malware, rastreadores y más.</string>
+    <string name="dns_content_blockers_subtitle">Deshabilite &lt;b&gt;%1$s&lt;/b&gt; abajo para activar estos ajustes.</string>
+    <string name="dns_content_blockers_title">Bloqueadores de contenido DNS</string>
+    <string name="dns_content_blockers_warning">Esto podría causar problemas con determinados sitios web, servicios y programas.</string>
     <string name="dont_have_an_account">¿No tiene un número de cuenta?</string>
     <string name="edit_message">Editar mensaje</string>
     <string name="enable">Habilitar</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Número de cuenta no válido</string>
     <string name="login_fail_title">Error de inicio de sesión</string>
     <string name="login_title">Iniciar sesión</string>
+    <string name="malware_info">Advertencia: El bloqueador de malware no es un antivirus y no debe considerarse como tal, tan solo es un nivel de protección adicional.</string>
     <string name="max_devices_confirm_removal_description">¿Seguro que quiere cerrar la sesión de &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Ya puede iniciar sesión en este dispositivo.</string>
     <string name="max_devices_resolved_title">¡Genial!</string>

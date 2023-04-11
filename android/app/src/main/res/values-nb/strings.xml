@@ -18,6 +18,11 @@
     <string name="auto_connect">Automatisk tilkobling</string>
     <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
     <string name="back">Tilbake</string>
+    <string name="block_ads_title">Annonser</string>
+    <string name="block_adult_content_title">Vokseninnhold</string>
+    <string name="block_gambling_title">Pengespill</string>
+    <string name="block_malware_title">Skadelig programvare</string>
+    <string name="block_trackers_title">Sporing</string>
     <string name="blocked_connection">TILKOBLING BLOKKERT</string>
     <string name="blocking_all_connections">Blokkerer alle tilkoblinger</string>
     <string name="blocking_internet">Blokkerer internettet</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">Oppretter konto ...</string>
     <string name="creating_secure_connection">OPPRETTER SIKKER TILKOBLING</string>
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
+    <string name="custom_dns_disable_mode_subtitle">Deaktiver all &lt;b&gt;DNS-innholdsblokkering&lt;/b&gt; over for å aktivere innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Angi IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vertsnavnet til den egendefinerte serveren</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">Koble fra</string>
     <string name="disconnecting">Kobler fra</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
+    <string name="dns_content_blockers_subtitle">Deaktiver &lt;b&gt;%1$s&lt;/b&gt; under for å aktivere innstillingene.</string>
+    <string name="dns_content_blockers_title">DNS-innholdsblokkering</string>
+    <string name="dns_content_blockers_warning">Dette kan føre til problemer på enkelte nettsteder, tjenester og programmer.</string>
     <string name="dont_have_an_account">Har du ikke et kontonummer?</string>
     <string name="edit_message">Rediger melding</string>
     <string name="enable">Aktiver</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">Ugyldig kontonummer</string>
     <string name="login_fail_title">Kunne ikke logge inn</string>
     <string name="login_title">Logg inn</string>
+    <string name="malware_info">Advarsel: Blokkeringen av skadelig programvare er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse.</string>
     <string name="max_devices_confirm_removal_description">Vil du virkelig logge av &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Du kan nå fortsette med å logge på denne enheten.</string>
     <string name="max_devices_resolved_title">Supert!</string>

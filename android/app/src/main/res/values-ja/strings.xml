@@ -18,6 +18,11 @@
     <string name="auto_connect">自動接続</string>
     <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
     <string name="back">戻る</string>
+    <string name="block_ads_title">広告</string>
+    <string name="block_adult_content_title">アダルトコンテンツ</string>
+    <string name="block_gambling_title">ギャンブル</string>
+    <string name="block_malware_title">マルウェア</string>
+    <string name="block_trackers_title">トラッカー</string>
     <string name="blocked_connection">ブロックされた接続</string>
     <string name="blocking_all_connections">すべての接続をブロックしています</string>
     <string name="blocking_internet">インターネットをブロック中</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
+    <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、すべての&lt;b&gt;DNSコンテンツブロッカー&lt;/b&gt;を無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
     <string name="custom_tunnel_host_resolution_error">カスタムサーバーのホスト名を解決できませんでした</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">接続解除</string>
     <string name="disconnecting">接続解除中</string>
     <string name="dismiss">閉じる</string>
+    <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>
+    <string name="dns_content_blockers_subtitle">これらの設定を有効にするには、以下で&lt;b&gt;%1$s&lt;/b&gt;を無効にしてください。</string>
+    <string name="dns_content_blockers_title">DNSコンテンツブロッカー</string>
+    <string name="dns_content_blockers_warning">これにより、特定のWebサイト、サービス、プログラムで問題が発生する可能性があります。</string>
     <string name="dont_have_an_account">アカウント番号を持っていませんか？</string>
     <string name="edit_message">メッセージを編集する</string>
     <string name="enable">有効にする</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">アカウント番号が正しくありません</string>
     <string name="login_fail_title">ログインに失敗しました</string>
     <string name="login_title">ログイン</string>
+    <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
     <string name="max_devices_confirm_removal_description">本当に&lt;b&gt;%1$s&lt;/b&gt;をログアウトしますか？</string>
     <string name="max_devices_resolved_description">このデバイスでログインを続けられるようになりました。</string>
     <string name="max_devices_resolved_title">素晴らしい！</string>

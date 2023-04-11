@@ -32,7 +32,11 @@ class SettingsRepository(
             .onStart { serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
 
-    fun setDnsOptions(isCustomDnsEnabled: Boolean, dnsList: List<InetAddress>) {
+    fun setDnsOptions(
+        isCustomDnsEnabled: Boolean,
+        dnsList: List<InetAddress>,
+        contentBlockersOptions: DefaultDnsOptions
+    ) {
         serviceConnectionManager
             .customDns()
             ?.setDnsOptions(
@@ -40,7 +44,7 @@ class SettingsRepository(
                     DnsOptions(
                         state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
                         customOptions = CustomDnsOptions(ArrayList(dnsList)),
-                        defaultOptions = DefaultDnsOptions()
+                        defaultOptions = contentBlockersOptions
                     )
             )
     }

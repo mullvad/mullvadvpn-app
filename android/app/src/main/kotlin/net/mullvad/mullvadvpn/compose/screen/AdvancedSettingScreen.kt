@@ -3,8 +3,10 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +16,10 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,16 +31,21 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
-import net.mullvad.mullvadvpn.compose.cell.CustomDnsComposeCell
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
+import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
+import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
@@ -59,12 +70,20 @@ private fun PreviewAdvancedSettings() {
         onCancelMtuDialogClicked = {},
         onSplitTunnelingNavigationClick = {},
         onToggleDnsClick = {},
+        onToggleBlockAds = {},
+        onToggleBlockTrackers = {},
+        onToggleBlockMalware = {},
+        onToggleBlockAdultContent = {},
+        onToggleBlockGambling = {},
         onDnsClick = {},
         onDnsInputChange = {},
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
-        onBackClick = {},
+        onContentsBlockersInfoClicked = {},
+        onMalwareInfoClicked = {},
+        onDismissInfoClicked = {},
+        onBackClick = {}
     )
 }
 
@@ -80,11 +99,19 @@ fun AdvancedSettingScreen(
     onCancelMtuDialogClicked: () -> Unit = {},
     onSplitTunnelingNavigationClick: () -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
+    onToggleBlockAds: (Boolean) -> Unit = {},
+    onToggleBlockTrackers: (Boolean) -> Unit = {},
+    onToggleBlockMalware: (Boolean) -> Unit = {},
+    onToggleBlockAdultContent: (Boolean) -> Unit = {},
+    onToggleBlockGambling: (Boolean) -> Unit = {},
     onDnsClick: (index: Int?) -> Unit = {},
     onDnsInputChange: (String) -> Unit = {},
     onSaveDnsClick: () -> Unit = {},
     onRemoveDnsClick: () -> Unit = {},
     onCancelDnsDialogClick: () -> Unit = {},
+    onContentsBlockersInfoClicked: () -> Unit = {},
+    onMalwareInfoClicked: () -> Unit = {},
+    onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
@@ -107,8 +134,14 @@ fun AdvancedSettingScreen(
                 onIpAddressChanged = { onDnsInputChange(it) },
                 onAttemptToSave = { onSaveDnsClick() },
                 onRemove = { onRemoveDnsClick() },
-                onDismiss = { onCancelDnsDialogClick() },
+                onDismiss = { onCancelDnsDialogClick() }
             )
+        }
+        is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
+            ContentBlockersInfoDialog(onDismissInfoClicked)
+        }
+        is AdvancedSettingsUiState.MalwareInfoDialogUiState -> {
+            MalwareInfoDialog(onDismissInfoClicked)
         }
         else -> {
             // NOOP
@@ -116,9 +149,9 @@ fun AdvancedSettingScreen(
     }
 
     val lazyListState = rememberLazyListState()
+    var expandContentBlockersState by remember { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
-
     CollapsingToolbarTheme {
         val state = rememberCollapsingToolbarScaffoldState()
         val progress = state.toolbarState.progress
@@ -141,7 +174,7 @@ fun AdvancedSettingScreen(
                     title = stringResource(id = R.string.settings_advanced),
                     progress = progress,
                     modifier = scaffoldModifier,
-                    backTitle = stringResource(id = R.string.settings),
+                    backTitle = stringResource(id = R.string.settings)
                 )
             }
         ) {
@@ -155,20 +188,94 @@ fun AdvancedSettingScreen(
             ) {
                 item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
 
-                item {
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.split_tunneling),
                         onClick = { onSplitTunnelingNavigationClick.invoke() }
                     )
-                    Divider()
+                }
+
+                itemWithDivider {
+                    ExpandableComposeCell(
+                        title = stringResource(R.string.dns_content_blockers_title),
+                        isExpanded = !expandContentBlockersState,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onInfoClicked = { onContentsBlockersInfoClicked() },
+                        onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
+                    )
+                }
+
+                if (expandContentBlockersState) {
+                    itemWithDivider {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.block_ads_title),
+                            isToggled = uiState.contentBlockersOptions.blockAds,
+                            isEnabled = !uiState.isCustomDnsEnabled,
+                            onCellClicked = { onToggleBlockAds(it) },
+                            background = MullvadBlue20
+                        )
+                    }
+                    itemWithDivider {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.block_trackers_title),
+                            isToggled = uiState.contentBlockersOptions.blockTrackers,
+                            isEnabled = !uiState.isCustomDnsEnabled,
+                            onCellClicked = { onToggleBlockTrackers(it) },
+                            background = MullvadBlue20
+                        )
+                    }
+                    itemWithDivider {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.block_malware_title),
+                            isToggled = uiState.contentBlockersOptions.blockMalware,
+                            isEnabled = !uiState.isCustomDnsEnabled,
+                            onCellClicked = { onToggleBlockMalware(it) },
+                            onInfoClicked = { onMalwareInfoClicked() },
+                            background = MullvadBlue20
+                        )
+                    }
+                    itemWithDivider {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.block_gambling_title),
+                            isToggled = uiState.contentBlockersOptions.blockGambling,
+                            isEnabled = !uiState.isCustomDnsEnabled,
+                            onCellClicked = { onToggleBlockGambling(it) },
+                            background = MullvadBlue20
+                        )
+                    }
+                    itemWithDivider {
+                        SwitchComposeCell(
+                            title = stringResource(R.string.block_adult_content_title),
+                            isToggled = uiState.contentBlockersOptions.blockAdultContent,
+                            isEnabled = !uiState.isCustomDnsEnabled,
+                            onCellClicked = { onToggleBlockAdultContent(it) },
+                            background = MullvadBlue20
+                        )
+                    }
+                }
+
+                if (uiState.isCustomDnsEnabled) {
+                    item {
+                        ContentBlockersDisableModeCellSubtitle(
+                            Modifier.background(MullvadDarkBlue)
+                                .padding(
+                                    start = cellHorizontalSpacing,
+                                    top = topPadding,
+                                    end = cellHorizontalSpacing,
+                                    bottom = cellVerticalSpacing,
+                                )
+                        )
+                    }
                 }
 
                 item {
-                    CustomDnsComposeCell(
-                        checkboxDefaultState = uiState.isCustomDnsEnabled,
-                        onToggle = { newValue -> onToggleDnsClick(newValue) }
+                    Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                    SwitchComposeCell(
+                        title = stringResource(R.string.enable_custom_dns),
+                        isToggled = uiState.isCustomDnsEnabled,
+                        isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                        onCellClicked = { newValue -> onToggleDnsClick(newValue) }
                     )
-                    Divider()
                 }
 
                 if (uiState.isCustomDnsEnabled) {
@@ -178,18 +285,18 @@ fun AdvancedSettingScreen(
                             isUnreachableLocalDnsWarningVisible =
                                 item.isLocal && uiState.isAllowLanEnabled.not(),
                             onClick = { onDnsClick(index) },
-                            modifier = Modifier.animateItemPlacement(),
+                            modifier = Modifier.animateItemPlacement()
                         )
                         Divider()
                     }
 
-                    item {
+                    itemWithDivider {
                         BaseCell(
                             onCellClicked = { onDnsClick(null) },
                             title = {
                                 Text(
                                     text = stringResource(id = R.string.add_a_server),
-                                    color = Color.White
+                                    color = Color.White,
                                 )
                             },
                             bodyView = {},
@@ -197,19 +304,21 @@ fun AdvancedSettingScreen(
                             background = MullvadBlue20,
                             startPadding = biggerPadding
                         )
-                        Divider()
                     }
                 }
 
                 item {
                     CustomDnsCellSubtitle(
-                        Modifier.background(MullvadDarkBlue)
-                            .padding(
-                                start = cellHorizontalSpacing,
-                                top = topPadding,
-                                end = cellHorizontalSpacing,
-                                bottom = cellVerticalSpacing
-                            )
+                        isCellClickable =
+                            uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                        modifier =
+                            Modifier.background(MullvadDarkBlue)
+                                .padding(
+                                    start = cellHorizontalSpacing,
+                                    top = topPadding,
+                                    end = cellHorizontalSpacing,
+                                    bottom = cellVerticalSpacing
+                                )
                     )
                 }
             }

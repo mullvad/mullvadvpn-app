@@ -18,6 +18,11 @@
     <string name="auto_connect">自動連線</string>
     <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
     <string name="back">返回</string>
+    <string name="block_ads_title">廣告</string>
+    <string name="block_adult_content_title">成人內容</string>
+    <string name="block_gambling_title">賭博</string>
+    <string name="block_malware_title">惡意軟體</string>
+    <string name="block_trackers_title">追蹤程式</string>
     <string name="blocked_connection">被封鎖的連線</string>
     <string name="blocking_all_connections">正在封鎖所有連線</string>
     <string name="blocking_internet">正在封鎖網路</string>
@@ -41,6 +46,7 @@
     <string name="creating_new_account">正在建立帳戶…</string>
     <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
+    <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;DNS 內容封鎖程式&lt;/b&gt;，以便啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂伺服器的主機名稱</string>
@@ -51,6 +57,10 @@
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>
+    <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
+    <string name="dns_content_blockers_subtitle">停用下方的 &lt;b&gt;%1$s&lt;/b&gt; 以啟動這些設定。</string>
+    <string name="dns_content_blockers_title">DNS 內容封鎖程式</string>
+    <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和程式出現問題。</string>
     <string name="dont_have_an_account">沒有帳號？</string>
     <string name="edit_message">編輯訊息</string>
     <string name="enable">啟用</string>
@@ -89,6 +99,7 @@
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
+    <string name="malware_info">警告：惡意軟體封鎖程式並非防毒軟體，只是提供了一層額外保護，不應將其視為防毒軟體。</string>
     <string name="max_devices_confirm_removal_description">確定要將 &lt;b&gt;%1$s&lt;/b&gt; 登出嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
