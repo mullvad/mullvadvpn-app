@@ -16,6 +16,9 @@ extension REST {
     /// Default API endpoint.
     public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.223.196:443")!
 
+    /// Disables API IP address cache when in staging environment and sticks to using default API endpoint instead.
+    public static let isStagingEnvironment = false
+
     /// Default network timeout for API requests.
     public static let defaultAPINetworkTimeout: TimeInterval = 10
 }

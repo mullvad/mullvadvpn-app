@@ -112,7 +112,7 @@ extension REST {
                 return
             }
 
-            let endpoint = addressCacheStore.getCurrentEndpoint()
+            let endpoint = REST.isStagingEnvironment ? REST.defaultAPIEndpoint : addressCacheStore.getCurrentEndpoint()
 
             do {
                 let request = try requestHandler.createURLRequest(
@@ -211,7 +211,9 @@ extension REST {
                     break
 
                 default:
-                    _ = addressCacheStore.selectNextEndpoint(endpoint)
+                    if !REST.isStagingEnvironment {
+                        _ = addressCacheStore.selectNextEndpoint(endpoint)
+                    }
                 }
             }
 
