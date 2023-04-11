@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- Add DNS content blockers.
+
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
 
