@@ -16,6 +16,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,10 +24,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -58,11 +63,11 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 private fun PreviewAdvancedSettings() {
     AdvancedSettingScreen(
         uiState =
-            AdvancedSettingsUiState.DefaultUiState(
-                mtu = "1337",
-                isCustomDnsEnabled = true,
-                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false))
-            ),
+        AdvancedSettingsUiState.DefaultUiState(
+            mtu = "1337",
+            isCustomDnsEnabled = true,
+            customDnsItems = listOf(CustomDnsItem("0.0.0.0", false))
+        ),
         onMtuCellClick = {},
         onMtuInputChange = {},
         onSaveMtuClick = {},
@@ -91,6 +96,7 @@ private fun PreviewAdvancedSettings() {
 @ExperimentalMaterialApi
 @Composable
 fun AdvancedSettingScreen(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     uiState: AdvancedSettingsUiState,
     onMtuCellClick: () -> Unit = {},
     onMtuInputChange: (String) -> Unit = {},
@@ -112,7 +118,8 @@ fun AdvancedSettingScreen(
     onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
     onDismissInfoClicked: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onStopEvent: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -178,12 +185,23 @@ fun AdvancedSettingScreen(
                 )
             }
         ) {
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        onStopEvent()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
             LazyColumn(
                 modifier =
-                    Modifier.drawVerticalScrollbar(lazyListState)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .animateContentSize(),
+                Modifier.drawVerticalScrollbar(lazyListState)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .animateContentSize(),
                 state = lazyListState
             ) {
                 item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
@@ -283,7 +301,7 @@ fun AdvancedSettingScreen(
                         DnsCell(
                             address = item.address,
                             isUnreachableLocalDnsWarningVisible =
-                                item.isLocal && uiState.isAllowLanEnabled.not(),
+                            item.isLocal && uiState.isAllowLanEnabled.not(),
                             onClick = { onDnsClick(index) },
                             modifier = Modifier.animateItemPlacement()
                         )
@@ -310,15 +328,15 @@ fun AdvancedSettingScreen(
                 item {
                     CustomDnsCellSubtitle(
                         isCellClickable =
-                            uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                        uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
                         modifier =
-                            Modifier.background(MullvadDarkBlue)
-                                .padding(
-                                    start = cellHorizontalSpacing,
-                                    top = topPadding,
-                                    end = cellHorizontalSpacing,
-                                    bottom = cellVerticalSpacing
-                                )
+                        Modifier.background(MullvadDarkBlue)
+                            .padding(
+                                start = cellHorizontalSpacing,
+                                top = topPadding,
+                                end = cellHorizontalSpacing,
+                                bottom = cellVerticalSpacing
+                            )
                     )
                 }
             }
