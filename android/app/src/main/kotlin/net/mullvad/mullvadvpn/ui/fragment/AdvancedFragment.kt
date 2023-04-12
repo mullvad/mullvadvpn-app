@@ -46,7 +46,8 @@ class AdvancedFragment : BaseFragment() {
                     onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
                     onMalwareInfoClicked = vm::onMalwareInfoClick,
                     onDismissInfoClicked = vm::onDismissInfoClick,
-                    onBackClick = { activity?.onBackPressed() }
+                    onBackClick = { activity?.onBackPressed() },
+                    onStopEvent = vm::onStopEvent
                 )
             }
         }

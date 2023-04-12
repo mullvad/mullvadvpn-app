@@ -192,14 +192,7 @@ class AdvancedSettingsViewModel(
             hideDialog()
         }
 
-    fun onToggleDnsClick(isEnabled: Boolean) =
-        viewModelScope.launch(dispatcher) {
-            repository.setDnsOptions(
-                isEnabled,
-                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
-                contentBlockersOptions = vmState.value.contentBlockersOptions
-            )
-        }
+    fun onToggleDnsClick(isEnabled: Boolean) = updateCustomDnsState(isEnabled)
 
     fun onToggleBlockAds(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
@@ -250,6 +243,12 @@ class AdvancedSettingsViewModel(
             )
             hideDialog()
         }
+
+    fun onStopEvent() {
+        if (vmState.value.customDnsList.isEmpty()) {
+            updateCustomDnsState(false)
+        }
+    }
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
@@ -303,6 +302,16 @@ class AdvancedSettingsViewModel(
 
     private fun InetAddress.isLocalAddress(): Boolean {
         return isLinkLocalAddress || isSiteLocalAddress
+    }
+
+    private fun updateCustomDnsState(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository.setDnsOptions(
+                isEnabled,
+                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
+                contentBlockersOptions = vmState.value.contentBlockersOptions
+            )
+        }
     }
 
     companion object {

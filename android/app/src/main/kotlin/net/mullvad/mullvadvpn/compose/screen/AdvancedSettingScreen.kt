@@ -16,6 +16,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,10 +24,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -91,6 +96,7 @@ private fun PreviewAdvancedSettings() {
 @ExperimentalMaterialApi
 @Composable
 fun AdvancedSettingScreen(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     uiState: AdvancedSettingsUiState,
     onMtuCellClick: () -> Unit = {},
     onMtuInputChange: (String) -> Unit = {},
@@ -112,7 +118,8 @@ fun AdvancedSettingScreen(
     onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
     onDismissInfoClicked: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onStopEvent: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -178,6 +185,15 @@ fun AdvancedSettingScreen(
                 )
             }
         ) {
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        onStopEvent()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            }
             LazyColumn(
                 modifier =
                     Modifier.drawVerticalScrollbar(lazyListState)
