@@ -51,20 +51,21 @@ fun SwitchComposeCell(
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val alpha = if (isEnabled) AlphaActive else AlphaInactive
-    val titleModifier = Modifier.alpha(alpha)
-    val bodyViewModifier = Modifier.alpha(alpha)
     val subtitleModifier = Modifier
 
     BaseCell(
-        title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        title = {
+            SwitchCellTitle(
+                title = title,
+                modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
+            )
+        },
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
                 onSwitchClicked = null,
                 isEnabled = isEnabled,
                 isToggled = isToggled,
-                modifier = bodyViewModifier,
                 onInfoClicked = onInfoClicked
             )
         },
@@ -91,7 +92,7 @@ fun SwitchCellTitle(title: String, modifier: Modifier) {
 fun SwitchCellView(
     isEnabled: Boolean,
     isToggled: Boolean,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onSwitchClicked: ((Boolean) -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null
 ) {
