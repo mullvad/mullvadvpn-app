@@ -101,7 +101,10 @@ class AdvancedSettingsViewModel(
     fun onDnsClick(index: Int? = null) {
         val stagedDns =
             if (index == null) {
-                StagedDns.NewDns(CustomDnsItem.default())
+                StagedDns.NewDns(
+                    item = CustomDnsItem.default(),
+                    validationResult = StagedDns.ValidationResult.InvalidAddress
+                )
             } else {
                 vmState.value.customDnsList.getOrNull(index)?.let { listItem ->
                     StagedDns.EditDns(item = listItem, index = index)
