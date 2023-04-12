@@ -1644,7 +1644,7 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Enter…"
+msgid "Enter MTU"
 msgstr ""
 
 msgid "Excluded applications"
