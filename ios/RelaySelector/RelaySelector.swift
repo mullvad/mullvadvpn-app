@@ -130,7 +130,7 @@ public enum RelaySelector {
             let endPort = inputRange[1]
 
             if startPort <= endPort {
-                return (startPort ... endPort)
+                return startPort ... endPort
             } else {
                 return nil
             }
