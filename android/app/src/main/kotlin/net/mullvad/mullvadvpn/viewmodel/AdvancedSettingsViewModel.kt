@@ -32,16 +32,16 @@ class AdvancedSettingsViewModel(
 
     private val vmState =
         combine(repository.settingsUpdates, dialogState) { settings, dialogState ->
-                AdvancedSettingsViewModelState(
-                    mtuValue = settings?.mtuString() ?: "",
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
-                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    contentBlockersOptions = settings?.contentBlockersSettings()
-                            ?: DefaultDnsOptions(),
-                    isAllowLanEnabled = settings?.allowLan ?: false,
-                    dialogState = dialogState
-                )
-            }
+            AdvancedSettingsViewModelState(
+                mtuValue = settings?.mtuString() ?: "",
+                isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                contentBlockersOptions = settings?.contentBlockersSettings()
+                    ?: DefaultDnsOptions(),
+                isAllowLanEnabled = settings?.allowLan ?: false,
+                dialogState = dialogState
+            )
+        }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
@@ -133,26 +133,26 @@ class AdvancedSettingsViewModel(
 
             return@update AdvancedSettingsDialogState.DnsDialog(
                 stagedDns =
-                    if (dialog.stagedDns is StagedDns.EditDns) {
-                        StagedDns.EditDns(
-                            item =
-                                CustomDnsItem(
-                                    address = ipAddress,
-                                    isLocal = ipAddress.isLocalAddress()
-                                ),
-                            validationResult = error,
-                            index = dialog.stagedDns.index
-                        )
-                    } else {
-                        StagedDns.NewDns(
-                            item =
-                                CustomDnsItem(
-                                    address = ipAddress,
-                                    isLocal = ipAddress.isLocalAddress()
-                                ),
-                            validationResult = error
-                        )
-                    }
+                if (dialog.stagedDns is StagedDns.EditDns) {
+                    StagedDns.EditDns(
+                        item =
+                        CustomDnsItem(
+                            address = ipAddress,
+                            isLocal = ipAddress.isLocalAddress()
+                        ),
+                        validationResult = error,
+                        index = dialog.stagedDns.index
+                    )
+                } else {
+                    StagedDns.NewDns(
+                        item =
+                        CustomDnsItem(
+                            address = ipAddress,
+                            isLocal = ipAddress.isLocalAddress()
+                        ),
+                        validationResult = error
+                    )
+                }
             )
         }
     }
@@ -303,6 +303,12 @@ class AdvancedSettingsViewModel(
 
     private fun InetAddress.isLocalAddress(): Boolean {
         return isLinkLocalAddress || isSiteLocalAddress
+    }
+
+    fun onExitScreen() {
+        if (vmState.value.customDnsList.isEmpty()) {
+            onToggleDnsClick(false)
+        }
     }
 
     companion object {
