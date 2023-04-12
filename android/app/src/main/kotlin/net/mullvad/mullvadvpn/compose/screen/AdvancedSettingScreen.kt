@@ -252,19 +252,19 @@ fun AdvancedSettingScreen(
                             background = MullvadBlue20
                         )
                     }
-                }
 
-                if (uiState.isCustomDnsEnabled) {
-                    item {
-                        ContentBlockersDisableModeCellSubtitle(
-                            Modifier.background(MullvadDarkBlue)
-                                .padding(
-                                    start = cellHorizontalSpacing,
-                                    top = topPadding,
-                                    end = cellHorizontalSpacing,
-                                    bottom = cellVerticalSpacing,
-                                )
-                        )
+                    if (uiState.isCustomDnsEnabled) {
+                        item {
+                            ContentBlockersDisableModeCellSubtitle(
+                                Modifier.background(MullvadDarkBlue)
+                                    .padding(
+                                        start = cellHorizontalSpacing,
+                                        top = topPadding,
+                                        end = cellHorizontalSpacing,
+                                        bottom = cellVerticalSpacing,
+                                    )
+                            )
+                        }
                     }
                 }
 
