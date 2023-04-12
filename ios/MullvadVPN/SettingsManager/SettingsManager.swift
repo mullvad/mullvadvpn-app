@@ -130,7 +130,7 @@ enum SettingsManager {
         let handleCompletion = { (result: SettingsMigrationResult) in
             // Reset store upon failure to migrate settings.
             if case .failure = result {
-                self.resetStore()
+                resetStore()
             }
             completion(result)
         }

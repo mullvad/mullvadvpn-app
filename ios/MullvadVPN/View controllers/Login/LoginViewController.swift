@@ -141,8 +141,7 @@ class LoginViewController: UIViewController, RootContainment {
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated
         // button to dismiss the keyboard.
         if case .phone = UIDevice.current.userInterfaceIdiom {
-            contentView.accountInputGroup.textField.inputAccessoryView = self
-                .accountInputAccessoryToolbar
+            contentView.accountInputGroup.textField.inputAccessoryView = accountInputAccessoryToolbar
         } else {
             contentView.accountInputGroup.textField.inputAccessoryView = nil
         }
