@@ -202,6 +202,7 @@ const config = {
 
   rpm: {
     fpm: [
+      '--rpm-rpmbuild-define=_build_id_links none',
       '--directories=/opt/Mullvad VPN/',
       '--before-install',
       distAssets('linux/before-install.sh'),
