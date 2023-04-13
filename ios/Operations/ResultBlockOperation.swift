@@ -88,7 +88,7 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
 
     public func addCancellationBlock(_ block: @escaping () -> Void) {
         dispatchQueue.async {
-            if self.isCancelled {
+            if self.isCancelled, self.isExecuting {
                 block()
             } else {
                 self.cancellationBlocks.append(block)
