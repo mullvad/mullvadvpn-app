@@ -90,6 +90,16 @@ class AccountTokenInputTests: XCTestCase {
         XCTAssertEqual(input.formattedString, "1234 0000")
         XCTAssertEqual(input.caretPosition, 9)
     }
+
+    func testInvalidCharactersReplacesTextFieldTextWithFormattedString() {
+        let input = AccountTokenInput(string: kSampleToken)
+        let invalidRange = NSRange(location: 5, length: 0)
+        let textField = UITextField()
+
+        _ = input.textField(textField, shouldChangeCharactersIn: invalidRange, replacementString: "")
+
+        XCTAssertEqual(textField.text, input.formattedString)
+    }
 }
 
 private extension String {

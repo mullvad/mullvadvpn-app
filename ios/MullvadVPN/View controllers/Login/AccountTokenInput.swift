@@ -149,7 +149,13 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
         replacementString string: String
     ) -> Bool {
         let emptySelection = textField.selectedTextRange?.isEmpty ?? false
-        let stringRange = Range(range, in: formattedString)!
+
+        // Certain characters such as a backtick can pass through the textField, and appear as an empty string, with a
+        // range outside of the boundaries of the `formattedString`. Such characters are ignored.
+        guard let stringRange = Range(range, in: formattedString) else {
+            updateTextField(textField, notifyDelegate: true)
+            return false
+        }
 
         replaceCharacters(
             in: stringRange,
@@ -177,7 +183,7 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
         let length = textField.offset(from: textRange.start, to: textRange.end)
         let nsRange = NSRange(location: location, length: length)
 
-        let stringRange = Range(nsRange, in: formattedString)!
+        guard let stringRange = Range(nsRange, in: formattedString) else { return textRange }
 
         replaceCharacters(
             in: stringRange,
