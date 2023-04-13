@@ -73,21 +73,19 @@ extension Tunnel {
             completionHandler: completionHandler
         )
 
-        operation.addBlockObserver(
-            OperationBlockObserver(didCancel: { [weak self] _ in
-                guard let self = self else { return }
+        operation.onCancel { [weak self] _ in
+            guard let self = self else { return }
 
-                let cancelOperation = SendTunnelProviderMessageOperation(
-                    dispatchQueue: dispatchQueue,
-                    application: .shared,
-                    tunnel: self,
-                    message: .cancelURLRequest(proxyRequest.id),
-                    completionHandler: nil
-                )
+            let cancelOperation = SendTunnelProviderMessageOperation(
+                dispatchQueue: dispatchQueue,
+                application: .shared,
+                tunnel: self,
+                message: .cancelURLRequest(proxyRequest.id),
+                completionHandler: nil
+            )
 
-                operationQueue.addOperation(cancelOperation)
-            })
-        )
+            operationQueue.addOperation(cancelOperation)
+        }
 
         operationQueue.addOperation(operation)
 

@@ -73,11 +73,9 @@ private final class ExclusivityManager {
 
             operationsByCategory[category] = operations
 
-            let blockObserver = OperationBlockObserver(didFinish: { [weak self] op, error in
+            operation.onFinish { [weak self] op, error in
                 self?.removeOperation(op, categories: categories)
-            })
-
-            operation.addObserver(blockObserver)
+            }
         }
     }
 
