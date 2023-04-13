@@ -51,7 +51,8 @@ export default class NotificationController {
   private dismissedNotifications: Set<SystemNotification> = new Set();
   private throttledNotifications: Map<SystemNotification, Scheduler> = new Map();
 
-  private notificationTitle = process.platform === 'linux' ? app.name : '';
+  private notificationTitle =
+    process.platform === 'linux' && process.env.NODE_ENV !== 'test' ? app.name : '';
   private notificationIcon?: NativeImage;
 
   constructor(private notificationControllerDelegate: NotificationControllerDelegate) {
