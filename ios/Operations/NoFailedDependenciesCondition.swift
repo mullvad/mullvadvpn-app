@@ -24,11 +24,15 @@ public final class NoFailedDependenciesCondition: OperationCondition {
 
     public func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void) {
         let satisfy = operation.dependencies.allSatisfy { operation in
-            if let operation = operation as? AsyncOperation, operation.error != nil {
+            let operationError = (operation as? AsyncOperation)?.error
+            let isCancellationError = operationError?.isOperationCancellationError ?? false
+
+            if operationError != nil, !isCancellationError {
                 return false
             }
 
-            if operation.isCancelled, !self.ignoreCancellations {
+            // Treat OperationError.cancelled and isCancelled equally.
+            if operation.isCancelled || isCancellationError, !self.ignoreCancellations {
                 return false
             }
 
