@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြားအက်ပ်တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
-    <string name="auth_failed">အကောင့် စစ်မှန်ကြောင်း သက်သေပြမှု မအောင်မြင်ပါ။</string>
+    <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
     <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="back">နောက်သို့</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">မဲလ်ဝဲရ်</string>
     <string name="block_trackers_title">ခြေရာခံများ</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
-    <string name="blocking_all_connections">ချိတ်ဆက်မှု အားလုံးကို ပိတ်ဆို့ထားပါသည်</string>
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ပါ &lt;b&gt;DNS content blockers&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
-    <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
+    <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="device_inactive_description">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</string>
     <string name="device_inactive_title">စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ</string>
     <string name="device_inactive_unblock_warning">ဝင်ရောက်ရန်သွားခြင်းဖြင့် ဤစက်တွင် အင်တာနက်ကို ပိတ်ဆို့ထားမှုမှ ဖယ်ရှားပါလိမ့်မည်။</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</string>
     <string name="error_state">ချိတ်ဆက်မှုကို ကာကွယ်ရန် မအောင်မြင်ပါ</string>
     <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ထားပြီး</string>
-    <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။</string>
+    <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_fetch_devices">စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_remove_device">စက်ကို ဖယ်ရှားရန် မအောင်မြင်ခဲ့ပါ</string>
@@ -85,8 +84,8 @@
     <string name="in_address">အဝင်</string>
     <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %1$s မှားနေပါသည်</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
-    <string name="ipv6_unavailable">IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ</string>
-    <string name="is_offline">ဤစက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်၊ Tunnel များ ဖန်တီး၍ မရနိုင်ပါ</string>
+    <string name="ipv6_unavailable">IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ။ အက်ပ်တွင် ၎င်းကို ပိတ်ပါ သို့မဟုတ် သင့်စက်တွင် ၎င်းကို ဖွင့်ပါ။</string>
+    <string name="is_offline">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="less_than_a_day_left">တစ်ရက်အောက်သာ ကျန်တော့သည်</string>
     <string name="less_than_a_minute_ago">လွန်ခဲ့သော စက္ကန့်ပိုင်း</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
     <string name="mullvad_account_number">Mullvad အကောင့်နံပါတ်</string>
-    <string name="no_matching_bridge_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ပေါင်းကူး ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
-    <string name="no_matching_relay">လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ထပ်ဆင့်ဆာဗာ မရှိပါ</string>
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_blocking_internet">ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်</string>
     <string name="out_address">အထွက်</string>
@@ -131,8 +128,7 @@
     <string name="sent">ပို့ပြီး</string>
     <string name="sent_contact">လိုအပ်ပါက %1$s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</string>
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
-    <string name="set_dns_error">စနစ် DNS ဆာဗာ သတ်မှတ်ချိန်ညှိရန် မအောင်မြင်ပါ</string>
-    <string name="set_firewall_policy_error">Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။ စက်သည် လက်ရှိ၌ မလုံခြုံနိုင်ပါ</string>
+    <string name="set_dns_error">စနစ် DNS ဆာဗာကို သတ်မှတ်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="settings">ဆက်တင်</string>
     <string name="settings_account">အကောင့်</string>
     <string name="settings_advanced">အဆင့်မြင့်</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">အကောင့်နံပါတ်ကို ပြရန်</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">Split Tunneling သည် VPN Tunnel မှတစ်ဆင့် လမ်းကြောင်းအတိုင်း မပို့သင့်သည့် အက်ပ်များကို ရွေးချယ်နိုင်ပါသည်။</string>
-    <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်ရန် မအောင်မြင်ခဲ့ပါ</string>
+    <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">မလုံခြုံပါ</string>
     <string name="unsecured_connection">မလုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
-    <string name="unsupported_version_description">သင်သည် တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းကို သုံးနေပါသည်။ သင့်လုံခြုံရေးအတွက် ယခုပင် %1$s အထိ အဆင့်မြှင့်တင်ပေးပါ</string>
+    <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
     <string name="unsupported_version_without_upgrade">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။</string>
     <string name="update_available">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</string>
     <string name="update_available_description">အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%1$s) ကို ထည့်သွင်းပါ</string>

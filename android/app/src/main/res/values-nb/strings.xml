@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
     <string name="app_version">Appversjon</string>
-    <string name="auth_failed">Autentisering av konto mislykket.</string>
+    <string name="auth_failed">Kunne ikke autentisere konto. Send inn en problemrapport.</string>
     <string name="auto_connect">Automatisk tilkobling</string>
     <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
     <string name="back">Tilbake</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Skadelig programvare</string>
     <string name="block_trackers_title">Sporing</string>
     <string name="blocked_connection">TILKOBLING BLOKKERT</string>
-    <string name="blocking_all_connections">Blokkerer alle tilkoblinger</string>
     <string name="blocking_internet">Blokkerer internettet</string>
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="buy_more_credit">Kjøp mer kreditt</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktiver all &lt;b&gt;DNS-innholdsblokkering&lt;/b&gt; over for å aktivere innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Angi IP</string>
-    <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vertsnavnet til den egendefinerte serveren</string>
+    <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Det oppstod en feil.</string>
     <string name="error_state">KUNNE IKKE OPPRETTE SIKKER TILKOBLING</string>
     <string name="exclude_applications">Ekskluder applikasjoner</string>
-    <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
+    <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Feilsøk eller send inn en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
     <string name="failed_to_remove_device">Kunne ikke fjerne enhet</string>
@@ -85,8 +84,8 @@
     <string name="in_address">Inngående</string>
     <string name="invalid_dns_servers">Egendefinerte DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
-    <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6</string>
-    <string name="is_offline">Enheten er frakoblet. Ingen tunneler kan opprettes</string>
+    <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din.</string>
+    <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_a_minute_ago">mindre enn ett minutt siden</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
-    <string name="no_matching_bridge_relay">Ingen bro-reléserver samsvarer med de gjeldende innstillingene</string>
-    <string name="no_matching_relay">Ingen reléservere passer til innstillingene</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
     <string name="out_address">Utgående</string>
@@ -131,8 +128,7 @@
     <string name="sent">Sendt</string>
     <string name="sent_contact">Vi vil kontakte deg på %1$s ved behov</string>
     <string name="sent_thanks">Takk!</string>
-    <string name="set_dns_error">Kunne ikke angi systemets DNS-server</string>
-    <string name="set_firewall_policy_error">Kunne ikke anvende brannmurregler. Enheten kan være usikker</string>
+    <string name="set_dns_error">Kunne ikke angi DNS-server for systemet. Send inn en problemrapport.</string>
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avansert</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Tunneldeling gjør det mulig å velge hvilke applikasjoner som ikke skal rutes gjennom VPN-tunnelen.</string>
-    <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling</string>
+    <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
     <string name="switch_location">Bytt plassering</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Velg VPN</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">Usikret</string>
     <string name="unsecured_connection">USIKKER TILKOBLING</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
-    <string name="unsupported_version_description">Du kjører en appversjon som ikke er støttet. Oppdater til %1$s for å ha den beste sikkerheten</string>
+    <string name="unsupported_version_description">Personvernet ditt kan være i fare med denne appversjonen som ikke støttes. Oppdater nå.</string>
     <string name="unsupported_version_without_upgrade">Du kjører en appversjon som ikke støttes.</string>
     <string name="update_available">OPPDATERING TILGJENGELIG</string>
     <string name="update_available_description">Installer Mullvad VPN (%1$s) for å holde deg oppdatert</string>

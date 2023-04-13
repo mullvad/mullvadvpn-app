@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="app_version">Uygulama sürümü</string>
-    <string name="auth_failed">Hesap kimlik doğrulaması başarısız oldu.</string>
+    <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
     <string name="back">Geri</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Kötü amaçlı yazılım</string>
     <string name="block_trackers_title">İzleyiciler</string>
     <string name="blocked_connection">ENGELLENEN BAĞLANTI</string>
-    <string name="blocking_all_connections">Tüm bağlantılar engelleniyor</string>
     <string name="blocking_internet">İnternet bağlantısı engelleniyor</string>
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki tüm &lt;b&gt;DNS içerik engelleyicileri&lt;/b&gt; devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
-    <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
+    <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
     <string name="exclude_applications">Hariç tutulan uygulamalar</string>
-    <string name="failed_to_block_internet">Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin.</string>
+    <string name="failed_to_block_internet">Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_fetch_devices">Cihaz listesi alınamadı</string>
     <string name="failed_to_remove_device">Cihaz kaldırılamadı</string>
@@ -85,8 +84,8 @@
     <string name="in_address">Giriş</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
-    <string name="ipv6_unavailable">IPv6 yapılandırılamadı</string>
-    <string name="is_offline">Bu cihaz çevrimdışı, tünel oluşturulamaz</string>
+    <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
+    <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_a_minute_ago">bir dakikadan az</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
     <string name="mullvad_account_number">Mullvad hesap numarası</string>
-    <string name="no_matching_bridge_relay">Geçerli ayarlarla eşleşen hiçbir köprü aktarma sunucusu yok</string>
-    <string name="no_matching_relay">Geçerli ayarlarla eşleşen aktarma sunucusu yok</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
     <string name="not_blocking_internet">AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR</string>
     <string name="out_address">Çıkış</string>
@@ -131,8 +128,7 @@
     <string name="sent">Gönderildi</string>
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
-    <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor</string>
-    <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir</string>
+    <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_advanced">Gelişmiş</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Hesap numarasını göster</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar.</string>
-    <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor</string>
+    <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
-    <string name="unsupported_version_description">Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi korumak için lütfen hemen %1$s sürümüne yükseltin</string>
+    <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
     <string name="unsupported_version_without_upgrade">Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
     <string name="update_available">GÜNCELLEME MEVCUT</string>
     <string name="update_available_description">Güncel kalmak için Mullvad VPN (%1$s) yükleyin</string>

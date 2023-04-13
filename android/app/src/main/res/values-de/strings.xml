@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="app_version">App-Version</string>
-    <string name="auth_failed">Konto-Authentifizierung fehlgeschlagen.</string>
+    <string name="auth_failed">Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht.</string>
     <string name="auto_connect">Automatische Verbindung</string>
     <string name="auto_connect_footer">Stellt automatisch eine Verbindung zum Server her, wenn die App startet.</string>
     <string name="back">Zurück</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Malware</string>
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">GESPERRTE VERBINDUNG</string>
-    <string name="blocking_all_connections">Alle Verbindungen werden blockiert</string>
     <string name="blocking_internet">Internet wird gesperrt</string>
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle &lt;b&gt;DNS-Inhaltssperren&lt;/b&gt;, um diese Einstellung zu aktivieren.</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
     <string name="custom_dns_hint">IP eingeben</string>
-    <string name="custom_tunnel_host_resolution_error">Der Hostname des benutzerdefinierten Servers konnte nicht aufgelöst werden</string>
+    <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
     <string name="exclude_applications">Ausgeschlossene Anwendungen</string>
-    <string name="failed_to_block_internet">Sperren des gesamten Netzwerk-Traffics fehlgeschlagen. Bitte beheben Sie den Fehler oder melden Sie uns das Problem.</string>
+    <string name="failed_to_block_internet">Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder senden Sie einen Problembericht.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_fetch_devices">Fehler beim Abrufen der Geräteliste</string>
     <string name="failed_to_remove_device">Fehler beim Entfernen des Geräts</string>
@@ -85,8 +84,8 @@
     <string name="in_address">Eingehend</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
-    <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden</string>
-    <string name="is_offline">Diese Gerät ist offline, es können keine Tunnel aufgebaut werden</string>
+    <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden. Deaktivieren Sie es in der App oder aktivieren Sie es auf Ihrem Gerät.</string>
+    <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
     <string name="less_than_a_day_left">weniger als ein Tag übrig</string>
     <string name="less_than_a_minute_ago">vor weniger als einer Minute</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="mullvad_account_number">Mullvad-Kontonummer</string>
-    <string name="no_matching_bridge_relay">Kein Bridge-Server stimmt mit den aktuellen Einstellungen überein</string>
-    <string name="no_matching_relay">Kein Relay-Server stimmt mit den aktuellen Einstellungen überein</string>
     <string name="no_wireguard_key">Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten.</string>
     <string name="not_blocking_internet">MÖGLICHERWEISE IST IHR NETZWERKVERKEHR UNSICHER</string>
     <string name="out_address">Ausgehend</string>
@@ -131,8 +128,7 @@
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
-    <string name="set_dns_error">Fehler beim Festlegen des System-DNS-Servers</string>
-    <string name="set_firewall_policy_error">Fehler beim Anwenden der Firewall-Regeln. Das Gerät ist derzeit möglicherweise ungesichert</string>
+    <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Erweitert</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden.</string>
-    <string name="start_tunnel_error">Fehler beim Starten der Tunnel-Verbindung</string>
+    <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN umschalten</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">Ungesichert</string>
     <string name="unsecured_connection">UNGESICHERTE VERBINDUNG</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
-    <string name="unsupported_version_description">Sie führen eine nicht unterstützte Version der App aus. Bitte führen Sie jetzt ein Upgrade auf %1$s durch, um Ihre Sicherheit zu gewährleisten</string>
+    <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
     <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>
     <string name="update_available">UPDATE VERFÜGBAR</string>
     <string name="update_available_description">Installieren Sie Mullvad VPN (%1$s), um auf dem neuesten Stand zu bleiben</string>

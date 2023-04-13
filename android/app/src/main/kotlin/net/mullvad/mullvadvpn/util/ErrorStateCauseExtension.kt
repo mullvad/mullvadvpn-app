@@ -15,9 +15,9 @@ fun ErrorStateCause.errorMessageId(): Int {
         is ErrorStateCause.IsOffline -> R.string.is_offline
         is ErrorStateCause.TunnelParameterError -> {
             when (error) {
-                ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay
+                ParameterGenerationError.NoMatchingRelay,
                 ParameterGenerationError.NoMatchingBridgeRelay -> {
-                    R.string.no_matching_bridge_relay
+                    R.string.no_matching_relay
                 }
                 ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
                 ParameterGenerationError.CustomTunnelHostResultionError -> {

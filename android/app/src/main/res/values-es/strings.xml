@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar la VPN de Mullvad.</string>
     <string name="always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
     <string name="app_version">Versión de la aplicación</string>
-    <string name="auth_failed">Error de autenticación de la cuenta.</string>
+    <string name="auth_failed">No se puede autenticar la cuenta. Envíe un informe de problemas.</string>
     <string name="auto_connect">Conexión automática</string>
     <string name="auto_connect_footer">Al iniciarse la aplicación, se conecta automáticamente a un servidor.</string>
     <string name="back">Volver</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Malware</string>
     <string name="block_trackers_title">Rastreadores</string>
     <string name="blocked_connection">CONEXIÓN BLOQUEADA</string>
-    <string name="blocking_all_connections">Bloqueando todas las conexiones</string>
     <string name="blocking_internet">Internet bloqueado</string>
     <string name="buy_credit">Comprar créditos</string>
     <string name="buy_more_credit">Comprar más créditos</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los &lt;b&gt;bloqueadores de contenido DNS&lt;/b&gt; de arriba para activar este ajuste.</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
     <string name="custom_dns_hint">Escriba la IP</string>
-    <string name="custom_tunnel_host_resolution_error">No se puede resolver el nombre de host del servidor personalizado</string>
+    <string name="custom_tunnel_host_resolution_error">No se puede resolver el host del túnel personalizado. Pruebe a cambiar la configuración.</string>
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Se produjo un error.</string>
     <string name="error_state">NO SE PUDO PROTEGER LA CONEXIÓN</string>
     <string name="exclude_applications">Aplicaciones excluidas</string>
-    <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o póngase en contacto con nosotros.</string>
+    <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o envíe un informe de problemas.</string>
     <string name="failed_to_create_account">No se puede crear la cuenta</string>
     <string name="failed_to_fetch_devices">No se pudo obtener la lista de dispositivos</string>
     <string name="failed_to_remove_device">No se pudo quitar el dispositivo</string>
@@ -85,8 +84,8 @@
     <string name="in_address">Entrada</string>
     <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
     <string name="invalid_voucher">El código del cupón no es válido.</string>
-    <string name="ipv6_unavailable">No se puede configurar IPv6</string>
-    <string name="is_offline">El dispositivo está sin conexión y no puede establecerse ningún túnel</string>
+    <string name="ipv6_unavailable">No se pudo configurar IPv6. Desactívelo en la aplicación o actívelo en el dispositivo.</string>
+    <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
     <string name="less_than_a_day_left">queda menos de un día</string>
     <string name="less_than_a_minute_ago">hace menos de un minuto</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Cierre la sesión como mínimo en un dispositivo (para hacerlo, quítelo de la lista siguiente). Consulte el nombre del dispositivo en la configuración de la cuenta del dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="mullvad_account_number">Número de cuenta de Mullvad</string>
-    <string name="no_matching_bridge_relay">Ningún servidor de retransmisión de puente coincide con la configuración actual</string>
-    <string name="no_matching_relay">Ningún servidor de retransmisión coincide con la configuración actual</string>
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_blocking_internet">PUEDE QUE SE ESTÉ FILTRANDO EL TRÁFICO DE RED</string>
     <string name="out_address">Salida</string>
@@ -131,8 +128,7 @@
     <string name="sent">Enviado</string>
     <string name="sent_contact">Si es necesario, le enviaremos un correo electrónico a %1$s</string>
     <string name="sent_thanks">¡Gracias!</string>
-    <string name="set_dns_error">No se pudo establecer el servidor DNS del sistema</string>
-    <string name="set_firewall_policy_error">Error al aplicar las reglas del firewall. Puede que el dispositivo no esté protegido actualmente</string>
+    <string name="set_dns_error">No se puede configurar el servidor DNS del sistema. Envíe un informe de problemas.</string>
     <string name="settings">Configuración</string>
     <string name="settings_account">Cuenta</string>
     <string name="settings_advanced">Avanzadas</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Mostrar número de cuenta</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">La tunelización dividida permite seleccionar qué aplicaciones no deben enrutarse a través del túnel VPN.</string>
-    <string name="start_tunnel_error">No se pudo iniciar la conexión del túnel</string>
+    <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
     <string name="switch_location">Cambiar ubicación</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Alternar VPN</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">No protegido</string>
     <string name="unsecured_connection">CONEXIÓN NO SEGURA</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
-    <string name="unsupported_version_description">Ejecuta una versión no compatible de la aplicación. Actualice a %1$s ahora para garantizar su seguridad</string>
+    <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
     <string name="unsupported_version_without_upgrade">Ejecuta una versión de la aplicación que no es compatible.</string>
     <string name="update_available">ACTUALIZACIÓN DISPONIBLE</string>
     <string name="update_available_description">Instale Mullvad VPN (%1$s) para seguir actualizado</string>

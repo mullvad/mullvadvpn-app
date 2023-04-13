@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终启用 VPN”。</string>
     <string name="always_on_vpn_error_notification_title">“始终启用 VPN”已分配给其他应用</string>
     <string name="app_version">应用版本</string>
-    <string name="auth_failed">帐户身份验证失败。</string>
+    <string name="auth_failed">无法验证帐户。请发送问题报告。</string>
     <string name="auto_connect">自动连接</string>
     <string name="auto_connect_footer">在应用启动时自动连接到服务器。</string>
     <string name="back">返回</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">恶意软件</string>
     <string name="block_trackers_title">跟踪器</string>
     <string name="blocked_connection">已阻止连接</string>
-    <string name="blocking_all_connections">正在阻止所有连接</string>
     <string name="blocking_internet">正在阻止网络</string>
     <string name="buy_credit">购买额度</string>
     <string name="buy_more_credit">购买更多额度</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">禁用上方的所有 &lt;b&gt;DNS 内容阻止程序&lt;/b&gt;以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
-    <string name="custom_tunnel_host_resolution_error">无法解析自定义服务器的主机名</string>
+    <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
     <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法保护连接</string>
     <string name="exclude_applications">排除的应用程序</string>
-    <string name="failed_to_block_internet">无法阻止所有网络流量。请排查问题或向我们报告问题。</string>
+    <string name="failed_to_block_internet">无法阻止所有网络流量。请排查问题或发送问题报告。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_fetch_devices">无法获取设备列表</string>
     <string name="failed_to_remove_device">无法移除设备</string>
@@ -85,8 +84,8 @@
     <string name="in_address">内部</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
-    <string name="ipv6_unavailable">无法配置 IPv6</string>
-    <string name="is_offline">此设备已离线，无法建立隧道</string>
+    <string name="ipv6_unavailable">无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。</string>
+    <string name="is_offline">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</string>
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分钟前</string>
     <string name="local_network_sharing">本地网络共享</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
     <string name="max_devices_warning_title">设备过多</string>
     <string name="mullvad_account_number">Mullvad 帐号</string>
-    <string name="no_matching_bridge_relay">没有与当前设置匹配的桥接中继服务器</string>
-    <string name="no_matching_relay">没有与当前设置匹配的中继服务器</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>
     <string name="not_blocking_internet">您的网络流量可能在泄露</string>
     <string name="out_address">外部</string>
@@ -131,8 +128,7 @@
     <string name="sent">已发送</string>
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
     <string name="sent_thanks">谢谢！</string>
-    <string name="set_dns_error">无法设置系统 DNS 服务器</string>
-    <string name="set_firewall_policy_error">无法应用防火墙规则。设备当前可能不会受到保护</string>
+    <string name="set_dns_error">无法设置系统 DNS 服务器。请发送问题报告。</string>
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
     <string name="settings_advanced">高级</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。</string>
-    <string name="start_tunnel_error">无法启动隧道连接</string>
+    <string name="start_tunnel_error">无法启动隧道连接。请发送问题报告。</string>
     <string name="switch_location">切换位置</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">切换 VPN</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">未受保护</string>
     <string name="unsecured_connection">未受保护的连接</string>
     <string name="unsupported_version">不受支持的版本</string>
-    <string name="unsupported_version_description">您正在运行不受支持的应用版本。请立即升级到 %1$s 以确保您的安全</string>
+    <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>
     <string name="unsupported_version_without_upgrade">您正在运行不受支持的应用版本。</string>
     <string name="update_available">有可用更新</string>
     <string name="update_available_description">安装 Mullvad VPN (%1$s) 以保持最新状态</string>

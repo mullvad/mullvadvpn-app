@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
 
+#### Android
+- Clarify some of the error messages showed in notifications.
+
 ### Deprecated
 #### Linux
 - Deprecated support for Debian 10. This also means dropping support for glibc older

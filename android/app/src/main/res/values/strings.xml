@@ -5,7 +5,6 @@
     <string name="secured">Secured</string>
     <string name="unsecured">Unsecured</string>
     <string name="critical_error">Critical error (your attention is required)</string>
-    <string name="blocking_all_connections">Blocking all connections</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel
     status</string>
@@ -109,34 +108,39 @@
     <string name="in_address">In</string>
     <string name="out_address">Out</string>
     <string name="blocking_internet">Blocking internet</string>
+    <string name="blocking_internet_device_offline">Blocking internet (device offline)</string>
     <string name="not_blocking_internet">YOU MIGHT BE LEAKING NETWORK TRAFFIC</string>
-    <string name="failed_to_block_internet">Failed to block all network traffic. Please
-    troubleshoot or report the problem to us.</string>
-    <string name="auth_failed">Account authentication failed.</string>
-    <string name="ipv6_unavailable">Could not configure IPv6</string>
-    <string name="set_firewall_policy_error">Failed to apply firewall rules. The device might
-    currently be unsecured</string>
-    <string name="set_dns_error">Failed to set system DNS server</string>
     <string name="invalid_dns_servers">Custom DNS server addresses %1$s are invalid</string>
-    <string name="start_tunnel_error">Failed to start tunnel connection</string>
+    <string name="failed_to_block_internet">Unable to block all network traffic. Please
+    troubleshoot or send a problem report.</string>
+    <string name="auth_failed">Unable to authenticate account. Please send a problem
+    report.</string>
+    <string name="ipv6_unavailable">Could not configure IPv6. Disable it in the app or enable it on
+    your device.</string>
+    <string name="set_firewall_policy_error">Unable to apply firewall rules. Please troubleshoot or
+    send a problem report.</string>
+    <string name="set_dns_error">Unable to set system DNS server. Please send a problem
+    report.</string>
+    <string name="start_tunnel_error">Unable to start tunnel connection. Please send a problem
+    report.</string>
     <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel.
     Please try connecting again.</string>
-    <string name="no_matching_relay">No relay server matches the current settings</string>
-    <string name="no_matching_bridge_relay">No bridge relay server matches the current
-    settings</string>
+    <string name="no_matching_relay">No servers match your settings, try changing server or other
+    settings.</string>
     <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced
     settings.</string>
     <string name="custom_dns_hint">Enter IP</string>
-    <string name="custom_tunnel_host_resolution_error">Failed to resolve the hostname of custom
-    server</string>
-    <string name="is_offline">This device is offline, no tunnels can be established</string>
+    <string name="custom_tunnel_host_resolution_error">Unable to resolve host of custom tunnel. Try
+    changing your settings.</string>
+    <string name="is_offline">Your device is offline. The tunnel will automatically connect once
+    your device is back online.</string>
     <string name="virtual_adapter_problem">Virtual adapter error</string>
     <string name="update_available">UPDATE AVAILABLE</string>
     <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to
     date</string>
     <string name="unsupported_version">UNSUPPORTED VERSION</string>
-    <string name="unsupported_version_description">You are running an unsupported app version.
-    Please upgrade to %1$s now to ensure your security</string>
+    <string name="unsupported_version_description">Your privacy might be at risk with this
+    unsupported app version. Please update now.</string>
     <string name="unsupported_version_without_upgrade">You are running an unsupported app
     version.</string>
     <string name="account_credit_expires_soon">Account credit expires soon</string>

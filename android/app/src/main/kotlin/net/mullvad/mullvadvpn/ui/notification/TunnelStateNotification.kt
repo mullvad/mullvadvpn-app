@@ -44,7 +44,7 @@ class TunnelStateNotification(
     }
 
     private fun showGenericBlockingMessage() {
-        title = context.getString(R.string.blocking_all_connections)
+        title = context.getString(R.string.blocking_internet)
         message = null
         shouldShow = true
     }

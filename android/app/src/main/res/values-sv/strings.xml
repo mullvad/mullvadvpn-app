@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="app_version">Appversion</string>
-    <string name="auth_failed">Autentiseringen av kontot misslyckades.</string>
+    <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
     <string name="auto_connect">Anslut automatiskt</string>
     <string name="auto_connect_footer">Anslut automatiskt till en server när appen startas.</string>
     <string name="back">Tillbaka</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Skadlig kod</string>
     <string name="block_trackers_title">Spårare</string>
     <string name="blocked_connection">ANSLUTNINGEN BLOCKERAD</string>
-    <string name="blocking_all_connections">Blockerar alla anslutningar</string>
     <string name="blocking_internet">Blockerar internet</string>
     <string name="buy_credit">Köp kredit</string>
     <string name="buy_more_credit">Köp mer kredit</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Inaktivera alla &lt;b&gt;DNS-innehållsblockerare&lt;/b&gt; ovan för att aktivera den här inställningen.</string>
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
-    <string name="custom_tunnel_host_resolution_error">Det gick inte att lösa värdnamnet för den anpassade servern</string>
+    <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="device_inactive_description">Du har tagit bort den här enheten. Du måste logga in igen för att återansluta.</string>
     <string name="device_inactive_title">Enheten är inaktiv</string>
     <string name="device_inactive_unblock_warning">Om du loggar in tas blockering av internet bort på den här enheten.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Ett fel har inträffat.</string>
     <string name="error_state">DET GICK INTE ATT SÄKRA ANSLUTNINGEN</string>
     <string name="exclude_applications">Exkluderade applikationer</string>
-    <string name="failed_to_block_internet">Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss.</string>
+    <string name="failed_to_block_internet">Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
     <string name="failed_to_remove_device">Det gick inte att ta bort enheten</string>
@@ -85,8 +84,8 @@
     <string name="in_address">In</string>
     <string name="invalid_dns_servers">Anpassade DNS-serveradresser %1$s är ogiltiga</string>
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
-    <string name="ipv6_unavailable">Det gick inte att konfigurera IPv6</string>
-    <string name="is_offline">Denna enhet är frånkopplad, inga tunnlar kan skapas</string>
+    <string name="ipv6_unavailable">Det gick inte att konfigurera IPv6. Inaktivera det i appen eller aktivera det på din enhet.</string>
+    <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_a_minute_ago">mindre än en minut sedan</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
-    <string name="no_matching_bridge_relay">Ingen bryggreläserver matchar de aktuella inställningarna</string>
-    <string name="no_matching_relay">Ingen reläserver matchar de aktuella inställningarna</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>
     <string name="out_address">Ut</string>
@@ -131,8 +128,7 @@
     <string name="sent">Skickat</string>
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
     <string name="sent_thanks">Tack!</string>
-    <string name="set_dns_error">Det gick inte att ange systemets DNS-server</string>
-    <string name="set_firewall_policy_error">Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker</string>
+    <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avancerat</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Visa kontonummer</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Delade tunnlar gör det möjligt att välja vilka applikationer som inte ska dirigeras genom VPN-tunneln.</string>
-    <string name="start_tunnel_error">Det gick inte att starta tunnelanslutning</string>
+    <string name="start_tunnel_error">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</string>
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Växla VPN</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">Oskyddad</string>
     <string name="unsecured_connection">OSÄKER ANSLUTNING</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
-    <string name="unsupported_version_description">Du kör en appversion som inte stöds. Uppgradera till %1$s nu för att garantera din säkerhet</string>
+    <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>
     <string name="unsupported_version_without_upgrade">Du kör en appversion som inte stöds.</string>
     <string name="update_available">UPPDATERING TILLGÄNGLIG</string>
     <string name="update_available_description">Installera Mullvad VPN (%1$s) för att hålla dig uppdaterad</string>

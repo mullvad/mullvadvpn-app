@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
     <string name="always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="app_version">Sovelluksen versio</string>
-    <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
+    <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
     <string name="auto_connect_footer">Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan.</string>
     <string name="back">Takaisin</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">Haittaohjelmat</string>
     <string name="block_trackers_title">Seurantapalvelimet</string>
     <string name="blocked_connection">ESTETTY YHTEYS</string>
-    <string name="blocking_all_connections">Kaikki yhteydet estetään</string>
     <string name="blocking_internet">Verkkoyhteys estetään</string>
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="buy_more_credit">Uudista tilaus</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">Voit ottaa asetuksen käyttöön poistamalla ensin kaikki &lt;b&gt;DNS-sisällönestotoiminnot&lt;/b&gt; käytöstä yltä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
-    <string name="custom_tunnel_host_resolution_error">Mukautetun palvelimen isäntänimen selvittäminen epäonnistui</string>
+    <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
-    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai ilmoita meille ongelmasta.</string>
+    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
     <string name="failed_to_remove_device">Laitteen poistaminen epäonnistui</string>
@@ -85,8 +84,8 @@
     <string name="in_address">Saapuva</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
-    <string name="ipv6_unavailable">IPv6:n määritys epäonnistui</string>
-    <string name="is_offline">Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda.</string>
+    <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
+    <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_a_minute_ago">alle minuutti sitten</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</string>
     <string name="max_devices_warning_title">Liikaa laitteita</string>
     <string name="mullvad_account_number">Mullvad-tilin numero</string>
-    <string name="no_matching_bridge_relay">Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia</string>
-    <string name="no_matching_relay">Mikään välityspalvelin ei vastaa nykyisiä asetuksia</string>
     <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_blocking_internet">VERKKOLIIKENTEESI SAATTAA VUOTAA</string>
     <string name="out_address">Lähtevä</string>
@@ -131,8 +128,7 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
-    <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen epäonnistui</string>
-    <string name="set_firewall_policy_error">Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu.</string>
+    <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
     <string name="settings_advanced">Lisäasetukset</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta.</string>
-    <string name="start_tunnel_error">Tunneliyhteyden muodostaminen epäonnistui</string>
+    <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">Suojaamaton</string>
     <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
-    <string name="unsupported_version_description">Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %1$s.</string>
+    <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
     <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>
     <string name="update_available">PÄIVITYS SAATAVILLA</string>
     <string name="update_available_description">Asenna Mullvad VPN (%1$s) pysyäksesi ajan tasalla</string>

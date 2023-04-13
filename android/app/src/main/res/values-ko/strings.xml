@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하십시오.</string>
     <string name="always_on_vpn_error_notification_title">상시 접속 VPN이 다른 앱에 할당됨</string>
     <string name="app_version">앱 버전</string>
-    <string name="auth_failed">계정 인증에 실패했습니다.</string>
+    <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="auto_connect">자동 연결</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
     <string name="back">뒤로</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">맬웨어</string>
     <string name="block_trackers_title">트래커</string>
     <string name="blocked_connection">연결 차단됨</string>
-    <string name="blocking_all_connections">모든 연결 차단 중</string>
     <string name="blocking_internet">인터넷 차단</string>
     <string name="buy_credit">크레딧 구매</string>
     <string name="buy_more_credit">추가 크레딧 구매</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">이 설정을 활성화하려면 위의 모든 &lt;b&gt;DNS 콘텐츠 차단기&lt;/b&gt;를 비활성화하세요.</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
-    <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못함</string>
+    <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
     <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">보안 연결 실패</string>
     <string name="exclude_applications">제외된 애플리케이션</string>
-    <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요.</string>
+    <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_fetch_devices">장치 목록을 가져오지 못함</string>
     <string name="failed_to_remove_device">장치를 제거하지 못함</string>
@@ -85,8 +84,8 @@
     <string name="in_address">인</string>
     <string name="invalid_dns_servers">사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다.</string>
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
-    <string name="ipv6_unavailable">IPv6를 구성할 수 없음</string>
-    <string name="is_offline">장치가 오프라인 상태이며, 터널을 설정할 수 없습니다</string>
+    <string name="ipv6_unavailable">IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요.</string>
+    <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
     <string name="less_than_a_day_left">1일 이내</string>
     <string name="less_than_a_minute_ago">1분 이내</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="mullvad_account_number">Mullvad 계정 번호</string>
-    <string name="no_matching_bridge_relay">현재 설정과 일치하는 브리지 릴레이 서버가 없습니다.</string>
-    <string name="no_matching_relay">현재 설정과 일치하는 릴레이 서버가 없습니다.</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
     <string name="out_address">아웃</string>
@@ -131,8 +128,7 @@
     <string name="sent">전송 완료</string>
     <string name="sent_contact">필요한 경우 %1$s(으)로 연락드리겠습니다.</string>
     <string name="sent_thanks">감사합니다!</string>
-    <string name="set_dns_error">시스템 DNS 서버를 설정하지 못함</string>
-    <string name="set_firewall_policy_error">방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다.</string>
+    <string name="set_dns_error">시스템 DNS 서버를 설정할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="settings">설정</string>
     <string name="settings_account">계정</string>
     <string name="settings_advanced">고급</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">계정 번호 표시</string>
     <string name="show_system_apps">시스템 앱 표시</string>
     <string name="split_tunneling_description">분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다.</string>
-    <string name="start_tunnel_error">터널 연결을 시작하지 못함</string>
+    <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="switch_location">위치 전환</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN 전환</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">안전하지 않음</string>
     <string name="unsecured_connection">비보안 연결</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
-    <string name="unsupported_version_description">지원되지 않는 앱 버전을 실행 중입니다. 지금 %1$s(으)로 업그레이드하여 보안을 유지하세요.</string>
+    <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>
     <string name="unsupported_version_without_upgrade">지원되지 않는 앱 버전을 실행 중입니다.</string>
     <string name="update_available">업데이트 사용 가능</string>
     <string name="update_available_description">Mullvad VPN(%1$s)을 설치하여 최신 상태로 유지하세요.</string>

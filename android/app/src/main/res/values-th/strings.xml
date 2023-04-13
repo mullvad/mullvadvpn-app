@@ -14,7 +14,7 @@
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="app_version">เวอร์ชันแอป</string>
-    <string name="auth_failed">ไม่สามารถรับรองความถูกต้องของบัญชีได้</string>
+    <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
     <string name="auto_connect_footer">เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป</string>
     <string name="back">ย้อนกลับ</string>
@@ -24,7 +24,6 @@
     <string name="block_malware_title">มัลแวร์</string>
     <string name="block_trackers_title">ตัวติดตาม</string>
     <string name="blocked_connection">การเชื่อมต่อที่ถูกบล็อก</string>
-    <string name="blocking_all_connections">บล็อกการเชื่อมต่อทั้งหมด</string>
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>
@@ -49,7 +48,7 @@
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน&lt;b&gt;ตัวบล็อกเนื้อหา DNS&lt;/b&gt; ทั้งหมดด้านบน เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
-    <string name="custom_tunnel_host_resolution_error">ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง</string>
+    <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
@@ -69,7 +68,7 @@
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
     <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
-    <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา</string>
+    <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_fetch_devices">ไม่สามารถดึงรายการอุปกรณ์มาได้</string>
     <string name="failed_to_remove_device">ไม่สามารถลบอุปกรณ์ได้</string>
@@ -85,8 +84,8 @@
     <string name="in_address">เข้า</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS %1$s ที่กำหนดเองไม่ถูกต้อง</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
-    <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้</string>
-    <string name="is_offline">อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างอุโมงค์ได้</string>
+    <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
+    <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_a_minute_ago">น้อยกว่าหนึ่งนาทีก่อน</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
@@ -106,8 +105,6 @@
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
-    <string name="no_matching_bridge_relay">ไม่มีเซิร์ฟเวอร์บริดจ์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน</string>
-    <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
     <string name="out_address">ออก</string>
@@ -131,8 +128,7 @@
     <string name="sent">ส่ง</string>
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
-    <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้</string>
-    <string name="set_firewall_policy_error">ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้</string>
+    <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
     <string name="settings_advanced">ขั้นสูง</string>
@@ -140,7 +136,7 @@
     <string name="show_account_number">แสดงหมายเลขบัญชี</string>
     <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling_description">การแยกอุโมงค์ทำให้สามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านอุโมงค์ VPN</string>
-    <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้</string>
+    <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดส่งรายงานปัญหา</string>
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
@@ -149,7 +145,7 @@
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
-    <string name="unsupported_version_description">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน โปรดอัปเกรดเป็นเวอร์ชัน %1$s ทันที เพื่อให้แน่ใจในความปลอดภัยของคุณ</string>
+    <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
     <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>
     <string name="update_available">มีการอัปเดตให้ใช้งาน</string>
     <string name="update_available_description">ติดตั้ง Mullvad VPN (%1$s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ</string>

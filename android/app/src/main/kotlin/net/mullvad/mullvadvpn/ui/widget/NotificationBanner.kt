@@ -132,7 +132,7 @@ class NotificationBanner : FrameLayout {
             StatusLevel.Warning -> status.setImageDrawable(warningImage)
         }
 
-        title.text = notification.title
+        title.text = notification.title.uppercase()
 
         if (notificationMessage != null) {
             message.text = Html.fromHtml(notificationMessage, HtmlCompat.FROM_HTML_MODE_LEGACY)
