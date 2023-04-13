@@ -24,7 +24,7 @@ final class OperationCancellationTests: XCTestCase {
     func testCancellationShouldFireAfterCancelledOperationIsEnqueued() throws {
         let expect = expectation(description: "Cancellation should fire.")
 
-        let operationQueue = OperationQueue()
+        let operationQueue = AsyncOperationQueue()
         let operation = AsyncBlockOperation {}
         operation.onCancel { _ in expect.fulfill() }
         operation.cancel()
