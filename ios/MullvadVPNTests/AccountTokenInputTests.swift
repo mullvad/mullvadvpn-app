@@ -93,12 +93,32 @@ class AccountTokenInputTests: XCTestCase {
 
     func testInvalidCharactersReplacesTextFieldTextWithFormattedString() {
         let input = AccountTokenInput(string: kSampleToken)
-        let invalidRange = NSRange(location: 5, length: 0)
+        let invalidRange = NSRange(location: kSampleToken.count + 1, length: 0)
+        let textField = UITextField()
+
+        _ = input.textField(textField, shouldChangeCharactersIn: invalidRange, replacementString: "´")
+
+        XCTAssertEqual(textField.text, input.formattedString)
+    }
+
+    func testDeleteCharacterOutsideOfTokenBoundaryDoesNotDeleteAnything() {
+        let input = AccountTokenInput(string: kSampleToken)
+        let invalidRange = NSRange(location: kSampleToken.count + 1, length: 1)
         let textField = UITextField()
 
         _ = input.textField(textField, shouldChangeCharactersIn: invalidRange, replacementString: "")
 
         XCTAssertEqual(textField.text, input.formattedString)
+    }
+
+    func testDeleteLastCharacter() {
+        let input = AccountTokenInput(string: kSampleToken)
+        let lastCharacterRange = NSRange(location: kSampleToken.count, length: 1)
+        let textField = UITextField()
+
+        _ = input.textField(textField, shouldChangeCharactersIn: lastCharacterRange, replacementString: "")
+
+        XCTAssertEqual(textField.text, "1234 567")
     }
 }
 
