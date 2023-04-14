@@ -674,3 +674,9 @@ extension UIViewController {
         rootContainerController?.updateHeaderBarHiddenAppearance()
     }
 }
+
+extension RootContainerViewController {
+    func update(deviceState : DeviceState) {
+        headerBarView.update(deviceState: deviceState)
+    }
+}
