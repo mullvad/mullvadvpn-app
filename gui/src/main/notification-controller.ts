@@ -130,7 +130,9 @@ export default class NotificationController {
   ) {
     this.activeNotifications.forEach((notification) => {
       if (notification.specification.category === category) {
+        notification.notification.removeAllListeners('close');
         notification.notification.close();
+        this.activeNotifications.delete(notification);
       }
     });
     this.dismissedNotifications.forEach((notification) => {
@@ -248,7 +250,7 @@ export default class NotificationController {
 
   private addActiveNotification(notification: Notification) {
     notification.notification.on('close', () => {
-      this.dismissedNotifications.add({ ...notification.specification });
+      this.dismissedNotifications.add(notification.specification);
       this.activeNotifications.delete(notification);
       this.updateNotificationIcon();
     });
