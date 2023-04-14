@@ -121,8 +121,8 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(4);
-const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(15);
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
