@@ -80,6 +80,7 @@ class ApplicationMain
     SettingsDelegate,
     AccountDelegate {
   private daemonRpc = new DaemonRpc();
+  private daemonConnectionObserver?: ConnectionObserver;
 
   private notificationController = new NotificationController(this);
   private version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
@@ -375,9 +376,11 @@ class ApplicationMain
 
     this.updateCurrentLocale();
 
-    this.daemonRpc.addConnectionObserver(
-      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+    this.daemonConnectionObserver = new ConnectionObserver(
+      this.onDaemonConnected,
+      this.onDaemonDisconnected,
     );
+    this.daemonRpc.addConnectionObserver(this.daemonConnectionObserver);
     this.connectToDaemon();
 
     if (process.platform === 'darwin') {
@@ -453,6 +456,9 @@ class ApplicationMain
 
     const wasConnected = this.daemonRpc.isConnected;
     IpcMainEventChannel.navigation.notifyReset?.();
+    if (this.daemonConnectionObserver) {
+      this.daemonRpc.removeConnectionObserver(this.daemonConnectionObserver);
+    }
     this.daemonRpc.disconnect();
     this.onDaemonDisconnected(wasConnected);
   };
@@ -460,9 +466,11 @@ class ApplicationMain
   private onResume = () => {
     log.info('Resume event received, connecting to daemon');
     this.daemonRpc.reopen();
-    this.daemonRpc.addConnectionObserver(
-      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+    this.daemonConnectionObserver = new ConnectionObserver(
+      this.onDaemonConnected,
+      this.onDaemonDisconnected,
     );
+    this.daemonRpc.addConnectionObserver(this.daemonConnectionObserver);
     this.connectToDaemon();
   };
 
