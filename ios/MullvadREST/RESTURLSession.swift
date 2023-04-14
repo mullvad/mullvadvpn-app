@@ -20,8 +20,11 @@ extension REST {
             trustedRootCertificates: [secCertificate]
         )
 
+        let sessionConfiguration = URLSessionConfiguration.ephemeral
+        sessionConfiguration.connectionProxyDictionary = [:]
+
         let session = URLSession(
-            configuration: .ephemeral,
+            configuration: sessionConfiguration,
             delegate: sessionDelegate,
             delegateQueue: nil
         )

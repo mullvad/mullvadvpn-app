@@ -31,6 +31,9 @@ Line wrap the file at 100 chars.                                              Th
 - Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency in key
   propagation to relays.
 
+### Fixed
+- Configure URLSession to ignore system proxy configuration.
+
 
 ## [2023.1] - 2023-03-21
 ### Added
