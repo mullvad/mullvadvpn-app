@@ -653,7 +653,7 @@ impl WireguardMonitor {
         let psk = tokio::time::timeout(
             timeout,
             talpid_tunnel_config_client::push_pq_key_with_opts(
-                IpAddr::V4(config.ipv4_gateway),
+                Self::get_tunnel_config_client_addr(config),
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
                 mss,
@@ -687,11 +687,15 @@ impl WireguardMonitor {
             return None;
         }
 
-        Some(if config.enable_ipv6 {
-            config.mtu - IPV6_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE
+        if Self::get_tunnel_config_client_addr(config).is_ipv4() {
+            Some(config.mtu - IPV4_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE)
         } else {
-            config.mtu - IPV4_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE
-        })
+            Some(config.mtu - IPV6_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE)
+        }
+    }
+
+    fn get_tunnel_config_client_addr(config: &Config) -> IpAddr {
+        IpAddr::V4(config.ipv4_gateway)
     }
 
     #[allow(unused_variables)]
