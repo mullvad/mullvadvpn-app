@@ -233,7 +233,7 @@ impl<'a> Display for SettingsSummary<'a> {
 
         let relay_settings = self.settings.get_relay_settings();
 
-        write!(f, "ovpn mssfix: ")?;
+        write!(f, "openvpn mssfix: ")?;
         Self::fmt_option(f, self.settings.tunnel_options.openvpn.mssfix)?;
         write!(f, ", wg mtu: ")?;
         Self::fmt_option(f, self.settings.tunnel_options.wireguard.mtu)?;
@@ -243,7 +243,7 @@ impl<'a> Display for SettingsSummary<'a> {
             ..
         }) = relay_settings
         {
-            write!(f, ", wg ip: {ip_version}")?;
+            write!(f, ", wg ip version: {ip_version}")?;
         }
 
         let multihop = matches!(
@@ -271,52 +271,26 @@ impl<'a> Display for SettingsSummary<'a> {
 
         match self.settings.tunnel_options.dns_options.state {
             DnsState::Default => {
-                let mut content = vec!["default"];
+                let mut content = vec![];
+                let default_options = &self.settings.tunnel_options.dns_options.default_options;
 
-                if self
-                    .settings
-                    .tunnel_options
-                    .dns_options
-                    .default_options
-                    .block_ads
-                {
+                if default_options.block_ads {
                     content.push("ads");
                 }
-                if self
-                    .settings
-                    .tunnel_options
-                    .dns_options
-                    .default_options
-                    .block_trackers
-                {
+                if default_options.block_trackers {
                     content.push("trackers");
                 }
-                if self
-                    .settings
-                    .tunnel_options
-                    .dns_options
-                    .default_options
-                    .block_malware
-                {
+                if default_options.block_malware {
                     content.push("malware");
                 }
-                if self
-                    .settings
-                    .tunnel_options
-                    .dns_options
-                    .default_options
-                    .block_adult_content
-                {
+                if default_options.block_adult_content {
                     content.push("adult");
                 }
-                if self
-                    .settings
-                    .tunnel_options
-                    .dns_options
-                    .default_options
-                    .block_gambling
-                {
+                if default_options.block_gambling {
                     content.push("gambling");
+                }
+                if content.is_empty() {
+                    content.push("default");
                 }
 
                 write!(f, ", dns: {}", content.join(" "))?;
