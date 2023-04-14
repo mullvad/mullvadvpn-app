@@ -26,6 +26,28 @@ class HeaderBarView: UIView {
         return imageView
     }()
 
+    private let deviceInfoHolder: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillProportionally
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+
+    private lazy var deviceName: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        return label
+    }()
+
+    private lazy var timeLeft: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        return label
+    }()
+
     let settingsButton = makeSettingsButton()
 
     class func makeSettingsButton() -> HeaderBarButton {
@@ -105,8 +127,8 @@ class HeaderBarView: UIView {
             ),
             brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
             layoutMarginsGuide.bottomAnchor.constraint(
-                equalTo: brandNameImageView.bottomAnchor,
-                constant: 22
+                equalTo: deviceInfoHolder.bottomAnchor,
+                constant: 4
             ),
 
             settingsButton.leadingAnchor.constraint(
@@ -115,9 +137,14 @@ class HeaderBarView: UIView {
             ),
             settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
+
+            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7),
         ]
 
-        [logoImageView, brandNameImageView, settingsButton].forEach { addSubview($0) }
+        [logoImageView, brandNameImageView, settingsButton, deviceInfoHolder].forEach { addSubview($0) }
+        [deviceName, timeLeft].forEach { deviceInfoHolder.addArrangedSubview($0) }
 
         NSLayoutConstraint.activate(constraints)
     }
@@ -130,5 +157,37 @@ class HeaderBarView: UIView {
         super.layoutSubviews()
 
         borderLayer.frame = CGRect(x: 0, y: frame.maxY - 1, width: frame.width, height: 1)
+    }
+}
+
+extension HeaderBarView {
+    func update(deviceState: DeviceState) {
+        switch deviceState {
+        case let .loggedIn(storedAccountData, storedDeviceData):
+            let formattedDeviceName = NSLocalizedString(
+                "DEVICE_NAME_HEADER_VIEW",
+                tableName: "Account",
+                value: "Device name : %@",
+                comment: ""
+            )
+            let formattedTimeLeft = NSLocalizedString(
+                "TIME_LEFT_HEADER_VIEW",
+                tableName: "Account",
+                value: "Time left : %@",
+                comment: ""
+            )
+            deviceName.text = .init(format: formattedDeviceName, storedDeviceData.name)
+            timeLeft.text = .init(
+                format: formattedTimeLeft,
+                CustomDateComponentsFormatting.localizedString(
+                    from: Date(),
+                    to: storedAccountData.expiry,
+                    unitsStyle: .full
+                ) ?? ""
+            )
+            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = false }
+        case .loggedOut, .revoked:
+            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = true }
+        }
     }
 }

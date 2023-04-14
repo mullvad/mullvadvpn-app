@@ -92,9 +92,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.devicesProxy = devicesProxy
 
         /*
-          Uncomment if you'd like to test TOS again
+         Uncomment if you'd like to test TOS again
          TermsOfService.unsetAgreed()
-          */
+         */
 
         super.init()
 
@@ -417,7 +417,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         precondition(!isPad)
-
         let tunnelCoordinator = makeTunnelCoordinator()
 
         horizontalFlowController.pushViewController(
@@ -587,11 +586,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
                 self?.deviceStateDidChange(deviceState)
+                self?.updateView(deviceState: deviceState)
             })
 
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
+
+        updateView(deviceState: tunnelManager.deviceState)
 
         splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
@@ -614,6 +616,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .loggedOut:
             cancelOutOfTimeTimer()
         }
+    }
+
+    private func updateView(deviceState: DeviceState) {
+        primaryNavigationContainer.update(deviceState: deviceState)
+        secondaryNavigationContainer.update(deviceState: deviceState)
     }
 
     // MARK: - Out of time
@@ -723,7 +730,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .pendingReconnect:
             break
         }
-
         return true
     }
 
