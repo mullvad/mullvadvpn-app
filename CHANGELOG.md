@@ -48,6 +48,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix location search in desktop app only searching for English location names.
 - Fix automatic WireGuard key rotation not being initialized correctly when not running the GUI.
 - Fix duplicated notifications in some situations.
+- Fix notification setting being inverted. When non-important notifications were disabled it instead
+  disabled important ones and showed non-important ones.
 
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
