@@ -1,4 +1,4 @@
-use libc::{setsockopt, IPPROTO_TCP, TCP_MAXSEG};
+use libc::{setsockopt, socklen_t, IPPROTO_TCP, TCP_MAXSEG};
 use std::{
     fmt,
     net::{IpAddr, SocketAddr},
@@ -170,7 +170,7 @@ async fn new_client(addr: IpAddr, mss: Option<u16>) -> Result<RelayConfigService
                         IPPROTO_TCP,
                         TCP_MAXSEG,
                         &mss as *const _ as _,
-                        u32::try_from(std::mem::size_of_val(&mss)).unwrap(),
+                        socklen_t::try_from(std::mem::size_of_val(&mss)).unwrap(),
                     )
                 };
                 if result != 0 {
