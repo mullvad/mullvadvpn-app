@@ -1,6 +1,13 @@
-use std::{fmt, net::IpAddr};
+use libc::{setsockopt, IPPROTO_TCP, TCP_MAXSEG};
+use std::{
+    fmt,
+    net::{IpAddr, SocketAddr},
+    os::fd::AsRawFd,
+};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
-use tonic::transport::Channel;
+use tokio::net::TcpSocket;
+use tonic::transport::{Channel, Endpoint};
+use tower::service_fn;
 use zeroize::Zeroize;
 
 mod classic_mceliece;
@@ -72,10 +79,19 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
     wg_psk_pubkey: PublicKey,
 ) -> Result<PresharedKey, Error> {
+    push_pq_key_with_opts(service_address, wg_pubkey, wg_psk_pubkey, None).await
+}
+
+pub async fn push_pq_key_with_opts(
+    service_address: IpAddr,
+    wg_pubkey: PublicKey,
+    wg_psk_pubkey: PublicKey,
+    mss: Option<u16>,
+) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
     let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
-    let mut client = new_client(service_address).await?;
+    let mut client = new_client(service_address, mss).await?;
     let response = client
         .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
@@ -137,8 +153,36 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
-async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
-    RelayConfigService::connect(format!("tcp://{addr}:{CONFIG_SERVICE_PORT}"))
+async fn new_client(addr: IpAddr, mss: Option<u16>) -> Result<RelayConfigService, Error> {
+    let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
+
+    let conn = endpoint
+        .connect_with_connector(service_fn(move |_| async move {
+            let sock = TcpSocket::new_v4()?;
+            let fd = sock.as_raw_fd();
+
+            if let Some(mss) = mss.map(u32::from) {
+                log::debug!("Config client socket MSS: {mss}");
+
+                let result = unsafe {
+                    setsockopt(
+                        fd,
+                        IPPROTO_TCP,
+                        TCP_MAXSEG,
+                        &mss as *const _ as _,
+                        u32::try_from(std::mem::size_of_val(&mss)).unwrap(),
+                    )
+                };
+                if result != 0 {
+                    log::error!("Failed to set MSS on config client socket: {result}");
+                }
+            }
+
+            sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
+                .await
+        }))
         .await
-        .map_err(Error::GrpcConnectError)
+        .map_err(Error::GrpcConnectError)?;
+
+    Ok(RelayConfigService::new(conn))
 }

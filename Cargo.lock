@@ -3359,6 +3359,7 @@ name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
+ "libc",
  "log",
  "pqc_kyber",
  "prost",
