@@ -307,8 +307,9 @@ open class AsyncOperation: Operation {
     private func _start() {
         operationLock.lock()
         if _isCancelled {
+            notifyCancellation()
             operationLock.unlock()
-            finish()
+            finish(error: OperationError.cancelled)
         } else {
             state = .executing
 
@@ -326,26 +327,21 @@ open class AsyncOperation: Operation {
     }
 
     override public final func cancel() {
-        var notifyDidCancel = false
-
         operationLock.lock()
         if !_isCancelled {
             _isCancelled = true
-            notifyDidCancel = true
+
+            // Notify observers only when executing, otherwise `_start()` will take care of doing this as soon
+            // as operation is ready to execute.
+            if state == .executing {
+                dispatchQueue.async {
+                    self.notifyCancellation()
+                }
+            }
         }
         operationLock.unlock()
 
         super.cancel()
-
-        if notifyDidCancel {
-            dispatchQueue.async {
-                self.operationDidCancel()
-
-                for observer in self.observers {
-                    observer.operationDidCancel(self)
-                }
-            }
-        }
     }
 
     public func finish() {
@@ -399,6 +395,14 @@ open class AsyncOperation: Operation {
         return true
     }
 
+    private func notifyCancellation() {
+        operationDidCancel()
+
+        for observer in _observers {
+            observer.operationDidCancel(self)
+        }
+    }
+
     // MARK: - Subclass overrides
 
     open func operationDidCancel() {
@@ -422,6 +426,17 @@ public protocol OperationBlockObserverSupport {}
 extension AsyncOperation: OperationBlockObserverSupport {}
 
 extension OperationBlockObserverSupport where Self: AsyncOperation {
+    /// Add observer responding to cancellation event.
+    public func onCancel(_ fn: @escaping (Self) -> Void) {
+        addBlockObserver(OperationBlockObserver(didCancel: fn))
+    }
+
+    /// Add observer responding to finish event.
+    public func onFinish(_ fn: @escaping (Self, Error?) -> Void) {
+        addBlockObserver(OperationBlockObserver(didFinish: fn))
+    }
+
+    /// Add block-based observer.
     public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)
     }

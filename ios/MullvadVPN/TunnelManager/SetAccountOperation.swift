@@ -122,11 +122,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     })
                     .reduce()
 
-                saveSettingsOperation.addBlockObserver(
-                    OperationBlockObserver(didFinish: { operation, error in
-                        self.completeOperation(accountData: operation.output)
-                    })
-                )
+                saveSettingsOperation.onFinish { operation, error in
+                    self.completeOperation(accountData: operation.output)
+                }
 
                 return [accountOperation, createDeviceOperation, saveSettingsOperation]
             } ?? []

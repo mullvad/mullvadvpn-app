@@ -78,9 +78,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
     }
 
     override func operationDidCancel() {
-        if isExecuting {
-            finish(result: .failure(OperationError.cancelled))
-        }
+        finish(result: .failure(OperationError.cancelled))
     }
 
     override func finish(result: Result<Output, Error>) {
