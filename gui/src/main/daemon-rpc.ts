@@ -138,12 +138,11 @@ export class DaemonRpc {
   private client: ManagementServiceClient;
   private isConnectedValue = false;
   private isClosed = false;
-  private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
   private reconnectionTimeout?: NodeJS.Timer;
 
-  constructor() {
+  constructor(private connectionObserver?: ConnectionObserver) {
     this.client = new ManagementServiceClient(
       DAEMON_RPC_PATH,
       grpc.credentials.createInsecure(),
@@ -155,7 +154,7 @@ export class DaemonRpc {
     return this.isConnectedValue;
   }
 
-  public reopen() {
+  public reopen(connectionObserver?: ConnectionObserver) {
     if (this.isClosed) {
       this.isClosed = false;
       this.client = new ManagementServiceClient(
@@ -163,6 +162,8 @@ export class DaemonRpc {
         grpc.credentials.createInsecure(),
         this.channelOptions(),
       );
+
+      this.connectionObserver = connectionObserver;
     }
   }
 
@@ -176,7 +177,7 @@ export class DaemonRpc {
         } else {
           this.reconnectionTimeout = undefined;
           this.isConnectedValue = true;
-          this.connectionObservers.forEach((observer) => observer.onOpen());
+          this.connectionObserver?.onOpen();
           this.setChannelCallback();
           resolve();
         }
@@ -193,21 +194,9 @@ export class DaemonRpc {
 
     this.isClosed = true;
     this.client.close();
+    this.connectionObserver = undefined;
     if (this.reconnectionTimeout) {
       clearTimeout(this.reconnectionTimeout);
-    }
-  }
-
-  public addConnectionObserver(observer: ConnectionObserver) {
-    this.connectionObservers.push(observer);
-    // Call getConnectivityState(true) to start connecting if idle
-    this.client.getChannel()?.getConnectivityState(true);
-  }
-
-  public removeConnectionObserver(observer: ConnectionObserver) {
-    const index = this.connectionObservers.indexOf(observer);
-    if (index !== -1) {
-      this.connectionObservers.splice(index, 1);
     }
   }
 
@@ -686,7 +675,7 @@ export class DaemonRpc {
     const wasConnected = this.isConnectedValue;
     this.isConnectedValue = false;
 
-    this.connectionObservers.forEach((observer) => observer.onClose(wasConnected, error));
+    this.connectionObserver?.onClose(wasConnected, error);
   }
 
   private removeSubscription(id: number) {
@@ -739,7 +728,7 @@ export class DaemonRpc {
         this.setChannelCallback(currentState);
       } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
         this.isConnectedValue = true;
-        this.connectionObservers.forEach((observer) => observer.onOpen());
+        this.connectionObserver?.onOpen();
         this.setChannelCallback(currentState);
       }
     }
