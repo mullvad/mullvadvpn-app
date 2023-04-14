@@ -473,8 +473,9 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
+        let mss = Self::get_exit_psk_socket_mss(config);
         let exit_psk =
-            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key())
+            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key(), mss)
                 .await?;
 
         log::debug!("Successfully exchanged PSK with exit peer");
@@ -507,6 +508,7 @@ impl WireguardMonitor {
                     retry_attempt,
                     &entry_config,
                     wg_psk_privkey.public_key(),
+                    None,
                 )
                 .await?,
             );
@@ -638,6 +640,7 @@ impl WireguardMonitor {
         retry_attempt: u32,
         config: &Config,
         wg_psk_pubkey: PublicKey,
+        mss: Option<u16>,
     ) -> std::result::Result<PresharedKey, CloseMsg> {
         log::debug!("Performing PQ-safe PSK exchange");
 
@@ -649,10 +652,11 @@ impl WireguardMonitor {
 
         let psk = tokio::time::timeout(
             timeout,
-            talpid_tunnel_config_client::push_pq_key(
+            talpid_tunnel_config_client::push_pq_key_with_opts(
                 IpAddr::V4(config.ipv4_gateway),
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
+                mss,
             ),
         )
         .await
@@ -664,6 +668,30 @@ impl WireguardMonitor {
         .map_err(CloseMsg::SetupError)?;
 
         Ok(psk)
+    }
+
+    /// TODO: This hack makes sure that the max segment size is small enough to prevent
+    /// fragmentation. This is an issue when using multihop, because the MTU is too small to
+    /// accommodate the headers of the inner tunnel, and lowering it does no good.
+    //
+    /// When we have fixed fragmentation issues for multihop, this workaround can be removed.
+    ///
+    /// Note that TCP imposes max and min bounds on the specified size as well.
+    fn get_exit_psk_socket_mss(config: &Config) -> Option<u16> {
+        const IPV4_HEADER_SIZE: u16 = 20;
+        const IPV6_HEADER_SIZE: u16 = 40;
+        const WIREGUARD_HEADER_SIZE: u16 = 40;
+        const MAX_TCP_HEADER_SIZE: u16 = 80;
+
+        if config.peers.len() == 1 {
+            return None;
+        }
+
+        Some(if config.enable_ipv6 {
+            config.mtu - IPV6_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE
+        } else {
+            config.mtu - IPV4_HEADER_SIZE - WIREGUARD_HEADER_SIZE - MAX_TCP_HEADER_SIZE
+        })
     }
 
     #[allow(unused_variables)]
