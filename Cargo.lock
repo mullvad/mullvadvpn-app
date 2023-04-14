@@ -3359,6 +3359,7 @@ name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
+ "libc",
  "log",
  "pqc_kyber",
  "prost",
@@ -3368,6 +3369,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
+ "windows-sys 0.45.0",
  "zeroize",
 ]
 
