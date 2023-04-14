@@ -44,6 +44,11 @@ protocol RootContainment {
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject {
+    func rootContainerViewControllerShouldShowAccount(
+        _ controller: RootContainerViewController,
+        animated: Bool
+    )
+
     func rootContainerViewControllerShouldShowSettings(
         _ controller: RootContainerViewController,
         navigateTo route: SettingsNavigationRoute?,
@@ -256,6 +261,14 @@ class RootContainerViewController: UIViewController {
     }
 
     /// Request to display settings controller
+    func showAccount(animated: Bool) {
+        delegate?.rootContainerViewControllerShouldShowAccount(
+            self,
+            animated: animated
+        )
+    }
+
+    /// Request to display settings controller
     func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
         delegate?.rootContainerViewControllerShouldShowSettings(
             self,
@@ -264,10 +277,9 @@ class RootContainerViewController: UIViewController {
         )
     }
 
-    /// Enable or disable the settings bar button displayed in the header bar
-    func setEnableSettingsButton(_ isEnabled: Bool) {
-        headerBarView.settingsButton.isEnabled = isEnabled
-        presentationContainerSettingsButton?.isEnabled = isEnabled
+    /// Show or hide the account button displayed in the header bar
+    func setShowAccountButton(_ show: Bool) {
+        headerBarView.accountButton.isHidden = !show
     }
 
     /// Add settings bar button into the presentation container to make settings accessible even
@@ -279,7 +291,7 @@ class RootContainerViewController: UIViewController {
             transitionViewSettingsButton.removeFromSuperview()
             settingsButton = transitionViewSettingsButton
         } else {
-            settingsButton = HeaderBarView.makeSettingsButton()
+            settingsButton = HeaderBarView.makeHeaderBarButton(with: UIImage(named: "IconSettings"))
             settingsButton.isEnabled = headerBarView.settingsButton.isEnabled
             settingsButton.addTarget(
                 self,
@@ -353,6 +365,12 @@ class RootContainerViewController: UIViewController {
         // Prevent automatic layout margins adjustment as we manually control them.
         headerBarView.insetsLayoutMarginsFromSafeArea = false
 
+        headerBarView.accountButton.addTarget(
+            self,
+            action: #selector(handleAccountButtonTap),
+            for: .touchUpInside
+        )
+
         headerBarView.settingsButton.addTarget(
             self,
             action: #selector(handleSettingsButtonTap),
@@ -362,6 +380,10 @@ class RootContainerViewController: UIViewController {
         view.addSubview(headerBarView)
 
         NSLayoutConstraint.activate(constraints)
+    }
+
+    @objc private func handleAccountButtonTap() {
+        showAccount(animated: true)
     }
 
     @objc private func handleSettingsButtonTap() {

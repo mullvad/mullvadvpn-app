@@ -13,16 +13,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
     SettingsDataSource.Item
 >, UITableViewDelegate {
     enum CellReuseIdentifiers: String, CaseIterable {
-        case accountCell
         case basicCell
 
         var reusableViewClass: AnyClass {
-            switch self {
-            case .accountCell:
-                return SettingsAccountCell.self
-            case .basicCell:
-                return SettingsCell.self
-            }
+            return SettingsCell.self
         }
     }
 
@@ -44,7 +38,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
     }
 
     enum Item: String {
-        case account
         case preferences
         case version
         case problemReport
@@ -74,7 +67,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         updateDataSnapshot()
 
         interactor.didUpdateDeviceState = { [weak self] deviceState in
-            self?.didUpdateDeviceState(deviceState)
+            self?.updateDataSnapshot()
         }
         storedAccountData = interactor.deviceState.accountData
     }
@@ -136,7 +129,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
 
         if interactor.deviceState.isLoggedIn {
             snapshot.appendSections([.main])
-            snapshot.appendItems([.account, .preferences], toSection: .main)
+            snapshot.appendItems([.preferences], toSection: .main)
         }
 
         snapshot.appendSections([.version, .problemReport])
@@ -144,28 +137,5 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)
-    }
-
-    private func didUpdateDeviceState(_ deviceState: DeviceState) {
-        let newAccountData = deviceState.accountData
-        let oldAccountData = storedAccountData
-
-        storedAccountData = newAccountData
-
-        // Refresh individual row if expiry changed.
-        if let newAccountData = newAccountData, let oldAccountData = oldAccountData,
-           oldAccountData.number == newAccountData.number,
-           oldAccountData.expiry != newAccountData.expiry
-        {
-            if let indexPath = indexPath(for: .account),
-               let cell = tableView?.cellForRow(at: indexPath)
-            {
-                settingsCellFactory.configureCell(cell, item: .account, indexPath: indexPath)
-            }
-
-            return
-        }
-
-        updateDataSnapshot()
     }
 }

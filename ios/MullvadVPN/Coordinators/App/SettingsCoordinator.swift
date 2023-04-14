@@ -12,19 +12,13 @@ import UIKit
 
 enum SettingsNavigationRoute: Equatable {
     case root
-    case account
     case preferences
     case problemReport
     case faq
 }
 
-enum SettingsDismissReason: Equatable {
-    case none
-    case userLoggedOut
-}
-
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    AccountViewControllerDelegate, UINavigationControllerDelegate
+    UINavigationControllerDelegate
 {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
@@ -48,7 +42,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         _ to: SettingsNavigationRoute
     ) -> Void)?
 
-    var didFinish: ((SettingsCoordinator, SettingsDismissReason) -> Void)?
+    var didFinish: ((SettingsCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -137,7 +131,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     // MARK: - SettingsViewControllerDelegate
 
     func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
-        didFinish?(self, .none)
+        didFinish?(self)
     }
 
     func settingsViewController(
@@ -147,12 +141,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         navigate(to: route, animated: true)
     }
 
-    // MARK: - AccountViewControllerDelegate
-
-    func accountViewControllerDidLogout(_ controller: AccountViewController) {
-        didFinish?(self, .userLoggedOut)
-    }
-
     // MARK: - Route mapping
 
     private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController? {
@@ -160,13 +148,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .root:
             let controller = SettingsViewController(
                 interactor: interactorFactory.makeSettingsInteractor()
-            )
-            controller.delegate = self
-            return controller
-
-        case .account:
-            let controller = AccountViewController(
-                interactor: interactorFactory.makeAccountInteractor()
             )
             controller.delegate = self
             return controller
@@ -190,8 +171,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         switch viewController {
         case is SettingsViewController:
             return .root
-        case is AccountViewController:
-            return .account
         case is PreferencesViewController:
             return .preferences
         case is ProblemReportViewController:
