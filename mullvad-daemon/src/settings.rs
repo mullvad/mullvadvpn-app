@@ -269,6 +269,8 @@ impl<'a> Display for SettingsSummary<'a> {
 
         // Print DNS options
 
+        write!(f, ", dns: ")?;
+
         match self.settings.tunnel_options.dns_options.state {
             DnsState::Default => {
                 let mut content = vec![];
@@ -292,8 +294,7 @@ impl<'a> Display for SettingsSummary<'a> {
                 if content.is_empty() {
                     content.push("default");
                 }
-
-                write!(f, ", dns: {}", content.join(" "))?;
+                write!(f, "{}", content.join(" "))?;
             }
             DnsState::Custom => {
                 // NOTE: Technically inaccurate, as the gateway IP is a local IP but isn't treated as one.
@@ -315,10 +316,10 @@ impl<'a> Display for SettingsSummary<'a> {
                     .any(|addr| !is_local_address(addr));
 
                 match (contains_public, contains_local) {
-                    (true, true) => f.write_str(", dns: custom, public, local")?,
-                    (true, false) => f.write_str(", dns: custom, public")?,
-                    (false, false) => f.write_str(", dns: custom, no addrs")?,
-                    (false, true) => f.write_str(", dns: custom, local")?,
+                    (true, true) => f.write_str("custom, public, local")?,
+                    (true, false) => f.write_str("custom, public")?,
+                    (false, false) => f.write_str("custom, no addrs")?,
+                    (false, true) => f.write_str("custom, local")?,
                 }
             }
         }
