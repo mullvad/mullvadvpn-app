@@ -26,6 +26,11 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
     case selectLocation
 
     /**
+     Account group.
+     */
+    case account
+
+    /**
      Settings group.
      */
     case settings
@@ -39,7 +44,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
         case .primary:
             return UIDevice.current.userInterfaceIdiom == .pad
 
-        case .selectLocation, .settings:
+        case .selectLocation, .account, .settings:
             return true
         }
     }
@@ -48,7 +53,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
         switch self {
         case .primary:
             return 0
-        case .settings, .selectLocation:
+        case .settings, .account, .selectLocation:
             return 1
         }
     }
@@ -62,6 +67,11 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
  Enum type describing primary application routes.
  */
 enum AppRoute: Equatable, Hashable {
+    /**
+     Account route.
+     */
+    case account
+
     /**
      Settings route. Contains sub-route to display.
      */
@@ -82,7 +92,7 @@ enum AppRoute: Equatable, Hashable {
      */
     var isExclusive: Bool {
         switch self {
-        case .selectLocation, .settings:
+        case .selectLocation, .account, .settings:
             return true
         default:
             return false
@@ -109,6 +119,8 @@ enum AppRoute: Equatable, Hashable {
             return .primary
         case .selectLocation:
             return .selectLocation
+        case .account:
+            return .account
         case .settings:
             return .settings
         }

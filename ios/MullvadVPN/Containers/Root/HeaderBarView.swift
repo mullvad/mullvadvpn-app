@@ -48,29 +48,43 @@ class HeaderBarView: UIView {
         return label
     }()
 
-    let settingsButton = makeSettingsButton()
+    let accountButton: HeaderBarButton = {
+        let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+        button.accessibilityIdentifier = "AccountButton"
+        button.accessibilityLabel = NSLocalizedString(
+            "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
+            tableName: "HeaderBar",
+            value: "Account",
+            comment: ""
+        )
+        return button
+    }()
 
-    class func makeSettingsButton() -> HeaderBarButton {
-        let settingsImage = UIImage(named: "IconSettings")?
-            .withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
-        let disabledSettingsImage = UIImage(named: "IconSettings")?
-            .withTintColor(
-                UIColor.HeaderBar.disabledButtonColor,
-                renderingMode: .alwaysOriginal
-            )
-
-        let settingsButton = HeaderBarButton(type: .system)
-        settingsButton.setImage(settingsImage, for: .normal)
-        settingsButton.setImage(disabledSettingsImage, for: .disabled)
-        settingsButton.translatesAutoresizingMaskIntoConstraints = false
-        settingsButton.accessibilityIdentifier = "SettingsButton"
-        settingsButton.accessibilityLabel = NSLocalizedString(
+    let settingsButton: HeaderBarButton = {
+        let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+        button.accessibilityIdentifier = "SettingsButton"
+        button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "HeaderBar",
             value: "Settings",
             comment: ""
         )
-        return settingsButton
+        return button
+    }()
+
+    class func makeHeaderBarButton(with image: UIImage?) -> HeaderBarButton {
+        let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
+        let disabledButtonImage = image?.withTintColor(
+            UIColor.HeaderBar.disabledButtonColor,
+            renderingMode: .alwaysOriginal
+        )
+
+        let barButton = HeaderBarButton(type: .system)
+        barButton.setImage(buttonImage, for: .normal)
+        barButton.setImage(disabledButtonImage, for: .disabled)
+        barButton.translatesAutoresizingMaskIntoConstraints = false
+
+        return barButton
     }
 
     private let borderLayer: CALayer = {
@@ -104,49 +118,52 @@ class HeaderBarView: UIView {
         let imageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
 
-        let constraints = [
-            logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
-            logoImageView.widthAnchor.constraint(equalToConstant: 44),
+        [deviceName, timeLeft].forEach { deviceInfoHolder.addArrangedSubview($0) }
+
+        addConstrainedSubviews([logoImageView, brandNameImageView, accountButton, settingsButton, deviceInfoHolder]) {
+            logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+            logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
+            logoImageView.widthAnchor.constraint(equalToConstant: 44)
             logoImageView.heightAnchor.constraint(
                 equalTo: logoImageView.widthAnchor,
                 multiplier: 1
-            ),
+            )
 
             brandNameImageView.leadingAnchor.constraint(
                 equalTo: logoImageView.trailingAnchor,
                 constant: 9
-            ),
+            )
             brandNameImageView.topAnchor.constraint(
                 equalTo: layoutMarginsGuide.topAnchor,
                 constant: 22
-            ),
+            )
             brandNameImageView.widthAnchor.constraint(
                 equalTo: brandNameImageView.heightAnchor,
                 multiplier: brandNameAspectRatio
-            ),
-            brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
+            )
+            brandNameImageView.heightAnchor.constraint(equalToConstant: 18)
             layoutMarginsGuide.bottomAnchor.constraint(
                 equalTo: deviceInfoHolder.bottomAnchor,
                 constant: 4
-            ),
+            )
 
-            settingsButton.leadingAnchor.constraint(
+            accountButton.leadingAnchor.constraint(
                 greaterThanOrEqualTo: brandNameImageView.trailingAnchor,
                 constant: 8
-            ),
-            settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
+            )
+            accountButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
 
-            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7),
-        ]
+            settingsButton.leadingAnchor.constraint(
+                equalTo: accountButton.trailingAnchor,
+                constant: 20
+            ).withPriority(.defaultHigh)
+            settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+            settingsButton.centerYAnchor.constraint(equalTo: accountButton.centerYAnchor)
 
-        [logoImageView, brandNameImageView, settingsButton, deviceInfoHolder].forEach { addSubview($0) }
-        [deviceName, timeLeft].forEach { deviceInfoHolder.addArrangedSubview($0) }
-
-        NSLayoutConstraint.activate(constraints)
+            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+            deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7)
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -161,33 +178,35 @@ class HeaderBarView: UIView {
 }
 
 extension HeaderBarView {
-    func update(deviceState: DeviceState) {
-        switch deviceState {
-        case let .loggedIn(storedAccountData, storedDeviceData):
+    func update(configuration: RootConfigration) {
+        if let name = configuration.deviceName {
             let formattedDeviceName = NSLocalizedString(
                 "DEVICE_NAME_HEADER_VIEW",
                 tableName: "Account",
-                value: "Device name : %@",
+                value: "Device name: %@",
                 comment: ""
             )
+            deviceName.text = .init(format: formattedDeviceName, name)
+        }
+
+        if let expiry = configuration.expiry {
             let formattedTimeLeft = NSLocalizedString(
                 "TIME_LEFT_HEADER_VIEW",
                 tableName: "Account",
-                value: "Time left : %@",
+                value: "Time left: %@",
                 comment: ""
             )
-            deviceName.text = .init(format: formattedDeviceName, storedDeviceData.name)
             timeLeft.text = .init(
                 format: formattedTimeLeft,
                 CustomDateComponentsFormatting.localizedString(
                     from: Date(),
-                    to: storedAccountData.expiry,
+                    to: expiry,
                     unitsStyle: .full
                 ) ?? ""
             )
-            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = false }
-        case .loggedOut, .revoked:
-            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = true }
         }
+
+        deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = configuration.deviceName == nil }
+        accountButton.isHidden = !configuration.showsAccountButton
     }
 }

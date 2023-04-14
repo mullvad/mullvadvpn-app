@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add search functionality to location selection view.
 - Wipe all settings on app reinstall.
+- Add a dedicated account button on the main view and remove it from settings.
 
 ### Changed
 - Changed key rotation interval from 4 to 14 days.

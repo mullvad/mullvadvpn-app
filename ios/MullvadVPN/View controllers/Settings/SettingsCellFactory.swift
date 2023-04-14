@@ -18,20 +18,10 @@ struct SettingsCellFactory: CellFactoryProtocol {
     }
 
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell
-
-        switch item {
-        case .account:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: SettingsDataSource.CellReuseIdentifiers.accountCell.rawValue,
-                for: indexPath
-            )
-        default:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: SettingsDataSource.CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            )
-        }
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: SettingsDataSource.CellReuseIdentifiers.basicCell.rawValue,
+            for: indexPath
+        )
 
         configureCell(cell, item: item, indexPath: indexPath)
 
@@ -44,19 +34,6 @@ struct SettingsCellFactory: CellFactoryProtocol {
         indexPath: IndexPath
     ) {
         switch item {
-        case .account:
-            guard let cell = cell as? SettingsAccountCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
-                "ACCOUNT_CELL_LABEL",
-                tableName: "Settings",
-                value: "Account",
-                comment: ""
-            )
-            cell.accountExpiryDate = interactor.deviceState.accountData?.expiry
-            cell.accessibilityIdentifier = "AccountCell"
-            cell.disclosureType = .chevron
-
         case .preferences:
             guard let cell = cell as? SettingsCell else { return }
 
