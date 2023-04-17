@@ -178,7 +178,7 @@ async fn new_client(addr: IpAddr, mtu: Option<u16>) -> Result<RelayConfigService
                 try_set_tcp_sock_mtu(sock.as_raw_socket(), mtu);
 
                 #[cfg(not(target_os = "windows"))]
-                try_set_tcp_sock_mtu(sock.as_raw_fd(), mtu);
+                try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), mtu);
             }
 
             sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
@@ -215,8 +215,17 @@ fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
 }
 
 #[cfg(not(windows))]
-fn try_set_tcp_sock_mtu(sock: RawFd, mtu: u16) {
+fn try_set_tcp_sock_mtu(dest: &IpAddr, sock: RawFd, mut mtu: u16) {
+    const IPV4_HEADER_SIZE: u16 = 20;
+    const IPV6_HEADER_SIZE: u16 = 40;
     const MAX_TCP_HEADER_SIZE: u16 = 60;
+
+    if dest.is_ipv4() {
+        mtu = mtu.saturating_sub(IPV4_HEADER_SIZE);
+    } else {
+        mtu = mtu.saturating_sub(IPV6_HEADER_SIZE);
+    }
+
     let mss = u32::from(mtu.saturating_sub(MAX_TCP_HEADER_SIZE));
 
     log::debug!("Config client socket MSS: {mss}");

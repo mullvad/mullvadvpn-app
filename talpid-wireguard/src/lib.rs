@@ -681,18 +681,15 @@ impl WireguardMonitor {
         // macOS is averse(?) to large values for MSS, so we just use the minimum
         const MIN_IPV4_MTU: u16 = 576;
         const MIN_IPV6_MTU: u16 = 1280;
-        const IPV4_HEADER_SIZE: u16 = 20;
-        const IPV6_HEADER_SIZE: u16 = 40;
-        const WIREGUARD_HEADER_SIZE: u16 = 40;
 
         if config.peers.len() == 1 {
             return None;
         }
 
         if Self::get_tunnel_config_client_addr(config).is_ipv4() {
-            Some(MIN_IPV4_MTU - IPV4_HEADER_SIZE - WIREGUARD_HEADER_SIZE)
+            Some(MIN_IPV4_MTU)
         } else {
-            Some(MIN_IPV6_MTU - IPV6_HEADER_SIZE - WIREGUARD_HEADER_SIZE)
+            Some(MIN_IPV6_MTU)
         }
     }
 
