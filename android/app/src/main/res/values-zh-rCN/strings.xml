@@ -151,7 +151,6 @@
     <string name="update_available_description">安装 Mullvad VPN (%1$s) 以保持最新状态</string>
     <string name="update_available_footer">有可用更新，请下载以保持安全。</string>
     <string name="user_email_hint">您的电子邮件（可选）</string>
-    <string name="user_message_hint">请用英语或瑞典语描述您的问题。</string>
     <string name="view_logs">查看应用日志</string>
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>

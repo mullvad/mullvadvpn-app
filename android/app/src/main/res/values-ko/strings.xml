@@ -151,7 +151,6 @@
     <string name="update_available_description">Mullvad VPN(%1$s)을 설치하여 최신 상태로 유지하세요.</string>
     <string name="update_available_footer">업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요.</string>
     <string name="user_email_hint">이메일(선택 사항)</string>
-    <string name="user_message_hint">문제를 영어나 스웨덴어로 설명해 주세요.</string>
     <string name="view_logs">앱 로그 보기</string>
     <string name="virtual_adapter_problem">가상 어댑터 오류</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>

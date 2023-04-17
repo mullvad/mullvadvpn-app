@@ -151,7 +151,6 @@
     <string name="update_available_description">Asenna Mullvad VPN (%1$s) pysyäksesi ajan tasalla</string>
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi suojattuna.</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
-    <string name="user_message_hint">Kuvaile ongelmaasi englanniksi tai ruotsiksi.</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>

@@ -151,7 +151,6 @@
     <string name="update_available_description">Пользуйтесь актуальной версией — установите Mullvad VPN (%1$s)</string>
     <string name="update_available_footer">Вышло обновление. Установите его, чтобы защитить подключения.</string>
     <string name="user_email_hint">Ваша электронная почта (необязательно)</string>
-    <string name="user_message_hint">Опишите свою проблему на английском или шведском.</string>
     <string name="view_logs">Открыть журналы</string>
     <string name="virtual_adapter_problem">Ошибка виртуального адаптера</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>

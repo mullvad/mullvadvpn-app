@@ -151,7 +151,6 @@
     <string name="update_available_description">ติดตั้ง Mullvad VPN (%1$s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ</string>
     <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
-    <string name="user_message_hint">โปรดอธิบายปัญหาของคุณในภาษาอังกฤษหรือสวีเดน</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>

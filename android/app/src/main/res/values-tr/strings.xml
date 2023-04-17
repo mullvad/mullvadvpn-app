@@ -151,7 +151,6 @@
     <string name="update_available_description">Güncel kalmak için Mullvad VPN (%1$s) yükleyin</string>
     <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
-    <string name="user_message_hint">Lütfen sorununuzu İngilizce veya Türkçe olarak tanımlayın.</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
