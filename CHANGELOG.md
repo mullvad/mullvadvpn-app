@@ -58,6 +58,10 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix tray window behaviour when opening mission control and switching between full-screen workspaces.
 
+#### Linux
+- Fix RPM package containing unecessary files causing conflicts with other electron-builder based
+  packages.
+
 
 ## [2023.3] - 2023-04-05
 ### Changed
