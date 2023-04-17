@@ -168,7 +168,7 @@ function Form() {
           <StyledMessageInput
             placeholder={messages.pgettext(
               'support-view',
-              'Please describe your problem in English or Swedish.',
+              'To assist you better, please write in English or Swedish and include which country you are connecting from.',
             )}
             defaultValue={message}
             onChange={onChangeDescription}
