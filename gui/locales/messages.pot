@@ -1359,10 +1359,6 @@ msgid "Adult content"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr ""
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr ""
 
@@ -1428,6 +1424,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr ""
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr ""
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr ""
 
@@ -1473,6 +1473,10 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -1612,6 +1616,9 @@ msgid "Agree and continue"
 msgstr ""
 
 msgid "All applications"
+msgstr ""
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr ""
 
 msgid "Always-on VPN assigned to other app"
