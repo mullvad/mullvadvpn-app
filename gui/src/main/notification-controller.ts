@@ -51,7 +51,8 @@ export default class NotificationController {
   private dismissedNotifications: Set<SystemNotification> = new Set();
   private throttledNotifications: Map<SystemNotification, Scheduler> = new Map();
 
-  private notificationTitle = process.platform === 'linux' ? app.name : '';
+  private notificationTitle =
+    process.platform === 'linux' && process.env.NODE_ENV !== 'test' ? app.name : '';
   private notificationIcon?: NativeImage;
 
   constructor(private notificationControllerDelegate: NotificationControllerDelegate) {
@@ -85,7 +86,7 @@ export default class NotificationController {
     hasExcludedApps: boolean,
     isWindowVisible: boolean,
     areSystemNotificationsEnabled: boolean,
-  ) {
+  ): boolean {
     const notificationProviders: SystemNotificationProvider[] = [
       new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
       new ConnectedNotificationProvider(tunnelState),
@@ -98,11 +99,14 @@ export default class NotificationController {
       notification.mayDisplay(),
     );
 
+    this.reconnecting =
+      tunnelState.state === 'disconnecting' && tunnelState.details === 'reconnect';
+
     if (notificationProvider) {
       const notification = notificationProvider.getSystemNotification();
 
       if (notification) {
-        this.notify(notification, isWindowVisible, areSystemNotificationsEnabled);
+        return this.notify(notification, isWindowVisible, areSystemNotificationsEnabled);
       } else {
         log.error(
           `Notification providers mayDisplay() returned true but getSystemNotification() returned undefined for ${notificationProvider.constructor.name}`,
@@ -112,8 +116,7 @@ export default class NotificationController {
       this.closeNotificationsInCategory(SystemNotificationCategory.tunnelState);
     }
 
-    this.reconnecting =
-      tunnelState.state === 'disconnecting' && tunnelState.details === 'reconnect';
+    return false;
   }
 
   // Closes still relevant notifications but still lets them affect notification dot in tray icon.
@@ -150,7 +153,7 @@ export default class NotificationController {
     systemNotification: SystemNotification,
     windowVisible: boolean,
     infoNotificationsEnabled: boolean,
-  ) {
+  ): boolean {
     const notificationSuppressReason = this.evaluateNotification(
       systemNotification,
       windowVisible,
@@ -165,7 +168,7 @@ export default class NotificationController {
         this.updateNotificationIcon();
       }
 
-      return;
+      return false;
     }
 
     // Cancel throttled notifications within the same category
@@ -186,8 +189,10 @@ export default class NotificationController {
       }, THROTTLE_DELAY);
 
       this.throttledNotifications.set(systemNotification, scheduler);
+      return true;
     } else {
       this.notifyImpl(systemNotification);
+      return true;
     }
   }
 
@@ -210,14 +215,7 @@ export default class NotificationController {
   }
 
   private createNotification(systemNotification: SystemNotification): Notification {
-    const notification = new ElectronNotification({
-      title: this.notificationTitle,
-      body: systemNotification.message,
-      silent: true,
-      icon: this.notificationIcon,
-      timeoutType:
-        systemNotification.severity == SystemNotificationSeverityType.high ? 'never' : 'default',
-    });
+    const notification = this.createElectronNotification(systemNotification);
 
     // Action buttons are only available on macOS.
     if (process.platform === 'darwin') {
@@ -240,6 +238,17 @@ export default class NotificationController {
     }
 
     return { specification: systemNotification, notification };
+  }
+
+  private createElectronNotification(systemNotification: SystemNotification): ElectronNotification {
+    return new ElectronNotification({
+      title: this.notificationTitle,
+      body: systemNotification.message,
+      silent: true,
+      icon: this.notificationIcon,
+      timeoutType:
+        systemNotification.severity == SystemNotificationSeverityType.high ? 'never' : 'default',
+    });
   }
 
   private performAction(action?: NotificationAction) {
@@ -287,7 +296,7 @@ export default class NotificationController {
       return NotificationSuppressReason.windowVisible;
     } else if (
       !areSystemNotificationsEnabled &&
-      notification.severity >= SystemNotificationSeverityType.low
+      notification.severity <= SystemNotificationSeverityType.low
     ) {
       return NotificationSuppressReason.preference;
     } else if (this.suppressDueToAlreadyPresented(notification)) {
