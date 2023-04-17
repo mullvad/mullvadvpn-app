@@ -1,6 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use lazy_static::lazy_static;
-#[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
 #[cfg(windows)]
 use std::path::PathBuf;
@@ -81,7 +80,6 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 #[cfg(all(unix, not(target_os = "android")))]
 const ROOT_UID: u32 = 0;
 
-#[cfg(any(all(unix, not(target_os = "android")), target_os = "windows"))]
 /// Returns whether an address belongs to a private subnet.
 pub fn is_local_address(address: &IpAddr) -> bool {
     let address = *address;

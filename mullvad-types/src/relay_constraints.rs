@@ -26,12 +26,21 @@ pub trait Set<T> {
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[cfg_attr(target_os = "android", jnix(bounds = "T: android.os.Parcelable"))]
-pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
+pub enum Constraint<T> {
     Any,
     Only(T),
 }
 
-impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
+impl<T: fmt::Display> fmt::Display for Constraint<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Constraint::Any => "any".fmt(f),
+            Constraint::Only(value) => fmt::Display::fmt(value, f),
+        }
+    }
+}
+
+impl<T> Constraint<T> {
     pub fn unwrap(self) -> T {
         match self {
             Constraint::Any => panic!("called `Constraint::unwrap()` on an `Any` value"),
@@ -53,10 +62,7 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
         }
     }
 
-    pub fn map<U: fmt::Debug + Clone + Eq + PartialEq, F: FnOnce(T) -> U>(
-        self,
-        f: F,
-    ) -> Constraint<U> {
+    pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> Constraint<U> {
         match self {
             Constraint::Any => Constraint::Any,
             Constraint::Only(value) => Constraint::Only(f(value)),
@@ -87,7 +93,9 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(value) => Some(value),
         }
     }
+}
 
+impl<T: PartialEq> Constraint<T> {
     pub fn matches_eq(&self, other: &T) -> bool {
         match self {
             Constraint::Any => true,
@@ -98,15 +106,15 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
 
 // Using the default attribute fails on Android
 #[allow(clippy::derivable_impls)]
-impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
+impl<T> Default for Constraint<T> {
     fn default() -> Self {
         Constraint::Any
     }
 }
 
-impl<T: Copy + fmt::Debug + Clone + Eq + PartialEq> Copy for Constraint<T> {}
+impl<T: Copy> Copy for Constraint<T> {}
 
-impl<T: fmt::Debug + Clone + Eq + Match<U>, U> Match<U> for Constraint<T> {
+impl<T: Match<U>, U> Match<U> for Constraint<T> {
     fn matches(&self, other: &U) -> bool {
         match *self {
             Constraint::Any => true,
@@ -115,12 +123,10 @@ impl<T: fmt::Debug + Clone + Eq + Match<U>, U> Match<U> for Constraint<T> {
     }
 }
 
-impl<T: fmt::Debug + Clone + Eq + Set<U>, U: fmt::Debug + Clone + Eq> Set<Constraint<U>>
-    for Constraint<T>
-{
+impl<T: Set<U>, U> Set<Constraint<U>> for Constraint<T> {
     fn is_subset(&self, other: &Constraint<U>) -> bool {
         match self {
-            Constraint::Any => *other == Constraint::Any,
+            Constraint::Any => other.is_any(),
             Constraint::Only(ref constraint) => match other {
                 Constraint::Only(ref other_constraint) => constraint.is_subset(other_constraint),
                 _ => true,
@@ -129,7 +135,7 @@ impl<T: fmt::Debug + Clone + Eq + Set<U>, U: fmt::Debug + Clone + Eq> Set<Constr
     }
 }
 
-impl<T: fmt::Debug + Clone + Eq + PartialEq> From<Option<T>> for Constraint<T> {
+impl<T> From<Option<T>> for Constraint<T> {
     fn from(value: Option<T>) -> Self {
         match value {
             Some(value) => Constraint::Only(value),
