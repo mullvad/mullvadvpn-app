@@ -121,8 +121,8 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(4);
-const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(15);
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
@@ -473,8 +473,9 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
+        let mtu = Self::get_exit_psk_socket_mtu(config);
         let exit_psk =
-            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key())
+            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key(), mtu)
                 .await?;
 
         log::debug!("Successfully exchanged PSK with exit peer");
@@ -507,6 +508,7 @@ impl WireguardMonitor {
                     retry_attempt,
                     &entry_config,
                     wg_psk_privkey.public_key(),
+                    None,
                 )
                 .await?,
             );
@@ -638,6 +640,7 @@ impl WireguardMonitor {
         retry_attempt: u32,
         config: &Config,
         wg_psk_pubkey: PublicKey,
+        mss: Option<u16>,
     ) -> std::result::Result<PresharedKey, CloseMsg> {
         log::debug!("Performing PQ-safe PSK exchange");
 
@@ -649,10 +652,11 @@ impl WireguardMonitor {
 
         let psk = tokio::time::timeout(
             timeout,
-            talpid_tunnel_config_client::push_pq_key(
-                IpAddr::V4(config.ipv4_gateway),
+            talpid_tunnel_config_client::push_pq_key_with_opts(
+                Self::get_tunnel_config_client_addr(config),
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
+                mss,
             ),
         )
         .await
@@ -664,6 +668,33 @@ impl WireguardMonitor {
         .map_err(CloseMsg::SetupError)?;
 
         Ok(psk)
+    }
+
+    /// TODO: This hack makes sure that the max segment size is small enough to prevent
+    /// fragmentation. This is an issue when using multihop, because the MTU is too small to
+    /// accommodate the headers of the inner tunnel, and lowering it does no good.
+    //
+    /// When we have fixed fragmentation issues for multihop, this workaround can be removed.
+    ///
+    /// Note that TCP imposes max and min bounds on the specified size as well.
+    fn get_exit_psk_socket_mtu(config: &Config) -> Option<u16> {
+        // macOS is averse(?) to large values for MSS, so we just use the minimum
+        const MIN_IPV4_MTU: u16 = 576;
+        const MIN_IPV6_MTU: u16 = 1280;
+
+        if config.peers.len() == 1 {
+            return None;
+        }
+
+        if Self::get_tunnel_config_client_addr(config).is_ipv4() {
+            Some(MIN_IPV4_MTU)
+        } else {
+            Some(MIN_IPV6_MTU)
+        }
+    }
+
+    fn get_tunnel_config_client_addr(config: &Config) -> IpAddr {
+        IpAddr::V4(config.ipv4_gateway)
     }
 
     #[allow(unused_variables)]

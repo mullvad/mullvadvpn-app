@@ -50,6 +50,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix duplicated notifications in some situations.
 - Fix notification setting being inverted. When non-important notifications were disabled it instead
   disabled important ones and showed non-important ones.
+- Work around issues with PQ and multihop caused by fragmentation in the tunnel. The workaround
+  doesn't fix fragmentation issues in general but prevents the PSK exchange packets from being
+  fragmented by setting an explicit maximum segment size.
 
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
