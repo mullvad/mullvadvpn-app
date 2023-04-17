@@ -21,7 +21,7 @@ use libc::setsockopt;
 #[cfg(not(target_os = "windows"))]
 mod sys {
     pub use libc::{socklen_t, IPPROTO_TCP, TCP_MAXSEG};
-    pub use std::os::fd::AsRawFd;
+    pub use std::os::fd::{AsRawFd, RawFd};
 }
 #[cfg(target_os = "windows")]
 mod sys {
@@ -214,17 +214,16 @@ fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
     }
 }
 
-// TODO: func for linux
 #[cfg(not(windows))]
-fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
-    const MAX_TCP_HEADER_SIZE: u32 = 60;
+fn try_set_tcp_sock_mtu(sock: RawFd, mtu: u16) {
+    const MAX_TCP_HEADER_SIZE: u16 = 60;
     let mss = u32::from(mtu.saturating_sub(MAX_TCP_HEADER_SIZE));
 
     log::debug!("Config client socket MSS: {mss}");
 
     let result = unsafe {
         setsockopt(
-            raw_sock,
+            sock,
             IPPROTO_TCP,
             TCP_MAXSEG,
             &mss as *const _ as _,
