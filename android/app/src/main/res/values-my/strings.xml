@@ -151,7 +151,6 @@
     <string name="update_available_description">အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%1$s) ကို ထည့်သွင်းပါ</string>
     <string name="update_available_footer">အပ်ဒိတ် ရရှိနိုင်ပါပြီ၊ ဆက်လက် လုံခြုံစေရန် ဒေါင်းလုဒ်လုပ်ပါ။</string>
     <string name="user_email_hint">သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</string>
-    <string name="user_message_hint">သင့်ပြဿနာကို အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ဖော်ပြပေးပါ။</string>
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>

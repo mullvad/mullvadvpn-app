@@ -151,7 +151,6 @@
     <string name="update_available_description">Installez Mullvad VPN (%1$s) pour rester à jour</string>
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
-    <string name="user_message_hint">Veuillez décrire votre problème en anglais ou en suédois.</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
