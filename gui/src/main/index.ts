@@ -79,13 +79,13 @@ class ApplicationMain
     TunnelStateHandlerDelegate,
     SettingsDelegate,
     AccountDelegate {
-  private daemonRpc = new DaemonRpc();
+  private daemonRpc: DaemonRpc;
 
   private notificationController = new NotificationController(this);
-  private version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
-  private settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
+  private version: Version;
+  private settings: Settings;
+  private account: Account;
   private userInterface?: UserInterface;
-  private account: Account = new Account(this, this.daemonRpc);
   private tunnelState = new TunnelStateHandler(this);
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
@@ -112,6 +112,16 @@ class ApplicationMain
   private navigationHistory?: IHistoryObject;
 
   private relayList?: IRelayListWithEndpointData;
+
+  public constructor() {
+    this.daemonRpc = new DaemonRpc(
+      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
+    );
+
+    this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
+    this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
+    this.account = new Account(this, this.daemonRpc);
+  }
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -375,9 +385,6 @@ class ApplicationMain
 
     this.updateCurrentLocale();
 
-    this.daemonRpc.addConnectionObserver(
-      new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
-    );
     this.connectToDaemon();
 
     if (process.platform === 'darwin') {
@@ -459,8 +466,7 @@ class ApplicationMain
 
   private onResume = () => {
     log.info('Resume event received, connecting to daemon');
-    this.daemonRpc.reopen();
-    this.daemonRpc.addConnectionObserver(
+    this.daemonRpc.reopen(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
     );
     this.connectToDaemon();
