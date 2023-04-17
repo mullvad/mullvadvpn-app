@@ -55,6 +55,11 @@ const StyledSectionItem = styled(Cell.Container)({
   backgroundColor: colors.blue40,
 });
 
+const LanIpRanges = styled.ul({
+  listStyle: 'disc outside',
+  marginLeft: '20px',
+});
+
 export default function VpnSettings() {
   const { pop } = useHistory();
 
@@ -197,20 +202,34 @@ function AllowLan() {
             {messages.pgettext('vpn-settings-view', 'Local network sharing')}
           </Cell.InputLabel>
         </AriaLabel>
+        <AriaDetails>
+          <InfoButton>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:',
+              )}
+              <LanIpRanges>
+                <li>10.0.0.0/8</li>
+                <li>172.16.0.0/12</li>
+                <li>192.168.0.0/16</li>
+                <li>169.254.0.0/16</li>
+                <li>0xfe80::/10</li>
+                <li>0xfc00::/7</li>
+              </LanIpRanges>
+            </ModalMessage>
+          </InfoButton>
+        </AriaDetails>
         <AriaInput>
           <Cell.Switch isOn={allowLan} onChange={setAllowLan} />
         </AriaInput>
       </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {messages.pgettext(
-              'vpn-settings-view',
-              'Allows access to other devices on the same network for sharing, printing etc.',
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
