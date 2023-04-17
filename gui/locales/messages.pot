@@ -1149,10 +1149,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr ""
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr ""
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1186,6 +1182,10 @@ msgstr ""
 
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
+msgstr ""
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr ""
 
 msgctxt "support-view"
@@ -1654,6 +1654,9 @@ msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
 msgid "Mullvad account number"
+msgstr ""
+
+msgid "Please describe your problem in English or Swedish."
 msgstr ""
 
 msgid "Preferences"
