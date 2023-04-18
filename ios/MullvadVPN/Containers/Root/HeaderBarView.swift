@@ -29,7 +29,8 @@ class HeaderBarView: UIView {
     private let deviceInfoHolder: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .fill
+        stackView.spacing = 16.0
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -38,6 +39,7 @@ class HeaderBarView: UIView {
         let label = UILabel(frame: .zero)
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
@@ -45,6 +47,7 @@ class HeaderBarView: UIView {
         let label = UILabel(frame: .zero)
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -128,7 +131,7 @@ class HeaderBarView: UIView {
             brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
             layoutMarginsGuide.bottomAnchor.constraint(
                 equalTo: deviceInfoHolder.bottomAnchor,
-                constant: 4
+                constant: 8
             ),
 
             settingsButton.leadingAnchor.constraint(
@@ -138,9 +141,9 @@ class HeaderBarView: UIView {
             settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             settingsButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor),
 
-            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            deviceInfoHolder.leadingAnchor.constraint(equalTo: logoImageView.leadingAnchor),
             deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7),
+            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 8.0),
         ]
 
         [logoImageView, brandNameImageView, settingsButton, deviceInfoHolder].forEach { addSubview($0) }
