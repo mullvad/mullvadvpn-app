@@ -675,8 +675,20 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr ""
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr ""
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
+msgstr ""
+
+#. Error message shown above login input when trying to login with a non-existent
+#. account number.
+msgctxt "login-view"
+msgid "Invalid account number"
 msgstr ""
 
 msgctxt "login-view"
@@ -705,6 +717,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr ""
 
+#. Error message shown above login input when trying to login to an account with
+#. too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr ""
@@ -1649,9 +1663,6 @@ msgid "Enter MTU"
 msgstr ""
 
 msgid "Excluded applications"
-msgstr ""
-
-msgid "Failed to fetch list of devices"
 msgstr ""
 
 msgid "Going to login will unblock the internet on this device."
