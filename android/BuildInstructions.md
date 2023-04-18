@@ -4,12 +4,25 @@ This document aims to explain how to build the Mullvad Android app. It's strongl
 primarily supported to build the app using the provided container, as it ensures the correct build
 environment.
 
+## Build process
+
+The build process consist of two main steps. First building the native libraries (`mullvad-daemon`
+and `wireguard-go`) and then building the Android app/project which will bundle the previously built
+native libraries. Building the native libraries requires some specific toolchains and packages to be
+installed, so it's recommended to build using the provided build script and container image. The
+native libraries doesn't have to be rebuilt very often, only when including daemon changes or after
+cleaning the project, so apart from that it's possible to build using the Gradle CLI or
+the Android Studio GUI.
+
 ## Build with provided container (recommended)
 
-This can easily be achieved by running the [containerized-build.sh](../building/containerized-build.sh)
-script, which helps using the correct tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
+Building both the native libraries and Android project can easily be achieved by running the
+[containerized-build.sh](../building/containerized-build.sh) script, which helps using the correct
+tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
 by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
-can be used by setting the `CONTAINER_RUNNER` environment variable.
+can be used by setting the `CONTAINER_RUNNER` environment variable. Subsequent builds can that
+doesn't rely on changes to the native libraries can be ran using the Gradle CLI or the Android
+Studio GUI.
 
 ### Debug build
 Run the following command to trigger a full debug build:
@@ -30,7 +43,9 @@ directory configured in step 1:
 Building without the provided container requires installing multiple Sdk:s and toolchains, and is
 therefore not recommended.
 
-*: A container is still used to build `wireguard-go`.
+*: A container is still used to build `wireguard-go` for Android since it requires a patched version
+of `go`. See [this patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
+for more information.
 
 ### Setup build environment
 These steps explain how to manually setup the build environment on a Linux system.
