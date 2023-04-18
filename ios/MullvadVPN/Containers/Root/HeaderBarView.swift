@@ -29,8 +29,9 @@ class HeaderBarView: UIView {
     private let deviceInfoHolder: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 16.0
         return stackView
     }()
 
@@ -38,6 +39,7 @@ class HeaderBarView: UIView {
         let label = UILabel(frame: .zero)
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
@@ -45,6 +47,7 @@ class HeaderBarView: UIView {
         let label = UILabel(frame: .zero)
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -128,7 +131,7 @@ class HeaderBarView: UIView {
             brandNameImageView.heightAnchor.constraint(equalToConstant: 18),
             layoutMarginsGuide.bottomAnchor.constraint(
                 equalTo: deviceInfoHolder.bottomAnchor,
-                constant: 4
+                constant: 8
             ),
 
             settingsButton.leadingAnchor.constraint(
