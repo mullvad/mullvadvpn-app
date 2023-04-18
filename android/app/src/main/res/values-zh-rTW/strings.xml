@@ -151,7 +151,6 @@
     <string name="update_available_description">安裝 Mullvad VPN (%1$s) 以維持最新狀態</string>
     <string name="update_available_footer">更新可用，請下載以維持安全。</string>
     <string name="user_email_hint">您的電子郵件 (選填)</string>
-    <string name="user_message_hint">請用英語或瑞典語來說明您的問題。</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>

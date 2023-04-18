@@ -151,7 +151,6 @@
     <string name="update_available_description">Mullvad VPN (%1$s) をインストールして常に最新の状態を保ちましょう</string>
     <string name="update_available_footer">アップデートできます。セキュリティを維持するにはダウンロードしてしてください。</string>
     <string name="user_email_hint">あなたのメールアドレス (任意)</string>
-    <string name="user_message_hint">問題を英語またはスウェーデン語で説明してください。</string>
     <string name="view_logs">アプリのログを表示</string>
     <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>

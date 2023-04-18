@@ -1663,9 +1663,6 @@ msgstr ""
 msgid "Mullvad account number"
 msgstr ""
 
-msgid "Please describe your problem in English or Swedish."
-msgstr ""
-
 msgid "Preferences"
 msgstr ""
 
