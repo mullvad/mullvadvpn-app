@@ -841,8 +841,8 @@ class ApplicationMain
   }
 
   private blockPermissionRequests() {
-    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
-      callback(false);
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+      callback(ALLOWED_PERMISSIONS.includes(permission));
     });
     session.defaultSession.setPermissionCheckHandler((_webContents, permission) =>
       ALLOWED_PERMISSIONS.includes(permission),
