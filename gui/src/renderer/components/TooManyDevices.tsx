@@ -121,7 +121,7 @@ export default function TooManyDevices() {
               </StyledStatusIcon>
               {devices !== undefined && (
                 <>
-                  <StyledTitle>{title}</StyledTitle>
+                  <StyledTitle data-testid="title">{title}</StyledTitle>
                   <StyledLabel>{subtitle}</StyledLabel>
                   <DeviceList devices={devices} onRemoveDevice={onRemoveDevice} />
                 </>
