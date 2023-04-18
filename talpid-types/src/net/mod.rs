@@ -373,11 +373,13 @@ impl FromStr for TransportProtocol {
     type Err = TransportProtocolParseError;
 
     fn from_str(s: &str) -> std::result::Result<TransportProtocol, Self::Err> {
-        match s {
-            "udp" => Ok(TransportProtocol::Udp),
-            "tcp" => Ok(TransportProtocol::Tcp),
-            _ => Err(TransportProtocolParseError),
+        if s.eq_ignore_ascii_case("udp") {
+            return Ok(TransportProtocol::Udp);
         }
+        if s.eq_ignore_ascii_case("tcp") {
+            return Ok(TransportProtocol::Tcp);
+        }
+        Err(TransportProtocolParseError)
     }
 }
 
