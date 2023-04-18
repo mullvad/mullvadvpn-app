@@ -45,7 +45,7 @@ enum Cli {
         #[arg(required = true, long, short = 'r')]
         report: PathBuf,
         /// Email to attach to the problem report
-        #[arg(long, short = 'r')]
+        #[arg(long, short = 'e')]
         email: Option<String>,
         /// Message to include in the problem report
         #[arg(long, short = 'm')]
