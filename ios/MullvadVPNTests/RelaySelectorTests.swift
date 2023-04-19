@@ -112,5 +112,6 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 includeInCountry: true
             ),
         ]
-    )
+    ),
+    bridge: REST.ServerBridges(shadowsocks: [])
 )
