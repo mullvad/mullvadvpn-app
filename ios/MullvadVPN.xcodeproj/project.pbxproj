@@ -119,6 +119,7 @@
 		586168692976F6BD00EF8598 /* DisplayError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586168682976F6BD00EF8598 /* DisplayError.swift */; };
 		586250BB29E6F8F300F4B521 /* OperationCancellationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586250BA29E6F8F300F4B521 /* OperationCancellationTests.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
+		5864211F29F04CED00822139 /* UIBarButtonItem+Blocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864211E29F04CED00822139 /* UIBarButtonItem+Blocks.swift */; };
 		5864859929A0D028006C5743 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864859829A0D028006C5743 /* FormsheetPresentationController.swift */; };
 		5864859B29A0EAF2006C5743 /* SecondaryContextPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864859A29A0EAF2006C5743 /* SecondaryContextPresentationController.swift */; };
 		5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */; };
@@ -749,6 +750,7 @@
 		586168682976F6BD00EF8598 /* DisplayError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayError.swift; sourceTree = "<group>"; };
 		586250BA29E6F8F300F4B521 /* OperationCancellationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationCancellationTests.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
+		5864211E29F04CED00822139 /* UIBarButtonItem+Blocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Blocks.swift"; sourceTree = "<group>"; };
 		5864859829A0D028006C5743 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		5864859A29A0EAF2006C5743 /* SecondaryContextPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryContextPresentationController.swift; sourceTree = "<group>"; };
 		5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
@@ -1437,6 +1439,7 @@
 				7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
+				5864211E29F04CED00822139 /* UIBarButtonItem+Blocks.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */,
 				5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */,
@@ -2600,6 +2603,7 @@
 				5867771429097BCD006F721F /* PaymentState.swift in Sources */,
 				587D96742886D87C00CD8F1C /* DeviceManagementContentView.swift in Sources */,
 				589A454C28DDF5E100565204 /* Swizzle.swift in Sources */,
+				5864211F29F04CED00822139 /* UIBarButtonItem+Blocks.swift in Sources */,
 				58C3F4FB296C3AD500D72515 /* SettingsCoordinator.swift in Sources */,
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,

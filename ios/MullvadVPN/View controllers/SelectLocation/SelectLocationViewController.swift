@@ -38,11 +38,9 @@ final class SelectLocationViewController: UIViewController {
             value: "Select location",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDone)
-        )
+        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
+            self?.didFinish?()
+        })
 
         setupDataSource()
         setupTableView()
@@ -81,10 +79,6 @@ final class SelectLocationViewController: UIViewController {
     }
 
     // MARK: - Private
-
-    @objc private func handleDone() {
-        didFinish?()
-    }
 
     private func setupDataSource() {
         dataSource = LocationDataSource(tableView: tableView)

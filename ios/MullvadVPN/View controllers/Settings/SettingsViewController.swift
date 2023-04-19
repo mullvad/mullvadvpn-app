@@ -44,11 +44,11 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
             value: "Settings",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDismiss)
-        )
+        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
+            guard let self = self else { return }
+
+            self.delegate?.settingsViewControllerDidFinish(self)
+        })
 
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
@@ -57,12 +57,6 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
 
         dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
         dataSource?.delegate = self
-    }
-
-    // MARK: - IBActions
-
-    @IBAction func handleDismiss() {
-        delegate?.settingsViewControllerDidFinish(self)
     }
 
     // MARK: - SettingsDataSourceDelegate
