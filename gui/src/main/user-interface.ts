@@ -10,7 +10,7 @@ import { IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
-import { SHOULD_DISABLE_DEVTOOLS_OPEN, SHOULD_FORWARD_RENDERER_LOG } from './command-line-options';
+import { CommandLineOptions } from './command-line-options';
 import { DaemonRpc } from './daemon-rpc';
 import {
   changeIpcWebContents,
@@ -110,12 +110,12 @@ export default class UserInterface implements WindowControllerDelegate {
     if (process.env.NODE_ENV === 'development') {
       await this.installDevTools();
 
-      if (!SHOULD_DISABLE_DEVTOOLS_OPEN) {
+      if (!CommandLineOptions.disableDevtoolsOpen.match) {
         // The devtools doesn't open on Windows if openDevTools is called without a delay here.
         window.once('ready-to-show', () => window.webContents.openDevTools({ mode: 'detach' }));
       }
 
-      if (SHOULD_FORWARD_RENDERER_LOG) {
+      if (CommandLineOptions.forwardRendererLog.match) {
         log.addInput(new WebContentsConsoleInput(window.webContents));
       }
     }

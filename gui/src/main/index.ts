@@ -27,7 +27,11 @@ import {
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import { SHOULD_DISABLE_RESET_NAVIGATION, SHOULD_SHOW_CHANGES } from './command-line-options';
+import {
+  CommandLineOptions,
+  printCommandLineOptions,
+  printElectronOptions,
+} from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -56,7 +60,7 @@ import TunnelStateHandler, {
   TunnelStateProvider,
 } from './tunnel-state';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
-import Version from './version';
+import Version, { GUI_VERSION } from './version';
 
 const execAsync = util.promisify(exec);
 
@@ -400,7 +404,7 @@ class ApplicationMain
       this,
       this.daemonRpc,
       SANDBOX_DISABLED,
-      SHOULD_DISABLE_RESET_NAVIGATION,
+      CommandLineOptions.disableResetNavigation.match,
     );
 
     this.tunnelStateExpectation = new Expectation(async () => {
@@ -720,7 +724,7 @@ class ApplicationMain
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
-      forceShowChanges: SHOULD_SHOW_CHANGES,
+      forceShowChanges: CommandLineOptions.showChanges.match,
       navigationHistory: this.navigationHistory,
     }));
 
@@ -1040,5 +1044,25 @@ class ApplicationMain
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
-const applicationMain = new ApplicationMain();
-applicationMain.run();
+if (CommandLineOptions.help.match) {
+  console.log('Mullvad VPN');
+  console.log('Graphical interface for managing the Mullvad VPN daemon');
+
+  console.log('');
+  console.log('OPTIONS:');
+  printCommandLineOptions();
+
+  console.log('');
+  console.log('USEFUL ELECTRON/CHROMIUM OPTIONS:');
+  printElectronOptions();
+
+  process.exit(0);
+} else if (CommandLineOptions.version.match) {
+  console.log(GUI_VERSION);
+  console.log('Electron version:', process.versions.electron);
+
+  process.exit(0);
+} else {
+  const applicationMain = new ApplicationMain();
+  applicationMain.run();
+}
