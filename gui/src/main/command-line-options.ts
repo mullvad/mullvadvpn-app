@@ -26,6 +26,7 @@ class DevelopmentCommandLineOption extends CommandLineOption {
 
 export const CommandLineOptions = {
   help: new CommandLineOption('Print this help text', '--help', '-h'),
+  version: new CommandLineOption('Print the app version', '--version'),
   showChanges: new CommandLineOption('Show changes dialog', '--show-changes'),
   disableResetNavigation: new DevelopmentCommandLineOption('--disable-reset-navigation'),
   disableDevtoolsOpen: new DevelopmentCommandLineOption('--disable-devtools-open'),
