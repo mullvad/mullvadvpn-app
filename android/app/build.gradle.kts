@@ -28,15 +28,16 @@ android {
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
+        val localProperties = gradleLocalProperties(rootProject.projectDir)
+
         applicationId = "net.mullvad.mullvadvpn"
         minSdk = Versions.Android.minSdkVersion
         targetSdk = Versions.Android.targetSdkVersion
-        versionCode = generateVersionCode()
-        versionName = generateVersionName()
+        versionCode = generateVersionCode(localProperties)
+        versionName = generateVersionName(localProperties)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val alwaysShowChangelog = gradleLocalProperties(rootProject.projectDir)
-            .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
+        val alwaysShowChangelog = localProperties.getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
         buildConfigField(
             type = "boolean",
             name = "ALWAYS_SHOW_CHANGELOG",
