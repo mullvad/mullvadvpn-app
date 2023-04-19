@@ -18,7 +18,7 @@ use shadowsocks_service;
 const LOCAL_ADDR: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0);
 const INIT_LOGGING: Once = Once::new();
 
-pub fn run_socks(
+pub fn run_http_proxy(
     bridge_addr: SocketAddr,
     password: &str,
     cipher: &str,
@@ -128,7 +128,7 @@ impl ShadowsocksRuntime {
         let bind_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), free_port);
 
         cfg.local = vec![LocalInstanceConfig::with_local_config(
-            LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Socks),
+            LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Http),
         )];
 
         let cipher = match CipherKind::from_str(cipher) {
@@ -164,7 +164,7 @@ pub extern "C" fn start_shadowsocks_proxy(
     proxy_config: *mut ProxyHandle,
 ) -> i32 {
     INIT_LOGGING.call_once(|| {
-        oslog::OsLogger::new("net.mullvad.MullvadVPN.SOCKSProxy")
+        oslog::OsLogger::new("net.mullvad.MullvadVPN.HTTPProxy")
             .level_filter(log::LevelFilter::Debug)
             .init()
             .unwrap();
@@ -190,10 +190,10 @@ pub extern "C" fn start_shadowsocks_proxy(
         return -1;
     };
 
-    let (port, handle) = match run_socks(bridge_addr, &password, &cipher) {
+    let (port, handle) = match run_http_proxy(bridge_addr, &password, &cipher) {
         Ok((port, handle)) => (port, handle),
         Err(err) => {
-            log::error!("Failed to run SOCKS proxy {}", err);
+            log::error!("Failed to run HTTP proxy {}", err);
             return err.raw_os_error().unwrap_or(-1);
         }
     };

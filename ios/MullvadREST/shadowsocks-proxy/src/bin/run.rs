@@ -6,7 +6,7 @@ fn main() {
     let cipher = "aes-256-gcm";
 
     let (port, handle) =
-        shadowsocks_proxy::run_socks(socketaddr, password, cipher).expect("failed to start SOCKS proxy");
+        shadowsocks_proxy::run_http_proxy(socketaddr, password, cipher).expect("failed to start SOCKS proxy");
 
     println!("Running proxy on port {port}");
 
@@ -15,4 +15,3 @@ fn main() {
     handle.stop();
     println!("Done");
 }
-
