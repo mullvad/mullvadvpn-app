@@ -86,6 +86,17 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return false
             }
         }
+
+        var reuseIdentifier: PreferencesDataSource.CellReuseIdentifiers {
+            switch self {
+            case .addDNSServer:
+                return .addDNSServer
+            case .dnsServer:
+                return .dnsServer
+            default:
+                return .settingSwitch
+            }
+        }
     }
 
     private var isEditing = false

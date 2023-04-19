@@ -34,11 +34,7 @@ final class LocationCellFactory: CellFactoryProtocol {
         return cell
     }
 
-    func configureCell(
-        _ cell: UITableViewCell,
-        item: RelayLocation,
-        indexPath: IndexPath
-    ) {
+    func configureCell(_ cell: UITableViewCell, item: RelayLocation, indexPath: IndexPath) {
         guard let cell = cell as? SelectLocationCell,
               let node = nodeByLocation[item] else { return }
 

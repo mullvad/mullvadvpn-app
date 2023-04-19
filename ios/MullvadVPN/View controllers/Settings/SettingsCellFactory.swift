@@ -18,31 +18,14 @@ struct SettingsCellFactory: CellFactoryProtocol {
     }
 
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell
-
-        switch item {
-        case .account:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: SettingsDataSource.CellReuseIdentifiers.accountCell.rawValue,
-                for: indexPath
-            )
-        default:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: SettingsDataSource.CellReuseIdentifiers.basicCell.rawValue,
-                for: indexPath
-            )
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
 
         configureCell(cell, item: item, indexPath: indexPath)
 
         return cell
     }
 
-    func configureCell(
-        _ cell: UITableViewCell,
-        item: SettingsDataSource.Item,
-        indexPath: IndexPath
-    ) {
+    func configureCell(_ cell: UITableViewCell, item: SettingsDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .account:
             guard let cell = cell as? SettingsAccountCell else { return }

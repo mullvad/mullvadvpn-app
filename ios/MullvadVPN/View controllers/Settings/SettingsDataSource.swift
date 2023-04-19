@@ -49,6 +49,15 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         case version
         case problemReport
         case faq
+
+        var reuseIdentifier: CellReuseIdentifiers {
+            switch self {
+            case .account:
+                return .accountCell
+            default:
+                return .basicCell
+            }
+        }
     }
 
     private let interactor: SettingsInteractor
