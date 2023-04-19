@@ -30,3 +30,6 @@ fi
 # There is a risk that they're incompatible with the format this version wants
 rm "$NEW_CACHE_DIR/relays.json" || true
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
+
+# Remove deprecated exclusion group. This line can be removed when 2023.4 is no longer supported
+dscl . -delete /groups/mullvad-exclusion || true
