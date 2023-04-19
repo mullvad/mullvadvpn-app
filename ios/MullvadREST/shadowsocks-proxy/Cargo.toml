@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["rlib", "dylib"]
+bench = false
+
 [dependencies]
 shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a",  features = [ "local", "stream-cipher", "local-http" ] }
 shadowsocks-rust = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a",  features = [ "local", "stream-cipher" ] }
