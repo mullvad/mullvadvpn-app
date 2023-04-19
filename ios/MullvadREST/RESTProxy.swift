@@ -67,11 +67,11 @@ extension REST {
     }
 
     public class ProxyConfiguration {
-        public let transportProvider: () -> RESTTransport?
+        public let transportProvider: () -> RESTTransportProvider?
         public let addressCacheStore: AddressCache
 
         public init(
-            transportProvider: @escaping () -> RESTTransport?,
+            transportProvider: @escaping () -> RESTTransportProvider?,
             addressCacheStore: AddressCache
         ) {
             self.transportProvider = transportProvider
