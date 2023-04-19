@@ -18,6 +18,10 @@ public enum RelaySelector {
         return relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
     }
 
+    /**
+     Filters relay list using given constraints and selects random relay.
+     Throws an error if there are no relays satisfying the given constraints.
+     */
     public static func evaluate(
         relays: REST.ServerRelaysResponse,
         constraints: RelayConstraints
