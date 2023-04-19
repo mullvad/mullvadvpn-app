@@ -1,22 +1,22 @@
 class CommandLineOption {
-  private options: string[];
+  private flags: string[];
 
-  public constructor(private description: string, ...options: string[]) {
-    this.options = options;
+  public constructor(private description: string, ...flags: string[]) {
+    this.flags = flags;
   }
 
   public get match(): boolean {
-    return this.options.some((option) => process.argv.includes(option));
+    return this.flags.some((flag) => process.argv.includes(flag));
   }
 
   public format(): string {
-    return formatOption(this.description, ...this.options);
+    return formatOption(this.description, ...this.flags);
   }
 }
 
 class DevelopmentCommandLineOption extends CommandLineOption {
-  public constructor(...options: string[]) {
-    super('', ...options);
+  public constructor(...flags: string[]) {
+    super('', ...flags);
   }
 
   public get match(): boolean {
@@ -25,6 +25,7 @@ class DevelopmentCommandLineOption extends CommandLineOption {
 }
 
 export const CommandLineOptions = {
+  help: new CommandLineOption('Print this help text', '--help', '-h'),
   showChanges: new CommandLineOption('Show changes dialog', '--show-changes'),
   disableResetNavigation: new DevelopmentCommandLineOption('--disable-reset-navigation'),
   disableDevtoolsOpen: new DevelopmentCommandLineOption('--disable-devtools-open'),
@@ -39,9 +40,18 @@ export function printCommandLineOptions() {
   });
 }
 
-function formatOption(description: string, ...options: string[]) {
-  const joinedOptions = options.join(', ');
+export function printElectronOptions() {
+  console.log(formatOption('Run without renderer process sandboxed', '--no-sandbox'));
+  console.log(formatOption('Run without hardware acceleration for graphics', '--disable-gpu'));
+}
+
+// This functions format options into one line, e.g.
+//     --help              Print this help text
+// The line starts with 4 spaces and the flags and description are separated with spaces to align
+// the descriptions
+function formatOption(description: string, ...flags: string[]) {
+  const joinedFlags = flags.join(', ');
   const padding = '                    ';
-  const paddedOptions = (joinedOptions + padding).slice(0, -joinedOptions.length);
-  return '    ' + paddedOptions + description;
+  const paddedFlags = (joinedFlags + padding).slice(0, -joinedFlags.length);
+  return '    ' + paddedFlags + description;
 }
