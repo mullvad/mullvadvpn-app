@@ -82,16 +82,41 @@ extension REST {
         }
     }
 
+    public struct ServerShadowsocks: Codable {
+        public let `protocol`: String
+        public let port: UInt16
+        public let cipher: String
+        public let password: String
+
+        public init(protocol: String, port: UInt16, cipher: String, password: String) {
+            self.protocol = `protocol`
+            self.port = port
+            self.cipher = cipher
+            self.password = password
+        }
+    }
+
+    public struct ServerBridges: Codable {
+        public let shadowsocks: [ServerShadowsocks]
+
+        public init(shadowsocks: [REST.ServerShadowsocks]) {
+            self.shadowsocks = shadowsocks
+        }
+    }
+
     public struct ServerRelaysResponse: Codable {
         public let locations: [String: ServerLocation]
         public let wireguard: ServerWireguardTunnels
+        public let bridge: ServerBridges
 
         public init(
             locations: [String: REST.ServerLocation],
-            wireguard: REST.ServerWireguardTunnels
+            wireguard: REST.ServerWireguardTunnels,
+            bridge: ServerBridges
         ) {
             self.locations = locations
             self.wireguard = wireguard
+            self.bridge = bridge
         }
     }
 }
