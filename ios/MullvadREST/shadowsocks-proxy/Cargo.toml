@@ -1,0 +1,20 @@
+[package]
+name = "shadowsocks-proxy"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = [ "rlib", "staticlib" ]
+bench = false
+
+[dependencies]
+shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "8f6afd081a9440fff2dda565908eddc27a3295f1",  features = [ "local", "stream-cipher", "local-http", "local-tunnel" ] }
+tokio = "1"
+libc = "0.2"
+log = "0.4"
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+oslog = "0.2"
+
+[build-dependencies]
+cbindgen = "0.24"
