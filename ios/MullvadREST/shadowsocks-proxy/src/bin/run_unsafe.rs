@@ -3,7 +3,6 @@ use std::{
     str::FromStr,
 };
 
-
 fn main() {
     let socketaddr = SocketAddr::from_str("185.65.135.117:443").unwrap();
     let password = "mullvad";

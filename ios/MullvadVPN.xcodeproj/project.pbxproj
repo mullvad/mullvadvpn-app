@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01F1FF1C29F06124007083C3 /* HttpProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F1FF1B29F06124007083C3 /* HttpProxy.swift */; };
+		01F1FF1E29F0627D007083C3 /* libshadowsocks_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */; };
+		01F1FF2329F0810C007083C3 /* BridgingHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F1FF2229F0810C007083C3 /* BridgingHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01F1FF2529F08452007083C3 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 01F1FF2429F08452007083C3 /* shadowsocks.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45AE28FD503000746E77 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 062B45AD28FD503000746E77 /* WireGuardKit */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
@@ -616,6 +620,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01F1FF1B29F06124007083C3 /* HttpProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpProxy.swift; sourceTree = "<group>"; };
+		01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshadowsocks_proxy.a; path = ../target/debug/libshadowsocks_proxy.a; sourceTree = "<group>"; };
+		01F1FF2029F07E54007083C3 /* shadowsocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = shadowsocks.h; path = "MullvadREST/shadowsocks-proxy/include/shadowsocks.h"; sourceTree = "<group>"; };
+		01F1FF2229F0810C007083C3 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		01F1FF2429F08452007083C3 /* shadowsocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = shadowsocks.h; path = "MullvadREST/shadowsocks-proxy/include/shadowsocks.h"; sourceTree = "<group>"; };
 		062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDefaults.swift; sourceTree = "<group>"; };
 		062B45C128FE97FF00746E77 /* api-ip-address.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "api-ip-address.json"; sourceTree = "<group>"; };
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
@@ -968,6 +977,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01F1FF1E29F0627D007083C3 /* libshadowsocks_proxy.a in Frameworks */,
 				58D223BF294C8AE90029F5F8 /* Operations.framework in Frameworks */,
 				58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */,
 				58D223DC294C8EB90029F5F8 /* MullvadTypes.framework in Frameworks */,
@@ -1140,6 +1150,8 @@
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
 				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
 				06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */,
+				01F1FF1B29F06124007083C3 /* HttpProxy.swift */,
+				01F1FF2229F0810C007083C3 /* BridgingHeader.h */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -1520,6 +1532,7 @@
 		584F991F2902CBDD001F858D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1710,6 +1723,8 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				01F1FF2029F07E54007083C3 /* shadowsocks.h */,
+				01F1FF2429F08452007083C3 /* shadowsocks.h */,
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				582CFEE1269448160072883A /* Localizations */,
@@ -1927,6 +1942,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				06799ACE28F98E1D00ACD94E /* MullvadREST.h in Headers */,
+				01F1FF2329F0810C007083C3 /* BridgingHeader.h in Headers */,
+				01F1FF2529F08452007083C3 /* shadowsocks.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2002,6 +2019,7 @@
 			buildConfigurationList = 06799AD328F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadREST" */;
 			buildPhases = (
 				588E4EB028FEF1CA008046E3 /* Run prebuild script */,
+				01F1FF1F29F07D63007083C3 /* ShellScript */,
 				06799AB728F98E1D00ACD94E /* Headers */,
 				06799AB828F98E1D00ACD94E /* Sources */,
 				06799AB928F98E1D00ACD94E /* Frameworks */,
@@ -2445,6 +2463,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		01F1FF1F29F07D63007083C3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nCARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/MullvadREST/shadowsocks-proxy/build.sh shadowsocks-proxy\n";
+		};
 		063F028D2902BC8E001FA09F /* Run prebuild script */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -2511,6 +2547,7 @@
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
+				01F1FF1C29F06124007083C3 /* HttpProxy.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
@@ -3137,12 +3174,16 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/debug";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadREST/BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
@@ -3169,12 +3210,16 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/release";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadREST/BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
