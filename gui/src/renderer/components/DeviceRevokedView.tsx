@@ -66,7 +66,7 @@ export function DeviceRevokedView() {
             <StyledStatusIcon>
               <ImageView source="icon-fail" height={60} width={60} />
             </StyledStatusIcon>
-            <StyledTitle>
+            <StyledTitle data-testid="title">
               {messages.pgettext('device-management', 'Device is inactive')}
             </StyledTitle>
             <StyledMessage>
