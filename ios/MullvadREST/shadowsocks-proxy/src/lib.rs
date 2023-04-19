@@ -15,7 +15,6 @@ use tokio::sync::oneshot;
 
 use shadowsocks_service;
 
-const LOCAL_ADDR: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0);
 const INIT_LOGGING: Once = Once::new();
 
 pub fn run_http_proxy(
@@ -225,7 +224,8 @@ pub extern "C" fn stop_shadowsocks_proxy(proxy_config: *mut ProxyHandle) -> i32 
 }
 
 fn get_free_port() -> io::Result<u16> {
-    let port = TcpListener::bind(LOCAL_ADDR)?.local_addr()?.port();
+    let bind_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0);
+    let port = TcpListener::bind(bind_addr)?.local_addr()?.port();
     Ok(port)
 }
 
