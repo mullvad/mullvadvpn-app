@@ -32,4 +32,4 @@ mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
-shadowsocks = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a",  features = [ "stream-cipher" ] }
+shadowsocks = { version = "1.15.3", default-features = false, features = ["stream-cipher"] }
