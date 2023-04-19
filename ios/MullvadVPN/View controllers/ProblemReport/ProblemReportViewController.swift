@@ -82,7 +82,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textView.placeholder = NSLocalizedString(
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
-            value: "Please describe your problem in English or Swedish",
+            value: "To assist you better, please write in English or Swedish and include which country you are connecting from.",
             comment: ""
         )
         textView.contentInsetAdjustmentBehavior = .never
