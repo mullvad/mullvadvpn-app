@@ -13,7 +13,7 @@ import { DaemonRpc } from './daemon-rpc';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { NotificationSender } from './notification-controller';
 
-const GUI_VERSION = app.getVersion().replace('.0', '');
+export const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 

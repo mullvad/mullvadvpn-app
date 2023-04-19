@@ -60,7 +60,7 @@ import TunnelStateHandler, {
   TunnelStateProvider,
 } from './tunnel-state';
 import UserInterface, { UserInterfaceDelegate } from './user-interface';
-import Version from './version';
+import Version, { GUI_VERSION } from './version';
 
 const execAsync = util.promisify(exec);
 
@@ -1055,6 +1055,11 @@ if (CommandLineOptions.help.match) {
   console.log('');
   console.log('USEFUL ELECTRON/CHROMIUM OPTIONS:');
   printElectronOptions();
+
+  process.exit(0);
+} else if (CommandLineOptions.version.match) {
+  console.log(GUI_VERSION);
+  console.log('Electron version:', process.versions.electron);
 
   process.exit(0);
 } else {
