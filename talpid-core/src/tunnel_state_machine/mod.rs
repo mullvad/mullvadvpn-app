@@ -125,7 +125,6 @@ pub async fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<bool>,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
-    #[cfg(target_os = "macos")] exclusion_gid: u32,
     #[cfg(target_os = "android")] android_context: AndroidContext,
     #[cfg(target_os = "linux")] linux_ids: LinuxNetworkingIdentifiers,
 ) -> Result<TunnelStateMachineHandle, Error> {
@@ -162,8 +161,6 @@ pub async fn spawn(
         commands_rx: command_rx,
         #[cfg(target_os = "windows")]
         volume_update_rx,
-        #[cfg(target_os = "macos")]
-        exclusion_gid,
         #[cfg(target_os = "android")]
         android_context,
         #[cfg(target_os = "linux")]
@@ -253,8 +250,6 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
-    #[cfg(target_os = "macos")]
-    exclusion_gid: u32,
     #[cfg(target_os = "android")]
     android_context: AndroidContext,
     #[cfg(target_os = "linux")]
@@ -267,8 +262,6 @@ impl TunnelStateMachine {
     ) -> Result<Self, Error> {
         #[cfg(target_os = "windows")]
         let volume_update_rx = args.volume_update_rx;
-        #[cfg(target_os = "macos")]
-        let exclusion_gid = args.exclusion_gid;
         #[cfg(target_os = "android")]
         let android_context = args.android_context;
 
@@ -381,8 +374,6 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
-            #[cfg(target_os = "macos")]
-            _exclusion_gid: exclusion_gid,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -478,10 +469,6 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
-
-    /// Exclusion GID
-    #[cfg(target_os = "macos")]
-    _exclusion_gid: u32,
 }
 
 impl SharedTunnelStateValues {

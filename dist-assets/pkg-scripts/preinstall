@@ -30,16 +30,3 @@ fi
 # There is a risk that they're incompatible with the format this version wants
 rm "$NEW_CACHE_DIR/relays.json" || true
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
-
-# Create a group for mullvad-exclusion
-MULLVAD_EXCLUSION_GROUP="mullvad-exclusion"
-if ! dscl . -list /Groups | grep $MULLVAD_EXCLUSION_GROUP; then
-  dscl . -create /Groups/$MULLVAD_EXCLUSION_GROUP \
-    || echo "FAILED TO CREATE $MULLVAD_EXCLUSION_GROUP GROUP"
-fi
-if ! dscl . -read /Groups/$MULLVAD_EXCLUSION_GROUP | grep PrimaryGroupID; then
-  MULLVAD_EXCLUSION_GID=$(( RANDOM ))
-  dscl . -append /Groups/$MULLVAD_EXCLUSION_GROUP PrimaryGroupID $MULLVAD_EXCLUSION_GID \
-    && echo "Created mullvad-exclusion group with gid $MULLVAD_EXCLUSION_GID" \
-    || echo "FAILED TO CREATE 'mullvad-exclusion' group"
-fi
