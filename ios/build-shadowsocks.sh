@@ -46,7 +46,7 @@ install_name_tool -id "@rpath/Frameworks/${SHADOW_SOCKS_TARGET_NAME}.dylib" ${CA
 popd
 
 # Wrap the dynamic library in an .xcframework format
-xcrun xcodebuild -create-xcframework -library ${CARGO_TARGET_DIR}/${RUST_TARGET}/${CONFIGURATION}/${SHADOW_SOCKS_TARGET_NAME}.dylib -headers ${SHADOW_SOCKS_FOLDER}/include/${SHADOW_SOCKS_HEADER_FILE} -output output/${SHADOW_SOCKS_TARGET_NAME}.xcframework
+xcrun xcodebuild -create-xcframework -library ${CARGO_TARGET_DIR}/${RUST_TARGET}/${CONFIGURATION}/${SHADOW_SOCKS_TARGET_NAME}.dylib -headers ${SHADOW_SOCKS_FOLDER}/include/ -output output/${SHADOW_SOCKS_TARGET_NAME}.xcframework
 
 # Copy the .xcframework file to the products directory for later consumption
 cp -R output/${SHADOW_SOCKS_TARGET_NAME}.xcframework ${BUILT_PRODUCTS_DIR}
