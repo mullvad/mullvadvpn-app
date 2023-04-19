@@ -27,7 +27,11 @@ import {
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import { CommandLineOptions, printCommandLineOptions } from './command-line-options';
+import {
+  CommandLineOptions,
+  printCommandLineOptions,
+  printElectronOptions,
+} from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -1040,5 +1044,20 @@ class ApplicationMain
   /* eslint-enable @typescript-eslint/member-ordering */
 }
 
-const applicationMain = new ApplicationMain();
-applicationMain.run();
+if (CommandLineOptions.help.match) {
+  console.log('Mullvad VPN');
+  console.log('Graphical interface for managing the Mullvad VPN daemon');
+
+  console.log('');
+  console.log('OPTIONS:');
+  printCommandLineOptions();
+
+  console.log('');
+  console.log('USEFUL ELECTRON/CHROMIUM OPTIONS:');
+  printElectronOptions();
+
+  process.exit(0);
+} else {
+  const applicationMain = new ApplicationMain();
+  applicationMain.run();
+}
