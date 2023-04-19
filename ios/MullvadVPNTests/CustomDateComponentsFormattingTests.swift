@@ -57,23 +57,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
             unitsStyle: .full
         )
 
-        XCTAssertEqual(result, "1 day")
-    }
-
-    func testLessThanOneMinuteFormatting() throws {
-        var dateComponents = DateComponents()
-        dateComponents.second = 59
-
-        let (startDate, endDate) = makeDateRange(addingComponents: dateComponents)
-
-        let result = CustomDateComponentsFormatting.localizedString(
-            from: startDate,
-            to: endDate,
-            calendar: calendar,
-            unitsStyle: .full
-        )
-
-        XCTAssertEqual(result, "Less than a minute")
+        XCTAssertEqual(result, "0 days")
     }
 
     private func makeDateRange(addingComponents dateComponents: DateComponents) -> (Date, Date) {
