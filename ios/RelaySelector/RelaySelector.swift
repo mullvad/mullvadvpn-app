@@ -11,6 +11,13 @@ import MullvadREST
 import MullvadTypes
 
 public enum RelaySelector {
+    /**
+     Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
+     */
+    public static func getShadowsocksTCPBridge(relays: REST.ServerRelaysResponse) -> REST.ServerShadowsocks? {
+        return relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
+    }
+
     public static func evaluate(
         relays: REST.ServerRelaysResponse,
         constraints: RelayConstraints
