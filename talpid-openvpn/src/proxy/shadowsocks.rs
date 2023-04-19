@@ -7,9 +7,7 @@ use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use tokio::task::JoinHandle;
 
 use shadowsocks_service::{
-    config::{
-        Config, ConfigType, LocalConfig, LocalInstanceConfig, ProtocolType, ServerInstanceConfig,
-    },
+    config::{Config, ConfigType, LocalConfig, ProtocolType, LocalInstanceConfig, ServerInstanceConfig},
     local,
     shadowsocks::{
         config::{Mode, ServerConfig},
@@ -58,9 +56,7 @@ impl ShadowsocksProxyMonitor {
         local.mode = Mode::TcpOnly;
         local.addr = Some(ServerAddr::SocketAddr(SocketAddr::from(bound_addr)));
 
-        config
-            .local
-            .push(LocalInstanceConfig::with_local_config(local));
+        config.local.push(LocalInstanceConfig::with_local_config(local));
 
         let server = ServerConfig::new(
             settings.peer,
@@ -73,9 +69,7 @@ impl ShadowsocksProxyMonitor {
             })?,
         );
 
-        config
-            .server
-            .push(ServerInstanceConfig::with_server_config(server));
+        config.server.push(ServerInstanceConfig::with_server_config(server));
 
         #[cfg(target_os = "linux")]
         {
