@@ -144,10 +144,7 @@ public enum RelaySelector {
         }
     }
 
-    private static func parseRelaysResponse(
-        _ response: REST
-            .ServerRelaysResponse
-    ) -> [RelayWithLocation] {
+    private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
         return response.wireguard.relays.compactMap { serverRelay -> RelayWithLocation? in
             guard let serverLocation = response.locations[serverRelay.location] else { return nil }
 
