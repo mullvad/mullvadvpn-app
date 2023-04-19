@@ -39,17 +39,11 @@ interface IState {
   nextItemTransition?: Partial<IItemStyle>;
 }
 
-export const StyledTransitionContainer = styled.div(
-  {},
-  (props: { disableUserInteraction: boolean }) => ({
-    flex: 1,
-    pointerEvents: props.disableUserInteraction ? 'none' : undefined,
-  }),
-);
+export const StyledTransitionContainer = styled.div({ flex: 1 });
 
 export const StyledTransitionContent = styled.div.attrs({ 'data-testid': 'transition-content' })(
   {},
-  (props: { transition?: IItemStyle }) => {
+  (props: { transition?: IItemStyle; disableUserInteraction?: boolean }) => {
     const x = `${props.transition?.x ?? 0}%`;
     const y = `${props.transition?.y ?? 0}%`;
     const duration = props.transition?.duration ?? 450;
@@ -66,6 +60,7 @@ export const StyledTransitionContent = styled.div.attrs({ 'data-testid': 'transi
       willChange: 'transform',
       transform: `translate3d(${x}, ${y}, 0)`,
       transition: `transform ${duration}ms ease-in-out`,
+      pointerEvents: props.disableUserInteraction ? 'none' : undefined,
     };
   },
 );
@@ -132,13 +127,14 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     const willExit = this.state.queuedItem !== undefined || this.state.nextItem !== undefined;
 
     return (
-      <StyledTransitionContainer disableUserInteraction={willExit}>
+      <StyledTransitionContainer>
         {this.state.currentItem && (
           <WillExit key={this.state.currentItem.view.props.routePath} value={willExit}>
             <StyledTransitionContent
               ref={this.setCurrentContentRef}
               transition={this.state.currentItemStyle}
-              onTransitionEnd={this.onTransitionEnd}>
+              onTransitionEnd={this.onTransitionEnd}
+              disableUserInteraction={willExit}>
               {this.state.currentItem.view}
             </StyledTransitionContent>
           </WillExit>
