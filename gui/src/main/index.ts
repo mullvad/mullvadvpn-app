@@ -27,7 +27,7 @@ import {
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
-import { SHOULD_DISABLE_RESET_NAVIGATION, SHOULD_SHOW_CHANGES } from './command-line-options';
+import { CommandLineOptions, printCommandLineOptions } from './command-line-options';
 import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -400,7 +400,7 @@ class ApplicationMain
       this,
       this.daemonRpc,
       SANDBOX_DISABLED,
-      SHOULD_DISABLE_RESET_NAVIGATION,
+      CommandLineOptions.disableResetNavigation.match,
     );
 
     this.tunnelStateExpectation = new Expectation(async () => {
@@ -720,7 +720,7 @@ class ApplicationMain
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
-      forceShowChanges: SHOULD_SHOW_CHANGES,
+      forceShowChanges: CommandLineOptions.showChanges.match,
       navigationHistory: this.navigationHistory,
     }));
 
