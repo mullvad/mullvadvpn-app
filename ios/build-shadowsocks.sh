@@ -29,7 +29,7 @@ export CARGO_TARGET_DIR="$PROJECT_DIR/build"
 # Add the path to the cargo executable
 export PATH="$HOME/.cargo/bin:$PATH"
 if [[ -n "${DEVELOPER_SDK_DIR:-}" ]]; then
-  # Add an extra library search path for build scripts and proc-macros which run on the host instead of the target.
+  # Add an extra library search path for build scripts and proc-macros which run on the host instead of the target
   # (macOS Big Sur does not have linkable libraries in /usr/lib/)
   export LIBRARY_PATH="${DEVELOPER_SDK_DIR}/MacOSX.sdk/usr/lib:${LIBRARY_PATH:-}"
 fi
@@ -43,6 +43,7 @@ cargo build --target ${RUST_TARGET} ${SHOULD_BUILD_RELEASE}
 # Rewrite the load path of the dynamic library
 install_name_tool -id "@rpath/Frameworks/${SHADOW_SOCKS_TARGET_NAME}.dylib" ${CARGO_TARGET_DIR}/${RUST_TARGET}/${CONFIGURATION}/${SHADOW_SOCKS_TARGET_NAME}.dylib
 
+# Pop the folder so no special path needs to be specified for the `xcodebuild` command
 popd
 
 # Wrap the dynamic library in an .xcframework format
