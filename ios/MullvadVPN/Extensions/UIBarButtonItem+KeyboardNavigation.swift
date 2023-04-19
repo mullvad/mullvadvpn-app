@@ -60,16 +60,8 @@ extension UIBarButtonItem {
         _ prevItem: UIBarButtonItem,
         _ nextItem: UIBarButtonItem
     ) -> Void) -> [UIBarButtonItem] {
-        let prevButton = UIBarButtonItem(
-            keyboardNavigationItemType: .previous,
-            target: nil,
-            action: nil
-        )
-        let nextButton = UIBarButtonItem(
-            keyboardNavigationItemType: .next,
-            target: nil,
-            action: nil
-        )
+        let prevButton = UIBarButtonItem(keyboardNavigationItemType: .previous, target: nil, action: nil)
+        let nextButton = UIBarButtonItem(keyboardNavigationItemType: .next, target: nil, action: nil)
 
         configurationBlock(prevButton, nextButton)
 

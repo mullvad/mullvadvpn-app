@@ -31,18 +31,14 @@ class ProblemReportReviewViewController: UIViewController {
             comment: ""
         )
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDismissButton(_:))
-        )
+        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
+            self?.dismiss(animated: true)
+        })
 
         #if DEBUG
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .action,
-            target: self,
-            action: #selector(share(_:))
-        )
+        navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .action, actionHandler: { [weak self] in
+            self?.share()
+        })
         #endif
 
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,18 +67,14 @@ class ProblemReportReviewViewController: UIViewController {
         textView.selectAll(sender)
     }
 
-    // MARK: - Actions
-
-    @objc func handleDismissButton(_ sender: Any) {
-        dismiss(animated: true)
-    }
-
     #if DEBUG
-    @objc func share(_ sender: Any) {
+    private func share() {
         let activityController = UIActivityViewController(
             activityItems: [reportString],
             applicationActivities: nil
         )
+
+        activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
 
         present(activityController, animated: true)
     }
