@@ -569,10 +569,7 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
-        let exclusion_gid = {
-            macos::bump_filehandle_limit();
-            macos::set_exclusion_gid().map_err(Error::GroupIdError)?
-        };
+        macos::bump_filehandle_limit();
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
@@ -689,8 +686,6 @@ where
             offline_state_tx,
             #[cfg(target_os = "windows")]
             volume_update_rx,
-            #[cfg(target_os = "macos")]
-            exclusion_gid,
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "linux")]
