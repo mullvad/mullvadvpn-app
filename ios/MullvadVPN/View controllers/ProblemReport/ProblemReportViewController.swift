@@ -340,7 +340,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     private func addConstraints() {
         activeMessageTextViewConstraints = [
-            messageTextView.topAnchor.constraint(equalTo: view.topAnchor),
+            messageTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             messageTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             messageTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             messageTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
