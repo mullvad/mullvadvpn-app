@@ -16,7 +16,7 @@ use hyper::{
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
-    crypto::v1::CipherKind,
+    crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
     ServerConfig,
 };
