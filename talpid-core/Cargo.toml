@@ -37,7 +37,7 @@ rand = "0.8.5"
 [target.'cfg(not(target_os="android"))'.dependencies]
 byteorder = "1"
 internet-checksum = "0.2"
-shadowsocks-service = { version = "1.15.3", default-features = false, features = ["local", "stream-cipher"] }
+shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a",  features = [ "local", "stream-cipher" ] }
 shell-escape = "0.1"
 socket2 = { version = "0.4.2", features = ["all"] }
 prost = "0.11"
