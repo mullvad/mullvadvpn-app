@@ -11,19 +11,24 @@ import Foundation
 extension REST {
     public struct HTTPProxyConfiguration {
         public var address: String
-        public var port: UInt16
+        public var localPort: UInt16
 
-        public init(address: String, port: UInt16) {
+        public init(address: String = "127.0.0.1", port: UInt16) {
             self.address = address
-            self.port = port
+            self.localPort = port
         }
 
         fileprivate func apply(to sessionConfiguration: URLSessionConfiguration) {
             var configuration = [CFString: Any]()
 
             configuration[kCFNetworkProxiesHTTPProxy] = address
-            configuration[kCFNetworkProxiesHTTPPort] = NSNumber(value: port)
+            configuration[kCFNetworkProxiesHTTPPort] = NSNumber(value: localPort)
             configuration[kCFNetworkProxiesProxyAutoConfigEnable] = kCFBooleanFalse
+            configuration[kCFNetworkProxiesHTTPEnable] = 1
+            configuration[("HTTPSEnable" as NSString)] = 1
+            configuration[("HTTPSProxy" as NSString)] = address
+            configuration[("HTTPSPort" as NSString)] = NSNumber(value: localPort)
+            
 
             sessionConfiguration.connectionProxyDictionary = configuration
         }
@@ -42,7 +47,7 @@ extension REST {
 
         let sessionConfiguration = URLSessionConfiguration.ephemeral
         httpProxyConfiguration?.apply(to: sessionConfiguration)
-
+        
         let session = URLSession(
             configuration: sessionConfiguration,
             delegate: sessionDelegate,
