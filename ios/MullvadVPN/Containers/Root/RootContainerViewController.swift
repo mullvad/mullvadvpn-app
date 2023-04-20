@@ -44,6 +44,11 @@ protocol RootContainment {
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject {
+    func rootContainerViewControllerShouldShowAccount(
+        _ controller: RootContainerViewController,
+        animated: Bool
+    )
+
     func rootContainerViewControllerShouldShowSettings(
         _ controller: RootContainerViewController,
         navigateTo route: SettingsNavigationRoute?,
@@ -62,8 +67,10 @@ class RootContainerViewController: UIViewController {
     typealias CompletionHandler = () -> Void
 
     private let headerBarView = HeaderBarView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    private let transitionContainer = UIView(frame: UIScreen.main.bounds)
+    let transitionContainer = UIView(frame: UIScreen.main.bounds)
+    private var presentationContainerAccountButton: UIButton?
     private var presentationContainerSettingsButton: UIButton?
+    private var configuration = RootConfigration(showsAccountButton: false)
 
     private(set) var headerBarPresentation = HeaderBarPresentation.default
     private(set) var headerBarHidden = false
@@ -256,6 +263,14 @@ class RootContainerViewController: UIViewController {
     }
 
     /// Request to display settings controller
+    func showAccount(animated: Bool) {
+        delegate?.rootContainerViewControllerShouldShowAccount(
+            self,
+            animated: animated
+        )
+    }
+
+    /// Request to display settings controller
     func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
         delegate?.rootContainerViewControllerShouldShowSettings(
             self,
@@ -264,47 +279,37 @@ class RootContainerViewController: UIViewController {
         )
     }
 
-    /// Enable or disable the settings bar button displayed in the header bar
-    func setEnableSettingsButton(_ isEnabled: Bool) {
-        headerBarView.settingsButton.isEnabled = isEnabled
-        presentationContainerSettingsButton?.isEnabled = isEnabled
-    }
+    /// Add account and settings bar buttons into the presentation container to make them accessible even
+    /// when the root container is covered with a modal.
+    func addTrailingButtonsToPresentationContainer(_ presentationContainer: UIView) {
+        let accountButton = getPresentationContainerAccountButton()
+        let settingsButton = getPresentationContainerSettingsButton()
 
-    /// Add settings bar button into the presentation container to make settings accessible even
-    /// when the root container is covered with modal.
-    func addSettingsButtonToPresentationContainer(_ presentationContainer: UIView) {
-        let settingsButton: UIButton
+        presentationContainerAccountButton = accountButton
+        presentationContainerSettingsButton = settingsButton
 
-        if let transitionViewSettingsButton = presentationContainerSettingsButton {
-            transitionViewSettingsButton.removeFromSuperview()
-            settingsButton = transitionViewSettingsButton
-        } else {
-            settingsButton = HeaderBarView.makeSettingsButton()
-            settingsButton.isEnabled = headerBarView.settingsButton.isEnabled
-            settingsButton.addTarget(
-                self,
-                action: #selector(handleSettingsButtonTap),
-                for: .touchUpInside
-            )
-
-            presentationContainerSettingsButton = settingsButton
-        }
-
-        // Hide the settings button inside the header bar to avoid color blending issues
+        // Hide the account button inside the header bar to avoid color blending issues
+        headerBarView.accountButton.alpha = 0
         headerBarView.settingsButton.alpha = 0
 
-        presentationContainer.addSubview(settingsButton)
+        presentationContainer.addConstrainedSubviews([accountButton, settingsButton]) {
+            accountButton.centerXAnchor
+                .constraint(equalTo: headerBarView.accountButton.centerXAnchor)
+            accountButton.centerYAnchor
+                .constraint(equalTo: headerBarView.accountButton.centerYAnchor)
 
-        NSLayoutConstraint.activate([
             settingsButton.centerXAnchor
-                .constraint(equalTo: headerBarView.settingsButton.centerXAnchor),
+                .constraint(equalTo: headerBarView.settingsButton.centerXAnchor)
             settingsButton.centerYAnchor
-                .constraint(equalTo: headerBarView.settingsButton.centerYAnchor),
-        ])
+                .constraint(equalTo: headerBarView.settingsButton.centerYAnchor)
+        }
     }
 
-    func removeSettingsButtonFromPresentationContainer() {
+    func removeTrailingButtonsFromPresentationContainer() {
+        presentationContainerAccountButton?.removeFromSuperview()
         presentationContainerSettingsButton?.removeFromSuperview()
+
+        headerBarView.accountButton.alpha = 1
         headerBarView.settingsButton.alpha = 1
     }
 
@@ -353,6 +358,12 @@ class RootContainerViewController: UIViewController {
         // Prevent automatic layout margins adjustment as we manually control them.
         headerBarView.insetsLayoutMarginsFromSafeArea = false
 
+        headerBarView.accountButton.addTarget(
+            self,
+            action: #selector(handleAccountButtonTap),
+            for: .touchUpInside
+        )
+
         headerBarView.settingsButton.addTarget(
             self,
             action: #selector(handleSettingsButtonTap),
@@ -362,6 +373,50 @@ class RootContainerViewController: UIViewController {
         view.addSubview(headerBarView)
 
         NSLayoutConstraint.activate(constraints)
+    }
+
+    private func getPresentationContainerAccountButton() -> UIButton {
+        let button: UIButton
+
+        if let transitionViewButton = presentationContainerAccountButton {
+            transitionViewButton.removeFromSuperview()
+            button = transitionViewButton
+        } else {
+            button = HeaderBarView.makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+            button.addTarget(
+                self,
+                action: #selector(handleAccountButtonTap),
+                for: .touchUpInside
+            )
+        }
+
+        button.isEnabled = headerBarView.accountButton.isEnabled
+        button.isHidden = !configuration.showsAccountButton
+
+        return button
+    }
+
+    private func getPresentationContainerSettingsButton() -> UIButton {
+        let button: UIButton
+
+        if let transitionViewButton = presentationContainerSettingsButton {
+            transitionViewButton.removeFromSuperview()
+            button = transitionViewButton
+        } else {
+            button = HeaderBarView.makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+            button.isEnabled = headerBarView.settingsButton.isEnabled
+            button.addTarget(
+                self,
+                action: #selector(handleSettingsButtonTap),
+                for: .touchUpInside
+            )
+        }
+
+        return button
+    }
+
+    @objc private func handleAccountButtonTap() {
+        showAccount(animated: true)
     }
 
     @objc private func handleSettingsButtonTap() {
@@ -676,7 +731,10 @@ extension UIViewController {
 }
 
 extension RootContainerViewController {
-    func update(deviceState: DeviceState) {
-        headerBarView.update(deviceState: deviceState)
+    func update(configuration: RootConfigration) {
+        self.configuration = configuration
+
+        presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
+        headerBarView.update(configuration: configuration)
     }
 }

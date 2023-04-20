@@ -37,7 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     // MARK: - Deep link
 
     func showUserAccount() {
-        appCoordinator?.showAccountSettings()
+        appCoordinator?.showAccount()
     }
 
     // MARK: - Private

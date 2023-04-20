@@ -123,6 +123,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         completion: @escaping (Coordinator) -> Void
     ) {
         switch route {
+        case .account:
+            presentAccount(animated: animated, completion: completion)
+
         case let .settings(subRoute):
             presentSettings(route: subRoute, animated: animated, completion: completion)
 
@@ -162,7 +165,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .settings:
+            case .selectLocation, .account, .settings:
                 let coordinator = dismissedRoute.coordinator as! Presentable
 
                 coordinator.dismiss(animated: context.isAnimated, completion: completion)
@@ -292,9 +295,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func didDismissSettings(_ reason: SettingsDismissReason) {
+    private func didDismissAccount(_ reason: AccountDismissReason) {
         if isPad {
-            router.dismissAll(.settings, animated: true)
+            router.dismiss(.account, animated: true)
 
             if reason == .userLoggedOut {
                 router.dismissAll(.primary, animated: true)
@@ -306,7 +309,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 continueFlow(animated: false)
             }
 
-            router.dismissAll(.settings, animated: true)
+            router.dismiss(.account, animated: true)
         }
     }
 
@@ -541,6 +544,35 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         return selectLocationCoordinator
     }
 
+    private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        let accountInteractor = AccountInteractor(
+            storePaymentManager: storePaymentManager,
+            tunnelManager: tunnelManager
+        )
+
+        let coordinator = AccountCoordinator(
+            navigationController: CustomNavigationController(),
+            interactor: accountInteractor
+        )
+
+        coordinator.didFinish = { [weak self] coordinator, reason in
+            self?.didDismissAccount(reason)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(
+            coordinator,
+            animated: animated,
+            configuration: ModalPresentationConfiguration(
+                preferredContentSize: preferredFormSheetContentSize,
+                modalPresentationStyle: .formSheet
+            )
+        ) {
+            completion(coordinator)
+        }
+    }
+
     private func presentSettings(
         route: SettingsNavigationRoute?,
         animated: Bool,
@@ -558,8 +590,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             interactorFactory: interactorFactory
         )
 
-        coordinator.didFinish = { [weak self] coordinator, reason in
-            self?.didDismissSettings(reason)
+        coordinator.didFinish = { [weak self] coordinator in
+            self?.router.dismissAll(.settings, animated: true)
         }
 
         coordinator.willNavigate = { [weak self] coordinator, from, to in
@@ -608,7 +640,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             if !accountData.isExpired {
                 router.dismiss(.outOfTime, animated: true)
             }
-
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
@@ -619,8 +650,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateView(deviceState: DeviceState) {
-        primaryNavigationContainer.update(deviceState: deviceState)
-        secondaryNavigationContainer.update(deviceState: deviceState)
+        let configuration = RootConfigration(
+            deviceName: deviceState.deviceData?.name,
+            expiry: deviceState.accountData?.expiry,
+            showsAccountButton: deviceState.isLoggedIn
+        )
+
+        primaryNavigationContainer.update(configuration: configuration)
+        secondaryNavigationContainer.update(configuration: configuration)
     }
 
     // MARK: - Out of time
@@ -658,8 +695,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Deep link
 
-    func showAccountSettings() {
-        router.present(.settings(.account))
+    func showAccount() {
+        router.present(.account)
     }
 
     // MARK: - UISplitViewControllerDelegate
@@ -696,6 +733,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     // MARK: - RootContainerViewControllerDelegate
+
+    func rootContainerViewControllerShouldShowAccount(
+        _ controller: RootContainerViewController,
+        animated: Bool
+    ) {
+        router.present(.account, animated: animated)
+    }
 
     func rootContainerViewControllerShouldShowSettings(
         _ controller: RootContainerViewController,

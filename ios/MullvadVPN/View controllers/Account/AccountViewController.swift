@@ -14,6 +14,7 @@ import StoreKit
 import UIKit
 
 protocol AccountViewControllerDelegate: AnyObject {
+    func accountViewControllerDidFinish(_ controller: AccountViewController)
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 
@@ -79,6 +80,12 @@ class AccountViewController: UIViewController {
             comment: ""
         )
 
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(handleDismiss)
+        )
+
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
@@ -114,6 +121,10 @@ class AccountViewController: UIViewController {
     }
 
     // MARK: - Private
+
+    @objc private func handleDismiss() {
+        delegate?.accountViewControllerDidFinish(self)
+    }
 
     private func requestStoreProducts() {
         let productKind = StoreSubscription.thirtyDays

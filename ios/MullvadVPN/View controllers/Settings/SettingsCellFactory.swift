@@ -27,19 +27,6 @@ struct SettingsCellFactory: CellFactoryProtocol {
 
     func configureCell(_ cell: UITableViewCell, item: SettingsDataSource.Item, indexPath: IndexPath) {
         switch item {
-        case .account:
-            guard let cell = cell as? SettingsAccountCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
-                "ACCOUNT_CELL_LABEL",
-                tableName: "Settings",
-                value: "Account",
-                comment: ""
-            )
-            cell.accountExpiryDate = interactor.deviceState.accountData?.expiry
-            cell.accessibilityIdentifier = "AccountCell"
-            cell.disclosureType = .chevron
-
         case .preferences:
             guard let cell = cell as? SettingsCell else { return }
 
