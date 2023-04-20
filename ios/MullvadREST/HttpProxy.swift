@@ -13,18 +13,20 @@ import Network
 public class HttpProxy {
     private let proxyConfig: ProxyHandle
     private let addr: IPAddress
+    private let remotePort: UInt16
     private let password: String
     private let cipher: String
     
-    public init(addr: IPAddress, port: UInt16, password: String, cipher: String ) {
+    public init(addr: IPAddress, remotePort: UInt16, password: String, cipher: String ) {
         // TODO() make the FFI call
-        self.proxyConfig = ProxyHandle(context: nil, port: port)
+        self.proxyConfig = ProxyHandle(context: nil, port: 0)
         self.addr = addr
+        self.remotePort = remotePort
         self.password = password
         self.cipher = cipher
     }
     
-    func port() -> UInt16 {
+    func localPort() -> UInt16 {
         self.proxyConfig.port
     }
     
@@ -39,7 +41,7 @@ public class HttpProxy {
             // Get the raw bytes access to  `proxyConfig`
             withUnsafePointer(to: proxyConfig) { config in
                 let configPointer = UnsafeMutablePointer(mutating: config)
-                start_shadowsocks_proxy(rawAddr, UInt(addr.rawValue.count), port(), password, UInt(password.count), cipher, UInt(cipher.count), configPointer)
+                start_shadowsocks_proxy(rawAddr, UInt(addr.rawValue.count), remotePort, password, UInt(password.count), cipher, UInt(cipher.count), configPointer)
             }
         }
     }

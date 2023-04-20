@@ -365,8 +365,8 @@
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
-		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
+		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
