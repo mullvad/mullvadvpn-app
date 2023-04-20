@@ -40,6 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
+    private var shadowSocksProxy: HttpProxy!
 
     // MARK: - Application lifecycle
 
@@ -58,16 +59,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in
-                return self?.transportMonitor.transport
+//                return self?.transportMonitor.transport
+                return self?.transportMonitor.shadowSocksTransport
             },
             addressCache: addressCache
         )
+        
 
         apiProxy = proxyFactory.createAPIProxy()
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
         relayCacheTracker = RelayCacheTracker(application: application, apiProxy: apiProxy)
+        
         addressCacheTracker = AddressCacheTracker(
             application: application,
             apiProxy: apiProxy,
@@ -91,7 +95,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(tunnelManager: tunnelManager, tunnelStore: tunnelStore)
+        let cachedRelays = try! relayCacheTracker.getCachedRelays()
+        let shadowSocksRelay = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
+        let shadowSocksBridge = cachedRelays.relays.bridge.relays.randomElement()!
+        
+        shadowSocksProxy = HttpProxy(remoteAddress: shadowSocksBridge.ipv4AddrIn,
+                                     remotePort: shadowSocksRelay.port,
+                                     password: shadowSocksRelay.password,
+                                     cipher: shadowSocksRelay.cipher)
+
+        
+        shadowSocksProxy.start()
+        print("local shadow socks proxy port : \(shadowSocksProxy.localPort())")
+        transportMonitor = TransportMonitor(tunnelManager: tunnelManager,
+                                            tunnelStore: tunnelStore,
+                                            shadowSocksLocalPort: shadowSocksProxy.localPort())
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
