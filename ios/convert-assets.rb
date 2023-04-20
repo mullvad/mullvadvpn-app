@@ -27,6 +27,7 @@ GRAPHICAL_ASSETS = [
   "icon-chevron.svg",
   "icon-extLink.svg",
   "icon-fail.svg",
+  "icon-info.svg",
   "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",

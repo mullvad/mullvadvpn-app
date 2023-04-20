@@ -359,6 +359,7 @@
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
+		7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
@@ -945,6 +946,7 @@
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
+		7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsContentBlockersHeaderView.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Appearance.swift"; sourceTree = "<group>"; };
@@ -1276,17 +1278,19 @@
 		583FE01829C19709006E85F9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */,
-				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
-				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
-				58677711290976FB006F721F /* SettingsInteractor.swift */,
-				582BB1AE229566420055B6EF /* SettingsCell.swift */,
-				584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */,
-				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
+				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
+				582BB1AE229566420055B6EF /* SettingsCell.swift */,
+				5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */,
+				7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */,
 				58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */,
 				58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */,
 				584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */,
+				58677711290976FB006F721F /* SettingsInteractor.swift */,
+				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
+				584D26C1270C8542004EA533 /* SettingsStaticTextFooterView.swift */,
+				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
+				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2715,6 +2719,7 @@
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
 				06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */,
 				586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */,
+				7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */,
 				5878F50229CDB989003D4BE2 /* ChangeLogCoordinator.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
