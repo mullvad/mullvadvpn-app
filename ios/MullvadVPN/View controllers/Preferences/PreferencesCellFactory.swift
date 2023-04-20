@@ -26,36 +26,14 @@ final class PreferencesCellFactory: CellFactoryProtocol {
     }
 
     func makeCell(for item: PreferencesDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell
-
-        switch item {
-        case .addDNSServer:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: PreferencesDataSource.CellReuseIdentifiers.addDNSServer.rawValue,
-                for: indexPath
-            )
-        case .dnsServer:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: PreferencesDataSource.CellReuseIdentifiers.dnsServer.rawValue,
-                for: indexPath
-            )
-        default:
-            cell = tableView.dequeueReusableCell(
-                withIdentifier: PreferencesDataSource.CellReuseIdentifiers.settingSwitch.rawValue,
-                for: indexPath
-            )
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
 
         configureCell(cell, item: item, indexPath: indexPath)
 
         return cell
     }
 
-    func configureCell(
-        _ cell: UITableViewCell,
-        item: PreferencesDataSource.Item,
-        indexPath: IndexPath
-    ) {
+    func configureCell(_ cell: UITableViewCell, item: PreferencesDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .blockAdvertising:
             guard let cell = cell as? SettingsSwitchCell else { return }
