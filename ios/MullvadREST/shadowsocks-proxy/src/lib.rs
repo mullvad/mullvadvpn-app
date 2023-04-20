@@ -124,7 +124,7 @@ impl ShadowsocksRuntime {
     ) -> io::Result<(Config, u16)> {
         let mut cfg = Config::new(ConfigType::Local);
         let free_port = get_free_port()?;
-        let bind_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), free_port);
+        let bind_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), free_port);
 
         cfg.local = vec![LocalInstanceConfig::with_local_config(
             LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Http),
