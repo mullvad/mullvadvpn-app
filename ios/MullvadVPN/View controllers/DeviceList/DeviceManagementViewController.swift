@@ -104,7 +104,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         let viewModels = devices.map { restDevice -> DeviceViewModel in
             return DeviceViewModel(
                 id: restDevice.id,
-                name: restDevice.name
+                name: restDevice.name.capitalized
             )
         }
 
@@ -116,7 +116,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         _ device: DeviceViewModel,
         completionHandler: @escaping () -> Void
     ) {
-        showDeleteConfirmation(deviceName: device.displayName) { [weak self] shouldDelete in
+        showDeleteConfirmation(deviceName: device.name.capitalized) { [weak self] shouldDelete in
             guard let self = self else { return }
 
             guard shouldDelete else {
@@ -262,9 +262,5 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
 struct DeviceViewModel {
     var id: String
-    var name: String
-
-    var displayName: String {
-        return name.capitalized
-    }
+    let name: String
 }

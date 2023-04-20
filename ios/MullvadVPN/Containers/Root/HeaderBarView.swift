@@ -179,7 +179,7 @@ extension HeaderBarView {
                 value: "Time left : %@",
                 comment: ""
             )
-            deviceName.text = .init(format: formattedDeviceName, storedDeviceData.name)
+            deviceName.text = .init(format: formattedDeviceName, storedDeviceData.capitalizedName)
             timeLeft.text = .init(
                 format: formattedTimeLeft,
                 CustomDateComponentsFormatting.localizedString(
