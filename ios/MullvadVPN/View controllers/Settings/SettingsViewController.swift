@@ -80,8 +80,6 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
 extension SettingsDataSource.Item {
     var navigationRoute: SettingsNavigationRoute? {
         switch self {
-        case .account:
-            return .account
         case .preferences:
             return .preferences
         case .version:
