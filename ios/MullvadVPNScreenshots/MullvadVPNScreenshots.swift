@@ -38,6 +38,10 @@ class MullvadVPNScreenshots: XCTestCase {
         _ = app.buttons["AgreeButton"].waitForExistence(timeout: 10)
         app.buttons["AgreeButton"].tap()
 
+        // Dismiss changelog screen
+        _ = app.buttons["OkButton"].waitForExistence(timeout: 10)
+        app.buttons["OkButton"].tap()
+
         // Wait for Login screen
         let textField = app.textFields["LoginTextField"]
         _ = textField.waitForExistence(timeout: 5)
