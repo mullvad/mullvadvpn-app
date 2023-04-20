@@ -651,7 +651,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func updateView(deviceState: DeviceState) {
         let configuration = RootConfigration(
-            deviceName: deviceState.deviceData?.name,
+            deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
             showsAccountButton: deviceState.isLoggedIn
         )

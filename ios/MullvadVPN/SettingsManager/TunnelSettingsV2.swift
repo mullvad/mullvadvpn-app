@@ -108,6 +108,10 @@ struct StoredDeviceData: Codable, Equatable {
 
     /// WireGuard key data.
     var wgKeyData: StoredWgKeyData
+
+    var capitalizedName: String {
+        name.capitalized
+    }
 }
 
 struct StoredWgKeyData: Codable, Equatable {

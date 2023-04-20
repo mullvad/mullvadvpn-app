@@ -69,7 +69,7 @@ class DeviceRowView: UIView {
             addSubview(subview)
         }
 
-        textLabel.text = viewModel.displayName
+        textLabel.text = viewModel.name
 
         removeButton.addTarget(self, action: #selector(handleButtonTap(_:)), for: .touchUpInside)
 
