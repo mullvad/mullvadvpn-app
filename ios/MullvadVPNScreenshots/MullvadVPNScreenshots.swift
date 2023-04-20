@@ -109,9 +109,11 @@ class MullvadVPNScreenshots: XCTestCase {
         // Tap back button
         app.navigationBars.buttons.firstMatch.tap()
 
-        // Tap "Account" cell
-        _ = app.tables.cells["AccountCell"].waitForExistence(timeout: 2)
-        app.tables.cells["AccountCell"].tap()
+        // Tap dismiss button
+        app.navigationBars.buttons.firstMatch.tap()
+
+        // Open Account
+        app.buttons["AccountButton"].tap()
 
         // Wait for StoreKit to fetch subscriptions
         _ = app.buttons["PurchaseButton"].waitForExistence(timeout: 2)
