@@ -27,6 +27,7 @@ GRAPHICAL_ASSETS = [
   "icon-chevron.svg",
   "icon-extLink.svg",
   "icon-fail.svg",
+  "icon-info.svg",
   "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",
@@ -45,7 +46,8 @@ GRAPHICAL_ASSETS = [
 
 # graphical assets to resize.
 RESIZE_ASSETS = {
-   "icon-tick.svg" => ["icon-tick-sml.svg", 16, 16],
+  "icon-info.svg" => ["icon-info.svg", 18, 18],
+  "icon-tick.svg" => ["icon-tick-sml.svg", 16, 16]
 }
 
 # Additional assets generated from SVG -> vector PDF
