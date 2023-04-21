@@ -597,6 +597,7 @@ impl WgNtAdapter {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     fn get_config(&self) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {
         unsafe {
             deserialize_config(
@@ -881,6 +882,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     Ok(buffer)
 }
 
+#[allow(clippy::type_complexity)]
 unsafe fn deserialize_config(
     config: &[MaybeUninit<u8>],
 ) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {

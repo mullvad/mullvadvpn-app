@@ -82,16 +82,15 @@ impl DnsApi {
     }
 
     fn flush_cache(&self) -> Result<(), Error> {
-        if self
-            .in_flight_flush_count
-            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |val| {
-                if val >= MAX_CONCURRENT_FLUSHES {
-                    return None;
-                }
-                Some(val + 1)
-            })
-            .is_err()
-        {
+        let update_flush_count_result =
+            self.in_flight_flush_count
+                .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |val| {
+                    if val >= MAX_CONCURRENT_FLUSHES {
+                        return None;
+                    }
+                    Some(val + 1)
+                });
+        if update_flush_count_result.is_err() {
             return Err(Error::TooManyFlushAttempts);
         }
 

@@ -64,7 +64,13 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
 
         unsafe {
             SetWindowLongPtrW(dummy_window, GWLP_USERDATA, raw_callback as isize);
-            SetWindowLongPtrW(dummy_window, GWLP_WNDPROC, window_procedure::<F> as isize);
+            SetWindowLongPtrW(
+                dummy_window,
+                GWLP_WNDPROC,
+                // Clippy does not like casting function pointers to anything but usize.
+                // But this is correct, since the Windows API expects a signed int for pointer.
+                window_procedure::<F> as usize as isize,
+            );
         }
 
         let mut msg = unsafe { std::mem::zeroed() };
@@ -85,8 +91,8 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
                 }
             } else {
                 unsafe {
-                    TranslateMessage(&mut msg);
-                    DispatchMessageW(&mut msg);
+                    TranslateMessage(&msg);
+                    DispatchMessageW(&msg);
                 }
             }
         }
@@ -193,6 +199,12 @@ impl PowerManagementListener {
                 }
             }
         }
+    }
+}
+
+impl Default for PowerManagementListener {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

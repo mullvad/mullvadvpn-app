@@ -17,9 +17,9 @@ macro_rules! ffi_error {
             }
         }
 
-        impl Into<Result<(), Error>> for $result {
-            fn into(self) -> Result<(), Error> {
-                self.into_result()
+        impl From<$result> for Result<(), Error> {
+            fn from(result: $result) -> Self {
+                result.into_result()
             }
         }
     };

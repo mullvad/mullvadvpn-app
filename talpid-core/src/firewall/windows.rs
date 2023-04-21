@@ -231,7 +231,9 @@ impl Firewall {
         // has returned.
         drop(endpoint1_ip);
         drop(endpoint2_ip);
+        #[allow(clippy::drop_non_drop)]
         drop(endpoint1);
+        #[allow(clippy::drop_non_drop)]
         drop(endpoint2);
         res
     }
