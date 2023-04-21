@@ -59,7 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in
-//                return self?.transportMonitor.transport
                 return self?.transportMonitor.shadowSocksTransport
             },
             addressCache: addressCache
@@ -95,7 +94,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        let cachedRelays = try! relayCacheTracker.getCachedRelays()
         transportMonitor = TransportMonitor(tunnelManager: tunnelManager,
                                             tunnelStore: tunnelStore,
                                             relayCacheTracker: relayCacheTracker)

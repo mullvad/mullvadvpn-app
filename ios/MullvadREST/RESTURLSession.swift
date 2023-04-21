@@ -22,7 +22,6 @@ extension REST {
         )
         
         let sessionConfiguration = URLSessionConfiguration.ephemeral
-        sessionConfiguration.urlCache = nil
         
         let session = URLSession(
             configuration: sessionConfiguration,
