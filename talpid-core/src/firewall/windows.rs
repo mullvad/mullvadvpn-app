@@ -338,7 +338,6 @@ pub extern "system" fn log_sink(
     if msg.is_null() {
         log::error!("Log message from FFI boundary is NULL");
     } else {
-        let rust_log_level = log::Level::from(level);
         let target = if context.is_null() {
             "UNKNOWN".into()
         } else {
@@ -355,7 +354,7 @@ pub extern "system" fn log_sink(
 
         log::logger().log(
             &log::Record::builder()
-                .level(rust_log_level)
+                .level(level)
                 .target(&target)
                 .args(format_args!("{}", managed_msg))
                 .build(),

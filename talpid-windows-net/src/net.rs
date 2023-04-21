@@ -230,8 +230,8 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
 
-    let mut found_ipv4 = if ipv4 { false } else { true };
-    let mut found_ipv6 = if ipv6 { false } else { true };
+    let mut found_ipv4 = !ipv4;
+    let mut found_ipv6 = !ipv6;
 
     let mut tx = Some(tx);
 
