@@ -14,11 +14,6 @@ pub struct ProxyHandle {
 }
 
 #[no_mangle]
-pub extern "C" fn return_42() -> i32 {
-    42
-}
-
-#[no_mangle]
 pub extern "C" fn start_shadowsocks_proxy(
     addr: *const u8,
     addr_len: usize,
@@ -32,7 +27,7 @@ pub extern "C" fn start_shadowsocks_proxy(
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.ShadowSocks")
-            .level_filter(log::LevelFilter::Debug)
+            .level_filter(log::LevelFilter::Info)
             .init();
     });
 
