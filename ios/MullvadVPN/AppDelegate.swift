@@ -152,7 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc private func didEnterBackground(_ notification: Notification) {
-//        scheduleBackgroundTasks()
+        scheduleBackgroundTasks()
     }
 
     // MARK: - Background tasks

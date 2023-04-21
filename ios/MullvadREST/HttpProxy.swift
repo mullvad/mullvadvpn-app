@@ -9,18 +9,13 @@
 import Foundation
 import Network
 
-public class ShadowSocksProxy: Equatable {
-    public static func == (lhs: ShadowSocksProxy, rhs: ShadowSocksProxy) -> Bool {
-        lhs.uuid == rhs.uuid
-    }
-    
+public class ShadowSocksProxy {
     
     private var proxyConfig: ProxyHandle
     private let remoteAddress: IPAddress
     private let remotePort: UInt16
     private let password: String
     private let cipher: String
-    public let uuid = UUID()
     
     public init(remoteAddress: IPAddress, remotePort: UInt16, password: String, cipher: String ) {
         self.proxyConfig = ProxyHandle(context: nil, port: 0)
