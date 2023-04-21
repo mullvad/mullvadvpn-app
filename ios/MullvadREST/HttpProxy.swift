@@ -42,8 +42,6 @@ public class ShadowSocksProxy {
                 start_shadowsocks_proxy(rawAddr, UInt(remoteAddress.rawValue.count), remotePort, password, UInt(password.count), cipher, UInt(cipher.count), config)
                 
             }
-            
-            print("Proxy config port: \(proxyConfig.port)")
         }
     }
     

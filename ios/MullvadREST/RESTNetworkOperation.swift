@@ -162,7 +162,6 @@ extension REST {
 
                         self.dispatchQueue.async {
                             if let error = error {
-                                print("request to \(restRequest.urlRequest) failed")
                                 self.didReceiveError(
                                     error,
                                     transport: transport,
