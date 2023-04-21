@@ -29,7 +29,7 @@ use windows_sys::Win32::{
 };
 
 /// Minidump file name
-const MINIDUMP_FILENAME: &'static str = "DAEMON.DMP";
+const MINIDUMP_FILENAME: &str = "DAEMON.DMP";
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -177,7 +177,7 @@ unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTE
         }
     };
 
-    match generate_minidump(&dump_path, &info) {
+    match generate_minidump(&dump_path, info) {
         Ok(()) => log::info!("Wrote Minidump to {}.", dump_path.to_string_lossy()),
         Err(e) => {
             log::error!(
@@ -297,7 +297,7 @@ fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
 
     for module in snap.modules() {
         let module = module?;
-        let module_end_address = unsafe { module.base_address.offset(module.size as isize) };
+        let module_end_address = unsafe { module.base_address.add(module.size) };
         if (address as *const u8) >= module.base_address
             && (address as *const u8) < module_end_address
         {

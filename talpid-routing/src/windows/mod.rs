@@ -117,7 +117,7 @@ impl RouteManagerHandle {
                 response_tx,
             ))
             .map_err(|_| Error::RouteManagerDown)?;
-        Ok(response_rx.await.map_err(|_| Error::ManagerChannelDown)?)
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Applies the given routes while the route manager is running.

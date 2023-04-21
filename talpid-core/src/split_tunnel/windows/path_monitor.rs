@@ -110,9 +110,7 @@ macro_rules! get_reparse_path {
         } else {
             let path_buffer = (&reparse_data.path_buffer) as *const u16;
             let parsed_path = std::slice::from_raw_parts(
-                path_buffer.offset(
-                    (reparse_data.sub_name_offset as usize / mem::size_of::<u16>()) as isize,
-                ),
+                path_buffer.add((reparse_data.sub_name_offset as usize / mem::size_of::<u16>())),
                 reparse_data.sub_name_length as usize / mem::size_of::<u16>(),
             );
             Ok::<PathBuf, io::Error>(PathBuf::from(OsString::from_wide(parsed_path)))
@@ -433,7 +431,7 @@ impl StrippedPath {
         ))?);
 
         Ok(StrippedPath {
-            prefix: prefix.clone(),
+            prefix,
             tail: osstr_to_wide(iter.as_path()),
         })
     }
@@ -542,10 +540,10 @@ impl PathMonitor {
                 }
                 PathMonitorCommand::SetPaths(new_paths) => {
                     *original_paths = new_paths;
-                    return !self.update_paths(&original_paths, false).is_err();
+                    return self.update_paths(original_paths, false).is_ok();
                 }
                 PathMonitorCommand::Refresh => {
-                    return !self.update_paths(&original_paths, true).is_err();
+                    return self.update_paths(original_paths, true).is_ok();
                 }
             }
         }
