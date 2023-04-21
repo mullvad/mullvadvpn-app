@@ -73,7 +73,7 @@ impl AsRef<str> for LogLevel {
 #[cfg(windows)]
 pub fn log(context: u32, level: LogLevel, tag: &str, msg: &str) {
     let mut map = LOG_MUTEX.lock();
-    if let Some(logfile) = map.get_mut(&(context as u32)) {
+    if let Some(logfile) = map.get_mut(&{ context }) {
         log_inner(logfile, level, tag, msg);
     }
 }
@@ -104,7 +104,7 @@ pub unsafe extern "system" fn wg_go_logging_callback(
             let m = std::ffi::CStr::from_ptr(msg)
                 .to_string_lossy()
                 .to_string()
-                .replace("\n", "\r\n");
+                .replace('\n', "\r\n");
             m
         } else {
             "Logging message from WireGuard is NULL".to_string()

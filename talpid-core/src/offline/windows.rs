@@ -113,12 +113,12 @@ impl BroadcastListener {
                 Self::connectivity_callback(event, addr_family, &system_state)
             }))
             .await
-            .map_err(|e| Error::ConnectivityMonitorError(e))?;
+            .map_err(Error::ConnectivityMonitorError)?;
         Ok(change_handle)
     }
 
-    fn connectivity_callback<'a>(
-        event_type: EventType<'a>,
+    fn connectivity_callback(
+        event_type: EventType<'_>,
         family: AddressFamily,
         state_lock: &Arc<Mutex<SystemState>>,
     ) {

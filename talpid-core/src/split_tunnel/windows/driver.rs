@@ -338,13 +338,13 @@ impl DeviceHandle {
 
         let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
 
-        Ok(DriverState::try_from(raw_state)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))?)
+        DriverState::try_from(raw_state)
+            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
     }
 
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
         let mut device_paths = Vec::with_capacity(apps.len());
-        for app in apps.as_ref() {
+        for app in apps {
             match get_device_path(app.as_ref()) {
                 Err(error) if error.kind() == io::ErrorKind::NotFound => {
                     log::debug!(
@@ -455,7 +455,7 @@ fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<MaybeUninit<u8>> {
     let mut string_offset = 0;
 
     for (i, app) in apps.iter().enumerate() {
-        write_string_to_buffer(string_data, string_offset, &app);
+        write_string_to_buffer(string_data, string_offset, app);
 
         let app_bytelen = size_of::<u16>() * app.len();
         let entry = ConfigurationEntry {
@@ -542,8 +542,8 @@ fn build_process_tree() -> io::Result<Vec<ProcessInfo>> {
     }
 
     Ok(process_info
-        .into_iter()
-        .map(|(_, info)| info.into_inner())
+        .into_values()
+        .map(|info| info.into_inner())
         .collect())
 }
 

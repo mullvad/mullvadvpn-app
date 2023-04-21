@@ -149,7 +149,7 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
         }
     }
 
-    return Ok(true);
+    Ok(true)
 }
 
 fn contains_subslice<T: PartialEq>(slice: &[T], subslice: &[T]) -> bool {
@@ -163,7 +163,7 @@ struct AnnotatedRoute<'a> {
     effective_metric: u32,
 }
 
-fn annotate_route<'a>(route: &'a MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'a>> {
+fn annotate_route(route: &MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'_>> {
     // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
     let iface = get_ip_interface_entry(
         AddressFamily::try_from_af_family(unsafe { route.DestinationPrefix.Prefix.si_family })

@@ -207,8 +207,8 @@ impl WgGoTunnel {
 
     // Callback to be used to rebind the tunnel sockets when the default route changes
     #[cfg(target_os = "windows")]
-    pub fn default_route_changed_callback<'a>(
-        event_type: crate::routing::EventType<'a>,
+    pub fn default_route_changed_callback(
+        event_type: crate::routing::EventType<'_>,
         address_family: talpid_windows_net::AddressFamily,
     ) {
         use crate::routing::EventType::*;
