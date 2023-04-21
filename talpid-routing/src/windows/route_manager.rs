@@ -173,7 +173,7 @@ impl RouteManagerInternal {
             });
 
             let existing_record_idx =
-                Self::find_route_record(&mut route_manager_routes, &new_record.registered_route);
+                Self::find_route_record(&route_manager_routes, &new_record.registered_route);
 
             match existing_record_idx {
                 None => route_manager_routes.push(new_record),
@@ -311,13 +311,13 @@ impl RouteManagerInternal {
         }
     }
 
-    fn find_route_record(records: &mut Vec<RouteRecord>, route: &RegisteredRoute) -> Option<usize> {
+    fn find_route_record(records: &[RouteRecord], route: &RegisteredRoute) -> Option<usize> {
         records
             .iter()
             .position(|record| route == &record.registered_route)
     }
 
-    fn undo_events(event_log: &Vec<EventEntry>, records: &mut Vec<RouteRecord>) -> Result<()> {
+    fn undo_events(event_log: &[EventEntry], records: &mut Vec<RouteRecord>) -> Result<()> {
         // Rewind state by processing events in the reverse order.
         //
 
@@ -446,7 +446,7 @@ impl RouteManagerInternal {
         //
 
         for record in (*routes).iter() {
-            if let Err(_) = Self::delete_from_routing_table(&record.registered_route) {
+            if Self::delete_from_routing_table(&record.registered_route).is_err() {
                 log::error!(
                     "Failed to delete route while clearing applied routes, {}",
                     record.registered_route
@@ -481,8 +481,7 @@ impl RouteManagerInternal {
         {
             let (_, callbacks) = &mut *callbacks.lock().unwrap();
             for callback in callbacks.values() {
-                let family =
-                    AddressFamily::try_from_af_family(u16::try_from(family).unwrap()).unwrap();
+                let family = AddressFamily::try_from_af_family(family).unwrap();
                 callback(event_type, family);
             }
         }
@@ -714,8 +713,8 @@ impl Adapters {
     /// Create a new linked list of adapters from the windows API
     fn new(family: ADDRESS_FAMILY, flags: GET_ADAPTERS_ADDRESSES_FLAGS) -> Result<Self> {
         const MSDN_RECOMMENDED_STARTING_BUFFER_SIZE: usize = 1024 * 15;
-        let mut buffer: Vec<u8> = Vec::with_capacity(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE);
-        buffer.resize(MSDN_RECOMMENDED_STARTING_BUFFER_SIZE, 0);
+
+        let mut buffer: Vec<u8> = vec![0; MSDN_RECOMMENDED_STARTING_BUFFER_SIZE];
 
         let mut buffer_size = u32::try_from(buffer.len()).unwrap();
         let mut buffer_pointer = buffer.as_mut_ptr();
