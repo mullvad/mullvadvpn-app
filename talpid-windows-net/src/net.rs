@@ -129,9 +129,8 @@ impl AddressFamily {
     /// Convert an [`AddressFamily`] to one of the `AF_*` constants.
     pub fn to_af_family(&self) -> u16 {
         match self {
-            // These values are both small enough to fit in a u16
-            Self::Ipv4 => u16::try_from(AF_INET).unwrap(),
-            Self::Ipv6 => u16::try_from(AF_INET6).unwrap(),
+            Self::Ipv4 => AF_INET,
+            Self::Ipv6 => AF_INET6,
         }
     }
 }
@@ -230,8 +229,8 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
 
-    let mut found_ipv4 = if ipv4 { false } else { true };
-    let mut found_ipv6 = if ipv6 { false } else { true };
+    let mut found_ipv4 = !ipv4;
+    let mut found_ipv6 = !ipv6;
 
     let mut tx = Some(tx);
 

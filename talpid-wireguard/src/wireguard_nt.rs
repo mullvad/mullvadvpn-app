@@ -113,35 +113,35 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Failed to load WireGuardNT
     #[error(display = "Failed to load mullvad-wireguard.dll")]
-    DllError(#[error(source)] io::Error),
+    LoadDll(#[error(source)] io::Error),
 
     /// Failed to create tunnel interface
     #[error(display = "Failed to create WireGuard device")]
-    CreateTunnelDeviceError(#[error(source)] io::Error),
+    CreateTunnelDevice(#[error(source)] io::Error),
 
     /// Failed to obtain tunnel interface alias
     #[error(display = "Failed to obtain interface name")]
-    ObtainAliasError(#[error(source)] io::Error),
+    ObtainAlias(#[error(source)] io::Error),
 
     /// Failed to get WireGuard tunnel config for device
     #[error(display = "Failed to get tunnel WireGuard config")]
-    GetWireGuardConfigError(#[error(source)] io::Error),
+    GetWireGuardConfig(#[error(source)] io::Error),
 
     /// Failed to set WireGuard tunnel config on device
     #[error(display = "Failed to set tunnel WireGuard config")]
-    SetWireGuardConfigError(#[error(source)] io::Error),
+    SetWireGuardConfig(#[error(source)] io::Error),
 
     /// Error listening to tunnel IP interfaces
     #[error(display = "Failed to wait on tunnel IP interfaces")]
-    IpInterfacesError(#[error(source)] io::Error),
+    IpInterfaces(#[error(source)] io::Error),
 
     /// Failed to set MTU and metric on tunnel device
     #[error(display = "Failed to set tunnel interface MTU")]
-    SetTunnelMtuError(#[error(source)] io::Error),
+    SetTunnelMtu(#[error(source)] io::Error),
 
     /// Failed to set the tunnel state to up
     #[error(display = "Failed to enable the tunnel adapter")]
-    EnableTunnelError(#[error(source)] io::Error),
+    EnableTunnel(#[error(source)] io::Error),
 
     /// Unknown address family
     #[error(display = "Unknown address family: {}", _0)]
@@ -149,7 +149,7 @@ pub enum Error {
 
     /// Failure to set up logging
     #[error(display = "Failed to set up logging")]
-    InitLoggingError(#[error(source)] logging::Error),
+    InitLogging(#[error(source)] logging::Error),
 
     /// Invalid allowed IP
     #[error(display = "Invalid CIDR prefix")]
@@ -419,9 +419,7 @@ impl WgNtTunnel {
             );
 
             match error {
-                Error::CreateTunnelDeviceError(_) => {
-                    super::TunnelError::RecoverableStartWireguardError
-                }
+                Error::CreateTunnelDevice(_) => super::TunnelError::RecoverableStartWireguardError,
                 _ => super::TunnelError::FatalStartWireguardError,
             }
         })
@@ -436,12 +434,9 @@ impl WgNtTunnel {
         let dll = load_wg_nt_dll(resource_dir)?;
         let logger_handle = LoggerHandle::new(dll.clone(), log_path)?;
         let device = WgNtAdapter::create(dll, &ADAPTER_ALIAS, &ADAPTER_TYPE, Some(ADAPTER_GUID))
-            .map_err(Error::CreateTunnelDeviceError)?;
+            .map_err(Error::CreateTunnelDevice)?;
 
-        let interface_name = device
-            .name()
-            .map_err(Error::ObtainAliasError)?
-            .to_string_lossy();
+        let interface_name = device.name().map_err(Error::ObtainAlias)?.to_string_lossy();
 
         if let Err(error) = device.set_logging(WireGuardAdapterLogState::On) {
             log::error!(
@@ -490,16 +485,16 @@ async fn setup_ip_listener(
     log::debug!("Waiting for tunnel IP interfaces to arrive");
     net::wait_for_interfaces(luid, true, has_ipv6)
         .await
-        .map_err(Error::IpInterfacesError)?;
+        .map_err(Error::IpInterfaces)?;
     log::debug!("Waiting for tunnel IP interfaces: Done");
 
     talpid_tunnel::network_interface::initialize_interfaces(luid, Some(mtu))
-        .map_err(Error::SetTunnelMtuError)?;
+        .map_err(Error::SetTunnelMtu)?;
 
     if let Some(device) = &*device.lock().unwrap() {
         device
             .set_state(WgAdapterState::Up)
-            .map_err(Error::EnableTunnelError)
+            .map_err(Error::EnableTunnel)
     } else {
         Ok(())
     }
@@ -522,7 +517,7 @@ struct LoggerHandle {
 
 impl LoggerHandle {
     fn new(dll: Arc<WgNtDll>, log_path: Option<&Path>) -> Result<Self> {
-        let context = logging::initialize_logging(log_path).map_err(Error::InitLoggingError)?;
+        let context = logging::initialize_logging(log_path).map_err(Error::InitLogging)?;
         {
             *(LOG_CONTEXT.lock().unwrap()) = Some(context);
         }
@@ -598,7 +593,7 @@ impl WgNtAdapter {
         unsafe {
             self.dll_handle
                 .set_config(self.handle, config_buffer.as_ptr(), config_buffer.len())
-                .map_err(Error::SetWireGuardConfigError)
+                .map_err(Error::SetWireGuardConfig)
         }
     }
 
@@ -608,7 +603,7 @@ impl WgNtAdapter {
                 &self
                     .dll_handle
                     .get_config(self.handle)
-                    .map_err(Error::GetWireGuardConfigError)?,
+                    .map_err(Error::GetWireGuardConfig)?,
             )
         }
     }
@@ -735,7 +730,7 @@ impl WgNtDll {
             None => ptr::null_mut(),
         };
         let handle = unsafe { (self.func_create)(name.as_ptr(), tunnel_type.as_ptr(), guid_ptr) };
-        if handle == ptr::null_mut() {
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
         Ok(handle)
@@ -822,7 +817,7 @@ fn load_wg_nt_dll(resource_dir: &Path) -> Result<Arc<WgNtDll>> {
     match &*dll {
         Some(dll) => Ok(dll.clone()),
         None => {
-            let new_dll = Arc::new(WgNtDll::new(resource_dir).map_err(Error::DllError)?);
+            let new_dll = Arc::new(WgNtDll::new(resource_dir).map_err(Error::LoadDll)?);
             *dll = Some(new_dll.clone());
             Ok(new_dll)
         }

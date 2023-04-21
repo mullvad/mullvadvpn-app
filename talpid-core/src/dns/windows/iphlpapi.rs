@@ -29,11 +29,11 @@ use windows_sys::{
 pub enum Error {
     /// Failure to obtain an interface LUID given an alias.
     #[error(display = "Failed to obtain LUID for the interface alias")]
-    InterfaceLuidError(#[error(source)] io::Error),
+    ObtainInterfaceLuid(#[error(source)] io::Error),
 
     /// Failure to obtain an interface GUID.
     #[error(display = "Failed to obtain GUID for the interface")]
-    InterfaceGuidError(#[error(source)] io::Error),
+    ObtainInterfaceGuid(#[error(source)] io::Error),
 
     /// Failed to set DNS settings on interface.
     #[error(display = "Failed to set DNS settings on interface: {}", _0)]
@@ -41,7 +41,7 @@ pub enum Error {
 
     /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
-    FlushResolverCacheError(#[error(source)] super::dnsapi::Error),
+    FlushResolverCache(#[error(source)] super::dnsapi::Error),
 
     /// Failed to load iphlpapi.dll.
     #[error(display = "Failed to load iphlpapi.dll")]
@@ -117,8 +117,8 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
-        let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::InterfaceLuidError)?)
-            .map_err(Error::InterfaceGuidError)?;
+        let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?)
+            .map_err(Error::ObtainInterfaceGuid)?;
 
         let mut v4_servers = vec![];
         let mut v6_servers = vec![];
@@ -208,5 +208,5 @@ fn set_interface_dns_servers<T: ToString>(
 }
 
 fn flush_dns_cache() -> Result<(), Error> {
-    super::dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCacheError)
+    super::dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCache)
 }

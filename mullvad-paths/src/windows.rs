@@ -153,7 +153,7 @@ fn adjust_token_privilege(
         return Err(std::io::Error::last_os_error());
     }
 
-    let mut privileges = TOKEN_PRIVILEGES {
+    let privileges = TOKEN_PRIVILEGES {
         PrivilegeCount: 1,
         Privileges: [LUID_AND_ATTRIBUTES {
             Luid: privilege_luid,
@@ -164,7 +164,7 @@ fn adjust_token_privilege(
         AdjustTokenPrivileges(
             token_handle,
             0,
-            &mut privileges,
+            &privileges,
             0,
             ptr::null_mut(),
             ptr::null_mut(),

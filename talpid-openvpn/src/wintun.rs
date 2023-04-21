@@ -260,7 +260,7 @@ impl WintunDll {
             None => ptr::null_mut(),
         };
         let handle = unsafe { (self.func_create)(name.as_ptr(), tunnel_type.as_ptr(), guid_ptr) };
-        if handle == ptr::null_mut() {
+        if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
         Ok(handle)

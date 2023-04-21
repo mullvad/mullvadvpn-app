@@ -91,7 +91,6 @@ fn version_matches(settings: &mut serde_json::Value) -> bool {
 #[cfg(test)]
 mod test {
     use super::{migrate, migrate_pq_setting, version_matches};
-    use serde_json;
 
     pub const V6_SETTINGS: &str = r#"
 {

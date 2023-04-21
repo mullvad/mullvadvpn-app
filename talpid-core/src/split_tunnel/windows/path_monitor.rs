@@ -667,11 +667,11 @@ impl PathMonitor {
 
     /// Find the index of the `DirContext` that owns the `OVERLAPPED` object, or None.
     fn find_context(&self, overlapped: *const OVERLAPPED) -> Option<usize> {
-        if overlapped == ptr::null_mut() {
+        if overlapped.is_null() {
             return None;
         }
-        for i in 0..self.dir_contexts.len() {
-            if ((&*self.dir_contexts[i].overlapped) as *const _) == overlapped {
+        for (i, dir_context) in self.dir_contexts.iter().enumerate() {
+            if (&*dir_context.overlapped as *const _) == overlapped {
                 return Some(i);
             }
         }
@@ -680,7 +680,7 @@ impl PathMonitor {
 
     /// Remove the element in `discarded_contexts` that owns the `OVERLAPPED` object, if it exists.
     fn free_discarded_context(&mut self, overlapped: *const OVERLAPPED) -> bool {
-        if overlapped == ptr::null_mut() {
+        if overlapped.is_null() {
             return false;
         }
         let mut was_discarded = false;
@@ -773,7 +773,7 @@ impl PathMonitor {
                 Err((error, result)) => {
                     if error.raw_os_error() != Some(ERROR_OPERATION_ABORTED as i32) {
                         log::error!("GetQueuedCompletionStatus failed: {:?}", error);
-                        if result.used_overlapped == ptr::null_mut() {
+                        if result.used_overlapped.is_null() {
                             continue;
                         }
                     }

@@ -15,19 +15,19 @@ use winreg::{
 pub enum Error {
     /// Failure to obtain an interface LUID given an alias.
     #[error(display = "Failed to obtain LUID for the interface alias")]
-    InterfaceLuidError(#[error(source)] io::Error),
+    ObtainInterfaceLuid(#[error(source)] io::Error),
 
     /// Failure to obtain an interface GUID.
     #[error(display = "Failed to obtain GUID for the interface")]
-    InterfaceGuidError(#[error(source)] io::Error),
+    ObtainInterfaceGuid(#[error(source)] io::Error),
 
     /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
-    FlushResolverCacheError(#[error(source)] super::dnsapi::Error),
+    FlushResolverCache(#[error(source)] super::dnsapi::Error),
 
     /// Failed to update DNS servers for interface.
     #[error(display = "Failed to update interface DNS servers")]
-    SetResolversError(#[error(source)] io::Error),
+    SetResolvers(#[error(source)] io::Error),
 }
 
 pub struct DnsMonitor {
@@ -46,8 +46,8 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
-        let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::InterfaceLuidError)?)
-            .map_err(Error::InterfaceGuidError)?;
+        let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?)
+            .map_err(Error::ObtainInterfaceGuid)?;
         set_dns(&guid, servers)?;
         self.current_guid = Some(guid);
         if self.should_flush {
@@ -75,12 +75,12 @@ impl DnsMonitor {
 }
 
 fn set_dns(interface: &GUID, servers: &[IpAddr]) -> Result<(), Error> {
-    let transaction = Transaction::new().map_err(Error::SetResolversError)?;
+    let transaction = Transaction::new().map_err(Error::SetResolvers)?;
     let result = match set_dns_inner(&transaction, interface, servers) {
         Ok(()) => transaction.commit(),
         Err(error) => transaction.rollback().and(Err(error)),
     };
-    result.map_err(Error::SetResolversError)
+    result.map_err(Error::SetResolvers)
 }
 
 fn set_dns_inner(
@@ -157,7 +157,7 @@ fn config_interface<'a>(
 }
 
 fn flush_dns_cache() -> Result<(), Error> {
-    super::dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCacheError)
+    super::dnsapi::flush_resolver_cache().map_err(Error::FlushResolverCache)
 }
 
 /// Obtain a string representation for a GUID object.

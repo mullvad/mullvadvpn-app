@@ -26,11 +26,11 @@ const NETSH_TIMEOUT: Duration = Duration::from_secs(10);
 pub enum Error {
     /// Failure to obtain an interface LUID given an alias.
     #[error(display = "Failed to obtain LUID for the interface alias")]
-    InterfaceLuidError(#[error(source)] io::Error),
+    ObtainInterfaceLuid(#[error(source)] io::Error),
 
     /// Failure to obtain an interface index.
     #[error(display = "Failed to obtain index of the interface")]
-    InterfaceIndexError(#[error(source)] io::Error),
+    ObtainInterfaceIndex(#[error(source)] io::Error),
 
     /// Failure to spawn netsh subprocess.
     #[error(display = "Failed to spawn 'netsh'")]
@@ -50,7 +50,7 @@ pub enum Error {
 
     /// netsh returned a non-zero status.
     #[error(display = "'netsh' returned an error: {:?}", _0)]
-    NetshError(Option<i32>),
+    Netsh(Option<i32>),
 
     /// netsh did not return in a timely manner.
     #[error(display = "'netsh' took too long to complete")]
@@ -71,9 +71,9 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
-        let interface_luid = luid_from_alias(interface).map_err(Error::InterfaceLuidError)?;
+        let interface_luid = luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?;
         let interface_index =
-            index_from_luid(&interface_luid).map_err(Error::InterfaceIndexError)?;
+            index_from_luid(&interface_luid).map_err(Error::ObtainInterfaceIndex)?;
 
         self.current_index = Some(interface_index);
 
@@ -154,7 +154,7 @@ fn run_netsh_with_timeout(netsh_input: String, timeout: Duration) -> Result<(), 
     match wait_for_child(&mut subproc, timeout) {
         Ok(Some(status)) => {
             if !status.success() {
-                return Err(Error::NetshError(status.code()));
+                return Err(Error::Netsh(status.code()));
             }
             Ok(())
         }
