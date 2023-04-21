@@ -437,7 +437,7 @@ extern "C" {
         iface_name: *const i8,
         mtu: i64,
         settings: *const i8,
-        iface_name_out: *const *mut std::os::raw::c_char,
+        iface_name_out: *mut *mut std::os::raw::c_char,
         iface_luid_out: *mut u64,
         logging_callback: Option<LoggingCallback>,
         logging_context: *mut libc::c_void,
