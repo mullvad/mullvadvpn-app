@@ -87,6 +87,7 @@ pub extern "C" fn stop_shadowsocks_proxy(proxy_config: *mut ProxyHandle) -> i32 
 
     let proxy_handle: Box<ShadowsocksHandle> = unsafe { Box::from_raw(context_ptr as *mut _) };
     proxy_handle.stop();
+    unsafe { (*proxy_config).context = std::ptr::null_mut() };
     0
 }
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
