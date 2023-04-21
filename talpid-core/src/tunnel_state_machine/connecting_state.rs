@@ -72,7 +72,7 @@ impl ConnectingState {
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
             #[cfg(windows)]
-            relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
+            relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, params),
         };
         shared_values
             .firewall

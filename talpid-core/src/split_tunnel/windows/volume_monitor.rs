@@ -132,12 +132,10 @@ fn start_internal_monitor(
         // Compare against known state to ignore duplicate notifications
         // from frontends
         let state_diff = *known_state_guard ^ prev_state;
-        if state_diff != 0 {
-            if matches_volume(volumes, &paths_guard) {
-                // Reapply config
-                let _ = update_tx.send(());
-                let _ = path_monitor.refresh();
-            }
+        if state_diff != 0 && matches_volume(volumes, &paths_guard) {
+            // Reapply config
+            let _ = update_tx.send(());
+            let _ = path_monitor.refresh();
         }
 
         // Always grant the request
@@ -163,11 +161,11 @@ fn matches_volume(volumes: u32, paths_guard: &MutexGuard<'_, Vec<OsString>>) -> 
         if let Some(path::Component::Prefix(prefix)) = path.components().next() {
             match prefix.kind() {
                 path::Prefix::VerbatimDisk(disk) | path::Prefix::Disk(disk) => {
-                    if disk < 'A' as u8 || disk > 'Z' as u8 {
+                    if !disk.is_ascii_uppercase() {
                         log::warn!("Ignoring invalid volume \"{}\"", disk as char);
                         continue;
                     }
-                    let disk = disk - 'A' as u8;
+                    let disk = disk - b'A';
                     if volumes & (1 << disk) != 0 {
                         return true;
                     }

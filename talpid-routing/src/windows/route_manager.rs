@@ -250,9 +250,9 @@ impl RouteManagerInternal {
                 match default_route {
                     None => {
                         log::error!("Unable to determine details of default route");
-                        return Err(Error::NoDefaultRoute);
+                        Err(Error::NoDefaultRoute)
                     }
-                    Some(default_route) => return Ok(default_route),
+                    Some(default_route) => Ok(default_route),
                 }
             }
             NetNode::RealNode(node) => {
@@ -469,11 +469,11 @@ impl RouteManagerInternal {
         }
     }
 
-    fn default_route_change<'a>(
+    fn default_route_change(
         callbacks: &Arc<Mutex<(i32, HashMap<i32, Callback>)>>,
         records: &Arc<Mutex<Vec<RouteRecord>>>,
         family: ADDRESS_FAMILY,
-        event_type: RouteMonitorEventType<'a>,
+        event_type: RouteMonitorEventType<'_>,
     ) {
         // Forward event to all registered listeners.
         //
@@ -590,7 +590,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
                 unsafe { isolate_gateway_address(get_first_gateway_address_reference(adapter), family) }
             };
 
-            address_present(gateways, &gateway).unwrap_or(false)
+            address_present(gateways, gateway).unwrap_or(false)
         })
         .collect();
 
@@ -640,10 +640,10 @@ fn adapter_interface_enabled(
 
 /// SAFETY: `head` must be a linked list where each `head.Next` is either null or
 /// the it and all of its fields has lifetime 'a and are dereferenceable.
-unsafe fn isolate_gateway_address<'a>(
-    head: &'a IP_ADAPTER_GATEWAY_ADDRESS_LH,
+unsafe fn isolate_gateway_address(
+    head: &IP_ADAPTER_GATEWAY_ADDRESS_LH,
     family: ADDRESS_FAMILY,
-) -> Vec<&'a SOCKET_ADDRESS> {
+) -> Vec<&SOCKET_ADDRESS> {
     let mut matches = vec![];
 
     let mut gateway = head;
@@ -678,8 +678,7 @@ fn address_present(hay: Vec<&'_ SOCKET_ADDRESS>, needle: &'_ SOCKADDR_INET) -> R
     Ok(false)
 }
 
-fn equal_address(lhs: &'_ SOCKADDR_INET, rhs: &'_ SOCKET_ADDRESS) -> Result<bool> {
-    let rhs = &*rhs;
+fn equal_address(lhs: &SOCKADDR_INET, rhs: &SOCKET_ADDRESS) -> Result<bool> {
     // SAFETY: The si_family field is always valid
     if unsafe { lhs.si_family != (*rhs.lpSockaddr).sa_family } {
         return Ok(false);
@@ -774,7 +773,7 @@ impl Adapters {
         // IP_ADAPTER_ADDRESSES_LH is safe as that is the underlying data structure. SAFETY:
         // This union field is always valid to read from
         let system_size = unsafe {
-            (*(buffer.get(0).unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
+            (*(buffer.first().unwrap() as *const u8 as *const IP_ADAPTER_ADDRESSES_LH))
                 .Anonymous1
                 .Anonymous
                 .Length
@@ -796,7 +795,7 @@ impl Adapters {
     /// Produces a iterator for the linked list in `Adapters` see
     /// [AdaptersIterator](struct.AdaptersIterator.html) SAFETY: See the documentation on
     /// `AdaptersIterator`
-    fn iter<'a>(&'a self) -> AdaptersIterator<'a> {
+    fn iter(&self) -> AdaptersIterator<'_> {
         let cur = if self.buffer.is_empty() {
             std::ptr::null()
         } else {

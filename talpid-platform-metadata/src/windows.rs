@@ -54,7 +54,7 @@ impl WindowsVersion {
         }
 
         let function_address = unsafe { GetProcAddress(ntdll, b"RtlGetVersion\0" as *const u8) }
-            .ok_or_else(|| io::Error::last_os_error())?;
+            .ok_or_else(io::Error::last_os_error)?;
 
         let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW) =
             unsafe { *(&function_address as *const _ as *const _) };

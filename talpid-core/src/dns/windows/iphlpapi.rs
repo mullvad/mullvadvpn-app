@@ -105,7 +105,7 @@ pub struct DnsMonitor {
 
 impl DnsMonitor {
     pub fn is_supported() -> bool {
-        IPHLPAPI_HANDLE.get_or_try_init(|| IphlpApi::new()).is_ok()
+        IPHLPAPI_HANDLE.get_or_try_init(IphlpApi::new).is_ok()
     }
 }
 
@@ -173,7 +173,7 @@ fn set_interface_dns_servers<T: ToString>(
     servers: &[T],
     flags: u32,
 ) -> Result<(), Error> {
-    let iphlpapi = IPHLPAPI_HANDLE.get_or_try_init(|| IphlpApi::new())?;
+    let iphlpapi = IPHLPAPI_HANDLE.get_or_try_init(IphlpApi::new)?;
 
     // Create comma-separated nameserver list
     let nameservers = servers

@@ -257,7 +257,7 @@ mod windows {
             return Ok(false);
         };
 
-        let windows_old_dir = Path::new(&prefix).join(&root).join(MIGRATION_DIRNAME);
+        let windows_old_dir = Path::new(&prefix).join(root).join(MIGRATION_DIRNAME);
         let source_settings_dir = Path::new(&windows_old_dir).join(&components);
         if !source_settings_dir.exists() {
             return Ok(false);

@@ -833,9 +833,9 @@ impl WireguardMonitor {
     fn get_tunnel_nodes(iface_name: &str, config: &Config) -> (routing::Node, routing::Node) {
         #[cfg(windows)]
         {
-            let v4 = routing::Node::new(config.ipv4_gateway.clone().into(), iface_name.to_string());
+            let v4 = routing::Node::new(config.ipv4_gateway.into(), iface_name.to_string());
             let v6 = if let Some(ipv6_gateway) = config.ipv6_gateway.as_ref() {
-                routing::Node::new(ipv6_gateway.clone().into(), iface_name.to_string())
+                routing::Node::new((*ipv6_gateway).into(), iface_name.to_string())
             } else {
                 routing::Node::device(iface_name.to_string())
             };

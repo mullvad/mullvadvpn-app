@@ -111,16 +111,14 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     if config.run_as_service {
         system_service::run()
-    } else {
-        if config.register_service {
-            let install_result = system_service::install_service().map_err(|e| e.display_chain());
-            if install_result.is_ok() {
-                println!("Installed the service.");
-            }
-            install_result
-        } else {
-            run_standalone(log_dir).await
+    } else if config.register_service {
+        let install_result = system_service::install_service().map_err(|e| e.display_chain());
+        if install_result.is_ok() {
+            println!("Installed the service.");
         }
+        install_result
+    } else {
+        run_standalone(log_dir).await
     }
 }
 

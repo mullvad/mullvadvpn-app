@@ -50,9 +50,7 @@ pub enum Error {
 }
 
 pub fn flush_resolver_cache() -> Result<(), Error> {
-    DNSAPI_HANDLE
-        .get_or_try_init(|| DnsApi::new())?
-        .flush_cache()
+    DNSAPI_HANDLE.get_or_try_init(DnsApi::new)?.flush_cache()
 }
 
 struct DnsApi {

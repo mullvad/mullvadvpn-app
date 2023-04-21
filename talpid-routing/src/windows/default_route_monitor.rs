@@ -85,7 +85,7 @@ impl DefaultRouteMonitorContext {
             (None, None) => (),
             (None, Some(current_best_route)) => {
                 self.best_route = Some(current_best_route);
-                (self.callback)(EventType::Updated(&self.best_route.as_ref().unwrap()));
+                (self.callback)(EventType::Updated(self.best_route.as_ref().unwrap()));
             }
             (Some(_), None) => {
                 self.best_route = None;
@@ -94,11 +94,9 @@ impl DefaultRouteMonitorContext {
             (Some(best_route), Some(current_best_route)) => {
                 if best_route != &current_best_route {
                     self.best_route = Some(current_best_route);
-                    (self.callback)(EventType::Updated(&self.best_route.as_ref().unwrap()));
+                    (self.callback)(EventType::Updated(self.best_route.as_ref().unwrap()));
                 } else if refresh_current {
-                    (self.callback)(EventType::UpdatedDetails(
-                        &self.best_route.as_ref().unwrap(),
-                    ));
+                    (self.callback)(EventType::UpdatedDetails(self.best_route.as_ref().unwrap()));
                 }
             }
         }

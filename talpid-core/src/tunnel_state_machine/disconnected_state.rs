@@ -60,14 +60,11 @@ impl DisconnectedState {
                     )
                 );
             }
-        } else {
-            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
-                log::error!(
-                    "{}",
-                    error
-                        .display_chain_with_msg("Failed to reset addresses in split tunnel driver")
-                );
-            }
+        } else if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to reset addresses in split tunnel driver")
+            );
         }
     }
 
