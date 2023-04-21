@@ -52,6 +52,10 @@ extension REST {
             self.shadowSocksBridgeRelay = shadowSocksBridgeRelay
         }
 
+        deinit {
+            shadowSocksProxy.stop()
+        }
+        
         public func sendRequest(
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
@@ -75,23 +79,12 @@ extension REST {
             let localShadowSocksPort = shadowSocksProxy.localPort()
             components.port = Int(shadowSocksProxy.localPort())
             
-            urlSession.configuration.connectionProxyDictionary?[kCFNetworkProxiesHTTPPort] = NSNumber(value: localShadowSocksPort)
-            
             urlRequestCopy.url = components.url
             let rewrittenURLRequest = urlRequestCopy as URLRequest
             
             print("Rewrote \(request) to \(rewrittenURLRequest)")
             
-            // Rewrite the completion handler to stop the currently Running shadow socks proxy when the request is done
-            let completionHandler: (Data?, URLResponse?, Swift.Error?) -> Void = {[weak self] data, response, error in
-                if error != nil || data != nil {
-                    self?.shadowSocksProxy.stop()
-                }
-                
-                completion(data, response, error)
-            }
-
-            let dataTask = urlSession.dataTask(with: rewrittenURLRequest, completionHandler: completionHandler)
+            let dataTask = urlSession.dataTask(with: rewrittenURLRequest, completionHandler: completion)
             dataTask.resume()
             return dataTask
         }
