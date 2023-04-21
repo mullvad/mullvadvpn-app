@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
     <string name="dns_content_blockers_subtitle">Aby aktywować te ustawienia, wyłącz &lt;b&gt;%1$s&lt;/b&gt; poniżej.</string>
     <string name="dns_content_blockers_title">Funkcje blokowania treści DNS</string>
-    <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami, usługami i programami.</string>
     <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="edit_message">Edytuj wiadomość</string>
     <string name="enable">Włącz</string>

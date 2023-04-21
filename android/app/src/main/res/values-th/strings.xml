@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณสมบัตินี้ คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้</string>
     <string name="dns_content_blockers_title">ตัวบล็อกเนื้อหา DNS</string>
-    <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับเว็บไซต์ บริการ และโปรแกรมบางอย่างได้</string>
     <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
     <string name="edit_message">แก้ไขข้อความ</string>
     <string name="enable">เปิดใช้งาน</string>

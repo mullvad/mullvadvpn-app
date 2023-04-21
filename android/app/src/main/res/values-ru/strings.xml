@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти параметры, отключите опцию &lt;b&gt;%1$s&lt;/b&gt; ниже.</string>
     <string name="dns_content_blockers_title">DNS-блокировщики контента</string>
-    <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и программ.</string>
     <string name="dont_have_an_account">У вас нет номера учетной записи?</string>
     <string name="edit_message">Изменить сообщение</string>
     <string name="enable">Включить</string>
