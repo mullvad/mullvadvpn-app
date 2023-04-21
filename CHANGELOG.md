@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
+- Fix content blockers expand state not being kept when returning from split tunneling.
 
 #### macOS
 - Fix tray window behaviour when opening mission control and switching between full-screen workspaces.
