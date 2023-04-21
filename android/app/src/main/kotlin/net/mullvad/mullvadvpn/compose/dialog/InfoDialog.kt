@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 
 @Preview
@@ -70,12 +72,10 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     modifier = Modifier.padding(bottom = verticalSpacing).fillMaxWidth()
                 )
                 if (additionalInfo != null) {
-                    Text(
-                        text = additionalInfo,
-                        color = colorResource(id = R.color.white),
-                        fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
-                        fontStyle = FontStyle.Normal,
-                        textAlign = TextAlign.Start,
+                    HtmlText(
+                        htmlFormattedString = additionalInfo,
+                        textColor = colorResource(id = R.color.white).toArgb(),
+                        textSize = dimensionResource(id = R.dimen.text_small).value,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

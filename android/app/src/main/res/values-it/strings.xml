@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Quando è abilitata, questa funzionalità impedisce al dispositivo di contattare determinati domini o siti Web noti per la distribuzione di annunci, malware, tracker e altro.</string>
     <string name="dns_content_blockers_subtitle">Disabilita &lt;b&gt;%1$s&lt;/b&gt; di seguito per attivare queste impostazioni.</string>
     <string name="dns_content_blockers_title">Blocchi dei contenuti DNS</string>
-    <string name="dns_content_blockers_warning">Ciò potrebbe causare problemi su determinati siti Web, servizi e programmi.</string>
     <string name="dont_have_an_account">Non hai un numero di account?</string>
     <string name="edit_message">Modifica messaggio</string>
     <string name="enable">Abilita</string>
