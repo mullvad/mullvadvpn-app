@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver &lt;b&gt;%1$s&lt;/b&gt; under for å aktivere innstillingene.</string>
     <string name="dns_content_blockers_title">DNS-innholdsblokkering</string>
-    <string name="dns_content_blockers_warning">Dette kan føre til problemer på enkelte nettsteder, tjenester og programmer.</string>
     <string name="dont_have_an_account">Har du ikke et kontonummer?</string>
     <string name="edit_message">Rediger melding</string>
     <string name="enable">Aktiver</string>

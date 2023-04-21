@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Ota nämä asetukset käyttöön poistamalla &lt;b&gt;%1$s&lt;/b&gt; käytöstä alta.</string>
     <string name="dns_content_blockers_title">DNS-sisällönestotoiminnot</string>
-    <string name="dns_content_blockers_warning">Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja ohjelmissa.</string>
     <string name="dont_have_an_account">Eikö sinulla ole tilinumeroa?</string>
     <string name="edit_message">Muokkaa viestiä</string>
     <string name="enable">Ota käyttöön</string>

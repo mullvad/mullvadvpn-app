@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的 &lt;b&gt;%1$s&lt;/b&gt; 以啟動這些設定。</string>
     <string name="dns_content_blockers_title">DNS 內容封鎖程式</string>
-    <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和程式出現問題。</string>
     <string name="dont_have_an_account">沒有帳號？</string>
     <string name="edit_message">編輯訊息</string>
     <string name="enable">啟用</string>

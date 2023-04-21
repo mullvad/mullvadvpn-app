@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다.</string>
     <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 &lt;b&gt;%1$s&lt;/b&gt;을(를) 비활성화하세요.</string>
     <string name="dns_content_blockers_title">DNS 콘텐츠 차단기</string>
-    <string name="dns_content_blockers_warning">이 기능을 사용하면 특정 웹 사이트, 서비스 및 프로그램에서 문제가 발생할 수 있습니다.</string>
     <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
     <string name="edit_message">메시지 편집</string>
     <string name="enable">사용</string>

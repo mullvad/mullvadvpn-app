@@ -219,7 +219,10 @@
     contacting certain domains or websites known for distributing ads, malware, trackers and
     more.</string>
     <string name="dns_content_blockers_warning">This might cause issues on certain websites,
-    services, and programs.</string>
+    services, and apps.</string>
+    <string name="dns_content_blockers_custom_dns_warning">
+<![CDATA[Attention: this setting cannot be used in combination with <b>Use custom DNS server.</b>]]>
+    </string>
     <string name="block_ads_title">Ads</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="block_malware_title">Malware</string>

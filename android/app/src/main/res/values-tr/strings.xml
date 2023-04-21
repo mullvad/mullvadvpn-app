@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
     <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki &lt;b&gt;%1$s&lt;/b&gt; seçeneğini devre dışı bırakın.</string>
     <string name="dns_content_blockers_title">DNS içerik engelleyiciler</string>
-    <string name="dns_content_blockers_warning">Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir.</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
     <string name="edit_message">Mesajı düzenle</string>
     <string name="enable">Etkinleştir</string>

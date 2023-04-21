@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel &lt;b&gt;%1$s&lt;/b&gt; hieronder uit om deze instellingen te activeren.</string>
     <string name="dns_content_blockers_title">DNS-contentblokkeringen</string>
-    <string name="dns_content_blockers_warning">Dit kan problemen veroorzaken met bepaalde websites, diensten en programma\'s.</string>
     <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
     <string name="edit_message">Bericht bewerken</string>
     <string name="enable">Inschakelen</string>
