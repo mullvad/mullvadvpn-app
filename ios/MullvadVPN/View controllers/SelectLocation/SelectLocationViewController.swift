@@ -48,12 +48,8 @@ final class SelectLocationViewController: UIViewController {
         setupTableView()
         setupSearchBar()
 
-        let searchBarTopMargin: CGFloat = splitViewController == nil ? -16 : 0
         view.addConstrainedSubviews([searchBar, tableView]) {
-            searchBar.pinEdges(
-                .init([.top(searchBarTopMargin), .leading(8), .trailing(8)]),
-                to: view.safeAreaLayoutGuide
-            )
+            searchBar.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
 
             tableView.pinEdgesToSuperview(.all().excluding(.top))
             tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
