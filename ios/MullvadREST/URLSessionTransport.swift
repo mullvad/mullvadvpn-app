@@ -76,13 +76,10 @@ extension REST {
 
             var components = URLComponents(string: urlCopy!.absoluteString)!
             components.host = "127.0.0.1"
-            let localShadowSocksPort = shadowSocksProxy.localPort()
             components.port = Int(shadowSocksProxy.localPort())
             
             urlRequestCopy.url = components.url
             let rewrittenURLRequest = urlRequestCopy as URLRequest
-            
-            print("Rewrote \(request) to \(rewrittenURLRequest)")
             
             let dataTask = urlSession.dataTask(with: rewrittenURLRequest, completionHandler: completion)
             dataTask.resume()

@@ -23,7 +23,6 @@ public class ShadowSocksProxy: Equatable {
     public let uuid = UUID()
     
     public init(remoteAddress: IPAddress, remotePort: UInt16, password: String, cipher: String ) {
-        // TODO() make the FFI call
         self.proxyConfig = ProxyHandle(context: nil, port: 0)
         self.remoteAddress = remoteAddress
         self.remotePort = remotePort
@@ -44,13 +43,9 @@ public class ShadowSocksProxy: Equatable {
             let rawAddr = unsafeAddressPointer.bindMemory(to: UInt8.self).baseAddress
             
             // Get the raw bytes access to  `proxyConfig`
-            withUnsafePointer(to: proxyConfig) { config in
-                let configPointer = UnsafeMutablePointer(mutating: config)
-                start_shadowsocks_proxy(rawAddr, UInt(remoteAddress.rawValue.count), remotePort, password, UInt(password.count), cipher, UInt(cipher.count), configPointer)
+            _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
+                start_shadowsocks_proxy(rawAddr, UInt(remoteAddress.rawValue.count), remotePort, password, UInt(password.count), cipher, UInt(cipher.count), config)
                 
-                configPointer.withMemoryRebound(to: ProxyHandle.self, capacity: 1) { handle in
-                    proxyConfig = handle.pointee
-                }
             }
             
             print("Proxy config port: \(proxyConfig.port)")
@@ -60,6 +55,7 @@ public class ShadowSocksProxy: Equatable {
     /// Stop the socks proxy
     public func stop() {
         let _ = withUnsafePointer(to: self.proxyConfig) { pointer in
+            stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
             stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
         }
     }

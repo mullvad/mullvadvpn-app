@@ -108,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
 
-//        registerBackgroundTasks()
+        registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
         addApplicationNotifications(application: application)
