@@ -49,7 +49,6 @@ public class ShadowSocksProxy {
     public func stop() {
         let _ = withUnsafePointer(to: self.proxyConfig) { pointer in
             stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
-            stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
         }
     }
 }
