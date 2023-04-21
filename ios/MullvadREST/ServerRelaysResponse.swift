@@ -36,7 +36,7 @@ extension REST {
         public let weight: UInt64
         public let includeInCountry: Bool
     }
-    
+
     public struct ServerRelay: Codable {
         public let hostname: String
         public let active: Bool
@@ -111,7 +111,7 @@ extension REST {
         public let shadowsocks: [ServerShadowsocks]
         public let relays: [BridgeRelay]
 
-        public init(shadowsocks: [REST.ServerShadowsocks], relays: [BridgeRelay] ) {
+        public init(shadowsocks: [REST.ServerShadowsocks], relays: [BridgeRelay]) {
             self.shadowsocks = shadowsocks
             self.relays = relays
         }

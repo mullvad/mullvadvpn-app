@@ -14,7 +14,7 @@ final class TransportMonitor {
     private let tunnelStore: TunnelStore
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
-    
+
     init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, relayCacheTracker: RelayCacheTracker) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
@@ -22,20 +22,23 @@ final class TransportMonitor {
 
         urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
     }
-    
+
     var shadowSocksTransport: RESTTransport? {
         let cachedRelays = try! relayCacheTracker.getCachedRelays()
-        let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
+        let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }
+            .randomElement()!
         let shadowSocksBridgeRelay = cachedRelays.relays.bridge.relays.randomElement()!
 
         let shadowSocksURLSession = REST.makeURLSession()
-        let transport = REST.URLSessionShadowSocksTransport(urlSession: shadowSocksURLSession,
-                                                            shadowSocksConfiguration: shadowSocksConfiguration,
-                                                            shadowSocksBridgeRelay: shadowSocksBridgeRelay)
-        
+        let transport = REST.URLSessionShadowSocksTransport(
+            urlSession: shadowSocksURLSession,
+            shadowSocksConfiguration: shadowSocksConfiguration,
+            shadowSocksBridgeRelay: shadowSocksBridgeRelay
+        )
+
         return transport
     }
-    
+
     var transport: RESTTransport? {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
             return tunnel.status == .connecting ||

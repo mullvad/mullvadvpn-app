@@ -9,12 +9,12 @@
 import BackgroundTasks
 import MullvadLogging
 import MullvadREST
+import Network
 import Operations
 import RelayCache
 import StoreKit
 import UIKit
 import UserNotifications
-import Network
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,
@@ -63,14 +63,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             },
             addressCache: addressCache
         )
-        
 
         apiProxy = proxyFactory.createAPIProxy()
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
         relayCacheTracker = RelayCacheTracker(application: application, apiProxy: apiProxy)
-        
+
         addressCacheTracker = AddressCacheTracker(
             application: application,
             apiProxy: apiProxy,
@@ -94,9 +93,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(tunnelManager: tunnelManager,
-                                            tunnelStore: tunnelStore,
-                                            relayCacheTracker: relayCacheTracker)
+        transportMonitor = TransportMonitor(
+            tunnelManager: tunnelManager,
+            tunnelStore: tunnelStore,
+            relayCacheTracker: relayCacheTracker
+        )
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
