@@ -528,10 +528,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 
 #[cfg(windows)]
 fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
-    match error {
-        talpid_routing::Error::AddRoutesFailed(_) => true,
-        _ => false,
-    }
+    matches!(error, talpid_routing::Error::AddRoutesFailed(_))
 }
 
 impl TunnelState for ConnectingState {

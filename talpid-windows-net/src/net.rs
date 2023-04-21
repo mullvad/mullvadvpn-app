@@ -129,9 +129,8 @@ impl AddressFamily {
     /// Convert an [`AddressFamily`] to one of the `AF_*` constants.
     pub fn to_af_family(&self) -> u16 {
         match self {
-            // These values are both small enough to fit in a u16
-            Self::Ipv4 => u16::try_from(AF_INET).unwrap(),
-            Self::Ipv6 => u16::try_from(AF_INET6).unwrap(),
+            Self::Ipv4 => AF_INET,
+            Self::Ipv6 => AF_INET6,
         }
     }
 }

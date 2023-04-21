@@ -15,3 +15,9 @@ impl StubTunProvider {
         unimplemented!();
     }
 }
+
+impl Default for StubTunProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}

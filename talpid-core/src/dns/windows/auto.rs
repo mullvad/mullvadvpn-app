@@ -44,13 +44,11 @@ impl DnsMonitorT for DnsMonitor {
     type Error = super::Error;
 
     fn new() -> Result<Self, Self::Error> {
-        let current_monitor;
-
-        if iphlpapi::DnsMonitor::is_supported() {
-            current_monitor = InnerMonitor::Iphlpapi(iphlpapi::DnsMonitor::new()?);
+        let current_monitor = if iphlpapi::DnsMonitor::is_supported() {
+            InnerMonitor::Iphlpapi(iphlpapi::DnsMonitor::new()?)
         } else {
-            current_monitor = InnerMonitor::Netsh(netsh::DnsMonitor::new()?);
-        }
+            InnerMonitor::Netsh(netsh::DnsMonitor::new()?)
+        };
 
         Ok(Self { current_monitor })
     }
