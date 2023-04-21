@@ -150,14 +150,13 @@ extension REST {
         // MARK: - Private
 
         private func initCache() {
-            cachedAddresses = Self.defaultCachedAddresses
-//            do {
-//                try initCacheInner()
-//            } catch {
-//                logger.debug("Initialized cache with default API endpoint.")
-//
-//                cachedAddresses = Self.defaultCachedAddresses
-//            }
+            do {
+                try initCacheInner()
+            } catch {
+                logger.debug("Initialized cache with default API endpoint.")
+
+                cachedAddresses = Self.defaultCachedAddresses
+            }
         }
 
         private func initCacheInner() throws {
