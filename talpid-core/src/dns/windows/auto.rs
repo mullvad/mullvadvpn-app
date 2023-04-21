@@ -84,7 +84,7 @@ impl DnsMonitor {
             Err(super::Error::Iphlpapi(iphlpapi::Error::SetInterfaceDnsSettings(error))) => {
                 *error == RPC_S_SERVER_UNAVAILABLE
             }
-            Err(super::Error::Netsh(netsh::Error::NetshError(Some(1)))) => true,
+            Err(super::Error::Netsh(netsh::Error::Netsh(Some(1)))) => true,
             _ => false,
         };
         if is_dnscache_error {
