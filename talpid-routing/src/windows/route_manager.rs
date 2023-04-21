@@ -678,8 +678,7 @@ fn address_present(hay: Vec<&'_ SOCKET_ADDRESS>, needle: &'_ SOCKADDR_INET) -> R
     Ok(false)
 }
 
-fn equal_address(lhs: &'_ SOCKADDR_INET, rhs: &'_ SOCKET_ADDRESS) -> Result<bool> {
-    let rhs = rhs;
+fn equal_address(lhs: &SOCKADDR_INET, rhs: &SOCKET_ADDRESS) -> Result<bool> {
     // SAFETY: The si_family field is always valid
     if unsafe { lhs.si_family != (*rhs.lpSockaddr).sa_family } {
         return Ok(false);
