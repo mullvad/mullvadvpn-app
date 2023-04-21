@@ -15,7 +15,7 @@ use tokio::sync::oneshot;
 mod ffi;
 pub use ffi::{start_shadowsocks_proxy, stop_shadowsocks_proxy, ProxyHandle};
 
-pub fn run_http_proxy(
+pub fn run_forwarding_proxy(
     bridge_addr: SocketAddr,
     password: &str,
     cipher: &str,
@@ -124,11 +124,18 @@ impl ShadowsocksRuntime {
     ) -> io::Result<(Config, u16)> {
         let mut cfg = Config::new(ConfigType::Local);
         let free_port = get_free_port()?;
-        let bind_addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), free_port);
+        let free_port = 1050;
+        let bind_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 1050);
+        log::debug!("MVDX SHADOWSOCKS LISTENING ON {}", bind_addr);
 
-        cfg.local = vec![LocalInstanceConfig::with_local_config(
-            LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Http),
-        )];
+        let mut local_config = LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Tunnel);
+        local_config.forward_addr =
+            Some(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196)), 443).into());
+        log::debug!(
+            "MVDX SHADOWSOCKS FORWARDING PORT ON {:?}",
+            local_config.forward_addr
+        );
+        cfg.local = vec![LocalInstanceConfig::with_local_config(local_config)];
 
         let cipher = match CipherKind::from_str(cipher) {
             Ok(cipher) => cipher,

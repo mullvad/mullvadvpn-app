@@ -14,6 +14,7 @@ import RelayCache
 import StoreKit
 import UIKit
 import UserNotifications
+import Network
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,
@@ -40,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
-    private var shadowSocksProxy: HttpProxy!
+//    private var shadowSocksProxy: HttpProxy!
 
     // MARK: - Application lifecycle
 
@@ -99,17 +100,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let shadowSocksRelay = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
         let shadowSocksBridge = cachedRelays.relays.bridge.relays.randomElement()!
         
-        shadowSocksProxy = HttpProxy(remoteAddress: shadowSocksBridge.ipv4AddrIn,
-                                     remotePort: shadowSocksRelay.port,
-                                     password: shadowSocksRelay.password,
-                                     cipher: shadowSocksRelay.cipher)
-
+//        let hardCodedIPv4RemoteAddress = IPv4Address("193.138.218.71")!
         
-        shadowSocksProxy.start()
-        print("local shadow socks proxy port : \(shadowSocksProxy.localPort())")
+        print(NSHostByteOrder())
+        print("Will attempt connecting to : \(shadowSocksBridge.ipv4AddrIn)")
+//        shadowSocksProxy = HttpProxy(remoteAddress: shadowSocksBridge.ipv4AddrIn,
+//                                     remotePort: shadowSocksRelay.port,
+//                                     password: shadowSocksRelay.password,
+//                                     cipher: shadowSocksRelay.cipher)
+//
+//
+//        shadowSocksProxy.start()
+//        print("local shadow socks proxy port : \(shadowSocksProxy.localPort())")
         transportMonitor = TransportMonitor(tunnelManager: tunnelManager,
                                             tunnelStore: tunnelStore,
-                                            shadowSocksLocalPort: shadowSocksProxy.localPort())
+                                            relayCacheTracker: relayCacheTracker)
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
@@ -119,7 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
 
-        registerBackgroundTasks()
+//        registerBackgroundTasks()
         setupPaymentHandler()
         setupNotificationHandler()
         addApplicationNotifications(application: application)
@@ -165,7 +170,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc private func didEnterBackground(_ notification: Notification) {
-        scheduleBackgroundTasks()
+//        scheduleBackgroundTasks()
     }
 
     // MARK: - Background tasks

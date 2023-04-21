@@ -112,7 +112,9 @@ extension REST {
                 return
             }
 
-            let endpoint = REST.isStagingEnvironment ? REST.defaultAPIEndpoint : addressCacheStore.getCurrentEndpoint()
+//            let endpoint = REST.isStagingEnvironment ? REST.defaultAPIEndpoint : addressCacheStore.getCurrentEndpoint()
+            
+            let endpoint = REST.defaultAPIEndpoint
 
             do {
                 let request = try requestHandler.createURLRequest(
@@ -160,6 +162,7 @@ extension REST {
 
                         self.dispatchQueue.async {
                             if let error = error {
+                                print("request to \(restRequest.urlRequest) failed")
                                 self.didReceiveError(
                                     error,
                                     transport: transport,

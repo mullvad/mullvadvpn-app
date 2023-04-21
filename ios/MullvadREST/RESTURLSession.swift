@@ -21,13 +21,23 @@ extension REST {
         fileprivate func apply(to sessionConfiguration: URLSessionConfiguration) {
             var configuration = [CFString: Any]()
 
-            configuration[kCFNetworkProxiesHTTPProxy] = address
+//            let forcedHost = "192.168.1.166"
+//            let forcedPort = 2055
+//
+//            configuration[("SOCKSEnable" as NSString)] = 1
+//            configuration[("SOCKSProxy" as NSString)] = forcedHost
+//            configuration[("SOCKSPort" as NSString)] = NSNumber(value: forcedPort)
+//            configuration[kCFProxyTypeKey] = kCFProxyTypeSOCKS
+//            configuration[kCFStreamPropertySOCKSVersion] = kCFStreamSocketSOCKSVersion5
+            
+            configuration[kCFNetworkProxiesHTTPEnable] = NSNumber(value: 1)
+            configuration[kCFNetworkProxiesHTTPProxy] = address as CFString
             configuration[kCFNetworkProxiesHTTPPort] = NSNumber(value: localPort)
             configuration[kCFNetworkProxiesProxyAutoConfigEnable] = kCFBooleanFalse
-            configuration[kCFNetworkProxiesHTTPEnable] = 1
-            configuration[("HTTPSEnable" as NSString)] = 1
-            configuration[("HTTPSProxy" as NSString)] = address
-            configuration[("HTTPSPort" as NSString)] = NSNumber(value: localPort)
+
+            configuration["HTTPSEnable" as CFString] = NSNumber(value: 1)
+            configuration["HTTPSProxy" as CFString] = address as CFString
+            configuration["HTTPSPort" as CFString] = NSNumber(value: localPort)
             
 
             sessionConfiguration.connectionProxyDictionary = configuration
@@ -46,6 +56,7 @@ extension REST {
         )
 
         let sessionConfiguration = URLSessionConfiguration.ephemeral
+        sessionConfiguration.urlCache = nil
         httpProxyConfiguration?.apply(to: sessionConfiguration)
         
         let session = URLSession(

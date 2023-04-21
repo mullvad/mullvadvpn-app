@@ -14,7 +14,7 @@ extension REST {
     public static let defaultAPIHostname = "api.mullvad.net"
 
     /// Default API endpoint.
-    public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.223.196:443")!
+    public static let defaultAPIEndpoint = AnyIPEndpoint(string: "127.0.0.1:1050")!
 
     /// Disables API IP address cache when in staging environment and sticks to using default API endpoint instead.
     public static let isStagingEnvironment = false

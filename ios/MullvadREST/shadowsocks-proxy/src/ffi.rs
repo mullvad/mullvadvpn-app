@@ -1,4 +1,4 @@
-use super::{run_http_proxy, ShadowsocksHandle};
+use super::{run_forwarding_proxy, ShadowsocksHandle};
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -31,10 +31,9 @@ pub extern "C" fn start_shadowsocks_proxy(
 ) -> i32 {
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     INIT_LOGGING.call_once(|| {
-        oslog::OsLogger::new("net.mullvad.MullvadVPN.HTTPProxy")
-            .level_filter(log::LevelFilter::Debug)
-            .init()
-            .unwrap();
+        let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.ShadowSocks")
+            .level_filter(log::LevelFilter::Trace)
+            .init();
     });
 
     let bridge_ip = if let Some(addr) = unsafe { parse_ip_addr(addr, addr_len) } {
@@ -57,7 +56,7 @@ pub extern "C" fn start_shadowsocks_proxy(
         return -1;
     };
 
-    let (port, handle) = match run_http_proxy(bridge_addr, &password, &cipher) {
+    let (port, handle) = match run_forwarding_proxy(bridge_addr, &password, &cipher) {
         Ok((port, handle)) => (port, handle),
         Err(err) => {
             log::error!("Failed to run HTTP proxy {}", err);

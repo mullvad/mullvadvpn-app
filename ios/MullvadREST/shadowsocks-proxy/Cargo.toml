@@ -8,7 +8,7 @@ crate-type = [ "rlib", "staticlib" ]
 bench = false
 
 [dependencies]
-shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "8f6afd081a9440fff2dda565908eddc27a3295f1",  features = [ "local", "stream-cipher", "local-http" ] }
+shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "8f6afd081a9440fff2dda565908eddc27a3295f1",  features = [ "local", "stream-cipher", "local-http", "local-tunnel" ] }
 tokio = "1"
 libc = "0.2"
 log = "0.4"

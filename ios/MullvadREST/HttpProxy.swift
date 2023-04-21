@@ -9,12 +9,18 @@
 import Foundation
 import Network
 
-public class HttpProxy {
+public class HttpProxy: Equatable {
+    public static func == (lhs: HttpProxy, rhs: HttpProxy) -> Bool {
+        lhs.uuid == rhs.uuid
+    }
+    
+    
     private var proxyConfig: ProxyHandle
     private let remoteAddress: IPAddress
     private let remotePort: UInt16
     private let password: String
     private let cipher: String
+    public let uuid = UUID()
     
     public init(remoteAddress: IPAddress, remotePort: UInt16, password: String, cipher: String ) {
         // TODO() make the FFI call
