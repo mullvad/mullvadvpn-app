@@ -1,5 +1,5 @@
 //
-//  HttpProxy.swift
+//  ShadowSocksProxy.swift
 //  MullvadREST
 //
 //  Created by Emils on 19/04/2023.
@@ -9,8 +9,8 @@
 import Foundation
 import Network
 
-public class HttpProxy: Equatable {
-    public static func == (lhs: HttpProxy, rhs: HttpProxy) -> Bool {
+public class ShadowSocksProxy: Equatable {
+    public static func == (lhs: ShadowSocksProxy, rhs: ShadowSocksProxy) -> Bool {
         lhs.uuid == rhs.uuid
     }
     

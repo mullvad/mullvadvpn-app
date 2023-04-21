@@ -41,7 +41,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
-//    private var shadowSocksProxy: HttpProxy!
 
     // MARK: - Application lifecycle
 
@@ -97,21 +96,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         let cachedRelays = try! relayCacheTracker.getCachedRelays()
-        let shadowSocksRelay = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
-        let shadowSocksBridge = cachedRelays.relays.bridge.relays.randomElement()!
-        
-//        let hardCodedIPv4RemoteAddress = IPv4Address("193.138.218.71")!
-        
-        print(NSHostByteOrder())
-        print("Will attempt connecting to : \(shadowSocksBridge.ipv4AddrIn)")
-//        shadowSocksProxy = HttpProxy(remoteAddress: shadowSocksBridge.ipv4AddrIn,
-//                                     remotePort: shadowSocksRelay.port,
-//                                     password: shadowSocksRelay.password,
-//                                     cipher: shadowSocksRelay.cipher)
-//
-//
-//        shadowSocksProxy.start()
-//        print("local shadow socks proxy port : \(shadowSocksProxy.localPort())")
         transportMonitor = TransportMonitor(tunnelManager: tunnelManager,
                                             tunnelStore: tunnelStore,
                                             relayCacheTracker: relayCacheTracker)

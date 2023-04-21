@@ -15,11 +15,6 @@ final class TransportMonitor {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
     
-    // Shadow Socks Proxies
-    
-    private var proxies: [HttpProxy] = []
-    
-
     init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, relayCacheTracker: RelayCacheTracker) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
@@ -29,31 +24,14 @@ final class TransportMonitor {
     }
     
     var shadowSocksTransport: RESTTransport? {
-        // Create a new shadow socks proxy for each request
-        
         let cachedRelays = try! relayCacheTracker.getCachedRelays()
-        let shadowSocksRelay = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
-        let shadowSocksBridge = cachedRelays.relays.bridge.relays.randomElement()!
+        let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()!
+        let shadowSocksBridgeRelay = cachedRelays.relays.bridge.relays.randomElement()!
 
-        print("Will try to connect to \(shadowSocksBridge.ipv4AddrIn):\(shadowSocksRelay.port) password: \(shadowSocksRelay.password) and cipher: \(shadowSocksRelay.cipher)")
-        
-        let shadowSocksProxy = HttpProxy(remoteAddress: shadowSocksBridge.ipv4AddrIn,
-                                     remotePort: shadowSocksRelay.port,
-                                     password: shadowSocksRelay.password,
-                                     cipher: shadowSocksRelay.cipher)
-        
-        shadowSocksProxy.start()
-        proxies.append(shadowSocksProxy)
-        
-        DispatchQueue.global().asyncAfter(deadline: .now() + 10) { [weak self] in
-            shadowSocksProxy.stop()
-            self?.proxies.removeAll { storedProxy in
-                storedProxy.uuid == shadowSocksProxy.uuid
-            }
-        }
-        let shadowSocksURLSession = REST.makeURLSession(httpProxyConfiguration: REST.HTTPProxyConfiguration(port: shadowSocksProxy.localPort()))
-
-        let transport = REST.URLSessionTransport(urlSession: shadowSocksURLSession)
+        let shadowSocksURLSession = REST.makeURLSession()
+        let transport = REST.URLSessionShadowSocksTransport(urlSession: shadowSocksURLSession,
+                                                            shadowSocksConfiguration: shadowSocksConfiguration,
+                                                            shadowSocksBridgeRelay: shadowSocksBridgeRelay)
         
         return transport
     }
