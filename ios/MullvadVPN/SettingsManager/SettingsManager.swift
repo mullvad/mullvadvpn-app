@@ -170,7 +170,7 @@ enum SettingsManager {
         }
     }
 
-    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
+    /// Removes all legacy settings, device state and tunnel settings but (optionally) keeps the last used
     /// account number stored.
     static func resetStore(completely: Bool = false) {
         logger.debug("Reset store.")
