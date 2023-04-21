@@ -80,7 +80,7 @@ impl Firewall {
         unsafe {
             WinFw_InitializeBlocked(
                 WINFW_TIMEOUT_SECONDS,
-                &cfg,
+                cfg,
                 &allowed_endpoint.as_endpoint(),
                 Some(log_sink),
                 LOGGING_CONTEXT.as_ptr(),
@@ -105,7 +105,7 @@ impl Firewall {
 
                 self.set_connecting_state(
                     &peer_endpoint,
-                    &cfg,
+                    cfg,
                     &tunnel,
                     &WinFwAllowedEndpointContainer::from(allowed_endpoint).as_endpoint(),
                     &allowed_tunnel_traffic,
@@ -120,7 +120,7 @@ impl Firewall {
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &dns_servers, &relay_client)
+                self.set_connected_state(&peer_endpoint, cfg, &tunnel, &dns_servers, &relay_client)
             }
             FirewallPolicy::Blocked {
                 allow_lan,
@@ -128,8 +128,8 @@ impl Firewall {
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_blocked_state(
-                    &cfg,
-                    allowed_endpoint.map(|endpoint| WinFwAllowedEndpointContainer::from(endpoint)),
+                    cfg,
+                    allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
                 )
             }
         }
@@ -427,7 +427,7 @@ mod winfw {
             let clients = endpoint
                 .clients
                 .iter()
-                .map(|client| WideCString::from_os_str_truncate(client))
+                .map(WideCString::from_os_str_truncate)
                 .collect::<Box<_>>();
             let clients_ptrs = clients
                 .iter()
@@ -568,9 +568,9 @@ mod winfw {
         }
     }
 
-    impl Into<Result<(), super::FirewallPolicyError>> for WinFwPolicyStatus {
-        fn into(self) -> Result<(), super::FirewallPolicyError> {
-            self.into_result()
+    impl From<WinFwPolicyStatus> for Result<(), super::FirewallPolicyError> {
+        fn from(val: WinFwPolicyStatus) -> Self {
+            val.into_result()
         }
     }
 

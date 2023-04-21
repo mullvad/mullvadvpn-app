@@ -316,7 +316,7 @@ impl SplitTunnel {
         data_buffer
             .truncate(usize::try_from(returned_bytes).expect("usize must be no smaller than u32"));
 
-        driver::parse_event_buffer(&data_buffer)
+        driver::parse_event_buffer(data_buffer)
             .map(|(id, body)| EventResult::Event(id, body))
             .map_err(|error| {
                 log::error!(
@@ -445,7 +445,7 @@ impl SplitTunnel {
                     Request::SetPaths(paths) => {
                         let mut monitored_paths_guard = monitored_paths.lock().unwrap();
 
-                        let result = if paths.len() > 0 {
+                        let result = if !paths.is_empty() {
                             handle.set_config(&paths).map_err(Error::SetConfiguration)
                         } else {
                             handle.clear_config().map_err(Error::SetConfiguration)
@@ -535,7 +535,7 @@ impl SplitTunnel {
                 let paths = monitored_paths_copy.lock().unwrap();
                 let result = if paths.len() > 0 {
                     log::debug!("Re-resolving excluded paths");
-                    handle_copy.set_config(&*paths)
+                    handle_copy.set_config(&paths)
                 } else {
                     continue;
                 };
@@ -621,8 +621,8 @@ impl SplitTunnel {
         if let Some(metadata) = metadata {
             for ip in &metadata.ips {
                 match ip {
-                    IpAddr::V4(address) => tunnel_ipv4 = Some(address.clone()),
-                    IpAddr::V6(address) => tunnel_ipv6 = Some(address.clone()),
+                    IpAddr::V4(address) => tunnel_ipv4 = Some(*address),
+                    IpAddr::V6(address) => tunnel_ipv6 = Some(*address),
                 }
             }
         }
@@ -783,8 +783,8 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 }
 
-fn split_tunnel_default_route_change_handler<'a>(
-    event_type: EventType<'a>,
+fn split_tunnel_default_route_change_handler(
+    event_type: EventType<'_>,
     address_family: AddressFamily,
     ctx_mutex: &Arc<Mutex<SplitTunnelDefaultRouteChangeHandlerContext>>,
 ) {
@@ -803,7 +803,7 @@ fn split_tunnel_default_route_change_handler<'a>(
     let result = match event_type {
         Updated(default_route) | UpdatedDetails(default_route) => {
             match get_ip_address_for_interface(address_family, default_route.iface) {
-                Ok(Some(ip)) => match IpAddr::from(ip) {
+                Ok(Some(ip)) => match ip {
                     IpAddr::V4(addr) => ctx.addresses.internet_ipv4 = Some(addr),
                     IpAddr::V6(addr) => ctx.addresses.internet_ipv6 = Some(addr),
                 },

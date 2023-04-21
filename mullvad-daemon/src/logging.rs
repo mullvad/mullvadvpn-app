@@ -174,5 +174,5 @@ fn escape_newlines(text: String) -> String {
 
 #[cfg(windows)]
 fn escape_newlines(text: String) -> String {
-    text.replace("\n", LINE_SEPARATOR)
+    text.replace('\n', LINE_SEPARATOR)
 }

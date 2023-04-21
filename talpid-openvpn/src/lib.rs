@@ -342,10 +342,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let wintun_logger = dll.activate_logging();
 
         let wintun_adapter = wintun::WintunAdapter::create(
-            dll.clone(),
-            &*ADAPTER_ALIAS,
-            &*ADAPTER_TUNNEL_TYPE,
-            Some(ADAPTER_GUID.clone()),
+            dll,
+            &ADAPTER_ALIAS,
+            &ADAPTER_TUNNEL_TYPE,
+            Some(ADAPTER_GUID),
         )
         .map_err(Error::WintunCreateAdapterError)?;
 

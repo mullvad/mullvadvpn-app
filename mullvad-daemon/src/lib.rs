@@ -656,7 +656,7 @@ where
                 .split_tunnel
                 .apps
                 .iter()
-                .map(|s| OsString::from(s))
+                .map(OsString::from)
                 .collect()
         } else {
             vec![]
@@ -1625,7 +1625,7 @@ where
 
         if new_state || new_state != settings.split_tunnel.enable_exclusions {
             let tunnel_list = if new_state {
-                new_list.map(|s| OsString::from(s)).collect()
+                new_list.map(OsString::from).collect()
             } else {
                 vec![]
             };

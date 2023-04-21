@@ -246,7 +246,7 @@ impl WgAllowedIp {
                     if byte & ((host_mask & 0xff) as u8) != 0 {
                         return Err(Error::InvalidAllowedIpBits);
                     }
-                    host_mask = host_mask >> 8;
+                    host_mask >>= 8;
                 }
             }
             family => return Err(Error::UnknownAddressFamily(family)),
@@ -436,10 +436,10 @@ impl WgNtTunnel {
         let dll = load_wg_nt_dll(resource_dir)?;
         let logger_handle = LoggerHandle::new(dll.clone(), log_path)?;
         let device = WgNtAdapter::create(
-            dll.clone(),
-            &*ADAPTER_ALIAS,
-            &*ADAPTER_TYPE,
-            Some(ADAPTER_GUID.clone()),
+            dll,
+            &ADAPTER_ALIAS,
+            &ADAPTER_TYPE,
+            Some(ADAPTER_GUID),
         )
         .map_err(Error::CreateTunnelDeviceError)?;
 
@@ -856,11 +856,11 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
         let wg_peer = WgPeer {
             flags,
             reserved: 0,
-            public_key: peer.public_key.as_bytes().clone(),
+            public_key: *peer.public_key.as_bytes(),
             preshared_key: peer
                 .psk
                 .as_ref()
-                .map(|psk| psk.as_bytes().clone())
+                .map(|psk| *psk.as_bytes())
                 .unwrap_or([0u8; WIREGUARD_KEY_LENGTH]),
             persistent_keepalive: 0,
             endpoint: net::inet_sockaddr_from_socketaddr(peer.endpoint).into(),
@@ -883,7 +883,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             };
 
             let wg_allowed_ip =
-                WgAllowedIp::new(address, address_family, allowed_ip.prefix() as u8)?;
+                WgAllowedIp::new(address, address_family, allowed_ip.prefix())?;
 
             buffer.extend(as_uninit_byte_slice(&wg_allowed_ip));
         }
@@ -944,7 +944,7 @@ unsafe fn deserialize_config(
         peers.push((peer, allowed_ips));
     }
 
-    if tail.len() > 0 {
+    if !tail.is_empty() {
         return Err(Error::InvalidConfigData);
     }
 
@@ -1059,7 +1059,7 @@ mod tests {
             p0: WgPeer {
                 flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
                 reserved: 0,
-                public_key: WG_PUBLIC_KEY.as_bytes().clone(),
+                public_key: *WG_PUBLIC_KEY.as_bytes(),
                 preshared_key: [0; WIREGUARD_KEY_LENGTH],
                 persistent_keepalive: 0,
                 endpoint: talpid_windows_net::inet_sockaddr_from_socketaddr(
@@ -1093,7 +1093,7 @@ mod tests {
 
     #[test]
     fn test_config_serialization() {
-        let serialized_data = serialize_config(&*WG_CONFIG).unwrap();
+        let serialized_data = serialize_config(&WG_CONFIG).unwrap();
         assert_eq!(mem::size_of::<Interface>(), serialized_data.len());
         let serialized_iface = &unsafe { *(serialized_data.as_ptr() as *const Interface) };
         assert_eq!(&*WG_STRUCT_CONFIG, serialized_iface);
