@@ -226,7 +226,7 @@ mod windows {
         WrongOwner,
 
         #[error(display = "Failed to copy files during migration")]
-        IoError(#[error(source)] io::Error),
+        Io(#[error(source)] io::Error),
     }
 
     /// Attempts to restore the Mullvad settings from `C:\windows.old` after an update of Windows.
@@ -278,7 +278,7 @@ mod windows {
         if !destination_settings_dir.exists() {
             fs::create_dir_all(destination_settings_dir)
                 .await
-                .map_err(Error::IoError)?;
+                .map_err(Error::Io)?;
         }
 
         let mut result = Ok(true);
@@ -303,7 +303,7 @@ mod windows {
                         ))
                     );
                     if *required {
-                        result = Err(Error::IoError(error));
+                        result = Err(Error::Io(error));
                     }
                 }
             }

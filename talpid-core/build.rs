@@ -2,10 +2,10 @@
 mod win {
     use std::{env, path::PathBuf};
 
-    pub static WINFW_BUILD_DIR: &'static str = "..\\windows\\winfw\\bin";
+    pub static WINFW_BUILD_DIR: &str = "..\\windows\\winfw\\bin";
 
     pub fn default_windows_build_artifact_dir(build_dir: &str) -> PathBuf {
-        manifest_dir().join(build_dir).join(&target_platform_dir())
+        manifest_dir().join(build_dir).join(target_platform_dir())
     }
 
     fn target_platform_dir() -> PathBuf {
