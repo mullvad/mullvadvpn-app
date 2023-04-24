@@ -39,10 +39,7 @@ extension REST {
         }
 
         public let urlSession: URLSession
-        private let shadowSocksConfiguration: ServerShadowsocks
-        private let shadowSocksBridgeRelay: BridgeRelay
-
-        private var shadowSocksProxy: ShadowSocksProxy!
+        private let shadowSocksProxy: ShadowSocksProxy
 
         public init(
             urlSession: URLSession,
@@ -50,8 +47,13 @@ extension REST {
             shadowSocksBridgeRelay: BridgeRelay
         ) {
             self.urlSession = urlSession
-            self.shadowSocksConfiguration = shadowSocksConfiguration
-            self.shadowSocksBridgeRelay = shadowSocksBridgeRelay
+            self.shadowSocksProxy = ShadowSocksProxy(
+                remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
+                remotePort: shadowSocksConfiguration.port,
+                password: shadowSocksConfiguration.password,
+                cipher: shadowSocksConfiguration.cipher
+            )
+
         }
 
         deinit {
@@ -62,13 +64,6 @@ extension REST {
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
         ) throws -> Cancellable {
-            shadowSocksProxy = ShadowSocksProxy(
-                remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
-                remotePort: shadowSocksConfiguration.port,
-                password: shadowSocksConfiguration.password,
-                cipher: shadowSocksConfiguration.cipher
-            )
-
             // Start the shadow socks proxy in order to get a local port
             shadowSocksProxy.start()
 
