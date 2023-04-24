@@ -70,9 +70,9 @@ final class NotificationController: UIViewController {
             hideBannerConstraint?.isActive = true
         }
 
-        let finish = {
-            if !show {
-                self.bannerView.isHidden = true
+        let finish = { [weak self] in
+            if self?.lastNotification == nil {
+                self?.bannerView.isHidden = true
             }
             completion?()
         }
@@ -108,17 +108,6 @@ final class NotificationController: UIViewController {
         bannerView.action = notification.action
         bannerView.accessibilityLabel = "\(notification.title)\n\(notification.body.string)"
 
-        if animated {
-            let animator = UIViewPropertyAnimator(
-                duration: 0.25,
-                timingParameters: UICubicTimingParameters(animationCurve: .easeOut)
-            )
-            animator.addAnimations {
-                self.view.layoutIfNeeded()
-            }
-            animator.startAnimation()
-        }
-
         // Do not emit the .layoutChanged unless the banner is focused to avoid capturing
         // the voice over focus.
         if bannerView.accessibilityElementIsFocused() {
@@ -133,6 +122,7 @@ final class NotificationController: UIViewController {
             setNotification(notification, animated: showsBanner)
             toggleBanner(show: true, animated: true)
         } else {
+            lastNotification = nil
             toggleBanner(show: false, animated: animated)
         }
     }
