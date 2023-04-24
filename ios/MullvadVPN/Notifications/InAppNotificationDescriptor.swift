@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import UIKit.UIImage
 
 /// Struct describing in-app notification.
-struct InAppNotificationDescriptor: Equatable {
+struct InAppNotificationDescriptor {
     /// Notification identifier.
     var identifier: String
 
@@ -20,7 +21,21 @@ struct InAppNotificationDescriptor: Equatable {
     var title: String
 
     /// Notification body.
-    var body: String
+    var body: NSAttributedString
+
+    /// Notification action
+    var action: InAppNotificationAction?
+}
+
+extension InAppNotificationDescriptor: Equatable {
+    static func == (lhs: InAppNotificationDescriptor, rhs: InAppNotificationDescriptor) -> Bool {
+        lhs.identifier == rhs.identifier
+    }
+}
+
+struct InAppNotificationAction {
+    var image: UIImage?
+    var handler: (() -> Void)?
 }
 
 enum NotificationBannerStyle {

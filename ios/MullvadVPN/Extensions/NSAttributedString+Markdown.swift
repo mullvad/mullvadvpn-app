@@ -9,7 +9,11 @@
 import UIKit
 
 extension NSAttributedString {
-    convenience init(markdownString: String, font: UIFont) {
+    convenience init(
+        markdownString: String,
+        font: UIFont,
+        applyEffect: ((String) -> [NSAttributedString.Key: Any])? = nil
+    ) {
         let attributedString = NSMutableAttributedString()
         let components = markdownString.components(separatedBy: "**")
 
@@ -24,6 +28,7 @@ extension NSAttributedString {
                 attributes[.font] = font
             } else {
                 attributes[.font] = boldFont
+                attributes.merge(applyEffect?(string) ?? [:], uniquingKeysWith: { $1 })
             }
 
             attributedString.append(NSAttributedString(string: string, attributes: attributes))
