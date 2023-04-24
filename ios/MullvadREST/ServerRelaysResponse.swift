@@ -26,6 +26,17 @@ extension REST {
         }
     }
 
+    public struct BridgeRelay: Codable {
+        public let hostname: String
+        public let active: Bool
+        public let owned: Bool
+        public let location: String
+        public let provider: String
+        public let ipv4AddrIn: IPv4Address
+        public let weight: UInt64
+        public let includeInCountry: Bool
+    }
+    
     public struct ServerRelay: Codable {
         public let hostname: String
         public let active: Bool
@@ -98,9 +109,11 @@ extension REST {
 
     public struct ServerBridges: Codable {
         public let shadowsocks: [ServerShadowsocks]
+        public let relays: [BridgeRelay]
 
-        public init(shadowsocks: [REST.ServerShadowsocks]) {
+        public init(shadowsocks: [REST.ServerShadowsocks], relays: [BridgeRelay] ) {
             self.shadowsocks = shadowsocks
+            self.relays = relays
         }
     }
 
