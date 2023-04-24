@@ -42,7 +42,7 @@ final class TransportMonitor {
                 return nil
             }
             
-            let shadowSocksURLSession = REST.makeURLSession()
+            let shadowSocksURLSession = urlSessionTransport.urlSession
             let transport = REST.URLSessionShadowSocksTransport(
                 urlSession: shadowSocksURLSession,
                 shadowSocksConfiguration: shadowSocksConfiguration,
