@@ -36,5 +36,4 @@ jobs:
         shell: bash
         run: |-
           git config --global --add safe.directory $(pwd)
-          source android/scripts/ci-android-xml.sh
-          tidy-verify-xml
+          android/scripts/ci-android-xml.sh formatAndCheckDiff

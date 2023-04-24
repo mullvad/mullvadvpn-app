@@ -3,8 +3,27 @@
 # CI/Developer script to format
 # Relies on Tidy - https://github.com/htacg/tidy-html5
 
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+function main {
+    case ${1:-""} in
+        format) format;;
+        formatAndCheckDiff) format && checkDiff;;
+        "")
+            echo "Available subcommands: format, formatAndCheckDiff"
+            ;;
+        *)
+            echo "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+}
+
 # Autoformats Android XML files
-function tidy-up-android-xml {
+function format {
     tidy -xml \
         -m  \
         -i  \
@@ -14,25 +33,24 @@ function tidy-up-android-xml {
         --indent-attributes yes \
         --indent-spaces 4 \
         --literal-attributes yes \
-        android/app/src/main/AndroidManifest.xml \
-        android/app/src/main/res/anim*/*.xml \
-        android/app/src/main/res/drawable*/*.xml \
-        android/app/src/main/res/layout*/*.xml \
-        android/app/src/main/res/values/*.xml
+        ../app/src/main/AndroidManifest.xml \
+        ../app/src/main/res/anim*/*.xml \
+        ../app/src/main/res/drawable*/*.xml \
+        ../app/src/main/res/layout*/*.xml \
+        ../app/src/main/res/values/*.xml
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
-    find android/app/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
+    find ../app/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
 }
 
-# Autoformats Android XML files and returns 0 if no files were actually changed, or 1 if files were changed
-function tidy-verify-xml {
-    tidy-up-android-xml
-
-    if git diff --exit-code -- android/app/src/main/AndroidManifest.xml android/app/src/main/res; then
+function checkDiff {
+    if git diff --exit-code -- ../app/src/main/AndroidManifest.xml ../app/src/main/res; then
         echo "Android XML files are correctly formatted"
         return 0
     else
-        echo "android/app/src/main contains files that were changed, XML is not formatted properly"
+        echo "Android XML files are NOT correctly formatted"
         return 1
     fi
 }
+
+main "$@"
