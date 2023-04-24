@@ -10,6 +10,7 @@ import Foundation
 
 final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var isWaitingForConnectivity = false
+    private var noNetwork = false
     private var packetTunnelError: String?
     private var tunnelManagerError: Error?
     private var tunnelObserver: TunnelBlockObserver?
@@ -25,6 +26,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             return notificationDescription(for: tunnelManagerError)
         } else if isWaitingForConnectivity {
             return connectivityNotificationDescription()
+        } else if noNetwork {
+            return noNetworkNotificationDescription()
         } else {
             return nil
         }
@@ -57,8 +60,9 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         )
         let invalidateForManagerError = updateTunnelManagerError(tunnelStatus.state)
         let invalidateForConnectivity = updateConnectivity(tunnelStatus.state)
+        let invalidateForNetwork = updateNetwork(tunnelStatus.state)
 
-        if invalidateForTunnelError || invalidateForManagerError || invalidateForConnectivity {
+        if invalidateForTunnelError || invalidateForManagerError || invalidateForConnectivity || invalidateForNetwork {
             invalidate()
         }
     }
@@ -74,10 +78,21 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func updateConnectivity(_ tunnelState: TunnelState) -> Bool {
-        let isWaitingState = tunnelState == .waitingForConnectivity
+        let isWaitingState = tunnelState == .waitingForConnectivity(.noConnection)
 
         if isWaitingForConnectivity != isWaitingState {
             isWaitingForConnectivity = isWaitingState
+            return true
+        }
+
+        return false
+    }
+
+    private func updateNetwork(_ tunnelState: TunnelState) -> Bool {
+        let isWaitingState = tunnelState == .waitingForConnectivity(.noNetwork)
+
+        if noNetwork != isWaitingState {
+            noNetwork = isWaitingState
             return true
         }
 
@@ -175,6 +190,28 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                     value: """
                     Your device is offline. The tunnel will automatically connect once \
                     your device is back online.
+                    """,
+                    comment: ""
+                )
+            )
+        )
+    }
+
+    private func noNetworkNotificationDescription() -> InAppNotificationDescriptor {
+        return InAppNotificationDescriptor(
+            identifier: identifier,
+            style: .warning,
+            title: NSLocalizedString(
+                "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_TITLE",
+                value: "NETWORK ISSUES",
+                comment: ""
+            ),
+            body: .init(
+                string: NSLocalizedString(
+                    "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_BODY",
+                    value: """
+                    Your device is offline. Try connecting again when the device \
+                    has access to internet.
                     """,
                     comment: ""
                 )
