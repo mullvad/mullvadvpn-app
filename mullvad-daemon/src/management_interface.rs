@@ -757,8 +757,7 @@ impl ManagementService for ManagementServiceImpl {
                     processes: processes
                         .into_iter()
                         .map(|process| types::ExcludedProcess {
-                            // FIXME: This is necessarily 32 bits or less
-                            pid: u32::try_from(process.pid).unwrap(),
+                            pid: process.pid,
                             image: process.image.into_os_string().to_string_lossy().to_string(),
                             inherited: process.inherited,
                         })

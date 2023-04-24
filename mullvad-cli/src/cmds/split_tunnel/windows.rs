@@ -21,7 +21,7 @@ impl Command for SplitTunnel {
                     .arg(
                         clap::Arg::new("policy")
                             .required(true)
-                            .possible_values(&["on", "off"]),
+                            .possible_values(["on", "off"]),
                     ),
             )
             .subcommand(clap::App::new("get").about("Display the split tunnel status"))
