@@ -64,6 +64,11 @@ class TunnelViewController: UIViewController, RootContainment {
             self?.setTunnelState(tunnelStatus.state, animated: true)
         }
 
+        notificationController.didUpdateLastNotification = { [weak self] notification in
+            let noNetworkId = NetworkStatusNotificationProvider.identifier
+            self?.contentView.enableActionButtons(notification?.identifier != noNetworkId)
+        }
+
         contentView.actionHandler = { [weak self] action in
             switch action {
             case .connect:
