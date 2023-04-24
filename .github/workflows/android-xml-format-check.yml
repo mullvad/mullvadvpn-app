@@ -3,7 +3,7 @@ name: Android - Check XML formatting
 on:
   pull_request:
     paths:
-      - .github/workflows/android-xml-tidy.yml
+      - .github/workflows/android-xml-format-check.yml
       - android/app/src/main/**/*.xml
   workflow_dispatch:
 jobs:
