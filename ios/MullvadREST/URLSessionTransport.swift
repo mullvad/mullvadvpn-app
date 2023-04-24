@@ -35,7 +35,7 @@ extension REST {
 
     public final class URLSessionShadowSocksTransport: RESTTransport {
         public var name: String {
-            return "url-session"
+            return "shadow-socks-url-session"
         }
 
         public let urlSession: URLSession
@@ -62,8 +62,6 @@ extension REST {
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
         ) throws -> Cancellable {
-            // Start the shadowSocks proxy
-
             shadowSocksProxy = ShadowSocksProxy(
                 remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
                 remotePort: shadowSocksConfiguration.port,
@@ -71,20 +69,19 @@ extension REST {
                 cipher: shadowSocksConfiguration.cipher
             )
 
+            // Start the shadow socks proxy in order to get a local port
             shadowSocksProxy.start()
 
-            let urlCopy = request.url
-            let originalRequest = request as NSURLRequest
-            let urlRequestCopy = originalRequest.mutableCopy() as! NSMutableURLRequest
+            // Copy the URL request and rewrite the host and port to point to the shadow socks proxy instance
+            var urlRequestCopy = request
+            urlRequestCopy.url = request.url.flatMap { url in
+                var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                components?.host = "127.0.0.1"
+                components?.port = Int(shadowSocksProxy.localPort())
+                return components?.url
+            }
 
-            var components = URLComponents(string: urlCopy!.absoluteString)!
-            components.host = "127.0.0.1"
-            components.port = Int(shadowSocksProxy.localPort())
-
-            urlRequestCopy.url = components.url
-            let rewrittenURLRequest = urlRequestCopy as URLRequest
-
-            let dataTask = urlSession.dataTask(with: rewrittenURLRequest, completionHandler: completion)
+            let dataTask = urlSession.dataTask(with: urlRequestCopy, completionHandler: completion)
             dataTask.resume()
             return dataTask
         }

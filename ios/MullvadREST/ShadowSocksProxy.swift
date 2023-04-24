@@ -24,11 +24,14 @@ public class ShadowSocksProxy {
         self.cipher = cipher
     }
 
+    /// The local port for the shadow socks proxy
+    ///
+    /// - Returns: The local port for the shadow socks proxy when it has started, 0 otherwise.
     public func localPort() -> UInt16 {
         proxyConfig.port
     }
 
-    /// Start the socks proxy
+    /// Starts the socks proxy
     public func start() {
         // Get the raw bytes of `addr.rawValue`
         remoteAddress.rawValue.withUnsafeBytes { unsafeAddressPointer in
@@ -36,7 +39,7 @@ public class ShadowSocksProxy {
             // Rebind the raw bytes to an array of bytes, and get a pointer to its beginning
             let rawAddr = unsafeAddressPointer.bindMemory(to: UInt8.self).baseAddress
 
-            // Get the raw bytes access to  `proxyConfig`
+            // Get the raw bytes access to `proxyConfig`
             _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
                 start_shadowsocks_proxy(
                     rawAddr,
@@ -52,7 +55,7 @@ public class ShadowSocksProxy {
         }
     }
 
-    /// Stop the socks proxy
+    /// Stops the socks proxy
     public func stop() {
         _ = withUnsafePointer(to: proxyConfig) { pointer in
             stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
