@@ -348,6 +348,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
+            NetworkStatusNotificationProvider(),
             AccountExpirySystemNotificationProvider(
                 tunnelManager: tunnelManager,
                 defaultActionHandler: {

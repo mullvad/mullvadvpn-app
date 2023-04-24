@@ -21,7 +21,11 @@ final class NotificationController: UIViewController {
     private var hideBannerConstraint: NSLayoutConstraint?
 
     private(set) var showsBanner = false
-    private var lastNotification: InAppNotificationDescriptor?
+    private(set) var lastNotification: InAppNotificationDescriptor? { didSet {
+        didUpdateLastNotification?(lastNotification)
+    }}
+
+    var didUpdateLastNotification: ((InAppNotificationDescriptor?) -> Void)?
 
     override func loadView() {
         view = NotificationContainerView(frame: UIScreen.main.bounds)
@@ -107,17 +111,6 @@ final class NotificationController: UIViewController {
         bannerView.style = notification.style
         bannerView.accessibilityLabel = "\(notification.title)\n\(notification.body)"
 
-        if animated {
-            let animator = UIViewPropertyAnimator(
-                duration: 0.25,
-                timingParameters: UICubicTimingParameters(animationCurve: .easeOut)
-            )
-            animator.addAnimations {
-                self.view.layoutIfNeeded()
-            }
-            animator.startAnimation()
-        }
-
         // Do not emit the .layoutChanged unless the banner is focused to avoid capturing
         // the voice over focus.
         if bannerView.accessibilityElementIsFocused() {
@@ -132,6 +125,7 @@ final class NotificationController: UIViewController {
             setNotification(notification, animated: showsBanner)
             toggleBanner(show: true, animated: true)
         } else {
+            lastNotification = nil
             toggleBanner(show: false, animated: animated)
         }
     }

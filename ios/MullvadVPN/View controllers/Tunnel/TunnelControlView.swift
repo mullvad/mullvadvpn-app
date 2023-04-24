@@ -154,6 +154,14 @@ final class TunnelControlView: UIView {
         }
     }
 
+    func enableActionButtons(_ enable: Bool) {
+        selectLocationButton.isEnabled = enable
+        connectButton.isEnabled = enable
+        cancelButton.isEnabled = enable
+        splitDisconnectButton.primaryButton.isEnabled = enable
+        splitDisconnectButton.secondaryButton.isEnabled = enable
+    }
+
     private func updateActionButtons() {
         let actionButtons = tunnelState.actionButtons(traitCollection: traitCollection)
         let views = actionButtons.map { self.view(forActionButton: $0) }
