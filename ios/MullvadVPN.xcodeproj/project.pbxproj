@@ -1582,8 +1582,8 @@
 		587B75422669034500DEF7E9 /* Notification Providers */ = {
 			isa = PBXGroup;
 			children = (
-				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */,
+				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotification.swift */,
 				58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */,
 			);
