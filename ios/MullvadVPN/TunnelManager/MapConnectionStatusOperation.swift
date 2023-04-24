@@ -18,16 +18,19 @@ class MapConnectionStatusOperation: AsyncOperation {
     private let interactor: TunnelInteractor
     private let connectionStatus: NEVPNStatus
     private var request: Cancellable?
+    private var pathStatus: Network.NWPath.Status?
 
     private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
     init(
         queue: DispatchQueue,
         interactor: TunnelInteractor,
-        connectionStatus: NEVPNStatus
+        connectionStatus: NEVPNStatus,
+        networkStatus: Network.NWPath.Status?
     ) {
         self.interactor = interactor
         self.connectionStatus = connectionStatus
+        pathStatus = networkStatus
 
         super.init(dispatchQueue: queue)
     }
@@ -56,7 +59,7 @@ class MapConnectionStatusOperation: AsyncOperation {
                 if packetTunnelStatus.isNetworkReachable {
                     return packetTunnelStatus.tunnelRelay.map { .connecting($0) }
                 } else {
-                    return .waitingForConnectivity
+                    return .waitingForConnectivity(.noConnection)
                 }
             }
             return
@@ -66,7 +69,7 @@ class MapConnectionStatusOperation: AsyncOperation {
                 if packetTunnelStatus.isNetworkReachable {
                     return packetTunnelStatus.tunnelRelay.map { .reconnecting($0) }
                 } else {
-                    return .waitingForConnectivity
+                    return .waitingForConnectivity(.noConnection)
                 }
             }
             return
@@ -76,7 +79,7 @@ class MapConnectionStatusOperation: AsyncOperation {
                 if packetTunnelStatus.isNetworkReachable {
                     return packetTunnelStatus.tunnelRelay.map { .connected($0) }
                 } else {
-                    return .waitingForConnectivity
+                    return .waitingForConnectivity(.noConnection)
                 }
             }
             return
@@ -97,7 +100,9 @@ class MapConnectionStatusOperation: AsyncOperation {
             default:
                 interactor.updateTunnelStatus { tunnelStatus in
                     tunnelStatus = TunnelStatus()
-                    tunnelStatus.state = .disconnected
+                    tunnelStatus.state = pathStatus == .unsatisfied
+                        ? .waitingForConnectivity(.noNetwork)
+                        : .disconnected
                 }
             }
 
@@ -115,7 +120,9 @@ class MapConnectionStatusOperation: AsyncOperation {
         case .invalid:
             interactor.updateTunnelStatus { tunnelStatus in
                 tunnelStatus = TunnelStatus()
-                tunnelStatus.state = .disconnected
+                tunnelStatus.state = pathStatus == .unsatisfied
+                    ? .waitingForConnectivity(.noNetwork)
+                    : .disconnected
             }
 
         @unknown default:

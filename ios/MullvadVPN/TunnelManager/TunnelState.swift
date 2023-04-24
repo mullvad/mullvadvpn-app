@@ -33,6 +33,13 @@ struct TunnelStatus: Equatable, CustomStringConvertible {
 
 /// An enum that describes the tunnel state.
 enum TunnelState: Equatable, CustomStringConvertible {
+    enum WaitingForConnectionReason {
+        /// Tunnel connection is down.
+        case noConnection
+        /// Network is down.
+        case noNetwork
+    }
+
     /// Pending reconnect after disconnect.
     case pendingReconnect
 
@@ -56,7 +63,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case reconnecting(PacketTunnelRelay)
 
     /// Waiting for connectivity to come back up.
-    case waitingForConnectivity
+    case waitingForConnectivity(WaitingForConnectionReason)
 
     var description: String {
         switch self {
@@ -83,9 +90,9 @@ enum TunnelState: Equatable, CustomStringConvertible {
 
     var isSecured: Bool {
         switch self {
-        case .reconnecting, .connecting, .connected, .waitingForConnectivity:
+        case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection):
             return true
-        case .pendingReconnect, .disconnecting, .disconnected:
+        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
             return false
         }
     }
