@@ -419,7 +419,7 @@ struct StrippedPath {
 }
 
 impl StrippedPath {
-    fn new(path: &PathBuf) -> io::Result<StrippedPath> {
+    fn new(path: &Path) -> io::Result<StrippedPath> {
         let mut iter = path.components();
         let prefix = iter.next().ok_or(io::Error::new(
             io::ErrorKind::InvalidInput,

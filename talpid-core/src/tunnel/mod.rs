@@ -109,13 +109,8 @@ impl TunnelMonitor {
         let resource_dir = resource_dir.to_path_buf();
         let process_string = match params {
             TunnelParameters::OpenVpn(params) => {
-                if let Some(proxy) = &params.proxy {
-                    match proxy {
-                        openvpn_types::ProxySettings::Shadowsocks(..) => {
-                            return std::env::current_exe().unwrap()
-                        }
-                        _ => "openvpn.exe",
-                    }
+                if let Some(openvpn_types::ProxySettings::Shadowsocks(..)) = &params.proxy {
+                    return std::env::current_exe().unwrap();
                 } else {
                     "openvpn.exe"
                 }

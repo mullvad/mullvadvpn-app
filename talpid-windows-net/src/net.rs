@@ -138,6 +138,7 @@ impl AddressFamily {
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
 pub struct IpNotifierHandle<'a> {
+    #[allow(clippy::type_complexity)]
     callback: Mutex<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>>,
     handle: HANDLE,
 }
