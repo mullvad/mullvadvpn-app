@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import Shadowsocks
 
 public class ShadowSocksProxy {
     private var proxyConfig: ProxyHandle
