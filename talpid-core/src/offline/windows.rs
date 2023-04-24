@@ -138,6 +138,7 @@ impl BroadcastListener {
         state.apply_change(change);
     }
 
+    #[allow(clippy::unused_async)]
     pub async fn host_is_offline(&self) -> bool {
         let state = self.system_state.lock();
         state.is_offline_currently()

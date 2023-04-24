@@ -1040,7 +1040,7 @@ where
             #[cfg(target_os = "windows")]
             UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
             #[cfg(target_os = "windows")]
-            CheckVolumes(tx) => self.on_check_volumes(tx).await,
+            CheckVolumes(tx) => self.on_check_volumes(tx),
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
@@ -1762,7 +1762,7 @@ where
     }
 
     #[cfg(windows)]
-    async fn on_check_volumes(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_check_volumes(&mut self, tx: ResponseTx<(), Error>) {
         if self.volume_update_tx.unbounded_send(()).is_ok() {
             let _ = tx.send(Ok(()));
         }
