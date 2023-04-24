@@ -1,5 +1,8 @@
-use std::path::Path;
-use std::{env, fs, path::PathBuf, process::Command};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 /// How many characters of the git commit that should be added to the version name
 /// in dev builds.

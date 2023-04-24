@@ -1,6 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::relay_constraints::Constraint;
-use mullvad_types::settings::SettingsVersion;
+use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 
 // ======================================================
 // Section for vendoring types and values that

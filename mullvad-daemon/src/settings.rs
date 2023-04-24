@@ -297,7 +297,8 @@ impl<'a> Display for SettingsSummary<'a> {
                 write!(f, "{}", content.join(" "))?;
             }
             DnsState::Custom => {
-                // NOTE: Technically inaccurate, as the gateway IP is a local IP but isn't treated as one.
+                // NOTE: Technically inaccurate, as the gateway IP is a local IP but isn't treated
+                // as one.
                 let contains_local = self
                     .settings
                     .tunnel_options

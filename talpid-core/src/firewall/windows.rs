@@ -168,8 +168,8 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1` and `endpoint2` must not be dropped until
-        // `WinFw_ApplyPolicyConnecting` has returned.
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1` and `endpoint2` must not be dropped
+        // until `WinFw_ApplyPolicyConnecting` has returned.
         let mut endpoint1_ip = WideCString::new();
         let mut endpoint2_ip = WideCString::new();
         let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
