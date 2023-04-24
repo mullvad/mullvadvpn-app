@@ -9,32 +9,7 @@
 import Foundation
 
 extension REST {
-    public struct HTTPProxyConfiguration {
-        public var address: String
-        public var localPort: UInt16
-
-        public init(address: String = "127.0.0.1", port: UInt16) {
-            self.address = address
-            self.localPort = port
-        }
-
-        fileprivate func apply(to sessionConfiguration: URLSessionConfiguration) {
-            var configuration = [CFString: Any]()
-
-            configuration[kCFNetworkProxiesHTTPProxy] = address
-            configuration[kCFNetworkProxiesHTTPPort] = NSNumber(value: localPort)
-            configuration[kCFNetworkProxiesProxyAutoConfigEnable] = kCFBooleanFalse
-            configuration[kCFNetworkProxiesHTTPEnable] = 1
-            configuration[("HTTPSEnable" as NSString)] = 1
-            configuration[("HTTPSProxy" as NSString)] = address
-            configuration[("HTTPSPort" as NSString)] = NSNumber(value: localPort)
-            
-
-            sessionConfiguration.connectionProxyDictionary = configuration
-        }
-    }
-
-    public static func makeURLSession(httpProxyConfiguration: HTTPProxyConfiguration? = nil) -> URLSession {
+    public static func makeURLSession() -> URLSession {
         let certificatePath = Bundle(for: SSLPinningURLSessionDelegate.self)
             .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!
@@ -46,14 +21,13 @@ extension REST {
         )
 
         let sessionConfiguration = URLSessionConfiguration.ephemeral
-        httpProxyConfiguration?.apply(to: sessionConfiguration)
-        
+
         let session = URLSession(
             configuration: sessionConfiguration,
             delegate: sessionDelegate,
             delegateQueue: nil
         )
-        
+
         return session
     }
 }
