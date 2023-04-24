@@ -37,7 +37,17 @@ function format {
         ../app/src/main/res/anim*/*.xml \
         ../app/src/main/res/drawable*/*.xml \
         ../app/src/main/res/layout*/*.xml \
-        ../app/src/main/res/values/*.xml
+
+    tidy -xml \
+        -m  \
+        -i  \
+        -w 0 \
+        -utf8 \
+        --quiet yes \
+        --indent-spaces 4 \
+        --literal-attributes yes \
+        --indent-cdata yes \
+        ../app/src/main/res/values/*.xml        
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
     find ../app/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'

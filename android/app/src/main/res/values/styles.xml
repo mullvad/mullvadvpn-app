@@ -1,6 +1,5 @@
 <resources>
-    <style name="AppTheme"
-           parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:navigationBarColor">@color/blue</item>
         <item name="android:statusBarColor">@color/blue</item>
@@ -11,8 +10,7 @@
         <item name="android:spotShadowAlpha">0</item>
         <item name="actionBarSize">48dp</item>
     </style>
-    <style name="InputText"
-           parent="Widget.AppCompat.EditText">
+    <style name="InputText" parent="Widget.AppCompat.EditText">
         <item name="android:padding">14dp</item>
         <item name="android:background">@drawable/input_text_background</item>
         <item name="android:textCursorDrawable">@drawable/text_input_cursor</item>
@@ -20,8 +18,7 @@
         <item name="android:textColor">@color/blue</item>
         <item name="android:textSize">@dimen/text_small</item>
     </style>
-    <style name="Button"
-           parent="Widget.AppCompat.Button.Borderless">
+    <style name="Button" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:minHeight">@dimen/button_height</item>
@@ -32,36 +29,29 @@
         <item name="android:textSize">@dimen/text_medium_plus</item>
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="GreenButton"
-           parent="Button">
+    <style name="GreenButton" parent="Button">
         <item name="android:background">@drawable/green_button_background</item>
     </style>
-    <style name="RedButton"
-           parent="Button">
+    <style name="RedButton" parent="Button">
         <item name="android:background">@drawable/red_button_background</item>
     </style>
-    <style name="BlueButton"
-           parent="Button">
+    <style name="BlueButton" parent="Button">
         <item name="android:background">@drawable/blue_button_background</item>
     </style>
-    <style name="White20Button"
-           parent="Button">
+    <style name="White20Button" parent="Button">
         <item name="android:background">@drawable/white20_button_background</item>
     </style>
     <style name="SettingsHeader">
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="SettingsExpandedHeader"
-           parent="SettingsHeader">
+    <style name="SettingsExpandedHeader" parent="SettingsHeader">
         <item name="android:textSize">@dimen/text_huge</item>
     </style>
-    <style name="SettingsCollapsedHeader"
-           parent="SettingsHeader">
+    <style name="SettingsCollapsedHeader" parent="SettingsHeader">
         <item name="android:textSize">@dimen/text_medium</item>
     </style>
-    <style name="TextAppearance.Mullvad"
-           parent="TextAppearance.AppCompat" />
+    <style name="TextAppearance.Mullvad" parent="TextAppearance.AppCompat" />
     <style name="TextAppearance.Mullvad.Title1">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/text_medium_plus</item>
