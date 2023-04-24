@@ -43,6 +43,12 @@ how to use it as a gradle task.
 `tidy` is used for XML resource formatting. `tidy` is a separate tool which has to be installed
 unless the container image (which includes `tidy`) is used.
 
+#### macOS
+Since macOS is using a different version of `sed` running the tidy script (`scripts/tidy.sh`) will 
+lead to the creation of a large number of files ending with `-e`. The recommended fix for this 
+issue is to install the gnu version of `sed`. This can be done by running:
+`brew install gnu-sed` and then set `gnu-sed` as your default `sed`.
+
 ### Android Gradle Plugin lint tool
 
 The Android Gradle Plugin lint tool for linting of resources and code. The tool is configured to be
