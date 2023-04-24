@@ -6,11 +6,9 @@
     <string name="unsecured">Unsecured</string>
     <string name="critical_error">Critical error (your attention is required)</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
-    <string name="foreground_notification_channel_description">Shows current VPN tunnel
-    status</string>
+    <string name="foreground_notification_channel_description">Shows current VPN tunnel status</string>
     <string name="account_time_notification_channel_name">Account time reminders</string>
-    <string name="account_time_notification_channel_description">Shows reminders when the account
-    time is about to expire</string>
+    <string name="account_time_notification_channel_description">Shows reminders when the account time is about to expire</string>
     <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
     <string name="login_title">Login</string>
     <string name="login_description">Enter your account number</string>
@@ -27,8 +25,7 @@
     <string name="account_created">Account created</string>
     <string name="congrats">Congrats!</string>
     <string name="here_is_your_account_number">Here’s your account number. Save it!</string>
-    <string name="pay_to_start_using">To start using the app, you first need to add time to your
-    account.</string>
+    <string name="pay_to_start_using">To start using the app, you first need to add time to your account.</string>
     <string name="buy_credit">Buy credit</string>
     <string name="buy_more_credit">Buy more credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
@@ -41,13 +38,10 @@
     <string name="settings_account">Account</string>
     <string name="less_than_a_day_left">less than a day left</string>
     <string name="less_than_a_minute_ago">less than a minute ago</string>
-    <string name="account_credit_expires_in_a_few_minutes">Account credit expires in a few
-    minutes</string>
-    <string name="account_credit_has_expired">You have no more VPN time left on this
-    account.</string>
+    <string name="account_credit_expires_in_a_few_minutes">Account credit expires in a few minutes</string>
+    <string name="account_credit_has_expired">You have no more VPN time left on this account.</string>
     <string name="out_of_time">Out of time</string>
-    <string name="add_time_to_account">Either buy credit on our website or redeem a
-    voucher.</string>
+    <string name="add_time_to_account">Either buy credit on our website or redeem a voucher.</string>
     <string name="settings_preferences">Preferences</string>
     <string name="settings_advanced">Advanced</string>
     <string name="app_version">App version</string>
@@ -58,40 +52,31 @@
     <string name="account_number">Account number</string>
     <string name="device_name">Device name</string>
     <string name="mullvad_account_number">Mullvad account number</string>
-    <string name="copied_mullvad_account_number">Copied Mullvad account number to
-    clipboard</string>
+    <string name="copied_mullvad_account_number">Copied Mullvad account number to clipboard</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
     <string name="local_network_sharing">Local network sharing</string>
-    <string name="allow_lan_footer">Allows access to other devices on the same network for sharing,
-    printing etc.</string>
+    <string name="allow_lan_footer">Allows access to other devices on the same network for sharing, printing etc.</string>
     <string name="auto_connect">Auto-connect</string>
-    <string name="auto_connect_footer">Automatically connect to a server when the app
-    launches.</string>
+    <string name="auto_connect_footer">Automatically connect to a server when the app launches.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
     <string name="hint_default">Default</string>
-    <string name="problem_report_description">To help you more effectively, your app’s log file
-    will be attached to this message. Your data will remain secure and private, as it is anonymised
-    before being sent over an encrypted channel.</string>
+    <string name="problem_report_description">To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</string>
     <string name="user_email_hint">Your email (optional)</string>
-    <string name="user_message_hint">To assist you better, please write in English or Swedish and
-    include which country you are connecting from.</string>
+    <string name="user_message_hint">To assist you better, please write in English or Swedish and include which country you are connecting from.</string>
     <string name="view_logs">View app logs</string>
     <string name="send">Send</string>
     <string name="sending">Sending...</string>
     <string name="sent">Sent</string>
     <string name="failed_to_send">Failed to send</string>
-    <string name="confirm_no_email">You are about to send the problem report without a way for us
-    to get back to you. If you want an answer to your report you will have to enter an email
-    address.</string>
+    <string name="confirm_no_email">You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</string>
     <string name="send_anyway">Send anyway</string>
     <string name="back">Back</string>
     <string name="sent_thanks">Thanks!</string>
     <string name="we_will_look_into_this">We will look into this.</string>
     <string name="sent_contact">If needed we will contact you at %1$s</string>
-    <string name="failed_to_send_details">If you exit the form and try again later, the information
-    you already entered will still be here.</string>
+    <string name="failed_to_send_details">If you exit the form and try again later, the information you already entered will still be here.</string>
     <string name="edit_message">Edit message</string>
     <string name="try_again">Try again</string>
     <string name="unsecured_connection">UNSECURED CONNECTION</string>
@@ -112,50 +97,33 @@
     <string name="blocking_internet_device_offline">Blocking internet (device offline)</string>
     <string name="not_blocking_internet">YOU MIGHT BE LEAKING NETWORK TRAFFIC</string>
     <string name="invalid_dns_servers">Custom DNS server addresses %1$s are invalid</string>
-    <string name="failed_to_block_internet">Unable to block all network traffic. Please
-    troubleshoot or send a problem report.</string>
-    <string name="auth_failed">Unable to authenticate account. Please send a problem
-    report.</string>
-    <string name="ipv6_unavailable">Could not configure IPv6. Disable it in the app or enable it on
-    your device.</string>
-    <string name="set_firewall_policy_error">Unable to apply firewall rules. Please troubleshoot or
-    send a problem report.</string>
-    <string name="set_dns_error">Unable to set system DNS server. Please send a problem
-    report.</string>
-    <string name="start_tunnel_error">Unable to start tunnel connection. Please send a problem
-    report.</string>
-    <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel.
-    Please try connecting again.</string>
-    <string name="no_matching_relay">No servers match your settings, try changing server or other
-    settings.</string>
-    <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced
-    settings.</string>
+    <string name="failed_to_block_internet">Unable to block all network traffic. Please troubleshoot or send a problem report.</string>
+    <string name="auth_failed">Unable to authenticate account. Please send a problem report.</string>
+    <string name="ipv6_unavailable">Could not configure IPv6. Disable it in the app or enable it on your device.</string>
+    <string name="set_firewall_policy_error">Unable to apply firewall rules. Please troubleshoot or send a problem report.</string>
+    <string name="set_dns_error">Unable to set system DNS server. Please send a problem report.</string>
+    <string name="start_tunnel_error">Unable to start tunnel connection. Please send a problem report.</string>
+    <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel. Please try connecting again.</string>
+    <string name="no_matching_relay">No servers match your settings, try changing server or other settings.</string>
+    <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced settings.</string>
     <string name="custom_dns_hint">Enter IP</string>
-    <string name="custom_tunnel_host_resolution_error">Unable to resolve host of custom tunnel. Try
-    changing your settings.</string>
-    <string name="is_offline">Your device is offline. The tunnel will automatically connect once
-    your device is back online.</string>
+    <string name="custom_tunnel_host_resolution_error">Unable to resolve host of custom tunnel. Try changing your settings.</string>
+    <string name="is_offline">Your device is offline. The tunnel will automatically connect once your device is back online.</string>
     <string name="virtual_adapter_problem">Virtual adapter error</string>
     <string name="update_available">UPDATE AVAILABLE</string>
-    <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to
-    date</string>
+    <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to date</string>
     <string name="unsupported_version">UNSUPPORTED VERSION</string>
-    <string name="unsupported_version_description">Your privacy might be at risk with this
-    unsupported app version. Please update now.</string>
-    <string name="unsupported_version_without_upgrade">You are running an unsupported app
-    version.</string>
+    <string name="unsupported_version_description">Your privacy might be at risk with this unsupported app version. Please update now.</string>
+    <string name="unsupported_version_without_upgrade">You are running an unsupported app version.</string>
     <string name="account_credit_expires_soon">Account credit expires soon</string>
     <string name="select_location">Select location</string>
-    <string name="select_location_description">While connected, your real location is masked with a
-    private and secure location in the selected region.</string>
-    <string name="split_tunneling_description">Split tunneling makes it possible to select which
-    applications should not be routed through the VPN tunnel.</string>
+    <string name="select_location_description">While connected, your real location is masked with a private and secure location in the selected region.</string>
+    <string name="split_tunneling_description">Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel.</string>
     <string name="enable">Enable</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
-    <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local
-    Network Sharing\" under Preferences.</string>
+    <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences.</string>
     <string name="exclude_applications">Excluded applications</string>
     <string name="all_applications">All applications</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
@@ -163,50 +131,34 @@
     <string name="toggle_vpn">Toggle VPN</string>
     <string name="go_to_login">Go to login</string>
     <string name="device_inactive_title">Device is inactive</string>
-    <string name="device_inactive_description">You have removed this device. To connect again, you
-    will need to log back in.</string>
-    <string name="device_inactive_unblock_warning">Going to login will unblock the internet on this
-    device.</string>
+    <string name="device_inactive_description">You have removed this device. To connect again, you will need to log back in.</string>
+    <string name="device_inactive_unblock_warning">Going to login will unblock the internet on this device.</string>
     <string name="max_devices_warning_title">Too many devices</string>
     <string name="max_devices_resolved_title">Super!</string>
-    <string name="max_devices_warning_description">Please log out of at least one by removing it
-    from the list below. You can find the corresponding device name under the device’s Account
-    settings.</string>
-    <string name="max_devices_resolved_description">You can now continue logging in on this
-    device.</string>
+    <string name="max_devices_warning_description">Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</string>
+    <string name="max_devices_resolved_description">You can now continue logging in on this device.</string>
     <string name="max_devices_confirm_removal_description">
-<![CDATA[Are you sure you want to log <b>%s</b> out?]]>
+        <![CDATA[Are you sure you want to log <b>%s</b> out?]]>
     </string>
     <string name="confirm_removal">Yes, log out device</string>
     <string name="continue_login">Continue with login</string>
     <string name="failed_to_fetch_devices">Failed to fetch list of devices</string>
-    <string name="port_removal_notice">This will delete all forwarded ports. Local settings will be
-    saved.</string>
+    <string name="port_removal_notice">This will delete all forwarded ports. Local settings will be saved.</string>
     <string name="copy_account_number">Copy account number</string>
     <string name="hide_account_number">Hide account number</string>
     <string name="show_account_number">Show account number</string>
     <string name="failed_to_remove_device">Failed to remove device</string>
     <string name="changes_dialog_subtitle">Changes in this version:</string>
     <string name="changes_dialog_dismiss_button">Got it!</string>
-    <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to other
-    app</string>
+    <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to other app</string>
     <string name="always_on_vpn_error_notification_content">
-<![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before
-    using Mullvad VPN.]]>
+        <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN.]]>
     </string>
     <string name="vpn_permission_error_notification_title">VPN permission error</string>
-    <string name="vpn_permission_error_notification_message">Always-on VPN might be enabled for
-    another app</string>
+    <string name="vpn_permission_error_notification_message">Always-on VPN might be enabled for another app</string>
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
-    <string name="privacy_disclaimer_body">To make sure that you have the most secure version and
-    to inform you of any issues with the current version that is running, the app performs version
-    checks automatically. This sends the app version and Android system version to Mullvad servers.
-    Mullvad keeps counters on number of used app versions and Android versions. The data is never
-    stored or used in any way that can identify you.\n\nIf the split tunneling feature is used,
-    then the app queries your system for a list of all installed applications. This list is only
-    retrieved in the split tunneling view. The list of installed applications is never sent from
-    the device.</string>
+    <string name="privacy_disclaimer_body">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\n\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device.</string>
     <string name="submit_button">Submit</string>
     <string name="remove_button">Remove</string>
     <string name="enter_value_placeholder">Enter MTU</string>
@@ -215,22 +167,18 @@
     <string name="update_dns_server_dialog_title">Update DNS server</string>
     <string name="duplicate_address_warning">This address has already been entered.</string>
     <string name="dns_content_blockers_title">DNS content blockers</string>
-    <string name="dns_content_blockers_info">When this feature is enabled it stops the device from
-    contacting certain domains or websites known for distributing ads, malware, trackers and
-    more.</string>
-    <string name="dns_content_blockers_warning">This might cause issues on certain websites,
-    services, and programs.</string>
+    <string name="dns_content_blockers_info">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
+    <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and programs.</string>
     <string name="block_ads_title">Ads</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="block_malware_title">Malware</string>
-    <string name="malware_info">Warning: The malware blocker is not an anti-virus and should not be
-    treated as such, this is just an extra layer of protection.</string>
+    <string name="malware_info">Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</string>
     <string name="block_gambling_title">Gambling</string>
     <string name="block_adult_content_title">Adult content</string>
     <string name="dns_content_blockers_subtitle">
-<![CDATA[Disable <b>%s</b> below to activate these settings.]]>
+        <![CDATA[Disable <b>%s</b> below to activate these settings.]]>
     </string>
     <string name="custom_dns_disable_mode_subtitle">
-<![CDATA[Disable all <b>DNS content blockers</b> above to activate this setting.]]>
+        <![CDATA[Disable all <b>DNS content blockers</b> above to activate this setting.]]>
     </string>
 </resources>
