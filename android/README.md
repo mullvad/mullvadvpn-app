@@ -40,8 +40,18 @@ Also, see the [`ktfmt` gradle plugin documentation](https://github.com/cortinico
 how to use it as a gradle task.
 
 ### XML formatting
-`tidy` is used for XML resource formatting. `tidy` is a separate tool which has to be installed
-unless the container image (which includes `tidy`) is used.
+In order to format XML files, the script `scripts/tidy.sh` is used. As the script name implies, it's basically a helper script to run the tool called `tidy`. It needs to be installed unless the
+container image is used.
+
+Command to format:
+```
+scripts/tidy.sh format
+```
+
+Command to format and check for any changes:
+```
+scripts/tidy.sh formatAndCheckDiff
+```
 
 ### Android Gradle Plugin lint tool
 
