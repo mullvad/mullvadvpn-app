@@ -499,7 +499,7 @@ impl PathMonitor {
 
         std::thread::spawn(move || {
             loop {
-                if !monitor.service_commands(&mut original_paths, &cmd_rx) {
+                if !monitor.process_command(&mut original_paths, &cmd_rx) {
                     break;
                 }
                 match monitor.handle_next_completion_packet() {
@@ -529,7 +529,7 @@ impl PathMonitor {
     }
 
     /// Handle the next command from the `PathMonitorHandle`, if there is one.
-    fn service_commands(
+    fn process_command(
         &mut self,
         original_paths: &mut Vec<PathBuf>,
         cmd_rx: &sync_mpsc::Receiver<PathMonitorCommand>,
