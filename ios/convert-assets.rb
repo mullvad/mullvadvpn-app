@@ -66,6 +66,9 @@ SVG_CONVERT_ENVIRONMENT_VARIABLES = {
   "SOURCE_DATE_EPOCH" => "1596022781"
 }
 
+# Fix DPI at 72 to produce the same size assets as defined in SVG files (in pixels)
+SVG_CONVERT_DEFAULT_OPTIONS = ["--dpi-x=72", "--dpi-y=72"]
+
 # Functions
 
 def generate_graphical_assets()
@@ -82,7 +85,7 @@ def generate_graphical_assets()
     output_file = File.join(output_dir, "#{image_name}.pdf")
 
     puts "Convert #{svg_file} -> #{output_file}"
-    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
+    rsvg_convert("--format=pdf", svg_file, "--output", output_file)
   end
 end
 
@@ -102,14 +105,14 @@ def generate_resized_assets()
     output_file = File.join(output_dir, "#{image_name}.pdf")
 
     puts "Convert and resize #{svg_file} -> #{output_file} (#{width} x #{height})"
-    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--width=#{width}", "--height=#{height}", "--format=pdf", svg_file, "--output", output_file)
+    rsvg_convert("--width=#{width}", "--height=#{height}", "--format=pdf", svg_file, "--output", output_file)
   end
 end
 
 def generate_app_icon()
   image_name = File.basename(XCASSETS_APPICON_PATH, ".png")
   puts "Generate #{image_name} -> #{XCASSETS_APPICON_PATH}"
-  system("rsvg-convert", "--width=#{XCASSETS_APPICON_SIZE}", "--height=#{XCASSETS_APPICON_SIZE}", "--format=png", APPICON_PATH, "--output", XCASSETS_APPICON_PATH)
+  rsvg_convert("--width=#{XCASSETS_APPICON_SIZE}", "--height=#{XCASSETS_APPICON_SIZE}", "--format=png", APPICON_PATH, "--output", XCASSETS_APPICON_PATH)
 end
 
 def generate_additional_assets()
@@ -125,16 +128,17 @@ def generate_additional_assets()
     end
 
     puts "Generate #{image_name} -> #{output_file}"
-    system(SVG_CONVERT_ENVIRONMENT_VARIABLES, "rsvg-convert", "--format=pdf", svg_file, "--output", output_file)
+    rsvg_convert("--format=pdf", svg_file, "--output", output_file)
   end
+end
+
+def rsvg_convert(*args)
+  command = ["rsvg-convert", *SVG_CONVERT_DEFAULT_OPTIONS, *args]
+  system(SVG_CONVERT_ENVIRONMENT_VARIABLES, *command)
 end
 
 def pascal_case(str)
   return str.split('-').collect(&:capitalize).join
-end
-
-def retina_scale_suffix(retina_scale)
-  return retina_scale == 1 ? "" : "@#{retina_scale}x"
 end
 
 def command?(name)
