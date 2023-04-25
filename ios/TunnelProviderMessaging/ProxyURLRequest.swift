@@ -15,6 +15,7 @@ public struct ProxyURLRequest: Codable {
     public let method: String?
     public let httpBody: Data?
     public let httpHeaders: [String: String]?
+    public let useAlternativeTransport: Bool
 
     public var urlRequest: URLRequest {
         var urlRequest = URLRequest(url: url)
@@ -24,21 +25,14 @@ public struct ProxyURLRequest: Codable {
         return urlRequest
     }
 
-    public init(id: UUID, urlRequest: URLRequest) throws {
-        guard let url = urlRequest.url else {
-            throw InvalidURLRequestError()
-        }
+    public init?(id: UUID, urlRequest: URLRequest, useAlternativeTransport: Bool = false) {
+        guard let urlRequestUrl = urlRequest.url else { return nil }
 
         self.id = id
-        self.url = url
+        url = urlRequestUrl
         method = urlRequest.httpMethod
         httpBody = urlRequest.httpBody
         httpHeaders = urlRequest.allHTTPHeaderFields
-    }
-}
-
-public struct InvalidURLRequestError: LocalizedError {
-    public var errorDescription: String? {
-        return "Invalid URLRequest URL."
+        self.useAlternativeTransport = useAlternativeTransport
     }
 }

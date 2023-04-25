@@ -371,6 +371,7 @@
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
+		A92CAAC629F7D33C008ED922 /* TunnelTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -974,6 +975,7 @@
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Appearance.swift"; sourceTree = "<group>"; };
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
+		A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelTransportProvider.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
@@ -1830,6 +1832,7 @@
 				58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */,
 				58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
+				A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -2863,6 +2866,7 @@
 				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
+				A92CAAC629F7D33C008ED922 /* TunnelTransportProvider.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

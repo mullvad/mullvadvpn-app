@@ -58,9 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )!
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { [weak self] in
-                return self?.transportMonitor.shadowSocksTransport
-            },
+            transportProvider: { [weak self] in self?.transportMonitor },
             addressCache: addressCache
         )
 
