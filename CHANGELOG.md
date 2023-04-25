@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Clarify some of the error messages showed in notifications.
+- Change and add text in Content blockers informational dialog.
 
 ### Deprecated
 #### Linux

@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>
     <string name="dns_content_blockers_subtitle">Désactivez &lt;b&gt;%1$s&lt;/b&gt; ci-dessous pour activer ces paramètres.</string>
     <string name="dns_content_blockers_title">Bloqueurs de contenu DNS</string>
-    <string name="dns_content_blockers_warning">Cela peut causer des problèmes sur certains sites Web, services et programmes.</string>
     <string name="dont_have_an_account">Vous n\'avez pas de numéro de compte ?</string>
     <string name="edit_message">Modifier le message</string>
     <string name="enable">Activer</string>

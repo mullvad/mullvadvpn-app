@@ -59,7 +59,6 @@
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်တို့ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ပါ &lt;b&gt;%1$s&lt;/b&gt; ကို ပိတ်ပါ။</string>
     <string name="dns_content_blockers_title">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
-    <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် ပရိုဂရမ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
     <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
     <string name="edit_message">မက်ဆေ့ချ် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
