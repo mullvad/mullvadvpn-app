@@ -10,8 +10,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import net.mullvad.mullvadvpn.compose.component.AppTheme
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import org.junit.Before
 import org.junit.Rule
