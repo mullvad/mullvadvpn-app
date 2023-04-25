@@ -31,7 +31,7 @@ extension CustomDateComponentsFormatting {
 
         let dateComponents = calendar.dateComponents([.year, .day], from: start, to: end)
         let years = dateComponents.year ?? 0
-        var days = dateComponents.day ?? 0
+        let days = dateComponents.day ?? 0
 
         if years >= 2 {
             formatter.allowedUnits = [.year]
