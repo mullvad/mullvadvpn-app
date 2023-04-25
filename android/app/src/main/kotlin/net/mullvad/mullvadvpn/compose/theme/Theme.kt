@@ -1,14 +1,14 @@
 package net.mullvad.mullvadvpn.compose.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Shapes
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 private val MullvadColorPalette =
-    lightColors(primary = MullvadBlue, primaryVariant = MullvadDarkBlue, secondary = MullvadRed)
+    lightColorScheme(primary = MullvadBlue, secondary = MullvadDarkBlue, tertiary = MullvadRed, onSurfaceVariant = MullvadWhite)
 
 val Shapes =
     Shapes(
@@ -18,8 +18,8 @@ val Shapes =
     )
 
 @Composable
-fun CollapsingToolbarTheme(content: @Composable () -> Unit) {
+fun AppTheme(content: @Composable () -> Unit) {
     val colors = MullvadColorPalette
 
-    MaterialTheme(colors = colors, shapes = Shapes, content = content)
+    MaterialTheme(colorScheme = colors, shapes = Shapes, content = content)
 }

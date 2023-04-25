@@ -52,7 +52,6 @@ import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
-import net.mullvad.mullvadvpn.compose.theme.CollapsingToolbarTheme
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -159,184 +158,181 @@ fun AdvancedSettingScreen(
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
-    CollapsingToolbarTheme {
-        val state = rememberCollapsingToolbarScaffoldState()
-        val progress = state.toolbarState.progress
+    val state = rememberCollapsingToolbarScaffoldState()
+    val progress = state.toolbarState.progress
 
-        CollapsableAwareToolbarScaffold(
-            backgroundColor = MullvadDarkBlue,
-            modifier = Modifier.fillMaxSize(),
-            state = state,
-            scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-            isEnabledWhenCollapsable = true,
-            toolbar = {
-                val scaffoldModifier =
-                    Modifier.road(
-                        whenCollapsed = Alignment.TopCenter,
-                        whenExpanded = Alignment.BottomStart
-                    )
-                CollapsingTopBar(
-                    backgroundColor = MullvadDarkBlue,
-                    onBackClicked = { onBackClick() },
-                    title = stringResource(id = R.string.settings_advanced),
-                    progress = progress,
-                    modifier = scaffoldModifier,
-                    backTitle = stringResource(id = R.string.settings)
+    CollapsableAwareToolbarScaffold(
+        backgroundColor = MullvadDarkBlue,
+        modifier = Modifier.fillMaxSize(),
+        state = state,
+        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
+        isEnabledWhenCollapsable = true,
+        toolbar = {
+            val scaffoldModifier =
+                Modifier.road(
+                    whenCollapsed = Alignment.TopCenter,
+                    whenExpanded = Alignment.BottomStart
+                )
+            CollapsingTopBar(
+                backgroundColor = MullvadDarkBlue,
+                onBackClicked = { onBackClick() },
+                title = stringResource(id = R.string.settings_advanced),
+                progress = progress,
+                modifier = scaffoldModifier,
+                backTitle = stringResource(id = R.string.settings)
+            )
+        }
+    ) {
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_STOP) {
+                    onStopEvent()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
+        LazyColumn(
+            modifier =
+                Modifier.drawVerticalScrollbar(lazyListState)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .animateContentSize(),
+            state = lazyListState
+        ) {
+            item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
+
+            itemWithDivider {
+                NavigationComposeCell(
+                    title = stringResource(id = R.string.split_tunneling),
+                    onClick = { onSplitTunnelingNavigationClick.invoke() }
                 )
             }
-        ) {
-            DisposableEffect(lifecycleOwner) {
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        onStopEvent()
-                    }
-                }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+
+            itemWithDivider {
+                ExpandableComposeCell(
+                    title = stringResource(R.string.dns_content_blockers_title),
+                    isExpanded = !expandContentBlockersState,
+                    isEnabled = !uiState.isCustomDnsEnabled,
+                    onInfoClicked = { onContentsBlockersInfoClicked() },
+                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
+                )
             }
-            LazyColumn(
-                modifier =
-                    Modifier.drawVerticalScrollbar(lazyListState)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .animateContentSize(),
-                state = lazyListState
-            ) {
-                item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
 
+            if (expandContentBlockersState) {
                 itemWithDivider {
-                    NavigationComposeCell(
-                        title = stringResource(id = R.string.split_tunneling),
-                        onClick = { onSplitTunnelingNavigationClick.invoke() }
-                    )
-                }
-
-                itemWithDivider {
-                    ExpandableComposeCell(
-                        title = stringResource(R.string.dns_content_blockers_title),
-                        isExpanded = !expandContentBlockersState,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onInfoClicked = { onContentsBlockersInfoClicked() },
-                        onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
-                    )
-                }
-
-                if (expandContentBlockersState) {
-                    itemWithDivider {
-                        SwitchComposeCell(
-                            title = stringResource(R.string.block_ads_title),
-                            isToggled = uiState.contentBlockersOptions.blockAds,
-                            isEnabled = !uiState.isCustomDnsEnabled,
-                            onCellClicked = { onToggleBlockAds(it) },
-                            background = MullvadBlue20
-                        )
-                    }
-                    itemWithDivider {
-                        SwitchComposeCell(
-                            title = stringResource(R.string.block_trackers_title),
-                            isToggled = uiState.contentBlockersOptions.blockTrackers,
-                            isEnabled = !uiState.isCustomDnsEnabled,
-                            onCellClicked = { onToggleBlockTrackers(it) },
-                            background = MullvadBlue20
-                        )
-                    }
-                    itemWithDivider {
-                        SwitchComposeCell(
-                            title = stringResource(R.string.block_malware_title),
-                            isToggled = uiState.contentBlockersOptions.blockMalware,
-                            isEnabled = !uiState.isCustomDnsEnabled,
-                            onCellClicked = { onToggleBlockMalware(it) },
-                            onInfoClicked = { onMalwareInfoClicked() },
-                            background = MullvadBlue20
-                        )
-                    }
-                    itemWithDivider {
-                        SwitchComposeCell(
-                            title = stringResource(R.string.block_gambling_title),
-                            isToggled = uiState.contentBlockersOptions.blockGambling,
-                            isEnabled = !uiState.isCustomDnsEnabled,
-                            onCellClicked = { onToggleBlockGambling(it) },
-                            background = MullvadBlue20
-                        )
-                    }
-                    itemWithDivider {
-                        SwitchComposeCell(
-                            title = stringResource(R.string.block_adult_content_title),
-                            isToggled = uiState.contentBlockersOptions.blockAdultContent,
-                            isEnabled = !uiState.isCustomDnsEnabled,
-                            onCellClicked = { onToggleBlockAdultContent(it) },
-                            background = MullvadBlue20
-                        )
-                    }
-
-                    if (uiState.isCustomDnsEnabled) {
-                        item {
-                            ContentBlockersDisableModeCellSubtitle(
-                                Modifier.background(MullvadDarkBlue)
-                                    .padding(
-                                        start = cellHorizontalSpacing,
-                                        top = topPadding,
-                                        end = cellHorizontalSpacing,
-                                        bottom = cellVerticalSpacing,
-                                    )
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(cellVerticalSpacing))
                     SwitchComposeCell(
-                        title = stringResource(R.string.enable_custom_dns),
-                        isToggled = uiState.isCustomDnsEnabled,
-                        isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                        onCellClicked = { newValue -> onToggleDnsClick(newValue) }
+                        title = stringResource(R.string.block_ads_title),
+                        isToggled = uiState.contentBlockersOptions.blockAds,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockAds(it) },
+                        background = MullvadBlue20
+                    )
+                }
+                itemWithDivider {
+                    SwitchComposeCell(
+                        title = stringResource(R.string.block_trackers_title),
+                        isToggled = uiState.contentBlockersOptions.blockTrackers,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockTrackers(it) },
+                        background = MullvadBlue20
+                    )
+                }
+                itemWithDivider {
+                    SwitchComposeCell(
+                        title = stringResource(R.string.block_malware_title),
+                        isToggled = uiState.contentBlockersOptions.blockMalware,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockMalware(it) },
+                        onInfoClicked = { onMalwareInfoClicked() },
+                        background = MullvadBlue20
+                    )
+                }
+                itemWithDivider {
+                    SwitchComposeCell(
+                        title = stringResource(R.string.block_gambling_title),
+                        isToggled = uiState.contentBlockersOptions.blockGambling,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockGambling(it) },
+                        background = MullvadBlue20
+                    )
+                }
+                itemWithDivider {
+                    SwitchComposeCell(
+                        title = stringResource(R.string.block_adult_content_title),
+                        isToggled = uiState.contentBlockersOptions.blockAdultContent,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockAdultContent(it) },
+                        background = MullvadBlue20
                     )
                 }
 
                 if (uiState.isCustomDnsEnabled) {
-                    itemsIndexed(uiState.customDnsItems) { index, item ->
-                        DnsCell(
-                            address = item.address,
-                            isUnreachableLocalDnsWarningVisible =
-                                item.isLocal && uiState.isAllowLanEnabled.not(),
-                            onClick = { onDnsClick(index) },
-                            modifier = Modifier.animateItemPlacement()
-                        )
-                        Divider()
-                    }
-
-                    itemWithDivider {
-                        BaseCell(
-                            onCellClicked = { onDnsClick(null) },
-                            title = {
-                                Text(
-                                    text = stringResource(id = R.string.add_a_server),
-                                    color = Color.White,
-                                )
-                            },
-                            bodyView = {},
-                            subtitle = null,
-                            background = MullvadBlue20,
-                            startPadding = biggerPadding
-                        )
-                    }
-                }
-
-                item {
-                    CustomDnsCellSubtitle(
-                        isCellClickable =
-                            uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                        modifier =
+                    item {
+                        ContentBlockersDisableModeCellSubtitle(
                             Modifier.background(MullvadDarkBlue)
                                 .padding(
                                     start = cellHorizontalSpacing,
                                     top = topPadding,
                                     end = cellHorizontalSpacing,
-                                    bottom = cellVerticalSpacing
+                                    bottom = cellVerticalSpacing,
                                 )
+                        )
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                SwitchComposeCell(
+                    title = stringResource(R.string.enable_custom_dns),
+                    isToggled = uiState.isCustomDnsEnabled,
+                    isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    onCellClicked = { newValue -> onToggleDnsClick(newValue) }
+                )
+            }
+
+            if (uiState.isCustomDnsEnabled) {
+                itemsIndexed(uiState.customDnsItems) { index, item ->
+                    DnsCell(
+                        address = item.address,
+                        isUnreachableLocalDnsWarningVisible =
+                            item.isLocal && uiState.isAllowLanEnabled.not(),
+                        onClick = { onDnsClick(index) },
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                    Divider()
+                }
+
+                itemWithDivider {
+                    BaseCell(
+                        onCellClicked = { onDnsClick(null) },
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.add_a_server),
+                                color = Color.White,
+                            )
+                        },
+                        bodyView = {},
+                        subtitle = null,
+                        background = MullvadBlue20,
+                        startPadding = biggerPadding
                     )
                 }
+            }
+
+            item {
+                CustomDnsCellSubtitle(
+                    isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    modifier =
+                        Modifier.background(MullvadDarkBlue)
+                            .padding(
+                                start = cellHorizontalSpacing,
+                                top = topPadding,
+                                end = cellHorizontalSpacing,
+                                bottom = cellVerticalSpacing
+                            )
+                )
             }
         }
     }

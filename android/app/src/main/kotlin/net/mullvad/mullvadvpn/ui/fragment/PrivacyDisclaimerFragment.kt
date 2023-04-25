@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.PrivacyDisclaimerScreen
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
@@ -30,19 +31,21 @@ class PrivacyDisclaimerFragment : Fragment(), StatusBarPainter, NavigationBarPai
     ): View {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
-                val topColor = colorResource(R.color.blue)
-                ScaffoldWithTopBar(
-                    topBarColor = topColor,
-                    statusBarColor = topColor,
-                    navigationBarColor = colorResource(id = R.color.darkBlue),
-                    onSettingsClicked = null,
-                    content = {
-                        PrivacyDisclaimerScreen(
-                            onPrivacyPolicyLinkClicked = { openPrivacyPolicy() },
-                            onAcceptClicked = { handleAcceptedPrivacyDisclaimer() }
-                        )
-                    }
-                )
+                AppTheme {
+                    val topColor = colorResource(R.color.blue)
+                    ScaffoldWithTopBar(
+                        topBarColor = topColor,
+                        statusBarColor = topColor,
+                        navigationBarColor = colorResource(id = R.color.darkBlue),
+                        onSettingsClicked = null,
+                        content = {
+                            PrivacyDisclaimerScreen(
+                                onPrivacyPolicyLinkClicked = { openPrivacyPolicy() },
+                                onAcceptClicked = { handleAcceptedPrivacyDisclaimer() }
+                            )
+                        }
+                    )
+                }
             }
         }
     }
