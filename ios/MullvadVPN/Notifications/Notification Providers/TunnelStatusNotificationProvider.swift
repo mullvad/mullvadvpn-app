@@ -112,14 +112,14 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 value: "NETWORK TRAFFIC MIGHT BE LEAKING",
                 comment: ""
             ),
-            body: String(
+            body: .init(string: String(
                 format: NSLocalizedString(
                     "PACKET_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY",
                     value: "Could not configure VPN: %@",
                     comment: ""
                 ),
                 packetTunnelError
-            )
+            ))
         )
     }
 
@@ -156,7 +156,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 value: "TUNNEL ERROR",
                 comment: ""
             ),
-            body: body
+            body: .init(string: body)
         )
     }
 
@@ -169,13 +169,15 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 value: "NETWORK ISSUES",
                 comment: ""
             ),
-            body: NSLocalizedString(
-                "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY",
-                value: """
-                Your device is offline. The tunnel will automatically connect once \
-                your device is back online.
-                """,
-                comment: ""
+            body: .init(
+                string: NSLocalizedString(
+                    "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY",
+                    value: """
+                    Your device is offline. The tunnel will automatically connect once \
+                    your device is back online.
+                    """,
+                    comment: ""
+                )
             )
         )
     }

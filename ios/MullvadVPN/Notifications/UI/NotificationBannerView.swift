@@ -10,6 +10,7 @@ import UIKit
 
 final class NotificationBannerView: UIView {
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
+    private static let buttonSize = CGSize(width: 18, height: 18)
 
     private let backgroundView: UIVisualEffectView = {
         let effect = UIBlurEffect(style: .dark)
@@ -62,15 +63,21 @@ final class NotificationBannerView: UIView {
         return view
     }()
 
+    private let actionButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     var title: String? {
         didSet {
             titleLabel.text = title
         }
     }
 
-    var body: String? {
+    var body: NSAttributedString? {
         didSet {
-            bodyLabel.text = body
+            bodyLabel.attributedText = body
         }
     }
 
@@ -80,10 +87,17 @@ final class NotificationBannerView: UIView {
         }
     }
 
+    var actionHandler: InAppNotificationAction? {
+        didSet {
+            actionButton.setImage(actionHandler?.image, for: .normal)
+            actionButton.addTarget(self, action: #selector(didPressed), for: .touchUpInside)
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        for subview in [titleLabel, bodyLabel, indicatorView] {
+        for subview in [titleLabel, bodyLabel, indicatorView, actionButton] {
             wrapperView.addSubview(subview)
         }
 
@@ -113,21 +127,28 @@ final class NotificationBannerView: UIView {
                 equalToSystemSpacingAfter: indicatorView.trailingAnchor,
                 multiplier: 1
             ),
-            titleLabel.trailingAnchor
-                .constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
 
             bodyLabel.topAnchor.constraint(
                 equalToSystemSpacingBelow: titleLabel.bottomAnchor,
                 multiplier: 1
             ),
             bodyLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            bodyLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             bodyLabel.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
+
+            actionButton.leadingAnchor.constraint(equalTo: bodyLabel.trailingAnchor),
+            actionButton.topAnchor.constraint(equalTo: bodyLabel.topAnchor),
+            actionButton.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
+            actionButton.widthAnchor.constraint(equalToConstant: NotificationBannerView.buttonSize.width),
+            actionButton.heightAnchor.constraint(equalToConstant: NotificationBannerView.buttonSize.height),
         ])
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc private func didPressed() {
+        actionHandler?.handler?()
     }
 }
 

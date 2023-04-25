@@ -209,7 +209,7 @@ extension HeaderBarView {
             )
         }
 
-        deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = configuration.deviceName == nil }
+        deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = !configuration.showDeviceInfo }
         accountButton.isHidden = !configuration.showsAccountButton
     }
 }
