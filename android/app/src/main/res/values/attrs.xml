@@ -1,62 +1,40 @@
 <resources>
     <declare-styleable name="Button">
-        <attr name="buttonColor"
-              format="enum">
-            <enum name="blue"
-                  value="0" />
-            <enum name="green"
-                  value="1" />
-            <enum name="red"
-                  value="2" />
+        <attr name="buttonColor" format="enum">
+            <enum name="blue" value="0" />
+            <enum name="green" value="1" />
+            <enum name="red" value="2" />
         </attr>
-        <attr name="detailImage"
-              format="reference" />
-        <attr name="showSpinner"
-              format="boolean" />
+        <attr name="detailImage" format="reference" />
+        <attr name="showSpinner" format="boolean" />
     </declare-styleable>
     <declare-styleable name="Cell">
-        <attr name="footer"
-              format="reference|string" />
+        <attr name="footer" format="reference|string" />
     </declare-styleable>
     <declare-styleable name="CopyableInformationView">
-        <attr name="clipboardLabel"
-              format="reference|string" />
-        <attr name="copiedToast"
-              format="reference|string" />
+        <attr name="clipboardLabel" format="reference|string" />
+        <attr name="copiedToast" format="reference|string" />
     </declare-styleable>
     <declare-styleable name="InformationView">
-        <attr name="description"
-              format="reference|string" />
-        <attr name="errorColor"
-              format="reference|color" />
-        <attr name="informationColor"
-              format="reference|color" />
-        <attr name="maxLength"
-              format="integer" />
-        <attr name="whenMissing"
-              format="enum">
-            <enum name="nothing"
-                  value="0" />
-            <enum name="hide"
-                  value="1" />
-            <enum name="showSpinner"
-                  value="2" />
+        <attr name="description" format="reference|string" />
+        <attr name="errorColor" format="reference|color" />
+        <attr name="informationColor" format="reference|color" />
+        <attr name="maxLength" format="integer" />
+        <attr name="whenMissing" format="enum">
+            <enum name="nothing" value="0" />
+            <enum name="hide" value="1" />
+            <enum name="showSpinner" value="2" />
         </attr>
     </declare-styleable>
     <declare-styleable name="TextAttribute">
-        <attr name="text"
-              format="reference|string" />
+        <attr name="text" format="reference|string" />
     </declare-styleable>
     <declare-styleable name="Url">
-        <attr name="url"
-              format="reference|string" />
+        <attr name="url" format="reference|string" />
     </declare-styleable>
     <declare-styleable name="UrlButton">
-        <attr name="withToken"
-              format="boolean" />
+        <attr name="withToken" format="boolean" />
     </declare-styleable>
-    <attr name="actionListItemViewStyle"
-          type="reference" />
-    <attr name="applicationListItemViewStyle"
-          type="reference" />
+    <attr name="actionListItemViewStyle" type="reference" />
+    <attr name="applicationListItemViewStyle" type="reference" />
 </resources>
