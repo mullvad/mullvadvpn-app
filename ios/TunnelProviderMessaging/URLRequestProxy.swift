@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadREST
+import MullvadTypes
 
 public final class URLRequestProxy {
     /// Serial queue used for synchronizing access to class members.
@@ -15,42 +17,48 @@ public final class URLRequestProxy {
     /// URL session used for proxy requests.
     private let urlSession: URLSession
 
-    /// List of all proxied network requests bypassing VPN.
-    private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
+    private let transportProvider: () -> RESTTransportProvider?
 
-    public init(urlSession: URLSession, dispatchQueue: DispatchQueue) {
+    /// List of all proxied network requests bypassing VPN.
+    private var proxiedRequests: [UUID: Cancellable] = [:]
+
+    public init(
+        urlSession: URLSession,
+        dispatchQueue: DispatchQueue,
+        transportProvider: @escaping () -> RESTTransportProvider?
+    ) {
         self.urlSession = urlSession
         self.dispatchQueue = dispatchQueue
+        self.transportProvider = transportProvider
     }
 
     public func sendRequest(
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
-        dispatchQueue.async {
-            let task = self.urlSession
-                .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
-                    guard let self = self else { return }
+        dispatchQueue.async { [weak self] in
+            guard let self = self else { return }
 
-                    self.dispatchQueue.async {
-                        let response = ProxyURLResponse(
-                            data: data,
-                            response: response,
-                            error: error
-                        )
+            // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
+            let transportProvider = transportProvider()
+            if proxyRequest.useAlternativeTransport {
+                transportProvider?.selectNextTransport()
+            }
 
-                        _ = self.removeRequest(identifier: proxyRequest.id)
+            guard let transport = transportProvider?.transport() else { return }
+            // The task sent by `transport.sendRequest` comes in an already resumed state
+            let task = transport.sendRequest(proxyRequest.urlRequest) { data, response, error in
+                let response = ProxyURLResponse(data: data, response: response, error: error)
 
-                        completionHandler(response)
-                    }
-                }
+                _ = self.removeRequest(identifier: proxyRequest.id)
 
-            // All tasks should have unique identifiers, but if not, cancel the task scheduled
-            // earlier.
-            let oldTask = self.addRequest(identifier: proxyRequest.id, task: task)
-            oldTask?.cancel()
+                completionHandler(response)
 
-            task.resume()
+                // All tasks should have unique identifiers, but if not, cancel the task scheduled
+                // earlier.
+                let oldTask = self.addRequest(identifier: proxyRequest.id, task: task as! URLSessionDataTask)
+                oldTask?.cancel()
+            }
         }
     }
 
@@ -62,11 +70,13 @@ public final class URLRequestProxy {
         }
     }
 
-    private func addRequest(identifier: UUID, task: URLSessionDataTask) -> URLSessionDataTask? {
+    private func addRequest(identifier: UUID, task: Cancellable) -> Cancellable? {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
         return proxiedRequests.updateValue(task, forKey: identifier)
     }
 
-    private func removeRequest(identifier: UUID) -> URLSessionDataTask? {
+    private func removeRequest(identifier: UUID) -> Cancellable? {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
         return proxiedRequests.removeValue(forKey: identifier)
     }
 }

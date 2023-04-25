@@ -18,16 +18,28 @@ struct PacketTunnelTransport: RESTTransport {
     }
 
     let tunnel: Tunnel
+    let useAlternativeTransport: Bool
 
-    init(tunnel: Tunnel) {
+    init(tunnel: Tunnel, useAlternativeTransport: Bool) {
         self.tunnel = tunnel
+        self.useAlternativeTransport = useAlternativeTransport
     }
 
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) throws -> Cancellable {
-        let proxyRequest = try ProxyURLRequest(id: UUID(), urlRequest: request)
+    ) -> Cancellable {
+        let proxyRequest = ProxyURLRequest(
+            id: UUID(),
+            urlRequest: request,
+            useAlternativeTransport: useAlternativeTransport
+        )
+
+        // If the URL provided to the proxy request was invalid, indicate failure via `.badURL` and return a no-op.
+        guard let proxyRequest = proxyRequest else {
+            completion(nil, nil, URLError(.badURL))
+            return Operation()
+        }
 
         return tunnel.sendRequest(proxyRequest) { result in
             switch result {

@@ -15,5 +15,14 @@ public protocol RESTTransport {
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) throws -> Cancellable
+    ) -> Cancellable
+}
+
+public protocol RESTTransportProvider {
+    /// Requests a new transport
+    /// - Returns: A transport layer
+    func transport() -> RESTTransport?
+
+    /// Requests the transport provider to select a different transport layer
+    func selectNextTransport()
 }

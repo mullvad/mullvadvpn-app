@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportProvider: () -> RESTTransport?
+        private let transportProvider: () -> RESTTransportProvider?
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -140,7 +140,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            guard let transport = transportProvider() else {
+            guard let transport = transportProvider()?.transport() else {
                 logger.error("Failed to obtain transport.")
                 finish(result: .failure(REST.Error.transport(NoTransportError())))
                 return
@@ -153,33 +153,27 @@ extension REST {
                 """
             )
 
-            do {
-                networkTask = try transport
-                    .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
-                        guard let self = self else { return }
+            networkTask = transport.sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
+                guard let self = self else { return }
+                self.dispatchQueue.async {
+                    if let error = error {
+                        self.didReceiveError(
+                            error,
+                            transport: transport,
+                            endpoint: endpoint
+                        )
+                    } else {
+                        let httpResponse = response as! HTTPURLResponse
+                        let data = data ?? Data()
 
-                        self.dispatchQueue.async {
-                            if let error = error {
-                                self.didReceiveError(
-                                    error,
-                                    transport: transport,
-                                    endpoint: endpoint
-                                )
-                            } else {
-                                let httpResponse = response as! HTTPURLResponse
-                                let data = data ?? Data()
-
-                                self.didReceiveURLResponse(
-                                    httpResponse,
-                                    transport: transport,
-                                    data: data,
-                                    endpoint: endpoint
-                                )
-                            }
-                        }
+                        self.didReceiveURLResponse(
+                            httpResponse,
+                            transport: transport,
+                            data: data,
+                            endpoint: endpoint
+                        )
                     }
-            } catch {
-                didReceiveError(error, transport: transport, endpoint: endpoint)
+                }
             }
         }
 
@@ -213,6 +207,7 @@ extension REST {
                 default:
                     if !REST.isStagingEnvironment {
                         _ = addressCacheStore.selectNextEndpoint(endpoint)
+                        transportProvider()?.selectNextTransport()
                     }
                 }
             }
