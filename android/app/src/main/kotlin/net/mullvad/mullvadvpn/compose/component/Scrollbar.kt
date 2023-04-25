@@ -51,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -193,6 +194,7 @@ private fun DrawScope.drawScrollbar(
     startOffset: Float
 ) {
     val thicknessPx = Thickness.toPx()
+    val radiusPx = Radius.toPx()
     val topLeft =
         if (orientation == Orientation.Horizontal) {
             Offset(
@@ -212,7 +214,13 @@ private fun DrawScope.drawScrollbar(
             Size(thicknessPx, thumbSize)
         }
 
-    drawRect(color = color, topLeft = topLeft, size = size, alpha = alpha())
+    drawRoundRect(
+        color = color,
+        topLeft = topLeft,
+        size = size,
+        alpha = alpha(),
+        cornerRadius = CornerRadius(radiusPx, radiusPx)
+    )
 }
 
 private fun Modifier.drawScrollbar(
@@ -270,9 +278,10 @@ private fun Modifier.drawScrollbar(
 }
 
 private val BarColor: Color
-    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
 
-private val Thickness = 4.dp
+private val Thickness = 8.dp
+private val Radius = 4.dp
 private val FadeOutAnimationSpec =
     tween<Float>(durationMillis = ViewConfiguration.getScrollBarFadeDuration())
 

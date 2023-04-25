@@ -8,6 +8,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.AppTheme
 import net.mullvad.mullvadvpn.compose.screen.AdvancedSettingScreen
 import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -23,32 +24,34 @@ class AdvancedFragment : BaseFragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
-                val state = vm.uiState.collectAsState().value
-                AdvancedSettingScreen(
-                    uiState = state,
-                    onMtuCellClick = vm::onMtuCellClick,
-                    onMtuInputChange = vm::onMtuInputChange,
-                    onSaveMtuClick = vm::onSaveMtuClick,
-                    onRestoreMtuClick = vm::onRestoreMtuClick,
-                    onCancelMtuDialogClicked = vm::onCancelDialogClick,
-                    onSplitTunnelingNavigationClick = ::openSplitTunnelingFragment,
-                    onToggleDnsClick = vm::onToggleDnsClick,
-                    onToggleBlockAds = vm::onToggleBlockAds,
-                    onToggleBlockTrackers = vm::onToggleBlockTrackers,
-                    onToggleBlockMalware = vm::onToggleBlockMalware,
-                    onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
-                    onToggleBlockGambling = vm::onToggleBlockGambling,
-                    onDnsClick = vm::onDnsClick,
-                    onDnsInputChange = vm::onDnsInputChange,
-                    onSaveDnsClick = vm::onSaveDnsClick,
-                    onRemoveDnsClick = vm::onRemoveDnsClick,
-                    onCancelDnsDialogClick = vm::onCancelDialogClick,
-                    onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
-                    onMalwareInfoClicked = vm::onMalwareInfoClick,
-                    onDismissInfoClicked = vm::onDismissInfoClick,
-                    onBackClick = { activity?.onBackPressed() },
-                    onStopEvent = vm::onStopEvent
-                )
+                AppTheme {
+                    val state = vm.uiState.collectAsState().value
+                    AdvancedSettingScreen(
+                        uiState = state,
+                        onMtuCellClick = vm::onMtuCellClick,
+                        onMtuInputChange = vm::onMtuInputChange,
+                        onSaveMtuClick = vm::onSaveMtuClick,
+                        onRestoreMtuClick = vm::onRestoreMtuClick,
+                        onCancelMtuDialogClicked = vm::onCancelDialogClick,
+                        onSplitTunnelingNavigationClick = ::openSplitTunnelingFragment,
+                        onToggleDnsClick = vm::onToggleDnsClick,
+                        onToggleBlockAds = vm::onToggleBlockAds,
+                        onToggleBlockTrackers = vm::onToggleBlockTrackers,
+                        onToggleBlockMalware = vm::onToggleBlockMalware,
+                        onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
+                        onToggleBlockGambling = vm::onToggleBlockGambling,
+                        onDnsClick = vm::onDnsClick,
+                        onDnsInputChange = vm::onDnsInputChange,
+                        onSaveDnsClick = vm::onSaveDnsClick,
+                        onRemoveDnsClick = vm::onRemoveDnsClick,
+                        onCancelDnsDialogClick = vm::onCancelDialogClick,
+                        onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
+                        onMalwareInfoClicked = vm::onMalwareInfoClick,
+                        onDismissInfoClicked = vm::onDismissInfoClick,
+                        onBackClick = { activity?.onBackPressed() },
+                        onStopEvent = vm::onStopEvent
+                    )
+                }
             }
         }
     }
