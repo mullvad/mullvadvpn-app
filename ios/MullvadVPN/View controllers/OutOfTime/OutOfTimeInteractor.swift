@@ -51,6 +51,10 @@ final class OutOfTimeInteractor {
         return tunnelManager.deviceState
     }
 
+    func updateAccountData() {
+        tunnelManager.updateAccountData()
+    }
+
     func stopTunnel() {
         tunnelManager.stopTunnel()
     }

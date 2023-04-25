@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import Operations
 import StoreKit
 import UIKit
+
+/// Interval used for periodic polling account updates.
+private let accountUpdateTimerInterval: TimeInterval = 60
 
 protocol OutOfTimeViewControllerDelegate: AnyObject {
     func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
@@ -22,6 +26,10 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     private let interactor: OutOfTimeInteractor
     private let alertPresenter = AlertPresenter()
+
+    private let logger = Logger(label: "OutOfTimeViewController")
+    private var accountUpdateTimer: DispatchSourceTimer?
+    private var isPolling = false
 
     private var productState: ProductState = .none {
         didSet {
@@ -99,6 +107,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         interactor.didReceiveTunnelStatus = { [weak self] tunnelStatus in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()
+            self?.applyViewState()
         }
 
         if StorePaymentManager.canMakePayments {
@@ -106,9 +115,45 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         } else {
             productState = .cannotMakePurchases
         }
+
+        startAccountUpdateTimer(interval: accountUpdateTimerInterval)
+    }
+
+    deinit {
+        cancelAccountUpdateTimer()
     }
 
     // MARK: - Private
+
+    private func startAccountUpdateTimer(interval: TimeInterval) {
+        guard !isPolling else { return }
+
+        isPolling = true
+
+        logger.debug(
+            "Start polling account updates every \(interval) second(s)."
+        )
+
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.setEventHandler { [weak self] in
+            self?.interactor.updateAccountData()
+        }
+        timer.schedule(wallDeadline: .now() + interval, repeating: interval)
+        timer.activate()
+
+        accountUpdateTimer?.cancel()
+        accountUpdateTimer = timer
+    }
+
+    private func cancelAccountUpdateTimer() {
+        guard isPolling else { return }
+
+        logger.debug("Cancel account update polling.")
+
+        accountUpdateTimer?.cancel()
+        accountUpdateTimer = nil
+        isPolling = false
+    }
 
     private func requestStoreProducts() {
         let productKind = StoreSubscription.thirtyDays
@@ -136,8 +181,11 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled && !tunnelState
             .isSecured
         contentView.restoreButton.isEnabled = isInteractionEnabled
+
         contentView.disconnectButton.isEnabled = tunnelState.isSecured
-        contentView.disconnectButton.alpha = tunnelState.isSecured ? 1 : 0
+        UIView.animate(withDuration: 0.25) {
+            self.contentView.disconnectButton.alpha = tunnelState.isSecured ? 1 : 0
+        }
 
         if tunnelState.isSecured {
             contentView.setBodyLabelText(
@@ -341,6 +389,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     @objc private func handleDisconnect(_ sender: Any) {
+        contentView.disconnectButton.isEnabled = false
         interactor.stopTunnel()
     }
 }
