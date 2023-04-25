@@ -99,6 +99,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         interactor.didReceiveTunnelStatus = { [weak self] tunnelStatus in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()
+            self?.applyViewState()
         }
 
         if StorePaymentManager.canMakePayments {
@@ -106,6 +107,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         } else {
             productState = .cannotMakePurchases
         }
+
+        interactor.startAccountUpdateTimer()
     }
 
     // MARK: - Private
@@ -136,8 +139,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled && !tunnelState
             .isSecured
         contentView.restoreButton.isEnabled = isInteractionEnabled
-        contentView.disconnectButton.isEnabled = tunnelState.isSecured
-        contentView.disconnectButton.alpha = tunnelState.isSecured ? 1 : 0
+
+        contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
 
         if tunnelState.isSecured {
             contentView.setBodyLabelText(
@@ -341,6 +344,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     @objc private func handleDisconnect(_ sender: Any) {
+        contentView.disconnectButton.isEnabled = false
         interactor.stopTunnel()
     }
 }
