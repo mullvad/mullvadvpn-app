@@ -618,7 +618,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
                 self?.deviceStateDidChange(deviceState)
-                self?.updateView(deviceState: deviceState)
             })
 
         tunnelManager.addObserver(tunnelObserver)
@@ -636,7 +635,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         switch deviceState {
         case let .loggedIn(accountData, _):
             updateOutOfTimeTimer()
-
+            updateView(deviceState: deviceState, showDeviceInfo: false)
             if !accountData.isExpired {
                 router.dismiss(.outOfTime, animated: true)
             }
@@ -646,14 +645,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .loggedOut:
             cancelOutOfTimeTimer()
+            updateView(deviceState: deviceState, showDeviceInfo: false)
         }
     }
 
-    private func updateView(deviceState: DeviceState) {
+    private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
         let configuration = RootConfigration(
             deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
-            showsAccountButton: deviceState.isLoggedIn
+            showsAccountButton: deviceState.isLoggedIn,
+            showsDeviceInfo: showDeviceInfo
         )
 
         primaryNavigationContainer.update(configuration: configuration)
@@ -697,6 +698,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     func showAccount() {
         router.present(.account)
+    }
+
+    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
+        updateView(deviceState: deviceState)
     }
 
     // MARK: - UISplitViewControllerDelegate
