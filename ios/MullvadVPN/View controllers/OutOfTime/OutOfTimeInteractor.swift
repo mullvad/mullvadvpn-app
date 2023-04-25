@@ -7,20 +7,27 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
 import StoreKit
 
+/// Interval used for periodic polling account updates.
+private let accountUpdateTimerInterval: TimeInterval = 60
+
 final class OutOfTimeInteractor {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
-    var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
-    var didReceiveTunnelStatus: ((TunnelStatus) -> Void)?
-
     private var tunnelObserver: TunnelObserver?
     private var paymentObserver: StorePaymentObserver?
+
+    private let logger = Logger(label: "OutOfTimeInteractor")
+    private var accountUpdateTimer: DispatchSourceTimer?
+
+    var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
+    var didReceiveTunnelStatus: ((TunnelStatus) -> Void)?
 
     init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
         self.storePaymentManager = storePaymentManager
@@ -80,5 +87,21 @@ final class OutOfTimeInteractor {
             with: productIdentifiers,
             completionHandler: completionHandler
         )
+    }
+
+    func startAccountUpdateTimer() {
+        logger.debug(
+            "Start polling account updates every \(accountUpdateTimerInterval) second(s)."
+        )
+
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.setEventHandler { [weak self] in
+            self?.tunnelManager.updateAccountData()
+        }
+        timer.schedule(wallDeadline: .now() + accountUpdateTimerInterval, repeating: accountUpdateTimerInterval)
+        timer.activate()
+
+        accountUpdateTimer?.cancel()
+        accountUpdateTimer = timer
     }
 }
