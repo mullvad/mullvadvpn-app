@@ -17,6 +17,7 @@ on:
       - building/linux-container-image.txt
       - building/android-container-image.txt
       - building/sigstore/
+      - '**'
   workflow_dispatch:
 jobs:
   verify-signatures:
