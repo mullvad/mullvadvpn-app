@@ -17,6 +17,7 @@ on:
       - building/linux-container-image.txt
       - building/android-container-image.txt
       - building/sigstore/
+      - '**'
   workflow_dispatch:
 jobs:
   verify-signatures:
@@ -27,10 +28,5 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Verify signatures
         run: |-
-          commits=${{ github.event.pull_request.commits }}
-          if [[ -n "$commits" ]]; then
-              # Prepare enough depth for diffs with main, currently hard-coded but should probably be
-              # whatever branch is merged into
-              git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} main
-          fi
+          git fetch --depth="1" origin ${{ github.head_ref }} main
           ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main
