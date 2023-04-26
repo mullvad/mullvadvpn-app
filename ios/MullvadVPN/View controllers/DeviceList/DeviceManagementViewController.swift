@@ -8,6 +8,7 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 import Operations
 import UIKit
 
@@ -100,7 +101,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     // MARK: - Private
 
-    private func setDevices(_ devices: [REST.Device], animated: Bool) {
+    private func setDevices(_ devices: [Device], animated: Bool) {
         let viewModels = devices.map { restDevice -> DeviceViewModel in
             return DeviceViewModel(
                 id: restDevice.id,
