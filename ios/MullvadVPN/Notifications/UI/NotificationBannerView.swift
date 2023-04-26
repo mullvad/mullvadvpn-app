@@ -59,7 +59,7 @@ final class NotificationBannerView: UIView {
     private let wrapperView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layoutMargins = UIMetrics.inAppBannerNotificationLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.inAppBannerNotificationLayoutMargins
         return view
     }()
 

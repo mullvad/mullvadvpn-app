@@ -49,21 +49,21 @@ class LoginContentView: UIView {
     let contentContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         return view
     }()
 
     let formContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         return view
     }()
 
     let footerContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
         return view
     }()
@@ -101,7 +101,7 @@ class LoginContentView: UIView {
         super.init(frame: frame)
 
         backgroundColor = .primaryColor
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
         accountInputGroup.textField.accessibilityIdentifier = "LoginTextField"
 

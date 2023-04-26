@@ -108,12 +108,11 @@ class HeaderBarView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        layoutMargins = UIEdgeInsets(
+        directionalLayoutMargins = NSDirectionalEdgeInsets(
             top: 0,
-            left: UIMetrics.contentLayoutMargins.left,
+            leading: UIMetrics.contentLayoutMargins.leading,
             bottom: 0,
-            right: UIMetrics.contentLayoutMargins.right
+            trailing: UIMetrics.contentLayoutMargins.trailing
         )
 
         accessibilityContainerType = .semanticGroup

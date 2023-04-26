@@ -63,7 +63,7 @@ class DeviceRowView: UIView {
         super.init(frame: .zero)
 
         backgroundColor = .primaryColor
-        layoutMargins = UIMetrics.rowViewLayoutMargins
+        directionalLayoutMargins = UIMetrics.rowViewLayoutMargins
 
         for subview in [textLabel, removeButton, activityIndicator] {
             addSubview(subview)

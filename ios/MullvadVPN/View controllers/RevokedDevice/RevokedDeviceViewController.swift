@@ -110,7 +110,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
         for subview in [imageView, titleLabel, bodyLabel, footerLabel, logoutButton] {
             view.addSubview(subview)

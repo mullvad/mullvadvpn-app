@@ -12,32 +12,40 @@ enum UIMetrics {}
 
 extension UIMetrics {
     /// Common layout margins for content presentation
-    static let contentLayoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+    static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24)
+
+    /// Common content margins for content presentation
+    static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
 
     /// Common layout margins for row views presentation
     /// Similar to `settingsCellLayoutMargins` however maintains equal horizontal spacing
-    static let rowViewLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
+    static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
 
     /// Common layout margins for settings cell presentation
-    static let settingsCellLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 12)
+    static let settingsCellLayoutMargins = NSDirectionalEdgeInsets(
+        top: 16,
+        leading: 24,
+        bottom: 16,
+        trailing: 12
+    )
 
     /// Common layout margins for location cell presentation
-    static let selectLocationCellLayoutMargins = UIEdgeInsets(
+    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(
         top: 16,
-        left: 28,
+        leading: 28,
         bottom: 16,
-        right: 12
+        trailing: 12
     )
 
     /// Common cell indentation width
     static let cellIndentationWidth: CGFloat = 16
 
     /// Layout margins for in-app notification banner presentation
-    static let inAppBannerNotificationLayoutMargins = UIEdgeInsets(
+    static let inAppBannerNotificationLayoutMargins = NSDirectionalEdgeInsets(
         top: 16,
-        left: 24,
+        leading: 24,
         bottom: 16,
-        right: 24
+        trailing: 24
     )
 
     /// Spacing used in stack views of buttons

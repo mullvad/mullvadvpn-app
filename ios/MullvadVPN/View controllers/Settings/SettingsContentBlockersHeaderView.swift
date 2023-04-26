@@ -66,10 +66,11 @@ class SettingsContentBlockersHeaderView: UITableViewHeaderFooterView {
             for: .touchUpInside
         )
 
-        contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
         contentView.backgroundColor = UIColor.Cell.backgroundColor
 
-        let buttonAreaWidth = UIMetrics.contentLayoutMargins.left + UIMetrics.contentLayoutMargins.right + buttonWidth
+        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
+            .contentLayoutMargins.trailing + buttonWidth
 
         contentView.addConstrainedSubviews([titleLabel, infoButton, collapseButton]) {
             titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing).excluding(.bottom))

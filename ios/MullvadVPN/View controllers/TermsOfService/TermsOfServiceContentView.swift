@@ -80,14 +80,14 @@ class TermsOfServiceContentView: UIView {
     let scrollContentContainer: UIView = {
         let contentView = UIView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.layoutMargins = UIMetrics.contentLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         return contentView
     }()
 
     let footerContainer: UIView = {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
-        container.layoutMargins = UIMetrics.contentLayoutMargins
+        container.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         container.backgroundColor = .secondaryColor
         return container
     }()

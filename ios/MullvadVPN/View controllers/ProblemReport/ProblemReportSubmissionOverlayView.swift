@@ -177,7 +177,7 @@ class ProblemReportSubmissionOverlayView: UIView {
         addSubviews()
         transitionToState(state)
 
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentLayoutMargins
     }
 
     required init?(coder: NSCoder) {

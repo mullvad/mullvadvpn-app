@@ -17,7 +17,7 @@ class DeviceManagementContentView: UIView {
 
     let scrollContentView: UIView = {
         let view = UIView()
-        view.layoutMargins = UIMetrics.contentLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -138,11 +138,11 @@ class DeviceManagementContentView: UIView {
             ),
             buttonStackView.leadingAnchor.constraint(
                 equalTo: leadingAnchor,
-                constant: UIMetrics.contentLayoutMargins.left
+                constant: UIMetrics.contentLayoutMargins.leading
             ),
             buttonStackView.trailingAnchor.constraint(
                 equalTo: trailingAnchor,
-                constant: -UIMetrics.contentLayoutMargins.right
+                constant: -UIMetrics.contentLayoutMargins.trailing
             ),
             buttonStackView.bottomAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.bottomAnchor,

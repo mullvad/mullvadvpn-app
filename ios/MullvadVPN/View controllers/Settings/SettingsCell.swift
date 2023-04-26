@@ -100,7 +100,8 @@ class SettingsCell: UITableViewCell {
 
         setLayoutMargins()
 
-        let buttonAreaWidth = UIMetrics.contentLayoutMargins.left + UIMetrics.contentLayoutMargins.right + buttonWidth
+        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
+            .contentLayoutMargins.trailing + buttonWidth
 
         contentView.addConstrainedSubviews([titleLabel, infoButton, detailTitleLabel]) {
             switch style {
@@ -153,9 +154,9 @@ class SettingsCell: UITableViewCell {
 
     private func setLayoutMargins() {
         // Set layout margins for standard acceessories added into the cell (reorder control, etc..)
-        layoutMargins = UIMetrics.settingsCellLayoutMargins
+        directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
 
         // Set layout margins for cell content
-        contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
     }
 }
