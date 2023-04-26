@@ -75,10 +75,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    override func stopTunnel(
-        with reason: NEProviderStopReason,
-        completionHandler: @escaping () -> Void
-    ) {
+    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
             self.selectorResult = nil
 
@@ -103,10 +100,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func handleProviderMessage(
-        _ message: TunnelProviderMessage,
-        completionHandler: ((Data?) -> Void)?
-    ) {
+    private func handleProviderMessage(_ message: TunnelProviderMessage, completionHandler: ((Data?) -> Void)?) {
         switch message {
         case .getTunnelStatus:
             var tunnelStatus = PacketTunnelStatus()

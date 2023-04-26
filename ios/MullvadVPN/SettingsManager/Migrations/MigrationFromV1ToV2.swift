@@ -19,10 +19,10 @@ final class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountCompletion: Result<REST.AccountData, Error> = .failure(
+    private var accountCompletion: Result<AccountData, Error> = .failure(
         OperationError.cancelled
     )
-    private var devicesCompletion: Result<[REST.Device], Error> = .failure(OperationError.cancelled)
+    private var devicesCompletion: Result<[Device], Error> = .failure(OperationError.cancelled)
 
     private let legacySettings: LegacyTunnelSettings
 
@@ -98,16 +98,16 @@ final class MigrationFromV1ToV2: Migration {
         store: SettingsStore,
         parser: SettingsParser,
         settings: LegacyTunnelSettings,
-        accountData: REST.AccountData,
-        devices: [REST.Device]
+        accountData: AccountData,
+        devices: [Device]
     ) throws {
         let tunnelSettings = settings.tunnelSettings
         let interfaceData = settings.tunnelSettings.interface
 
         // Find device that matches the public key stored in legacy settings.
         let device = devices.first { device in
-            return device.pubkey == interfaceData.privateKey.publicKey ||
-                device.pubkey == interfaceData.nextPrivateKey?.publicKey
+            return device.pubkey == interfaceData.privateKey.publicKey.base64Key ||
+                device.pubkey == interfaceData.nextPrivateKey?.publicKey.base64Key
         }
 
         let newDeviceState: DeviceState
@@ -116,7 +116,7 @@ final class MigrationFromV1ToV2: Migration {
 
             // Match private key.
             let privateKeyWithMetadata: PrivateKeyWithMetadata
-            if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey == device.pubkey {
+            if let nextKey = interfaceData.nextPrivateKey, nextKey.publicKey.base64Key == device.pubkey {
                 privateKeyWithMetadata = nextKey
             } else {
                 privateKeyWithMetadata = interfaceData.privateKey
