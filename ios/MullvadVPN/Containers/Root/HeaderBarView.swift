@@ -108,12 +108,11 @@ class HeaderBarView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        layoutMargins = UIEdgeInsets(
+        directionalLayoutMargins = NSDirectionalEdgeInsets(
             top: 0,
-            left: UIMetrics.contentLayoutMargins.left,
+            leading: UIMetrics.contentDirectionalLayoutMargins.leading,
             bottom: 0,
-            right: UIMetrics.contentLayoutMargins.right
+            trailing: UIMetrics.contentDirectionalLayoutMargins.trailing
         )
 
         accessibilityContainerType = .semanticGroup
@@ -167,6 +166,52 @@ class HeaderBarView: UIView {
             deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
             deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7)
         }
+
+        //        addConstrainedSubviews([logoImageView, brandNameImageView, accountButton, settingsButton,
+        //        deviceInfoHolder]) {
+        //            logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+        //            logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
+        //            logoImageView.widthAnchor.constraint(equalToConstant: 44)
+        //            logoImageView.heightAnchor.constraint(
+        //                equalTo: logoImageView.widthAnchor,
+        //                multiplier: 1
+        //            )
+        //
+        //            brandNameImageView.leadingAnchor.constraint(
+        //                equalTo: logoImageView.trailingAnchor,
+        //                constant: 9
+        //            )
+        //            brandNameImageView.topAnchor.constraint(
+        //                equalTo: layoutMarginsGuide.topAnchor,
+        //                constant: 22
+        //            )
+        //            brandNameImageView.widthAnchor.constraint(
+        //                equalTo: brandNameImageView.heightAnchor,
+        //                multiplier: brandNameAspectRatio
+        //            )
+        //            brandNameImageView.heightAnchor.constraint(equalToConstant: 18)
+        //            layoutMarginsGuide.bottomAnchor.constraint(
+        //                equalTo: deviceInfoHolder.bottomAnchor,
+        //                constant: 8
+        //            )
+        //
+        //            accountButton.leadingAnchor.constraint(
+        //                greaterThanOrEqualTo: brandNameImageView.trailingAnchor,
+        //                constant: 8
+        //            )
+        //            accountButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
+        //
+        //            settingsButton.leadingAnchor.constraint(
+        //                equalTo: accountButton.trailingAnchor,
+        //                constant: 20
+        //            ).withPriority(.defaultHigh)
+        //            settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        //            settingsButton.centerYAnchor.constraint(equalTo: accountButton.centerYAnchor)
+        //
+        //            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+        //            deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        //            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7)
+        //        }
     }
 
     required init?(coder: NSCoder) {

@@ -85,7 +85,7 @@ class AccountContentView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentDirectionalLayoutMargins
 
         addSubview(contentStackView)
         addSubview(buttonStackView)

@@ -109,10 +109,10 @@ class RootContainerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        var margins = view.layoutMargins
-        margins.left = UIMetrics.contentLayoutMargins.left
-        margins.right = UIMetrics.contentLayoutMargins.right
-        view.layoutMargins = margins
+        var directionalMargins = view.directionalLayoutMargins
+        directionalMargins.leading = UIMetrics.contentDirectionalLayoutMargins.leading
+        directionalMargins.trailing = UIMetrics.contentDirectionalLayoutMargins.trailing
+        view.directionalLayoutMargins = directionalMargins
 
         definesPresentationContext = true
 

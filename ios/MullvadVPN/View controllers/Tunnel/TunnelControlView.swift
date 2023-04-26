@@ -113,7 +113,7 @@ final class TunnelControlView: UIView {
         super.init(frame: frame)
 
         backgroundColor = .clear
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentDirectionalLayoutMargins
         accessibilityContainerType = .semanticGroup
 
         addSubviews()

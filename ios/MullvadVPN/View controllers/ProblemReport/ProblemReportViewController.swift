@@ -29,7 +29,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private lazy var containerView: UIView = {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.layoutMargins = UIMetrics.contentLayoutMargins
+        containerView.directionalLayoutMargins = UIMetrics.contentDirectionalLayoutMargins
         containerView.backgroundColor = .clear
         return containerView
     }()

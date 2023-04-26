@@ -48,7 +48,7 @@ final class ChangeLogContentView: UIView {
         textView.backgroundColor = .clear
         textView.isEditable = false
         textView.isSelectable = false
-        textView.textContainerInset = UIMetrics.contentLayoutMargins
+        textView.textContainerInset = UIMetrics.contentDirectionalLayoutMargins.inset
         return textView
     }()
 
@@ -66,7 +66,7 @@ final class ChangeLogContentView: UIView {
 
     private let footerContainer: UIView = {
         let container = UIView()
-        container.layoutMargins = UIMetrics.contentLayoutMargins
+        container.directionalLayoutMargins = UIMetrics.contentDirectionalLayoutMargins
         container.backgroundColor = .secondaryColor
         return container
     }()
@@ -77,7 +77,7 @@ final class ChangeLogContentView: UIView {
         super.init(frame: frame)
 
         backgroundColor = .primaryColor
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentDirectionalLayoutMargins
 
         okButton.addTarget(self, action: #selector(handleButtonTap), for: .touchUpInside)
 
