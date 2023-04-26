@@ -733,10 +733,9 @@ final class TunnelManager: StorePaymentObserver {
 
     @objc private func applicationDidBecomeActive(_ notification: Notification) {
         #if DEBUG
-        logger.debug("Refresh device state and tunnel status due to application becoming active.")
+        logger.debug("Refresh tunnel status due to application becoming active.")
         #endif
         refreshTunnelStatus()
-        refreshDeviceState()
     }
 
     fileprivate func selectRelay() throws -> RelaySelectorResult {
@@ -811,32 +810,6 @@ final class TunnelManager: StorePaymentObserver {
         if let connectionStatus = _tunnel?.status {
             updateTunnelStatus(connectionStatus)
         }
-    }
-
-    private func refreshDeviceState() {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            do {
-                let newDeviceState = try SettingsManager.readDeviceState()
-
-                self.setDeviceState(newDeviceState, persist: false)
-            } catch {
-                if let error = error as? KeychainError, error == .itemNotFound {
-                    return
-                }
-
-                self.logger.error(error: error, message: "Failed to refresh device state")
-            }
-        }
-
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
-        operation
-            .addObserver(BackgroundObserver(
-                application: application,
-                name: "Refresh device state",
-                cancelUponExpiration: true
-            ))
-
-        operationQueue.addOperation(operation)
     }
 
     /// Update `TunnelStatus` from `NEVPNStatus`.
