@@ -13,3 +13,15 @@ public protocol Cancellable {
 }
 
 extension Operation: Cancellable {}
+
+public final class AnyCancellable: Cancellable {
+    private let block: () -> Void
+
+    public init(block: @escaping () -> Void) {
+        self.block = block
+    }
+
+    public func cancel() {
+        block()
+    }
+}
