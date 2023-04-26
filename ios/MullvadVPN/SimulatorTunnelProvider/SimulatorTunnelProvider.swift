@@ -66,17 +66,11 @@ class SimulatorTunnelProviderDelegate {
         }
     }
 
-    func startTunnel(
-        options: [String: NSObject]?,
-        completionHandler: @escaping (Error?) -> Void
-    ) {
+    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         completionHandler(nil)
     }
 
-    func stopTunnel(
-        with reason: NEProviderStopReason,
-        completionHandler: @escaping () -> Void
-    ) {
+    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         completionHandler()
     }
 
@@ -107,10 +101,7 @@ final class SimulatorTunnelProvider {
 
     private init() {}
 
-    fileprivate func handleAppMessage(
-        _ messageData: Data,
-        completionHandler: ((Data?) -> Void)? = nil
-    ) {
+    fileprivate func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
         delegate.handleAppMessage(messageData, completionHandler: completionHandler)
     }
 }
@@ -223,9 +214,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
 // MARK: - NETunnelProviderSession stubs
 
-final class SimulatorTunnelProviderSession: SimulatorVPNConnection,
-    VPNTunnelProviderSessionProtocol
-{
+final class SimulatorTunnelProviderSession: SimulatorVPNConnection, VPNTunnelProviderSessionProtocol {
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
         SimulatorTunnelProvider.shared.handleAppMessage(
             messageData,
@@ -428,10 +417,7 @@ final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerPr
         completionHandler?(error)
     }
 
-    static func == (
-        lhs: SimulatorTunnelProviderManager,
-        rhs: SimulatorTunnelProviderManager
-    ) -> Bool {
+    static func == (lhs: SimulatorTunnelProviderManager, rhs: SimulatorTunnelProviderManager) -> Bool {
         lhs.identifier == rhs.identifier
     }
 }

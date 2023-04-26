@@ -116,9 +116,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         return false
     }
 
-    private func notificationDescription(for packetTunnelError: String)
-        -> InAppNotificationDescriptor
-    {
+    private func notificationDescription(for packetTunnelError: String) -> InAppNotificationDescriptor {
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,

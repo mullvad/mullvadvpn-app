@@ -50,7 +50,7 @@ class UpdateAccountDataOperation: ResultOperation<Void> {
         task = nil
     }
 
-    private func didReceiveAccountData(result: Result<REST.AccountData, Error>) {
+    private func didReceiveAccountData(result: Result<AccountData, Error>) {
         let result = result.inspectError { error in
             guard !error.isOperationCancellationError else { return }
 
