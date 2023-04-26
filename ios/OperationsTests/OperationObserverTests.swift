@@ -17,7 +17,7 @@ class OperationObserverTests: XCTestCase {
         expectDidCancel.isInverted = true
         let expectDidFinish = expectation(description: "didAttach handler")
 
-        let operation = AsyncBlockOperation()
+        let operation = AsyncBlockOperation {}
         operation.addBlockObserver(OperationBlockObserver(
             didAttach: { op in
                 expectDidAttach.fulfill()
@@ -44,7 +44,7 @@ class OperationObserverTests: XCTestCase {
         let expectDidCancel = expectation(description: "didCancel handler")
         let expectDidFinish = expectation(description: "didAttach handler")
 
-        let operation = AsyncBlockOperation()
+        let operation = AsyncBlockOperation {}
         operation.addBlockObserver(OperationBlockObserver(
             didAttach: { op in
                 expectDidAttach.fulfill()
