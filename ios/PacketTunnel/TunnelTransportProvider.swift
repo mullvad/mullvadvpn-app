@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import Logging
 import MullvadREST
 import RelayCache
-import Logging
 
 final class TunnelTransportProvider: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
@@ -47,7 +47,7 @@ final class TunnelTransportProvider: RESTTransportProvider {
                 shadowSocksConfiguration: shadowSocksConfiguration,
                 shadowSocksBridgeRelay: shadowSocksBridgeRelay
             )
-            
+
             currentTransport = shadowSocksTransport
         } catch {
             logger.error(error: error)
