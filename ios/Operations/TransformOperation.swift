@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import protocol MullvadTypes.Cancellable
 
 public final class TransformOperation<Input, Output>: ResultOperation<Output>, InputOperation {
     public typealias ExecutionBlock = (Input, TransformOperation<Input, Output>) -> Void
-    public typealias ThrowingExecutionBlock = (Input) throws -> Output
     public typealias InputBlock = () -> Input?
 
     private let nslock = NSLock()
@@ -36,28 +36,33 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     private var inputBlock: InputBlock?
 
     private var executionBlock: ExecutionBlock?
-    private var cancellationBlocks: [() -> Void] = []
+    private var cancellableTask: Cancellable?
 
-    public init(
-        dispatchQueue: DispatchQueue? = nil,
-        input: Input? = nil,
-        block: ExecutionBlock? = nil
-    ) {
+    public init(dispatchQueue: DispatchQueue? = nil, input: Input? = nil, block: ExecutionBlock? = nil) {
         __input = input
         executionBlock = block
 
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    public init(
+    public convenience init(
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
-        throwingBlock: @escaping ThrowingExecutionBlock
+        throwingBlock: @escaping (Input) throws -> Output
     ) {
-        __input = input
-        executionBlock = Self.wrapThrowingBlock(throwingBlock)
+        self.init(dispatchQueue: dispatchQueue, input: input, block: { input, operation in
+            operation.finish(result: Result { try throwingBlock(input) })
+        })
+    }
 
-        super.init(dispatchQueue: dispatchQueue)
+    public convenience init(
+        dispatchQueue: DispatchQueue? = nil,
+        input: Input? = nil,
+        cancellableTask: @escaping (Input, TransformOperation<Input, Output>) -> Cancellable
+    ) {
+        self.init(dispatchQueue: dispatchQueue, input: input, block: { input, operation in
+            operation.cancellableTask = cancellableTask(input, operation)
+        })
     }
 
     override public func main() {
@@ -74,40 +79,12 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     }
 
     override public func operationDidCancel() {
-        let blocks = cancellationBlocks
-        cancellationBlocks.removeAll()
-
-        for block in blocks {
-            block()
-        }
+        cancellableTask?.cancel()
     }
 
     override public func operationDidFinish() {
-        cancellationBlocks.removeAll()
         executionBlock = nil
-    }
-
-    // MARK: - Block handlers
-
-    public func setExecutionBlock(_ block: @escaping ExecutionBlock) {
-        dispatchQueue.async {
-            assert(!self.isExecuting && !self.isFinished)
-            self.executionBlock = block
-        }
-    }
-
-    public func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
-        setExecutionBlock(Self.wrapThrowingBlock(block))
-    }
-
-    public func addCancellationBlock(_ block: @escaping () -> Void) {
-        dispatchQueue.async {
-            if self.isCancelled, self.isExecuting {
-                block()
-            } else {
-                self.cancellationBlocks.append(block)
-            }
-        }
+        cancellableTask = nil
     }
 
     // MARK: - Input injection
@@ -115,16 +92,6 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     public func setInputBlock(_ block: @escaping () -> Input?) {
         dispatchQueue.async {
             self.inputBlock = block
-        }
-    }
-
-    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock)
-        -> ExecutionBlock
-    {
-        return { input, operation in
-            let result = Result { try executionBlock(input) }
-
-            operation.finish(result: result)
         }
     }
 }
