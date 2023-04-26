@@ -28,7 +28,6 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     init(relayCacheTracker: RelayCacheTracker) {
         self.relayCacheTracker = relayCacheTracker
         self.urlRequestProxy = URLRequestProxy(
-            urlSession: REST.makeURLSession(),
             dispatchQueue: dispatchQueue,
             transportProvider: { nil }
         )
