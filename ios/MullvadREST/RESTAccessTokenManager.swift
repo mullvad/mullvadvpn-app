@@ -27,41 +27,35 @@ extension REST {
             accountNumber: String,
             completionHandler: @escaping (Result<REST.AccessTokenData, Swift.Error>) -> Void
         ) -> Cancellable {
-            let operation = ResultBlockOperation<REST.AccessTokenData>(dispatchQueue: dispatchQueue)
+            let operation = ResultBlockOperation<REST.AccessTokenData>(
+                dispatchQueue: dispatchQueue,
+                cancellableTask: { operation -> Cancellable in
+                    if let tokenData = self.tokens[accountNumber], tokenData.expiry > Date() {
+                        operation.finish(result: .success(tokenData))
+                        return AnyCancellable {}
+                    }
 
-            operation.setExecutionBlock { operation in
-                if let tokenData = self.tokens[accountNumber], tokenData.expiry > Date() {
-                    operation.finish(result: .success(tokenData))
-                    return
-                }
+                    return self.proxy.getAccessToken(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
+                        self.dispatchQueue.async {
+                            switch result {
+                            case let .success(tokenData):
+                                self.tokens[accountNumber] = tokenData
 
-                let task = self.proxy.getAccessToken(
-                    accountNumber: accountNumber,
-                    retryStrategy: .noRetry
-                ) { result in
-                    self.dispatchQueue.async {
-                        switch result {
-                        case let .success(tokenData):
-                            self.tokens[accountNumber] = tokenData
+                            case let .failure(error) where !error.isOperationCancellationError:
+                                self.logger.error(
+                                    error: error,
+                                    message: "Failed to fetch access token."
+                                )
 
-                        case let .failure(error) where !error.isOperationCancellationError:
-                            self.logger.error(
-                                error: error,
-                                message: "Failed to fetch access token."
-                            )
+                            default:
+                                break
+                            }
 
-                        default:
-                            break
+                            operation.finish(result: result)
                         }
-
-                        operation.finish(result: result)
                     }
                 }
-
-                operation.addCancellationBlock {
-                    task.cancel()
-                }
-            }
+            )
 
             operation.completionQueue = .main
             operation.completionHandler = completionHandler

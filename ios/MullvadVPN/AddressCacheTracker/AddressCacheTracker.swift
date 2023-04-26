@@ -88,17 +88,13 @@ final class AddressCacheTracker {
         let operation = ResultBlockOperation<Bool> { operation in
             guard self.nextScheduleDate() <= Date() else {
                 operation.finish(result: .success(false))
-                return
+                return AnyCancellable {}
             }
 
-            let task = self.apiProxy.getAddressList(retryStrategy: .default) { result in
+            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
                 self.setEndpoints(from: result)
 
                 operation.finish(result: result.map { _ in true })
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
             }
         }
 

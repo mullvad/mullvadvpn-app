@@ -182,15 +182,8 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         completionHandler: @escaping (StorePaymentManagerError?) -> Void
     ) {
         let accountOperation = ResultBlockOperation<REST.AccountData>(dispatchQueue: .main) { op in
-            let task = self.accountsProxy.getAccountData(
-                accountNumber: accountNumber,
-                retryStrategy: .default
-            ) { result in
+            return self.accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .default) { result in
                 op.finish(result: result)
-            }
-
-            op.addCancellationBlock {
-                task.cancel()
             }
         }
 
