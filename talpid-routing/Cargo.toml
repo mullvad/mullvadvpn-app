@@ -28,14 +28,14 @@ netlink-sys = "0.8.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tokio-stream = { version = "0.1", features = ["io-util"] }
-nix = { path = "../../src/nix-rs", feautres = ["socket"] }
+nix = { git = "https://github.com/mullvad/nix", rev = "8c1410c8c8d94bb1eada192487b9034e742f8b75", feautres = ["socket"] }
 libc = "0.2"
 bitflags = "1.2"
 talpid-time = { path = "../talpid-time" }
 # TODO: use real release before merging to master
-system-configuration = { path = "../../src/system-configuration-rs/system-configuration/" }
+# system-configuration = { path = "../../src/system-configuration-rs/system-configuration/" }
 
-# system-configuration = { repo = "https://github.com/mullvad/system-configuration-rs", ref = "5df2d065fa6c40a75f4f93b8a1db598abfc16743" }
+system-configuration = { git = "https://github.com/mullvad/system-configuration-rs", ref = "5df2d065fa6c40a75f4f93b8a1db598abfc16743" }
 
 
 [target.'cfg(windows)'.dependencies]
