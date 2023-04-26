@@ -33,7 +33,7 @@ public final class URLRequestProxy {
     ) {
         // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
         let transportProvider = transportProvider()
-        if proxyRequest.useAlternativeTransport {
+        if proxyRequest.useShadowsocksTransport {
             transportProvider?.selectNextTransport()
         }
 
