@@ -84,15 +84,6 @@ extension REST {
         }
     }
 
-    public struct AccountData: Decodable {
-        public let id: String
-        public let expiry: Date
-        public let maxPorts: Int
-        public let canAddPorts: Bool
-        public let maxDevices: Int
-        public let canAddDevices: Bool
-    }
-
     public struct NewAccountData: Decodable {
         public let id: String
         public let expiry: Date
