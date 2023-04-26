@@ -2190,6 +2190,7 @@ dependencies = [
 [[package]]
 name = "nix"
 version = "0.25.0"
+source = "git+https://github.com/mullvad/nix?rev=8c1410c8c8d94bb1eada192487b9034e742f8b75#8c1410c8c8d94bb1eada192487b9034e742f8b75"
 dependencies = [
  "bitflags",
  "cfg-if",
@@ -3358,6 +3359,7 @@ dependencies = [
 [[package]]
 name = "system-configuration"
 version = "0.4.0"
+source = "git+https://github.com/mullvad/system-configuration-rs#5df2d065fa6c40a75f4f93b8a1db598abfc16743"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -3378,6 +3380,7 @@ dependencies = [
 [[package]]
 name = "system-configuration-sys"
 version = "0.4.1"
+source = "git+https://github.com/mullvad/system-configuration-rs#5df2d065fa6c40a75f4f93b8a1db598abfc16743"
 dependencies = [
  "core-foundation-sys",
  "libc 0.2.137",
