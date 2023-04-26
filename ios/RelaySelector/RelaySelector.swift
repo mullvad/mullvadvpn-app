@@ -20,6 +20,13 @@ public enum RelaySelector {
         return relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
     }
 
+    /// Return a random Shadowsocks bridge relay, or `nil` if no relay were found.
+    /// - Parameter relays: The list of relays to randomly select from
+    /// - Returns: A Shadowsocks relay or `nil` if no relay were found.
+    public static func getShadowSocksRelay(relays: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
+        relays.bridge.relays.randomElement()
+    }
+
     /**
      Filters relay list using given constraints and selects random relay.
      Throws an error if there are no relays satisfying the given constraints.

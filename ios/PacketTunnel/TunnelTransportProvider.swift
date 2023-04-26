@@ -10,6 +10,7 @@ import Foundation
 import Logging
 import MullvadREST
 import RelayCache
+import RelaySelector
 
 final class TunnelTransportProvider: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
@@ -30,9 +31,8 @@ final class TunnelTransportProvider: RESTTransportProvider {
     func selectNextTransport() {
         do {
             let cachedRelays = try relayCache.read()
-            let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }
-                .randomElement()
-            let shadowSocksBridgeRelay = cachedRelays.relays.bridge.relays.randomElement()
+            let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+            let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
 
             guard let shadowSocksConfiguration = shadowSocksConfiguration,
                   let shadowSocksBridgeRelay = shadowSocksBridgeRelay
