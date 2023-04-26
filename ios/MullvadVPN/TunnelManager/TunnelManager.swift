@@ -72,8 +72,8 @@ final class TunnelManager: StorePaymentObserver {
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
 
-    /// Last processed device check identifier.
-    private var lastDeviceCheckIdentifier: UUID?
+    /// Last processed device check.
+    private var lastDeviceCheck: DeviceCheck?
 
     // MARK: - Initialization
 
@@ -624,30 +624,8 @@ final class TunnelManager: StorePaymentObserver {
 
         _tunnelStatus = newTunnelStatus
 
-        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck,
-           deviceCheck.identifier != lastDeviceCheckIdentifier
-        {
-            if deviceCheck.isDeviceRevoked ?? false {
-                scheduleDeviceStateUpdate(
-                    taskName: "Set device revoked",
-                    modificationBlock: { deviceState in
-                        deviceState = .revoked
-                    },
-                    completionHandler: nil
-                )
-            } else if let accountExpiry = deviceCheck.accountExpiry {
-                scheduleDeviceStateUpdate(
-                    taskName: "Update account expiry",
-                    reconnectTunnel: false
-                ) { deviceState in
-                    if case .loggedIn(var accountData, let deviceData) = deviceState {
-                        accountData.expiry = accountExpiry
-                        deviceState = .loggedIn(accountData, deviceData)
-                    }
-                }
-            }
-
-            lastDeviceCheckIdentifier = deviceCheck.identifier
+        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck, deviceCheck != lastDeviceCheck {
+            handleDeviceCheck(deviceCheck)
         }
 
         switch newTunnelStatus.state {
@@ -672,6 +650,43 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         return newTunnelStatus
+    }
+
+    private func handleDeviceCheck(_ deviceCheck: DeviceCheck) {
+        // Packet tunnel may have attempted or rotated the key.
+        // In that case we have to reload device state from Keychain as it's likely modified by packet tunnel.
+        var shouldRefreshDeviceState = false
+
+        if lastDeviceCheck?.lastKeyRotationAttemptDate != deviceCheck.lastKeyRotationAttemptDate,
+           deviceCheck.lastKeyRotationAttemptDate != nil
+        {
+            shouldRefreshDeviceState = true
+        }
+
+        if shouldRefreshDeviceState {
+            refreshDeviceState()
+        }
+
+        // Packet tunnel detected that device is revoked.
+        if lastDeviceCheck?.isRevokedDevice != deviceCheck.isRevokedDevice, deviceCheck.isRevokedDevice ?? false {
+            scheduleDeviceStateUpdate(taskName: "Set device revoked", reconnectTunnel: false) { deviceState in
+                deviceState = .revoked
+            }
+        }
+
+        // Packet tunnel received new account expiry.
+        if lastDeviceCheck?.accountExpiry != deviceCheck.accountExpiry,
+           let accountExpiry = deviceCheck.accountExpiry
+        {
+            scheduleDeviceStateUpdate(taskName: "Update account expiry", reconnectTunnel: false) { deviceState in
+                deviceState.updateData { accountData, _ in
+                    accountData.expiry = accountExpiry
+                }
+            }
+        }
+
+        // Save last device check by merging all information gathered between previous and current device check.
+        lastDeviceCheck = lastDeviceCheck?.merged(with: deviceCheck) ?? deviceCheck
     }
 
     fileprivate func setSettings(_ settings: TunnelSettingsV2, persist: Bool) {
@@ -739,9 +754,10 @@ final class TunnelManager: StorePaymentObserver {
 
     @objc private func applicationDidBecomeActive(_ notification: Notification) {
         #if DEBUG
-        logger.debug("Refresh tunnel status due to application becoming active.")
+        logger.debug("Refresh device state and tunnel status due to application becoming active.")
         #endif
         refreshTunnelStatus()
+        refreshDeviceState()
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
@@ -844,6 +860,31 @@ final class TunnelManager: StorePaymentObserver {
         if let connectionStatus = _tunnel?.status {
             updateTunnelStatus(connectionStatus)
         }
+    }
+
+    private func refreshDeviceState() {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
+            do {
+                let newDeviceState = try SettingsManager.readDeviceState()
+
+                self.setDeviceState(newDeviceState, persist: false)
+            } catch {
+                if let error = error as? KeychainError, error == .itemNotFound {
+                    return
+                }
+
+                self.logger.error(error: error, message: "Failed to refresh device state")
+            }
+        }
+
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
+        operation.addObserver(BackgroundObserver(
+            application: application,
+            name: "Refresh device state",
+            cancelUponExpiration: true
+        ))
+
+        operationQueue.addOperation(operation)
     }
 
     /// Update `TunnelStatus` from `NEVPNStatus`.
