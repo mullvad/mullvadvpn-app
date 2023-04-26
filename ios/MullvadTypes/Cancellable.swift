@@ -13,3 +13,20 @@ public protocol Cancellable {
 }
 
 extension Operation: Cancellable {}
+
+/// An object that can be used in place whenever a `Cancellable` is expected to be used.
+///
+/// Can be used to implement the concept of `no-op` or clean up tasks when an action has been cancelled.
+public struct AnyCancellable: Cancellable {
+    /// A block to call upon calling `cancel`.
+    private let block: () -> Void
+
+    public init(block: @escaping () -> Void) {
+        self.block = block
+    }
+
+    /// Calls upon the `block` that was passed during init.
+    public func cancel() {
+        block()
+    }
+}
