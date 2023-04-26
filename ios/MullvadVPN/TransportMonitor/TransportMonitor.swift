@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import RelayCache
+import RelaySelector
 
 final class TransportMonitor: RESTTransportProvider {
     private let tunnelManager: TunnelManager
@@ -17,7 +18,7 @@ final class TransportMonitor: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
     private let logger = Logger(label: "TransportMonitor")
-    private var useAlternativeTransport = false
+    private var useShadowsocksTransport = false
 
     private var currentTransport: RESTTransport?
 
@@ -44,7 +45,7 @@ final class TransportMonitor: RESTTransportProvider {
         if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
             return PacketTunnelTransport(
                 tunnel: tunnel,
-                useAlternativeTransport: useAlternativeTransport
+                useShadowsocksTransport: useShadowsocksTransport
             )
         } else {
             return currentTransport
@@ -52,7 +53,7 @@ final class TransportMonitor: RESTTransportProvider {
     }
 
     public func selectNextTransport() {
-        useAlternativeTransport = true
+        useShadowsocksTransport = true
         currentTransport = shadowSocksTransport
     }
 
@@ -66,9 +67,8 @@ final class TransportMonitor: RESTTransportProvider {
         do {
             let cachedRelays = try relayCacheTracker.getCachedRelays()
 
-            let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }
-                .randomElement()
-            let shadowSocksBridgeRelay = cachedRelays.relays.bridge.relays.randomElement()
+            let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+            let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
 
             guard let shadowSocksConfiguration = shadowSocksConfiguration,
                   let shadowSocksBridgeRelay = shadowSocksBridgeRelay
