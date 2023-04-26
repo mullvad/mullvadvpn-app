@@ -4,7 +4,7 @@ use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
     ffi::OsString,
-    mem, ptr, slice,
+    ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         mpsc, Arc,
@@ -463,7 +463,7 @@ impl HibernationDetector {
                 break;
             }
         }
-        mem::drop(logons);
+        // SAFETY: `logons` must no longer be referenced after this
         unsafe { LsaFreeReturnBuffer(logon_session_list as *mut c_void) };
         interactive
     }

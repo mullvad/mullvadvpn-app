@@ -6,7 +6,8 @@ pub use pqc_kyber::{keypair, KyberError};
 /// benefit of going with anything lower.
 pub const ALGORITHM_NAME: &str = "Kyber1024";
 
-// Always inline in order to try to avoid potential copies of `shared_secret` to multiple places on the stack.
+// Always inline in order to try to avoid potential copies of `shared_secret` to multiple places on
+// the stack.
 #[inline(always)]
 pub fn decapsulate(
     secret_key: SecretKey,

@@ -499,7 +499,7 @@ impl PathMonitor {
 
         std::thread::spawn(move || {
             loop {
-                if !monitor.service_commands(&mut original_paths, &cmd_rx) {
+                if !monitor.process_command(&mut original_paths, &cmd_rx) {
                     break;
                 }
                 match monitor.handle_next_completion_packet() {
@@ -528,26 +528,24 @@ impl PathMonitor {
         })
     }
 
-    fn service_commands(
+    /// Handle the next command from the `PathMonitorHandle`, if there is one.
+    fn process_command(
         &mut self,
         original_paths: &mut Vec<PathBuf>,
         cmd_rx: &sync_mpsc::Receiver<PathMonitorCommand>,
     ) -> bool {
-        while let Some(cmd) = cmd_rx.try_iter().next() {
+        if let Ok(cmd) = cmd_rx.try_recv() {
             match cmd {
-                PathMonitorCommand::Shutdown => {
-                    return false;
-                }
+                PathMonitorCommand::Shutdown => false,
                 PathMonitorCommand::SetPaths(new_paths) => {
                     *original_paths = new_paths;
-                    return self.update_paths(original_paths, false).is_ok();
+                    self.update_paths(original_paths, false).is_ok()
                 }
-                PathMonitorCommand::Refresh => {
-                    return self.update_paths(original_paths, true).is_ok();
-                }
+                PathMonitorCommand::Refresh => self.update_paths(original_paths, true).is_ok(),
             }
+        } else {
+            true
         }
-        true
     }
 
     fn update_paths(&mut self, unresolved_paths: &[PathBuf], force: bool) -> Result<bool, ()> {

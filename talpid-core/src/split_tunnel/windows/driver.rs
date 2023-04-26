@@ -932,8 +932,8 @@ pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> i
         if wait_all { 1 } else { 0 },
         INFINITE,
     );
-    let signaled_index = if result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + objects_len {
-        result - WAIT_OBJECT_0
+    let signaled_index = if result < objects_len {
+        result
     } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
         return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
     } else {
