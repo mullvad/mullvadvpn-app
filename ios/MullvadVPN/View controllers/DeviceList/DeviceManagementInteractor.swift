@@ -21,10 +21,7 @@ class DeviceManagementInteractor {
     }
 
     @discardableResult
-    func getDevices(
-        _ completionHandler: @escaping (Result<[REST.Device], Error>)
-            -> Void
-    ) -> Cancellable {
+    func getDevices(_ completionHandler: @escaping (Result<[Device], Error>) -> Void) -> Cancellable {
         return devicesProxy.getDevices(
             accountNumber: accountNumber,
             retryStrategy: .default,
@@ -33,10 +30,7 @@ class DeviceManagementInteractor {
     }
 
     @discardableResult
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping (Result<Bool, Error>) -> Void
-    ) -> Cancellable {
+    func deleteDevice(_ identifier: String, completionHandler: @escaping (Result<Bool, Error>) -> Void) -> Cancellable {
         return devicesProxy.deleteDevice(
             accountNumber: accountNumber,
             identifier: identifier,

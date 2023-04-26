@@ -53,7 +53,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
         task = nil
     }
 
-    private func didReceiveDeviceResponse(result: Result<REST.Device, Error>) {
+    private func didReceiveDeviceResponse(result: Result<Device, Error>) {
         let result = result.tryMap { device -> StoredDeviceData in
             switch interactor.deviceState {
             case .loggedIn(let storedAccount, var storedDevice):

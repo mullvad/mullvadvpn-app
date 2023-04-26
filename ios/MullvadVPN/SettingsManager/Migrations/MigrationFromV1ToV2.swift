@@ -19,10 +19,10 @@ final class MigrationFromV1ToV2: Migration {
     private var accountTask: Cancellable?
     private var deviceTask: Cancellable?
 
-    private var accountCompletion: Result<REST.AccountData, Error> = .failure(
+    private var accountCompletion: Result<AccountData, Error> = .failure(
         OperationError.cancelled
     )
-    private var devicesCompletion: Result<[REST.Device], Error> = .failure(OperationError.cancelled)
+    private var devicesCompletion: Result<[Device], Error> = .failure(OperationError.cancelled)
 
     private let legacySettings: LegacyTunnelSettings
 
@@ -98,8 +98,8 @@ final class MigrationFromV1ToV2: Migration {
         store: SettingsStore,
         parser: SettingsParser,
         settings: LegacyTunnelSettings,
-        accountData: REST.AccountData,
-        devices: [REST.Device]
+        accountData: AccountData,
+        devices: [Device]
     ) throws {
         let tunnelSettings = settings.tunnelSettings
         let interfaceData = settings.tunnelSettings.interface
