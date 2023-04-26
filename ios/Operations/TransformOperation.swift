@@ -66,11 +66,11 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     }
 
     override public func main() {
-        let inputValue = inputBlock?()
+        if let inputBlock = inputBlock {
+            _input = inputBlock()
+        }
 
-        _input = inputValue
-
-        guard let inputValue = inputValue, let executionBlock = executionBlock else {
+        guard let inputValue = _input, let executionBlock = executionBlock else {
             finish(result: .failure(OperationError.unsatisfiedRequirement))
             return
         }
