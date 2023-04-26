@@ -3,4 +3,7 @@ package net.mullvad.mullvadvpn.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-@Parcelize class Udp2TcpObfuscationSettings : Parcelable
+@Parcelize
+data class Udp2TcpObfuscationSettings(
+    val port: Constraint<Int>
+) : Parcelable
