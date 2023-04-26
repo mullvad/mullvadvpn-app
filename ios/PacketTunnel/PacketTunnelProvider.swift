@@ -183,10 +183,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelMonitor.delegate = self
     }
 
-    override func startTunnel(
-        options: [String: NSObject]?,
-        completionHandler: @escaping (Error?) -> Void
-    ) {
+    override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         dispatchQueue.async {
             let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
             var appSelectorResult: RelaySelectorResult?
@@ -256,6 +253,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     } else {
                         self.providerLogger.debug("Started the tunnel.")
 
+                        self.tunnelAdapterDidStart()
+
                         self.startTunnelCompletionHandler = { [weak self] in
                             self?.isConnected = true
                             completionHandler(nil)
@@ -270,10 +269,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
     }
 
-    override func stopTunnel(
-        with reason: NEProviderStopReason,
-        completionHandler: @escaping () -> Void
-    ) {
+    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
             self.providerLogger.debug("Stop the tunnel: \(reason)")
 
@@ -481,10 +477,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             guard let self = self else { return }
 
             self.providerLogger.debug("Restart the tunnel that had startup failure.")
-            self.reconnectTunnel(
-                to: .automatic,
-                shouldStopTunnelMonitor: false
-            ) { [weak self] error in
+            self.reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false) { [weak self] error in
                 if error == nil {
                     self?.cancelTunnelStartupFailureRecovery()
                 }
@@ -508,6 +501,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelStartupFailureRecoveryTimer = nil
     }
 
+    /**
+     Method that's called once the tunnel was able to read configuration and start WireGuard adapter.
+     */
+    private func tunnelAdapterDidStart() {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+        startDeviceCheck(shouldImmediatelyRotateKeyOnMismatch: true)
+    }
+
     private func startEmptyTunnel(completionHandler: @escaping (Error?) -> Void) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
@@ -528,6 +530,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                     completionHandler(error)
                 } else {
                     self.providerLogger.debug("Started an empty tunnel.")
+
+                    self.tunnelAdapterDidStart()
 
                     self.startTunnelCompletionHandler = { [weak self] in
                         self?.isConnected = true
@@ -608,10 +612,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         operationQueue.addOperation(blockOperation)
     }
 
-    private func reconnectTunnelInner(
-        to nextRelay: NextRelay,
-        completionHandler: ((Error?) -> Void)? = nil
-    ) {
+    private func reconnectTunnelInner(to nextRelay: NextRelay, completionHandler: ((Error?) -> Void)? = nil) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         // Read tunnel configuration.
@@ -683,127 +684,40 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     // MARK: - Device check
 
-    /// Fetch account and device data to verify account expiry and device status.
-    /// Saves the result into deviceCheck
-    private func startDeviceCheck() {
-        let deviceState: DeviceState
-        do {
-            deviceState = try SettingsManager.readDeviceState()
-        } catch {
-            providerLogger.error(
-                error: error,
-                message: "Failed to read device state."
-            )
-            return
-        }
+    /**
+     Start device diagnostics to determine the reason why the tunnel is not functional.
 
-        guard case let .loggedIn(storedAccountData, storedDeviceData) = deviceState else {
-            return
-        }
+     This involves the following steps:
 
-        providerLogger.debug("Start device check.")
-
-        let accountOperation = createGetAccountDataOperation(
-            accountNumber: storedAccountData.number
-        )
-        let deviceOperation = createGetDeviceDataOperation(
-            accountNumber: storedAccountData.number,
-            identifier: storedDeviceData.identifier
-        )
-
-        let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
-            guard let self = self else { return }
-
-            var newAccountExpiry: Date?
-            var newDeviceRevoked: Bool?
-
-            switch accountOperation.result {
-            case let .failure(error):
-                if !error.isOperationCancellationError {
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to fetch account data."
-                    )
-                }
-
-            case let .success(accountData):
-                newAccountExpiry = accountData.expiry
-
-            case .none:
-                break
-            }
-
-            switch deviceOperation.result {
-            case let .failure(error):
-                if let restError = error as? REST.Error,
-                   restError.compareErrorCode(.deviceNotFound)
-                {
-                    newDeviceRevoked = true
-                } else if !error.isOperationCancellationError {
-                    self.providerLogger.error(
-                        error: error,
-                        message: "Failed to fetch device data."
-                    )
-                }
-
-            case .none, .success:
-                break
-            }
-
-            if var deviceCheck = self.deviceCheck {
-                deviceCheck.update(
-                    accountExpiry: newAccountExpiry,
-                    isDeviceRevoked: newDeviceRevoked
-                )
-
-                self.deviceCheck = deviceCheck
-            } else {
-                self.deviceCheck = DeviceCheck(
-                    identifier: UUID(),
-                    isDeviceRevoked: newDeviceRevoked,
-                    accountExpiry: newAccountExpiry
-                )
-            }
-
-            if newDeviceRevoked ?? false {
+     1. Fetch account and device data.
+     2. Check account validity and whether it has enough time left.
+     2. Verify that current device is registered with backend and that both device and backend point to the same public
+        key.
+     3. Rotate WireGuard key on key mismatch.
+     */
+    private func startDeviceCheck(shouldImmediatelyRotateKeyOnMismatch: Bool = false) {
+        let checkOperation = CheckDeviceOperation(
+            dispatchQueue: dispatchQueue,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
+            shouldImmediatelyRotateKeyOnMismatch: shouldImmediatelyRotateKeyOnMismatch
+        ) { checkResult in
+            if checkResult.deviceCheck?.isInvalidAccount == .some(true) ||
+                checkResult.deviceCheck?.isRevokedDevice == .some(true)
+            {
+                // Stop tunnel monitor when device is revoked or account is invalid.
                 self.tunnelMonitor.stop()
+            } else if checkResult.isKeyRotated {
+                // Tell the tunnel to reconnect using new private key if key was rotated dring device check.
+                self.reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
+            }
+
+            if let newDeviceCheck = checkResult.deviceCheck {
+                self.deviceCheck = self.deviceCheck?.merged(with: newDeviceCheck) ?? newDeviceCheck
             }
         }
 
-        completionOperation.addDependencies([accountOperation, deviceOperation])
-
-        let groupOperation = GroupOperation(operations: [
-            accountOperation,
-            deviceOperation,
-            completionOperation,
-        ])
-        checkDeviceStateTask = groupOperation
-
-        operationQueue.addOperation(groupOperation)
-    }
-
-    private func createGetAccountDataOperation(accountNumber: String) -> ResultOperation<REST.AccountData> {
-        return ResultBlockOperation<REST.AccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
-            return self.accountsProxy.getAccountData(
-                accountNumber: accountNumber,
-                retryStrategy: .noRetry,
-                completion: finish
-            )
-        }
-    }
-
-    private func createGetDeviceDataOperation(
-        accountNumber: String,
-        identifier: String
-    ) -> ResultOperation<REST.Device> {
-        return ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
-            return self.devicesProxy.getDevice(
-                accountNumber: accountNumber,
-                identifier: identifier,
-                retryStrategy: .noRetry,
-                completion: finish
-            )
-        }
+        operationQueue.addOperation(checkOperation)
     }
 }
 
@@ -814,26 +728,6 @@ private enum NextRelay {
 
     /// Determine next relay using relay selector.
     case automatic
-}
-
-extension DeviceCheck {
-    mutating func update(accountExpiry: Date?, isDeviceRevoked: Bool?) {
-        var shouldChangeIdentifier = false
-
-        if let accountExpiry = accountExpiry, self.accountExpiry != accountExpiry {
-            shouldChangeIdentifier = true
-            self.accountExpiry = accountExpiry
-        }
-
-        if let isDeviceRevoked = isDeviceRevoked, self.isDeviceRevoked != isDeviceRevoked {
-            shouldChangeIdentifier = true
-            self.isDeviceRevoked = isDeviceRevoked
-        }
-
-        if shouldChangeIdentifier {
-            identifier = UUID()
-        }
-    }
 }
 
 extension PacketTunnelErrorWrapper {

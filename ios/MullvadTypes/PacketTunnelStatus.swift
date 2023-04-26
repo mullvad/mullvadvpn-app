@@ -9,26 +9,48 @@
 import Foundation
 
 public struct DeviceCheck: Codable, Equatable {
-    /// Unique identifier for the device check.
-    /// Should only change when other fields in the struct are being changed.
-    public var identifier: UUID
-
-    /// Flag indicating whether device is revoked.
-    /// Set to `nil` when the device status is unknown yet.
-    public var isDeviceRevoked: Bool?
-
     /// Last known account expiry.
     /// Set to `nil` when account expiry is unknown yet.
     public var accountExpiry: Date?
 
+    /// Invalid account. Often happens when account is removed on our backend.
+    public var isInvalidAccount: Bool?
+
+    /// Device is revoked.
+    public var isRevokedDevice: Bool?
+
+    /// Whether the key stored on device does not match the key stored on backend.
+    public var isKeyMismatch: Bool?
+
+    /// Last time packet tunnel had an attempt to rotate the key whether successfully or not.
+    public var lastKeyRotationAttemptDate: Date?
+
     public init(
-        identifier: UUID = UUID(),
-        isDeviceRevoked: Bool? = nil,
-        accountExpiry: Date? = nil
+        accountExpiry: Date? = nil,
+        isInvalidAccount: Bool? = nil,
+        isRevokedDevice: Bool? = nil,
+        isKeyMismatch: Bool? = nil,
+        lastKeyRotationDate: Date? = nil
     ) {
-        self.identifier = identifier
-        self.isDeviceRevoked = isDeviceRevoked
         self.accountExpiry = accountExpiry
+        self.isInvalidAccount = isInvalidAccount
+        self.isRevokedDevice = isRevokedDevice
+        self.isKeyMismatch = isKeyMismatch
+        lastKeyRotationAttemptDate = lastKeyRotationDate
+    }
+
+    public func merged(with other: DeviceCheck) -> DeviceCheck {
+        var copyOfSelf = self
+        copyOfSelf.merge(with: other)
+        return copyOfSelf
+    }
+
+    public mutating func merge(with other: DeviceCheck) {
+        other.accountExpiry.flatMap { accountExpiry = $0 }
+        other.isInvalidAccount.flatMap { isInvalidAccount = $0 }
+        other.isRevokedDevice.flatMap { isRevokedDevice = $0 }
+        other.isKeyMismatch.flatMap { isKeyMismatch = $0 }
+        other.lastKeyRotationAttemptDate.flatMap { lastKeyRotationAttemptDate = $0 }
     }
 }
 

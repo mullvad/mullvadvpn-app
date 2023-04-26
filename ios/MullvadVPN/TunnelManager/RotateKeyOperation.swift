@@ -36,7 +36,8 @@ class RotateKeyOperation: ResultOperation<Bool> {
     }
 
     override func main() {
-        guard case .loggedIn(let accountData, var deviceData) = interactor.deviceState else {
+        var deviceState = interactor.deviceState
+        guard case .loggedIn(let accountData, var deviceData) = deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -51,23 +52,15 @@ class RotateKeyOperation: ResultOperation<Bool> {
             logger.debug("Private key is old enough, rotate right away.")
         }
 
-        deviceData.wgKeyData.lastRotationAttemptDate = Date()
-        interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+        deviceData.wgKeyData.markRotationAttempt()
+        let newPrivateKey = deviceData.wgKeyData.getOrCreateNextPrivateKey()
+        deviceState.updateData { _, storedDeviceData in
+            storedDeviceData = deviceData
+        }
+
+        interactor.setDeviceState(deviceState, persist: true)
 
         logger.debug("Replacing old key with new key on server...")
-
-        let newPrivateKey: PrivateKey
-        if let nextPrivateKey = deviceData.wgKeyData.nextPrivateKey {
-            logger.debug("Next private key is already stored in Keychain. Using it.")
-
-            newPrivateKey = nextPrivateKey
-        } else {
-            logger.debug("Create next private key and store it in Keychain.")
-
-            newPrivateKey = PrivateKey()
-            deviceData.wgKeyData.nextPrivateKey = newPrivateKey
-            interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
-        }
 
         task = devicesProxy.rotateDeviceKey(
             accountNumber: accountData.number,
@@ -89,46 +82,32 @@ class RotateKeyOperation: ResultOperation<Bool> {
     private func didRotateKey(newPrivateKey: PrivateKey, result: Result<REST.Device, Error>) {
         switch result {
         case let .success(device):
-            logger.debug("Successfully rotated device key. Persisting settings...")
+            logger.debug("Successfully rotated device key. Persisting device state...")
 
-            switch interactor.deviceState {
-            case .loggedIn(let accountData, var deviceData):
-                deviceData.update(from: device)
-
-                deviceData.wgKeyData = StoredWgKeyData(
-                    creationDate: Date(),
-                    lastRotationAttemptDate: nil,
-                    privateKey: newPrivateKey
-                )
-
-                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
-
-                if let tunnel = interactor.tunnel {
-                    _ = tunnel.notifyKeyRotation { [weak self] _ in
-                        self?.finish(result: .success(true))
-                    }
-                } else {
-                    finish(result: .success(true))
-                }
-            default:
+            var deviceState = interactor.deviceState
+            guard var deviceData = deviceState.deviceData else {
                 finish(result: .failure(InvalidDeviceStateError()))
+                return
+            }
+
+            deviceData.update(from: device)
+            deviceData.wgKeyData = StoredWgKeyData(creationDate: Date(), privateKey: newPrivateKey)
+            deviceState.updateData { _, storedDeviceData in
+                storedDeviceData = deviceData
+            }
+            interactor.setDeviceState(deviceState, persist: true)
+
+            if let tunnel = interactor.tunnel {
+                _ = tunnel.notifyKeyRotation { [weak self] _ in
+                    self?.finish(result: .success(true))
+                }
+            } else {
+                finish(result: .success(true))
             }
 
         case let .failure(error):
             if !error.isOperationCancellationError {
-                logger.error(
-                    error: error,
-                    message: "Failed to rotate device key."
-                )
-            }
-
-            switch interactor.deviceState {
-            case .loggedIn(let accountData, var deviceData):
-                deviceData.wgKeyData.lastRotationAttemptDate = Date()
-                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
-
-            default:
-                finish(result: .failure(InvalidDeviceStateError()))
+                logger.error(error: error, message: "Failed to rotate device key.")
             }
 
             interactor.handleRestError(error)

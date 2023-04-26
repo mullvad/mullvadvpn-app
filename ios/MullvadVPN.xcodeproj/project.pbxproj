@@ -256,6 +256,7 @@
 		58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA0152242560B004F3011 /* UIColor+Palette.swift */; };
 		58CCA01822426713004F3011 /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01722426713004F3011 /* AccountViewController.swift */; };
 		58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01D2242787B004F3011 /* AccountTextField.swift */; };
+		58CCB4DA2A0CF7F8007EAA07 /* TunnelSettingsV2+REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421033282E4B1500F24E46 /* TunnelSettingsV2+REST.swift */; };
 		58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */; };
 		58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E072A428814C28008902F8 /* TunnelMonitorDelegate.swift */; };
 		58CE5E64224146200008646E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E63224146200008646E /* AppDelegate.swift */; };
@@ -359,6 +360,7 @@
 		58FC040A27B3EE03001C21F0 /* TunnelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */; };
 		58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */; };
+		58FDF2D92A0BA11A00C2B061 /* CheckDeviceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FDF2D82A0BA11900C2B061 /* CheckDeviceOperation.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
@@ -961,6 +963,7 @@
 		58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitor.swift; sourceTree = "<group>"; };
 		58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Formatting.swift"; sourceTree = "<group>"; };
 		58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseButton.swift; sourceTree = "<group>"; };
+		58FDF2D82A0BA11900C2B061 /* CheckDeviceOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckDeviceOperation.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
@@ -1825,6 +1828,7 @@
 				58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */,
 				58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
+				58FDF2D82A0BA11900C2B061 /* CheckDeviceOperation.swift */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -2819,6 +2823,8 @@
 				5877D70F282137E8002FCFC7 /* SettingsManager.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
+				58CCB4DA2A0CF7F8007EAA07 /* TunnelSettingsV2+REST.swift in Sources */,
+				58FDF2D92A0BA11A00C2B061 /* CheckDeviceOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
