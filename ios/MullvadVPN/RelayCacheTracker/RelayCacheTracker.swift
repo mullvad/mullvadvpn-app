@@ -97,25 +97,18 @@ final class RelayCacheTracker {
     func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable
     {
-        let operation = ResultBlockOperation<RelaysFetchResult>(dispatchQueue: nil) { operation in
+        let operation = ResultBlockOperation<RelaysFetchResult>(cancellableTask: { operation in
             let cachedRelays = try? self.getCachedRelays()
 
             if self.getNextUpdateDate() > Date() {
                 operation.finish(result: .success(.throttled))
-                return
+                return AnyCancellable {}
             }
 
-            let task = self.apiProxy.getRelays(
-                etag: cachedRelays?.etag,
-                retryStrategy: .noRetry
-            ) { result in
+            return self.apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
                 operation.finish(result: self.handleResponse(result: result))
             }
-
-            operation.addCancellationBlock {
-                task.cancel()
-            }
-        }
+        })
 
         operation.addObserver(
             BackgroundObserver(
