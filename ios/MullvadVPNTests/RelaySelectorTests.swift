@@ -113,5 +113,5 @@ private let sampleRelays = REST.ServerRelaysResponse(
             ),
         ]
     ),
-    bridge: REST.ServerBridges(shadowsocks: [])
+    bridge: REST.ServerBridges(shadowsocks: [], relays: [])
 )
