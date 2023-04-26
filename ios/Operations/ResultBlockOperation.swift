@@ -7,18 +7,15 @@
 //
 
 import Foundation
+import protocol MullvadTypes.Cancellable
 
 public final class ResultBlockOperation<Success>: ResultOperation<Success> {
     public typealias ExecutionBlock = (ResultBlockOperation<Success>) -> Void
-    public typealias ThrowingExecutionBlock = () throws -> Success
 
     private var executionBlock: ExecutionBlock?
-    private var cancellationBlocks: [() -> Void] = []
+    private var cancellableTask: Cancellable?
 
-    public convenience init(
-        dispatchQueue: DispatchQueue? = nil,
-        executionBlock: ExecutionBlock? = nil
-    ) {
+    public convenience init(dispatchQueue: DispatchQueue? = nil, executionBlock: @escaping ExecutionBlock) {
         self.init(
             dispatchQueue: dispatchQueue,
             executionBlock: executionBlock,
@@ -27,13 +24,26 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
         )
     }
 
+    public convenience init(dispatchQueue: DispatchQueue? = nil, executionBlock: @escaping () throws -> Success) {
+        self.init(
+            dispatchQueue: dispatchQueue,
+            executionBlock: { operation in
+                operation.finish(result: Result { try executionBlock() })
+            },
+            completionQueue: nil,
+            completionHandler: nil
+        )
+    }
+
     public convenience init(
         dispatchQueue: DispatchQueue? = nil,
-        executionBlock: @escaping ThrowingExecutionBlock
+        cancellableTask: @escaping (ResultBlockOperation<Success>) -> Cancellable
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
-            executionBlock: Self.wrapThrowingBlock(executionBlock),
+            executionBlock: { operation in
+                operation.cancellableTask = cancellableTask(operation)
+            },
             completionQueue: nil,
             completionHandler: nil
         )
@@ -41,7 +51,7 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
 
     public init(
         dispatchQueue: DispatchQueue?,
-        executionBlock: ExecutionBlock?,
+        executionBlock: @escaping ExecutionBlock,
         completionQueue: DispatchQueue?,
         completionHandler: CompletionHandler?
     ) {
@@ -62,47 +72,11 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
     }
 
     override public func operationDidCancel() {
-        let blocks = cancellationBlocks
-        cancellationBlocks.removeAll()
-
-        for block in blocks {
-            block()
-        }
+        cancellableTask?.cancel()
     }
 
     override public func operationDidFinish() {
-        cancellationBlocks.removeAll()
         executionBlock = nil
-    }
-
-    public func setExecutionBlock(_ block: @escaping ExecutionBlock) {
-        dispatchQueue.async {
-            assert(!self.isExecuting && !self.isFinished)
-            self.executionBlock = block
-        }
-    }
-
-    public func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
-        setExecutionBlock(Self.wrapThrowingBlock(block))
-    }
-
-    public func addCancellationBlock(_ block: @escaping () -> Void) {
-        dispatchQueue.async {
-            if self.isCancelled, self.isExecuting {
-                block()
-            } else {
-                self.cancellationBlocks.append(block)
-            }
-        }
-    }
-
-    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock)
-        -> ExecutionBlock
-    {
-        return { operation in
-            let result = Result { try executionBlock() }
-
-            operation.finish(result: result)
-        }
+        cancellableTask = nil
     }
 }

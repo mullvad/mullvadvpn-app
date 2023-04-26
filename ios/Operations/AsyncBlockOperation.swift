@@ -7,30 +7,34 @@
 //
 
 import Foundation
+import protocol MullvadTypes.Cancellable
 
 /// Asynchronous block operation
 public class AsyncBlockOperation: AsyncOperation {
-    private var executionBlock: ((AsyncBlockOperation) -> Void)?
-    private var cancellationBlocks: [() -> Void] = []
+    public typealias ExecutionBlock = (AsyncBlockOperation) -> Void
 
-    override public init(dispatchQueue: DispatchQueue? = nil) {
-        super.init(dispatchQueue: dispatchQueue)
-    }
+    private var executionBlock: ExecutionBlock?
+    private var cancellableTask: Cancellable?
 
-    public init(
-        dispatchQueue: DispatchQueue? = nil,
-        block: @escaping (AsyncBlockOperation) -> Void
-    ) {
+    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping ExecutionBlock) {
         executionBlock = block
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
-        executionBlock = { operation in
+    public convenience init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
+        self.init(dispatchQueue: dispatchQueue, block: { operation in
             block()
             operation.finish()
-        }
-        super.init(dispatchQueue: dispatchQueue)
+        })
+    }
+
+    public convenience init(
+        dispatchQueue: DispatchQueue? = nil,
+        cancellableTask: @escaping (AsyncBlockOperation) -> Cancellable
+    ) {
+        self.init(dispatchQueue: dispatchQueue, block: { operation in
+            operation.cancellableTask = cancellableTask(operation)
+        })
     }
 
     override public func main() {
@@ -45,40 +49,11 @@ public class AsyncBlockOperation: AsyncOperation {
     }
 
     override public func operationDidCancel() {
-        let blocks = cancellationBlocks
-        cancellationBlocks.removeAll()
-
-        for block in blocks {
-            block()
-        }
+        cancellableTask?.cancel()
     }
 
     override public func operationDidFinish() {
-        cancellationBlocks.removeAll()
         executionBlock = nil
-    }
-
-    public func setExecutionBlock(_ block: @escaping (AsyncBlockOperation) -> Void) {
-        dispatchQueue.async {
-            assert(!self.isExecuting && !self.isFinished)
-            self.executionBlock = block
-        }
-    }
-
-    public func setExecutionBlock(_ block: @escaping () -> Void) {
-        setExecutionBlock { operation in
-            block()
-            operation.finish()
-        }
-    }
-
-    public func addCancellationBlock(_ block: @escaping () -> Void) {
-        dispatchQueue.async {
-            if self.isCancelled, self.isExecuting {
-                block()
-            } else {
-                self.cancellationBlocks.append(block)
-            }
-        }
+        cancellableTask = nil
     }
 }
