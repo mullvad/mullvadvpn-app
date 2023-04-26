@@ -179,16 +179,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
             using: nil
-        ) { task in
-            let handle = self.relayCacheTracker.updateRelays { completion in
-                task.setTaskCompleted(success: completion.isSuccess)
+        ) { [self] task in
+            let handle = relayCacheTracker.updateRelays { result in
+                task.setTaskCompleted(success: result.isSuccess)
             }
 
             task.expirationHandler = {
                 handle.cancel()
             }
 
-            self.scheduleAppRefreshTask()
+            scheduleAppRefreshTask()
         }
 
         if isRegistered {
@@ -202,11 +202,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
             using: nil
-        ) { task in
-            let handle = self.tunnelManager.rotatePrivateKey { completion in
-                self.scheduleKeyRotationTask()
+        ) { [self] task in
+            let handle = tunnelManager.rotatePrivateKey { [self] error in
+                scheduleKeyRotationTask()
 
-                task.setTaskCompleted(success: completion.isSuccess)
+                task.setTaskCompleted(success: error == nil)
             }
 
             task.expirationHandler = {
@@ -225,9 +225,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
             using: nil
-        ) { task in
-            let handle = self.addressCacheTracker.updateEndpoints { result in
-                self.scheduleAddressCacheUpdateTask()
+        ) { [self] task in
+            let handle = addressCacheTracker.updateEndpoints { [self] result in
+                scheduleAddressCacheUpdateTask()
 
                 task.setTaskCompleted(success: result.isSuccess)
             }

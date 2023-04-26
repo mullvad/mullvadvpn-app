@@ -52,7 +52,7 @@ extension REST {
         public func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<AccountData>
+            completion: @escaping CompletionHandler<Account>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -70,7 +70,7 @@ extension REST {
             )
 
             let responseHandler = REST.defaultResponseHandler(
-                decoding: AccountData.self,
+                decoding: Account.self,
                 with: responseDecoder
             )
 
@@ -82,15 +82,6 @@ extension REST {
                 completionHandler: completion
             )
         }
-    }
-
-    public struct AccountData: Decodable {
-        public let id: String
-        public let expiry: Date
-        public let maxPorts: Int
-        public let canAddPorts: Bool
-        public let maxDevices: Int
-        public let canAddDevices: Bool
     }
 
     public struct NewAccountData: Decodable {
