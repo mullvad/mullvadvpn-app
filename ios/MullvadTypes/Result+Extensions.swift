@@ -9,7 +9,7 @@
 import Foundation
 
 extension Result {
-    var value: Success? {
+    public var value: Success? {
         switch self {
         case let .success(value):
             return value
@@ -18,7 +18,7 @@ extension Result {
         }
     }
 
-    var error: Failure? {
+    public var error: Failure? {
         switch self {
         case .success:
             return nil
@@ -27,7 +27,7 @@ extension Result {
         }
     }
 
-    var isSuccess: Bool {
+    public var isSuccess: Bool {
         switch self {
         case .success:
             return true
@@ -36,7 +36,7 @@ extension Result {
         }
     }
 
-    func tryMap<NewSuccess>(_ body: (Success) throws -> NewSuccess) -> Result<NewSuccess, Error> {
+    public func tryMap<NewSuccess>(_ body: (Success) throws -> NewSuccess) -> Result<NewSuccess, Error> {
         return Result<NewSuccess, Error> {
             let value = try self.get()
 
@@ -44,7 +44,7 @@ extension Result {
         }
     }
 
-    @discardableResult func inspectError(_ body: (Failure) -> Void) -> Self {
+    @discardableResult public func inspectError(_ body: (Failure) -> Void) -> Self {
         if case let .failure(error) = self {
             body(error)
         }
@@ -53,7 +53,7 @@ extension Result {
 }
 
 extension Result {
-    func flattenValue<T>() -> T? where Success == T? {
+    public func flattenValue<T>() -> T? where Success == T? {
         switch self {
         case let .success(optional):
             return optional.flatMap { $0 }
