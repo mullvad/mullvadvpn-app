@@ -161,7 +161,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         urlRequestProxy = URLRequestProxy(
-            urlSession: urlSession,
             dispatchQueue: dispatchQueue,
             transportProvider: { transportProvider }
         )
