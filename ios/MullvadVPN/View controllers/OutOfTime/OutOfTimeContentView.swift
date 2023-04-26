@@ -97,7 +97,7 @@ class OutOfTimeContentView: UIView {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
-        layoutMargins = UIMetrics.contentLayoutMargins
+        directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setUpSubviews()
     }
 

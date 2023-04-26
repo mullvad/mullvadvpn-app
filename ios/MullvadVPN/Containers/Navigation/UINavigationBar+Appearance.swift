@@ -10,11 +10,11 @@ import UIKit
 
 extension UINavigationBar {
     func configureCustomAppeareance() {
-        var margins = layoutMargins
-        margins.left = UIMetrics.contentLayoutMargins.left
-        margins.right = UIMetrics.contentLayoutMargins.right
+        var directionalMargins = directionalLayoutMargins
+        directionalMargins.leading = UIMetrics.contentLayoutMargins.leading
+        directionalMargins.trailing = UIMetrics.contentLayoutMargins.trailing
 
-        layoutMargins = margins
+        directionalLayoutMargins = directionalMargins
         tintColor = UIColor.NavigationBar.titleColor
 
         standardAppearance = makeNavigationBarAppearance(isTransparent: false)

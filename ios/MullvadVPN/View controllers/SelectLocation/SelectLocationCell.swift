@@ -73,9 +73,9 @@ class SelectLocationCell: UITableViewCell {
         let indentation = CGFloat(indentationLevel) * indentationWidth
 
         var contentMargins = UIMetrics.selectLocationCellLayoutMargins
-        contentMargins.left += indentation
+        contentMargins.leading += indentation
 
-        contentView.layoutMargins = contentMargins
+        contentView.directionalLayoutMargins = contentMargins
     }
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
@@ -156,8 +156,8 @@ class SelectLocationCell: UITableViewCell {
 
             collapseButton.widthAnchor
                 .constraint(
-                    equalToConstant: UIMetrics.contentLayoutMargins.left + UIMetrics
-                        .contentLayoutMargins.right + kCollapseButtonWidth
+                    equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics
+                        .contentLayoutMargins.trailing + kCollapseButtonWidth
                 ),
             collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
             collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),

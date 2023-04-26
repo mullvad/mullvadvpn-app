@@ -28,7 +28,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
         textField.font = UIFont.systemFont(ofSize: 17)
         textField.backgroundColor = .clear
         textField.textColor = UIColor.TextField.textColor
-        textField.textMargins = UIMetrics.settingsCellLayoutMargins
+        textField.textMargins = UIMetrics.contentInsets
         textField.placeholder = NSLocalizedString(
             "DNS_TEXT_CELL_PLACEHOLDER",
             tableName: "Settings",
