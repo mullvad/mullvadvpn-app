@@ -25,7 +25,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider,
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
             },
-            didUpdateDeviceState: { [weak self] tunnelManager, deviceState in
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
                 self?.invalidate(deviceState: deviceState)
             }
         )

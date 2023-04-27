@@ -708,6 +708,7 @@ final class TunnelManager: StorePaymentObserver {
         defer { nslock.unlock() }
 
         let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
+        let previousDeviceState = _deviceState
 
         _deviceState = deviceState
 
@@ -725,7 +726,11 @@ final class TunnelManager: StorePaymentObserver {
         if shouldCallDelegate {
             DispatchQueue.main.async {
                 self.observerList.forEach { observer in
-                    observer.tunnelManager(self, didUpdateDeviceState: deviceState)
+                    observer.tunnelManager(
+                        self,
+                        didUpdateDeviceState: deviceState,
+                        previousDeviceState: previousDeviceState
+                    )
                 }
             }
         }

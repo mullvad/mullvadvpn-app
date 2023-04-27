@@ -1,5 +1,5 @@
 //
-//  AccountCreationInAppNotification.swift
+//  RegisteredDeviceInAppNotification.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2023-04-21.
@@ -10,9 +10,7 @@ import Foundation
 import UIKit.UIColor
 import UIKit.UIFont
 
-final class RegisteredDeviceInAppNotification: NotificationProvider,
-    InAppNotificationProvider
-{
+final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotificationProvider {
     typealias CompletionHandler = (DeviceState) -> Void
 
     // MARK: - private properties
@@ -78,13 +76,14 @@ final class RegisteredDeviceInAppNotification: NotificationProvider,
     }
 
     private func addObservers() {
-        tunnelObserver = TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState in
-            guard let self = self,
-                  case .loggedIn = deviceState else { return }
-            self.shouldShowBanner = true
-            self.deviceState = deviceState
-            self.invalidate()
-        })
+        tunnelObserver =
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+                guard let self = self, case .loggedIn = deviceState else { return }
+
+                self.shouldShowBanner = true
+                self.deviceState = deviceState
+                self.invalidate()
+            })
         tunnelObserver.flatMap { tunnelManager.addObserver($0) }
     }
 }

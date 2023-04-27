@@ -56,7 +56,7 @@ class TunnelViewController: UIViewController, RootContainment {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        interactor.didUpdateDeviceState = { [weak self] deviceState in
+        interactor.didUpdateDeviceState = { [weak self] deviceState, previousDeviceState in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()
         }
 

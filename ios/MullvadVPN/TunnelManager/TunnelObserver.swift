@@ -11,12 +11,11 @@ import Foundation
 protocol TunnelObserver: AnyObject {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager)
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus)
-    func tunnelManager(_ manager: TunnelManager, didUpdateDeviceState deviceState: DeviceState)
-
     func tunnelManager(
         _ manager: TunnelManager,
-        didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2
+        didUpdateDeviceState newDeviceState: DeviceState,
+        previousDeviceState: DeviceState
     )
-
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2)
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error)
 }
