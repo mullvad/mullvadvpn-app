@@ -39,13 +39,13 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     InfoDialog(
         message = longPreviewText,
-        additionalInfo = longPreviewText,
+        longPreviewText,
         onDismiss = {},
     )
 }
 
 @Composable
-fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () -> Unit) {
+fun InfoDialog(message: String, vararg additionalInfo: String, onDismiss: () -> Unit) {
     val verticalSpacing = 24.dp
     val iconHeight = 44.dp
     AlertDialog(
@@ -69,16 +69,17 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
                     fontStyle = FontStyle.Normal,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(bottom = verticalSpacing).fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
-                if (additionalInfo != null) {
+                additionalInfo.forEach {
                     HtmlText(
-                        htmlFormattedString = additionalInfo,
+                        htmlFormattedString = it,
                         textColor = colorResource(id = R.color.white).toArgb(),
                         textSize = dimensionResource(id = R.dimen.text_small).value,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.padding(top = verticalSpacing).fillMaxWidth()
                     )
                 }
+
             }
         },
         buttons = {

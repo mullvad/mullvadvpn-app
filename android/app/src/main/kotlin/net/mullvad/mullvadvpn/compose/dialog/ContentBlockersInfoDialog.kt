@@ -9,11 +9,12 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 fun ContentBlockersInfoDialog(onDismiss: () -> Unit) {
     InfoDialog(
         message =
-            buildString {
-                appendLine(stringResource(id = R.string.dns_content_blockers_info))
-                append(stringResource(id = R.string.dns_content_blockers_warning))
-            },
-        additionalInfo = textResource(id = R.string.dns_content_blockers_custom_dns_warning),
-        onDismiss = onDismiss
+        buildString {
+            appendLine(stringResource(id = R.string.dns_content_blockers_info))
+            append(stringResource(id = R.string.dns_content_blockers_warning))
+        },
+        textResource(id = R.string.dns_content_blockers_custom_dns_warning),
+        stringResource(id = R.string.settings_changes_effect_warning_content_blocker),
+        onDismiss = onDismiss,
     )
 }
