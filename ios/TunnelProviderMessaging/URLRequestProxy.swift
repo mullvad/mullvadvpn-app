@@ -31,9 +31,9 @@ public final class URLRequestProxy {
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
-        dispatchQueue.async { [self] in
+        dispatchQueue.async {
             // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
-            let transportProvider = transportProvider()
+            let transportProvider = self.transportProvider()
             if proxyRequest.useShadowsocksTransport {
                 transportProvider?.selectNextTransport()
             }
@@ -44,7 +44,7 @@ public final class URLRequestProxy {
                 guard let self = self else { return }
                 // However there is no guarantee about which queue the execution resumes on
                 // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                dispatchQueue.async { [self] in
+                dispatchQueue.async {
                     let response = ProxyURLResponse(data: data, response: response, error: error)
                     _ = self.removeRequest(identifier: proxyRequest.id)
 
@@ -53,7 +53,7 @@ public final class URLRequestProxy {
             }
             // All tasks should have unique identifiers, but if not, cancel the task scheduled
             // earlier.
-            let oldTask = addRequest(identifier: proxyRequest.id, task: task)
+            let oldTask = self.addRequest(identifier: proxyRequest.id, task: task)
             oldTask?.cancel()
         }
     }
