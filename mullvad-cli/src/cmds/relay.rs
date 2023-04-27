@@ -52,7 +52,7 @@ pub enum SetCommands {
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
-    Providers {
+    Provider {
         #[arg(required(true), num_args = 1..)]
         providers: Vec<Provider>,
     },
@@ -269,7 +269,7 @@ impl Relay {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
             SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
-            SetCommands::Providers { providers } => Self::set_providers(providers).await,
+            SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
             SetCommands::TunnelProtocol { protocol } => Self::set_tunnel_protocol(protocol).await,

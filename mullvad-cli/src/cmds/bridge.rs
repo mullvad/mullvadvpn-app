@@ -35,7 +35,7 @@ pub enum SetCommands {
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
-    Providers {
+    Provider {
         /// Either 'any', or provider to select from.
         #[arg(required(true), num_args = 1..)]
         providers: Vec<Provider>,
@@ -143,7 +143,7 @@ impl Bridge {
             SetCommands::Ownership { ownership } => {
                 Self::update_bridge_settings(None, None, Some(ownership)).await
             }
-            SetCommands::Providers { providers } => {
+            SetCommands::Provider { providers } => {
                 let providers = if providers[0].eq_ignore_ascii_case("any") {
                     Constraint::Any
                 } else {
