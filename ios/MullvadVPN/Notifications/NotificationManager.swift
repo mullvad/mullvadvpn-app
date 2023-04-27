@@ -204,9 +204,7 @@ final class NotificationManager: NotificationProviderDelegate {
             if let replaceNotificationDescriptor = notificationProvider.notificationDescriptor {
                 newNotificationDescriptors = notificationProviders
                     .compactMap { notificationProvider -> InAppNotificationDescriptor? in
-                        if replaceNotificationDescriptor.identifier == notificationProvider
-                            .identifier
-                        {
+                        if replaceNotificationDescriptor.identifier == notificationProvider.identifier {
                             return replaceNotificationDescriptor
                         } else {
                             return inAppNotificationDescriptors.first { descriptor in
