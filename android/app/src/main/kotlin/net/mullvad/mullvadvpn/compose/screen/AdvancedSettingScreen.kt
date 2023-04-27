@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
@@ -86,6 +87,7 @@ private fun PreviewAdvancedSettings() {
         onCancelDnsDialogClick = {},
         onContentsBlockersInfoClicked = {},
         onMalwareInfoClicked = {},
+        onCustomDnsInfoClicked = {},
         onDismissInfoClicked = {},
         onBackClick = {}
     )
@@ -116,6 +118,7 @@ fun AdvancedSettingScreen(
     onCancelDnsDialogClick: () -> Unit = {},
     onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
+    onCustomDnsInfoClicked: () -> Unit = {},
     onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onStopEvent: () -> Unit = {}
@@ -145,6 +148,9 @@ fun AdvancedSettingScreen(
         }
         is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
             ContentBlockersInfoDialog(onDismissInfoClicked)
+        }
+        is AdvancedSettingsUiState.CustomDnsInfoDialogUiState -> {
+            CustomDnsInfoDialog(onDismissInfoClicked)
         }
         is AdvancedSettingsUiState.MalwareInfoDialogUiState -> {
             MalwareInfoDialog(onDismissInfoClicked)
@@ -288,7 +294,8 @@ fun AdvancedSettingScreen(
                     title = stringResource(R.string.enable_custom_dns),
                     isToggled = uiState.isCustomDnsEnabled,
                     isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    onCellClicked = { newValue -> onToggleDnsClick(newValue) }
+                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
+                    onInfoClicked = { onCustomDnsInfoClicked() }
                 )
             }
 
