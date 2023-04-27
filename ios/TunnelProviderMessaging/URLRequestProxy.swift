@@ -31,29 +31,31 @@ public final class URLRequestProxy {
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
-        // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
-        let transportProvider = transportProvider()
-        if proxyRequest.useShadowsocksTransport {
-            transportProvider?.selectNextTransport()
-        }
-
-        guard let transport = transportProvider?.transport() else { return }
-        // The task sent by `transport.sendRequest` comes in an already resumed state
-        let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
-            guard let self = self else { return }
-            // However there is no guarantee about which queue the execution resumes on
-            // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-            dispatchQueue.async { [self] in
-                let response = ProxyURLResponse(data: data, response: response, error: error)
-                _ = self.removeRequest(identifier: proxyRequest.id)
-
-                completionHandler(response)
+        dispatchQueue.async { [self] in
+            // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
+            let transportProvider = transportProvider()
+            if proxyRequest.useShadowsocksTransport {
+                transportProvider?.selectNextTransport()
             }
+
+            guard let transport = transportProvider?.transport() else { return }
+            // The task sent by `transport.sendRequest` comes in an already resumed state
+            let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
+                guard let self = self else { return }
+                // However there is no guarantee about which queue the execution resumes on
+                // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
+                dispatchQueue.async { [self] in
+                    let response = ProxyURLResponse(data: data, response: response, error: error)
+                    _ = self.removeRequest(identifier: proxyRequest.id)
+
+                    completionHandler(response)
+                }
+            }
+            // All tasks should have unique identifiers, but if not, cancel the task scheduled
+            // earlier.
+            let oldTask = addRequest(identifier: proxyRequest.id, task: task)
+            oldTask?.cancel()
         }
-        // All tasks should have unique identifiers, but if not, cancel the task scheduled
-        // earlier.
-        let oldTask = addRequest(identifier: proxyRequest.id, task: task)
-        oldTask?.cancel()
     }
 
     public func cancelRequest(identifier: UUID) {
