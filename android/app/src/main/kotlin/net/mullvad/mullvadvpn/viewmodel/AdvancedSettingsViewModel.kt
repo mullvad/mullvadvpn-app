@@ -14,9 +14,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -39,6 +43,8 @@ class AdvancedSettingsViewModel(
                     contentBlockersOptions = settings?.contentBlockersSettings()
                             ?: DefaultDnsOptions(),
                     isAllowLanEnabled = settings?.allowLan ?: false,
+                    selectedObfuscation = settings?.selectedObfuscationSettings()
+                            ?: SelectedObfuscation.Auto,
                     dialogState = dialogState
                 )
             }
@@ -250,6 +256,19 @@ class AdvancedSettingsViewModel(
         }
     }
 
+    fun onSelectObfuscationSetting(selectedObfuscation: SelectedObfuscation) {
+        repository.setObfuscationOptions(
+            ObfuscationSettings(
+                selectedObfuscation = selectedObfuscation,
+                udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any())
+            )
+        )
+    }
+
+    fun onObfuscationInfoClicked() {
+        dialogState.update { AdvancedSettingsDialogState.ObfuscationInfoDialog }
+    }
+
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
@@ -291,6 +310,8 @@ class AdvancedSettingsViewModel(
     private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
 
     private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
+
+    private fun Settings.selectedObfuscationSettings() = obfuscationSettings.selectedObfuscation
 
     private fun String.isValidIp(): Boolean {
         return inetAddressValidator.isValid(this)

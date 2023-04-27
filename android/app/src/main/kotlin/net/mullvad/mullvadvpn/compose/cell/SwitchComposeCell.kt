@@ -76,7 +76,7 @@ fun SwitchComposeCell(
 }
 
 @Composable
-fun SwitchCellTitle(title: String, modifier: Modifier) {
+fun SwitchCellTitle(title: String, modifier: Modifier = Modifier) {
     val textSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     Text(
         text = title,
