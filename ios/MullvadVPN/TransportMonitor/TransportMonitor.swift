@@ -18,9 +18,6 @@ final class TransportMonitor: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
     private let logger = Logger(label: "TransportMonitor")
-    private var useShadowsocksTransport = false
-
-    private var currentTransport: RESTTransport?
 
     // MARK: -
 
@@ -32,38 +29,14 @@ final class TransportMonitor: RESTTransportProvider {
         self.relayCacheTracker = relayCacheTracker
 
         urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
-        currentTransport = urlSessionTransport
     }
 
     public func transport() -> MullvadREST.RESTTransport? {
-        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
-            return tunnel.status == .connecting ||
-                tunnel.status == .reasserting ||
-                tunnel.status == .connected
-        }
-
-        if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
-            return PacketTunnelTransport(
-                tunnel: tunnel,
-                useShadowsocksTransport: useShadowsocksTransport
-            )
-        } else {
-            return currentTransport
-        }
+        return selectTransport(urlSessionTransport, useShadowsocksTransport: false)
     }
 
-    public func selectNextTransport() {
-        useShadowsocksTransport = true
-        currentTransport = shadowSocksTransport
-    }
-
-    // MARK: -
-
-    // MARK: Private API
-
-    /// The transport session that automatically rewrites the host and port of each `URLRequest` it creates to a locally
-    /// hosted shadow socks proxy instance
-    private var shadowSocksTransport: RESTTransport? {
+    public func shadowSocksTransport() -> RESTTransport? {
+        let shadowSocksTransport: RESTTransport
         do {
             let cachedRelays = try relayCacheTracker.getCachedRelays()
 
@@ -84,7 +57,7 @@ final class TransportMonitor: RESTTransportProvider {
                 shadowSocksBridgeRelay: shadowSocksBridgeRelay
             )
 
-            return transport
+            shadowSocksTransport = transport
         } catch {
             logger.error(
                 error: error,
@@ -92,6 +65,38 @@ final class TransportMonitor: RESTTransportProvider {
             )
             return nil
         }
+        return selectTransport(shadowSocksTransport, useShadowsocksTransport: true)
+    }
+
+    // MARK: -
+
+    // MARK: Private API
+
+    /// Selects a transport to use for sending an `URLRequest`
+    ///
+    /// This method returns the appropriate transport layer based on whether a tunnel is available, and whether it
+    /// should be bypassed
+    /// whenever a transport is requested.
+    ///
+    /// - Parameters:
+    ///   - transport: The transport to use if there is no tunnel, or if it shouldn't be bypassed
+    ///   - useShadowsocksTransport: A hint for enforcing a Shadowsocks transport when proxying a request via an
+    /// available `Tunnel`
+    /// - Returns: A transport to use for sending an `URLRequest`
+    private func selectTransport(_ transport: RESTTransport, useShadowsocksTransport: Bool) -> RESTTransport {
+        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
+            return tunnel.status == .connecting ||
+                tunnel.status == .reasserting ||
+                tunnel.status == .connected
+        }
+
+        if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
+            return PacketTunnelTransport(
+                tunnel: tunnel,
+                useShadowsocksTransport: useShadowsocksTransport
+            )
+        }
+        return transport
     }
 
     private func shouldByPassVPN(tunnel: Tunnel) -> Bool {
