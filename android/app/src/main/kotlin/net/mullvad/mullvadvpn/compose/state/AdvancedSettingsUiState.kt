@@ -45,6 +45,14 @@ sealed interface AdvancedSettingsUiState {
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions()
     ) : AdvancedSettingsUiState
 
+    data class CustomDnsInfoDialogUiState(
+        override val mtu: String = "",
+        override val isCustomDnsEnabled: Boolean = false,
+        override val isAllowLanEnabled: Boolean = false,
+        override val customDnsItems: List<CustomDnsItem> = listOf(),
+        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions()
+    ) : AdvancedSettingsUiState
+
     data class MalwareInfoDialogUiState(
         override val mtu: String = "",
         override val isCustomDnsEnabled: Boolean = false,
