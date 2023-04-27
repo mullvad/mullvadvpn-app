@@ -16,19 +16,17 @@ final class TunnelTransportProvider: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCache: RelayCache
     private let logger = Logger(label: "TunnelTransportProvider")
-    private var currentTransport: RESTTransport?
 
     init(urlSessionTransport: REST.URLSessionTransport, relayCache: RelayCache) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
-        currentTransport = urlSessionTransport
     }
 
     func transport() -> MullvadREST.RESTTransport? {
-        currentTransport
+        urlSessionTransport
     }
 
-    func selectNextTransport() {
+    func shadowSocksTransport() -> MullvadREST.RESTTransport? {
         do {
             let cachedRelays = try relayCache.read()
             let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
@@ -38,7 +36,7 @@ final class TunnelTransportProvider: RESTTransportProvider {
                   let shadowSocksBridgeRelay = shadowSocksBridgeRelay
             else {
                 logger.error("Could not get shadow socks bridge information.")
-                return
+                return nil
             }
 
             let shadowSocksURLSession = urlSessionTransport.urlSession
@@ -48,9 +46,10 @@ final class TunnelTransportProvider: RESTTransportProvider {
                 shadowSocksBridgeRelay: shadowSocksBridgeRelay
             )
 
-            currentTransport = shadowSocksTransport
+            return shadowSocksTransport
         } catch {
             logger.error(error: error)
         }
+        return nil
     }
 }
