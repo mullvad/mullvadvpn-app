@@ -49,7 +49,9 @@ class AdvancedFragment : BaseFragment() {
                         onMalwareInfoClicked = vm::onMalwareInfoClick,
                         onDismissInfoClicked = vm::onDismissInfoClick,
                         onBackClick = { activity?.onBackPressed() },
-                        onStopEvent = vm::onStopEvent
+                        onStopEvent = vm::onStopEvent,
+                        onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
+                        onObfuscationInfoClicked = vm::onObfuscationInfoClicked
                     )
                 }
             }

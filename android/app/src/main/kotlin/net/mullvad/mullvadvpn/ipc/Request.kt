@@ -83,7 +83,7 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize data class SetDnsOptions(val dnsOptions: DnsOptions) : Request()
 
-    @Parcelize data class SetObfuscationSettings(val settings: ObfuscationSettings) : Request()
+    @Parcelize data class SetObfuscationSettings(val settings: ObfuscationSettings?) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"
