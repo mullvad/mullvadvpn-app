@@ -13,8 +13,11 @@ fun ContentBlockersInfoDialog(onDismiss: () -> Unit) {
             appendLine(stringResource(id = R.string.dns_content_blockers_info))
             append(stringResource(id = R.string.dns_content_blockers_warning))
         },
-        textResource(id = R.string.dns_content_blockers_custom_dns_warning),
-        stringResource(id = R.string.settings_changes_effect_warning_content_blocker),
+        additionalInfo =
+        buildString {
+            appendLine(textResource(id = R.string.dns_content_blockers_custom_dns_warning))
+            appendLine(stringResource(id = R.string.settings_changes_effect_warning_content_blocker))
+        },
         onDismiss = onDismiss,
     )
 }
