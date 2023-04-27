@@ -104,7 +104,11 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         let viewModels = devices.map { restDevice -> DeviceViewModel in
             return DeviceViewModel(
                 id: restDevice.id,
-                name: restDevice.name.capitalized
+                name: restDevice.name.capitalized,
+                createdDate: DateFormatter.localizedString(
+                    from: restDevice.created,
+                    format: "yyyy-mm-dd"
+                )
             )
         }
 
@@ -263,4 +267,5 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 struct DeviceViewModel {
     let id: String
     let name: String
+    let createdDate: String
 }
