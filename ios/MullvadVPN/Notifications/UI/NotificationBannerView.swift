@@ -64,7 +64,8 @@ final class NotificationBannerView: UIView {
     }()
 
     private let actionButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
