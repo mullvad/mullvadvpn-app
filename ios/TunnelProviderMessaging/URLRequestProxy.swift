@@ -44,7 +44,7 @@ public final class URLRequestProxy {
                 guard let self = self else { return }
                 // However there is no guarantee about which queue the execution resumes on
                 // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                dispatchQueue.async {
+                self.dispatchQueue.async {
                     let response = ProxyURLResponse(data: data, response: response, error: error)
                     _ = self.removeRequest(identifier: proxyRequest.id)
 
