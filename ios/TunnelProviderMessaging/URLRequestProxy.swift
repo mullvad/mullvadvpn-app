@@ -41,19 +41,19 @@ public final class URLRequestProxy {
         // The task sent by `transport.sendRequest` comes in an already resumed state
         let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
             guard let self = self else { return }
-            let response = ProxyURLResponse(data: data, response: response, error: error)
+            // However there is no guarantee about which queue the execution resumes on
+            // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
+            dispatchQueue.async { [self] in
+                let response = ProxyURLResponse(data: data, response: response, error: error)
+                _ = self.removeRequest(identifier: proxyRequest.id)
 
-            _ = removeRequest(identifier: proxyRequest.id)
-
-            completionHandler(response)
+                completionHandler(response)
+            }
         }
-        dispatchQueue.async { [weak self] in
-            guard let self = self else { return }
-            // All tasks should have unique identifiers, but if not, cancel the task scheduled
-            // earlier.
-            let oldTask = addRequest(identifier: proxyRequest.id, task: task)
-            oldTask?.cancel()
-        }
+        // All tasks should have unique identifiers, but if not, cancel the task scheduled
+        // earlier.
+        let oldTask = addRequest(identifier: proxyRequest.id, task: task)
+        oldTask?.cancel()
     }
 
     public func cancelRequest(identifier: UUID) {
