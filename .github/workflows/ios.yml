@@ -51,7 +51,7 @@ jobs:
           go-version: 1.19.5
 
       - name: Configure Rust
-        run: rustup target add aarch64-apple-darwin aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-darwin x86_64-apple-ios
+        run: rustup target add x86_64-apple-darwin
 
       - name: Prepare iOS simulator
         # yamllint disable rule:line-length
