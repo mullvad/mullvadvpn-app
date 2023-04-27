@@ -187,4 +187,11 @@
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
     <string name="manage_account">Manage account</string>
+    <string name="obfuscation_title">Obfuscation</string>
+    <string name="obfuscation_info">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.</string>
+    <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
+    <string name="automatic">Automatic</string>
+    <string name="off">Off</string>
+    <string name="udp_over_tcp_port">UDP-over-TCP port</string>
+    <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
 </resources>

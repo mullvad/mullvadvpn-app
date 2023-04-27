@@ -17,7 +17,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         class SetAllowLan(val allow: Boolean) : Command()
         class SetAutoConnect(val autoConnect: Boolean) : Command()
         class SetWireGuardMtu(val mtu: Int?) : Command()
-        class SetObfuscationSettings(val settings: ObfuscationSettings) : Command()
+        class SetObfuscationSettings(val settings: ObfuscationSettings?) : Command()
     }
 
     private val commandChannel = spawnActor()
