@@ -34,11 +34,10 @@ public final class URLRequestProxy {
         dispatchQueue.async {
             // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
             let transportProvider = self.transportProvider()
-            if proxyRequest.useShadowsocksTransport {
-                transportProvider?.selectNextTransport()
-            }
-
-            guard let transport = transportProvider?.transport() else { return }
+            let transport = proxyRequest.useShadowsocksTransport
+                ? transportProvider?.shadowSocksTransport()
+                : transportProvider?.transport()
+            guard let transport = transport else { return }
             // The task sent by `transport.sendRequest` comes in an already resumed state
             let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
                 guard let self = self else { return }
