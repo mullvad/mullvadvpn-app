@@ -47,8 +47,10 @@ import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitl
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
+import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchCellTitle
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
@@ -58,10 +60,13 @@ import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
+import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
+import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -97,7 +102,10 @@ private fun PreviewAdvancedSettings() {
         onCustomDnsInfoClicked = {},
         onDismissInfoClicked = {},
         onBackClick = {},
-        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
+        onStopEvent = {},
+        onSelectObfuscationSetting = {},
+        onObfuscationInfoClicked = {}
     )
 }
 
@@ -130,7 +138,9 @@ fun AdvancedSettingScreen(
     onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onStopEvent: () -> Unit = {},
-    toastMessagesSharedFlow: SharedFlow<String>
+    toastMessagesSharedFlow: SharedFlow<String>,
+    onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
+    onObfuscationInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -163,6 +173,9 @@ fun AdvancedSettingScreen(
         }
         is AdvancedSettingsUiState.MalwareInfoDialogUiState -> {
             MalwareInfoDialog(onDismissInfoClicked)
+        }
+        is AdvancedSettingsUiState.ObfuscationInfoDialogUiState -> {
+            ObfuscationInfoDialog(onDismissInfoClicked)
         }
         else -> {
             // NOOP
@@ -301,6 +314,62 @@ fun AdvancedSettingScreen(
                         )
                     }
                 }
+            }
+
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                InformationComposeCell(
+                    title = stringResource(R.string.obfuscation_title),
+                    onInfoClicked = { onObfuscationInfoClicked() }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.automatic),
+                        )
+                    },
+                    background =
+                        if (uiState.selectedObfuscation == SelectedObfuscation.Auto) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Udp2Tcp) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
+                        )
+                    },
+                    background =
+                        if (uiState.selectedObfuscation == SelectedObfuscation.Udp2Tcp) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.off),
+                        )
+                    },
+                    background =
+                        if (uiState.selectedObfuscation == SelectedObfuscation.Off) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
             }
 
             item {
