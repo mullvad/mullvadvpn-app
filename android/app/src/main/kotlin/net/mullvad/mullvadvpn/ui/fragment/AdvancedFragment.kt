@@ -4,9 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.AdvancedSettingScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
@@ -15,6 +21,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AdvancedFragment : BaseFragment() {
     private val vm by viewModel<AdvancedSettingsViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launchUiSubscriptionsOnResume()
+    }
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
@@ -69,5 +80,11 @@ class AdvancedFragment : BaseFragment() {
             addToBackStack(null)
             commitAllowingStateLoss()
         }
+    }
+
+    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
+        vm.toastMessages
+            .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+            .collect { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
     }
 }
