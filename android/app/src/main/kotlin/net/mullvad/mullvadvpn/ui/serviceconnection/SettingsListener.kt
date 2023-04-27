@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
@@ -32,6 +33,12 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
         get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
         set(value) {
             connection.send(Request.SetWireGuardMtu(value).message)
+        }
+
+    var obfuscationSettings: ObfuscationSettings?
+        get() = settingsNotifier.latestEvent?.obfuscationSettings
+        set(value) {
+            connection.send(Request.SetObfuscationSettings(value).message)
         }
 
     init {

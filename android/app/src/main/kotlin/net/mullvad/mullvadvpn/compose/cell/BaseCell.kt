@@ -23,9 +23,9 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
 @Composable
 fun BaseCell(
-    title: @Composable () -> Unit,
-    bodyView: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    title: @Composable () -> Unit,
+    bodyView: @Composable () -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,

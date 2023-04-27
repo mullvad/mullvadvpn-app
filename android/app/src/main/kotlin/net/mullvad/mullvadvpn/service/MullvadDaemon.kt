@@ -174,7 +174,7 @@ class MullvadDaemon(
         updateRelaySettings(daemonInterfaceAddress, update)
     }
 
-    fun setObfuscationSettings(settings: ObfuscationSettings) {
+    fun setObfuscationSettings(settings: ObfuscationSettings?) {
         setObfuscationSettings(daemonInterfaceAddress, settings)
     }
 
@@ -252,7 +252,7 @@ class MullvadDaemon(
 
     private external fun setObfuscationSettings(
         daemonInterfaceAddress: Long,
-        settings: ObfuscationSettings
+        settings: ObfuscationSettings?
     )
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
