@@ -29,8 +29,8 @@ jobs:
         run: |-
           commits=${{ github.event.pull_request.commits }}
           if [[ -n "$commits" ]]; then
-              # Prepare enough depth for diffs with main, currently hard-coded but should probably be
-              # whatever branch is merged into
-              git fetch --depth="$(( commits + 1 ))" origin ${{ github.head_ref }} main
+              echo "Fetching $commits commits"
+              # FIXME: Temporarily simplified to avoid https://securitylab.github.com/research/github-actions-untrusted-input/#script-injections
+              git fetch --depth="$(( commits + 1 ))"
           fi
           ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main
