@@ -31,14 +31,8 @@ pub enum SplitTunnel {
 
 #[derive(Subcommand, Debug)]
 pub enum App {
-    #[command(hide = true)]
-    List,
-    Add {
-        path: PathBuf,
-    },
-    Remove {
-        path: PathBuf,
-    },
+    Add { path: PathBuf },
+    Remove { path: PathBuf },
     Clear,
 }
 
@@ -87,21 +81,6 @@ impl SplitTunnel {
 
     async fn app(subcmd: App) -> Result<()> {
         match subcmd {
-            App::List => {
-                let paths = MullvadProxyClient::new()
-                    .await?
-                    .get_settings()
-                    .await?
-                    .split_tunnel
-                    .apps;
-
-                println!("Excluded applications:");
-                for path in &paths {
-                    println!("{}", path.display());
-                }
-
-                Ok(())
-            }
             App::Add { path } => {
                 MullvadProxyClient::new()
                     .await?
