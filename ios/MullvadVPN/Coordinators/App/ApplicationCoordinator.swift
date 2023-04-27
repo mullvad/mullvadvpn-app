@@ -616,7 +616,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func addTunnelObserver() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
                 self?.deviceStateDidChange(deviceState)
             })
 
