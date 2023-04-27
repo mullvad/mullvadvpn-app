@@ -1647,6 +1647,9 @@ msgstr ""
 msgid "Blocking internet (device offline)"
 msgstr ""
 
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr ""
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
@@ -1657,6 +1660,9 @@ msgid "Critical error (your attention is required)"
 msgstr ""
 
 msgid "Custom DNS server addresses %s are invalid"
+msgstr ""
+
+msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
 msgid "Enable"
