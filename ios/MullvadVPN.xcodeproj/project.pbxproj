@@ -244,6 +244,7 @@
 		58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3F4F82964B08300D72515 /* MapViewController.swift */; };
 		58C3F4FB296C3AD500D72515 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */; };
 		58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */; };
+		58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */; };
 		58CAF9F82983D36800BE19F7 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
 		58CAF9FA2983E0C600BE19F7 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F92983E0C600BE19F7 /* LoginCoordinator.swift */; };
 		58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9FF2983FF0200BE19F7 /* LoginInteractor.swift */; };
@@ -360,8 +361,8 @@
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
-		7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
+		7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
@@ -873,6 +874,7 @@
 		58C3F4F82964B08300D72515 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
+		58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationConfiguration.swift; sourceTree = "<group>"; };
 		58CAF9F72983D36800BE19F7 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		58CAF9F92983E0C600BE19F7 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		58CAF9FF2983FF0200BE19F7 /* LoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInteractor.swift; sourceTree = "<group>"; };
@@ -949,8 +951,8 @@
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
-		7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsContentBlockersHeaderView.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
+		7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsContentBlockersHeaderView.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Appearance.swift"; sourceTree = "<group>"; };
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
@@ -1282,7 +1284,6 @@
 		583FE01829C19709006E85F9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */,
@@ -1582,6 +1583,7 @@
 		587B75422669034500DEF7E9 /* Notification Providers */ = {
 			isa = PBXGroup;
 			children = (
+				58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */,
 				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */,
 				F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotification.swift */,
@@ -2725,6 +2727,7 @@
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
+				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */,
 				586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */,
 				7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */,
