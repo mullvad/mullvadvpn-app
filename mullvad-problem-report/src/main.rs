@@ -62,14 +62,9 @@ fn run() -> Result<(), Error> {
             extra_logs,
             redact,
         } => {
-            let expanded_output_path = output.canonicalize().unwrap_or_else(|_| output.to_owned());
+            collect_report(&extra_logs, &output, redact)?;
 
-            collect_report(&extra_logs, &expanded_output_path, redact)?;
-
-            println!(
-                "Problem report written to {}",
-                expanded_output_path.display()
-            );
+            println!("Problem report written to {}", output.display());
             println!();
             println!("Send the problem report to support via the send subcommand. See:");
             println!(" $ {} send --help", env::args().next().unwrap());
