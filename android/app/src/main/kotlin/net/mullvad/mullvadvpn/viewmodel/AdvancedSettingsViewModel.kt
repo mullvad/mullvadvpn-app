@@ -90,6 +90,10 @@ class AdvancedSettingsViewModel(
         dialogState.update { AdvancedSettingsDialogState.ContentBlockersInfoDialog }
     }
 
+    fun onCustomDnsInfoClick() {
+        dialogState.update { AdvancedSettingsDialogState.CustomDnsInfoDialog }
+    }
+
     fun onMalwareInfoClick() {
         dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
     }
