@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
 data class AdvancedSettingsViewModelState(
     val mtuValue: String,
@@ -9,6 +10,7 @@ data class AdvancedSettingsViewModelState(
     val isAllowLanEnabled: Boolean,
     val customDnsList: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
+    val selectedObfuscation: SelectedObfuscation,
     val dialogState: AdvancedSettingsDialogState
 ) {
     fun toUiState(): AdvancedSettingsUiState {
@@ -20,7 +22,8 @@ data class AdvancedSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    mtuEditValue = dialogState.mtuEditValue
+                    mtuEditValue = dialogState.mtuEditValue,
+                    selectedObfuscation = selectedObfuscation
                 )
             is AdvancedSettingsDialogState.DnsDialog ->
                 AdvancedSettingsUiState.DnsDialogUiState(
@@ -29,7 +32,8 @@ data class AdvancedSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    stagedDns = dialogState.stagedDns
+                    stagedDns = dialogState.stagedDns,
+                    selectedObfuscation = selectedObfuscation
                 )
             is AdvancedSettingsDialogState.ContentBlockersInfoDialog ->
                 AdvancedSettingsUiState.ContentBlockersInfoDialogUiState(
@@ -37,7 +41,8 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
-                    contentBlockersOptions = contentBlockersOptions
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation
                 )
             is AdvancedSettingsDialogState.CustomDnsInfoDialog ->
                 AdvancedSettingsUiState.CustomDnsInfoDialogUiState(
@@ -53,7 +58,17 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
-                    contentBlockersOptions = contentBlockersOptions
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation
+                )
+            is AdvancedSettingsDialogState.ObfuscationInfoDialog ->
+                AdvancedSettingsUiState.ObfuscationInfoDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation
                 )
             else ->
                 AdvancedSettingsUiState.DefaultUiState(
@@ -61,7 +76,8 @@ data class AdvancedSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
-                    contentBlockersOptions = contentBlockersOptions
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation
                 )
         }
     }
@@ -76,7 +92,8 @@ data class AdvancedSettingsViewModelState(
                 customDnsList = listOf(),
                 contentBlockersOptions = DefaultDnsOptions(),
                 isAllowLanEnabled = false,
-                dialogState = AdvancedSettingsDialogState.NoDialog
+                dialogState = AdvancedSettingsDialogState.NoDialog,
+                selectedObfuscation = SelectedObfuscation.Auto
             )
     }
 }
@@ -93,6 +110,8 @@ sealed class AdvancedSettingsDialogState {
     object CustomDnsInfoDialog : AdvancedSettingsDialogState()
 
     object MalwareInfoDialog : AdvancedSettingsDialogState()
+
+    object ObfuscationInfoDialog : AdvancedSettingsDialogState()
 }
 
 sealed interface StagedDns {
