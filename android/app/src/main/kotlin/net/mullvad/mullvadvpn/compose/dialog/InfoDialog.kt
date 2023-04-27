@@ -40,7 +40,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
     InfoDialog(
         message = longPreviewText,
         additionalInfo = longPreviewText,
-        onDismiss = {},
+        onDismiss = {}
     )
 }
 
@@ -52,16 +52,18 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
         onDismissRequest = { onDismiss() },
         title = {
             Icon(
-                modifier = Modifier.fillMaxWidth().height(iconHeight),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(iconHeight),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = "",
-                tint = MullvadWhite,
+                tint = MullvadWhite
             )
         },
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = verticalSpacing),
+                modifier = Modifier.padding(top = verticalSpacing)
             ) {
                 Text(
                     text = message,
@@ -69,7 +71,9 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
                     fontStyle = FontStyle.Normal,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(bottom = verticalSpacing).fillMaxWidth()
+                    modifier = Modifier
+                        .padding(bottom = verticalSpacing)
+                        .fillMaxWidth()
                 )
                 if (additionalInfo != null) {
                     HtmlText(
@@ -84,16 +88,17 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
         buttons = {
             Button(
                 modifier =
-                    Modifier.wrapContentHeight()
-                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
-                        .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
-                        .fillMaxWidth(),
+                Modifier
+                    .wrapContentHeight()
+                    .padding(all = dimensionResource(id = R.dimen.medium_padding))
+                    .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
+                    .fillMaxWidth(),
                 colors =
-                    ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.blue),
-                        contentColor = colorResource(id = R.color.white),
-                    ),
-                onClick = { onDismiss() },
+                ButtonDefaults.buttonColors(
+                    backgroundColor = colorResource(id = R.color.blue),
+                    contentColor = colorResource(id = R.color.white)
+                ),
+                onClick = { onDismiss() }
             ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_dismiss_button),
@@ -102,10 +107,10 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             }
         },
         properties =
-            DialogProperties(
-                dismissOnClickOutside = true,
-                dismissOnBackPress = true,
-            ),
-        backgroundColor = colorResource(id = R.color.darkBlue),
+        DialogProperties(
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true,
+        ),
+        backgroundColor = colorResource(id = R.color.darkBlue)
     )
 }
