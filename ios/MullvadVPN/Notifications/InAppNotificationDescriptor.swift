@@ -10,7 +10,7 @@ import Foundation
 import UIKit.UIImage
 
 /// Struct describing in-app notification.
-struct InAppNotificationDescriptor {
+struct InAppNotificationDescriptor: Equatable {
     /// Notification identifier.
     var identifier: String
 
@@ -23,19 +23,32 @@ struct InAppNotificationDescriptor {
     /// Notification body.
     var body: NSAttributedString
 
-    /// Notification action
+    /// Notification action.
     var action: InAppNotificationAction?
 }
 
-extension InAppNotificationDescriptor: Equatable {
-    static func == (lhs: InAppNotificationDescriptor, rhs: InAppNotificationDescriptor) -> Bool {
-        lhs.identifier == rhs.identifier
+/// Enum type describing kinds of in-app actions.
+enum InAppNotificationActionType {
+    /// Action type represented by an image that depicts a cross tilted by 45 degrees.
+    case close
+
+    /// Returns an image associated with the corresponding action type.
+    var image: UIImage? {
+        return UIImage(named: "IconCloseSml")?.withRenderingMode(.automatic)
     }
 }
 
-struct InAppNotificationAction {
-    var image: UIImage?
+/// Type describing a specific in-app notification action.
+struct InAppNotificationAction: Equatable {
+    /// Type of action.
+    var type: InAppNotificationActionType
+
+    /// Block handler.
     var handler: (() -> Void)?
+
+    static func == (lhs: InAppNotificationAction, rhs: InAppNotificationAction) -> Bool {
+        return lhs.type == rhs.type
+    }
 }
 
 enum NotificationBannerStyle {
