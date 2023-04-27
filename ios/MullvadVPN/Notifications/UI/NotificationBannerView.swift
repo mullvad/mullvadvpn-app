@@ -89,7 +89,7 @@ final class NotificationBannerView: UIView {
 
     var actionHandler: InAppNotificationAction? {
         didSet {
-            actionButton.setImage(actionHandler?.image, for: .normal)
+            actionButton.setImage(actionHandler?.type.image, for: .normal)
             actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
         }
     }
