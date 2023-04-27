@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.LoadingScreen
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
@@ -20,7 +21,7 @@ class LoadingFragment : Fragment(), StatusBarPainter, NavigationBarPainter {
     ): View {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
-                LoadingScreen(this@LoadingFragment::openSettings)
+                AppTheme { LoadingScreen(this@LoadingFragment::openSettings) }
             }
         }
     }
