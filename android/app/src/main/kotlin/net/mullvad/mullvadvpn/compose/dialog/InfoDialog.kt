@@ -37,11 +37,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
             "The purpose of this specific sample text is to visualize a long text that will " +
             "result in multiple lines in the changelog dialog."
 
-    InfoDialog(
-        message = longPreviewText,
-        additionalInfo = longPreviewText,
-        onDismiss = {},
-    )
+    InfoDialog(message = longPreviewText, additionalInfo = longPreviewText, onDismiss = {})
 }
 
 @Composable
@@ -55,13 +51,13 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 modifier = Modifier.fillMaxWidth().height(iconHeight),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = "",
-                tint = MullvadWhite,
+                tint = MullvadWhite
             )
         },
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = verticalSpacing),
+                modifier = Modifier.padding(top = verticalSpacing)
             ) {
                 Text(
                     text = message,
@@ -91,9 +87,9 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 colors =
                     ButtonDefaults.buttonColors(
                         backgroundColor = colorResource(id = R.color.blue),
-                        contentColor = colorResource(id = R.color.white),
+                        contentColor = colorResource(id = R.color.white)
                     ),
-                onClick = { onDismiss() },
+                onClick = { onDismiss() }
             ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_dismiss_button),
@@ -106,6 +102,6 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 dismissOnClickOutside = true,
                 dismissOnBackPress = true,
             ),
-        backgroundColor = colorResource(id = R.color.darkBlue),
+        backgroundColor = colorResource(id = R.color.darkBlue)
     )
 }
