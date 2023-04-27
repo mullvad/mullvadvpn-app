@@ -85,6 +85,19 @@ enum DeviceState: Codable, Equatable {
             return nil
         }
     }
+
+    /**
+     Mutates account and device data when in logged in state, otherwise does nothing.
+     */
+    mutating func updateData(_ body: (inout StoredAccountData, inout StoredDeviceData) -> Void) {
+        switch self {
+        case var .loggedIn(accountData, deviceData):
+            body(&accountData, &deviceData)
+            self = .loggedIn(accountData, deviceData)
+        case .revoked, .loggedOut:
+            break
+        }
+    }
 }
 
 struct StoredDeviceData: Codable, Equatable {
