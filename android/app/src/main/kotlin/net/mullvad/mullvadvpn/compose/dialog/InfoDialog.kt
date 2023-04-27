@@ -39,20 +39,22 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     InfoDialog(
         message = longPreviewText,
-        longPreviewText,
+        additionalInfo = longPreviewText,
         onDismiss = {},
     )
 }
 
 @Composable
-fun InfoDialog(message: String, vararg additionalInfo: String, onDismiss: () -> Unit) {
+fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () -> Unit) {
     val verticalSpacing = 24.dp
     val iconHeight = 44.dp
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
             Icon(
-                modifier = Modifier.fillMaxWidth().height(iconHeight),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(iconHeight),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = "",
                 tint = MullvadWhite,
@@ -69,31 +71,33 @@ fun InfoDialog(message: String, vararg additionalInfo: String, onDismiss: () -> 
                     fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
                     fontStyle = FontStyle.Normal,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .padding(bottom = verticalSpacing)
+                        .fillMaxWidth(),
                 )
-                additionalInfo.forEach {
+                if (additionalInfo != null) {
                     HtmlText(
-                        htmlFormattedString = it,
+                        htmlFormattedString = additionalInfo,
                         textColor = colorResource(id = R.color.white).toArgb(),
                         textSize = dimensionResource(id = R.dimen.text_small).value,
-                        modifier = Modifier.padding(top = verticalSpacing).fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-
             }
         },
         buttons = {
             Button(
                 modifier =
-                    Modifier.wrapContentHeight()
-                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
-                        .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
-                        .fillMaxWidth(),
+                Modifier
+                    .wrapContentHeight()
+                    .padding(all = dimensionResource(id = R.dimen.medium_padding))
+                    .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
+                    .fillMaxWidth(),
                 colors =
-                    ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.blue),
-                        contentColor = colorResource(id = R.color.white),
-                    ),
+                ButtonDefaults.buttonColors(
+                    backgroundColor = colorResource(id = R.color.blue),
+                    contentColor = colorResource(id = R.color.white),
+                ),
                 onClick = { onDismiss() },
             ) {
                 Text(
@@ -103,10 +107,10 @@ fun InfoDialog(message: String, vararg additionalInfo: String, onDismiss: () -> 
             }
         },
         properties =
-            DialogProperties(
-                dismissOnClickOutside = true,
-                dismissOnBackPress = true,
-            ),
+        DialogProperties(
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true,
+        ),
         backgroundColor = colorResource(id = R.color.darkBlue),
     )
 }
