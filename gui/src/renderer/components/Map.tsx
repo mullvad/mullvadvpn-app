@@ -32,7 +32,10 @@ export default function Map(props: MapProps) {
   const coordinate = useMemo(() => new Coordinate(props.location[1], props.location[0]), [
     ...props.location,
   ]);
+
+  const frameCallback = useRef<(now: number) => void>();
   const newParams = useRef<MapParams>();
+  const pause = useRef<boolean>(false);
 
   const canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
     if (!canvas) {
@@ -43,16 +46,19 @@ export default function Map(props: MapProps) {
       canvas,
       coordinate,
       props.markerStyle === MarkerStyle.secure,
+      () => (pause.current = true),
     );
 
-    const frameCallback = (now: number) => {
+    frameCallback.current = (now: number) => {
       innerFrameCallback(now, newParams.current);
       newParams.current = undefined;
 
-      requestAnimationFrame(frameCallback);
+      if (!pause.current) {
+        requestAnimationFrame(frameCallback.current!);
+      }
     };
 
-    requestAnimationFrame(frameCallback);
+    requestAnimationFrame(frameCallback.current);
   }, []);
 
   useEffect(() => {
@@ -60,6 +66,13 @@ export default function Map(props: MapProps) {
       location: coordinate,
       connectionState: props.markerStyle === MarkerStyle.secure,
     };
+
+    if (pause.current) {
+      pause.current = false;
+      if (frameCallback.current) {
+        requestAnimationFrame(frameCallback.current);
+      }
+    }
   }, [coordinate, props.markerStyle]);
 
   return <StyledCanvas ref={canvasRef} id="glcanvas" width={window.innerWidth} height="493" />;
@@ -71,13 +84,14 @@ function getAnimationFramRenderer(
   canvas: HTMLCanvasElement,
   startingCoordinate: Coordinate,
   connectionState: boolean,
+  animationEndListener: () => void,
 ): AnimationFrameCallback {
   const gl = canvas.getContext('webgl2', { antialias: true })!;
   setGlOptions(gl);
 
   const projectionMatrix = getProjectionMatrix(gl);
 
-  const map = new GLMap(gl, startingCoordinate, connectionState);
+  const map = new GLMap(gl, startingCoordinate, connectionState, animationEndListener);
 
   const drawScene = (now: number) => {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
