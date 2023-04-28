@@ -29,20 +29,26 @@ interface MapProps {
 }
 
 export default function Map(props: MapProps) {
+  // TODO: Change order of long/lat in Coordinate
   const coordinate = useMemo(() => new Coordinate(props.location[1], props.location[0]), [
     ...props.location,
   ]);
 
+  // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
+  // has been rendered.
   const frameCallback = useRef<(now: number) => void>();
+  // When location or connection state changes it's stored here until passed to 3dmap
   const newParams = useRef<MapParams>();
+  // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
+  // Called when the canvas has been rendered
   const canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
     if (!canvas) {
       return;
     }
 
-    const innerFrameCallback = getAnimationFramRenderer(
+    const innerFrameCallback = getAnimationFramCallback(
       canvas,
       coordinate,
       props.markerStyle === MarkerStyle.secure,
@@ -51,8 +57,10 @@ export default function Map(props: MapProps) {
 
     frameCallback.current = (now: number) => {
       innerFrameCallback(now, newParams.current);
+      // Clear new params to avoid setting them multiple times
       newParams.current = undefined;
 
+      // Stops recursively requesting to be called the next frame when it should be paused
       if (!pause.current) {
         requestAnimationFrame(frameCallback.current!);
       }
@@ -61,6 +69,7 @@ export default function Map(props: MapProps) {
     requestAnimationFrame(frameCallback.current);
   }, []);
 
+  // Set new params when the location or connection state has changed, and unpause if paused
   useEffect(() => {
     newParams.current = {
       location: coordinate,
@@ -75,12 +84,13 @@ export default function Map(props: MapProps) {
     }
   }, [coordinate, props.markerStyle]);
 
+  // TODO: Properly detect height
   return <StyledCanvas ref={canvasRef} id="glcanvas" width={window.innerWidth} height="493" />;
 }
 
 type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
-function getAnimationFramRenderer(
+function getAnimationFramCallback(
   canvas: HTMLCanvasElement,
   startingCoordinate: Coordinate,
   connectionState: boolean,
