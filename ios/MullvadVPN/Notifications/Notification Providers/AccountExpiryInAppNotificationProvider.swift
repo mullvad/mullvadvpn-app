@@ -8,9 +8,6 @@
 
 import Foundation
 
-private let triggerInterval = 3
-private let refreshInterval = 60
-
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry: Date?
     private var tunnelObserver: TunnelBlockObserver?
@@ -23,7 +20,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
             },
-            didUpdateDeviceState: { [weak self] tunnelManager, deviceState in
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
                 self?.invalidate(deviceState: deviceState)
             }
         )
@@ -89,7 +86,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
 
         return Calendar.current.date(
             byAdding: .day,
-            value: -triggerInterval,
+            value: -NotificationConfiguration.closeToExpiryTriggerInterval,
             to: accountExpiry
         )
     }
@@ -120,7 +117,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         }
         timer.schedule(
             wallDeadline: .now() + fireDate.timeIntervalSince(now),
-            repeating: .seconds(refreshInterval)
+            repeating: .seconds(NotificationConfiguration.closeToExpiryInAppNotificationRefreshInterval)
         )
         timer.activate()
 

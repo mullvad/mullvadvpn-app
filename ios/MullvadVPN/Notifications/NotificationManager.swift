@@ -96,15 +96,12 @@ final class NotificationManager: NotificationProviderDelegate {
 
             for newRequest in newSystemNotificationRequests {
                 notificationCenter.add(newRequest) { error in
-                    if let error = error {
-                        self.logger.error(
-                            error: error,
-                            message: """
-                            Failed to add notification request with identifier \
-                            \(newRequest.identifier).
-                            """
-                        )
-                    }
+                    guard let error = error else { return }
+
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to add notification request with identifier \(newRequest.identifier)."
+                    )
                 }
             }
         }

@@ -616,8 +616,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func addTunnelObserver() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
-                self?.deviceStateDidChange(deviceState)
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
+                self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
             })
 
         tunnelManager.addObserver(tunnelObserver)
@@ -629,16 +629,28 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
 
-    private func deviceStateDidChange(_ deviceState: DeviceState) {
+    private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
         splitViewController.preferredDisplayMode = deviceState.splitViewMode
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-            updateOutOfTimeTimer()
+            updateOutOfTimeTimer(accountData: accountData)
             updateView(deviceState: deviceState, showDeviceInfo: false)
-            if !accountData.isExpired {
+
+            // Handle transition to and from expired state.
+            let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
+            switch (accountWasExpired, accountData.isExpired) {
+            case (true, false):
+                continueFlow(animated: true)
                 router.dismiss(.outOfTime, animated: true)
+
+            case (false, true):
+                router.present(.outOfTime, animated: true)
+
+            default:
+                break
             }
+
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
@@ -663,22 +675,18 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Out of time
 
-    private func updateOutOfTimeTimer() {
+    private func updateOutOfTimeTimer(accountData: StoredAccountData) {
         cancelOutOfTimeTimer()
 
-        guard let expiry = tunnelManager.deviceState.accountData?.expiry else { return }
+        guard !accountData.isExpired else { return }
 
-        let timer = Timer(fire: expiry, interval: 0, repeats: false, block: { [weak self] _ in
-            self?.outOfTimeTimerDidFire()
+        let timer = Timer(fire: accountData.expiry, interval: 0, repeats: false, block: { [weak self] _ in
+            self?.router.present(.outOfTime, animated: true)
         })
 
         RunLoop.main.add(timer, forMode: .common)
 
         outOfTimeTimer = timer
-    }
-
-    private func outOfTimeTimerDidFire() {
-        router.present(.outOfTime, animated: true)
     }
 
     private func cancelOutOfTimeTimer() {

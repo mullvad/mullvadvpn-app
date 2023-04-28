@@ -9,11 +9,7 @@
 import Foundation
 import UserNotifications
 
-private let triggerInterval = 3
-
-final class AccountExpirySystemNotificationProvider: NotificationProvider,
-    SystemNotificationProvider
-{
+final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {
     private var accountExpiry: Date?
     private var tunnelObserver: TunnelBlockObserver?
     private var defaultActionHandler: (() -> Void)?
@@ -25,7 +21,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider,
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
             },
-            didUpdateDeviceState: { [weak self] tunnelManager, deviceState in
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
                 self?.invalidate(deviceState: deviceState)
             }
         )
@@ -101,7 +97,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider,
 
         guard let triggerDate = Calendar.current.date(
             byAdding: .day,
-            value: -triggerInterval,
+            value: -NotificationConfiguration.closeToExpiryTriggerInterval,
             to: accountExpiry
         ) else { return nil }
 
