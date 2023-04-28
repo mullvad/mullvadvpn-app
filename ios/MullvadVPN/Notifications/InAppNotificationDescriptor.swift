@@ -27,27 +27,16 @@ struct InAppNotificationDescriptor: Equatable {
     var action: InAppNotificationAction?
 }
 
-/// Enum type describing kinds of in-app actions.
-enum InAppNotificationActionType {
-    /// Action type represented by an image that depicts a cross tilted by 45 degrees.
-    case close
-
-    /// Returns an image associated with the corresponding action type.
-    var image: UIImage? {
-        return UIImage(named: "IconCloseSml")?.withRenderingMode(.automatic)
-    }
-}
-
 /// Type describing a specific in-app notification action.
 struct InAppNotificationAction: Equatable {
-    /// Type of action.
-    var type: InAppNotificationActionType
+    /// Image assigned to action button.
+    var image: UIImage?
 
-    /// Block handler.
+    /// Action handler for button.
     var handler: (() -> Void)?
 
     static func == (lhs: InAppNotificationAction, rhs: InAppNotificationAction) -> Bool {
-        return lhs.type == rhs.type
+        return lhs.image == rhs.image
     }
 }
 

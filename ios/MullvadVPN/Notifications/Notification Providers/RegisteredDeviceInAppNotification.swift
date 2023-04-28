@@ -52,7 +52,7 @@ final class RegisteredDeviceInAppNotification: NotificationProvider,
             ),
             body: attributedBody,
             action: .init(
-                type: .close,
+                image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
                     guard let self = self else { return }
                     self.shouldShowBanner = false
