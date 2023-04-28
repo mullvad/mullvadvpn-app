@@ -85,7 +85,7 @@ final class AddressCacheTracker {
     }
 
     func updateEndpoints(completionHandler: ((Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
-        let operation = ResultBlockOperation<Bool> { operation in
+        let operation = ResultBlockOperation<Bool>(cancellableTask: { operation -> Cancellable in
             guard self.nextScheduleDate() <= Date() else {
                 operation.finish(result: .success(false))
                 return AnyCancellable {}
@@ -96,7 +96,7 @@ final class AddressCacheTracker {
 
                 operation.finish(result: result.map { _ in true })
             }
-        }
+        })
 
         operation.completionQueue = .main
         operation.completionHandler = completionHandler
