@@ -170,8 +170,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             viewModel = mergedViewModel
         }
 
-        updateSnapshot()
-        reloadCustomDNSFooter()
+        updateSnapshot { [weak self] in
+            self?.reloadCustomDNSFooter()
+        }
     }
 
     // MARK: - UITableViewDataSource
@@ -558,11 +559,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let sectionIndex = snapshot().indexOfSection(.customDNS)!
 
         UIView.performWithoutAnimation {
-            tableView?.performBatchUpdates({
-                if let reusableView = tableView?.footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView {
-                    configureFooterView(reusableView)
-                }
-            })
+            if let reusableView = tableView?.footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView {
+                configureFooterView(reusableView)
+            }
         }
     }
 
@@ -601,6 +600,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
             .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
+
+        reusableView.titleLabel.sizeToFit()
     }
 }
 
