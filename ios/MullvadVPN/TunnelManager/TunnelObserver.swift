@@ -13,7 +13,7 @@ protocol TunnelObserver: AnyObject {
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus)
     func tunnelManager(
         _ manager: TunnelManager,
-        didUpdateDeviceState newDeviceState: DeviceState,
+        didUpdateDeviceState deviceState: DeviceState,
         previousDeviceState: DeviceState
     )
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2)

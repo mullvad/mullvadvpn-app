@@ -11,7 +11,11 @@ import Foundation
 final class TunnelBlockObserver: TunnelObserver {
     typealias DidLoadConfigurationHandler = (TunnelManager) -> Void
     typealias DidUpdateTunnelStatusHandler = (TunnelManager, TunnelStatus) -> Void
-    typealias DidUpdateDeviceStateHandler = (TunnelManager, DeviceState, DeviceState) -> Void
+    typealias DidUpdateDeviceStateHandler = (
+        _ tunnelManager: TunnelManager,
+        _ deviceState: DeviceState,
+        _ previousDeviceStaate: DeviceState
+    ) -> Void
     typealias DidUpdateTunnelSettingsHandler = (TunnelManager, TunnelSettingsV2) -> Void
     typealias DidFailWithErrorHandler = (TunnelManager, Error) -> Void
 
@@ -45,10 +49,10 @@ final class TunnelBlockObserver: TunnelObserver {
 
     func tunnelManager(
         _ manager: TunnelManager,
-        didUpdateDeviceState newDeviceState: DeviceState,
+        didUpdateDeviceState deviceState: DeviceState,
         previousDeviceState: DeviceState
     ) {
-        didUpdateDeviceState?(manager, newDeviceState, previousDeviceState)
+        didUpdateDeviceState?(manager, deviceState, previousDeviceState)
     }
 
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2) {
