@@ -382,6 +382,7 @@ export default class Map {
     gl: WebGL2RenderingContext,
     startCoordinate: Coordinate,
     connectionState: boolean,
+    private animationEndListener?: () => void,
   ) {
     this.globe = new Globe(gl);
     this.locationMarkerSecure = new LocationMarker(gl, locationMarkerSecureColor);
@@ -463,6 +464,7 @@ export default class Map {
       // so they can be pruned
       if (animationRatio >= 1.0 && i > 0) {
         this.animations = this.animations.slice(i, this.animations.length);
+
         break;
       }
       ratio = animationRatio;
@@ -471,6 +473,10 @@ export default class Map {
     // Set our coordinate and zoom to the values interpolated from all ongoing animations.
     this.coordinate = coordinate;
     this.zoom = zoom;
+
+    if (this.animations.length === 0) {
+      this.animationEndListener?.();
+    }
   }
 }
 
