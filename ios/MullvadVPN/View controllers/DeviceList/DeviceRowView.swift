@@ -26,6 +26,14 @@ class DeviceRowView: UIView {
         return activityIndicator
     }()
 
+    let creationDateLabel: UILabel = {
+        let creationDateLabel = UILabel()
+        creationDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        creationDateLabel.font = UIFont.systemFont(ofSize: 14)
+        creationDateLabel.textColor = .white.withAlphaComponent(0.6)
+        return creationDateLabel
+    }()
+
     let removeButton: UIButton = {
         let image = UIImage(named: "IconClose")?
             .withTintColor(
@@ -65,21 +73,35 @@ class DeviceRowView: UIView {
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.rowViewLayoutMargins
 
-        for subview in [textLabel, removeButton, activityIndicator] {
+        for subview in [textLabel, removeButton, activityIndicator, creationDateLabel] {
             addSubview(subview)
         }
 
         textLabel.text = viewModel.name
+        creationDateLabel.text = .init(
+            format:
+            NSLocalizedString(
+                "CREATED_DEVICE_LABEL",
+                tableName: "DeviceManagement",
+                value: "Created: %@",
+                comment: ""
+            ),
+            viewModel.creationDate
+        )
 
         removeButton.addTarget(self, action: #selector(handleButtonTap(_:)), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             textLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            textLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
-                .withPriority(.defaultLow),
 
-            removeButton.centerYAnchor.constraint(equalTo: textLabel.centerYAnchor),
+            creationDateLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
+            creationDateLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 4.0),
+            creationDateLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+                .withPriority(.defaultLow),
+            creationDateLabel.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+
+            removeButton.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor),
             removeButton.leadingAnchor.constraint(
                 greaterThanOrEqualTo: textLabel.trailingAnchor,
                 constant: 8
