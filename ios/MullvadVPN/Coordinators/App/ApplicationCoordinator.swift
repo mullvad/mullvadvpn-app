@@ -629,13 +629,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
 
-    private func deviceStateDidChange(_ newDeviceState: DeviceState, previousDeviceState: DeviceState) {
-        splitViewController.preferredDisplayMode = newDeviceState.splitViewMode
+    private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
+        splitViewController.preferredDisplayMode = deviceState.splitViewMode
 
-        switch newDeviceState {
+        switch deviceState {
         case let .loggedIn(accountData, _):
             updateOutOfTimeTimer(accountData: accountData)
-            updateView(deviceState: newDeviceState, showDeviceInfo: false)
+            updateView(deviceState: deviceState, showDeviceInfo: false)
 
             // Handle transition to and from expired state.
             let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
@@ -657,7 +657,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .loggedOut:
             cancelOutOfTimeTimer()
-            updateView(deviceState: newDeviceState, showDeviceInfo: false)
+            updateView(deviceState: deviceState, showDeviceInfo: false)
         }
     }
 

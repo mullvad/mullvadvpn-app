@@ -12,7 +12,7 @@ final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
 
-    var didUpdateDeviceState: ((DeviceState, DeviceState) -> Void)?
+    var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
     var tunnelStatus: TunnelStatus {
