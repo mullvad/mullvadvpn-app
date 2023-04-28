@@ -616,8 +616,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func addTunnelObserver() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
-                self?.deviceStateDidChange(deviceState)
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
+                self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
             })
 
         tunnelManager.addObserver(tunnelObserver)
@@ -629,7 +629,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
 
-    private func deviceStateDidChange(_ deviceState: DeviceState) {
+    private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
         splitViewController.preferredDisplayMode = deviceState.splitViewMode
 
         switch deviceState {

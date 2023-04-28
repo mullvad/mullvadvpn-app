@@ -27,7 +27,7 @@ final class AccountInteractor {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
                 self?.didReceiveDeviceState?(deviceState)
             })
 

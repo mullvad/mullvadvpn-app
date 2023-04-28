@@ -51,7 +51,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             didLoadConfiguration: { [weak self] _ in
                 self?.configureScene()
             },
-            didUpdateDeviceState: { [weak self] _, deviceState in
+            didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 self?.deviceStateDidChange(deviceState)
             }
         )

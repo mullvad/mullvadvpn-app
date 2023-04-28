@@ -12,7 +12,7 @@ final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
 
-    var didUpdateDeviceState: ((DeviceState) -> Void)?
+    var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
     var tunnelStatus: TunnelStatus {
@@ -30,8 +30,8 @@ final class TunnelViewControllerInteractor {
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 self?.didUpdateTunnelStatus?(tunnelStatus)
             },
-            didUpdateDeviceState: { [weak self] tunnelManager, deviceState in
-                self?.didUpdateDeviceState?(deviceState)
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+                self?.didUpdateDeviceState?(deviceState, previousDeviceState)
             }
         )
         tunnelManager.addObserver(tunnelObserver)

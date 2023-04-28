@@ -102,8 +102,8 @@ class AccountViewController: UIViewController {
         )
         contentView.logoutButton.addTarget(self, action: #selector(doLogout), for: .touchUpInside)
 
-        interactor.didReceiveDeviceState = { [weak self] newDeviceState in
-            self?.updateView(from: newDeviceState)
+        interactor.didReceiveDeviceState = { [weak self] deviceState in
+            self?.updateView(from: deviceState)
         }
 
         interactor.didReceivePaymentEvent = { [weak self] event in
