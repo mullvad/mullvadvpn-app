@@ -105,7 +105,7 @@ final class NotificationController: UIViewController {
         bannerView.title = notification.title
         bannerView.body = notification.body
         bannerView.style = notification.style
-        bannerView.actionHandler = notification.action
+        bannerView.action = notification.action
         bannerView.accessibilityLabel = "\(notification.title)\n\(notification.body.string)"
 
         if animated {

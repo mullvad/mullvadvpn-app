@@ -88,9 +88,9 @@ final class NotificationBannerView: UIView {
         }
     }
 
-    var actionHandler: InAppNotificationAction? {
+    var action: InAppNotificationAction? {
         didSet {
-            actionButton.setImage(actionHandler?.type.image, for: .normal)
+            actionButton.setImage(action?.image, for: .normal)
             actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
         }
     }
@@ -149,7 +149,7 @@ final class NotificationBannerView: UIView {
     }
 
     @objc private func didPress() {
-        actionHandler?.handler?()
+        action?.handler?()
     }
 }
 
