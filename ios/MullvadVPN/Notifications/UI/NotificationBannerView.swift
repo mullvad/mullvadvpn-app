@@ -64,7 +64,8 @@ final class NotificationBannerView: UIView {
     }()
 
     private let actionButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -87,9 +88,9 @@ final class NotificationBannerView: UIView {
         }
     }
 
-    var actionHandler: InAppNotificationAction? {
+    var action: InAppNotificationAction? {
         didSet {
-            actionButton.setImage(actionHandler?.image, for: .normal)
+            actionButton.setImage(action?.image, for: .normal)
             actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
         }
     }
@@ -148,7 +149,7 @@ final class NotificationBannerView: UIView {
     }
 
     @objc private func didPress() {
-        actionHandler?.handler?()
+        action?.handler?()
     }
 }
 

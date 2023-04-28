@@ -118,6 +118,7 @@ extension UIColor {
 
         static let titleColor = UIColor.white
         static let bodyColor = UIColor(white: 1.0, alpha: 0.6)
+        static let actionButtonColor = UIColor(white: 1.0, alpha: 0.6)
     }
 
     // Common colors
