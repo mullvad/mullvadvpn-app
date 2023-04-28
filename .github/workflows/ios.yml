@@ -10,7 +10,7 @@ on:
 jobs:
   check-formatting:
     name: Check formatting
-    runs-on: macos-11
+    runs-on: macos-13
     steps:
       - name: Install SwiftFormat
         run: |
@@ -27,13 +27,10 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: macos-11
+    runs-on: macos-13
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
-      - name: Install xcbeautify
-        run: brew install xcbeautify
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -50,14 +47,10 @@ jobs:
         with:
           go-version: 1.19.5
 
-      - name: Prepare iOS simulator
-        # yamllint disable rule:line-length
-        run: |
-          sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
-          sudo ln -s \
-            /Applications/Xcode_11.7.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime \
-            /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 13.7.simruntime
-        # yamllint enable rule:line-length
+      - name: Configure Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '14.3'
 
       - name: Configure Xcode project
         run: |
@@ -67,30 +60,12 @@ jobs:
           cp Screenshots.xcconfig.template Screenshots.xcconfig
         working-directory: ios/Configurations
 
-      - name: Convert Package.resolved v2 -> v1
-        run: |
-          jq '{
-            "object": {
-              "pins": .pins | map({
-                "package": .identity,
-                "repositoryURL": .location,
-                "state": .state
-              })
-            },
-            "version": 1
-          }' Package.resolved > Package.resolved.out
-          mv Package.resolved.out Package.resolved
-        working-directory: ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
-
       - name: Run tests
-        run: |
-          set -o pipefail && xcodebuild test \
-              -project MullvadVPN.xcodeproj \
-              -scheme MullvadVPN \
-              -skip-testing:MullvadVPNScreenshots \
-              -destination "platform=iOS Simulator,OS=13.7,name=iPhone 8" \
-              -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
-              CODE_SIGN_IDENTITY="" \
-              CODE_SIGNING_REQUIRED=NO \
-              ONLY_ACTIVE_ARCH=YES | xcbeautify
-        working-directory: ios
+        uses: sersoft-gmbh/xcodebuild-action@v2
+        with:
+          project: ios/MullvadVPN.xcodeproj
+          scheme: MullvadVPN
+          skip-testing: MullvadVPNScreenshots
+          destination: platform=iOS Simulator,OS=16.4,name=iPhone 14
+          action: test
+          cloned-source-packages-path: ios/${{ env.SOURCE_PACKAGES_PATH }}
