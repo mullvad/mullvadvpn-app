@@ -184,7 +184,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData> {
-        let operation = ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue) { operation in
+        return ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue, cancellableTask: { operation in
             self.logger.debug("Create new account...")
 
             return self.accountsProxy.createAccount(retryStrategy: .default) { result in
@@ -207,9 +207,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
                 operation.finish(result: result)
             }
-        }
-
-        return operation
+        })
     }
 
     private func getExistingAccountOperation(accountNumber: String) -> ResultOperation<StoredAccountData> {
@@ -278,7 +276,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     private func getUnsetDeviceStateOperation() -> AsyncBlockOperation {
-        return AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
+        return AsyncBlockOperation(dispatchQueue: dispatchQueue, block: { operation in
             // Tell the caller to unsubscribe from VPN status notifications.
             self.interactor.prepareForVPNConfigurationDeletion()
 
@@ -311,7 +309,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     operation.finish()
                 }
             }
-        }
+        })
     }
 
     private func getCreateDeviceOperation() -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)> {
