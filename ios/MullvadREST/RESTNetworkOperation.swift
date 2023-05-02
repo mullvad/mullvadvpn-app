@@ -30,7 +30,7 @@ extension REST {
         private var retryDelayIterator: AnyIterator<Duration>
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
-        private var retryWithShadowsocksTransport = false
+        private var transportStrategy = TransportStrategy()
 
         init(
             name: String,
@@ -141,9 +141,9 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            let transport = retryWithShadowsocksTransport == true
-                ? transportProvider()?.shadowSocksTransport()
-                : transportProvider()?.transport()
+            let suggestedTransport = transportStrategy.connectionTransport()
+            let transportProvider = transportProvider()
+            let transport = suggestedTransport == .useShadowSocks ? transportProvider?.shadowSocksTransport() : transportProvider?.transport()
 
             guard let transport = transport else {
                 logger.error("Failed to obtain transport.")
@@ -212,7 +212,7 @@ extension REST {
                 default:
                     if !REST.isStagingEnvironment {
                         _ = addressCacheStore.selectNextEndpoint(endpoint)
-                        retryWithShadowsocksTransport = true
+                        transportStrategy.didFail(code: urlError.code)
                     }
                 }
             }
