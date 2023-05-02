@@ -17,6 +17,7 @@
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
+    <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
     <string name="block_ads_title">Reklamlar</string>
     <string name="block_adult_content_title">Yetişkinlere özel içerik</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">Mullvad hesap numarası</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
     <string name="not_blocking_internet">AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR</string>
+    <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
+    <string name="obfuscation_on_udp_over_tcp">Açık (TCP üzerinden UDP)</string>
+    <string name="obfuscation_title">Gizleme</string>
+    <string name="off">Kapalı</string>
     <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
@@ -141,6 +146,8 @@
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="try_again">Tekrar dene</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port">TCP üzerinden UDP portu</string>
+    <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
