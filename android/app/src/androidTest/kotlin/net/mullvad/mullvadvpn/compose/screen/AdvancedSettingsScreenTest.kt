@@ -12,6 +12,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyAll
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
@@ -32,7 +34,9 @@ class AdvancedSettingsScreenTest {
     fun testDefaultState() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(uiState = AdvancedSettingsUiState.DefaultUiState())
+            AdvancedSettingScreen(
+                uiState = AdvancedSettingsUiState.DefaultUiState(),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -51,8 +55,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         composeTestRule.setContent {
             AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(mtu = VALID_DUMMY_MTU_VALUE)
-            )
+                uiState = AdvancedSettingsUiState.DefaultUiState(mtu = VALID_DUMMY_MTU_VALUE),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -67,8 +71,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.DefaultUiState(),
-                onMtuCellClick = mockedClickHandler
-            )
+                onMtuCellClick = mockedClickHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -84,8 +88,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         composeTestRule.setContent {
             AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING)
-            )
+                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -98,9 +102,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         composeTestRule.setContent {
             AdvancedSettingScreen(
-                uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE)
-            )
+                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -115,8 +118,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
-                onMtuInputChange = mockedInputHandler
-            )
+                onMtuInputChange = mockedInputHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -133,10 +136,9 @@ class AdvancedSettingsScreenTest {
         val mockedSubmitHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
             AdvancedSettingScreen(
-                uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
-                onSaveMtuClick = mockedSubmitHandler
-            )
+                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
+                onSaveMtuClick = mockedSubmitHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -153,8 +155,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = INVALID_DUMMY_MTU_VALUE)
-            )
+                AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = INVALID_DUMMY_MTU_VALUE),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -169,8 +171,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
-                onRestoreMtuClick = mockedClickHandler
-            )
+                onRestoreMtuClick = mockedClickHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -188,8 +190,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
-                onCancelMtuDialogClicked = mockedClickHandler
-            )
+                onCancelMtuDialogClicked = mockedClickHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -207,8 +209,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.DefaultUiState(),
-                onSplitTunnelingNavigationClick = mockedClickHandler
-            )
+                onSplitTunnelingNavigationClick = mockedClickHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -225,17 +227,17 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false)
-                            )
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = true,
+                    isAllowLanEnabled = false,
+                    customDnsItems =
+                    listOf(
+                        CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
+                        CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false),
+                        CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false),
+                    ),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -254,11 +256,11 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = false,
-                        customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false))
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = false,
+                    customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false)),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -273,13 +275,13 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isAllowLanEnabled = true,
-                        customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = true,
+                    isAllowLanEnabled = true,
+                    customDnsItems =
+                    listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -293,13 +295,13 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
-                        customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = true,
+                    isAllowLanEnabled = false,
+                    customDnsItems =
+                    listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -313,13 +315,13 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isAllowLanEnabled = true,
-                        customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = true,
+                    isAllowLanEnabled = true,
+                    customDnsItems =
+                    listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -333,19 +335,17 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
-                        customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
-                    )
-            )
+                AdvancedSettingsUiState.DefaultUiState(
+                    isCustomDnsEnabled = true,
+                    isAllowLanEnabled = false,
+                    customDnsItems =
+                    listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
-        composeTestRule.apply {
-            onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertExists()
-        }
+        composeTestRule.apply { onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertExists() }
     }
 
     @Test
@@ -356,8 +356,8 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState = AdvancedSettingsUiState.DefaultUiState(isCustomDnsEnabled = true),
-                onDnsClick = mockedClickHandler
-            )
+                onDnsClick = mockedClickHandler,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Act
@@ -374,13 +374,13 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false)
-                            )
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                    ),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -394,14 +394,14 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.EditDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                index = 0
-                            )
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.EditDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                        index = 0,
+                    ),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -415,15 +415,15 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                validationResult = StagedDns.ValidationResult.Success
-                            ),
-                        isAllowLanEnabled = false
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
+                        validationResult = StagedDns.ValidationResult.Success,
+                    ),
+                    isAllowLanEnabled = false,
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -437,15 +437,15 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                validationResult = StagedDns.ValidationResult.Success
-                            ),
-                        isAllowLanEnabled = true
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
+                        validationResult = StagedDns.ValidationResult.Success,
+                    ),
+                    isAllowLanEnabled = true,
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -459,15 +459,15 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.Success
-                            ),
-                        isAllowLanEnabled = true
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                        validationResult = StagedDns.ValidationResult.Success,
+                    ),
+                    isAllowLanEnabled = true,
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -481,15 +481,15 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.Success
-                            ),
-                        isAllowLanEnabled = false
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                        validationResult = StagedDns.ValidationResult.Success,
+                    ),
+                    isAllowLanEnabled = false,
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -503,14 +503,14 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.InvalidAddress
-                            )
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                        validationResult = StagedDns.ValidationResult.InvalidAddress,
+                    ),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
@@ -524,14 +524,14 @@ class AdvancedSettingsScreenTest {
         composeTestRule.setContent {
             AdvancedSettingScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
-                        stagedDns =
-                            StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.DuplicateAddress
-                            )
-                    )
-            )
+                AdvancedSettingsUiState.DnsDialogUiState(
+                    stagedDns =
+                    StagedDns.NewDns(
+                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                        validationResult = StagedDns.ValidationResult.DuplicateAddress,
+                    ),
+                ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow())
         }
 
         // Assert
