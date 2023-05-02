@@ -69,15 +69,8 @@ export default function Connect() {
   const relayLocations = useSelector((state) => state.settings.relayLocations);
   const customLists = useSelector((state) => state.settings.customLists);
 
-  const mapCenter = useMemo<[number, number] | undefined>(() => {
-    const { longitude, latitude } = connection;
-    return typeof longitude === 'number' && typeof latitude === 'number'
-      ? [longitude, latitude]
-      : undefined;
-  }, [connection]);
-
   const showMarkerOrSpinner = useMemo<MarkerOrSpinner>(() => {
-    if (!mapCenter) {
+    if (!connection.latitude) {
       return 'none';
     }
 
@@ -91,7 +84,7 @@ export default function Connect() {
       case 'disconnected':
         return 'marker';
     }
-  }, [mapCenter, connection.status.state]);
+  }, [connection.latitude, connection.status.state]);
 
   const markerStyle = useMemo<MarkerStyle>(() => {
     switch (connection.status.state) {
@@ -153,7 +146,7 @@ export default function Connect() {
     <Layout>
       <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
-        <StyledMap location={mapCenter ?? [0, 0]} markerStyle={markerStyle} />
+        <StyledMap markerStyle={markerStyle} />
         <Content>
           <StyledNotificationArea />
 

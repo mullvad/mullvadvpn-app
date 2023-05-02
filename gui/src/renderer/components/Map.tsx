@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
 import GLMap, { Coordinate } from '../lib/map/3dmap';
+import { useSelector } from '../redux/store';
 
 // The angle in degrees that the camera sees in
 const angleOfView = 70;
@@ -24,15 +25,17 @@ interface MapParams {
 }
 
 interface MapProps {
-  location: [number, number];
   markerStyle: MarkerStyle;
 }
 
 export default function Map(props: MapProps) {
-  // TODO: Change order of long/lat in Coordinate
-  const coordinate = useMemo(() => new Coordinate(props.location[1], props.location[0]), [
-    ...props.location,
-  ]);
+  const connection = useSelector((state) => state.connection);
+  const coordinate = useMemo<Coordinate>(() => {
+    const { latitude, longitude } = connection;
+    return typeof latitude === 'number' && typeof longitude === 'number'
+      ? new Coordinate(latitude, longitude)
+      : new Coordinate(0, 0);
+  }, [connection]);
 
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
   // has been rendered.
@@ -84,6 +87,7 @@ export default function Map(props: MapProps) {
     }
   }, [coordinate, props.markerStyle]);
 
+  // TODO: Don't show location dot when spinner is showing
   // TODO: Properly detect height
   return <StyledCanvas ref={canvasRef} id="glcanvas" width={window.innerWidth} height="493" />;
 }
