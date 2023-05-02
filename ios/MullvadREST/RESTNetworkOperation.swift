@@ -143,7 +143,9 @@ extension REST {
 
             let suggestedTransport = transportStrategy.connectionTransport()
             let transportProvider = transportProvider()
-            let transport = suggestedTransport == .useShadowSocks ? transportProvider?.shadowSocksTransport() : transportProvider?.transport()
+            let transport = suggestedTransport == .useShadowSocks
+                ? transportProvider?.shadowSocksTransport()
+                : transportProvider?.transport()
 
             guard let transport = transport else {
                 logger.error("Failed to obtain transport.")

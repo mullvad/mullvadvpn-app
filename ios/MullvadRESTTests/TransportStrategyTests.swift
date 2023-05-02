@@ -28,7 +28,7 @@ final class TransportStrategyTests: XCTestCase {
     func testLoadingFromCacheDoesNotImpactStrategy() throws {
         var strategy = REST.TransportStrategy()
 
-        // Fail twice, the next suggested connection mode should be via Shadowsocks proxy
+        // Fail twice, the next suggested transport mode should be via Shadowsocks proxy
         strategy.didFail()
         strategy.didFail()
         assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
@@ -37,35 +37,23 @@ final class TransportStrategyTests: XCTestCase {
         let encodedRawStrategy = try JSONEncoder().encode(strategy)
         var reloadedStrategy = try JSONDecoder().decode(REST.TransportStrategy.self, from: encodedRawStrategy)
 
-        // This should be the third failure, the next suggested strategy falls back to trying a direct connection
+        // This should be the third failure, the next suggested transport will be a direct one
         reloadedStrategy.didFail()
         assertStrategy(.useURLSession, actual: reloadedStrategy.connectionTransport())
     }
 
-    func testTimingOutForcesADifferentTransport() {
+    func testTimingOutAlwaysSuggestsDifferentTransport() {
         var strategy = REST.TransportStrategy()
 
-        // Fail once, forcing the next strategy to be Shadowsocks
-        strategy.didFail()
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
-
-        // Fail with a timeout, forcing the strategy to go back to attempting a direct connection
-        strategy.didFail(code: .timedOut)
-        assertStrategy(.useURLSession, actual: strategy.connectionTransport())
-    }
-
-    func testTimingOutAlwaysForcesDifferentTransport() {
-        var strategy = REST.TransportStrategy()
-
-        // First timeout should force to transport to shadowSocks
+        // First timeout should suggest a ShadowSocks transport
         strategy.didFail(code: .timedOut)
         assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
 
-        // Second timeout should force attempting a direct connection again
+        // Second timeout should suggest a direct transport
         strategy.didFail(code: .timedOut)
         assertStrategy(.useURLSession, actual: strategy.connectionTransport())
 
-        // Third fail should force shadow socks again
+        // Third timeout should suggest a Shadowsocks transport again
         strategy.didFail(code: .timedOut)
         assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
     }
@@ -78,7 +66,7 @@ final class TransportStrategyTests: XCTestCase {
         strategy.didFail(code: .timedOut)
         assertStrategy(.useURLSession, actual: strategy.connectionTransport())
 
-        // The next two failure should force Shadowsocks transports
+        // The next two failures should suggest Shadowsocks transports
         strategy.didFail()
         assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
         strategy.didFail()
