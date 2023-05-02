@@ -178,7 +178,7 @@ async fn maybe_create_obfuscator(
 ) -> Result<Option<ObfuscatorHandle>> {
     // There are one or two peers.
     // The first one is always the entry relay.
-    let mut first_peer = config.peers.get_mut(0).expect("missing peer");
+    let first_peer = config.peers.get_mut(0).expect("missing peer");
 
     if let Some(ref obfuscator_config) = config.obfuscator_config {
         match obfuscator_config {
