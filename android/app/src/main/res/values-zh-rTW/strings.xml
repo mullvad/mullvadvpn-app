@@ -17,6 +17,7 @@
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
     <string name="auto_connect">自動連線</string>
     <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
+    <string name="automatic">自動</string>
     <string name="back">返回</string>
     <string name="block_ads_title">廣告</string>
     <string name="block_adult_content_title">成人內容</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
+    <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
+    <string name="obfuscation_on_udp_over_tcp">開 (UDP-over-TCP)</string>
+    <string name="obfuscation_title">混淆</string>
+    <string name="off">關閉</string>
     <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
     <string name="paid_until">支付至</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">切換 VPN</string>
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>
     <string name="unsupported_version">不支援的版本</string>

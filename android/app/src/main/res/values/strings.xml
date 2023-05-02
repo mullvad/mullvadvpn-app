@@ -191,6 +191,5 @@
     <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
-    <string name="udp_over_tcp_port">UDP-over-TCP port</string>
     <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
 </resources>
