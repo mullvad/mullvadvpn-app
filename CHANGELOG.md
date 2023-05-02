@@ -32,7 +32,15 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
-- Redesign parts of CLI interface.
+- In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
+  unified `mullvad tunnel get` command and removing individual `get` subcommands like
+  `mullvad tunnel ipv6 get`.
+- Update the CLI multihop settings to make it possible to set the entry location without toggling
+  multihop on or off.
+
+### Windows
+- In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
+  `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
 
 #### Android
 - Clarify some of the error messages showed in notifications.
