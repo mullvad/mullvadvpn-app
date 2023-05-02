@@ -17,6 +17,7 @@
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
     <string name="auto_connect_footer">เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป</string>
+    <string name="automatic">อัตโนมัติ</string>
     <string name="back">ย้อนกลับ</string>
     <string name="block_ads_title">โฆษณา</string>
     <string name="block_adult_content_title">เนื้อหาสำหรับผู้ใหญ่</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
+    <string name="obfuscation_info">ข้อมูลที่คลุมเครือจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
+    <string name="obfuscation_on_udp_over_tcp">เปิด (UDP-ผ่าน-TCP)</string>
+    <string name="obfuscation_title">ข้อมูลที่คลุมเครือ</string>
+    <string name="off">ปิด</string>
     <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
@@ -141,6 +146,8 @@
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port">พอร์ต UDP-ผ่าน-TCP</string>
+    <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลข้อมูลที่คลุมเครือ UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
