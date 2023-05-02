@@ -21,17 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-
 ## [Unreleased]
 ### Added
-- Log select settings on each connection attempt.
 - Add `--help` and `--version` options to the desktop GUI application.
 
 #### Android
 - Add DNS content blockers.
 
 ### Changed
-- Update Electron from 21.1.1 to 23.2.0.
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
   unified `mullvad tunnel get` command and removing individual `get` subcommands like
   `mullvad tunnel ipv6 get`.
@@ -47,14 +44,24 @@ Line wrap the file at 100 chars.                                              Th
 - Change and add text in Content blockers informational dialog.
 - Update advanced settings scrollbar appearance.
 
+### Fixed
+#### Android
+- Fix adaptive app icon which previously had a displaced nose and some other oddities.
+- Fix app version sometimes missing in the settings menu.
+- Fix content blockers expand state not being kept when returning from split tunneling.
+
+
+## [2023.4-beta1] - 2023-05-02
+### Added
+- Log select settings on each connection attempt.
+
+### Changed
+- Update Electron from 21.1.1 to 23.2.0.
+
 ### Deprecated
 #### Linux
 - Deprecated support for Debian 10. This also means dropping support for glibc older
   than 2.31 and Linux kernels older than 5.10.
-
-### Removed
-- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
-  to free up port 443 for other TCP based obfuscation later.
 
 ### Fixed
 - Fix location search in desktop app only searching for English location names.
@@ -66,13 +73,9 @@ Line wrap the file at 100 chars.                                              Th
   doesn't fix fragmentation issues in general but prevents the PSK exchange packets from being
   fragmented by setting an explicit maximum segment size.
 
-#### Android
-- Fix adaptive app icon which previously had a displaced nose and some other oddities.
-- Fix app version sometimes missing in the settings menu.
-- Fix content blockers expand state not being kept when returning from split tunneling.
-
 #### macOS
-- Fix tray window behaviour when opening mission control and switching between full-screen workspaces.
+- Fix tray window behaviour when opening mission control and switching between full-screen
+  workspaces.
 
 #### Linux
 - Fix RPM package containing unecessary files causing conflicts with other electron-builder based
@@ -107,6 +110,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove automatic fallback to wireguard-go. This is done as a first step before fully
   deprecating it on Windows.
+
+### Removed
+- Remove port 443 as valid port for WireGuard over TCP. Keep only port 80 and 5001. The reason is
+  to free up port 443 for other TCP based obfuscation later.
 
 ### Fixed
 - Fix close to expiry notification not showing unless app is opened once within the last three days
