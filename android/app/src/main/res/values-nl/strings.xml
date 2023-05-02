@@ -17,6 +17,7 @@
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="auto_connect">Automatisch verbinden</string>
     <string name="auto_connect_footer">Automatisch verbinden met een server wanneer de app wordt gestart.</string>
+    <string name="automatic">Automatisch</string>
     <string name="back">Terug</string>
     <string name="block_ads_title">Advertenties</string>
     <string name="block_adult_content_title">Content voor volwassenen</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>
+    <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
+    <string name="obfuscation_on_udp_over_tcp">Aan (UDP-over-TCP)</string>
+    <string name="obfuscation_title">Obfuscatie</string>
+    <string name="off">Uit</string>
     <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="paid_until">Betaald tot</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="unsecured">Niet beveiligd</string>
     <string name="unsecured_connection">NIET-BEVEILIGDE VERBINDING</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>

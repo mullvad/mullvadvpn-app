@@ -17,6 +17,7 @@
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
     <string name="auto_connect">Automatyczne łączenie</string>
     <string name="auto_connect_footer">Automatycznie łącz z serwerem po uruchomieniu aplikacji.</string>
+    <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
     <string name="block_ads_title">Reklamy</string>
     <string name="block_adult_content_title">Treści dla dorosłych</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">Żaden serwer nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
     <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
     <string name="not_blocking_internet">TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ</string>
+    <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
+    <string name="obfuscation_on_udp_over_tcp">Wł. (UDP-przez-TCP)</string>
+    <string name="obfuscation_title">Zaciemnianie</string>
+    <string name="off">Wył.</string>
     <string name="out_address">Wyjście</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="paid_until">Płatne do</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">Przełącz VPN</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="unsecured">Niezabezpieczone</string>
     <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>

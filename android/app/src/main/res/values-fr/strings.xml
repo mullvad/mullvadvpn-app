@@ -17,6 +17,7 @@
     <string name="auth_failed">Impossible d\'authentifier le compte. Veuillez envoyer un rapport de problème.</string>
     <string name="auto_connect">Connexion automatique</string>
     <string name="auto_connect_footer">Connexion automatique à un serveur dès le démarrage de l\'application.</string>
+    <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
     <string name="block_ads_title">Publicités</string>
     <string name="block_adult_content_title">Contenu pour adultes</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
+    <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
+    <string name="obfuscation_on_udp_over_tcp">Activé (UDP sur TCP)</string>
+    <string name="obfuscation_title">Dissimulation</string>
+    <string name="off">Désactivé</string>
     <string name="out_address">Sortante</string>
     <string name="out_of_time">Plus de temps</string>
     <string name="paid_until">Payé jusqu\'au</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
     <string name="try_again">Réessayer</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
     <string name="unsecured">Non sécurisé</string>
     <string name="unsecured_connection">CONNEXION NON SÉCURISÉE</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>

@@ -17,6 +17,7 @@
     <string name="auth_failed">Não foi possível autenticar a conta. Envie um relatório do problema.</string>
     <string name="auto_connect">Ligação automática</string>
     <string name="auto_connect_footer">Liga-se automaticamente a um servidor quando a app inicia.</string>
+    <string name="automatic">Automático</string>
     <string name="back">Retroceder</string>
     <string name="block_ads_title">Anúncios</string>
     <string name="block_adult_content_title">Conteúdo para adultos</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">Nenhum servidor corresponde às suas definições. Tente alterar o servidor ou outras definições.</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_blocking_internet">PODERÁ ESTAR A PERDER TRÁFEGO DE REDE</string>
+    <string name="obfuscation_info">A ofuscação oculta o tráfego do WireGuard dentro de outro protocolo. Pode ser utilizado para ajudar a contornar a censura e outros tipos de filtragem, onde uma simples ligação WireGuard seria bloqueada.</string>
+    <string name="obfuscation_on_udp_over_tcp">Ligado (UDP sobre TCP)</string>
+    <string name="obfuscation_title">Ofuscação</string>
+    <string name="off">Desligado</string>
     <string name="out_address">Saída</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="paid_until">Pago até</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">Alternar VPN</string>
     <string name="try_again">Tentar novamente</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
     <string name="unsecured">Inseguro</string>
     <string name="unsecured_connection">LIGAÇÃO INSEGURA</string>
     <string name="unsupported_version">VERSÃO NÃO SUPORTADA</string>

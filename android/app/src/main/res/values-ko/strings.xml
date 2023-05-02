@@ -17,6 +17,7 @@
     <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="auto_connect">자동 연결</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
+    <string name="automatic">자동</string>
     <string name="back">뒤로</string>
     <string name="block_ads_title">광고</string>
     <string name="block_adult_content_title">성인 콘텐츠</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
+    <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
+    <string name="obfuscation_on_udp_over_tcp">켜기(UDP-over-TCP)</string>
+    <string name="obfuscation_title">난독 처리</string>
+    <string name="off">끄기</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
     <string name="paid_until">유효 기간</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">VPN 전환</string>
     <string name="try_again">다시 시도</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
     <string name="unsecured">안전하지 않음</string>
     <string name="unsecured_connection">비보안 연결</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
