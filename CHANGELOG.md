@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Add DNS content blockers.
+- Prevent incoming connections from outside the VPN in Android 13 when Local Network Sharing is off.
 
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.

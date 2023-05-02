@@ -914,7 +914,7 @@ impl WireguardMonitor {
 
     /// Replace default (0-prefix) routes with more specific routes.
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
-        #[cfg(not(target_os = "linux"))]
+        #[cfg(not(any(target_os = "linux", target_os = "android")))]
         if network.prefix() == 0 {
             if network.is_ipv4() {
                 vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
@@ -925,7 +925,7 @@ impl WireguardMonitor {
             vec![network]
         }
 
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "android"))]
         vec![network]
     }
 
