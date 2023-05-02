@@ -32,7 +32,15 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
-- Redesign parts of CLI interface.
+- Update clap from 3.2 to 4.1. This introduced breaking CLI changes, most of which are mentioned
+  below.
+- In the CLI, add a unified `mullvad tunnel get` command and remove individual `get` subcommands
+  such as `mullvad tunnel ipv6 get`.
+- Update the CLI multihop settings to separate the entry location from the on/off toggle.
+
+### Windows
+- In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
+  `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
 
 #### Android
 - Clarify some of the error messages showed in notifications.
