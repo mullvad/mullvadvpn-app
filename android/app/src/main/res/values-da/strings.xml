@@ -17,6 +17,7 @@
     <string name="auth_failed">Kan ikke godkende konto. Indsend en problemrapport.</string>
     <string name="auto_connect">Auto-tilslutning</string>
     <string name="auto_connect_footer">Opret automatisk forbindelse til en server, når appen starter.</string>
+    <string name="automatic">Automatisk</string>
     <string name="back">Tilbage</string>
     <string name="block_ads_title">Annoncer</string>
     <string name="block_adult_content_title">Voksenindhold</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>
+    <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret.</string>
+    <string name="obfuscation_on_udp_over_tcp">Til (UDP-over-TCP)</string>
+    <string name="obfuscation_title">Tilsløring</string>
+    <string name="off">Fra</string>
     <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="paid_until">Betalt indtil</string>
@@ -141,6 +146,7 @@
     <string name="toggle_vpn">Slå VPN til/fra</string>
     <string name="try_again">Prøv igen</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</string>
     <string name="unsecured">Ikke sikret</string>
     <string name="unsecured_connection">IKKE-SIKRET FORBINDELSE</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>

@@ -17,6 +17,7 @@
     <string name="auth_failed">Impossibile autenticare l\'account. Invia una segnalazione del problema.</string>
     <string name="auto_connect">Connessione automatica</string>
     <string name="auto_connect_footer">Connettiti automaticamente al server all\'avvio dell\'app.</string>
+    <string name="automatic">Automatico</string>
     <string name="back">Indietro</string>
     <string name="block_ads_title">Annunci</string>
     <string name="block_adult_content_title">Contenuti per adulti</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">Numero di account Mullvad</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
+    <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
+    <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
+    <string name="obfuscation_title">Offuscamento</string>
+    <string name="off">Off</string>
     <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
     <string name="paid_until">Pagato fino al</string>
@@ -141,6 +146,7 @@
     <string name="toggle_vpn">Attiva/disattiva VPN</string>
     <string name="try_again">Riprova</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
     <string name="unsecured">Non protetto</string>
     <string name="unsecured_connection">CONNESSIONE NON PROTETTA</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>

@@ -17,6 +17,7 @@
     <string name="auth_failed">Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме.</string>
     <string name="auto_connect">Автоподключение</string>
     <string name="auto_connect_footer">Автоматически подключаться к серверу при запуске приложения.</string>
+    <string name="automatic">Автоматически</string>
     <string name="back">Назад</string>
     <string name="block_ads_title">Реклама</string>
     <string name="block_adult_content_title">Контент для взрослых</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">Номер учетной записи Mullvad</string>
     <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
+    <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано.</string>
+    <string name="obfuscation_on_udp_over_tcp">Вкл. (UDP через TCP)</string>
+    <string name="obfuscation_title">Обфускация</string>
+    <string name="off">Выключен</string>
     <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
     <string name="paid_until">Оплачено до</string>
@@ -141,6 +146,7 @@
     <string name="toggle_vpn">Включение VPN</string>
     <string name="try_again">Повторить попытку</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
     <string name="unsecured">Подключение не защищено</string>
     <string name="unsecured_connection">НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>

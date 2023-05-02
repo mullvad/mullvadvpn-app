@@ -17,6 +17,7 @@
     <string name="auth_failed">无法验证帐户。请发送问题报告。</string>
     <string name="auto_connect">自动连接</string>
     <string name="auto_connect_footer">在应用启动时自动连接到服务器。</string>
+    <string name="automatic">自动</string>
     <string name="back">返回</string>
     <string name="block_ads_title">广告</string>
     <string name="block_adult_content_title">成人内容</string>
@@ -106,6 +107,10 @@
     <string name="mullvad_account_number">Mullvad 帐号</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>
     <string name="not_blocking_internet">您的网络流量可能在泄露</string>
+    <string name="obfuscation_info">混淆将 WireGuard 流量隐藏在另一个协议中。它可用于帮助规避审查和其他类型的过滤，在这些过滤中，普通的 WireGuard 连接将被阻止。</string>
+    <string name="obfuscation_on_udp_over_tcp">开 (UDP-over-TCP)</string>
+    <string name="obfuscation_title">混淆</string>
+    <string name="off">关</string>
     <string name="out_address">外部</string>
     <string name="out_of_time">已没有时间</string>
     <string name="paid_until">到期时间</string>
@@ -141,6 +146,7 @@
     <string name="toggle_vpn">切换 VPN</string>
     <string name="try_again">重试</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="unsecured">未受保护</string>
     <string name="unsecured_connection">未受保护的连接</string>
     <string name="unsupported_version">不受支持的版本</string>
