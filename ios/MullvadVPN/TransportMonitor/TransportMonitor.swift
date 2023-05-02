@@ -36,7 +36,7 @@ final class TransportMonitor: RESTTransportProvider {
     }
 
     public func shadowSocksTransport() -> RESTTransport? {
-        let shadowSocksTransport: RESTTransport?
+        let shadowSocksTransport: RESTTransport
         do {
             let cachedRelays = try relayCacheTracker.getCachedRelays()
 
@@ -72,7 +72,18 @@ final class TransportMonitor: RESTTransportProvider {
 
     // MARK: Private API
 
-    private func selectTransport(_ transport: RESTTransport?, useShadowsocksTransport: Bool) -> RESTTransport? {
+    /// Selects a transport to use for sending an `URLRequest`
+    ///
+    /// This method returns the appropriate transport layer based on whether a tunnel is available, and whether it
+    /// should be bypassed
+    /// whenever a transport is requested.
+    ///
+    /// - Parameters:
+    ///   - transport: The transport to use if there is no tunnel, or if it shouldn't be bypassed
+    ///   - useShadowsocksTransport: A hint for enforcing a Shadowsocks transport when proxying a request via an
+    /// available `Tunnel`
+    /// - Returns: A transport to use for sending an `URLRequest`
+    private func selectTransport(_ transport: RESTTransport, useShadowsocksTransport: Bool) -> RESTTransport {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
             return tunnel.status == .connecting ||
                 tunnel.status == .reasserting ||
