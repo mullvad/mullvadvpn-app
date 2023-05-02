@@ -179,6 +179,15 @@ impl FilteringResolver {
     }
 }
 
+type LookupResponse<'a> = MessageResponse<
+    'a,
+    'a,
+    Box<dyn Iterator<Item = &'a Record> + Send + 'a>,
+    std::iter::Empty<&'a Record>,
+    std::iter::Empty<&'a Record>,
+    std::iter::Empty<&'a Record>,
+>;
+
 /// An implementation of [trust_dns_server::server::RequestHandler] that forwards queries to
 /// `FilteringResolver`.
 struct ResolverImpl {
@@ -189,14 +198,7 @@ impl ResolverImpl {
     fn build_response<'a>(
         message: &'a MessageRequest,
         lookup: &'a mut Box<dyn LookupObject>,
-    ) -> MessageResponse<
-        'a,
-        'a,
-        Box<dyn Iterator<Item = &'a Record> + Send + 'a>,
-        std::iter::Empty<&'a Record>,
-        std::iter::Empty<&'a Record>,
-        std::iter::Empty<&'a Record>,
-    > {
+    ) -> LookupResponse<'a> {
         let mut response_header = Header::new();
         response_header.set_id(message.id());
         response_header.set_op_code(OpCode::Query);
@@ -215,14 +217,14 @@ impl ResolverImpl {
 
     async fn lookup<R: ResponseHandler>(&self, message: &Request, mut response_handler: R) {
         if let Some(tx_ref) = self.tx.upgrade() {
-            let mut tx = (&*tx_ref).clone();
+            let mut tx = (*tx_ref).clone();
             let query = message.query();
             let (lookup_tx, lookup_rx) = oneshot::channel();
             let _ = tx.send((query.clone(), lookup_tx)).await;
             let mut lookup_result: Box<dyn LookupObject> = lookup_rx
                 .await
                 .unwrap_or_else(|_| Box::new(EmptyLookup) as Box<dyn LookupObject>);
-            let response = Self::build_response(&message, &mut lookup_result);
+            let response = Self::build_response(message, &mut lookup_result);
 
             if let Err(err) = response_handler.send_response(response).await {
                 log::error!("Failed to send response: {}", err);

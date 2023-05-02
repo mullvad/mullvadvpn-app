@@ -250,7 +250,7 @@ impl RouteManagerImpl {
         cmd.status().await.map_err(Error::FailedToAddRoute)
     }
 
-    async fn cleanup_routes(&self) -> () {
+    async fn cleanup_routes(&self) {
         let destinations_to_remove = self
             .applied_routes
             .iter()

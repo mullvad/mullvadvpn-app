@@ -92,7 +92,7 @@ impl State {
         let new_settings = DnsSettings::from_server_addresses(&servers, interface.to_string());
         match &self.dns_settings {
             None => {
-                let backup = read_all_dns(&store);
+                let backup = read_all_dns(store);
                 log::trace!("Backup of DNS settings: {:#?}", backup);
                 for service_path in backup.keys() {
                     new_settings.save(store, service_path.as_str())?;
@@ -154,12 +154,9 @@ impl State {
                     // If we changed a "state" entry, also set the corresponding "setup" entry.
                     if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
                         let setup_path = CFString::new(&setup_path_str);
-                        if !self.backup.contains_key(&setup_path_str) {
-                            self.backup.insert(
-                                setup_path_str,
-                                DnsSettings::load(&store, setup_path.clone()).ok(),
-                            );
-                        }
+                        self.backup
+                            .entry(setup_path_str)
+                            .or_insert_with(|| DnsSettings::load(&store, setup_path.clone()).ok());
                         if let Err(e) = expected_settings.save(&store, setup_path.clone()) {
                             log::error!("Failed changing DNS for {}: {}", setup_path, e);
                         }
@@ -395,13 +392,7 @@ fn parse_sc_config(
 ) -> Result<Option<(String, Vec<IpAddr>)>> {
     config
         .iter()
-        .filter_map(|(path, maybe_config)| {
-            if let Some(settings) = maybe_config {
-                Some((path, settings))
-            } else {
-                None
-            }
-        })
+        .filter_map(|(path, maybe_config)| maybe_config.as_ref().map(|settings| (path, settings)))
         .map(|(path, settings)| {
             let addresses = settings.interface_config(path.as_str())?;
             Ok((settings.name.clone(), addresses))
@@ -475,12 +466,9 @@ fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<DnsSettin
     if let Some(paths) = store.get_keys(SETUP_PATH_PATTERN) {
         for setup_path in paths.iter() {
             let setup_path_str = setup_path.to_string();
-            if !backup.contains_key(&setup_path_str) {
-                backup.insert(
-                    setup_path_str,
-                    DnsSettings::load(store, setup_path.clone()).ok(),
-                );
-            }
+            backup
+                .entry(setup_path_str)
+                .or_insert_with(|| DnsSettings::load(store, setup_path.clone()).ok());
         }
     }
     backup

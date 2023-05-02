@@ -109,10 +109,7 @@ pub enum ErrorStateCause {
 impl ErrorStateCause {
     #[cfg(target_os = "macos")]
     pub fn prevents_filtering_resolver(&self) -> bool {
-        match self {
-            Self::SetDnsError => true,
-            _ => false,
-        }
+        matches!(self, Self::SetDnsError)
     }
 }
 

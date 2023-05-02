@@ -14,7 +14,7 @@ type Result<T> = std::result::Result<T, Error>;
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
-const ANCHOR_NAME: &'static str = "mullvad";
+const ANCHOR_NAME: &str = "mullvad";
 
 pub struct Firewall {
     pf: pfctl::PfCtl,
@@ -85,7 +85,7 @@ impl Firewall {
         let mut anchor_change = pfctl::AnchorChange::new();
         anchor_change.set_filter_rules(new_filter_rules);
         anchor_change.set_redirect_rules(self.get_dns_redirect_rules(&policy)?);
-        Ok(self.pf.set_rules(ANCHOR_NAME, anchor_change)?)
+        self.pf.set_rules(ANCHOR_NAME, anchor_change)
     }
 
     fn get_dns_redirect_rules(
@@ -149,7 +149,7 @@ impl Firewall {
                 let mut rules = vec![];
 
                 for server in dns_servers.iter() {
-                    rules.append(&mut self.get_allow_dns_rules_when_connected(&tunnel, *server)?);
+                    rules.append(&mut self.get_allow_dns_rules_when_connected(tunnel, *server)?);
                 }
 
                 rules.push(self.get_allow_relay_rule(*peer_endpoint)?);
@@ -280,8 +280,7 @@ impl Firewall {
     fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
-        Ok(self
-            .create_rule_builder(FilterRuleAction::Pass)
+        self.create_rule_builder(FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
             .proto(pfctl_proto)
@@ -289,7 +288,7 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags())
             .user(Uid::from(super::ROOT_UID))
             .quick(true)
-            .build()?)
+            .build()
     }
 
     /// Produces a rule that allows traffic to flow to the API. Allows the app to reach the API in
@@ -300,15 +299,14 @@ impl Firewall {
     ) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(allowed_endpoint.protocol);
 
-        Ok(self
-            .create_rule_builder(FilterRuleAction::Pass)
+        self.create_rule_builder(FilterRuleAction::Pass)
             .direction(pfctl::Direction::Out)
             .to(allowed_endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .user(Uid::from(super::ROOT_UID))
             .quick(true)
-            .build()?)
+            .build()
     }
 
     fn get_block_dns_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
@@ -508,40 +506,29 @@ impl Firewall {
             .af(pfctl::AddrFamily::Ipv6)
             .proto(pfctl::Proto::IcmpV6);
 
-        let mut rules = Vec::new();
-
-        // Outgoing router solicitation to `ff02::2`
-        rules.push(
+        Ok(vec![
+            // Outgoing router solicitation to `ff02::2`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterSol))
                 .to(*super::ROUTER_SOLICITATION_OUT_DST_ADDR)
                 .build()?,
-        );
-
-        // Incoming router advertisement from `fe80::/10`
-        rules.push(
+            // Incoming router advertisement from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterAdv))
                 .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
                 .build()?,
-        );
-
-        // Incoming Redirect from `fe80::/10`
-        rules.push(
+            // Incoming Redirect from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::Redir))
                 .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
                 .build()?,
-        );
-
-        // Outgoing neighbor solicitation to `ff02::1:ff00:0/104` and `fe80::/10`
-        rules.push(
+            // Outgoing neighbor solicitation to `ff02::1:ff00:0/104` and `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
@@ -550,46 +537,33 @@ impl Firewall {
                     *super::SOLICITED_NODE_MULTICAST,
                 )))
                 .build()?,
-        );
-        rules.push(
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
                 .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
                 .build()?,
-        );
-
-        // Incoming neighbor solicitation from `fe80::/10`
-        rules.push(
+            // Incoming neighbor solicitation from `fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
                 .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
                 .build()?,
-        );
-
-        // Outgoing neighbor advertisement to fe80::/10`
-        rules.push(
+            // Outgoing neighbor advertisement to fe80::/10`
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::Out)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
                 .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
                 .build()?,
-        );
-
-        // Incoming neighbor advertisement from anywhere
-        rules.push(
+            // Incoming neighbor advertisement from anywhere
             ndp_rule_builder
                 .clone()
                 .direction(pfctl::Direction::In)
                 .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
                 .build()?,
-        );
-
-        Ok(rules)
+        ])
     }
 
     fn create_rule_builder(&self, action: FilterRuleAction) -> pfctl::FilterRuleBuilder {
@@ -597,14 +571,12 @@ impl Firewall {
         builder.action(action);
         let rule_log = pfctl::RuleLog::IncludeMatchingState;
         let do_log = match action {
-            FilterRuleAction::Pass => match self.rule_logging {
-                RuleLogging::All | RuleLogging::Pass => true,
-                _ => false,
-            },
-            FilterRuleAction::Drop(..) => match self.rule_logging {
-                RuleLogging::All | RuleLogging::Drop => true,
-                _ => false,
-            },
+            FilterRuleAction::Pass => {
+                matches!(self.rule_logging, RuleLogging::All | RuleLogging::Pass)
+            }
+            FilterRuleAction::Drop(..) => {
+                matches!(self.rule_logging, RuleLogging::All | RuleLogging::Drop)
+            }
         };
         if do_log {
             builder.log(rule_log);
@@ -630,16 +602,16 @@ impl Firewall {
         if self.pf_was_enabled.is_none() {
             self.pf_was_enabled = Some(self.is_enabled());
         }
-        Ok(self.pf.try_enable()?)
+        self.pf.try_enable()
     }
 
     fn is_enabled(&self) -> bool {
         let cmd = duct::cmd!("/sbin/pfctl", "-s", "info")
             .stderr_null()
             .stdout_capture();
-        const EXPECTED_OUTPUT: &'static [u8] = b"Status: Enabled";
+        const EXPECTED_OUTPUT: &[u8] = b"Status: Enabled";
         match cmd.run() {
-            Ok(output) => output.stdout.as_slice().find(&EXPECTED_OUTPUT).is_some(),
+            Ok(output) => output.stdout.as_slice().find(EXPECTED_OUTPUT).is_some(),
             Err(err) => {
                 log::error!(
                     "Failed to execute pfctl, assuming pf is not enabled: {}",
