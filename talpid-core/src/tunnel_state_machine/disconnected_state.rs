@@ -100,13 +100,11 @@ impl TunnelState for DisconnectedState {
                     err.display_chain_with_msg("Failed to start filtering resolver:")
                 );
             }
-        } else {
-            if let Err(error) = shared_values.dns_monitor.reset() {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Unable to disable filtering resolver")
-                );
-            }
+        } else if let Err(error) = shared_values.dns_monitor.reset() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Unable to disable filtering resolver")
+            );
         }
 
         #[cfg(windows)]
