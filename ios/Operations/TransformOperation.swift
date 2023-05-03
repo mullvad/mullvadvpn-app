@@ -38,7 +38,7 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     private var executionBlock: ExecutionBlock?
     private var cancellableTask: Cancellable?
 
-    public init(dispatchQueue: DispatchQueue? = nil, input: Input? = nil, block: ExecutionBlock? = nil) {
+    public init(dispatchQueue: DispatchQueue? = nil, input: Input? = nil, block: @escaping ExecutionBlock) {
         __input = input
         executionBlock = block
 
