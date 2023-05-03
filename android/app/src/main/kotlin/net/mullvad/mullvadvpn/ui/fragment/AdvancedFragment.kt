@@ -46,10 +46,12 @@ class AdvancedFragment : BaseFragment() {
                         onRemoveDnsClick = vm::onRemoveDnsClick,
                         onCancelDnsDialogClick = vm::onCancelDialogClick,
                         onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
+                        onCustomDnsInfoClicked = vm::onCustomDnsInfoClick,
                         onMalwareInfoClicked = vm::onMalwareInfoClick,
                         onDismissInfoClicked = vm::onDismissInfoClick,
                         onBackClick = { activity?.onBackPressed() },
-                        onStopEvent = vm::onStopEvent
+                        onStopEvent = vm::onStopEvent,
+                        toastMessagesSharedFlow = vm.toastMessages
                     )
                 }
             }
