@@ -28,10 +28,13 @@ Line wrap the file at 100 chars.                                              Th
 - Wipe all settings on app reinstall.
 - Add a dedicated account button on the main view and remove it from settings.
 
+
+## [2023.2 - 2023-04-03]
 ### Changed
 - Changed key rotation interval from 4 to 14 days.
 - Delay tunnel reconnection after a WireGuard private key rotates. Accounts for latency in key
   propagation to relays.
+- Increase API request timeouts to improve usability in bad network conditions.
 
 
 ## [2023.1] - 2023-03-21
