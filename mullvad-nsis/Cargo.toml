@@ -14,4 +14,4 @@ crate_type = ["staticlib"]
 mullvad-paths = { path = "../mullvad-paths" }
 
 [target.i686-pc-windows-msvc.build-dependencies]
-cbindgen = "0.24.3"
+cbindgen = { version = "0.24.3", default-features = false }

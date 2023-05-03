@@ -23,7 +23,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
 
-    match mullvad_problem_report::collect_report(&[], output_path, Vec::new(), log_dir) {
+    match mullvad_problem_report::collect_report::<&str>(&[], output_path, Vec::new(), log_dir) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(

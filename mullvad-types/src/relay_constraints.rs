@@ -9,7 +9,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt};
+use std::{collections::HashSet, fmt, str::FromStr};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -141,6 +141,54 @@ impl<T> From<Option<T>> for Constraint<T> {
             Some(value) => Constraint::Only(value),
             None => Constraint::Any,
         }
+    }
+}
+
+impl<T: fmt::Debug + Clone + FromStr> FromStr for Constraint<T> {
+    type Err = T::Err;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        if value.eq_ignore_ascii_case("any") {
+            return Ok(Self::Any);
+        }
+        Ok(Self::Only(T::from_str(value)?))
+    }
+}
+
+#[cfg(feature = "clap")]
+impl<T: fmt::Debug + Clone + clap::builder::ValueParserFactory> clap::builder::ValueParserFactory
+    for Constraint<T>
+where
+    <T as clap::builder::ValueParserFactory>::Parser: Sync + Send + Clone,
+{
+    type Parser = ConstraintParser<T::Parser>;
+
+    fn value_parser() -> Self::Parser {
+        ConstraintParser(T::value_parser())
+    }
+}
+
+#[cfg(feature = "clap")]
+#[derive(fmt::Debug, Clone)]
+pub struct ConstraintParser<T>(T);
+
+#[cfg(feature = "clap")]
+impl<T: clap::builder::TypedValueParser> clap::builder::TypedValueParser for ConstraintParser<T>
+where
+    T::Value: fmt::Debug,
+{
+    type Value = Constraint<T::Value>;
+
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        if value.eq_ignore_ascii_case("any") {
+            return Ok(Constraint::Any);
+        }
+        self.0.parse_ref(cmd, arg, value).map(Constraint::Only)
     }
 }
 
@@ -352,7 +400,8 @@ impl Set<LocationConstraint> for LocationConstraint {
 }
 
 /// Limits the set of servers to choose based on ownership.
-#[derive(Copy, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum Ownership {
     MullvadOwned,
     Rented,
@@ -375,6 +424,24 @@ impl fmt::Display for Ownership {
         }
     }
 }
+
+impl FromStr for Ownership {
+    type Err = OwnershipParseError;
+
+    fn from_str(s: &str) -> Result<Ownership, Self::Err> {
+        match s {
+            "owned" | "mullvad-owned" => Ok(Ownership::MullvadOwned),
+            "rented" => Ok(Ownership::Rented),
+            _ => Err(OwnershipParseError),
+        }
+    }
+}
+
+/// Returned when `Ownership::from_str` fails to convert a string into a
+/// [`Ownership`] object.
+#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
+#[error(display = "Not a valid ownership setting")]
+pub struct OwnershipParseError;
 
 /// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
 /// provider.
@@ -514,6 +581,7 @@ pub enum BridgeSettings {
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum SelectedObfuscation {
     Auto,
     #[default]
@@ -588,6 +656,7 @@ impl fmt::Display for BridgeConstraints {
 /// Setting indicating whether to connect to a bridge server, or to handle it automatically.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum BridgeState {
     Auto,
     On,

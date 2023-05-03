@@ -1,86 +1,80 @@
-use crate::Command;
-use std::collections::HashMap;
+use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
+use std::ops::Deref;
 
-mod account;
-pub use self::account::Account;
+pub mod account;
+pub mod auto_connect;
+pub mod beta_program;
+pub mod bridge;
+pub mod dns;
+pub mod lan;
+pub mod lockdown;
+pub mod obfuscation;
+pub mod relay;
+pub mod relay_constraints;
+pub mod reset;
+pub mod split_tunnel;
+pub mod status;
+pub mod tunnel;
+pub mod tunnel_state;
+pub mod version;
 
-mod auto_connect;
-pub use self::auto_connect::AutoConnect;
+/// A value parser that parses "on" or "off" into a boolean
+#[derive(Debug, Clone, Copy)]
+pub struct BooleanOption {
+    state: bool,
+    on_label: &'static str,
+    off_label: &'static str,
+}
 
-mod beta_program;
-pub use self::beta_program::BetaProgram;
+impl Deref for BooleanOption {
+    type Target = bool;
 
-mod block_when_disconnected;
-pub use self::block_when_disconnected::BlockWhenDisconnected;
+    fn deref(&self) -> &Self::Target {
+        &self.state
+    }
+}
 
-mod bridge;
-pub use self::bridge::Bridge;
+impl clap::builder::ValueParserFactory for BooleanOption {
+    type Parser = ValueParser;
 
-mod connect;
-pub use self::connect::Connect;
+    /// A value parser that parses "on" or "off" into a `BooleanOption`
+    fn value_parser() -> Self::Parser {
+        Self::custom_parser("on", "off")
+    }
+}
 
-mod disconnect;
-pub use self::disconnect::Disconnect;
+impl BooleanOption {
+    /// A value parser that parses `on_label` and `off_label` into a `BooleanOption`
+    fn custom_parser(on_label: &'static str, off_label: &'static str) -> ValueParser {
+        assert!(on_label != off_label);
 
-mod dns;
-pub use self::dns::Dns;
+        ValueParser::new(
+            PossibleValuesParser::new([on_label, off_label])
+                .map(move |val| Self::with_labels(val == on_label, on_label, off_label)),
+        )
+    }
 
-mod lan;
-pub use self::lan::Lan;
-
-mod obfuscation;
-pub use self::obfuscation::Obfuscation;
-
-mod reconnect;
-pub use self::reconnect::Reconnect;
-
-mod relay;
-pub use self::relay::Relay;
-
-mod reset;
-pub use self::reset::Reset;
-
-#[cfg(any(target_os = "linux", windows))]
-mod split_tunnel;
-#[cfg(any(target_os = "linux", windows))]
-pub use self::split_tunnel::SplitTunnel;
-
-mod status;
-pub use self::status::Status;
-
-mod tunnel;
-pub use self::tunnel::Tunnel;
-
-mod version;
-pub use self::version::Version;
-
-/// Returns a map of all available subcommands with their name as key.
-pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
-    let commands: Vec<Box<dyn Command>> = vec![
-        Box::new(Account),
-        Box::new(AutoConnect),
-        Box::new(BetaProgram),
-        Box::new(BlockWhenDisconnected),
-        Box::new(Bridge),
-        Box::new(Connect),
-        Box::new(Disconnect),
-        Box::new(Dns),
-        Box::new(Reconnect),
-        Box::new(Lan),
-        Box::new(Obfuscation),
-        Box::new(Relay),
-        Box::new(Reset),
-        #[cfg(any(target_os = "linux", windows))]
-        Box::new(SplitTunnel),
-        Box::new(Status),
-        Box::new(Tunnel),
-        Box::new(Version),
-    ];
-    let mut map = HashMap::new();
-    for cmd in commands {
-        if map.insert(cmd.name(), cmd).is_some() {
-            panic!("Multiple commands with the same name");
+    fn with_labels(state: bool, on_label: &'static str, off_label: &'static str) -> Self {
+        Self {
+            state,
+            on_label,
+            off_label,
         }
     }
-    map
+}
+
+impl From<bool> for BooleanOption {
+    fn from(state: bool) -> Self {
+        Self::with_labels(state, "on", "off")
+    }
+}
+
+impl std::fmt::Display for BooleanOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.state {
+            self.on_label.fmt(f)
+        } else {
+            self.off_label.fmt(f)
+        }
+    }
 }

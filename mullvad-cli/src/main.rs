@@ -1,150 +1,152 @@
 #![deny(rust_2018_idioms)]
 
-use clap::{crate_authors, crate_description};
 #[cfg(all(unix, not(target_os = "android")))]
-use clap_complete::{generator::generate_to, Shell};
-use mullvad_management_interface::async_trait;
-use std::{collections::HashMap, io};
-use talpid_types::ErrorExt;
-
-pub use mullvad_management_interface::{self, new_rpc_client};
+use anyhow::anyhow;
+use anyhow::Result;
+use clap::Parser;
 
 mod cmds;
 mod format;
-mod location;
-mod state;
+use cmds::*;
 
-pub const BIN_NAME: &str = "mullvad";
+pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 
-pub type Result<T> = std::result::Result<T, Error>;
+#[derive(Debug, Parser)]
+#[command(author, version = mullvad_version::VERSION, about, long_about = None)]
+#[command(propagate_version = true)]
+enum Cli {
+    /// Control and display information about your Mullvad account
+    #[clap(subcommand)]
+    Account(account::Account),
 
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    #[error(display = "Failed to connect to daemon")]
-    DaemonNotRunning(#[error(source)] io::Error),
+    /// Control the daemon auto-connect setting
+    #[clap(subcommand)]
+    AutoConnect(auto_connect::AutoConnect),
 
-    #[error(display = "Management interface error")]
-    ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
+    /// Receive notifications about beta updates
+    #[clap(subcommand)]
+    BetaProgram(beta_program::BetaProgram),
 
-    #[error(display = "RPC failed")]
-    RpcFailed(#[error(source)] mullvad_management_interface::Status),
+    /// Control whether to block network access when disconnected from VPN
+    #[clap(subcommand)]
+    LockdownMode(lockdown::LockdownMode),
 
-    #[error(display = "RPC failed: {}", _0)]
-    RpcFailedExt(
-        &'static str,
-        #[error(source)] mullvad_management_interface::Status,
-    ),
+    /// Configure DNS servers to use when connected
+    #[clap(subcommand)]
+    Dns(dns::Dns),
 
-    /// The given command is not correct in some way
-    #[error(display = "Invalid command: {}", _0)]
-    InvalidCommand(&'static str),
+    /// Control the allow local network sharing setting
+    #[clap(subcommand)]
+    Lan(lan::Lan),
 
-    #[error(display = "Command failed: {}", _0)]
-    CommandFailed(&'static str),
+    /// Connect to a VPN relay
+    Connect {
+        /// Wait until connected before exiting
+        #[arg(long, short = 'w')]
+        wait: bool,
+    },
 
-    #[error(display = "Failed to listen for status updates")]
-    StatusListenerFailed,
+    /// Disconnect from the VPN
+    Disconnect {
+        /// Wait until disconnected before exiting
+        #[arg(long, short = 'w')]
+        wait: bool,
+    },
 
-    //#[cfg(all(unix, not(target_os = "android"))
-    #[error(display = "Failed to generate shell completions")]
-    CompletionsError(#[error(source, no_from)] io::Error),
+    /// Reconnect to any matching VPN relay
+    Reconnect {
+        /// Wait until connected before exiting
+        #[arg(long, short = 'w')]
+        wait: bool,
+    },
 
-    #[error(display = "{}", _0)]
-    Other(&'static str),
+    /// Manage use of bridges, socks proxies and Shadowsocks for OpenVPN.
+    /// Can make OpenVPN tunnels use Shadowsocks via one of the Mullvad bridge servers.
+    /// Can also make OpenVPN connect through any custom SOCKS5 proxy.
+    /// These settings also affect how the app reaches the API over Shadowsocks.
+    #[clap(subcommand)]
+    Bridge(bridge::Bridge),
+
+    /// Manage relay and tunnel constraints
+    #[clap(subcommand)]
+    Relay(relay::Relay),
+
+    /// Manage use of obfuscation protocols for WireGuard.
+    /// Can make WireGuard traffic look like something else on the network.
+    /// Helps circumvent censorship and to establish a tunnel when on restricted networks
+    #[clap(subcommand)]
+    Obfuscation(obfuscation::Obfuscation),
+
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[clap(subcommand)]
+    SplitTunnel(split_tunnel::SplitTunnel),
+
+    /// Return the state of the VPN tunnel
+    Status {
+        #[clap(subcommand)]
+        cmd: Option<status::Status>,
+
+        #[clap(flatten)]
+        args: status::StatusArgs,
+    },
+
+    /// Manage tunnel options
+    #[clap(subcommand)]
+    Tunnel(tunnel::Tunnel),
+
+    /// Show information about the current Mullvad version
+    /// and available versions
+    Version,
+
+    /// Generate completion scripts for the specified shell
+    #[cfg(all(unix, not(target_os = "android")))]
+    #[command(hide = true)]
+    ShellCompletions {
+        /// The shell to generate the script for
+        shell: clap_complete::Shell,
+
+        /// Output directory where the shell completions are written
+        #[arg(default_value = "./")]
+        dir: std::path::PathBuf,
+    },
+
+    /// Reset settings, caches, and logs
+    FactoryReset,
 }
 
 #[tokio::main]
-async fn main() {
-    let exit_code = match run().await {
-        Ok(_) => 0,
-        Err(error) => {
-            match &error {
-                Error::RpcFailed(status) => {
-                    eprintln!("{}: {:?}: {}", error, status.code(), status.message())
-                }
-                Error::RpcFailedExt(_message, status) => eprintln!(
-                    "{}\nCaused by: {:?}: {}",
-                    error,
-                    status.code(),
-                    status.message()
-                ),
-                error => eprintln!("{}", error.display_chain()),
-            }
-            1
-        }
-    };
-    std::process::exit(exit_code);
-}
-
-async fn run() -> Result<()> {
+async fn main() -> Result<()> {
     env_logger::init();
 
-    let commands = cmds::get_commands();
-    let app = build_cli(&commands);
+    match Cli::parse() {
+        Cli::Account(cmd) => cmd.handle().await,
+        Cli::Bridge(cmd) => cmd.handle().await,
+        Cli::Connect { wait } => tunnel_state::connect(wait).await,
+        Cli::Reconnect { wait } => tunnel_state::reconnect(wait).await,
+        Cli::Disconnect { wait } => tunnel_state::disconnect(wait).await,
+        Cli::AutoConnect(cmd) => cmd.handle().await,
+        Cli::BetaProgram(cmd) => cmd.handle().await,
+        Cli::LockdownMode(cmd) => cmd.handle().await,
+        Cli::Dns(cmd) => cmd.handle().await,
+        Cli::Lan(cmd) => cmd.handle().await,
+        Cli::Obfuscation(cmd) => cmd.handle().await,
+        Cli::Version => version::print().await,
+        Cli::FactoryReset => reset::handle().await,
+        Cli::Relay(cmd) => cmd.handle().await,
+        Cli::Tunnel(cmd) => cmd.handle().await,
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        Cli::SplitTunnel(cmd) => cmd.handle().await,
+        Cli::Status { cmd, args } => status::handle(cmd, args).await,
 
-    #[cfg(all(unix, not(target_os = "android")))]
-    let app = app.subcommand(
-        clap::App::new("shell-completions")
-            .about("Generates completion scripts for your shell")
-            .arg(
-                clap::Arg::new("SHELL")
-                    .required(true)
-                    .possible_values(Shell::possible_values())
-                    .help("The shell to generate the script for"),
-            )
-            .arg(
-                clap::Arg::new("DIR")
-                    .allow_invalid_utf8(true)
-                    .default_value("./")
-                    .help("Output directory where the shell completions are written"),
-            )
-            .setting(clap::AppSettings::Hidden),
-    );
-
-    let app_matches = app.get_matches();
-    match app_matches.subcommand() {
         #[cfg(all(unix, not(target_os = "android")))]
-        Some(("shell-completions", sub_matches)) => {
-            let shell: Shell = sub_matches
-                .value_of("SHELL")
-                .unwrap()
-                .parse()
-                .expect("Invalid shell");
-            let out_dir = sub_matches.value_of_os("DIR").unwrap();
-            let mut app = build_cli(&commands);
-            generate_to(shell, &mut app, BIN_NAME, out_dir)
-                .map(|_output_file| ())
-                .map_err(Error::CompletionsError)
-        }
-        Some((sub_name, sub_matches)) => {
-            if let Some(cmd) = commands.get(sub_name) {
-                cmd.run(sub_matches).await
-            } else {
-                unreachable!("No command matched");
-            }
-        }
-        _ => {
-            unreachable!("No subcommand matches");
+        Cli::ShellCompletions { shell, dir } => {
+            use clap::CommandFactory;
+
+            // FIXME: The shell completions include hidden commands (including "shell-completions")
+            println!("Generating shell completions to {}", dir.display());
+            clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
+                .map_err(|_| anyhow!("Failed to generate shell completions"))?;
+            Ok(())
         }
     }
-}
-
-fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'static> {
-    clap::App::new(BIN_NAME)
-        .version(mullvad_version::VERSION)
-        .author(crate_authors!())
-        .about(crate_description!())
-        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .global_setting(clap::AppSettings::DisableHelpSubcommand)
-        .global_setting(clap::AppSettings::DisableVersionFlag)
-        .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()))
-}
-
-#[async_trait]
-pub trait Command {
-    fn name(&self) -> &'static str;
-
-    fn clap_subcommand(&self) -> clap::App<'static>;
-
-    async fn run(&self, matches: &clap::ArgMatches) -> Result<()>;
 }

@@ -12,17 +12,17 @@ name = "mullvad"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0"
 base64 = "0.13"
 chrono = { version = "0.4.19", features = ["serde"] }
-clap = { version = "3.0", features = ["cargo"] }
-err-derive = "0.3.1"
+clap = { version = "4.2.7", features = ["cargo", "derive"] }
 env_logger = "0.10.0"
 futures = "0.3"
 natord = "1.0.9"
 serde = "1.0"
 itertools = "0.10"
 
-mullvad-types = { path = "../mullvad-types" }
+mullvad-types = { path = "../mullvad-types", features = ["clap"] }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
@@ -31,7 +31,7 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-clap_complete = { version = "3.0" }
+clap_complete = { version = "4.2.1" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

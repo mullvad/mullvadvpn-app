@@ -1,56 +1,41 @@
-use crate::{new_rpc_client, Command, Result};
+use anyhow::Result;
+use clap::Subcommand;
+use mullvad_management_interface::MullvadProxyClient;
 
-pub struct Lan;
+use super::BooleanOption;
 
-#[mullvad_management_interface::async_trait]
-impl Command for Lan {
-    fn name(&self) -> &'static str {
-        "lan"
-    }
+#[derive(Subcommand, Debug)]
+pub enum Lan {
+    /// Display the current local network sharing setting
+    Get,
 
-    fn clap_subcommand(&self) -> clap::App<'static> {
-        clap::App::new(self.name())
-            .about("Control the allow local network sharing setting")
-            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-            .subcommand(
-                clap::App::new("set").about("Change allow LAN setting").arg(
-                    clap::Arg::new("policy")
-                        .required(true)
-                        .possible_values(["allow", "block"]),
-                ),
-            )
-            .subcommand(
-                clap::App::new("get").about("Display the current local network sharing setting"),
-            )
-    }
-
-    async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(set_matches) = matches.subcommand_matches("set") {
-            let allow_lan = set_matches.value_of("policy").expect("missing policy");
-            self.set(allow_lan == "allow").await
-        } else if let Some(_matches) = matches.subcommand_matches("get") {
-            self.get().await
-        } else {
-            unreachable!("No lan command given");
-        }
-    }
+    /// Change allow LAN setting
+    Set {
+        #[arg(value_parser = BooleanOption::custom_parser("allow", "block"))]
+        policy: BooleanOption,
+    },
 }
 
 impl Lan {
-    async fn set(&self, allow_lan: bool) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.set_allow_lan(allow_lan).await?;
+    pub async fn handle(self) -> Result<()> {
+        match self {
+            Lan::Get => Self::get().await,
+            Lan::Set { policy } => Self::set(policy).await,
+        }
+    }
+
+    async fn set(policy: BooleanOption) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_allow_lan(*policy).await?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
-    async fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let allow_lan = rpc.get_settings(()).await?.into_inner().allow_lan;
-        println!(
-            "Local network sharing setting: {}",
-            if allow_lan { "allow" } else { "block" }
-        );
+    async fn get() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let allow_lan =
+            BooleanOption::with_labels(rpc.get_settings().await?.allow_lan, "allow", "block");
+        println!("Local network sharing setting: {allow_lan}");
         Ok(())
     }
 }
