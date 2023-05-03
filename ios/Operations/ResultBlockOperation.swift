@@ -68,6 +68,7 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
         let block = executionBlock
         executionBlock = nil
 
+        assert(block != nil)
         block?(self)
     }
 
