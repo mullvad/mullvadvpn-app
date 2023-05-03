@@ -31,14 +31,7 @@ extension REST {
         /// Instructs the strategy that a network connection failed
         ///
         /// Every third failure results in a direct transport suggestion.
-        /// If `code` is `.timeout`, the next suggested tranpsort will be the opposite of the currently suggested one.
-        /// - Parameter code: The type of error that made the connection fail
-        public mutating func didFail(code: URLError.Code? = .unknown) {
-            // Whenever a timeout is encountered, suggest the next transport mode
-            if code == .timedOut {
-                connectionAttempts = connectionAttempts > 0 ? 0 : 1
-                return
-            }
+        public mutating func didFail() {
             connectionAttempts += 1
             // Avoid overflowing by resetting back to 0 every 3rd failure
             connectionAttempts = connectionAttempts % 3 == 0 ? 0 : connectionAttempts
@@ -46,8 +39,7 @@ extension REST {
 
         /// The suggested connection transport
         ///
-        /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise, except for special
-        /// circumstances as described in `didFail(code:)`
+        /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise
         public func connectionTransport() -> Transport {
             let counter = connectionAttempts
             if counter % 3 != 0 {

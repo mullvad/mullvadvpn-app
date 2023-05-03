@@ -41,37 +41,6 @@ final class TransportStrategyTests: XCTestCase {
         reloadedStrategy.didFail()
         assertStrategy(.useURLSession, actual: reloadedStrategy.connectionTransport())
     }
-
-    func testTimingOutAlwaysSuggestsDifferentTransport() {
-        var strategy = REST.TransportStrategy()
-
-        // First timeout should suggest a ShadowSocks transport
-        strategy.didFail(code: .timedOut)
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
-
-        // Second timeout should suggest a direct transport
-        strategy.didFail(code: .timedOut)
-        assertStrategy(.useURLSession, actual: strategy.connectionTransport())
-
-        // Third timeout should suggest a Shadowsocks transport again
-        strategy.didFail(code: .timedOut)
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
-    }
-
-    func testFailingAfterTimeoutDoesNotAffectStrategy() {
-        var strategy = REST.TransportStrategy()
-
-        // Fail twice, but the second failure is a timeout, switching back to direct transport
-        strategy.didFail()
-        strategy.didFail(code: .timedOut)
-        assertStrategy(.useURLSession, actual: strategy.connectionTransport())
-
-        // The next two failures should suggest Shadowsocks transports
-        strategy.didFail()
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
-        strategy.didFail()
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
-    }
 }
 
 extension TransportStrategyTests {

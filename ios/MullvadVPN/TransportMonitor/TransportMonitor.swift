@@ -95,9 +95,8 @@ final class TransportMonitor: RESTTransportProvider {
                 tunnel: tunnel,
                 useShadowsocksTransport: useShadowsocksTransport
             )
-        } else {
-            return transport
         }
+        return transport
     }
 
     private func shouldByPassVPN(tunnel: Tunnel) -> Bool {

@@ -214,7 +214,7 @@ extension REST {
                 default:
                     if !REST.isStagingEnvironment {
                         _ = addressCacheStore.selectNextEndpoint(endpoint)
-                        transportStrategy.didFail(code: urlError.code)
+                        transportStrategy.didFail()
                     }
                 }
             }
