@@ -38,6 +38,7 @@ import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -199,7 +200,7 @@ fun AdvancedSettingScreen(
     ) {
         val context = LocalContext.current
         LaunchedEffect(Unit) {
-            toastMessagesSharedFlow.collect { message ->
+            toastMessagesSharedFlow.distinctUntilChanged().collect { message ->
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         }
