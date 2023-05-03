@@ -18,9 +18,8 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
@@ -81,6 +80,9 @@ open class MainActivity : FragmentActivity() {
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
 
+    private var deviceStateJob: Job? = null
+    private var currentDeviceState: DeviceState? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(uiModule)
 
@@ -125,7 +127,7 @@ open class MainActivity : FragmentActivity() {
     fun initializeStateHandlerAndServiceConnection(
         apiEndpointConfiguration: ApiEndpointConfiguration?
     ) {
-        launchDeviceStateHandler()
+        deviceStateJob = launchDeviceStateHandler()
         checkForNotificationPermission()
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
@@ -152,6 +154,8 @@ open class MainActivity : FragmentActivity() {
         // NOTE: `super.onStop()` must be called before unbinding due to the fragment state handling
         // otherwise the fragments will believe there was an unexpected disconnect.
         serviceConnectionManager.unbind()
+
+        deviceStateJob?.cancel()
     }
 
     override fun onDestroy() {
@@ -193,39 +197,39 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun launchDeviceStateHandler() {
-        var currentState: DeviceState? = null
+    private fun launchDeviceStateHandler(): Job {
 
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .debounce {
-                    // Debounce DeviceState.Unknown to delay view transitions during reconnect.
-                    it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
-                }
-                .collect { newState ->
-                    if (newState != currentState) {
-                        when (newState) {
-                            is DeviceState.Initial,
-                            is DeviceState.Unknown -> openLaunchView()
-                            is DeviceState.LoggedOut -> openLoginView()
-                            is DeviceState.Revoked -> openRevokedView()
-                            is DeviceState.LoggedIn -> {
-                                openLoggedInView(
-                                    accountToken = newState.accountAndDevice.account_token,
-                                    shouldDelayLogin = currentState is DeviceState.LoggedOut
-                                )
-                            }
-                        }
-                        currentState = newState
+        return lifecycleScope.launch {
+            launch {
+                deviceRepository.deviceState
+                    .debounce {
+                        // Debounce DeviceState.Unknown to delay view transitions during reconnect.
+                        it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
                     }
-                }
-        }
-        lifecycleScope.launch {
-            deviceRepository.deviceState
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .filter { it is DeviceState.LoggedIn || it is DeviceState.LoggedOut }
-                .collect { loadChangelogComponent() }
+                    .collect { newState ->
+                        if (newState != currentDeviceState)
+                            when (newState) {
+                                is DeviceState.Initial,
+                                is DeviceState.Unknown -> openLaunchView()
+                                is DeviceState.LoggedOut -> openLoginView()
+                                is DeviceState.Revoked -> openRevokedView()
+                                is DeviceState.LoggedIn -> {
+                                    openLoggedInView(
+                                        accountToken = newState.accountAndDevice.account_token,
+                                        shouldDelayLogin =
+                                            currentDeviceState is DeviceState.LoggedOut
+                                    )
+                                }
+                            }
+                        currentDeviceState = newState
+                    }
+            }
+
+            lifecycleScope.launch {
+                deviceRepository.deviceState
+                    .filter { it is DeviceState.LoggedIn || it is DeviceState.LoggedOut }
+                    .collect { loadChangelogComponent() }
+            }
         }
     }
 
