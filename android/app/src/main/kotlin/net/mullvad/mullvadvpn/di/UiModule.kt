@@ -88,7 +88,7 @@ val uiModule = module {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { AdvancedSettingsViewModel(repository = get(), inetAddressValidator = get()) }
+    viewModel { AdvancedSettingsViewModel(get(), get(), get(),) }
 }
 
 const val APPS_SCOPE = "APPS_SCOPE"
