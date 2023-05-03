@@ -41,11 +41,7 @@ public class AsyncBlockOperation: AsyncOperation {
         let block = executionBlock
         executionBlock = nil
 
-        if let block = block {
-            block(self)
-        } else {
-            finish()
-        }
+        block?(self)
     }
 
     override public func operationDidCancel() {
