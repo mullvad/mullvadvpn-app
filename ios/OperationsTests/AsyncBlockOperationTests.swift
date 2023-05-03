@@ -73,7 +73,7 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 100)
+        waitForExpectations(timeout: 1)
     }
 
     func testCancellationShouldNotFireBeforeOperationIsEnqueued() throws {
