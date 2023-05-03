@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -15,7 +16,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
@@ -99,6 +102,8 @@ class OutOfTimeFragment : BaseFragment() {
 
                 isEnabled = true
             }
+
+        sitePaymentButton.isVisible = BuildTypes.RELEASE != BuildConfig.BUILD_TYPE
 
         redeemButton =
             view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
