@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -32,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -66,7 +72,7 @@ private fun PreviewAdvancedSettings() {
             AdvancedSettingsUiState.DefaultUiState(
                 mtu = "1337",
                 isCustomDnsEnabled = true,
-                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false))
+                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
             ),
         onMtuCellClick = {},
         onMtuInputChange = {},
@@ -89,7 +95,8 @@ private fun PreviewAdvancedSettings() {
         onMalwareInfoClicked = {},
         onCustomDnsInfoClicked = {},
         onDismissInfoClicked = {},
-        onBackClick = {}
+        onBackClick = {},
+        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
     )
 }
 
@@ -121,7 +128,8 @@ fun AdvancedSettingScreen(
     onCustomDnsInfoClicked: () -> Unit = {},
     onDismissInfoClicked: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onStopEvent: () -> Unit = {}
+    onStopEvent: () -> Unit = {},
+    toastMessagesSharedFlow: SharedFlow<String>
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -187,8 +195,14 @@ fun AdvancedSettingScreen(
                 modifier = scaffoldModifier,
                 backTitle = stringResource(id = R.string.settings)
             )
-        }
+        },
     ) {
+        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            toastMessagesSharedFlow.collect { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -281,7 +295,7 @@ fun AdvancedSettingScreen(
                                     start = cellHorizontalSpacing,
                                     top = topPadding,
                                     end = cellHorizontalSpacing,
-                                    bottom = cellVerticalSpacing,
+                                    bottom = cellVerticalSpacing
                                 )
                         )
                     }
@@ -323,7 +337,7 @@ fun AdvancedSettingScreen(
                         bodyView = {},
                         subtitle = null,
                         background = MullvadBlue20,
-                        startPadding = biggerPadding
+                        startPadding = biggerPadding,
                     )
                 }
             }
@@ -337,7 +351,7 @@ fun AdvancedSettingScreen(
                                 start = cellHorizontalSpacing,
                                 top = topPadding,
                                 end = cellHorizontalSpacing,
-                                bottom = cellVerticalSpacing
+                                bottom = cellVerticalSpacing,
                             )
                 )
             }
