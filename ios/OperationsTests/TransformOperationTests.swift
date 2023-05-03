@@ -49,7 +49,7 @@ final class TransformOperationTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testCancellableTaskBlockTranasformOperation() {
+    func testCancellableTaskBlockTransformOperation() {
         let finishExpectation = expectation(description: "Should finish")
 
         let transform = TransformOperation<Int, Int>(input: Int.zero, cancellableTask: { _, op in
