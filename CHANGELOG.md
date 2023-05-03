@@ -27,9 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 - Log select settings on each connection attempt.
 - Add `--help` and `--version` options to the desktop GUI application.
 
-#### Android
-- Add DNS content blockers.
-
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
@@ -41,11 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
   `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
-
-#### Android
-- Clarify some of the error messages showed in notifications.
-- Change and add text in Content blockers informational dialog.
-- Update advanced settings scrollbar appearance.
 
 ### Deprecated
 #### Linux
@@ -66,17 +58,32 @@ Line wrap the file at 100 chars.                                              Th
   doesn't fix fragmentation issues in general but prevents the PSK exchange packets from being
   fragmented by setting an explicit maximum segment size.
 
-#### Android
-- Fix adaptive app icon which previously had a displaced nose and some other oddities.
-- Fix app version sometimes missing in the settings menu.
-- Fix content blockers expand state not being kept when returning from split tunneling.
-
 #### macOS
 - Fix tray window behaviour when opening mission control and switching between full-screen workspaces.
 
 #### Linux
 - Fix RPM package containing unecessary files causing conflicts with other electron-builder based
   packages.
+
+
+## [android/2023.1-beta1] - 2023-05-03
+### Added
+#### Android
+- Add themed icon.
+- Add DNS content blockers.
+
+### Changed
+#### Android
+- Clarify some of the error messages throughout the app.
+- Increase WireGuard key rotation interval to 14 days.
+- Change the DNS/MTU input to rely on dialogs in order to improve the UX on some devices.
+- Hide "Buy more credit" buttons in the default release build published to Google Play, our website
+  and GitHub. The buttons are still visible for F-Droid builds.
+
+### Fixed
+#### Android
+- Fix adaptive app icon which previously had a displaced nose and some other oddities.
+- Fix app version sometimes missing in the settings menu.
 
 
 ## [2023.3] - 2023-04-05
