@@ -1653,12 +1653,12 @@
 		589A455328E094B300565204 /* OperationsTests */ = {
 			isa = PBXGroup;
 			children = (
-				58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */,
-				58DF5B772852178600E92647 /* OperationInputInjectionTests.swift */,
-				583E1E292848DF67004838B3 /* OperationObserverTests.swift */,
-				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
 				58AFC99429F96F7B000829DE /* AsyncBlockOperationTests.swift */,
 				58AFC99629F9753D000829DE /* AsyncResultBlockOperationTests.swift */,
+				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
+				58DF5B772852178600E92647 /* OperationInputInjectionTests.swift */,
+				583E1E292848DF67004838B3 /* OperationObserverTests.swift */,
+				58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */,
 				58AFC99829F97856000829DE /* TransformOperationTests.swift */,
 			);
 			path = OperationsTests;
