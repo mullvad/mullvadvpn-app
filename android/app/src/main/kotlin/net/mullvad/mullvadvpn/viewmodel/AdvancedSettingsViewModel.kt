@@ -1,18 +1,22 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.content.res.Resources
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
@@ -24,8 +28,12 @@ import org.apache.commons.validator.routines.InetAddressValidator
 class AdvancedSettingsViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
+    private val resources: Resources,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+
+    private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val toastMessages = _toastMessages.asSharedFlow()
 
     private val dialogState =
         MutableStateFlow<AdvancedSettingsDialogState>(AdvancedSettingsDialogState.NoDialog)
@@ -196,36 +204,44 @@ class AdvancedSettingsViewModel(
             hideDialog()
         }
 
-    fun onToggleDnsClick(isEnabled: Boolean) = updateCustomDnsState(isEnabled)
+    fun onToggleDnsClick(isEnabled: Boolean) {
+        updateCustomDnsState(isEnabled)
+        showApplySettingChangesWarningToast()
+    }
 
     fun onToggleBlockAds(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
             vmState.value.contentBlockersOptions.copy(blockAds = isEnabled)
         )
+        showApplySettingChangesWarningToast()
     }
 
     fun onToggleBlockTrackers(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
             vmState.value.contentBlockersOptions.copy(blockTrackers = isEnabled)
         )
+        showApplySettingChangesWarningToast()
     }
 
     fun onToggleBlockMalware(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
             vmState.value.contentBlockersOptions.copy(blockMalware = isEnabled)
         )
+        showApplySettingChangesWarningToast()
     }
 
     fun onToggleBlockAdultContent(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
             vmState.value.contentBlockersOptions.copy(blockAdultContent = isEnabled)
         )
+        showApplySettingChangesWarningToast()
     }
 
     fun onToggleBlockGambling(isEnabled: Boolean) {
         updateDefaultDnsOptionsViaRepository(
             vmState.value.contentBlockersOptions.copy(blockGambling = isEnabled)
         )
+        showApplySettingChangesWarningToast()
     }
 
     fun onRemoveDnsClick() =
@@ -316,6 +332,10 @@ class AdvancedSettingsViewModel(
                 contentBlockersOptions = vmState.value.contentBlockersOptions
             )
         }
+    }
+
+    private fun showApplySettingChangesWarningToast() {
+        _toastMessages.tryEmit(resources.getString(R.string.settings_changes_effect_warning_short))
     }
 
     companion object {
