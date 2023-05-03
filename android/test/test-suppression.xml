@@ -4,7 +4,7 @@
     CVEs in the e2e project are deemed less severe than CVEs in the main projects as CVEs in the e2e
     project doesn't affect release or debug versions of the app.
     -->
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
         ]]></notes>
@@ -14,7 +14,7 @@
         <cve>CVE-2022-3510</cve>
         <cve>CVE-2021-22569</cve>
     </suppress>
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         These CVEs affects the Apache Commons Net's FTP client that this app doesn't use.
         https://www.openwall.com/lists/oss-security/2022/12/03/1
@@ -29,7 +29,7 @@
         <packageUrl regex="true">^pkg:maven/commons\-.*/commons\-.*@.*$</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
         https://nvd.nist.gov/vuln/detail/CVE-2021-29425
@@ -39,7 +39,7 @@
         <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
         <cve>CVE-2021-29425</cve>
     </suppress>
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         These CVEs are tracked externally and is therefore suppressed in the automatic audit checks.
         ]]></notes>
@@ -54,7 +54,7 @@
         <cve>CVE-2022-41881</cve>
         <cve>CVE-2022-41915</cve>
     </suppress>
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         This CVE is tracked externally and is therefore suppressed in the automatic audit checks.
         https://nvd.nist.gov/vuln/detail/CVE-2022-25647
@@ -64,7 +64,7 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
         <cve>CVE-2022-25647</cve>
     </suppress>
-    <suppress until="2023-05-01Z">
+    <suppress until="2023-06-01Z">
         <notes><![CDATA[
         This CVE only affect Multiplatform Gradle Projects, which this project is not.
         https://nvd.nist.gov/vuln/detail/CVE-2022-24329
