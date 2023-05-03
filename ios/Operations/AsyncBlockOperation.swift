@@ -41,6 +41,7 @@ public class AsyncBlockOperation: AsyncOperation {
         let block = executionBlock
         executionBlock = nil
 
+        assert(block != nil)
         block?(self)
     }
 
