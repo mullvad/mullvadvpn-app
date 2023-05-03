@@ -10,7 +10,6 @@ import Foundation
 import protocol MullvadTypes.Cancellable
 
 public final class TransformOperation<Input, Output>: ResultOperation<Output>, InputOperation {
-    public typealias ExecutionBlock = (Input, TransformOperation<Input, Output>) -> Void
     public typealias InputBlock = () -> Input?
 
     private let nslock = NSLock()
@@ -35,34 +34,43 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
 
     private var inputBlock: InputBlock?
 
-    private var executionBlock: ExecutionBlock?
+    private var executor: ((Input, @escaping (Result<Output, Error>) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 
-    public init(dispatchQueue: DispatchQueue? = nil, input: Input? = nil, block: @escaping ExecutionBlock) {
-        __input = input
-        executionBlock = block
-
+    public init(
+        dispatchQueue: DispatchQueue? = nil,
+        input: Input? = nil,
+        block: @escaping (_ input: Input, _ finish: @escaping (Result<Output, Error>) -> Void) -> Void
+    ) {
         super.init(dispatchQueue: dispatchQueue)
+        __input = input
+        executor = { input, finish in
+            block(input, finish)
+            return nil
+        }
     }
 
-    public convenience init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
-        throwingBlock: @escaping (Input) throws -> Output
+        throwingBlock: @escaping (_ input: Input) throws -> Output
     ) {
-        self.init(dispatchQueue: dispatchQueue, input: input, block: { input, operation in
-            operation.finish(result: Result { try throwingBlock(input) })
-        })
+        super.init(dispatchQueue: dispatchQueue)
+        __input = input
+        executor = { input, finish in
+            finish(Result { try throwingBlock(input) })
+            return nil
+        }
     }
 
-    public convenience init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
         input: Input? = nil,
-        cancellableTask: @escaping (Input, TransformOperation<Input, Output>) -> Cancellable
+        cancellableTask: @escaping (_ input: Input, _ finish: @escaping (Result<Output, Error>) -> Void) -> Cancellable
     ) {
-        self.init(dispatchQueue: dispatchQueue, input: input, block: { input, operation in
-            operation.cancellableTask = cancellableTask(input, operation)
-        })
+        super.init(dispatchQueue: dispatchQueue)
+        __input = input
+        executor = cancellableTask
     }
 
     override public func main() {
@@ -70,12 +78,17 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
             _input = inputBlock()
         }
 
-        guard let inputValue = _input, let executionBlock = executionBlock else {
+        guard let inputValue = _input else {
             finish(result: .failure(OperationError.unsatisfiedRequirement))
             return
         }
 
-        executionBlock(inputValue, self)
+        let executor = executor
+        self.executor = nil
+
+        assert(executor != nil)
+
+        cancellableTask = executor?(inputValue, self.finish)
     }
 
     override public func operationDidCancel() {
@@ -83,7 +96,7 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     }
 
     override public func operationDidFinish() {
-        executionBlock = nil
+        executor = nil
         cancellableTask = nil
     }
 

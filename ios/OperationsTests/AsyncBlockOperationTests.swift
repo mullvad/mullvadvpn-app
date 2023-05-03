@@ -17,9 +17,9 @@ final class AsyncBlockOperationTests: XCTestCase {
         let executionExpectation = expectation(description: "Should execute")
         let finishExpectation = expectation(description: "Should finish")
 
-        let operation = AsyncBlockOperation(block: { op in
+        let operation = AsyncBlockOperation(block: { finish in
             executionExpectation.fulfill()
-            op.finish()
+            finish(nil)
         })
 
         operation.completionBlock = {
@@ -53,15 +53,14 @@ final class AsyncBlockOperationTests: XCTestCase {
         let cancelExpectation = expectation(description: "Should cancel")
         let finishExpectation = expectation(description: "Should finish")
 
-        let operation = AsyncBlockOperation(cancellableTask: { op in
+        let operation = AsyncBlockOperation { finish -> Cancellable in
             executionExpectation.fulfill()
 
             return AnyCancellable {
                 cancelExpectation.fulfill()
-
-                op.finish()
+                finish(nil)
             }
-        })
+        }
 
         operation.completionBlock = {
             finishExpectation.fulfill()

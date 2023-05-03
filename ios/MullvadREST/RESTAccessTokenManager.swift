@@ -27,12 +27,11 @@ extension REST {
             accountNumber: String,
             completionHandler: @escaping (Result<REST.AccessTokenData, Swift.Error>) -> Void
         ) -> Cancellable {
-            let operation = ResultBlockOperation<REST.AccessTokenData>(
-                dispatchQueue: dispatchQueue,
-                cancellableTask: { operation -> Cancellable in
+            let operation =
+                ResultBlockOperation<REST.AccessTokenData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
                     if let tokenData = self.tokens[accountNumber], tokenData.expiry > Date() {
-                        operation.finish(result: .success(tokenData))
-                        return AnyCancellable {}
+                        finish(.success(tokenData))
+                        return AnyCancellable()
                     }
 
                     return self.proxy.getAccessToken(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
@@ -51,11 +50,10 @@ extension REST {
                                 break
                             }
 
-                            operation.finish(result: result)
+                            finish(result)
                         }
                     }
                 }
-            )
 
             operation.completionQueue = .main
             operation.completionHandler = completionHandler

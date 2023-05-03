@@ -85,18 +85,18 @@ final class AddressCacheTracker {
     }
 
     func updateEndpoints(completionHandler: ((Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
-        let operation = ResultBlockOperation<Bool>(cancellableTask: { operation -> Cancellable in
+        let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
             guard self.nextScheduleDate() <= Date() else {
-                operation.finish(result: .success(false))
-                return AnyCancellable {}
+                finish(.success(false))
+                return AnyCancellable()
             }
 
             return self.apiProxy.getAddressList(retryStrategy: .default) { result in
                 self.setEndpoints(from: result)
 
-                operation.finish(result: result.map { _ in true })
+                finish(result.map { _ in true })
             }
-        })
+        }
 
         operation.completionQueue = .main
         operation.completionHandler = completionHandler

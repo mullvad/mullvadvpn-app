@@ -16,8 +16,8 @@ final class TransformOperationTests: XCTestCase {
     func testBlockTransformOperation() {
         let finishExpectation = expectation(description: "Should finish")
 
-        let transform = TransformOperation(input: Int.zero) { input, op in
-            op.finish(result: .success(input + 1))
+        let transform = TransformOperation(input: Int.zero) { input, finish in
+            finish(.success(input + 1))
         }
 
         transform.onFinish { op, error in
@@ -52,11 +52,11 @@ final class TransformOperationTests: XCTestCase {
     func testCancellableTaskBlockTransformOperation() {
         let finishExpectation = expectation(description: "Should finish")
 
-        let transform = TransformOperation<Int, Int>(input: Int.zero, cancellableTask: { _, op in
+        let transform = TransformOperation<Int, Int>(input: Int.zero) { _, finish -> Cancellable in
             return AnyCancellable {
-                op.finish(result: .failure(URLError(.cancelled)))
+                finish(.failure(URLError(.cancelled)))
             }
-        })
+        }
 
         transform.onStart { op in
             op.cancel()
@@ -76,8 +76,8 @@ final class TransformOperationTests: XCTestCase {
     func testShouldFailWithUnsatisfiedRequirement() {
         let finishExpectation = expectation(description: "Should finish")
 
-        let transform = TransformOperation<Int, Int> { input, op in
-            op.finish(result: .success(input))
+        let transform = TransformOperation<Int, Int> { input, finish in
+            finish(.success(input))
         }
 
         transform.onFinish { _, error in

@@ -11,38 +11,41 @@ import protocol MullvadTypes.Cancellable
 
 /// Asynchronous block operation
 public class AsyncBlockOperation: AsyncOperation {
-    public typealias ExecutionBlock = (AsyncBlockOperation) -> Void
-
-    private var executionBlock: ExecutionBlock?
+    private var executor: ((@escaping (Error?) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 
-    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping ExecutionBlock) {
-        executionBlock = block
+    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping (@escaping (Error?) -> Void) -> Void) {
         super.init(dispatchQueue: dispatchQueue)
+        executor = { finish in
+            block(finish)
+            return nil
+        }
     }
 
-    public convenience init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
-        self.init(dispatchQueue: dispatchQueue, block: { operation in
+    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
+        super.init(dispatchQueue: dispatchQueue)
+        executor = { finish in
             block()
-            operation.finish()
-        })
+            finish(nil)
+            return nil
+        }
     }
 
-    public convenience init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
-        cancellableTask: @escaping (AsyncBlockOperation) -> Cancellable
+        cancellableTask: @escaping (@escaping (Error?) -> Void) -> Cancellable
     ) {
-        self.init(dispatchQueue: dispatchQueue, block: { operation in
-            operation.cancellableTask = cancellableTask(operation)
-        })
+        super.init(dispatchQueue: dispatchQueue)
+        executor = { cancellableTask($0) }
     }
 
     override public func main() {
-        let block = executionBlock
-        executionBlock = nil
+        let executor = executor
+        self.executor = nil
 
-        assert(block != nil)
-        block?(self)
+        assert(executor != nil)
+
+        cancellableTask = executor?(self.finish)
     }
 
     override public func operationDidCancel() {
@@ -50,7 +53,7 @@ public class AsyncBlockOperation: AsyncOperation {
     }
 
     override public func operationDidFinish() {
-        executionBlock = nil
+        executor = nil
         cancellableTask = nil
     }
 }

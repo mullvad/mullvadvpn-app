@@ -16,8 +16,8 @@ final class AsyncResultBlockOperationTests: XCTestCase {
     func testBlockOperation() {
         let expectation = expectation(description: "Should finish")
 
-        let operation = ResultBlockOperation<Bool> { op in
-            op.finish(result: .success(true))
+        let operation = ResultBlockOperation<Bool> { finish in
+            finish(.success(true))
         }
 
         operation.onFinish { op, error in
@@ -52,11 +52,11 @@ final class AsyncResultBlockOperationTests: XCTestCase {
     func testCancellableTaskOperation() {
         let expectation = expectation(description: "Should finish")
 
-        let operation = ResultBlockOperation<Bool>(cancellableTask: { op in
+        let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
             return AnyCancellable {
-                op.finish(result: .failure(URLError(.cancelled)))
+                finish(.failure(URLError(.cancelled)))
             }
-        })
+        }
 
         operation.onStart { op in
             op.cancel()

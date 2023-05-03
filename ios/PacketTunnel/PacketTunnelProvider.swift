@@ -585,14 +585,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         // Ignore all requests to reconnect once tunnel is preparing to stop.
         guard !isStopping else { return }
 
-        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue, block: { operation in
+        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue, block: { finish in
             if shouldStopTunnelMonitor {
                 self.tunnelMonitor.stop()
             }
 
             self.reconnectTunnelInner(to: nextRelay) { error in
                 completionHandler?(error)
-                operation.finish()
+                finish(nil)
             }
         })
 
@@ -780,26 +780,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func createGetAccountDataOperation(accountNumber: String) -> ResultOperation<REST.AccountData> {
-        return ResultBlockOperation<REST.AccountData>(dispatchQueue: dispatchQueue, cancellableTask: { operation in
-            return self.accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
-                operation.finish(result: result)
-            }
-        })
+        return ResultBlockOperation<REST.AccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
+            return self.accountsProxy.getAccountData(
+                accountNumber: accountNumber,
+                retryStrategy: .noRetry,
+                completion: finish
+            )
+        }
     }
 
     private func createGetDeviceDataOperation(
         accountNumber: String,
         identifier: String
     ) -> ResultOperation<REST.Device> {
-        return ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue, cancellableTask: { operation in
+        return ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
             return self.devicesProxy.getDevice(
                 accountNumber: accountNumber,
                 identifier: identifier,
-                retryStrategy: .noRetry
-            ) { result in
-                operation.finish(result: result)
-            }
-        })
+                retryStrategy: .noRetry,
+                completion: finish
+            )
+        }
     }
 }
 
