@@ -47,13 +47,12 @@ extension REST {
             shadowSocksBridgeRelay: BridgeRelay
         ) {
             self.urlSession = urlSession
-            self.shadowSocksProxy = ShadowSocksProxy(
+            shadowSocksProxy = ShadowSocksProxy(
                 remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
                 remotePort: shadowSocksConfiguration.port,
                 password: shadowSocksConfiguration.password,
                 cipher: shadowSocksConfiguration.cipher
             )
-
         }
 
         deinit {
