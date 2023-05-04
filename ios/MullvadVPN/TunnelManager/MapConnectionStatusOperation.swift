@@ -37,6 +37,8 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     override func main() {
         guard let tunnel = interactor.tunnel else {
+            setTunnelDisconnectedStatus()
+
             finish()
             return
         }
@@ -98,12 +100,7 @@ class MapConnectionStatusOperation: AsyncOperation {
                 interactor.startTunnel()
 
             default:
-                interactor.updateTunnelStatus { tunnelStatus in
-                    tunnelStatus = TunnelStatus()
-                    tunnelStatus.state = pathStatus == .unsatisfied
-                        ? .waitingForConnectivity(.noNetwork)
-                        : .disconnected
-                }
+                setTunnelDisconnectedStatus()
             }
 
         case .disconnecting:
@@ -118,12 +115,7 @@ class MapConnectionStatusOperation: AsyncOperation {
             }
 
         case .invalid:
-            interactor.updateTunnelStatus { tunnelStatus in
-                tunnelStatus = TunnelStatus()
-                tunnelStatus.state = pathStatus == .unsatisfied
-                    ? .waitingForConnectivity(.noNetwork)
-                    : .disconnected
-            }
+            setTunnelDisconnectedStatus()
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
@@ -134,6 +126,15 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     override func operationDidCancel() {
         request?.cancel()
+    }
+
+    private func setTunnelDisconnectedStatus() {
+        interactor.updateTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state = pathStatus == .unsatisfied
+                ? .waitingForConnectivity(.noNetwork)
+                : .disconnected
+        }
     }
 
     private func fetchTunnelStatus(
