@@ -61,44 +61,15 @@ extension REST {
         public func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
-            return cachedAddresses.endpoints.first!
+            return cachedAddresses.endpoints.first ?? REST.defaultAPIEndpoint
         }
 
         public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
 
-            var currentEndpoint = cachedAddresses.endpoints.first!
-
-            guard failedEndpoint == currentEndpoint else {
-                return currentEndpoint
-            }
-
-            cachedAddresses.endpoints.removeFirst()
-            cachedAddresses.endpoints.append(failedEndpoint)
-
-            if isReadOnly {
-                refreshAddresses()
-            }
-
-            currentEndpoint = cachedAddresses.endpoints.first!
-
-            logger.debug(
-                "Failed to communicate using \(failedEndpoint). Next endpoint: \(currentEndpoint)"
-            )
-
-            if !isReadOnly {
-                do {
-                    try writeToDisk()
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to write address cache after selecting next endpoint."
-                    )
-                }
-            }
-
-            return currentEndpoint
+            // This function currently acts as a convoluted no-op. It will be soon deleted.
+            return getCurrentEndpoint()
         }
 
         public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
@@ -111,23 +82,7 @@ extension REST {
 
             if Set(cachedAddresses.endpoints) == Set(endpoints) {
                 cachedAddresses.updatedAt = Date()
-            } else {
-                // Shuffle new endpoints
-                var newEndpoints = endpoints.shuffled()
-
-                // Move current endpoint to the top of the list
-                let currentEndpoint = cachedAddresses.endpoints.first!
-                if let index = newEndpoints.firstIndex(of: currentEndpoint) {
-                    newEndpoints.remove(at: index)
-                    newEndpoints.insert(currentEndpoint, at: 0)
-                }
-
-                cachedAddresses = CachedAddresses(
-                    updatedAt: Date(),
-                    endpoints: newEndpoints
-                )
             }
-
             if !isReadOnly {
                 do {
                     try writeToDisk()
@@ -167,9 +122,7 @@ extension REST {
                 cachedAddresses = readResult.cachedAddresses
 
             case .bundle:
-                var addresses = readResult.cachedAddresses
-                addresses.endpoints.shuffle()
-                cachedAddresses = addresses
+                cachedAddresses = readResult.cachedAddresses
 
                 if !isReadOnly {
                     logger.debug("Persist address list read from bundle.")
@@ -289,27 +242,6 @@ extension REST {
             }
 
             return try result!.get()
-        }
-
-        private func refreshAddresses() {
-            do {
-                let readResult = try readFromCacheLocation()
-                var newCachedAddresses = readResult.cachedAddresses
-
-                guard Set(newCachedAddresses.endpoints) != Set(cachedAddresses.endpoints)
-                else { return }
-
-                // Move current endpoint to the top of the list
-                let currentEndpoint = cachedAddresses.endpoints.first!
-                if let index = newCachedAddresses.endpoints.firstIndex(of: currentEndpoint) {
-                    newCachedAddresses.endpoints.remove(at: index)
-                    newCachedAddresses.endpoints.insert(currentEndpoint, at: 0)
-                }
-
-                cachedAddresses = newCachedAddresses
-            } catch {
-                logger.error(error: error, message: "Failed to refresh address cache from disk.")
-            }
         }
     }
 
