@@ -750,7 +750,8 @@ final class TunnelManager: StorePaymentObserver {
 
         return try RelaySelector.evaluate(
             relays: cachedRelays.relays,
-            constraints: settings.relayConstraints
+            constraints: settings.relayConstraints,
+            numberOfFailedAttempts: tunnelStatus.packetTunnelStatus.numberOfFailedAttempts
         )
     }
 
