@@ -1,14 +1,13 @@
 use std::{
     collections::VecDeque,
     mem::size_of,
-    num::NonZeroU16,
     os::unix::prelude::{FromRawFd, RawFd},
     pin::Pin,
     task::{ready, Context, Poll},
 };
 
 use nix::{
-    fcntl::{self, OFlag},
+    fcntl,
     sys::socket::{socket, AddressFamily, SockFlag, SockType},
 };
 use std::{
@@ -16,33 +15,31 @@ use std::{
     io::{self, Read, Write},
 };
 
-use super::data::{
-    rt_msghdr_short, AddressFlag, MessageType, RouteFlag, RouteMessage, RouteSocketAddress,
-};
+use super::data::{rt_msghdr_short, MessageType, RouteMessage};
 
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
-
-/// Routing socket interface version
-const RTM_VERSION: libc::c_uchar = 5;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to open routing socket")]
     OpenSocket(io::Error),
     #[error(display = "Failed to write to routing socket")]
-    WriteError(io::Error),
+    Write(io::Error),
     #[error(display = "Failed to read from routing socket")]
-    ReadError(io::Error),
+    Read(io::Error),
     #[error(display = "Received a message that's too small")]
     MessageTooSmall(usize),
 }
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Wraps a `PF_ROUTE` socket, keeps track of sent message IDs, and facilitates sending and
+/// receiving [route socket messages](#RouteMessage)
 pub struct RoutingSocket {
     socket: RoutingSocketInner,
     seq: i32,
     // buffers up messages received whilst waiting on a response
+    // TODO: might we want to limit the max size of this?
     buf: VecDeque<Vec<u8>>,
     own_pid: i32,
 }
@@ -59,14 +56,14 @@ impl RoutingSocket {
 
     pub async fn recv_msg(&mut self, mut buf: &mut [u8]) -> Result<usize> {
         if let Some(buffered_msg) = self.buf.pop_front() {
-            let bytes_written = buf.write(&buffered_msg).map_err(Error::WriteError)?;
+            let bytes_written = buf.write(&buffered_msg).map_err(Error::Write)?;
             return Ok(bytes_written);
         }
         self.read_next_msg(buf).await
     }
 
     async fn read_next_msg(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.socket.read(buf).await.map_err(Error::ReadError)
+        self.socket.read(buf).await.map_err(Error::Read)
     }
 
     pub async fn send_route_message(
@@ -77,16 +74,13 @@ impl RoutingSocket {
         let (msg, seq) = self.next_route_msg(message, message_type);
         match self.socket.write(&msg).await {
             Ok(_) => self.wait_for_response(seq).await,
-            Err(err) => {
-                self.seq -= 1;
-                Err(Error::WriteError(err))
-            }
+            Err(err) => Err(Error::Write(err)),
         }
     }
 
     pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
-            let mut buffer = vec![0u8; 2024];
+            let mut buffer = vec![0u8; 2048];
             // do not truncate the buffer - trailing empty bytes won't be written but will be
             // assumed in the data format.
             let bytes_read = self.read_next_msg(&mut buffer).await?;
@@ -104,14 +98,14 @@ impl RoutingSocket {
         }
     }
 
-    /// Will panic if the message length ends up overflowing an i32.
     fn next_route_msg(&mut self, message: &RouteMessage, msg_type: MessageType) -> (Vec<u8>, i32) {
         let seq = self.seq;
-        self.seq += 1;
+        self.seq = seq.wrapping_add(1);
 
         let (header, payload) = message.payload(msg_type, seq, self.own_pid);
         let mut msg_buffer = vec![0u8; header.rtm_msglen.into()];
 
+        // SAFETY: `msg_buffer` is guaranteed to be at least as large as `rt_msghdr`.
         unsafe {
             std::ptr::copy_nonoverlapping(
                 &header as *const _ as *const u8,
@@ -122,7 +116,7 @@ impl RoutingSocket {
         let mut sockaddr_buf = &mut msg_buffer[std::mem::size_of::<super::data::rt_msghdr>()..];
         for socket_addr in payload {
             sockaddr_buf
-                .write(socket_addr.as_slice())
+                .write_all(socket_addr.as_slice())
                 .expect("faled to write socket address into message buffer");
         }
         (msg_buffer, header.rtm_seq)
@@ -151,7 +145,7 @@ impl RoutingSocketInner {
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
-                Err(err) => continue,
+                Err(_err) => continue,
             }
         }
     }

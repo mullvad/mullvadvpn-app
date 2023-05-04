@@ -1,15 +1,11 @@
-use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
-    ffi::{OsStr, OsString},
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
-    os::unix::prelude::OsStringExt,
-};
-
 use ipnetwork::IpNetwork;
 use nix::{
     ifaddrs::InterfaceAddress,
-    net::if_::if_nametoindex,
-    sys::socket::{SockAddr, SockaddrIn, SockaddrIn6, SockaddrLike, SockaddrStorage},
+    sys::socket::{SockaddrLike, SockaddrStorage},
+};
+use std::{
+    collections::BTreeMap,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
 };
 
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
@@ -27,8 +23,8 @@ impl RouteMessage {
         let mut sockaddrs = BTreeMap::new();
         match destination {
             Destination::Network(net) => {
-                let destination =
-                    RouteSocketAddress::Destination(Some(SocketAddr::from((net.ip(), 0)).into()));
+                let dest_addr = SockaddrStorage::from(SocketAddr::from((net.ip(), 0)));
+                let destination = RouteSocketAddress::Destination(Some(dest_addr));
                 let netmask =
                     RouteSocketAddress::Netmask(Some(SocketAddr::from((net.mask(), 0)).into()));
                 sockaddrs.insert(destination.address_flag(), destination);
@@ -84,16 +80,15 @@ impl RouteMessage {
             _ => None,
         });
 
+        // TODO: This might be superfluous
         let netmask_is_default = match netmask {
             // empty socket address implies that it is a 'default' netmask
             Some(None) => true,
             Some(Some(addr)) => {
-                if let Some(netmask_addr) = addr.as_sockaddr_in() {
-                    let std_addr = SocketAddrV4::from(netmask_addr.clone());
-                    *std_addr.ip() == Ipv4Addr::UNSPECIFIED
-                } else if let Some(netmask_addr) = addr.as_sockaddr_in6() {
-                    let std_addr = SocketAddrV6::from(netmask_addr.clone());
-                    *std_addr.ip() == Ipv6Addr::UNSPECIFIED
+                if let Some(netmask_addr) = saddr_to_ipv4(addr) {
+                    netmask_addr.is_unspecified()
+                } else if let Some(netmask_addr) = saddr_to_ipv6(addr) {
+                    netmask_addr.is_unspecified()
                 } else {
                     // if the route socket address describing the netmask isn't a sockaddr_in or a
                     // sockaddr_in6, it can't possibly be a default route for IP
@@ -112,18 +107,6 @@ impl RouteMessage {
             .destination_v6()?
             .map(|addr| addr == Ipv6Addr::UNSPECIFIED)
             .unwrap_or(false))
-    }
-
-    pub fn print_route(&self) {
-        println!(
-            "route is default - {:?} - interface index: {} - is iscoped - {}",
-            self.is_default(),
-            self.interface_index,
-            self.is_ifscope()
-        );
-        for sa in &self.sockaddrs {
-            println!("\t{:?}", &sa);
-        }
     }
 
     fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
@@ -184,7 +167,7 @@ impl RouteMessage {
     }
 
     pub fn set_interface_addr(mut self, link: &InterfaceAddress) -> Self {
-        self.insert_sockaddr(RouteSocketAddress::Gateway(link.address.clone()));
+        self.insert_sockaddr(RouteSocketAddress::Gateway(link.address));
         self.route_flags |= RouteFlag::RTF_GATEWAY;
         self
     }
@@ -247,7 +230,7 @@ impl RouteMessage {
                 let netmask = self.netmask().unwrap_or(Ipv4Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
                     .map_err(Error::InvalidNetmask)?;
-                return Ok(destination.into());
+                return Ok(destination);
             }
 
             if let Some(v6) = saddr.as_sockaddr_in6() {
@@ -255,15 +238,15 @@ impl RouteMessage {
                 let netmask = self.netmask().unwrap_or(Ipv6Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
                     .map_err(Error::InvalidNetmask)?;
-                return Ok(destination.into());
+                return Ok(destination);
             }
 
             return Err(Error::MismatchedSocketAddress(
                 AddressFlag::RTA_DST,
-                saddr.clone(),
+                Box::new(*saddr),
             ));
-        };
-        return Err(Error::NoDestination);
+        }
+        Err(Error::NoDestination)
     }
 
     pub fn destination(&self) -> Result<Option<&SockaddrStorage>> {
@@ -299,6 +282,9 @@ impl RouteMessage {
             flag | addr.address_flag()
         });
 
+        // The sockaddrs should be ordered by their address flag in the payload,
+        // because the payload does not contain their flags. Flags are only specified
+        // in the header.
         let mut sockaddrs = self.route_addrs().collect::<Vec<_>>();
         sockaddrs.sort_by_key(|saddr| saddr.address_flag());
         let payload_bytes = sockaddrs
@@ -308,7 +294,7 @@ impl RouteMessage {
 
         let payload_len: usize = payload_bytes.iter().map(Vec::len).sum();
 
-        let rtm_msglen = (payload_len + std::mem::size_of::<super::data::rt_msghdr>())
+        let rtm_msglen = (payload_len + ROUTE_MESSAGE_HEADER_SIZE)
             .try_into()
             .expect("route message buffer size cannot fit in 32 bits");
 
@@ -339,7 +325,7 @@ impl RouteMessage {
     }
 
     fn get_address(&self, address_flag: &AddressFlag) -> Option<IpAddr> {
-        let addr = self.sockaddrs.get(&address_flag)?;
+        let addr = self.sockaddrs.get(address_flag)?;
         saddr_to_ipv4(addr.inner()?)
             .map(IpAddr::from)
             .or_else(|| saddr_to_ipv6(addr.inner()?).map(IpAddr::from))
@@ -389,7 +375,6 @@ impl RouteMessage {
             self.interface_index = iface_index;
             self.route_flags.insert(RouteFlag::RTF_IFSCOPE);
         } else {
-            self.interface_index = iface_index;
             self.route_flags.remove(RouteFlag::RTF_IFSCOPE);
         }
 
@@ -413,26 +398,11 @@ struct ifa_msghdr {
 pub struct AddressMessage {
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
     interface_index: u16,
-    ifam_type: libc::c_uchar,
-    flags: RouteFlag,
 }
 
 impl AddressMessage {
     pub fn index(&self) -> u16 {
         self.interface_index
-    }
-
-    pub fn print_sockaddrs(&self) {
-        println!("ifam_type - {}", self.ifam_type);
-        match self.address() {
-            Ok(addr) => println!("address - {addr}"),
-            Err(err) => {
-                println!("failed to get address {err:?}");
-            }
-        }
-        for (flag, addr) in &self.sockaddrs {
-            println!("{flag:?} - {addr:?}");
-        }
     }
 
     pub fn address(&self) -> Result<IpAddr> {
@@ -442,7 +412,7 @@ impl AddressMessage {
     }
 
     fn get_address(&self, address_flag: &AddressFlag) -> Option<IpAddr> {
-        let addr = self.sockaddrs.get(&address_flag)?;
+        let addr = self.sockaddrs.get(address_flag)?;
         saddr_to_ipv4(addr.inner()?)
             .map(IpAddr::from)
             .or_else(|| saddr_to_ipv6(addr.inner()?).map(IpAddr::from))
@@ -469,16 +439,13 @@ impl AddressMessage {
         let msg_len = usize::from(header.ifam_msglen);
         if msg_len > buffer.len() {
             return Err(Error::BufferTooSmall(
-                "Mesage is shorter than it's msg_len indicates",
+                "Message is shorter than it's msg_len indicates",
                 msg_len,
                 buffer.len(),
             ));
         }
 
         let payload = &buffer[HEADER_SIZE..std::cmp::min(msg_len, buffer.len())];
-
-        let flags = RouteFlag::from_bits(header.ifam_flags)
-            .ok_or(Error::UnknownRouteFlag(header.ifam_flags))?;
 
         let address_flags = AddressFlag::from_bits(header.ifam_addrs)
             .ok_or(Error::UnknownAddressFlag(header.ifam_addrs))?;
@@ -489,8 +456,6 @@ impl AddressMessage {
 
         Ok(Self {
             sockaddrs,
-            flags,
-            ifam_type: header.ifam_type,
             interface_index: header.ifam_index,
         })
     }
@@ -566,13 +531,11 @@ pub enum Error {
     /// Unrecognized address flag
     UnknownAddressFlag(libc::c_int),
     /// Mismatched socket address type
-    MismatchedSocketAddress(AddressFlag, SockaddrStorage),
+    MismatchedSocketAddress(AddressFlag, Box<SockaddrStorage>),
     /// Link socket address contains no identifier
     NoLinkIdentifier(nix::libc::sockaddr_dl),
     /// Failed to resolve an interface name to an index
     InterfaceIndex(nix::Error),
-    /// An error message as received from the routing socket
-    RouteError(rt_msghdr, Vec<u8>),
     /// Invalid netmask
     InvalidNetmask(ipnetwork::IpNetworkError),
     /// Route contains no netmask socket address
@@ -622,24 +585,15 @@ impl RouteSocketMessage {
             None => Err(Error::BufferTooSmall(
                 "rt_msghdr_short",
                 buffer.len(),
-                std::mem::size_of::<rt_msghdr_short>(),
+                ROUTE_MESSAGE_HEADER_SHORT_SIZE,
             )),
         }
     }
 }
 
-/// hush, this will come in later
-fn align_to_nearest_u32(idx: usize) -> usize {
-    if idx > 0 {
-        1 + (((idx) - 1) | (std::mem::size_of::<u32>() - 1))
-    } else {
-        std::mem::size_of::<u32>()
-    }
-}
-
+#[derive(Debug)]
 pub struct Interface {
     header: libc::if_msghdr,
-    payload: Vec<u8>,
 }
 
 impl Interface {
@@ -650,66 +604,7 @@ impl Interface {
     pub fn index(&self) -> u16 {
         self.header.ifm_index
     }
-}
 
-impl std::fmt::Debug for Interface {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let if_data = f
-            .debug_struct("if_data")
-            .field("ifi_type", &self.header.ifm_data.ifi_type)
-            .field("ifi_typelen", &self.header.ifm_data.ifi_typelen)
-            .field("ifi_physical", &self.header.ifm_data.ifi_physical)
-            .field("ifi_addrlen", &self.header.ifm_data.ifi_addrlen)
-            .field("ifi_hdrlen", &self.header.ifm_data.ifi_hdrlen)
-            .field("ifi_recvquota", &self.header.ifm_data.ifi_recvquota)
-            .field("ifi_xmitquota", &self.header.ifm_data.ifi_xmitquota)
-            .field("ifi_unused1", &self.header.ifm_data.ifi_unused1)
-            .field("ifi_mtu", &self.header.ifm_data.ifi_mtu)
-            .field("ifi_metric", &self.header.ifm_data.ifi_metric)
-            .field("ifi_baudrate", &self.header.ifm_data.ifi_baudrate)
-            .field("ifi_ipackets", &self.header.ifm_data.ifi_ipackets)
-            .field("ifi_ierrors", &self.header.ifm_data.ifi_ierrors)
-            .field("ifi_opackets", &self.header.ifm_data.ifi_opackets)
-            .field("ifi_oerrors", &self.header.ifm_data.ifi_oerrors)
-            .field("ifi_collisions", &self.header.ifm_data.ifi_collisions)
-            .field("ifi_ibytes", &self.header.ifm_data.ifi_ibytes)
-            .field("ifi_obytes", &self.header.ifm_data.ifi_obytes)
-            .field("ifi_imcasts", &self.header.ifm_data.ifi_imcasts)
-            .field("ifi_omcasts", &self.header.ifm_data.ifi_omcasts)
-            .field("ifi_iqdrops", &self.header.ifm_data.ifi_iqdrops)
-            .field("ifi_noproto", &self.header.ifm_data.ifi_noproto)
-            .field("ifi_recvtiming", &self.header.ifm_data.ifi_recvtiming)
-            .field("ifi_xmittiming", &self.header.ifm_data.ifi_xmittiming)
-            .field(
-                "ifi_lastchange",
-                &(
-                    self.header.ifm_data.ifi_lastchange.tv_sec,
-                    self.header.ifm_data.ifi_lastchange.tv_usec,
-                ),
-            )
-            .field("ifi_unused2", &self.header.ifm_data.ifi_unused2)
-            .field("ifi_hwassist", &self.header.ifm_data.ifi_hwassist)
-            .field("ifi_reserved1", &self.header.ifm_data.ifi_reserved1)
-            .field("ifi_reserved2", &self.header.ifm_data.ifi_reserved2)
-            .finish();
-        let header = f
-            .debug_struct("if_msghdr")
-            .field("ifm_msglen", &self.header.ifm_msglen)
-            .field("ifm_version", &self.header.ifm_version)
-            .field("ifm_type", &self.header.ifm_type)
-            .field("ifm_addrs", &self.header.ifm_addrs)
-            .field("ifm_flags", &self.header.ifm_flags)
-            .field("ifm_index", &self.header.ifm_index)
-            .field("ifm_data", &if_data)
-            .finish()?;
-        f.debug_struct("Interface")
-            .field("header", &header)
-            .field("payload", &self.payload)
-            .finish()
-    }
-}
-
-impl Interface {
     fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
         const INTERFACE_MESSAGE_HEADER_SIZE: usize = std::mem::size_of::<libc::if_msghdr>();
         if INTERFACE_MESSAGE_HEADER_SIZE > buffer.len() {
@@ -720,8 +615,8 @@ impl Interface {
             ));
         }
         let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
-        let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
-        Ok(Self { header, payload })
+        // let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
+        Ok(Self { header })
     }
 }
 
@@ -735,7 +630,7 @@ impl Interface {
 // #define RTA_BRD         0x80    /* for NEWADDR, broadcast or p-p dest addr */
 bitflags::bitflags! {
     /// All enum values of address flags can be iterated via `flag <<= 1`, starting from 1.
-    // #[derive(Clone, Copy, PartialOrd)]
+    /// See https://www.manpagez.com/man/4/route/.
     pub struct AddressFlag: i32 {
         /// Destination socket address
         const RTA_DST       = 0x1;
@@ -758,7 +653,7 @@ bitflags::bitflags! {
 
 bitflags::bitflags! {
     /// Types of routing messages
-    // #[derive(Clone, Copy, PartialOrd)]
+    /// See https://www.manpagez.com/man/4/route/.
     pub struct MessageType: u8 {
         /// Add Route
         const RTM_ADD         = 0x1;
@@ -794,10 +689,8 @@ bitflags::bitflags! {
         const RTM_DELMADDR    = 0x10;
     }
 
-
-
-    /// Types of routing messages
-    // #[derive(Clone, Copy, PartialOrd)]
+    /// Routing message flags
+    /// See https://www.manpagez.com/man/4/route/.
     pub struct RouteFlag: i32 {
         /// route usable
         const RTF_UP = 0x1;
@@ -903,7 +796,7 @@ impl RouteSocketAddress {
         }
 
         let addr_header_ptr = buf.as_ptr() as *const sockaddr_hdr;
-        // safety - since `buf` is at least as long as a `sockaddr_hdr`, it's perfectly valid to
+        // SAFETY: Since `buf` is at least as long as a `sockaddr_hdr`, it's perfectly valid to
         // read from.
         let addr_header = unsafe { std::ptr::read(addr_header_ptr) };
         let saddr_len = addr_header.sa_len;
@@ -924,26 +817,27 @@ impl RouteSocketAddress {
             )
         };
 
-        return Ok((Self::with_sockaddr(flag, saddr)?, saddr_len));
+        Ok((Self::with_sockaddr(flag, saddr)?, saddr_len))
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         match self.inner() {
             None => vec![0u8; 4],
             Some(addr) => {
-                let len = addr.len();
+                let len = usize::try_from(addr.len()).unwrap();
+                assert!(len >= 4);
+
                 // The "serialized" socket addresses must be padded to be aligned to 4 bytes, with
                 // the smallest size being 4 bytes.
                 let buffer_size = len + len % 4;
-                let mut buffer = vec![0u8; buffer_size as usize];
-                let mut buffer_ptr = buffer.as_mut_ptr();
+                let mut buffer = vec![0u8; buffer_size];
                 unsafe {
                     // SAFETY: copying conents of addr into buffer is safe, as long as addr.len()
                     // returns a correct size for the socket address pointer.
                     std::ptr::copy_nonoverlapping(
                         addr.as_ptr() as *const _,
                         buffer.as_mut_ptr(),
-                        addr.len() as usize,
+                        len,
                     );
                 }
                 buffer
@@ -1005,12 +899,6 @@ impl RouteSocketAddress {
             _ => None,
         }
     }
-
-    pub fn set_interface_index(mut self, index: u16) -> Self {
-        unimplemented!()
-        // self.insert_sockaddr(RouteSocketAddress::IfName(Some(sockaddr)));
-        // self
-    }
 }
 
 /// Route socket addreses should be ordered by their corresponding address flag when a route
@@ -1027,12 +915,6 @@ struct sockaddr_hdr {
     sa_len: u8,
     sa_family: libc::sa_family_t,
     padding: u16,
-}
-
-pub enum InterfaceIdentifier {
-    Index(u16),
-    Name(OsString),
-    Unspecified,
 }
 
 /// An iterator to consume a byte buffer containing socket address structures originating from a
@@ -1055,7 +937,7 @@ impl<'a> RouteSockAddrIterator<'a> {
 
     /// Advances internal byte buffer by given amount. The byte amount will be padded to be
     /// aligned to 4 bytes if there's more data in the buffer.
-    fn advance_buffer(&mut self, mut saddr_len: u8) {
+    fn advance_buffer(&mut self, saddr_len: u8) {
         let saddr_len = usize::from(saddr_len);
 
         // if consumed as many bytes as are left in the buffer, the buffer can be cleared
@@ -1065,12 +947,12 @@ impl<'a> RouteSockAddrIterator<'a> {
         }
 
         let padded_saddr_len = if saddr_len % 4 != 0 {
-            usize::from(saddr_len + (4 - saddr_len % 4))
+            saddr_len + (4 - saddr_len % 4)
         } else {
-            usize::from(saddr_len)
+            saddr_len
         };
 
-        // if offest is larger than current buffer, ensure slice gets truncated
+        // if offset is larger than current buffer, ensure slice gets truncated
         // since the socket address should've already be read from the buffer at this point, this
         // probably should be an invariant?
         self.buffer = &self.buffer[padded_saddr_len..];
@@ -1148,7 +1030,7 @@ fn saddr_to_ipv6(saddr: &SockaddrStorage) -> Option<Ipv6Addr> {
 
 impl rt_msghdr {
     pub fn from_bytes(buf: &[u8]) -> Result<Self> {
-        if buf.len() >= std::mem::size_of::<rt_msghdr>() {
+        if buf.len() >= ROUTE_MESSAGE_HEADER_SIZE {
             let ptr = buf.as_ptr();
             // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr value and it's
             // readable. rt_msghdr doesn't contain any pointers so any values are valid.
@@ -1177,6 +1059,7 @@ pub struct rt_msghdr_short {
     pub rtm_seq: libc::c_int,
     pub rtm_errno: libc::c_int,
 }
+const ROUTE_MESSAGE_HEADER_SHORT_SIZE: usize = std::mem::size_of::<rt_msghdr_short>();
 
 impl rt_msghdr_short {
     fn is_type(&self, expected_type: i32) -> bool {
@@ -1185,19 +1068,15 @@ impl rt_msghdr_short {
             .unwrap_or(false)
     }
 
-    pub fn from_bytes<'a>(buf: &'a [u8]) -> Option<Self> {
-        if buf.len() >= std::mem::size_of::<rt_msghdr_short>() {
+    pub fn from_bytes(buf: &[u8]) -> Option<Self> {
+        if buf.len() >= ROUTE_MESSAGE_HEADER_SHORT_SIZE {
             let ptr = buf.as_ptr();
             // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr_short value and
-            // it's readable. rt_msghdr_short doesn't contain any pointers so any values are valid.
+            // is readable. `rt_msghdr_short` doesn't contain any pointers so any values are valid.
             Some(unsafe { std::ptr::read(ptr as *const rt_msghdr_short) })
         } else {
             None
         }
-    }
-
-    fn is_err(&self) -> bool {
-        self.rtm_errno != 0
     }
 }
 
@@ -1206,23 +1085,6 @@ pub struct RouteDestination {
     pub network: IpNetwork,
     pub interface: Option<u16>,
     pub gateway: Option<IpAddr>,
-}
-
-impl RouteDestination {
-    pub fn is_default(&self) -> bool {
-        if self.network.prefix() != 0 {
-            return false;
-        }
-        match self.network.ip() {
-            IpAddr::V4(Ipv4Addr::UNSPECIFIED) => true,
-            IpAddr::V6(Ipv6Addr::UNSPECIFIED) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_ipv4(&self) -> bool {
-        self.network.is_ipv4()
-    }
 }
 
 impl TryFrom<&RouteMessage> for RouteDestination {
