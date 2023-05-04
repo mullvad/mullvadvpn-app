@@ -6,4 +6,6 @@ import androidx.compose.ui.unit.sp
 // standard styles in the material theme
 internal object TypeScale {
     val TextMediumPlus = 18.sp
+    val TextSmall = 13.sp
+    val TextBig = 24.sp
 }

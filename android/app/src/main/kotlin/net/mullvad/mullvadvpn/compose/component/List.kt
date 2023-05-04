@@ -25,24 +25,51 @@ import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.compose.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
 
 @Preview
 @Composable
 fun PreviewListItem() {
     Column {
-        ListItem(text = "No icon not loading", isLoading = false, onClick = {})
-        ListItem(text = "No icon is loading", isLoading = true, onClick = {})
+        ListItem(text = "No subtext No icon not loading", isLoading = false, onClick = {})
+        ListItem(text = "No subtext No icon is loading", isLoading = true, onClick = {})
         ListItem(
-            text = "With icon is loading",
+            text = "No subtext With icon is loading",
             isLoading = true,
             iconResourceId = R.drawable.icon_close,
             onClick = {}
         )
         ListItem(
-            text = "With icon not loading",
+            text = "No subtext With icon not loading",
             isLoading = false,
             iconResourceId = R.drawable.icon_close,
+            onClick = {}
+        )
+        ListItem(
+            text = "With subtext with icon is loading",
+            subText = "Subtext",
+            isLoading = true,
+            iconResourceId = R.drawable.icon_close,
+            onClick = {}
+        )
+        ListItem(
+            text = "With subtext no icon is loading",
+            subText = "Subtext",
+            isLoading = true,
+            onClick = {}
+        )
+        ListItem(
+            text = "With subtext with icon not loading",
+            subText = "Subtext",
+            isLoading = false,
+            iconResourceId = R.drawable.icon_close,
+            onClick = {}
+        )
+        ListItem(
+            text = "With subtext no icon not loading",
+            subText = "Subtext",
+            isLoading = false,
             onClick = {}
         )
     }
@@ -57,6 +84,7 @@ fun PreviewChangeListItem() {
 @Composable
 fun ListItem(
     text: String,
+    subText: String? = null,
     height: Dp = Dimens.listItemHeight,
     isLoading: Boolean,
     @DrawableRes iconResourceId: Int? = null,
@@ -80,6 +108,13 @@ fun ListItem(
                 style = MaterialTheme.typography.listItemText,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            subText?.let {
+                Text(
+                    text = subText,
+                    style = MaterialTheme.typography.listItemSubText,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         Box(
