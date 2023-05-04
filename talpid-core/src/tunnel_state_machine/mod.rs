@@ -31,7 +31,6 @@ use futures::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
 use std::{
-    collections::HashSet,
     future::Future,
     io,
     net::IpAddr,
@@ -271,7 +270,6 @@ impl TunnelStateMachine {
         let filtering_resolver = crate::resolver::start_resolver().await?;
 
         let route_manager = RouteManager::new(
-            HashSet::new(),
             #[cfg(target_os = "linux")]
             args.linux_ids.fwmark,
             #[cfg(target_os = "linux")]
@@ -332,16 +330,12 @@ impl TunnelStateMachine {
         });
         let offline_monitor = offline::spawn_monitor(
             offline_tx,
-            #[cfg(target_os = "linux")]
-            route_manager
-                .handle()
-                .map_err(Error::InitRouteManagerError)?,
+            #[cfg(not(target_os = "android"))]
+            route_manager.handle()?,
             #[cfg(target_os = "linux")]
             Some(args.linux_ids.fwmark),
             #[cfg(target_os = "android")]
             android_context,
-            #[cfg(target_os = "windows")]
-            route_manager.handle()?,
         )
         .await
         .map_err(Error::OfflineMonitorError)?;

@@ -148,11 +148,7 @@ pub struct RouteManagerImpl {
 }
 
 impl RouteManagerImpl {
-    pub async fn new(
-        required_routes: HashSet<RequiredRoute>,
-        table_id: u32,
-        fwmark: u32,
-    ) -> Result<Self> {
+    pub async fn new(table_id: u32, fwmark: u32) -> Result<Self> {
         let (mut connection, handle, messages) =
             rtnetlink::new_connection().map_err(Error::Connect)?;
 
@@ -179,7 +175,6 @@ impl RouteManagerImpl {
         };
 
         monitor.clear_routing_rules().await?;
-        monitor.add_required_routes(required_routes).await?;
 
         Ok(monitor)
     }
@@ -903,14 +898,13 @@ impl NetworkInterface {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::collections::HashSet;
 
     /// Tests if dropping inside a tokio runtime panics
     #[test]
     fn test_drop_in_executor() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         runtime.block_on(async {
-            let manager = RouteManagerImpl::new(HashSet::new(), 0, 0)
+            let manager = RouteManagerImpl::new(0, 0)
                 .await
                 .expect("Failed to initialize route manager");
             std::mem::drop(manager);
@@ -922,7 +916,7 @@ mod test {
     fn test_drop() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         let manager = runtime.block_on(async {
-            RouteManagerImpl::new(HashSet::new(), 1000, 1000)
+            RouteManagerImpl::new(1000, 1000)
                 .await
                 .expect("Failed to initialize route manager")
         });

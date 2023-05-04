@@ -1,5 +1,5 @@
 use futures::channel::mpsc::UnboundedSender;
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
@@ -42,7 +42,7 @@ impl MonitorHandle {
 
 pub async fn spawn_monitor(
     sender: UnboundedSender<bool>,
-    #[cfg(any(target_os = "linux", target_os = "windows"))] route_manager: RouteManagerHandle,
+    #[cfg(not(target_os = "android"))] route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
@@ -50,7 +50,7 @@ pub async fn spawn_monitor(
         Some(
             imp::spawn_monitor(
                 sender,
-                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                #[cfg(not(target_os = "android"))]
                 route_manager,
                 #[cfg(target_os = "linux")]
                 fwmark,

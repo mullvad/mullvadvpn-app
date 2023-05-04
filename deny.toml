@@ -96,7 +96,8 @@ skip-tree = []
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = []
+# TODO: The PF socket type isn't released yet
+allow-git = ["https://github.com/nix-rust/nix"]
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
