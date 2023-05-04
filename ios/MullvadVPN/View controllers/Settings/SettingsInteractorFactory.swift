@@ -8,20 +8,24 @@
 
 import Foundation
 import MullvadREST
+import RelayCache
 
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
     private let apiProxy: REST.APIProxy
+    private let relayCacheTracker: RelayCacheTracker
 
     init(
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        apiProxy: REST.APIProxy
+        apiProxy: REST.APIProxy,
+        relayCacheTracker: RelayCacheTracker
     ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
         self.apiProxy = apiProxy
+        self.relayCacheTracker = relayCacheTracker
     }
 
     func makeAccountInteractor() -> AccountInteractor {
@@ -32,7 +36,7 @@ final class SettingsInteractorFactory {
     }
 
     func makePreferencesInteractor() -> PreferencesInteractor {
-        return PreferencesInteractor(tunnelManager: tunnelManager)
+        return PreferencesInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
     }
 
     func makeProblemReportInteractor() -> ProblemReportInteractor {
