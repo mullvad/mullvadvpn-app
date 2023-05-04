@@ -16,3 +16,13 @@ val Typography.listItemText: TextStyle
             fontSize = TypeScale.TextMediumPlus
         )
     }
+
+val Typography.listItemSubText: TextStyle
+    @Composable
+    get() {
+        return TextStyle(
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = TextUnit.Unspecified,
+            fontSize = TypeScale.TextSmall
+        )
+    }
