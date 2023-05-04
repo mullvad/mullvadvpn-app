@@ -22,13 +22,15 @@ pub struct RouteMessage {
 }
 
 impl RouteMessage {
+    // TODO: name seems too specific
     pub fn new_route(destination: Destination) -> Self {
         let mut route_flags = RouteFlag::RTF_STATIC | RouteFlag::RTF_DONE | RouteFlag::RTF_UP;
         let mut sockaddrs = BTreeMap::new();
         match destination {
             Destination::Network(net) => {
+                let dest_addr = SockaddrStorage::from(SocketAddr::from((net.ip(), 0)));
                 let destination =
-                    RouteSocketAddress::Destination(Some(SocketAddr::from((net.ip(), 0)).into()));
+                    RouteSocketAddress::Destination(Some(dest_addr));
                 let netmask =
                     RouteSocketAddress::Netmask(Some(SocketAddr::from((net.mask(), 0)).into()));
                 sockaddrs.insert(destination.address_flag(), destination);
@@ -70,6 +72,18 @@ impl RouteMessage {
             .and_then(Self::socketaddress_to_ip)
     }
 
+    pub fn is_default_link(&self) -> Result<bool> {
+        let destination_is_default = self.destination()?.and_then(|addr| {
+            addr.as_link_addr().and_then(|addr| addr.addr())
+        })
+        .map(|addr| addr == [0u8; 6])
+        .unwrap_or(false);
+
+        // TODO: check netmask?
+
+        Ok(destination_is_default)
+    }
+
     pub fn is_default(&self) -> Result<bool> {
         Ok(self.is_default_v4()? || self.is_default_v6()?)
     }
@@ -84,6 +98,7 @@ impl RouteMessage {
             _ => None,
         });
 
+        // FIXME: figure out if this is superfluous. try to get route etc.
         let netmask_is_default = match netmask {
             // empty socket address implies that it is a 'default' netmask
             Some(None) => true,
@@ -112,18 +127,6 @@ impl RouteMessage {
             .destination_v6()?
             .map(|addr| addr == Ipv6Addr::UNSPECIFIED)
             .unwrap_or(false))
-    }
-
-    pub fn print_route(&self) {
-        println!(
-            "route is default - {:?} - interface index: {} - is iscoped - {}",
-            self.is_default(),
-            self.interface_index,
-            self.is_ifscope()
-        );
-        for sa in &self.sockaddrs {
-            println!("\t{:?}", &sa);
-        }
     }
 
     fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
@@ -389,7 +392,7 @@ impl RouteMessage {
             self.interface_index = iface_index;
             self.route_flags.insert(RouteFlag::RTF_IFSCOPE);
         } else {
-            self.interface_index = iface_index;
+            //self.interface_index = iface_index;
             self.route_flags.remove(RouteFlag::RTF_IFSCOPE);
         }
 
@@ -735,6 +738,7 @@ impl Interface {
 // #define RTA_BRD         0x80    /* for NEWADDR, broadcast or p-p dest addr */
 bitflags::bitflags! {
     /// All enum values of address flags can be iterated via `flag <<= 1`, starting from 1.
+    /// See https://www.manpagez.com/man/4/route/.
     // #[derive(Clone, Copy, PartialOrd)]
     pub struct AddressFlag: i32 {
         /// Destination socket address
@@ -758,6 +762,7 @@ bitflags::bitflags! {
 
 bitflags::bitflags! {
     /// Types of routing messages
+    /// See https://www.manpagez.com/man/4/route/.
     // #[derive(Clone, Copy, PartialOrd)]
     pub struct MessageType: u8 {
         /// Add Route
@@ -796,7 +801,8 @@ bitflags::bitflags! {
 
 
 
-    /// Types of routing messages
+    /// Routing message flags
+    /// See https://www.manpagez.com/man/4/route/.
     // #[derive(Clone, Copy, PartialOrd)]
     pub struct RouteFlag: i32 {
         /// route usable
@@ -903,7 +909,7 @@ impl RouteSocketAddress {
         }
 
         let addr_header_ptr = buf.as_ptr() as *const sockaddr_hdr;
-        // safety - since `buf` is at least as long as a `sockaddr_hdr`, it's perfectly valid to
+        // SAFETY: Since `buf` is at least as long as a `sockaddr_hdr`, it's perfectly valid to
         // read from.
         let addr_header = unsafe { std::ptr::read(addr_header_ptr) };
         let saddr_len = addr_header.sa_len;
@@ -1213,6 +1219,7 @@ impl RouteDestination {
         if self.network.prefix() != 0 {
             return false;
         }
+        // TODO: probably redundant?
         match self.network.ip() {
             IpAddr::V4(Ipv4Addr::UNSPECIFIED) => true,
             IpAddr::V6(Ipv6Addr::UNSPECIFIED) => true,

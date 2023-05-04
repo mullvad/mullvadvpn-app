@@ -21,7 +21,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
 #[cfg(target_os = "macos")]
 pub use imp::{
-    get_default_routes, imp::watch::watch_routes, listen_for_default_route_changes, PlatformError,
+    DefaultRouteEvent, PlatformError,
     TunnelRoutesV4, TunnelRoutesV6,
 };
 

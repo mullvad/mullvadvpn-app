@@ -270,8 +270,7 @@ impl RouteManager {
         }
     }
 
-    /// Removes all routes previously applied in [`RouteManager::new`] or
-    /// [`RouteManager::add_routes`].
+    /// Removes all routes previously applied in [`RouteManager::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
             tx.unbounded_send(RouteManagerCommand::ClearRoutes)

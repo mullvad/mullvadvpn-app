@@ -39,10 +39,12 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Wraps a PF_ROUTE socket and returns
 pub struct RoutingSocket {
     socket: RoutingSocketInner,
     seq: i32,
     // buffers up messages received whilst waiting on a response
+    // TODO: might we want to limit the max size of this?
     buf: VecDeque<Vec<u8>>,
     own_pid: i32,
 }
@@ -86,7 +88,7 @@ impl RoutingSocket {
 
     pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
-            let mut buffer = vec![0u8; 2024];
+            let mut buffer = vec![0u8; 2048];
             // do not truncate the buffer - trailing empty bytes won't be written but will be
             // assumed in the data format.
             let bytes_read = self.read_next_msg(&mut buffer).await?;
@@ -151,6 +153,7 @@ impl RoutingSocketInner {
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
+                // TODO: handle errors?
                 Err(err) => continue,
             }
         }

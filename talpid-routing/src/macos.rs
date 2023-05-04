@@ -1,50 +1,38 @@
 use crate::{
-    imp::{imp::watch::data::RouteSocketMessage, RouteManagerCommand},
-    NetNode, Node, RequiredRoute, Route,
+    imp::{imp::watch::data::{RouteSocketMessage}, RouteManagerCommand},
+    NetNode, RequiredRoute, Route,
 };
 
 use futures::{
     channel::mpsc,
     future::{self, FutureExt},
-    stream::{FusedStream, Stream, StreamExt, TryStreamExt},
+    stream::{Stream, StreamExt, TryStreamExt},
 };
-use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use nix::ifaddrs;
+use ipnetwork::IpNetwork;
+use nix::sys::socket::{SockaddrLike, AddressFamily, SockaddrStorage};
+use talpid_types::ErrorExt;
 use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
+    collections::{BTreeMap, HashSet},
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    process::{ExitStatus, Stdio},
-    time::Duration,
-};
-use system_configuration::{
-    core_foundation::string::CFString,
-    network_configuration::{SCNetworkService, SCNetworkSet},
-    preferences::SCPreferences,
+    net::{Ipv4Addr, Ipv6Addr},
+    process::Stdio,
 };
 
-use talpid_time::Instant;
-use talpid_types::net::IpVersion;
 use tokio::{io::AsyncBufReadExt, process::Command};
 use tokio_stream::wrappers::LinesStream;
 
 use self::{
-    interfaces::{RouteValidity, BestRoute},
     watch::{
-        data::{self, AddressMessage, Destination, RouteDestination, RouteMessage},
+        data::{Destination, RouteDestination, RouteMessage},
         RoutingTable,
     },
 };
 
+use super::DefaultRouteEvent;
+
 mod ip6addr_ext;
-use ip6addr_ext::IpAddrExt;
 
-use super::{TunnelRoutesV4, TunnelRoutesV6};
-
-mod interfaces;
-mod route_watch;
 pub mod watch;
-use interfaces::Interfaces;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -76,33 +64,25 @@ pub enum Error {
     #[error(display = "Unexpected output from netstat")]
     BadOutputFromNetstat,
 
-    /// Failed to run scutil
-    #[error(display = "Failed to run scutil command")]
-    ScUtilCommand,
-
-    /// Encountered unexpected output from scutil
-    #[error(display = "Unexpected scutil output")]
-    ScUtilUnexpectedOutput,
-
     /// Encountered an error when interacting with the routing socket
-    #[error(display = "Error occured when interfaceing with the routing table")]
-    RoutingTable(watch::Error),
+    #[error(display = "Error occurred when interfacing with the routing table")]
+    RoutingTable(#[error(source)] watch::Error),
 
     /// Unknown interface
     #[error(display = "Unknown interface: {}", _0)]
-    UnkownInterface(String),
+    UnknownInterface(String),
 
     /// Failed to remvoe route
-    #[error(display = "Error occured when deleting a route")]
-    DeleteRoute(watch::Error),
+    #[error(display = "Error occurred when deleting a route")]
+    DeleteRoute(#[error(source)] watch::Error),
 
     /// Failed to change route
     #[error(display = "Failed to change route")]
-    ChangeRoute(watch::Error),
+    ChangeRoute(#[error(source)] watch::Error),
 
     /// Failed to add route
-    #[error(display = "Error occured when adding a route")]
-    AddRoute(watch::Error),
+    #[error(display = "Error occurred when adding a route")]
+    AddRoute(#[error(source)] watch::Error),
 
     /// Failed to fetch link addresses
     #[error(display = "Failed to fetch link addresses")]
@@ -137,41 +117,10 @@ pub enum Error {
     RouteDestination(watch::data::Error),
 }
 
-pub async fn get_default_routes() -> std::result::Result<bool, watch::Error> {
-    let mut routing_table = RoutingTable::new()?;
-    Ok(routing_table
-        .get_route(v4_default())
-        .await?
-        .or(routing_table.get_route(v6_default()).await?)
-        .is_some())
-}
-
-impl Error {
-    fn is_delete_err(&self) -> bool {
-        matches!(&self, Error::DeleteRoute(_))
-    }
-
-    fn is_add_err(&self) -> bool {
-        matches!(&self, Error::AddRoute(_))
-    }
-}
-
 #[derive(Clone, PartialEq)]
 struct AppliedRoute {
     destination: watch::data::RouteDestination,
     route: RouteMessage,
-}
-
-impl AppliedRoute {
-    fn uses(&self, route: &watch::data::RouteMessage) -> bool {
-        // // unimplemented!()
-        // self.route.ga == route.gateway_ip()
-        //     && self
-        //         .route.interface_index()
-        //         .and_then(|iface| RouteManagerImpl::get_interface_index(iface))
-        //         == route.interface_index().unwrap_or(Some(0))
-        false
-    }
 }
 
 /// Route manager can be in 1 of 4 states -
@@ -187,128 +136,58 @@ impl AppliedRoute {
 /// default nodes. Once the routes are reapplied, the route table changes are monitored again.
 pub struct RouteManagerImpl {
     routing_table: RoutingTable,
-    v4_gateway: Option<watch::data::RouteMessage>,
-    v6_gateway: Option<watch::data::RouteMessage>,
-    interface_map: BTreeMap<u16, ifaddrs::InterfaceAddress>,
-    applied_interface: Option<AppliedInterface>,
-    changed_default_routes: BTreeSet<ifaddrs::InterfaceAddress>,
-    // required_routes: BTreeMap<RouteDestination, >
+    default_destinations: HashSet<IpNetwork>,
+    tunnel_default_route: Option<watch::data::RouteMessage>,
     applied_routes: BTreeMap<RouteDestination, AppliedRoute>,
-    interfaces: Interfaces,
-    unsatisifed_routes: BTreeSet<IpNetwork>,
-    v4_default_route_check: Option<tokio::time::Sleep>,
-    v6_default_route_check: Option<tokio::time::Sleep>,
-}
-
-struct GatewayInterface {
-    route_msg: watch::data::RouteMessage,
-    interface_address: ifaddrs::InterfaceAddress,
-}
-
-struct AppliedInterface {
-    index: u16,
-    tunnel_routes_v4: TunnelRoutesV4,
-    tunnel_routes_v6: Option<TunnelRoutesV6>,
-    relay_address: IpAddr,
-}
-
-struct PrimaryIfaceBackupV4 {
-    interface: String,
-    gateway: Ipv4Addr,
-    address: Ipv4Addr,
-}
-
-struct PrimaryIfaceBackupV6 {
-    interface: String,
-    gateway: Ipv6Addr,
-    address: Ipv6Addr,
-}
-
-struct BestV4Interface {
-    idx: Option<usize>,
-    gateway: Option<Ipv4Addr>,
-}
-
-struct BestV6Interface {
-    idx: Option<usize>,
-    gateway: Option<Ipv6Addr>,
+    v4_default_route: Option<watch::data::RouteMessage>,
+    v6_default_route: Option<watch::data::RouteMessage>,
+    default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
 }
 
 impl RouteManagerImpl {
     /// create new route manager
-    pub async fn new(_required_routes: HashSet<RequiredRoute>) -> Result<Self> {
-        let mut routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
-
-        let v4_gateway = routing_table
-            .get_route(v4_default())
-            .await
-            .map_err(Error::RoutingTable)?;
-
-        let v6_gateway = routing_table
-            .get_route(v6_default())
-            .await
-            .map_err(Error::RoutingTable)?;
-
-        let manager = Self {
-            unsatisifed_routes: BTreeSet::new(),
+    pub async fn new() -> Result<Self> {
+        let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
+        Ok(Self {
             routing_table,
+            default_destinations: HashSet::new(),
+            tunnel_default_route: None,
             applied_routes: BTreeMap::new(),
-            applied_interface: None,
-            interface_map: Self::collect_interfaces()?,
-            changed_default_routes: BTreeSet::new(),
-            v4_gateway,
-            v4_default_route_check: None,
-            v6_gateway,
-            v6_default_route_check: None,
-            interfaces: Interfaces::new(),
-        };
-
-        Ok(manager)
-    }
-
-    fn collect_interfaces() -> Result<BTreeMap<u16, ifaddrs::InterfaceAddress>> {
-        Ok(nix::ifaddrs::getifaddrs()
-            .map_err(Error::FetchLinkAddresses)?
-            .filter(|iface| iface.interface_name != "lo0")
-            .filter_map(|iface: ifaddrs::InterfaceAddress| {
-                // forcing the interface index to be a 'usize' is an incredibly questionable
-                // design choice made in the `nix`
-                let ifindex = Self::get_interface_index(&iface)?;
-                Some((ifindex, iface))
-            })
-            .collect::<BTreeMap<_, _>>())
+            v4_default_route: None,
+            v6_default_route: None,
+            default_route_listeners: vec![],
+        })
     }
 
     pub(crate) async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
         let mut manage_rx = manage_rx.fuse();
 
+        // Initialize default routes
+        // NOTE: This isn't race-free, as we're not listening for route changes before initializing 
+        self.v4_default_route = self.routing_table
+            .get_route(v4_default())
+            .await
+            .unwrap_or_else(|error| {
+                log::error!("{}", error.display_chain_with_msg("Failed to get initial default v4 route"));
+                None
+            });
+        self.v6_default_route = self.routing_table
+            .get_route(v6_default())
+            .await
+            .unwrap_or_else(|error| {
+                log::error!("{}", error.display_chain_with_msg("Failed to get initial default v6 route"));
+                None
+            });
+
         loop {
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
-                    self.handle_route_mesage(route_message).await;
+                    // TODO: forward default route changes
+                    self.handle_route_message(route_message).await;
                 }
 
                 command = manage_rx.next() => {
                     match command {
-                        Some(RouteManagerCommand::SetupTunnelRoutes {
-                            tunnel_interface,
-                            relay_address,
-                            tunnel_routes_v4,
-                            tunnel_routes_v6,
-                            response_tx
-                        }) => {
-                            let result = self.setup_tunnel_routes(tunnel_interface,
-                                                                  relay_address,
-                                                                  tunnel_routes_v4,
-                                                                  tunnel_routes_v6,
-                                                                  ).await;
-                            if result.is_err() {
-                                if let Err(err) = self.cleanup_routes().await {
-                                    log::error!("Failed to restore routes {err}");
-                                }
-                            }
-                            let _ = response_tx.send(result);
-                        },
                         Some(RouteManagerCommand::Shutdown(tx)) => {
                             if let Err(err) = self.cleanup_routes().await {
                                 log::error!("Failed to clean up routes: {err}");
@@ -317,14 +196,20 @@ impl RouteManagerImpl {
                             return;
                         },
 
+                        Some(RouteManagerCommand::NewDefaultRouteListener(tx)) => {
+                            let (events_tx, events_rx) = mpsc::unbounded();
+                            self.default_route_listeners.push(events_tx);
+                            let _ = tx.send(events_rx);
+                        }
+
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {
-                            let _ = tx.send(Ok(()));
+                            log::debug!("FIXME: Adding routes: {routes:?}");
+                            let _ = tx.send(self.add_required_routes(routes).await);
                         }
                         Some(RouteManagerCommand::ClearRoutes) => {
                             if let Err(err) = self.cleanup_routes().await {
                                 log::error!("Failed to clean up rotues: {err}");
                             }
-                            self.applied_interface = None;
                         },
                         None => {
                             break;
@@ -335,41 +220,212 @@ impl RouteManagerImpl {
         }
 
         if let Err(err) = self.cleanup_routes().await {
-            log::error!("Failed to clean up routing table when shutitng down: {err}");
+            log::error!("Failed to clean up routing table when shutting down: {err}");
         }
     }
 
-    async fn handle_route_mesage(
+    async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
+        // TODO: roll back changes if not all succeed?
+
+        // FIXME: all routes need link addr? probably not
+
+        let mut routes_to_apply = vec![];
+
+        for route in required_routes {
+            match route.node {
+                NetNode::DefaultNode => {
+                    self.default_destinations.insert(route.prefix);
+                }
+
+                NetNode::RealNode(node) => routes_to_apply.push(Route::new(node, route.prefix)),
+            }
+        }
+
+        // Map all interfaces to their link addresses
+        let interface_link_addrs = get_interface_link_addresses()?;
+
+        // Add routes not using the default interface
+        for route in routes_to_apply {
+            // FIXME: handle non-link addrs
+
+            if route.node.device.is_none() {
+                log::debug!("FIXME: skipping route with no device: {route:?}");
+                continue;
+            }
+
+            // If we specify route by interface name, use the link address of the given interface
+            let device = route.node.device.clone().unwrap();
+            let link_addr = interface_link_addrs.get(&device);
+
+            if link_addr.is_none() {
+                log::debug!("FIXME: route with unknown device: {route:?}, {device}");
+                // FIXME: should probably fail
+                continue;
+            }
+
+            let message = RouteMessage::new_route(Destination::from(route.prefix))
+                .set_gateway_sockaddr(link_addr.cloned().unwrap());
+
+            // Default routes are a special case: We must apply it after replacing the current
+            // default route with an ifscope route.
+            if route.prefix.prefix() == 0 {
+                // TODO: simplify by just ifscoping existing route here?
+
+                // FIXME: ignoring v6
+                if route.prefix.is_ipv6() {
+                    continue;
+                }
+                log::debug!("FIXME: Default tunnel route: {message:?}");
+
+                //FIXME: remove: let cstr_device = CString::new(device).expect("FIXME: handle better");
+                //FIXME: remove: let idx = unsafe { if_nametoindex(cstr_device.as_ptr()) };
+
+                //FIXME: remove: log::debug!("FIXME: tun index: {idx}");
+
+                self.tunnel_default_route = Some(message);
+                continue;
+            }
+
+            // Add route
+            self.add_route_with_record(message).await?;
+        }
+
+        if let Err(error) = self.apply_tunnel_default_route().await {
+            log::debug!("FIXME: applied tunnel def FAILEd");
+            return Err(error);
+        }
+
+        // Add routes that use the default interface
+        if let Err(error) = self.apply_default_destinations().await {
+            self.default_destinations.clear();
+            log::debug!("FIXME: applied dests FAILEd");
+            return Err(error);
+        }
+
+        log::debug!("FIXME: applied dests");
+
+        Ok(())
+    }
+
+    async fn handle_route_message(
         &mut self,
         message: std::result::Result<RouteSocketMessage, watch::Error>,
     ) {
         match message {
-            Ok(RouteSocketMessage::Interface(interface)) => {
-                // handle changes in interfaces, possibly recollect all interfaces
-                self.handle_interface_change(interface).await;
-            }
-
-            Ok(RouteSocketMessage::AddAddress(address)) => {
-                self.handle_add_address(address).await;
-            }
-            Ok(RouteSocketMessage::DeleteAddress(address)) => {
-                self.handle_delete_address(address).await;
-            }
             Ok(RouteSocketMessage::DeleteRoute(route)) => {
-                self.handle_deleted_route(route).await;
+                // Forget about applied route, if relevant. This is simply prevent ourselves from
+                // deleting it later.
+                match RouteDestination::try_from(&route).map_err(Error::InvalidData) {
+                    Ok(destination) => {
+                        self.applied_routes.remove(&destination);
+                    }
+                    Err(err) => {
+                        log::error!("Failed to process deleted route: {err}");
+                    }
+                }
+
+                // We're ignoring default route removals. We instead add back the tunnel route
+                // when a default route is added.
+
+                // If the default route is deleted, just forget about it. We don't have to do anything else. FIXME: verify
+                // FIXME: wrong? we need to add back tunnel route? maybe we can just do that when route is added
+                let is_default_ip = route.is_default().map_err(Error::InvalidData);
+                //let is_default_link = route.is_default_link().map_err(Error::InvalidData);
+                let is_default_link = Ok(false);
+                match is_default_ip.and_then(|default_ip| Ok(default_ip || is_default_link?)) {
+                    Ok(true) => {
+                        log::debug!("A default route was removed: {route:?}");
+
+                        /*
+                        // FIXME: if af_link, remove both ip routes
+
+                        if let Some(gateway) = route.gateway() {
+                            if let Some(link_addr) = gateway.as_link_addr() {
+                                log::debug!("FIXME: AS LINK ADDR!");
+                                
+                                if let Some(tunnel_route) = self.tunnel_default_route {
+                                    tunnel_route.gateway()
+                                }
+                            }
+                        }
+
+                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
+
+                        if let Some(default) = default_route {
+                            if route.is_ifscope() {
+                                if route.gateway().is_none() || default.gateway() != route.gateway() {
+                                    return;
+                                }
+                            } else {
+                                // FIXME
+                                return;
+                            }
+
+                            //std::mem::take(default_route);
+
+                            // Notify default route listeners
+                            //self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
+
+                            /*log::debug!("HERE IS THE CURRENT DEFAULT_ROUTE: {default:?}");
+                            if route.is_ifscope() != default.is_ifscope() {
+                                return;
+                            }
+
+                            if route.gateway().is_some() && default.gateway() == route.gateway() {
+                                log::debug!("FIXME: CURRENT DEFAULT ROUTE WAS REMOVED");
+
+                                // FIXME: is this handled properly?
+
+                                // NOTE: Not making any changes to existing routes
+
+                                std::mem::take(default_route);
+
+                                // Notify default route listeners
+                                self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
+                            }*/
+                        }
+
+                        */
+
+                        if route.is_ifscope() {
+                            // Actually kind of incorrect, since this matches against the tunnel interface
+                            // I'm using tunnel interface removal as a proxy for no internet in that case
+                            return;
+                        }
+
+                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
+                        if std::mem::take(default_route).is_some() {
+                            // Notify default route listeners
+                            self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
+                        }
+                    }
+                    Ok(false) => {
+                        //log::debug!("A non-default route was removed: {route:?}");
+                    }
+                    Err(error) => {
+                        log::error!("Failed to check whether route is default route: {error}");
+                    }
+                }
+
+                // prev note on "delete":
                 // handle deletion of a route - only interested default route removals
                 // or routes that were applied for our tunnel interface
             }
 
-            Ok(RouteSocketMessage::AddRoute(route)) => {
-                self.handle_added_route(route).await;
+            Ok(RouteSocketMessage::AddRoute(route))
+            | Ok(RouteSocketMessage::ChangeRoute(route)) => {
+                // Refresh routes that are using the default interface
+                // FIXME: detect default route changes
+                log::debug!("A route was added/changed: {route:?}");
+
+                if let Err(error) = self.handle_route_change(route).await {
+                    log::error!("Failed to process route change: {error}");
+                }
+
+                // prev note on "add":
                 // handle new route - if it's a default route, current best default
                 // route should be updated. if it's a default route whilst engaged,
                 // remove it, route the tunne traffic through it, and apply
-            }
-
-            Ok(RouteSocketMessage::ChangeRoute(route)) => {
-                self.handle_changed_route(route).await;
             }
             // ignore all other message types
             Ok(_) => {}
@@ -379,154 +435,237 @@ impl RouteManagerImpl {
         }
     }
 
-    async fn handle_deleted_route(&mut self, route: watch::data::RouteMessage) {
-        match RouteDestination::try_from(&route).map_err(Error::InvalidData) {
-            Ok(destination) => {
-                self.applied_routes.remove(&destination);
-            }
-            Err(err) => {
-                log::error!("Failed to process deleted route: {}", err);
+    /// Update routes that use the non-tunnel default interface
+    async fn handle_route_change(
+        &mut self,
+        mut route: watch::data::RouteMessage,
+    ) -> Result<()> {
+        // Ignore routes that aren't default routes
+        if !route.is_default().map_err(Error::InvalidData)? {
+            log::debug!("FIXME: ignoring non-default route");
+            return Ok(());
+        }
+    
+        let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
+
+        // Ignore the new route if it is our tunnel route, lest we create a loop
+        if let Some(tunnel_route) = self.tunnel_default_route.clone() {
+            let tun_gateway_link_addr = tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
+
+            if new_gateway_link_addr == tun_gateway_link_addr {
+                log::debug!("FIXME: ignoring tunnel default route");
+                return Ok(());
             }
         }
-    }
 
-    async fn handle_added_route(&mut self, route: watch::data::RouteMessage) {
-        if let Err(err) = self.handle_added_route_inner(route).await {
-            log::error!("Failed to process an added route: {}", err);
-        }
-    }
+        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
 
-    async fn handle_added_route_inner(&mut self, route: watch::data::RouteMessage) -> Result<()> {
-        let updated_interface = self.interfaces.handle_add_route(&route)?;
-        if let Some(tunnel) = &self.applied_interface {
-            if updated_interface {
-                match self.try_update_best_interface(tunnel.relay_address).await {
-                    Ok(true) => return Ok(()),
-                    Ok(false) => {
-                        // TODO: enter offline state
-                    }
-                    Err(_err) => {
-                        // TODO: consider removing routes here
-                    }
+        // Ignore changes to ifscoped routes unless they affect the current default interface.
+        if route.is_ifscope() {
+            if let Some(default_route) = default_route {
+                let default_gateway_link_addr = default_route.gateway().and_then(|addr| addr.as_link_addr());
+
+                if new_gateway_link_addr != default_gateway_link_addr {
+                    log::debug!("FIXME: ignoring non-default ifscoped route change");
+                    return Ok(());
+                }
+
+                // We only care about the gateway IP changing
+                // ignore other changes
+            }
+
+            log::debug!("FIXME: 'tis an ifscoped change");
+            return Ok(()); // FIXME: don't ignore
+        } else {
+            // Get complete route
+            // TODO: Is this overkill? We don't get the interface index without this
+            let default_dest = if route.is_ipv4() {
+                v4_default()
+            } else {
+                v6_default()
+            };
+            match self.routing_table.get_route(default_dest).await {
+                Ok(Some(new_route)) => route = new_route,
+                Ok(None) => {
+                    log::warn!("Expected to find default route");
+                    return Ok(());
+                }
+                Err(error) => {
+                    log::error!("Failed to get default route");
+                    return Err(Error::RoutingTable(error));
                 }
             }
         }
 
-        Ok(())
-    }
+        let new_route = Some(route);
 
-    fn get_interface_index(iface: &ifaddrs::InterfaceAddress) -> Option<u16> {
-        Some(iface.address?.as_link_addr()?.ifindex().try_into().unwrap())
-    }
+        if &new_route != default_route {
+            let old_route = std::mem::replace(default_route, new_route);
+            log::debug!("New default route: {old_route:?} -> {default_route:?}");
 
-    async fn update_tracked_routes(
-        &mut self,
-        old_route: watch::data::RouteMessage,
-        new_route: &watch::data::RouteMessage,
-    ) -> Result<()> {
-        let old_interface = self.get_interface_for_route(&old_route);
-        let old_gateway = old_route.gateway_ip();
-        let interface = self.get_interface_for_route(new_route);
-        let gateway = new_route.gateway_ip();
+            // Notify default route listeners
+            self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::AddedOrChanged).is_ok());
 
-        for (destination, applied_route) in &mut self.applied_routes {
-            if applied_route.uses(&old_route) {}
+            // Substitute route with a tunnel route
+            self.apply_tunnel_default_route().await?;
+
+            // Update routes using default interface
+            log::debug!("FIXME: Reapplying default destination routes");
+            self.apply_default_destinations().await?;
+        } else {
+            log::debug!("FIXME: ignoring irrelevant default route: {new_route:?}");
         }
+
         Ok(())
     }
 
-    async fn drain_unsatisifed_routes(
-        &mut self,
-        new_route: &watch::data::RouteMessage,
-    ) -> Result<()> {
-        let new_route_is_ipv4 = new_route
-            .destination_ip()
-            .map_err(Error::InvalidData)?
-            .is_ipv4();
+    /// Replace the default route with an ifscope route, and
+    /// add a new default tunnel route.
+    async fn apply_tunnel_default_route(&mut self) -> Result<()> {
+        let tunnel_route = match self.tunnel_default_route.clone() {
+            Some(route) => route,
+            None => return Ok(()),
+        };
 
-        let gateway = new_route.gateway_ip();
-        let interface = self.get_interface_for_route(&new_route);
+        // Do nothing if the default route is already ifscoped or non-existent
+        let ((true, default_route, _) | (false, _, default_route)) = (tunnel_route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
+        match default_route {
+            Some(route) if route.is_ifscope() => return Ok(()),
+            None => return Ok(()),
+            Some(_) => (),
+        }
 
-        let satisfieable_destinations = self
-            .unsatisifed_routes
-            .iter()
-            .filter(|destination| new_route_is_ipv4 == destination.is_ipv4())
-            .cloned()
-            .collect::<Vec<_>>();
+        log::debug!("Adding default route for tunnel");
 
-        for destination in satisfieable_destinations {
-            let mut route = RouteMessage::new_route(destination.into());
-            if let Some(gateway) = gateway {
-                route = route.set_gateway_addr(gateway);
+        // Replace the default route with an ifscope route
+        self.set_default_route_ifscope(tunnel_route.is_ipv4(), true).await?;
+        let _ = self.routing_table.delete_route(&tunnel_route).await;
+        self.add_route_with_record(tunnel_route).await?;
+
+        log::debug!("FIXME: added replacement");
+
+        Ok(())
+    }
+
+    /// Update/add routes that use the default non-tunnel interface. If some applied destination is
+    /// a default route, this function replaces the non-tunnel default route with an ifscope route.
+    async fn apply_default_destinations(&mut self) -> Result<()> {
+        let v4_gateway = self
+            .v4_default_route
+            .as_ref()
+            .and_then(|route| route.gateway())
+            .cloned();
+        let v6_gateway = self
+            .v6_default_route
+            .as_ref()
+            .and_then(|route| route.gateway())
+            .cloned();
+
+        // Reapply routes that use the default (non-tunnel) node
+        for dest in self.default_destinations.clone() {
+            let gateway = if dest.is_ipv4() {
+                v4_gateway.clone()
+            } else {
+                v6_gateway.clone()
+            };
+            let gateway = match gateway {
+                Some(gateway) => gateway,
+                None => {
+                    log::debug!(
+                        "FIXME: not adding default destination because there's no gateway addr"
+                    );
+                    continue;
+                }
+            };
+            let route =
+                RouteMessage::new_route(Destination::Network(dest)).set_gateway_sockaddr(gateway);
+
+            // FIXME: don't needlessly delete. it might not even exist
+            // TODO: only succeed if it fails because no exist? add_route_with_record could replace route on its own (if there's a record)
+
+            // TODO: can we do better than linearly searching?
+            if let Some(dest) = self.applied_routes.iter().find(|(applied_dest, _route)| applied_dest.network == dest).map(|(dest, _)| dest.clone()) {
+                let _ = self.routing_table.delete_route(&route).await;
+
+                self.applied_routes.remove(&dest);
             }
 
-            if let Some(interface) = &interface {
-                route = route.set_interface_addr(interface);
+            log::debug!("FIXME: ADDING ROUTE: {dest:?} {route:?}");
+            // FIXME: return
+            let result = self.add_route_with_record(route).await;
+
+            if result.is_err() {
+                log::debug!("FIXME: addr error: {:?}", result);
             }
 
-            self.add_route_with_record(destination, route).await?;
-            self.unsatisifed_routes.remove(&destination);
+            result?;
         }
 
         Ok(())
     }
 
-    async fn handle_changed_route(&mut self, route: watch::data::RouteMessage) {
-        if let Err(err) = self.handle_changed_route_inner(route).await {
-            log::error!("Failed to process route change: {err}");
-        }
-    }
-
-    async fn handle_changed_route_inner(&mut self, route: watch::data::RouteMessage) -> Result<()> {
-        if self.interfaces.handle_changed_route(&route)? {
-            self.refresh_routes().await?;
-        }
-
-        Ok(())
-    }
-
-    /// Used to refresh routes when routes should be tracked.
-    async fn refresh_routes(&mut self) -> Result<()> {
-        if let Some(applied_routes) = &self.applied_interface {}
-        Ok(())
-    }
-
-    async fn add_route_through_default_interface(&mut self, route: RequiredRoute) -> Result<()> {
-        let gateway = match (route.prefix, &self.v4_gateway, &self.v6_gateway) {
-            (IpNetwork::V4(_), Some(gateway_route), _)
-            | (IpNetwork::V6(_), _, Some(gateway_route)) => gateway_route.gateway(),
+    /// Replace a known default route with an ifscope route, if should_be_ifscoped is true.
+    /// If should_be_ifscoped is false, the route is replaced with a non-ifscoped default route
+    /// instead.
+    async fn set_default_route_ifscope(&mut self, ipv4: bool, should_be_ifscoped: bool) -> Result<()> {
+        let default_route = match (ipv4, &mut self.v4_default_route, &mut self.v6_default_route) {
+            ((true, Some(default_route), _) | (false, _, Some(default_route))) => default_route,
             _ => {
-                log::error!("UNSATISFIABLE ROUTE");
-                self.unsatisifed_routes.insert(route.prefix);
+                log::debug!("FIXME: THERE IS NO DEFAULT ROUTE. IGNORING");
                 return Ok(());
             }
         };
 
-        match gateway {
-            Some(gateway_addr) => {
-                let new_route = RouteMessage::new_route(route.prefix.into())
-                    .set_gateway_sockaddr(gateway_addr.clone());
-
-                self.add_route_with_record(route.prefix, new_route).await
-            }
-            None => {
-                log::debug!("Gateway route has no gateway IP address");
-                self.unsatisifed_routes.insert(route.prefix);
-                Ok(())
-            }
+        if default_route.is_ifscope() == should_be_ifscoped {
+            log::debug!("FIXME: PREF NON-TUNNEL DEFAULT ROUTE IS ALREADY SET TO DESIRED IFSCOPED STATE. IGNORING");
+            return Ok(());
         }
+        
+        //FIXME
+        let ifscope_index = if should_be_ifscoped {
+            let n = default_route.interface_index();
+            if n == 0 {
+                log::warn!("Cannot find interface index of default interface");
+            }
+            n
+        } else {
+            0
+        };
+        /*let ifscope_index = if should_be_ifscoped {
+            default_route.interface_sockaddr_index().unwrap_or_else(|| {
+                log::warn!("Cannot find interface index of default interface");
+                0
+            })
+        } else {
+            0
+        };*/
+        let new_route = default_route.clone().set_ifscope(ifscope_index);
+        let old_route = std::mem::replace(default_route, new_route);
+
+        log::debug!("FIXME: Replacing default route with ifscope route (or vice versa): {old_route:?} -> {default_route:?}");
+
+        self.routing_table
+            .delete_route(&old_route)
+            .await
+            .map_err(Error::DeleteRoute)?;
+
+        self.routing_table
+            .add_route(default_route)
+            .await
+            .map_err(Error::AddRoute)
     }
 
-    async fn add_route_with_record(
-        &mut self,
-        destination: IpNetwork,
-        route: RouteMessage,
-    ) -> Result<()> {
-        let _ = self
+    async fn add_route_with_record(&mut self, route: RouteMessage) -> Result<()> {
+        let result = self
             .routing_table
             .add_route(&route)
             .await
-            .map_err(Error::RoutingTable)?;
+            .map_err(Error::AddRoute);
+
+        // FIXME: just erturn
+        if result.is_err() {
+            log::debug!("FIXME: failed to add route: {result:?}");
+        }
 
         let destination = RouteDestination::try_from(&route).map_err(Error::InvalidData)?;
 
@@ -535,403 +674,13 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn add_faux_default_routes_v4(
-        &mut self,
-        tunnel_routes: super::TunnelRoutesV4,
-    ) -> Result<()> {
-        for half in v4_faux_destinations() {
-            let route = RouteMessage::new_route(half.into())
-                .set_gateway_addr(tunnel_routes.tunnel_gateway.into());
-            self.add_route_with_record(half, route).await?;
-        }
-
-        Ok(())
-    }
-
-    async fn setup_v4_default_route(
-        &mut self,
-        v4_routes: &super::TunnelRoutesV4,
-        _interface: &ifaddrs::InterfaceAddress,
-    ) -> Result<()> {
-        if let Some(v4_route) = self.v4_gateway.clone() {
-            if !v4_route.is_ifscope() {
-                if let Err(route_err) = self.ifscope_route(&v4_route).await {
-                    if route_err.is_add_err() {
-                        if let Err(err) = self.restore_default_v4().await {
-                            log::error!("Failed to restore v4 routes {err}");
-                        }
-                    }
-                    return Err(route_err);
-                }
-            }
-        }
-
-        let default_route = RouteMessage::new_route(Destination::default_v4())
-            .set_gateway_addr(v4_routes.tunnel_gateway.into());
-
-        self.routing_table
-            .add_route(&default_route)
-            .await
-            .map_err(Error::AddRoute)?;
-
-        Ok(())
-    }
-
-    async fn setup_v6_default_route(
-        &mut self,
-        _tunnel_interface: &ifaddrs::InterfaceAddress,
-        gateway: Ipv6Addr,
-    ) -> Result<()> {
-        if let Some(v6_route) = self.v6_gateway.clone() {
-            if let Err(route_err) = self.ifscope_route(&v6_route).await {
-                if route_err.is_add_err() {
-                    if let Err(err) = self.restore_default_v6().await {
-                        log::error!("Failed to restore v6 routes {err}");
-                    }
-                }
-                return Err(route_err);
-            }
-        }
-
-        let default_route =
-            RouteMessage::new_route(Destination::default_v4()).set_gateway_addr(gateway.into());
-
-        let _ = self
-            .routing_table
-            .add_route(&default_route)
-            .await
-            .map_err(Error::AddRoute)?;
-        Ok(())
-    }
-
-    async fn add_faux_default_routes_v6(
-        &mut self,
-        tunnel_routes: super::TunnelRoutesV6,
-    ) -> Result<()> {
-        for half in v6_faux_destinations() {
-            let route = RouteMessage::new_route(half.into())
-                .set_gateway_addr(tunnel_routes.tunnel_gateway.into());
-            self.add_route_with_record(half, route).await?
-        }
-
-        Ok(())
-    }
-
-    //     async fn setup_v4_default_route(
-    //         &mut self,
-    //         tunnel_interface: &InterfaceAddress,
-    //         gateway: Ipv4Addr,
-    //     ) -> Result<()> {
-    //         let v4_default_destination: IpNetwork =
-    //             IpNetwork::V4(Ipv4Network::new(Ipv4Addr::UNSPECIFIED, 0).unwrap());
-    //         if let Some(v4_gateway) = &self.v4_gateway {
-    //             let real_interface = self.get_interface_for_route(&v4_gateway);
-    //             let gateway_addr = v4_gateway.gateway_v4();
-    //             let _ = self
-    //                 .routing_table
-    //                 .delete_route(
-    //                     v4_default_destination,
-    //                     real_interface.as_ref(),
-    //                     v4_gateway.is_ifscoped().map_err(Error::InvalidData)?,
-    //                 )
-    //                 .await
-    //                 .map_err(Error::RoutingTable)?;
-    //             let _ = self
-    //                 .routing_table
-    //                 .add_route(
-    //                     v4_default_destination,
-    //                     gateway_addr.map(Into::into),
-    //                     real_interface.as_ref(),
-    //                     true,
-    //                 )
-    //                 .await
-    //                 .map_err(Error::RoutingTable)?;
-    //         }
-
-    //         let _ = self
-    //             .routing_table
-    //             .add_route(
-    //                 v4_default_destination,
-    //                 Some(gateway.into()),
-    //                 Some(tunnel_interface),
-    //                 false,
-    //             )
-    //             .await
-    //             .map_err(Error::RoutingTable)?;
-    //         Ok(())
-    //     }
-
-    // async fn setup_v6_default_route(
-    //     &mut self,
-    //     tunnel_interface: &InterfaceAddress,
-    //     gateway: Ipv6Addr,
-    // // ) -> Result<()> {
-    //     let v6_default_destination: IpNetwork =
-    //         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::UNSPECIFIED, 0).unwrap());
-    //     if let Some(v6_gateway) = &self.v6_gateway {
-    //         let real_interface = self.get_interface_for_route(&v6_gateway);
-    //         let gateway_addr = v6_gateway.gateway_v4();
-    //         let _ = self
-    //             .routing_table
-    //             .delete_route(
-    //                 v6_default_destination,
-    //                 real_interface.as_ref(),
-    //                 v6_gateway.is_ifscoped().map_err(Error::InvalidData)?,
-    //             )
-    //             .await
-    //             .map_err(Error::RoutingTable)?;
-    //         let _ = self
-    //             .routing_table
-    //             .add_route(
-    //                 v6_default_destination,
-    //                 gateway_addr.map(Into::into),
-    //                 real_interface.as_ref(),
-    //                 true,
-    //             )
-    //             .await
-    //             .map_err(Error::RoutingTable)?;
-    //     }
-
-    //     let _ = self
-    //         .routing_table
-    //         .add_route(
-    //             v6_default_destination,
-    //             Some(gateway.into()),
-    //             Some(tunnel_interface),
-    //             false,
-    //         )
-    //         .await
-    //         .map_err(Error::RoutingTable)?;
-    //     Ok(())
-    // }
-
-    async fn update_v6_relay_route(
-        &mut self,
-        new_default_route: watch::data::RouteMessage,
-    ) -> Result<()> {
-        if let Some(relay_addr) = self.get_v6_relay_addr() {
-            let gateway = new_default_route.gateway_v6();
-            let interface_addrs = self.get_interface_for_route(&new_default_route);
-            // self.routing_table
-            //     .change_route(
-            //         IpAddr::from(relay_addr).into(),
-            //         gateway.map(Into::into),
-            //         interface_addrs.as_ref(),
-            //         new_default_route
-            //             .is_ifscoped()
-            //             .map_err(Error::InvalidData)?,
-            //     )
-            //     .await
-            //     .map_err(Error::RoutingTable)?;
-        }
-        Ok(())
-    }
-
-    async fn update_v4_relay_route(
-        &mut self,
-        new_default_route: watch::data::RouteMessage,
-    ) -> Result<()> {
-        if let Some(relay_addr) = self.get_v4_relay_addr() {
-            // let gateway = new_default_route.gateway_v4();
-            // let interface_addrs = self.get_interface_for_route(&new_default_route);
-            // self.routing_table
-            //     .change_route(
-            //         IpAddr::from(relay_addr).into(),
-            //         gateway.map(Into::into),
-            //         interface_addrs.as_ref(),
-            //         new_default_route
-            //             .is_ifscoped()
-            //             .map_err(Error::InvalidData)?,
-            //     )
-            //     .await
-            //     .map_err(Error::RoutingTable)?;
-        }
-        Ok(())
-    }
-
-    fn get_v4_relay_addr(&self) -> Option<Ipv4Addr> {
-        if let Some(tunnel) = &self.applied_interface {
-            if let IpAddr::V4(addr) = tunnel.relay_address {
-                return Some(addr);
-            }
-        }
-        None
-    }
-
-    fn get_v6_relay_addr(&self) -> Option<Ipv6Addr> {
-        if let Some(tunnel) = &self.applied_interface {
-            if let IpAddr::V6(addr) = tunnel.relay_address {
-                return Some(addr);
-            }
-        }
-        None
-    }
-
-    fn route_change_relevant(&self, route: &watch::data::RouteMessage) -> Result<bool> {
-        // If route is non-default, it should be disregarded.
-        if !route.is_default().map_err(Error::InvalidData)? {
-            return Ok(false);
-        }
-        // If the default route is changed on our interface, it doesn't matter - if it was removed,
-        // the correct route will be re-applied when
-        // TODO: consider adding a timer to check if a default route was added later
-        if Some(route.interface_index()) == self.applied_interface.as_ref().map(|iface| iface.index)
-        {
-            return Ok(false);
-        }
-
-        Ok(true)
-    }
-
-    async fn handle_interface_change(&mut self, interface: data::Interface) {
-        let interfaces_changed = match self.interfaces.handle_iface_msg(interface) {
-            Ok(interface_changed) => interface_changed,
-            Err(err) => {
-                log::error!("Failed to handle interface change: {err:?}");
-                return;
-            }
-        };
-
-        if interfaces_changed {}
-
-        // TODO: recalculate default route here, if necessary
-    }
-
-    async fn restore_default_v4(&mut self) -> Result<()> {
-        if self.applied_interface.is_some() {
-            if let Some(route) = self.v4_gateway.clone() {
-                self.restore_gateway_routes(&route).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    async fn restore_gateway_routes(&mut self, gateway_route: &RouteMessage) -> Result<()> {
-        if !gateway_route.is_ifscope() {
-            let ifscoped_route = gateway_route
-                .clone()
-                .set_ifscope(gateway_route.interface_index());
-            if let Err(err) = self
-                .routing_table
-                .delete_route(&ifscoped_route)
-                .await
-                .map_err(Error::DeleteRoute)
-            {
-                log::error!("Failed to remove ifscoped route: {err}");
-            }
-
-            let old_route = gateway_route.clone().set_ifscope(0);
-            self.routing_table
-                .add_route(&old_route)
-                .await
-                .map_err(Error::AddRoute)?;
-        }
-        Ok(())
-    }
-
-    async fn restore_default_v6(&mut self) -> Result<()> {
-        if self.applied_interface.is_some() {
-            if let Some(route) = &self.v6_gateway.clone() {
-                self.restore_gateway_routes(&route).await?;
-            }
-        }
-        Ok(())
-    }
-
-    /// Setup routes specifically for a tunnel
-    async fn setup_tunnel_routes(
-        &mut self,
-        tunnel_interface: String,
-        relay_address: IpAddr,
-        tunnel_routes_v4: super::TunnelRoutesV4,
-        tunnel_routes_v6: Option<super::TunnelRoutesV6>,
-    ) -> Result<()> {
-        let (index, interface) = self
-            .resolve_interface_name(&tunnel_interface)
-            .ok_or(Error::NoTunnelInterface)?;
-        self.setup_v4_default_route(&tunnel_routes_v4, &interface)
-            .await?;
-        self.add_faux_default_routes_v4(tunnel_routes_v4).await?;
-
-        if let Some(v6) = tunnel_routes_v6 {
-            self.setup_v6_default_route(&interface, v6.tunnel_gateway)
-                .await?;
-            self.add_faux_default_routes_v6(v6).await?;
-        }
-
-        self.applied_interface = Some(AppliedInterface {
-            index,
-            relay_address,
-            tunnel_routes_v4,
-            tunnel_routes_v6,
-        });
-
-        Ok(())
-    }
-
-    /// Removes a route and adds the same route, but ifscoped. Maybe this can be done by just
-    /// changing the route - haven't tested but I don't believe so, since the ifscope flag is used
-    /// to identify a route.
-    async fn ifscope_route(&mut self, original_route: &watch::data::RouteMessage) -> Result<()> {
-        let interface_index = original_route.interface_index();
-        log::error!("iface index {interface_index} original route {original_route:?}");
-        let ifscoped_route = original_route.clone().set_ifscope(interface_index);
-
-        self.routing_table
-            .delete_route(original_route)
-            .await
-            .map_err(Error::DeleteRoute)?;
-
-        self.routing_table
-            .add_route(&ifscoped_route)
-            .await
-            .map_err(Error::AddRoute)?;
-
-        Ok(())
-    }
-
-    fn get_interface_for_route(
-        &self,
-        route: &watch::data::RouteMessage,
-    ) -> Option<ifaddrs::InterfaceAddress> {
-        let idx = route.interface_index();
-        self.interface_map.get(&idx).cloned()
-    }
-
-    fn resolve_interface_name(&self, name: &str) -> Option<(u16, ifaddrs::InterfaceAddress)> {
-        self.interface_map
-            .iter()
-            .find(|(_idx, interface)| interface.interface_name == name)
-            .map(|(idx, interface)| (*idx, interface.clone()))
-    }
-
     async fn cleanup_routes(&mut self) -> Result<()> {
-        self.cleanup_relay_routes().await;
-        log::error!("CLEANED UP RELAY");
-        let v4_default = self.restore_default_v4().await;
-        log::error!("CLEANED UP v4");
-        let v6_default = self.restore_default_v6().await;
-        log::error!("CLEANED UP v6");
-        v4_default.and(v6_default)
-    }
+        // Remove all applied routes. This includes default destination routes
+        let old_routes = std::mem::take(&mut self.applied_routes);
+        for (dest, route) in old_routes.into_iter().map(|(dest, route)| (dest, route.route)) {
+            log::debug!("FIXME: deleting route: {route:?}");
+            log::debug!("FIXME: deleting DEST: {:?} {:?}, {:?}", dest.gateway, dest.interface, dest.network);
 
-    async fn cleanup_relay_routes(&mut self) {
-        let old_routes = std::mem::replace(&mut self.applied_routes, BTreeMap::new());
-        let mut routes_to_delete = old_routes
-            .into_iter()
-            .map(|(_, route)| route.route)
-            .collect::<Vec<_>>();
-
-        if let Some(iface) = &self.applied_interface {
-            for v4_dest in v4_faux_destinations().chain(std::iter::once(v4_default())) {
-                let route = RouteMessage::new_route(v4_dest.into())
-                    .set_gateway_addr(iface.tunnel_routes_v4.tunnel_gateway.into());
-                routes_to_delete.push(route);
-            }
-        }
-
-        for route in routes_to_delete {
             match self.routing_table.delete_route(&route).await {
                 Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
                 Err(err) => {
@@ -939,76 +688,22 @@ impl RouteManagerImpl {
                 }
             }
         }
-    }
 
-    async fn handle_add_address(&mut self, address: AddressMessage) {
-        if self.interfaces.handle_add_address(address) {
-            // TODO: recalculate best interface if need be
+        // Reset default route
+        if let Err(error) = self.set_default_route_ifscope(true, false).await.and(self.set_default_route_ifscope(false, false).await) {
+            log::error!("Failed to restore default routes: {error}");
         }
-    }
 
-    async fn handle_delete_address(&mut self, address: AddressMessage) {
-        if self.interfaces.handle_delete_address(address) {
-            // TODO: recalculate best interface if need be
-        }
-    }
+        // We have already removed the applied default route
+        self.tunnel_default_route = None;
 
-    /// Change routes for tunnel traffic, returns true if V4
-    async fn try_update_best_interface(&self, relay_address: IpAddr) -> Result<bool> {
-        match relay_address {
-            IpAddr::V4(addr) => {}
-            IpAddr::V6(addr) => {}
-        };
+        self.default_destinations.clear();
 
-        // Ok(v4_result? || v6_result?)
-        Ok(true)
-    }
-
-    async fn try_update_best_interface_v4(&self, addr: Ipv4Addr) -> Result<bool> {
-        if let Some(interface) = self.interfaces.get_best_default_interface_v4()? {}
-
-        Ok(false)
-    }
-
-    async fn try_update_best_interface_v6(&self, addr: Ipv4Addr) -> Result<bool> {
-        if let Some(interface) = self.interfaces.get_best_default_interface_v6()? {}
-
-        Ok(false)
-    }
-
-    async fn add_route_to_tunnel(
-        &self,
-        addr: IpAddr,
-        interface: &BestRoute,
-    ) -> Result<()> {
-        let mut route = RouteMessage::new_route(addr.into());
+        //self.v4_default_route = None;
+        //self.v6_default_route = None;
 
         Ok(())
     }
-
-    async fn change_route_to_tunnel(
-        &self,
-        addr: &IpAddr,
-        interface: &interfaces::Interface,
-    ) -> Result<()> {
-        Ok(())
-    }
-
-    async fn delete_route_to_tunnel(&self, addr: IpAddr) -> Result<()> {
-        Ok(())
-    }
-}
-
-fn v4_faux_destinations() -> impl Iterator<Item = IpNetwork> {
-    let half_of_internet: IpNetwork = "0.0.0.0/1".parse().unwrap();
-    let other_half_of_internet: IpNetwork = "128.0.0.0/1".parse().unwrap();
-    [half_of_internet, other_half_of_internet].into_iter()
-}
-
-fn v6_faux_destinations() -> impl Iterator<Item = IpNetwork> {
-    let half_of_internet: IpNetwork = "::/1".parse().unwrap();
-    let other_half_of_internet: IpNetwork = "128::/1".parse().unwrap();
-    [half_of_internet, other_half_of_internet].into_iter()
 }
 
 fn v4_default() -> IpNetwork {
@@ -1019,56 +714,18 @@ fn v6_default() -> IpNetwork {
     IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap()
 }
 
-/// Returns a stream that produces an item whenever a default route is either added or deleted from
-/// the routing table.
-pub fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io::Result<()>>> {
-    let mut cmd = Command::new("route");
-    cmd.arg("-n")
-        .arg("monitor")
-        .arg("-")
-        .stderr(Stdio::null())
-        .stdout(Stdio::piped())
-        .stdin(Stdio::null());
-
-    let mut process = cmd.spawn().map_err(Error::FailedToMonitorRoutes)?;
-    let reader = tokio::io::BufReader::new(process.stdout.take().unwrap());
-    let lines = reader.lines();
-
-    // route -n monitor will produce netlink messages in the following format
-    // ```
-    // got message of size 176 on Thu Jun  4 10:08:05 2020
-    // RTM_DELETE: Delete Route: len 176, pid: 109, seq 1151, errno 3, ifscope 23,
-    // flags:<UP,GATEWAY,STATIC,IFSCOPE>
-    // locks:  inits:
-    // sockaddrs: <DST,GATEWAY,NETMASK,IFP,IFA>
-    //  default 192.168.44.1 default  192.168.44.90
-    // ```
-    // On the second line of the message, the message type is specified. Only messages with the
-    // type 'RTM_ADD' or 'RTM_DELETE' are considered. On the 6th line, message attribute values are
-    // shown. To detect a change for a default route in the routing table, check whether this line
-    // contains 'default'.  Whenever an empty line is encountered, the message has been sent, so
-    // the state can be reset.
-
-    let mut add_or_delete_message = false;
-    let mut contains_default = false;
-
-    let monitor = LinesStream::new(lines).try_filter_map(move |line| {
-        if add_or_delete_message {
-            if line.contains("default") {
-                contains_default = true;
-            }
-            if line.trim().is_empty() {
-                add_or_delete_message = false;
-                if contains_default {
-                    contains_default = false;
-                    return future::ready(Ok(Some(())));
-                }
-            }
-        } else {
-            add_or_delete_message = line.starts_with("RTM_ADD:") || line.starts_with("RTM_DELETE:");
+/// Return a map from interface name to link addresses (AF_LINK)
+fn get_interface_link_addresses() -> Result<BTreeMap<String, SockaddrStorage>> {
+    let mut gateway_link_addrs = BTreeMap::new();
+    let addrs = nix::ifaddrs::getifaddrs().map_err(Error::FetchLinkAddresses)?;
+    for addr in addrs.into_iter() {
+        if addr.address.and_then(|addr| addr.family()) != Some(AddressFamily::Link) {
+            continue;
         }
-        future::ready(Ok(None))
-    });
 
-    Ok(monitor)
+        log::debug!("FIXME: enum addrs, {}", addr.interface_name);
+
+        gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
+    }
+    Ok(gateway_link_addrs)
 }

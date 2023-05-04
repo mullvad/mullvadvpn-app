@@ -12,12 +12,10 @@ use futures::channel::{
 use std::{
     collections::HashSet,
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{Ipv4Addr, Ipv6Addr},
 };
-#[cfg(target_os = "macos")]
-use talpid_types::net::IpVersion;
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
 
 #[cfg(target_os = "linux")]
@@ -27,8 +25,6 @@ use std::net::IpAddr;
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 pub mod imp;
-#[cfg(target_os = "macos")]
-pub use imp::listen_for_default_route_changes;
 
 #[allow(clippy::module_inception)]
 #[cfg(target_os = "linux")]
@@ -85,29 +81,14 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
-    /// Setup tunnel routes
+    /// Listen for non-tunnel default route changes.
     #[cfg(target_os = "macos")]
-    pub async fn setup_tunnel_routes(
-        &self,
-        tunnel_interface: String,
-        relay_address: IpAddr,
-        tunnel_routes_v4: TunnelRoutesV4,
-        tunnel_routes_v6: Option<TunnelRoutesV6>,
-    ) -> Result<(), Error> {
+    pub async fn default_route_listener(&self) -> Result<impl Stream<Item = DefaultRouteEvent>, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::SetupTunnelRoutes {
-                tunnel_interface,
-                relay_address,
-                tunnel_routes_v4,
-                tunnel_routes_v6,
-                response_tx,
-            })
-            .map_err(|_| Error::ManagerChannelDown)?;
-        response_rx
-            .await
-            .map_err(|_| Error::ManagerChannelDown)?
-            .map_err(Error::PlatformError)
+            .unbounded_send(RouteManagerCommand::NewDefaultRouteListener(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Ensure that packets are routed using the correct tables.
@@ -211,21 +192,14 @@ pub struct TunnelRoutesV6 {
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    #[cfg(target_os = "macos")]
-    SetupTunnelRoutes {
-        tunnel_interface: String,
-        relay_address: IpAddr,
-        tunnel_routes_v4: TunnelRoutesV4,
-        tunnel_routes_v6: Option<TunnelRoutesV6>,
-        response_tx: oneshot::Sender<Result<(), PlatformError>>,
-    },
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
     ),
-
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
+    #[cfg(target_os = "macos")]
+    NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
     #[cfg(target_os = "linux")]
     CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
@@ -241,6 +215,17 @@ pub(crate) enum RouteManagerCommand {
         Option<Fwmark>,
         oneshot::Sender<Result<Option<Route>, PlatformError>>,
     ),
+}
+
+/// Event that is sent when a preferred non-tunnel default route is
+/// added or removed.
+#[cfg(target_os = "macos")]
+#[derive(Debug, Clone, Copy)]
+pub enum DefaultRouteEvent {
+    /// Added or updated a non-tunnel default route
+    AddedOrChanged,
+    /// Non-tunnel default route was removed
+    Removed,
 }
 
 #[cfg(target_os = "linux")]
@@ -263,13 +248,11 @@ impl RouteManager {
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
     pub async fn new(
-        required_routes: HashSet<RequiredRoute>,
         #[cfg(target_os = "linux")] fwmark: u32,
         #[cfg(target_os = "linux")] table_id: u32,
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manager = imp::RouteManagerImpl::new(
-            required_routes,
             #[cfg(target_os = "linux")]
             fwmark,
             #[cfg(target_os = "linux")]
@@ -323,8 +306,7 @@ impl RouteManager {
         }
     }
 
-    /// Removes all routes previously applied in [`RouteManager::new`] or
-    /// [`RouteManager::add_routes`].
+    /// Removes all routes previously applied in [`RouteManager::add_routes`].
     pub fn clear_routes(&mut self) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
             if tx.unbounded_send(RouteManagerCommand::ClearRoutes).is_err() {
@@ -362,21 +344,4 @@ impl Drop for RouteManager {
     fn drop(&mut self) {
         self.runtime.clone().block_on(self.stop());
     }
-}
-
-/// Returns a tuple containing a IPv4 and IPv6 default route nodes.
-#[cfg(target_os = "macos")]
-pub async fn get_default_routes(
-    _excluded_interface: Option<String>,
-) -> Result<(Option<super::Node>, Option<super::Node>), Error> {
-    // TODO: Fix this
-    Ok((None, None))
-    // return get_default_routes().await;
-    // use futures::TryFutureExt;
-    // futures::try_join!(
-    //     imp::RouteManagerImpl::get_default_node(IpVersion::V4, excluded_interface.clone())
-    //         .map_err(Into::into),
-    //     imp::RouteManagerImpl::get_default_node(IpVersion::V6, excluded_interface)
-    //         .map_err(Into::into)
-    //)
 }
