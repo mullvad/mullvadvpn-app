@@ -15,31 +15,41 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     typealias InfoButtonHandler = (PreferencesDataSource.Item) -> Void
 
     enum CellReuseIdentifiers: String, CaseIterable {
+        case setting
         case settingSwitch
         case dnsServer
         case addDNSServer
+        case wireGuardPort
+        case wireGuardCustomPort
 
         var reusableViewClass: AnyClass {
             switch self {
+            case .setting:
+                return SettingsCell.self
             case .settingSwitch:
                 return SettingsSwitchCell.self
             case .dnsServer:
                 return SettingsDNSTextCell.self
             case .addDNSServer:
                 return SettingsAddDNSEntryCell.self
+            case .wireGuardPort:
+                return SelectableSettingsCell.self
+            case .wireGuardCustomPort:
+                return SettingsInputCell.self
             }
         }
     }
 
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
         case contentBlockerHeader
+        case wireGuardPortHeader
         case customDNSFooter
         case spacer
 
         var reusableViewClass: AnyClass {
             switch self {
-            case .contentBlockerHeader:
-                return SettingsContentBlockersHeaderView.self
+            case .contentBlockerHeader, .wireGuardPortHeader:
+                return SettingsHeaderView.self
             case .customDNSFooter:
                 return SettingsStaticTextFooterView.self
             case .spacer:
@@ -48,9 +58,16 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    enum InfoButtonItem {
+        case contentBlockers
+        case blockMalware
+        case wireGuardPorts
+    }
+
     enum Section: String, Hashable, CaseIterable {
         case contentBlockers
         case customDNS
+        case wireGuardPorts
     }
 
     enum Item: Hashable {
@@ -59,12 +76,21 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case blockMalware
         case blockAdultContent
         case blockGambling
+        case wireGuardPort(_ port: UInt16?)
+        case wireGuardCustomPort
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
 
         static var contentBlockers: [Item] {
             return [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
+        }
+
+        static var wireGuardPorts: [Item] {
+            let defaultPorts = PreferencesViewModel.defaultWireGuardPorts.map {
+                Item.wireGuardPort($0)
+            }
+            return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
         }
 
         var accessibilityIdentifier: String {
@@ -79,6 +105,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return "blockGambling"
             case .blockAdultContent:
                 return "blockAdultContent"
+            case let .wireGuardPort(port):
+                if let port {
+                    return "wireGuardPort(\(port))"
+                } else {
+                    return "wireGuardPort"
+                }
+            case .wireGuardCustomPort:
+                return "wireGuardCustomPort"
             case .useCustomDNS:
                 return "useCustomDNS"
             case .addDNSServer:
@@ -102,6 +136,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .addDNSServer
             case .dnsServer:
                 return .dnsServer
+            case .wireGuardPort:
+                return .wireGuardPort
+            case .wireGuardCustomPort:
+                return .wireGuardCustomPort
             default:
                 return .settingSwitch
             }
@@ -118,6 +156,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     private weak var tableView: UITableView?
 
     weak var delegate: PreferencesDataSourceDelegate?
+
+    var indexPathForSelectedPort: IndexPath? {
+        let selectedItem: Item = viewModel.customWireGuardPort == nil
+            ? .wireGuardPort(viewModel.wireGuardPort)
+            : .wireGuardCustomPort
+
+        return indexPath(for: selectedItem)
+    }
 
     init(tableView: UITableView) {
         self.tableView = tableView
@@ -136,6 +182,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         preferencesCellFactory.delegate = self
 
         registerClasses()
+    }
+
+    func setAvailablePortRanges(_ ranges: [[UInt16]]) {
+        viewModel.availableWireGuardPortRanges = ranges
     }
 
     func setEditing(_ editing: Bool, animated: Bool) {
@@ -160,10 +210,37 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         if !editing, viewModelBeforeEditing != viewModel {
             delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
         }
+
+        selectRow(at: indexPathForSelectedPort)
     }
 
-    func update(from dnsSettings: DNSSettings) {
-        let newViewModel = PreferencesViewModel(from: dnsSettings)
+    func revertWireGuardPortCellToLastSelection() {
+        guard let customPortCell = getCustomPortCell(), customPortCell.textField.isEditing else {
+            return
+        }
+
+        customPortCell.textField.resignFirstResponder()
+
+        if customPortCell.isValidInput {
+            customPortCell.confirmInput()
+        } else if let port = viewModel.customWireGuardPort {
+            customPortCell.setInput(String(port))
+            customPortCell.confirmInput()
+        } else {
+            customPortCell.reset()
+
+            Item.wireGuardPorts.forEach { item in
+                if case let .wireGuardPort(port) = item, port == viewModel.wireGuardPort {
+                    selectRow(at: item)
+
+                    return
+                }
+            }
+        }
+    }
+
+    func update(from tunnelSettings: TunnelSettingsV2) {
+        let newViewModel = PreferencesViewModel(from: tunnelSettings)
         let mergedViewModel = viewModel.merged(newViewModel)
 
         if viewModel != mergedViewModel {
@@ -176,6 +253,16 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     // MARK: - UITableViewDataSource
+
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        if indexPath == indexPathForSelectedPort {
+            cell.setSelected(true, animated: false)
+        }
+    }
 
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Disable swipe to delete when not editing the table view
@@ -241,7 +328,34 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        return false
+        switch itemIdentifier(for: indexPath) {
+        case .wireGuardPort, .wireGuardCustomPort:
+            return true
+        default:
+            return false
+        }
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = itemIdentifier(for: indexPath)
+
+        switch item {
+        case let .wireGuardPort(port):
+            viewModel.setWireGuardPort(port)
+
+            if let cell = getCustomPortCell() {
+                cell.reset()
+                cell.textField.resignFirstResponder()
+            }
+
+            delegate?.preferencesDataSource(self, didSelectPort: port)
+
+        case .wireGuardCustomPort:
+            getCustomPortCell()?.textField.becomeFirstResponder()
+
+        default:
+            break
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -249,17 +363,23 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         switch sectionIdentifier {
         case .contentBlockers:
-            let view = tableView
+            guard let view = tableView
                 .dequeueReusableHeaderFooterView(
                     withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
-                ) as! SettingsContentBlockersHeaderView
+                ) as? SettingsHeaderView else { return nil }
             configureContentBlockersHeader(view)
             return view
 
-        case .customDNS:
-            return tableView.dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
-            )
+        case .wireGuardPorts:
+            guard let view = tableView
+                .dequeueReusableHeaderFooterView(
+                    withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
+                ) as? SettingsHeaderView else { return nil }
+            configureWireguardPortsHeader(view)
+            return view
+
+        default:
+            return nil
         }
     }
 
@@ -271,13 +391,17 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             return nil
 
         case .customDNS:
-            let reusableView = tableView
+            guard let view = tableView
                 .dequeueReusableHeaderFooterView(
-                    withIdentifier: HeaderFooterReuseIdentifiers
-                        .customDNSFooter.rawValue
-                ) as! SettingsStaticTextFooterView
-            configureFooterView(reusableView)
-            return reusableView
+                    withIdentifier: HeaderFooterReuseIdentifiers.customDNSFooter.rawValue
+                ) as? SettingsStaticTextFooterView else { return nil }
+            configureFooterView(view)
+            return view
+
+        case .wireGuardPorts:
+            return tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
+            )
         }
     }
 
@@ -285,11 +409,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .contentBlockers:
-            return UITableView.automaticDimension
-
         case .customDNS:
-            return UIMetrics.sectionSpacing
+            return 0
+
+        default:
+            return UITableView.automaticDimension
         }
     }
 
@@ -307,6 +431,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             case .conflictsWithOtherSettings, .emptyDNSDomains:
                 return UITableView.automaticDimension
             }
+
+        case .wireGuardPorts:
+            return UIMetrics.sectionSpacing
         }
     }
 
@@ -378,14 +505,21 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
         var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        let oldSnapshot = snapshot()
 
         newSnapshot.appendSections(Section.allCases)
 
-        let oldSnapshot = snapshot()
-        if oldSnapshot.indexOfSection(.contentBlockers) != nil {
+        if oldSnapshot.sectionIdentifiers.contains(.contentBlockers) {
             newSnapshot.appendItems(
                 oldSnapshot.itemIdentifiers(inSection: .contentBlockers),
                 toSection: .contentBlockers
+            )
+        }
+
+        if oldSnapshot.sectionIdentifiers.contains(.wireGuardPorts) {
+            newSnapshot.appendItems(
+                oldSnapshot.itemIdentifiers(inSection: .wireGuardPorts),
+                toSection: .wireGuardPorts
             )
         }
 
@@ -400,7 +534,18 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             newSnapshot.appendItems([.addDNSServer], toSection: .customDNS)
         }
 
-        apply(newSnapshot, completion: completion)
+        applySnapshot(newSnapshot, animated: animated, completion: completion)
+    }
+
+    private func applySnapshot(
+        _ snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
+        animated: Bool,
+        completion: (() -> Void)? = nil
+    ) {
+        apply(snapshot, animatingDifferences: animated) { [weak self] in
+            self?.selectRow(at: self?.indexPathForSelectedPort)
+            completion?()
+        }
     }
 
     private func reload(item: Item) {
@@ -500,7 +645,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             reloadCustomDNSFooter()
         }
 
-        return viewModel.validateDNSDomainUserInput(inputString)
+        return viewModel.isDNSDomainUserInputValid(inputString)
     }
 
     private func addDNSServerEntry() {
@@ -565,9 +710,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private func configureContentBlockersHeader(_ reusableView: SettingsContentBlockersHeaderView) {
+    private func configureContentBlockersHeader(_ reusableView: SettingsHeaderView) {
         reusableView.titleLabel.text = NSLocalizedString(
-            "BLOCK_ADS_CELL_LABEL",
+            "CONTENT_BLOCKERS_HEADER_LABEL",
             tableName: "Preferences",
             value: "DNS content blockers",
             comment: ""
@@ -575,7 +720,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         reusableView.infoButtonHandler = { [weak self] in
             if let self {
-                self.delegate?.preferencesDataSource(self, didPressInfoButton: nil)
+                self.delegate?.preferencesDataSource(self, showInfo: .contentBlockers)
             }
         }
 
@@ -595,6 +740,47 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func configureWireguardPortsHeader(_ reusableView: SettingsHeaderView) {
+        reusableView.titleLabel.text = NSLocalizedString(
+            "WIRE_GUARD_PORTS_HEADER_LABEL",
+            tableName: "Preferences",
+            value: "WireGuard ports",
+            comment: ""
+        )
+
+        reusableView.infoButtonHandler = { [weak self] in
+            if let self {
+                self.delegate?.preferencesDataSource(self, showInfo: .wireGuardPorts)
+            }
+        }
+
+        reusableView.didCollapseHandler = { [weak self] headerView in
+            guard let self else { return }
+
+            var snapshot = self.snapshot()
+            var updateTimeDelay = 0.0
+
+            if headerView.isExpanded {
+                if let customPortCell = getCustomPortCell(), customPortCell.textField.isEditing {
+                    revertWireGuardPortCellToLastSelection()
+                    updateTimeDelay = 0.5
+                }
+
+                snapshot.deleteItems(Item.wireGuardPorts)
+            } else {
+                snapshot.appendItems(Item.wireGuardPorts, toSection: .wireGuardPorts)
+            }
+
+            // The update should be delayed when we're reverting an ongoing change, to give the
+            // user just enough time to notice it.
+            DispatchQueue.main.asyncAfter(deadline: .now() + updateTimeDelay) { [weak self] in
+                headerView.isExpanded.toggle()
+
+                self?.applySnapshot(snapshot, animated: true)
+            }
+        }
+    }
+
     private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
         let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 
@@ -602,6 +788,27 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
 
         reusableView.titleLabel.sizeToFit()
+
+        // Applying background color of table view hides overflow from contracting cells below.
+        reusableView.contentView.backgroundColor = tableView?.backgroundColor
+    }
+
+    private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {
+        tableView?.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+    }
+
+    private func selectRow(at item: Item?, animated: Bool = false) {
+        guard let item else { return }
+
+        tableView?.selectRow(at: indexPath(for: item), animated: false, scrollPosition: .none)
+    }
+
+    private func getCustomPortCell() -> SettingsInputCell? {
+        if let customPortIndexPath = indexPath(for: .wireGuardCustomPort) {
+            return tableView?.cellForRow(at: customPortIndexPath) as? SettingsInputCell
+        }
+
+        return nil
     }
 }
 
@@ -642,7 +849,20 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
         return handleDNSEntryChange(with: identifier, inputString: inputString)
     }
 
-    func didPressInfoButton(for item: Item) {
-        delegate?.preferencesDataSource(self, didPressInfoButton: item)
+    func showInfo(for item: InfoButtonItem) {
+        delegate?.preferencesDataSource(self, showInfo: item)
+    }
+
+    func addCustomPort(_ port: UInt16) {
+        viewModel.setWireGuardPort(port)
+        delegate?.preferencesDataSource(self, didSelectPort: port)
+    }
+
+    func selectCustomPortEntry(_ port: UInt16) -> Bool {
+        if indexPathForSelectedPort != indexPath(for: .wireGuardCustomPort) {
+            selectRow(at: .wireGuardCustomPort)
+        }
+
+        return viewModel.isPortWithinValidWireGuardRanges(port)
     }
 }
