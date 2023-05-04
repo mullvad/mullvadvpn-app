@@ -12,7 +12,9 @@ protocol PreferencesCellEventHandler {
     func addDNSEntry()
     func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
     func didChangeState(for item: PreferencesDataSource.Item, isOn: Bool)
-    func didPressInfoButton(for item: PreferencesDataSource.Item)
+    func didPressInfoButton(for item: PreferencesDataSource.InfoButtonItem)
+    func addCustomPort(_ port: UInt16)
+    func didChangeCustomPortEntry(_ inputString: String) -> Bool
 }
 
 final class PreferencesCellFactory: CellFactoryProtocol {
@@ -130,6 +132,60 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                     for: .blockGambling,
                     isOn: isOn
                 )
+            }
+
+        case let .wireGuardPort(port):
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            let portString: String
+            if let port = port {
+                portString = String(port)
+            } else {
+                portString = NSLocalizedString(
+                    "WIRE_GUARD_PORT_CELL_LABEL",
+                    tableName: "Preferences",
+                    value: "Automatic",
+                    comment: ""
+                )
+            }
+            cell.titleLabel.text = portString
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+
+        case .wireGuardCustomPort:
+            guard let cell = cell as? SettingsInputCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIRE_GUARD_CUSTOM_PORT_CELL_LABEL",
+                tableName: "Preferences",
+                value: "Custom",
+                comment: ""
+            )
+            cell.textField.attributedPlaceholder = NSAttributedString(
+                string: NSLocalizedString(
+                    "WIRE_GUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER",
+                    tableName: "Preferences",
+                    value: "Port",
+                    comment: ""
+                ),
+                attributes: [.foregroundColor: UIColor.SearchTextField.inactivePlaceholderTextColor]
+            )
+
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+
+            cell.inputDidChange = { [weak self] text in
+                let isValidInput = self?.delegate?.didChangeCustomPortEntry(text) ?? false
+                cell.isValidInput = isValidInput
+            }
+            cell.inputWasConfirmed = { [weak self] text in
+                if let port = UInt16(text), cell.isValidInput {
+                    self?.delegate?.addCustomPort(port)
+                }
+            }
+
+            if let port = viewModel.wireGuardPort, viewModel.wireGuardPortIsCustom {
+                cell.textField.text = String(port)
             }
 
         case .useCustomDNS:
