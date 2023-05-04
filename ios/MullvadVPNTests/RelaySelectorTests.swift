@@ -51,6 +51,18 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertEqual(result.relay.hostname, "se6-wireguard")
     }
 
+    func testSpecificPortConstraint() throws {
+        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")), port: .only(1))
+
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertEqual(result.endpoint.ipv4Relay.port, 1)
+    }
+
     func testRandomPortSelectionWithFailedAttempts() throws {
         let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
         let allPorts = portRanges.flatMap { $0 }
