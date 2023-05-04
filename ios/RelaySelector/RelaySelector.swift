@@ -10,6 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
+private let defaultPort: UInt16 = 53
+
 public enum RelaySelector {
     /**
      Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
@@ -24,13 +26,17 @@ public enum RelaySelector {
      */
     public static func evaluate(
         relays: REST.ServerRelaysResponse,
-        constraints: RelayConstraints
+        constraints: RelayConstraints,
+        numberOfFailedAttempts: UInt
     ) throws -> RelaySelectorResult {
         let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
+        let port = applyConstraints(
+            constraints,
+            rawPortRanges: relays.wireguard.portRanges,
+            numberOfFailedAttempts: numberOfFailedAttempts
+        )
 
-        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays),
-              let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges)
-        else {
+        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays), let port = port else {
             throw NoRelaysSatisfyingConstraintsError()
         }
 
@@ -79,6 +85,25 @@ public enum RelaySelector {
             }
         }.filter { relayWithLocation -> Bool in
             return relayWithLocation.relay.active
+        }
+    }
+
+    /// Produce a port that is either user provided or randomly selected, satisfying the given constraints.
+    private static func applyConstraints(
+        _ constraints: RelayConstraints,
+        rawPortRanges: [[UInt16]],
+        numberOfFailedAttempts: UInt
+    ) -> UInt16? {
+        // 1. First two attempts should pick a random port.
+        // 2. The next two should pick port 53.
+        // 3. Repeat steps 1 and 2.
+        let pairsOfFailedAttempts = Array(1 ..< max(numberOfFailedAttempts, 1)).pairs()
+        let shouldPickRandomPort = pairsOfFailedAttempts.count.isMultiple(of: 2)
+
+        if shouldPickRandomPort {
+            return pickRandomPort(rawPortRanges: rawPortRanges)
+        } else {
+            return defaultPort
         }
     }
 
@@ -193,4 +218,12 @@ public struct RelaySelectorResult: Codable {
 private struct RelayWithLocation {
     var relay: REST.ServerRelay
     var location: Location
+}
+
+private extension Array {
+    func pairs() -> [(Element?, Element?)] {
+        return stride(from: 0, to: endIndex, by: 2).map {
+            (self[$0], $0 < index(before: endIndex) ? self[$0.advanced(by: 1)] : nil)
+        }
+    }
 }
