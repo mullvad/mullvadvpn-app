@@ -61,13 +61,24 @@ extension REST {
         public func getCurrentEndpoint() -> AnyIPEndpoint {
             nslock.lock()
             defer { nslock.unlock() }
-            return cachedAddresses.endpoints.first ?? REST.defaultAPIEndpoint
+            var currentEndpoint = cachedAddresses.endpoints.first ?? REST.defaultAPIEndpoint
+            
+            // Reload from disk cache if this runs in the Network Extension as there is no `AddressCacheTracker` running there
+            if isReadOnly {
+                do {
+                    let readResult = try readFromCacheLocationWithFallback()
+                    cachedAddresses = readResult.cachedAddresses
+                    if let firstEndpoint = cachedAddresses.endpoints.first {
+                        currentEndpoint = firstEndpoint
+                    }
+                } catch {
+                    logger.error(error: error)
+                }
+            }
+            return currentEndpoint
         }
 
         public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
-            nslock.lock()
-            defer { nslock.unlock() }
-
             // This function currently acts as a convoluted no-op. It will be soon deleted.
             return getCurrentEndpoint()
         }
@@ -117,24 +128,17 @@ extension REST {
         private func initCacheInner() throws {
             let readResult = try readFromCacheLocationWithFallback()
 
-            switch readResult.source {
-            case .disk:
-                cachedAddresses = readResult.cachedAddresses
-
-            case .bundle:
-                cachedAddresses = readResult.cachedAddresses
-
-                if !isReadOnly {
-                    logger.debug("Persist address list read from bundle.")
-
-                    do {
-                        try writeToDisk()
-                    } catch {
-                        logger.error(
-                            error: error,
-                            message: "Failed to persist address cache after reading it from bundle."
-                        )
-                    }
+            cachedAddresses = readResult.cachedAddresses
+            if readResult.source == .bundle, !isReadOnly {
+                logger.debug("Persist address list read from bundle.")
+                
+                do {
+                    try writeToDisk()
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to persist address cache after reading it from bundle."
+                    )
                 }
             }
 
