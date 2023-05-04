@@ -85,7 +85,11 @@ struct PreferencesViewModel: Equatable {
     private(set) var blockAdultContent: Bool
     private(set) var blockGambling: Bool
     private(set) var enableCustomDNS: Bool
+    private(set) var wireGuardPort: UInt16?
     var customDNSDomains: [DNSServerEntry]
+    var availableWireGuardPortRanges: [[UInt16]] = []
+
+    static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
     mutating func setBlockAdvertising(_ newValue: Bool) {
         blockAdvertising = newValue
@@ -118,6 +122,10 @@ struct PreferencesViewModel: Equatable {
         enableCustomDNS = newValue
     }
 
+    mutating func setWireGuardPort(_ newValue: UInt16?) {
+        wireGuardPort = newValue
+    }
+
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
         if blockAdvertising || blockTracking || blockMalware || blockAdultContent || blockGambling {
@@ -140,7 +148,16 @@ struct PreferencesViewModel: Equatable {
         return customDNSPrecondition == .satisfied && enableCustomDNS
     }
 
-    init(from dnsSettings: DNSSettings = DNSSettings()) {
+    var customWireGuardPort: UInt16? {
+        if let port = wireGuardPort {
+            return Self.defaultWireGuardPorts.contains(port) ? nil : port
+        }
+
+        return nil
+    }
+
+    init(from tunnelSettings: TunnelSettingsV2 = TunnelSettingsV2()) {
+        let dnsSettings = tunnelSettings.dnsSettings
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)
         blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
@@ -150,6 +167,7 @@ struct PreferencesViewModel: Equatable {
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
         }
+        wireGuardPort = tunnelSettings.relayConstraints.port.value
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.
@@ -162,6 +180,7 @@ struct PreferencesViewModel: Equatable {
         mergedViewModel.blockAdultContent = other.blockAdultContent
         mergedViewModel.blockGambling = other.blockGambling
         mergedViewModel.enableCustomDNS = other.enableCustomDNS
+        mergedViewModel.wireGuardPort = other.wireGuardPort
 
         var oldDNSDomains = customDNSDomains
         for otherEntry in other.customDNSDomains {
@@ -256,7 +275,20 @@ struct PreferencesViewModel: Equatable {
     }
 
     /// Returns true if the given string is empty or a valid IP address.
-    func validateDNSDomainUserInput(_ string: String) -> Bool {
+    func isDNSDomainUserInputValid(_ string: String) -> Bool {
         return string.isEmpty || AnyIPAddress(string) != nil
+    }
+
+    /// Returns true if the given port is in within the supported ranges.
+    func isPortWithinValidWireGuardRanges(_ string: String) -> Bool {
+        guard let port = UInt16(string) else { return false }
+
+        return availableWireGuardPortRanges.contains { range in
+            if let minPort = range.first, let maxPort = range.last {
+                return (minPort ... maxPort).contains(port)
+            }
+
+            return false
+        }
     }
 }
