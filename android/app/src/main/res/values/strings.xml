@@ -193,4 +193,5 @@
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
     <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
+    <string name="created_x">Created: %s</string>
 </resources>
