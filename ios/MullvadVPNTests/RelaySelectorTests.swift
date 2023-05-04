@@ -12,18 +12,29 @@ import Network
 import RelaySelector
 import XCTest
 
+private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
+private let defaultPort: UInt16 = 53
+
 class RelaySelectorTests: XCTestCase {
     func testCountryConstraint() throws {
         let constraints = RelayConstraints(location: .only(.country("es")))
 
-        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
 
         XCTAssertEqual(result.relay.hostname, "es1-wireguard")
     }
 
     func testCityConstraint() throws {
         let constraints = RelayConstraints(location: .only(.city("se", "got")))
-        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
 
         XCTAssertEqual(result.relay.hostname, "se10-wireguard")
     }
@@ -31,9 +42,49 @@ class RelaySelectorTests: XCTestCase {
     func testHostnameConstraint() throws {
         let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
 
-        let result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
 
         XCTAssertEqual(result.relay.hostname, "se6-wireguard")
+    }
+
+    func testSpecificPortConstraint() throws {
+        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")), port: .only(1))
+
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertEqual(result.endpoint.ipv4Relay.port, 1)
+    }
+
+    func testRandomPortSelectionWithFailedAttempts() throws {
+        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
+        let allPorts = portRanges.flatMap { $0 }
+
+        var result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
+
+        result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints, numberOfFailedAttempts: 1)
+        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
+
+        result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints, numberOfFailedAttempts: 2)
+        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
+
+        result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints, numberOfFailedAttempts: 3)
+        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
+
+        result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints, numberOfFailedAttempts: 4)
+        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 }
 
@@ -61,7 +112,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
     wireguard: REST.ServerWireguardTunnels(
         ipv4Gateway: .loopback,
         ipv6Gateway: .loopback,
-        portRanges: [[53, 53]],
+        portRanges: portRanges,
         relays: [
             REST.ServerRelay(
                 hostname: "es1-wireguard",

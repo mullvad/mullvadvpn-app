@@ -444,7 +444,7 @@ enum SettingsKey: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case lastUsedAccount = "LastUsedAccount"
-    case shouldWipeSettings = "shouldWipeSettings"
+    case shouldWipeSettings = "ShouldWipeSettings"
 }
 
 /// An error type describing a failure to read or parse settings version.
