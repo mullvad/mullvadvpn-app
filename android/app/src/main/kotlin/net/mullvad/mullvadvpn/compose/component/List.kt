@@ -1,55 +1,96 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.theme.dimensions.Dimens
+import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
+
+@Preview
+@Composable
+fun PreviewListItem() {
+    Column {
+        ListItem(text = "No icon not loading", isLoading = false, onClick = {})
+        ListItem(text = "No icon is loading", isLoading = true, onClick = {})
+        ListItem(
+            text = "With icon is loading",
+            isLoading = true,
+            iconResourceId = R.drawable.icon_close,
+            onClick = {}
+        )
+        ListItem(
+            text = "With icon not loading",
+            isLoading = false,
+            iconResourceId = R.drawable.icon_close,
+            onClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewChangeListItem() {
+    ChangeListItem(text = "ChangeListItem")
+}
 
 @Composable
 fun ListItem(
     text: String,
+    height: Dp = Dimens.listItemHeight,
     isLoading: Boolean,
     @DrawableRes iconResourceId: Int? = null,
     onClick: () -> Unit
 ) {
-    val itemColor = colorResource(id = R.color.blue)
-
     Box(
         modifier =
-            Modifier.fillMaxWidth().padding(vertical = 1.dp).height(50.dp).background(itemColor),
+            Modifier.fillMaxWidth()
+                .padding(vertical = Dimens.listItemDivider)
+                .wrapContentHeight()
+                .defaultMinSize(minHeight = height)
+                .background(BackgroundColor),
     ) {
-        Text(
-            text = text,
-            fontSize = 18.sp,
-            color = Color.White,
-            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.CenterStart)
-        )
+        Column(
+            modifier =
+                Modifier.padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding)
+                    .align(Alignment.CenterStart)
+        ) {
+            Text(text = text, style = MaterialTheme.typography.listItemText, color = TextColor)
+        }
 
-        Box(modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 12.dp)) {
+        Box(
+            modifier =
+                Modifier.align(Alignment.CenterEnd)
+                    .padding(horizontal = Dimens.loadingSpinnerPadding)
+        ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    strokeWidth = 3.dp,
-                    color = Color.White,
-                    modifier = Modifier.height(24.dp).width(24.dp)
+                    strokeWidth = Dimens.loadingSpinnerStrokeWidth,
+                    color = TextColor,
+                    modifier =
+                        Modifier.height(Dimens.loadingSpinnerSize).width(Dimens.loadingSpinnerSize)
                 )
             } else if (iconResourceId != null) {
                 Image(
@@ -64,9 +105,10 @@ fun ListItem(
 
 @Composable
 fun ChangeListItem(text: String) {
+    val smallPadding = Dimens.smallPadding
+
     ConstraintLayout {
         val (bullet, changeLog) = createRefs()
-        val smallPadding = dimensionResource(id = R.dimen.small_padding)
         Box(
             modifier =
                 Modifier.constrainAs(bullet) {
@@ -74,19 +116,29 @@ fun ChangeListItem(text: String) {
                     start.linkTo(parent.absoluteLeft)
                 }
         ) {
-            Text(text = "•", fontSize = 14.sp, color = Color.White)
+            Text(text = "•", style = MaterialTheme.typography.bodyMedium, color = TextColor)
         }
         Box(
             modifier =
-                Modifier.absolutePadding(left = dimensionResource(id = R.dimen.medium_padding))
-                    .constrainAs(changeLog) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom, margin = smallPadding)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+                Modifier.absolutePadding(left = Dimens.mediumPadding).constrainAs(changeLog) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom, margin = smallPadding)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
         ) {
-            Text(text = text, fontSize = 14.sp, color = Color.White, modifier = Modifier)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextColor,
+                modifier = Modifier
+            )
         }
     }
 }
+
+private val BackgroundColor: Color
+    @Composable get() = MaterialTheme.colorScheme.primary
+
+private val TextColor: Color
+    @Composable get() = MaterialTheme.colorScheme.onPrimary
