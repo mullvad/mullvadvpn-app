@@ -57,6 +57,7 @@ final class TunnelManager: StorePaymentObserver {
     private var statusObserver: TunnelStatusBlockObserver?
     private var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
+    private var networkMonitor: NWPathMonitor?
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     private var isRunningPeriodicPrivateKeyRotation = false
@@ -177,6 +178,7 @@ final class TunnelManager: StorePaymentObserver {
             }
 
             self.updatePrivateKeyRotationTimer()
+            self.startNetworkMonitor()
 
             completionHandler(completion.error)
         }
@@ -654,11 +656,11 @@ final class TunnelManager: StorePaymentObserver {
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .connected, .waitingForConnectivity:
+        case .connected, .waitingForConnectivity(.noConnection):
             // Start polling tunnel status to keep connectivity status up to date.
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
 
-        case .pendingReconnect, .disconnecting, .disconnected:
+        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
             // Stop polling tunnel status once connection moved to final state.
             cancelPollingTunnelStatus()
         }
@@ -742,6 +744,10 @@ final class TunnelManager: StorePaymentObserver {
         refreshTunnelStatus()
     }
 
+    private func didUpdateNetworkPath(_ path: Network.NWPath) {
+        updateTunnelStatus(tunnel?.status ?? .disconnected)
+    }
+
     fileprivate func selectRelay() throws -> RelaySelectorResult {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
 
@@ -795,8 +801,31 @@ final class TunnelManager: StorePaymentObserver {
                 guard let self = self else { return }
 
                 self.logger.debug("VPN connection status changed to \(status).")
+
+                if [.disconnected, .invalid].contains(tunnel.status) {
+                    self.startNetworkMonitor()
+                } else {
+                    self.cancelNetworkMonitor()
+                }
+
                 self.updateTunnelStatus(status)
             }
+    }
+
+    private func startNetworkMonitor() {
+        cancelNetworkMonitor()
+
+        networkMonitor = NWPathMonitor()
+        networkMonitor?.pathUpdateHandler = { [weak self] path in
+            self?.didUpdateNetworkPath(path)
+        }
+
+        networkMonitor?.start(queue: internalQueue)
+    }
+
+    private func cancelNetworkMonitor() {
+        networkMonitor?.cancel()
+        networkMonitor = nil
     }
 
     private func unsubscribeVPNStatusObserver() {
@@ -826,7 +855,8 @@ final class TunnelManager: StorePaymentObserver {
         let operation = MapConnectionStatusOperation(
             queue: internalQueue,
             interactor: TunnelInteractorProxy(self),
-            connectionStatus: connectionStatus
+            connectionStatus: connectionStatus,
+            networkStatus: networkMonitor?.currentPath.status
         )
 
         operation.addCondition(

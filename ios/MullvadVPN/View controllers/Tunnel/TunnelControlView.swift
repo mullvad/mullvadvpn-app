@@ -159,6 +159,7 @@ final class TunnelControlView: UIView {
         let views = actionButtons.map { self.view(forActionButton: $0) }
 
         updateButtonTitles()
+        updateButtonEnabledStates()
         setArrangedButtons(views)
     }
 
@@ -202,6 +203,23 @@ final class TunnelControlView: UIView {
             value: "Reconnect",
             comment: ""
         )
+    }
+
+    private func updateButtonEnabledStates() {
+        let allButtons = [
+            connectButton,
+            selectLocationButton,
+            cancelButton,
+            splitDisconnectButton.primaryButton,
+            splitDisconnectButton.secondaryButton,
+        ]
+
+        switch tunnelState {
+        case .waitingForConnectivity(.noNetwork):
+            allButtons.forEach { $0.isEnabled = false }
+        default:
+            allButtons.forEach { $0.isEnabled = true }
+        }
     }
 
     private func updateTunnelRelay() {
@@ -423,13 +441,13 @@ final class TunnelControlView: UIView {
 private extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
-        case .connecting, .reconnecting, .waitingForConnectivity:
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
             return .white
 
         case .connected:
             return .successColor
 
-        case .disconnecting, .disconnected, .pendingReconnect:
+        case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork):
             return .dangerColor
         }
     }
@@ -475,11 +493,19 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .waitingForConnectivity:
+        case .waitingForConnectivity(.noConnection):
             return NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
                 tableName: "Main",
                 value: "Blocked connection",
+                comment: ""
+            )
+
+        case .waitingForConnectivity(.noNetwork):
+            return NSLocalizedString(
+                "TUNNEL_STATE_NO_NETWORK",
+                tableName: "Main",
+                value: "No network",
                 comment: ""
             )
         }
@@ -554,11 +580,19 @@ private extension TunnelState {
                 tunnelInfo.location.country
             )
 
-        case .waitingForConnectivity:
+        case .waitingForConnectivity(.noConnection):
             return NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Blocked connection",
+                comment: ""
+            )
+
+        case .waitingForConnectivity(.noNetwork):
+            return NSLocalizedString(
+                "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "No network",
                 comment: ""
             )
 
@@ -584,11 +618,11 @@ private extension TunnelState {
         switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
         case (.phone, _), (.pad, .compact):
             switch self {
-            case .disconnected, .disconnecting(.nothing):
+            case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
                 return [.selectLocation, .connect]
 
             case .connecting, .pendingReconnect, .disconnecting(.reconnect),
-                 .waitingForConnectivity:
+                 .waitingForConnectivity(.noConnection):
                 return [.selectLocation, .cancel]
 
             case .connected, .reconnecting:
@@ -597,11 +631,11 @@ private extension TunnelState {
 
         case (.pad, .regular):
             switch self {
-            case .disconnected, .disconnecting(.nothing):
+            case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
                 return [.connect]
 
             case .connecting, .pendingReconnect, .disconnecting(.reconnect),
-                 .waitingForConnectivity:
+                 .waitingForConnectivity(.noConnection):
                 return [.cancel]
 
             case .connected, .reconnecting:
