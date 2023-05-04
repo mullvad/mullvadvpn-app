@@ -34,6 +34,7 @@ class SettingsCell: UITableViewCell {
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
     let disclosureImageView = UIImageView(image: nil)
+    let contentContainer = UIStackView()
     var infoButtonHandler: InfoButtonHandler?
 
     var disclosureType: SettingsDisclosureType = .none {
@@ -103,28 +104,36 @@ class SettingsCell: UITableViewCell {
         let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
             .contentLayoutMargins.trailing + buttonWidth
 
-        contentView.addConstrainedSubviews([titleLabel, infoButton, detailTitleLabel]) {
+        let content = UIView()
+        content.addConstrainedSubviews([titleLabel, infoButton, detailTitleLabel]) {
             switch style {
             case .subtitle:
-                titleLabel.pinEdgesToSuperviewMargins(.init([.top(0), .leading(0)]))
-                detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.top))
+                titleLabel.pinEdgesToSuperview(.init([.top(0), .leading(0)]))
+                detailTitleLabel.pinEdgesToSuperview(.all().excluding(.top))
                 detailTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1)
-                infoButton.trailingAnchor.constraint(greaterThanOrEqualTo: contentView.trailingAnchor)
+                infoButton.trailingAnchor.constraint(greaterThanOrEqualTo: content.trailingAnchor)
 
             default:
-                titleLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-                detailTitleLabel.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+                titleLabel.pinEdgesToSuperview(.all().excluding(.trailing))
+                detailTitleLabel.pinEdgesToSuperview(.all().excluding(.leading))
                 detailTitleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: infoButton.trailingAnchor)
             }
 
             infoButton.pinEdgesToSuperview(.init([.top(0)]))
-            infoButton.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor)
+            infoButton.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor)
             infoButton.leadingAnchor.constraint(
                 equalTo: titleLabel.trailingAnchor,
                 constant: -UIMetrics.interButtonSpacing
             )
             infoButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
             infoButton.widthAnchor.constraint(equalToConstant: buttonAreaWidth)
+        }
+
+        contentContainer.addArrangedSubview(content)
+        contentContainer.spacing = 12
+
+        contentView.addConstrainedSubviews([contentContainer]) {
+            contentContainer.pinEdgesToSuperviewMargins()
         }
     }
 
@@ -135,6 +144,7 @@ class SettingsCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
+        removeLeftView()
         setInfoButtonIsVisible(false)
         setLayoutMargins()
     }
@@ -146,6 +156,20 @@ class SettingsCell: UITableViewCell {
 
     func setInfoButtonIsVisible(_ visible: Bool) {
         infoButton.isHidden = !visible
+    }
+
+    func setLeftView(_ view: UIView) {
+        removeLeftView()
+
+        if contentContainer.arrangedSubviews.count < 2 {
+            contentContainer.insertArrangedSubview(view, at: 0)
+        }
+    }
+
+    func removeLeftView() {
+        if contentContainer.arrangedSubviews.count > 1 {
+            contentContainer.arrangedSubviews.first?.removeFromSuperview()
+        }
     }
 
     @objc private func handleInfoButton(_ sender: UIControl) {
