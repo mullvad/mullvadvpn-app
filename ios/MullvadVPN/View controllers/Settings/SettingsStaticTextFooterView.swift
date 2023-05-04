@@ -30,7 +30,7 @@ class SettingsStaticTextFooterView: UITableViewHeaderFooterView {
                 .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor
                 .constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
+            contentView.layoutMarginsGuide.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8)
                 .withPriority(.defaultLow),
         ])
     }
