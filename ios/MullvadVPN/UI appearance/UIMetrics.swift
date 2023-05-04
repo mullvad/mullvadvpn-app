@@ -29,6 +29,14 @@ extension UIMetrics {
         trailing: 12
     )
 
+    /// Common layout margins for text field in settings input cell presentation
+    static let settingsInputCellTextFieldLayoutMargins = NSDirectionalEdgeInsets(
+        top: 0,
+        leading: 8,
+        bottom: 0,
+        trailing: 8
+    )
+
     /// Common layout margins for location cell presentation
     static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(
         top: 16,
