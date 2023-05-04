@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import RelayCache
 import UIKit
 
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
@@ -33,6 +34,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
+        tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
+        tableView.allowsSelectionDuringEditing = true
 
         dataSource = PreferencesDataSource(tableView: tableView)
         dataSource?.delegate = self
@@ -45,24 +48,31 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         )
         navigationItem.rightBarButtonItem = editButtonItem
 
-        interactor.dnsSettingsDidChange = { [weak self] newDNSSettings in
-            self?.dataSource?.update(from: newDNSSettings)
+        interactor.tunnelSettingsDidChange = { [weak self] newSettings in
+            self?.dataSource?.update(from: newSettings)
         }
-        dataSource?.update(from: interactor.dnsSettings)
+        dataSource?.update(from: interactor.tunnelSettings)
+
+        dataSource?.setAvailablePortRanges(interactor.cachedRelays?.relays.wireguard.portRanges ?? [])
+        interactor.cachedRelaysDidChange = { [weak self] cachedRelays in
+            self?.dataSource?.setAvailablePortRanges(cachedRelays.relays.wireguard.portRanges)
+        }
 
         tableView.tableHeaderView =
             UIView(frame: .init(origin: .zero, size: .init(width: 0, height: UIMetrics.sectionSpacing)))
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
+        _ = dataSource?.revertWireGuardPortCellToLastSelection()
+
+        super.setEditing(editing, animated: animated)
+
         dataSource?.setEditing(editing, animated: animated)
 
         navigationItem.setHidesBackButton(editing, animated: animated)
 
         // Disable swipe to dismiss when editing
         isModalInPresentation = editing
-
-        super.setEditing(editing, animated: animated)
     }
 
     private func showContentBlockerInfo(with message: String) {
@@ -84,6 +94,18 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
+    private func humanReadablePortRepresentation(_ ranges: [[UInt16]]) -> String {
+        return ranges
+            .compactMap { range in
+                if let minPort = range.first, let maxPort = range.last {
+                    return minPort == maxPort ? String(minPort) : "\(minPort)-\(maxPort)"
+                } else {
+                    return nil
+                }
+            }
+            .joined(separator: ", ")
+    }
+
     // MARK: - PreferencesDataSourceDelegate
 
     func preferencesDataSource(
@@ -97,11 +119,19 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     func preferencesDataSource(
         _ dataSource: PreferencesDataSource,
-        didPressInfoButton item: PreferencesDataSource.Item?
+        showInfo item: PreferencesDataSource.InfoButtonItem?
     ) {
-        let message: String
+        var message = ""
 
         switch item {
+        case .contentBlockers:
+            message = NSLocalizedString(
+                "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
+                tableName: "ContentBlockers",
+                value: "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. This might cause issues on certain websites, services, and programs.",
+                comment: ""
+            )
+
         case .blockMalware:
             message = NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
@@ -110,15 +140,27 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 comment: ""
             )
 
-        default:
+        case .wireGuardPorts:
+            let portsString = humanReadablePortRepresentation(
+                interactor.cachedRelays?.relays.wireguard
+                    .portRanges ?? []
+            )
+
             message = NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
-                tableName: "ContentBlockers",
-                value: "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. This might cause issues on certain websites, services, and programs.",
+                "PREFERENCES_WIRE_GUARD_PORTS_GENERAL",
+                tableName: "WireGuardPorts",
+                value: "The automatic setting will randomly choose from the valid port ranges shown below.\n\nThe custom port can be any value inside the valid ranges:\n\n\(portsString)",
                 comment: ""
             )
+
+        default:
+            assertionFailure("No matching InfoButtonItem")
         }
 
         showContentBlockerInfo(with: message)
+    }
+
+    func preferencesDataSource(_ dataSource: PreferencesDataSource, didSelectPort port: UInt16?) {
+        interactor.setPort(port)
     }
 }

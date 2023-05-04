@@ -7,26 +7,53 @@
 //
 
 import Foundation
+import RelayCache
 
 final class PreferencesInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
+    private let relayCacheTracker: RelayCacheTracker
 
-    var dnsSettingsDidChange: ((DNSSettings) -> Void)?
+    var tunnelSettingsDidChange: ((TunnelSettingsV2) -> Void)?
+    var cachedRelaysDidChange: ((CachedRelays) -> Void)?
 
-    init(tunnelManager: TunnelManager) {
-        self.tunnelManager = tunnelManager
-        tunnelObserver =
-            TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] manager, newSettings in
-                self?.dnsSettingsDidChange?(newSettings.dnsSettings)
-            })
+    var tunnelSettings: TunnelSettingsV2 {
+        return tunnelManager.settings
     }
 
-    var dnsSettings: DNSSettings {
-        return tunnelManager.settings.dnsSettings
+    var cachedRelays: CachedRelays? {
+        return try? relayCacheTracker.getCachedRelays()
+    }
+
+    init(tunnelManager: TunnelManager, relayCacheTracker: RelayCacheTracker) {
+        self.tunnelManager = tunnelManager
+        self.relayCacheTracker = relayCacheTracker
+
+        tunnelObserver =
+            TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] manager, newSettings in
+                self?.tunnelSettingsDidChange?(newSettings)
+            })
     }
 
     func setDNSSettings(_ newDNSSettings: DNSSettings, completion: (() -> Void)? = nil) {
         tunnelManager.setDNSSettings(newDNSSettings, completionHandler: completion)
+    }
+
+    func setPort(_ port: UInt16?, completion: (() -> Void)? = nil) {
+        var relayConstraints = tunnelManager.settings.relayConstraints
+
+        if let port {
+            relayConstraints.port = .only(port)
+        } else {
+            relayConstraints.port = .any
+        }
+
+        tunnelManager.setRelayConstraints(relayConstraints, completionHandler: completion)
+    }
+}
+
+extension PreferencesInteractor: RelayCacheTrackerObserver {
+    func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        cachedRelaysDidChange?(cachedRelays)
     }
 }

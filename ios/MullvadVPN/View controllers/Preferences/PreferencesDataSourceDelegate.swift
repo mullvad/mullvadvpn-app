@@ -16,6 +16,11 @@ protocol PreferencesDataSourceDelegate: AnyObject {
 
     func preferencesDataSource(
         _ dataSource: PreferencesDataSource,
-        didPressInfoButton item: PreferencesDataSource.Item?
+        showInfo for: PreferencesDataSource.InfoButtonItem?
+    )
+
+    func preferencesDataSource(
+        _ dataSource: PreferencesDataSource,
+        didSelectPort port: UInt16?
     )
 }

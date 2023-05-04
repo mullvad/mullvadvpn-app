@@ -101,12 +101,18 @@ public enum RelaySelector {
         rawPortRanges: [[UInt16]],
         numberOfFailedAttempts: UInt
     ) -> UInt16? {
-        // 1. First two attempts should pick a random port.
-        // 2. The next two should pick port 53.
-        // 3. Repeat steps 1 and 2.
-        let useDefaultPort = (numberOfFailedAttempts % 4 == 2) || (numberOfFailedAttempts % 4 == 3)
+        switch constraints.port {
+        case let .only(port):
+            return port
 
-        return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
+        case .any:
+            // 1. First two attempts should pick a random port.
+            // 2. The next two should pick port 53.
+            // 3. Repeat steps 1 and 2.
+            let useDefaultPort = (numberOfFailedAttempts % 4 == 2) || (numberOfFailedAttempts % 4 == 3)
+
+            return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
+        }
     }
 
     private static func pickRandomRelay(relays: [RelayWithLocation]) -> RelayWithLocation? {
