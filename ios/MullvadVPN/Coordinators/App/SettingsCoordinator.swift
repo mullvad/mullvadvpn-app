@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import RelayCache
 import Operations
 import UIKit
 
@@ -18,13 +19,14 @@ enum SettingsNavigationRoute: Equatable {
 }
 
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    UINavigationControllerDelegate
+    RelayCacheTrackerObserver, UINavigationControllerDelegate
 {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private let interactorFactory: SettingsInteractorFactory
     private var currentRoute: SettingsNavigationRoute?
     private var modalRoute: SettingsNavigationRoute?
+    private let relayCacheTracker: RelayCacheTracker
 
     let navigationController: UINavigationController
 
@@ -46,15 +48,19 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     init(
         navigationController: UINavigationController,
-        interactorFactory: SettingsInteractorFactory
+        interactorFactory: SettingsInteractorFactory,
+        relayCacheTracker: RelayCacheTracker
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
+        self.relayCacheTracker = relayCacheTracker
     }
 
     func start(initialRoute: SettingsNavigationRoute? = nil) {
         navigationController.navigationBar.prefersLargeTitles = true
         navigationController.delegate = self
+
+        relayCacheTracker.addObserver(self)
 
         if let rootController = makeViewController(for: .root) {
             navigationController.pushViewController(rootController, animated: false)
@@ -128,6 +134,15 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         currentRoute = route
     }
 
+    // MARK: - RelayCacheTrackerObserver
+
+    func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        guard let controller = navigationController.viewControllers
+            .first as? PreferencesViewController else { return }
+
+        controller.setCachedRelays(cachedRelays)
+    }
+
     // MARK: - SettingsViewControllerDelegate
 
     func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
@@ -153,9 +168,13 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return controller
 
         case .preferences:
-            return PreferencesViewController(
+            let controller = PreferencesViewController(
                 interactor: interactorFactory.makePreferencesInteractor()
             )
+            if let relays = try? relayCacheTracker.getCachedRelays() {
+                controller.setCachedRelays(relays)
+            }
+            return controller
 
         case .problemReport:
             return ProblemReportViewController(
