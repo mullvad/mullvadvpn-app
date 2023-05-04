@@ -43,6 +43,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update Electron from 21.1.1 to 23.2.0.
 
+#### macOS
+- Change macOS app signing key and certificates. Replace those issued to Amagicom AB (the parent
+  company of Mullvad VPN AB) with new certificates issued directly to Mullvad VPN AB.
+
 ### Deprecated
 #### Linux
 - Deprecated support for Debian 10. This also means dropping support for glibc older
