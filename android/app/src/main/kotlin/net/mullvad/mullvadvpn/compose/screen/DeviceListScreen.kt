@@ -15,23 +15,27 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ListItem
 import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
+import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
+import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
+import net.mullvad.mullvadvpn.compose.theme.MullvadGreen40
+import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
+import net.mullvad.mullvadvpn.compose.theme.MullvadWhite80
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.util.formatDate
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 
 @Composable
@@ -48,7 +52,7 @@ fun DeviceListScreen(
 
     ConstraintLayout(
         modifier =
-            Modifier.fillMaxHeight().fillMaxWidth().background(colorResource(id = R.color.darkBlue))
+            Modifier.fillMaxHeight().fillMaxWidth().background(MaterialTheme.colorScheme.secondary)
     ) {
         val (content, buttons) = createRefs()
 
@@ -105,9 +109,7 @@ fun DeviceListScreen(
                                         R.string.max_devices_resolved_title
                                     }
                             ),
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineSmall
                     )
 
                     Text(
@@ -120,8 +122,7 @@ fun DeviceListScreen(
                                         R.string.max_devices_resolved_description
                                     }
                             ),
-                        color = Color.White,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         modifier =
                             Modifier.wrapContentHeight().animateContentSize().padding(top = 8.dp)
                     )
@@ -139,6 +140,14 @@ fun DeviceListScreen(
                         state.deviceUiItems.forEach { deviceUiState ->
                             ListItem(
                                 text = deviceUiState.device.name.capitalizeFirstCharOfEachWord(),
+                                subText =
+                                    deviceUiState.device.creationDate?.let { creationDate ->
+                                        stringResource(
+                                            id = R.string.created_x,
+                                            creationDate.formatDate()
+                                        )
+                                    },
+                                height = Dimens.listItemHeightExtra,
                                 isLoading = deviceUiState.isLoading,
                                 iconResourceId = R.drawable.icon_close
                             ) {
@@ -165,10 +174,10 @@ fun DeviceListScreen(
                 isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.green),
-                        disabledBackgroundColor = colorResource(id = R.color.green40),
-                        disabledContentColor = colorResource(id = R.color.white80),
-                        contentColor = Color.White
+                        backgroundColor = MullvadGreen,
+                        disabledBackgroundColor = MullvadGreen40,
+                        disabledContentColor = MullvadWhite80,
+                        contentColor = MullvadWhite
                     )
             )
 
@@ -177,8 +186,8 @@ fun DeviceListScreen(
                 onClick = onBackClick,
                 colors =
                     ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
+                        backgroundColor = MullvadBlue,
+                        contentColor = MullvadWhite
                     ),
                 modifier = Modifier.padding(top = 16.dp)
             )
