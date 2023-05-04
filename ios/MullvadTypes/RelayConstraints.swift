@@ -10,15 +10,17 @@ import Foundation
 
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
     public var location: RelayConstraint<RelayLocation>
+    public var port: RelayConstraint<UInt16>
 
     public var debugDescription: String {
-        var output = "RelayConstraints { "
-        output += "location: \(String(reflecting: location))"
-        output += " }"
-        return output
+        return "RelayConstraints { location: \(location), port: \(port) }"
     }
 
-    public init(location: RelayConstraint<RelayLocation> = .only(.country("se"))) {
+    public init(
+        location: RelayConstraint<RelayLocation> = .only(.country("se")),
+        port: RelayConstraint<UInt16> = .any
+    ) {
         self.location = location
+        self.port = port
     }
 }
