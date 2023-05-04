@@ -21,12 +21,23 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 BRANCHES_TO_BUILD=("origin/main")
 
+# Ask for the passphrase to the signing keys
 case "$(uname -s)" in
     Darwin*|MINGW*|MSYS_NT*)
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
             read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
             export CSC_KEY_PASSWORD
+        fi
+        ;;
+esac
+# ON macOS there is a separate key for signing the installer. See docs/macos-signing.md
+case "$(uname -s)" in
+    Darwin*)
+        if [[ -z ${CSC_INSTALLER_KEY_PASSWORD-} ]]; then
+            read -rsp "CSC_INSTALLER_KEY_PASSWORD = " CSC_INSTALLER_KEY_PASSWORD
+            echo ""
+            export CSC_INSTALLER_KEY_PASSWORD
         fi
         ;;
 esac
