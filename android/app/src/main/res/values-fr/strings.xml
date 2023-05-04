@@ -105,6 +105,7 @@
     <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
     <string name="max_devices_warning_title">Trop d\'appareils</string>
     <string name="mullvad_account_number">Numéro de compte Mullvad</string>
+    <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
     <string name="out_address">Sortante</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-04-03 14:52\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ထပ်ပေါင်းပြီးပါပြီ၊ %(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
@@ -107,6 +107,7 @@ msgstr "ချိတ်ဆက်ပြီး"
 msgid "Connecting"
 msgstr "ချိတ်ဆက်နေဆဲ"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးခြင်း"
 
@@ -146,6 +147,9 @@ msgstr "ချိတ်ဆက်မှုကို ကာကွယ်ရန် �
 msgid "Filter"
 msgstr "စစ်ထုတ်မှု"
 
+msgid "Go to System Settings"
+msgstr "System Settings သို့ သွားရန်"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "ရပါပြီ။"
@@ -183,6 +187,7 @@ msgstr "ဖွင့်"
 msgid "Open URL"
 msgstr "URL ဖွင့်ရန်"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှု"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "ဤဆက်တင်သည် ကြန့်ကြာချိန်ကို တိုးစေပါသည်။ လိုအပ်မှသာ သုံးပါ။"
+
+msgid "Troubleshoot"
+msgstr "ပြစ်ချက် ရှာဖွေ ဖယ်ရှားရန်"
 
 msgid "Try a different search."
 msgstr "မတူညီသော ရှာဖွေမှုဖြင့် ကြိုးစားကြည့်ပါ။"
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "ထွက်ပြီး အက်ပ်ကို အစမှ ပြန်ဖွင့်ပေးပါ။"
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "ပြဿနာ ရီပို့တ် ပေးပို့ရန်"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN ဝန်ဆောင်မှုအတွက် ခွင့်ပြုချက်ကို ရုပ်သိမ်းထားပါသည်။ System Settings သို့ သွားပြီး “Allow in the Background” ဆက်တင်အောက်တွင် Mullvad VPN ကို ခွင့်ပြုပါ။"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "ချိတ်ဆက်မှုဖြုတ်ပြီးပါပြီ မလုံခြုံတော့ပါ"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "သင်ရွေးချယ်ထားသော တည်နေရာတွင် သင်၏ ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာ မရှိပါ။"
+msgid "Lockdown mode active, connection blocked"
+msgstr "လော့ခ်ဒေါင်းစနစ် သက်ဝင်နေသည်၊ ချိတ်ဆက်မှုကို ပိတ်ဆို့ထားသည်"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။"
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။ ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲကို ပိတ်ကြည့်ပါ။"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Firewall စည်းမျဉ်းများကို သုံး၍ မရနိုင်ပါ။ မည်သည့် ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲကိုမဆို ယာယီ ပိတ်ကြည့်ပါ။"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး (antivirus) သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲတစ်ခုခုကို ပိတ်ကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ မည်သည့် ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲကိုမဆို ယာယီ ပိတ်ကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ကြည့်ပါ။"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1219,6 +1239,46 @@ msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "%(location)s နှင့် ချိတ်ဆက်နေပါသည်။"
 
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "ဤအဆင့်များ အလုပ်မလုပ်ပါက ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။"
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "NF tables ပံ့ပိုးမှုရှိကြောင်း သေချာပါစေ။"
+
+msgctxt "troubleshoot"
+msgid "This can happen because the kernel is old, or if you have removed a kernel."
+msgstr "Kernel သည် ဟောင်းနေပြီဖြစ်သောကြောင့် သို့မဟုတ် Kernel တစ်ခုကို ဖယ်ရှားထားပါက ၎င်းကဲ့သို့ ဖြစ်ပွားနိုင်ပါသည်"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Mullvad အပြင် အခြားတစ်စုံတစ်ခုက DNS ကို ထိထိရောက်ရောက် အပ်ဒိတ်လုပ်နေသည့်အခါ ဤချို့ယွင်းချက် ဖြစ်ပေါ်နိုင်ပါသည်။"
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "ပြန်ချိတ်ဆက်ကြည့်ပါ။"
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "သင့်စက်ကို အစမှ ပြန်ဖွင့်ရန် ကြိုးစားကြည့်ပါ။"
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTime အက်ပ် ဆက်တင်တွင် Wi-Fi မှတစ်ဆင့် ခေါ်ဆိုမှုကို ပိတ်ကြည့်ပြီး Mac ကို အစမှ ပြန်ဖွင့်ပါ။"
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvad Kernel Driver နှင့် ဆက်သွယ်၍ မရနိုင်ပါ။"
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "အခြား DNS ၊ ကွန်ရက်ချိတ်ဆက်မှုဆိုင်ရာနှင့် ကြော်ငြာ/ဝက်ဘ်ဆိုက် ပိတ်ဆို့ရေး အက်ပ်များကို ပိတ်ပါ သို့မဟုတ် ထည့်သွင်းထားမှုမှ ဖျက်ပါ။"
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "သင့် Kernel ကို အပ်ဒိတ်လုပ်ပါ။"
+
 msgctxt "tunnel-control"
 msgid "Secure my connection"
 msgstr "ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်"
@@ -1466,6 +1526,10 @@ msgid "IP version"
 msgstr "IP ဗားရှင်း"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။"
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1548,13 @@ msgstr "ဖွင့် (UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "ပေါ့တ်"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Quantum-resistant Tunnel"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1508,6 +1579,10 @@ msgstr "စိတ်ကြိုက်ပေါ့တ်သည် အကျု�
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "၎င်းသည် IPv6 သာ ပံ့ပိုးသည့် စက်များတွင် %(wireguard)s သုံးနိုင်ရန် ပြုလုပ်ပေးသည်။"
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"

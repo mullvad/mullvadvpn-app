@@ -105,6 +105,7 @@
     <string name="max_devices_warning_description">Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="mullvad_account_number">Número de conta Mullvad</string>
+    <string name="no_matching_relay">Nenhum servidor corresponde às suas definições. Tente alterar o servidor ou outras definições.</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_blocking_internet">PODERÁ ESTAR A PERDER TRÁFEGO DE REDE</string>
     <string name="out_address">Saída</string>

@@ -105,6 +105,7 @@
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="mullvad_account_number">Mullvad-Kontonummer</string>
+    <string name="no_matching_relay">Kein Server entspricht Ihren Einstellungen. Versuchen Sie, den Server oder andere Einstellungen zu ändern.</string>
     <string name="no_wireguard_key">Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten.</string>
     <string name="not_blocking_internet">MÖGLICHERWEISE IST IHR NETZWERKVERKEHR UNSICHER</string>
     <string name="out_address">Ausgehend</string>
