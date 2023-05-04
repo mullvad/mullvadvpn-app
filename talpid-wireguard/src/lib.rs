@@ -103,11 +103,6 @@ pub enum Error {
     #[error(display = "Failed to set up IP interfaces")]
     IpInterfacesError,
 
-    /// Configuration has no tunnel IPv4 address
-    #[cfg(target_os = "macos")]
-    #[error(display = "No IPv4 tunnel interface address")]
-    NoIpv4Address,
-
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
@@ -248,19 +243,6 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let on_event = args.on_event.clone();
 
-        #[cfg(target_os = "macos")]
-        let tunnel_ipv4 = config
-            .tunnel
-            .addresses
-            .iter()
-            .cloned()
-            .find(|ip| ip.is_ipv4())
-            .and_then(|addr| match addr {
-                IpAddr::V4(addr) => Some(addr),
-                _ => None,
-            })
-            .ok_or(Error::NoIpv4Address)?;
-
         let endpoint_addrs: Vec<IpAddr> =
             config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
 
@@ -374,7 +356,6 @@ impl WireguardMonitor {
                 .chain(Self::get_endpoint_routes(&endpoint_addrs))
                 .collect();
 
-            log::error!("Routes being added {routes:?}");
             args.route_manager
                 .add_routes(routes)
                 .await
@@ -415,29 +396,13 @@ impl WireguardMonitor {
             .unwrap()?;
 
             // Add any default route(s) that may exist.
-            #[cfg(not(target_os = "macos"))]
             args.route_manager
                 .add_routes(Self::get_post_tunnel_routes(&iface_name, &config).collect())
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let relay_addr = config.peers[0].endpoint.ip();
-            #[cfg(target_os = "macos")]
-            args.route_manager
-                .setup_tunnel_routes(
-                    iface_name.to_string(),
-                    relay_addr,
-                    talpid_routing::TunnelRoutesV4 {
-                        tunnel_gateway: config.ipv4_gateway,
-                        tunnel_ip: tunnel_ipv4,
-                    },
-                    None,
-                )
-                .await
-                .map_err(Error::SetupRoutingError)
-                .map_err(CloseMsg::SetupError)?;
-
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
             (on_event)(TunnelEvent::Up(metadata)).await;
 
             tokio::task::spawn_blocking(move || {
@@ -896,7 +861,7 @@ impl WireguardMonitor {
             gateway_node.clone(),
         ))
         .chain(config.ipv6_gateway.map(|gateway| {
-            return RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node);
+            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
         }));
 
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
@@ -950,7 +915,7 @@ impl WireguardMonitor {
 
     /// Replace default (0-prefix) routes with more specific routes.
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
-        #[cfg(not(any(target_os = "linux", target_os = "android")))]
+        #[cfg(windows)]
         if network.prefix() == 0 {
             if network.is_ipv4() {
                 vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
@@ -961,7 +926,7 @@ impl WireguardMonitor {
             vec![network]
         }
 
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(not(windows))]
         vec![network]
     }
 
