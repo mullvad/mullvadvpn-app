@@ -34,18 +34,14 @@ extension REST {
         public mutating func didFail() {
             connectionAttempts += 1
             // Avoid overflowing by resetting back to 0 every 3rd failure
-            connectionAttempts = connectionAttempts % 3 == 0 ? 0 : connectionAttempts
+            connectionAttempts = connectionAttempts.isMultiple(of: 3) ? 0 : connectionAttempts
         }
 
         /// The suggested connection transport
         ///
         /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise
         public func connectionTransport() -> Transport {
-            let counter = connectionAttempts
-            if counter % 3 != 0 {
-                return .useShadowSocks
-            }
-            return .useURLSession
+            connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
         }
     }
 }

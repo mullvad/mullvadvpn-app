@@ -14,15 +14,11 @@ final class TransportStrategyTests: XCTestCase {
         var strategy = REST.TransportStrategy()
 
         for index in 0 ... 12 {
-            let expectedResult: REST.TransportStrategy.Transport = index % 3 == 0 ? .useURLSession : .useShadowSocks
-            XCTAssertEqual(expectedResult, strategy.connectionTransport())
+            let expectedResult: REST.TransportStrategy.Transport
+            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
+            XCTAssertEqual(strategy.connectionTransport(), expectedResult)
             strategy.didFail()
         }
-    }
-
-    func testDefaultConnectionTransportIsDirectURLSession() {
-        let strategy = REST.TransportStrategy()
-        assertStrategy(.useURLSession, actual: strategy.connectionTransport())
     }
 
     func testLoadingFromCacheDoesNotImpactStrategy() throws {
@@ -31,7 +27,7 @@ final class TransportStrategyTests: XCTestCase {
         // Fail twice, the next suggested transport mode should be via Shadowsocks proxy
         strategy.didFail()
         strategy.didFail()
-        assertStrategy(.useShadowSocks, actual: strategy.connectionTransport())
+        XCTAssertEqual(strategy.connectionTransport(), .useShadowSocks)
 
         // Serialize the strategy and reload it from memory to simulate an application restart
         let encodedRawStrategy = try JSONEncoder().encode(strategy)
@@ -39,12 +35,6 @@ final class TransportStrategyTests: XCTestCase {
 
         // This should be the third failure, the next suggested transport will be a direct one
         reloadedStrategy.didFail()
-        assertStrategy(.useURLSession, actual: reloadedStrategy.connectionTransport())
-    }
-}
-
-extension TransportStrategyTests {
-    func assertStrategy(_ expected: REST.TransportStrategy.Transport, actual: REST.TransportStrategy.Transport) {
-        XCTAssertEqual(expected, actual)
+        XCTAssertEqual(reloadedStrategy.connectionTransport(), .useURLSession)
     }
 }
