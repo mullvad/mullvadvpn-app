@@ -18,5 +18,7 @@ fi
 
 if [ ! -f "$API_IP_ADDRESS_LIST_FILE" ]; then
   echo "Download API address list"
-  curl https://api.mullvad.net/app/v1/api-addrs -s -o "$API_IP_ADDRESS_LIST_FILE"
+  # Take only the first returned endpoint, and ignore the rest
+  # The sed command wraps the output of `cut` with square brackets and double quotes to keep the JSON valid
+  curl https://api.mullvad.net/app/v1/api-addrs -s | cut -d'"' -f 2 | sed -e 's/\(.*\)/["\1"]/g' > "$API_IP_ADDRESS_LIST_FILE"
 fi
