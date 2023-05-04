@@ -1,5 +1,5 @@
 //
-//  SettingsContentBlockersHeaderView.swift
+//  SettingsHeaderView.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-04-06.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-class SettingsContentBlockersHeaderView: UITableViewHeaderFooterView {
+class SettingsHeaderView: UITableViewHeaderFooterView {
     typealias InfoButtonHandler = () -> Void
-    typealias CollapseHandler = (SettingsContentBlockersHeaderView) -> Void
+    typealias CollapseHandler = (SettingsHeaderView) -> Void
 
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
