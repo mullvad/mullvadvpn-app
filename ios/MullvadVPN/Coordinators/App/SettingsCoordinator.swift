@@ -8,6 +8,7 @@
 
 import MullvadLogging
 import Operations
+import RelayCache
 import UIKit
 
 enum SettingsNavigationRoute: Equatable {
@@ -127,6 +128,15 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
         currentRoute = route
     }
+
+//    // MARK: - RelayCacheTrackerObserver
+//
+//    func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
+//        guard let controller = navigationController.viewControllers
+//            .first as? PreferencesViewController else { return }
+//
+//        controller.setCachedRelays(cachedRelays)
+//    }
 
     // MARK: - SettingsViewControllerDelegate
 
