@@ -654,7 +654,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let interactorFactory = SettingsInteractorFactory(
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
-            apiProxy: apiProxy
+            apiProxy: apiProxy,
+            relayCacheTracker: relayCacheTracker
         )
 
         let navigationController = CustomNavigationController()
