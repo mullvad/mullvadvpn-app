@@ -585,16 +585,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         // Ignore all requests to reconnect once tunnel is preparing to stop.
         guard !isStopping else { return }
 
-        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
+        let blockOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue, block: { finish in
             if shouldStopTunnelMonitor {
                 self.tunnelMonitor.stop()
             }
 
             self.reconnectTunnelInner(to: nextRelay) { error in
                 completionHandler?(error)
-                operation.finish()
+                finish(nil)
             }
-        }
+        })
 
         if let reconnectTunnelTask = reconnectTunnelTask {
             blockOperation.addDependency(reconnectTunnelTask)
@@ -779,49 +779,28 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         operationQueue.addOperation(groupOperation)
     }
 
-    private func createGetAccountDataOperation(accountNumber: String)
-        -> ResultOperation<REST.AccountData>
-    {
-        let operation = ResultBlockOperation<REST.AccountData>(
-            dispatchQueue: dispatchQueue
-        )
-
-        operation.setExecutionBlock { operation in
-            let task = self.accountsProxy.getAccountData(
+    private func createGetAccountDataOperation(accountNumber: String) -> ResultOperation<REST.AccountData> {
+        return ResultBlockOperation<REST.AccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
+            return self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
-                retryStrategy: .noRetry
-            ) { result in
-                operation.finish(result: result)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
-            }
+                retryStrategy: .noRetry,
+                completion: finish
+            )
         }
-
-        return operation
     }
 
-    private func createGetDeviceDataOperation(accountNumber: String, identifier: String)
-        -> ResultOperation<REST.Device>
-    {
-        let operation = ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue)
-
-        operation.setExecutionBlock { operation in
-            let task = self.devicesProxy.getDevice(
+    private func createGetDeviceDataOperation(
+        accountNumber: String,
+        identifier: String
+    ) -> ResultOperation<REST.Device> {
+        return ResultBlockOperation<REST.Device>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
+            return self.devicesProxy.getDevice(
                 accountNumber: accountNumber,
                 identifier: identifier,
-                retryStrategy: .noRetry
-            ) { result in
-                operation.finish(result: result)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
-            }
+                retryStrategy: .noRetry,
+                completion: finish
+            )
         }
-
-        return operation
     }
 }
 

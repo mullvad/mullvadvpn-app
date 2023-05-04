@@ -7,102 +7,53 @@
 //
 
 import Foundation
+import protocol MullvadTypes.Cancellable
 
 public final class ResultBlockOperation<Success>: ResultOperation<Success> {
-    public typealias ExecutionBlock = (ResultBlockOperation<Success>) -> Void
-    public typealias ThrowingExecutionBlock = () throws -> Success
+    private var executor: ((@escaping (Result<Success, Error>) -> Void) -> Cancellable?)?
+    private var cancellableTask: Cancellable?
 
-    private var executionBlock: ExecutionBlock?
-    private var cancellationBlocks: [() -> Void] = []
-
-    public convenience init(
+    public init(
         dispatchQueue: DispatchQueue? = nil,
-        executionBlock: ExecutionBlock? = nil
+        executionBlock: @escaping (_ finish: @escaping (Result<Success, Error>) -> Void) -> Void
     ) {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            executionBlock: executionBlock,
-            completionQueue: nil,
-            completionHandler: nil
-        )
+        super.init(dispatchQueue: dispatchQueue)
+        executor = { finish in
+            executionBlock(finish)
+            return nil
+        }
     }
 
-    public convenience init(
-        dispatchQueue: DispatchQueue? = nil,
-        executionBlock: @escaping ThrowingExecutionBlock
-    ) {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            executionBlock: Self.wrapThrowingBlock(executionBlock),
-            completionQueue: nil,
-            completionHandler: nil
-        )
+    public init(dispatchQueue: DispatchQueue? = nil, executionBlock: @escaping () throws -> Success) {
+        super.init(dispatchQueue: dispatchQueue)
+        executor = { finish in
+            finish(Result { try executionBlock() })
+            return nil
+        }
     }
 
     public init(
-        dispatchQueue: DispatchQueue?,
-        executionBlock: ExecutionBlock?,
-        completionQueue: DispatchQueue?,
-        completionHandler: CompletionHandler?
+        dispatchQueue: DispatchQueue? = nil,
+        cancellableTask: @escaping (_ finish: @escaping (Result<Success, Error>) -> Void) -> Cancellable
     ) {
-        self.executionBlock = executionBlock
-
-        super.init(
-            dispatchQueue: dispatchQueue,
-            completionQueue: completionQueue,
-            completionHandler: completionHandler
-        )
+        super.init(dispatchQueue: dispatchQueue)
+        executor = { cancellableTask($0) }
     }
 
     override public func main() {
-        let block = executionBlock
-        executionBlock = nil
+        let executor = executor
+        self.executor = nil
 
-        block?(self)
+        assert(executor != nil)
+        cancellableTask = executor?(self.finish)
     }
 
     override public func operationDidCancel() {
-        let blocks = cancellationBlocks
-        cancellationBlocks.removeAll()
-
-        for block in blocks {
-            block()
-        }
+        cancellableTask?.cancel()
     }
 
     override public func operationDidFinish() {
-        cancellationBlocks.removeAll()
-        executionBlock = nil
-    }
-
-    public func setExecutionBlock(_ block: @escaping ExecutionBlock) {
-        dispatchQueue.async {
-            assert(!self.isExecuting && !self.isFinished)
-            self.executionBlock = block
-        }
-    }
-
-    public func setExecutionBlock(_ block: @escaping ThrowingExecutionBlock) {
-        setExecutionBlock(Self.wrapThrowingBlock(block))
-    }
-
-    public func addCancellationBlock(_ block: @escaping () -> Void) {
-        dispatchQueue.async {
-            if self.isCancelled, self.isExecuting {
-                block()
-            } else {
-                self.cancellationBlocks.append(block)
-            }
-        }
-    }
-
-    private class func wrapThrowingBlock(_ executionBlock: @escaping ThrowingExecutionBlock)
-        -> ExecutionBlock
-    {
-        return { operation in
-            let result = Result { try executionBlock() }
-
-            operation.finish(result: result)
-        }
+        executor = nil
+        cancellableTask = nil
     }
 }

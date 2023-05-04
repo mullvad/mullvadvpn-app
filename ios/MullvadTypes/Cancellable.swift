@@ -13,3 +13,22 @@ public protocol Cancellable {
 }
 
 extension Operation: Cancellable {}
+
+/// An object representing a cancellation token.
+public final class AnyCancellable: Cancellable {
+    private let block: (() -> Void)?
+
+    /// Create cancellation token with block handler.
+    public init(block: @escaping () -> Void) {
+        self.block = block
+    }
+
+    /// Create empty cancellation token.
+    public init() {
+        block = nil
+    }
+
+    public func cancel() {
+        block?()
+    }
+}

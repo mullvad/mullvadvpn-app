@@ -268,24 +268,21 @@ final class TunnelManager: StorePaymentObserver {
     }
 
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: ((Error?) -> Void)? = nil) {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { operation in
-            guard let tunnel = self.tunnel else {
-                operation.finish(error: UnsetTunnelError())
-                return
-            }
-
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
             do {
+                guard let tunnel = self.tunnel else {
+                    throw UnsetTunnelError()
+                }
+
                 let selectorResult = selectNewRelay ? try self.selectRelay() : nil
 
-                let task = tunnel.reconnectTunnel(relaySelectorResult: selectorResult) { result in
-                    operation.finish(error: result.error)
-                }
-
-                operation.addCancellationBlock {
-                    task.cancel()
+                return tunnel.reconnectTunnel(relaySelectorResult: selectorResult) { result in
+                    finish(result.error)
                 }
             } catch {
-                operation.finish(error: error)
+                finish(error)
+
+                return AnyCancellable()
             }
         }
 

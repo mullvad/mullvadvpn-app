@@ -234,9 +234,9 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         cancelOtherAnimations: Bool,
         block: @escaping (_ finish: @escaping () -> Void) -> Void
     ) {
-        let operation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+        let operation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             block {
-                operation.finish()
+                finish(nil)
             }
         }
 

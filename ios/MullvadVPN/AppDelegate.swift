@@ -370,7 +370,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func startInitialization(application: UIApplication) {
         let wipeSettingsOperation = getWipeSettingsOperation()
 
-        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelStore.loadPersistentTunnels { error in
                 if let error = error {
                     self.logger.error(
@@ -378,16 +378,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                         message: "Failed to load persistent tunnels."
                     )
                 }
-                operation.finish()
+                finish(nil)
             }
         }
 
-        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult>(
-            dispatchQueue: .main
-        ) { operation in
+        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult>(dispatchQueue: .main) { finish in
             SettingsManager.migrateStore(with: self.proxyFactory) { migrationResult in
                 let finishHandler = {
-                    operation.finish(result: .success(migrationResult))
+                    finish(.success(migrationResult))
                 }
 
                 guard case let .failure(error) = migrationResult,
@@ -404,7 +402,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
 
-        let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { operation in
+        let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelManager.loadConfiguration { error in
                 // TODO: avoid throwing fatal error and show the problem report UI instead.
                 if let error = error {
@@ -416,7 +414,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 NotificationManager.shared.updateNotifications()
                 self.storePaymentManager.startPaymentQueueMonitoring()
 
-                operation.finish()
+                finish(nil)
             }
         }
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)

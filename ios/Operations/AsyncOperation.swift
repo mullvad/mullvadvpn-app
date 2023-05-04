@@ -436,6 +436,11 @@ extension OperationBlockObserverSupport where Self: AsyncOperation {
         addBlockObserver(OperationBlockObserver(didFinish: fn))
     }
 
+    /// Add observer responding to start event.
+    public func onStart(_ fn: @escaping (Self) -> Void) {
+        addBlockObserver(OperationBlockObserver(didStart: fn))
+    }
+
     /// Add block-based observer.
     public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)

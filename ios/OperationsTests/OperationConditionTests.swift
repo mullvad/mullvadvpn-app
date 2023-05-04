@@ -123,10 +123,10 @@ class OperationConditionTests: XCTestCase {
         let exclusiveCategory = "exclusiveOperations"
         let operationQueue = AsyncOperationQueue()
 
-        let firstOperation = AsyncBlockOperation { op in
+        let firstOperation = AsyncBlockOperation { finish in
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                 expectFirstOperationExecution.fulfill()
-                op.finish()
+                finish(nil)
             }
         }
         firstOperation.addCondition(MutuallyExclusive(category: exclusiveCategory))

@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
@@ -183,12 +184,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData> {
-        let operation = ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue)
-
-        operation.setExecutionBlock { operation in
+        return ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
             self.logger.debug("Create new account...")
 
-            let task = self.accountsProxy.createAccount(retryStrategy: .default) { result in
+            return self.accountsProxy.createAccount(retryStrategy: .default) { result in
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
@@ -206,55 +205,37 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     )
                 }
 
-                operation.finish(result: result)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
+                finish(result)
             }
         }
-
-        return operation
     }
 
-    private func getExistingAccountOperation(accountNumber: String)
-        -> ResultOperation<StoredAccountData>
-    {
-        let operation = ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue)
-
-        operation.setExecutionBlock { operation in
+    private func getExistingAccountOperation(accountNumber: String) -> ResultOperation<StoredAccountData> {
+        return ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
             self.logger.debug("Request account data...")
 
-            let task = self.accountsProxy.getAccountData(
-                accountNumber: accountNumber,
-                retryStrategy: .default
-            ) { result in
-                let result = result.inspectError { error in
-                    guard !error.isOperationCancellationError else { return }
+            return self.accountsProxy
+                .getAccountData(accountNumber: accountNumber, retryStrategy: .default) { result in
+                    let result = result.inspectError { error in
+                        guard !error.isOperationCancellationError else { return }
 
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to receive account data."
-                    )
-                }.map { accountData -> StoredAccountData in
-                    self.logger.debug("Received account data.")
+                        self.logger.error(
+                            error: error,
+                            message: "Failed to receive account data."
+                        )
+                    }.map { accountData -> StoredAccountData in
+                        self.logger.debug("Received account data.")
 
-                    return StoredAccountData(
-                        identifier: accountData.id,
-                        number: accountNumber,
-                        expiry: accountData.expiry
-                    )
+                        return StoredAccountData(
+                            identifier: accountData.id,
+                            number: accountNumber,
+                            expiry: accountData.expiry
+                        )
+                    }
+
+                    finish(result)
                 }
-
-                operation.finish(result: result)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
-            }
         }
-
-        return operation
     }
 
     private func getDeleteDeviceOperation() -> AsyncBlockOperation? {
@@ -262,12 +243,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
             return nil
         }
 
-        let operation = AsyncBlockOperation(dispatchQueue: dispatchQueue)
-
-        operation.setExecutionBlock { operation in
+        let operation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { finish -> Cancellable in
             self.logger.debug("Delete current device...")
 
-            let task = self.devicesProxy.deleteDevice(
+            return self.devicesProxy.deleteDevice(
                 accountNumber: accountData.number,
                 identifier: deviceData.identifier,
                 retryStrategy: .default
@@ -286,11 +265,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     break
                 }
 
-                operation.finish(error: result.error)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
+                finish(result.error)
             }
         }
 
@@ -298,7 +273,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     private func getUnsetDeviceStateOperation() -> AsyncBlockOperation {
-        return AsyncBlockOperation(dispatchQueue: dispatchQueue) { operation in
+        return AsyncBlockOperation(dispatchQueue: dispatchQueue) { finish in
             // Tell the caller to unsubscribe from VPN status notifications.
             self.interactor.prepareForVPNConfigurationDeletion()
 
@@ -311,7 +286,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
             // Finish immediately if tunnel provider is not set.
             guard let tunnel = self.interactor.tunnel else {
-                operation.finish()
+                finish(nil)
                 return
             }
 
@@ -328,21 +303,17 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
                     self.interactor.setTunnel(nil, shouldRefreshTunnelState: false)
 
-                    operation.finish()
+                    finish(nil)
                 }
             }
         }
     }
 
-    private func getCreateDeviceOperation()
-        -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)>
-    {
-        let createDeviceOperation = TransformOperation<
-            StoredAccountData,
-            (PrivateKey, REST.Device)
-        >(dispatchQueue: dispatchQueue)
-
-        createDeviceOperation.setExecutionBlock { storedAccountData, operation in
+    private func getCreateDeviceOperation() -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)> {
+        return TransformOperation<StoredAccountData, (
+            PrivateKey,
+            REST.Device
+        )>(dispatchQueue: dispatchQueue) { storedAccountData, finish -> Cancellable in
             self.logger.debug("Store last used account.")
 
             do {
@@ -363,7 +334,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                 hijackDNS: false
             )
 
-            let task = self.devicesProxy.createDevice(
+            return self.devicesProxy.createDevice(
                 accountNumber: storedAccountData.number,
                 request: request,
                 retryStrategy: .default
@@ -376,26 +347,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                         self.logger.error(error: error, message: "Failed to create device.")
                     }
 
-                operation.finish(result: result)
-            }
-
-            operation.addCancellationBlock {
-                task.cancel()
+                finish(result)
             }
         }
-
-        return createDeviceOperation
     }
 
-    private func getSaveSettingsOperation()
-        -> TransformOperation<SetAccountResult, StoredAccountData>
-    {
-        let saveSettingsOperation = TransformOperation<
-            SetAccountResult,
-            StoredAccountData
-        >(dispatchQueue: dispatchQueue)
-
-        saveSettingsOperation.setExecutionBlock { input in
+    private func getSaveSettingsOperation() -> TransformOperation<SetAccountResult, StoredAccountData> {
+        return TransformOperation<SetAccountResult, StoredAccountData>(dispatchQueue: dispatchQueue) { input in
             self.logger.debug("Saving settings...")
 
             let device = input.device
@@ -421,7 +379,5 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
             return input.accountData
         }
-
-        return saveSettingsOperation
     }
 }
