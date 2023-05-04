@@ -105,6 +105,13 @@ class OutOfTimeContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func enableDisconnectButton(_ enabled: Bool, animated: Bool) {
+        disconnectButton.isEnabled = enabled
+        UIView.animate(withDuration: animated ? 0.25 : 0) {
+            self.disconnectButton.alpha = enabled ? 1 : 0
+        }
+    }
+
     // MARK: - Private Functions
 
     func setUpSubviews() {
