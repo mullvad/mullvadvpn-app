@@ -27,10 +27,9 @@ class CustomDateComponentsFormattingTests: XCTestCase {
 
     func testLessThanTwoYearsFormatting() throws {
         var dateComponents = DateComponents()
-        dateComponents.year = 2
+        dateComponents.day = 365
 
-        var (startDate, endDate) = makeDateRange(addingComponents: dateComponents)
-        endDate = endDate.addingTimeInterval(-1)
+        let (startDate, endDate) = makeDateRange(addingComponents: dateComponents)
 
         let result = CustomDateComponentsFormatting.localizedString(
             from: startDate,
@@ -39,8 +38,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
             unitsStyle: .full
         )
 
-        let expectedDays = calendar.dateComponents([.day], from: startDate, to: endDate).day ?? 0
-        XCTAssertEqual(result, "\(expectedDays) days")
+        XCTAssertEqual(result, "365 days")
     }
 
     func testCloseToOneDayFormatting() throws {

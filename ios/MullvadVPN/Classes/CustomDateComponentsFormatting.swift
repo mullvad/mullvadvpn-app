@@ -24,22 +24,14 @@ extension CustomDateComponentsFormatting {
         calendar: Calendar = Calendar.current,
         unitsStyle: DateComponentsFormatter.UnitsStyle
     ) -> String? {
+        let years = calendar.dateComponents([.year], from: start, to: max(start, end)).year ?? 0
+
         let formatter = DateComponentsFormatter()
         formatter.calendar = calendar
         formatter.unitsStyle = unitsStyle
         formatter.maximumUnitCount = 1
+        formatter.allowedUnits = years >= 2 ? .year : .day
 
-        let dateComponents = calendar.dateComponents([.year, .day], from: start, to: end)
-        let years = dateComponents.year ?? 0
-        let days = dateComponents.day ?? 0
-
-        if years >= 2 {
-            formatter.allowedUnits = [.year]
-            return formatter.string(from: dateComponents)
-        } else if days > 0 {
-            formatter.allowedUnits = [.day]
-            return formatter.string(from: start, to: end)
-        }
-        return formatter.string(from: DateComponents(calendar: calendar, day: 0))
+        return formatter.string(from: start, to: end)
     }
 }
