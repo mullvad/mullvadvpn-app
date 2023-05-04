@@ -1,14 +1,13 @@
 use std::{
     collections::VecDeque,
     mem::size_of,
-    num::NonZeroU16,
     os::unix::prelude::{FromRawFd, RawFd},
     pin::Pin,
     task::{ready, Context, Poll},
 };
 
 use nix::{
-    fcntl::{self, OFlag},
+    fcntl,
     sys::socket::{socket, AddressFamily, SockFlag, SockType},
 };
 use std::{
@@ -16,14 +15,9 @@ use std::{
     io::{self, Read, Write},
 };
 
-use super::data::{
-    rt_msghdr_short, AddressFlag, MessageType, RouteFlag, RouteMessage, RouteSocketAddress,
-};
+use super::data::{rt_msghdr_short, MessageType, RouteMessage};
 
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
-
-/// Routing socket interface version
-const RTM_VERSION: libc::c_uchar = 5;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -39,10 +33,13 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Wraps a `PF_ROUTE` socket, keeps track of sent message IDs, and facilitates sending and
+/// receiving [route socket messages](#RouteMessage)
 pub struct RoutingSocket {
     socket: RoutingSocketInner,
     seq: i32,
     // buffers up messages received whilst waiting on a response
+    // TODO: might we want to limit the max size of this?
     buf: VecDeque<Vec<u8>>,
     own_pid: i32,
 }
@@ -77,16 +74,13 @@ impl RoutingSocket {
         let (msg, seq) = self.next_route_msg(message, message_type);
         match self.socket.write(&msg).await {
             Ok(_) => self.wait_for_response(seq).await,
-            Err(err) => {
-                self.seq -= 1;
-                Err(Error::WriteError(err))
-            }
+            Err(err) => Err(Error::WriteError(err)),
         }
     }
 
     pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
-            let mut buffer = vec![0u8; 2024];
+            let mut buffer = vec![0u8; 2048];
             // do not truncate the buffer - trailing empty bytes won't be written but will be
             // assumed in the data format.
             let bytes_read = self.read_next_msg(&mut buffer).await?;
@@ -107,7 +101,7 @@ impl RoutingSocket {
     /// Will panic if the message length ends up overflowing an i32.
     fn next_route_msg(&mut self, message: &RouteMessage, msg_type: MessageType) -> (Vec<u8>, i32) {
         let seq = self.seq;
-        self.seq += 1;
+        self.seq = seq.wrapping_add(1);
 
         let (header, payload) = message.payload(msg_type, seq, self.own_pid);
         let mut msg_buffer = vec![0u8; header.rtm_msglen.into()];
@@ -151,7 +145,7 @@ impl RoutingSocketInner {
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
-                Err(err) => continue,
+                Err(_err) => continue,
             }
         }
     }

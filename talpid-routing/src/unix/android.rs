@@ -1,6 +1,5 @@
-use crate::{imp::RouteManagerCommand, RequiredRoute};
+use crate::imp::RouteManagerCommand;
 use futures::{channel::mpsc, stream::StreamExt};
-use std::collections::HashSet;
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
@@ -12,7 +11,7 @@ pub struct RouteManagerImpl {}
 
 impl RouteManagerImpl {
     #[allow(clippy::unused_async)]
-    pub async fn new(_required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
+    pub async fn new() -> Result<Self, Error> {
         Ok(RouteManagerImpl {})
     }
 
