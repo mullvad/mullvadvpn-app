@@ -660,7 +660,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let navigationController = CustomNavigationController()
         let coordinator = SettingsCoordinator(
             navigationController: navigationController,
-            interactorFactory: interactorFactory
+            interactorFactory: interactorFactory,
+            relayCacheTracker: relayCacheTracker
         )
 
         coordinator.didFinish = { [weak self] coordinator in
