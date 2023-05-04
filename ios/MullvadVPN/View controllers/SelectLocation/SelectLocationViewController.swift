@@ -114,7 +114,7 @@ final class SelectLocationViewController: UIViewController {
             comment: ""
         )
 
-        UISearchBar.SearchBarAppearance.inactive.apply(to: searchBar)
+        UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }
 }
 
@@ -124,10 +124,10 @@ extension SelectLocationViewController: UISearchBarDelegate {
     }
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        UISearchBar.SearchBarAppearance.active.apply(to: searchBar)
+        UITextField.SearchTextFieldAppearance.active.apply(to: searchBar)
     }
 
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        UISearchBar.SearchBarAppearance.inactive.apply(to: searchBar)
+        UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }
 }
