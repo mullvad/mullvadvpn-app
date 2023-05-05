@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TunnelCoordinator: Coordinator, NotificationManagerDelegate {
+class TunnelCoordinator: Coordinator {
     private let tunnelManager: TunnelManager
     private let controller: TunnelViewController
 
@@ -44,22 +44,11 @@ class TunnelCoordinator: Coordinator, NotificationManagerDelegate {
         tunnelManager.addObserver(tunnelObserver)
 
         updateVisibility(animated: false)
-
-        NotificationManager.shared.delegate = self
     }
 
     private func updateVisibility(animated: Bool) {
         let deviceState = tunnelManager.deviceState
 
         controller.setMainContentHidden(!deviceState.isLoggedIn, animated: animated)
-    }
-
-    // MARK: - NotificationManagerDelegate
-
-    func notificationManagerDidUpdateInAppNotifications(
-        _ manager: NotificationManager,
-        notifications: [InAppNotificationDescriptor]
-    ) {
-        controller.notificationController.setNotifications(notifications, animated: true)
     }
 }
