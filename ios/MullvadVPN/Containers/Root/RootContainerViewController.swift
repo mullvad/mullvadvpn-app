@@ -707,6 +707,62 @@ class RootContainerViewController: UIViewController {
         // Tell accessibility that the significant part of screen was changed.
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
+
+    // MARK: - Notification controller support
+
+    /**
+     An instance of notification controller presented within container.
+     */
+    var notificationController: NotificationController? {
+        didSet {
+            guard oldValue != notificationController else { return }
+
+            oldValue.flatMap { removeNotificationController($0) }
+            notificationController.flatMap { addNotificationController($0) }
+        }
+    }
+
+    /**
+     Layout guide for notification view.
+
+     When set, notification view follows the layout guide that defines its dimensions and position, otherwise it's
+     laid out within container's safe area.
+     */
+    var notificationViewLayoutGuide: UILayoutGuide? {
+        didSet {
+            notificationController.flatMap { updateNotificationViewConstraints($0) }
+        }
+    }
+
+    private var notificationViewConstraints: [NSLayoutConstraint] = []
+
+    private func updateNotificationViewConstraints(_ notificationController: NotificationController) {
+        let newConstraints = notificationController.view
+            .pinEdgesTo(notificationViewLayoutGuide ?? view.safeAreaLayoutGuide)
+
+        NSLayoutConstraint.deactivate(notificationViewConstraints)
+        NSLayoutConstraint.activate(newConstraints)
+
+        notificationViewConstraints = newConstraints
+    }
+
+    private func addNotificationController(_ notificationController: NotificationController) {
+        guard let notificationView = notificationController.view else { return }
+
+        notificationView.configureForAutoLayout()
+
+        addChild(notificationController)
+        view.addSubview(notificationView)
+        notificationController.didMove(toParent: self)
+
+        updateNotificationViewConstraints(notificationController)
+    }
+
+    private func removeNotificationController(_ notificationController: NotificationController) {
+        notificationController.willMove(toParent: nil)
+        notificationController.view.removeFromSuperview()
+        notificationController.removeFromParent()
+    }
 }
 
 /// A UIViewController extension that gives view controllers an access to root container

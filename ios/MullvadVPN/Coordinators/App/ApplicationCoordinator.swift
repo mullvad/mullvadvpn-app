@@ -20,7 +20,7 @@ private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate
+    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate
 {
     /**
      Application router.
@@ -51,6 +51,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         isModalInPresentation: true,
         transitioningDelegate: SecondaryContextTransitioningDelegate()
     )
+
+    private let notificationController = NotificationController()
 
     private let splitViewController: CustomSplitViewController = {
         let svc = CustomSplitViewController()
@@ -104,12 +106,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         router = ApplicationRouter(self)
 
         addTunnelObserver()
+
+        NotificationManager.shared.delegate = self
     }
 
     func start() {
         if isPad {
             setupSplitView()
         }
+
+        setNotificationControllerParent(isPrimary: true)
 
         continueFlow(animated: false)
     }
@@ -335,6 +341,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
         if isPad, secondaryNavigationContainer.presentingViewController == nil {
             secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
+            addSecondaryContextPresentationStyleObserver()
 
             primaryNavigationContainer.present(
                 secondaryNavigationContainer,
@@ -356,10 +363,73 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      */
     private func endHorizontalFlow(animated: Bool = true, completion: (() -> Void)? = nil) {
         if isPad {
-            secondaryNavigationContainer.dismiss(animated: animated, completion: completion)
+            removeSecondaryContextPresentationStyleObserver()
+
+            secondaryNavigationContainer.dismiss(animated: animated) {
+                // Put notification controller back into primary container.
+                self.setNotificationControllerParent(isPrimary: true)
+
+                completion?()
+            }
         } else {
             completion?()
         }
+    }
+
+    /**
+     Assigns notification controller to either primary or secondary container making sure that only one of them holds
+     the reference.
+     */
+    private func setNotificationControllerParent(isPrimary: Bool) {
+        if isPrimary {
+            secondaryNavigationContainer.notificationController = nil
+            primaryNavigationContainer.notificationController = notificationController
+        } else {
+            primaryNavigationContainer.notificationController = nil
+            secondaryNavigationContainer.notificationController = notificationController
+        }
+    }
+
+    /**
+     Start observing secondary context presentation style which is in compact environment turns into fullscreen
+     and otherwise looks like formsheet.
+
+     In response to compact environment and fullscreen presentation, the observer re-assigns notification controller
+     from primary to secondary context to mimic the look and feel of iPhone app. The opposite is also true, that it
+     will make sure that notification controller is presented within primary context when secondary context is in
+     formsheet presentation style.
+     */
+    private func addSecondaryContextPresentationStyleObserver() {
+        removeSecondaryContextPresentationStyleObserver()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(formSheetControllerWillChangeFullscreenPresentation(_:)),
+            name: FormsheetPresentationController.willChangeFullScreenPresentation,
+            object: secondaryNavigationContainer
+        )
+    }
+
+    /**
+     Stop observing secondary context presentation style.
+     */
+    private func removeSecondaryContextPresentationStyleObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: FormsheetPresentationController.willChangeFullScreenPresentation,
+            object: secondaryNavigationContainer
+        )
+    }
+
+    /**
+     This method is called in response to changes in fullscreen presentation style of form sheet presentation
+     controller.
+     */
+    @objc private func formSheetControllerWillChangeFullscreenPresentation(_ note: Notification) {
+        guard let isFullscreenNumber = note
+            .userInfo?[SecondaryContextPresentationController.isFullScreenUserInfoKey] as? NSNumber else { return }
+
+        setNotificationControllerParent(isPrimary: !isFullscreenNumber.boolValue)
     }
 
     private var isPad: Bool {
@@ -383,6 +453,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         ]
 
         primaryNavigationContainer.setViewControllers([splitViewController], animated: false)
+
+        primaryNavigationContainer.notificationViewLayoutGuide = tunnelCoordinator.rootViewController.view
+            .safeAreaLayoutGuide
 
         tunnelCoordinator.start()
         selectLocationCoordinator.start()
@@ -788,6 +861,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             break
         }
         return true
+    }
+
+    // MARK: - NotificationManagerDelegate
+
+    func notificationManagerDidUpdateInAppNotifications(
+        _ manager: NotificationManager,
+        notifications: [InAppNotificationDescriptor]
+    ) {
+        notificationController.setNotifications(notifications, animated: true)
     }
 
     // MARK: - Presenting

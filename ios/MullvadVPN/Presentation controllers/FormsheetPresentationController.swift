@@ -16,6 +16,23 @@ private let animationDuration: TimeInterval = 0.5
  Custom implementation of a formsheet presentation controller.
  */
 class FormsheetPresentationController: UIPresentationController {
+    /**
+     Name of notification posted when fullscreen presentation changes, including during initial presentation.
+     */
+    static let willChangeFullScreenPresentation = Notification
+        .Name(rawValue: "FormsheetPresentationControllerWillChangeFullScreenPresentation")
+
+    /**
+     User info key passed along with `willChangeFullScreenPresentation` notification that contains boolean value that
+     indicates if presentation controller is using fullscreen presentation.
+     */
+    static let isFullScreenUserInfoKey = "isFullScreen"
+
+    /**
+     Last known presentation style used to prevent emitting duplicate `willChangeFullScreenPresentation` notifications.
+     */
+    private var lastKnownIsInFullScreen: Bool?
+
     private let dimmingView: UIView = {
         let dimmingView = UIView()
         dimmingView.backgroundColor = .black
@@ -85,6 +102,8 @@ class FormsheetPresentationController: UIPresentationController {
         } else {
             revealDimmingView()
         }
+
+        postFullscreenPresentationWillChangeIfNeeded()
     }
 
     override func presentationTransitionDidEnd(_ completed: Bool) {
@@ -111,6 +130,26 @@ class FormsheetPresentationController: UIPresentationController {
         if completed {
             dimmingView.removeFromSuperview()
         }
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        postFullscreenPresentationWillChangeIfNeeded()
+    }
+
+    private func postFullscreenPresentationWillChangeIfNeeded() {
+        let currentIsInFullScreen = isInFullScreenPresentation
+
+        guard lastKnownIsInFullScreen != currentIsInFullScreen else { return }
+
+        lastKnownIsInFullScreen = currentIsInFullScreen
+
+        NotificationCenter.default.post(
+            name: Self.willChangeFullScreenPresentation,
+            object: presentedViewController,
+            userInfo: [Self.isFullScreenUserInfoKey: NSNumber(booleanLiteral: currentIsInFullScreen)]
+        )
     }
 }
 
