@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
 - Fix content blockers expand state not being kept when returning from split tunneling.
+- Fix content fragment headerbar flicker.
 
 
 ## [2023.4-beta1] - 2023-05-02
