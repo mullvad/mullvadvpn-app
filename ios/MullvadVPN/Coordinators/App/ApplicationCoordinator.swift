@@ -20,7 +20,7 @@ private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate
+    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate
 {
     /**
      Application router.
@@ -51,6 +51,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         isModalInPresentation: true,
         transitioningDelegate: SecondaryContextTransitioningDelegate()
     )
+
+    private let notificationController = NotificationController()
 
     private let splitViewController: CustomSplitViewController = {
         let svc = CustomSplitViewController()
@@ -104,12 +106,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         router = ApplicationRouter(self)
 
         addTunnelObserver()
+
+        NotificationManager.shared.delegate = self
     }
 
     func start() {
         if isPad {
             setupSplitView()
         }
+
+        primaryNavigationContainer.notificationController = notificationController
 
         continueFlow(animated: false)
     }
@@ -383,6 +389,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         ]
 
         primaryNavigationContainer.setViewControllers([splitViewController], animated: false)
+
+        primaryNavigationContainer.notificationViewLayoutGuide = tunnelCoordinator.rootViewController.view
+            .safeAreaLayoutGuide
 
         tunnelCoordinator.start()
         selectLocationCoordinator.start()
@@ -788,6 +797,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             break
         }
         return true
+    }
+
+    // MARK: - NotificationManagerDelegate
+
+    func notificationManagerDidUpdateInAppNotifications(
+        _ manager: NotificationManager,
+        notifications: [InAppNotificationDescriptor]
+    ) {
+        notificationController.setNotifications(notifications, animated: true)
     }
 
     // MARK: - Presenting

@@ -20,7 +20,6 @@ class TunnelViewController: UIViewController, RootContainment {
 
     var shouldShowSelectLocationPicker: (() -> Void)?
 
-    let notificationController = NotificationController()
     private let mapViewController = MapViewController()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -82,7 +81,6 @@ class TunnelViewController: UIViewController, RootContainment {
 
         addMapController()
         addContentView()
-        addNotificationController()
 
         tunnelState = interactor.tunnelStatus.state
         updateContentView(animated: false)
@@ -177,22 +175,6 @@ class TunnelViewController: UIViewController, RootContainment {
             mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-    }
-
-    private func addNotificationController() {
-        let notificationView = notificationController.view!
-        notificationView.translatesAutoresizingMaskIntoConstraints = false
-
-        addChild(notificationController)
-        view.addSubview(notificationView)
-        notificationController.didMove(toParent: self)
-
-        NSLayoutConstraint.activate([
-            notificationView.topAnchor.constraint(equalTo: view.topAnchor),
-            notificationView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            notificationView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            notificationView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 
