@@ -11,15 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -33,18 +24,13 @@ import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
-import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton
 import net.mullvad.mullvadvpn.util.JobTracker
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
-import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.android.ext.android.inject
@@ -83,7 +69,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
         headerBar =
             view.findViewById<HeaderBar>(R.id.header_bar).apply {
-                tunnelState = TunnelState.Disconnected
+                tunnelState = connectViewModel.tunnelState.value.second
             }
 
         accountExpiryNotification.onClick = {
@@ -136,17 +122,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
     }
 
-    val shared =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    flowOf(state.container)
-                } else {
-                    emptyFlow()
-                }
-            }
-            .shareIn(lifecycleScope, SharingStarted.WhileSubscribed())
-
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launchLocationSubscription()
@@ -159,49 +134,26 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun CoroutineScope.launchLocationSubscription() = launch {
-        shared
-            .flatMapLatest { it.locationInfoCache.locationCallbackFlow() }
-            .collect { locationInfo.location = it }
-    }
-
-    private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
-        onNewLocation = { this.trySend(it) }
-        awaitClose { onNewLocation = null }
+        connectViewModel.location.collect { location -> locationInfo.location = location }
     }
 
     private fun CoroutineScope.launchRelayLocationSubscription() = launch {
-        shared
-            .flatMapLatest { it.relayListListener.relayListCallbackFlow() }
-            .collect { switchLocationButton.location = it }
-    }
-
-    private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
-        onRelayListChange = { _, item -> this.trySend(item) }
-        awaitClose { onRelayListChange = null }
+        connectViewModel.relayLocation.collect { relayLocation ->
+            switchLocationButton.location = relayLocation
+        }
     }
 
     private fun CoroutineScope.launchTunnelStateSubscription() = launch {
-        shared
-            .flatMapLatest {
-                combine(
-                    callbackFlowFromNotifier(it.connectionProxy.onUiStateChange),
-                    callbackFlowFromNotifier(it.connectionProxy.onStateChange)
-                ) { uiState, realState ->
-                    Pair(uiState, realState)
-                }
-            }
-            // Fix to avoid wrong notification shown due to very frequent tunnel state updates.
-            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
-            .collect { (uiState, realState) ->
-                tunnelStateNotification.updateTunnelState(uiState)
-                updateTunnelState(uiState, realState)
-            }
+        connectViewModel.tunnelState.collect { (uiState, realState) ->
+            tunnelStateNotification.updateTunnelState(uiState)
+            updateTunnelState(uiState, realState)
+        }
     }
 
     private fun CoroutineScope.launchVersionInfoSubscription() = launch {
-        shared
-            .flatMapLatest { it.appVersionInfoCache.appVersionCallbackFlow() }
-            .collect { versionInfo -> versionInfoNotification.updateVersionInfo(versionInfo) }
+        connectViewModel.versionInfo.collect { versionInfo ->
+            versionInfo?.let { versionInfoNotification.updateVersionInfo(versionInfo) }
+        }
     }
 
     private fun CoroutineScope.launchAccountExpirySubscription() = launch {
