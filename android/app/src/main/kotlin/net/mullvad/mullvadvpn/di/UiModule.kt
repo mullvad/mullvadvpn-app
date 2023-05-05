@@ -80,7 +80,7 @@ val uiModule = module {
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     // View models
-    viewModel { ConnectViewModel() }
+    viewModel { ConnectViewModel(get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get()) }
