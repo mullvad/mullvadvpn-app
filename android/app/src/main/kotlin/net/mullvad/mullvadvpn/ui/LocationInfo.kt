@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
@@ -37,6 +38,7 @@ class LocationInfo(
 
     var location: GeoIpLocation? = null
         set(value) {
+            Log.d("LOLZ", "${value?.country} ${value?.city} ${value?.hostname}")
             field = value
 
             country.text = value?.country ?: ""
