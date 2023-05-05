@@ -191,7 +191,7 @@ open class MainActivity : FragmentActivity() {
                 R.anim.do_nothing,
                 R.anim.fragment_exit_to_bottom
             )
-            replace(R.id.main_fragment, SettingsFragment())
+            add(R.id.main_fragment, SettingsFragment())
             addToBackStack(null)
             commitAllowingStateLoss()
         }

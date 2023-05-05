@@ -67,6 +67,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private lateinit var status: ConnectionStatus
     private lateinit var locationInfo: LocationInfo
 
+    private var realTunnelState: TunnelState? = null
+
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +85,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
         headerBar =
             view.findViewById<HeaderBar>(R.id.header_bar).apply {
-                tunnelState = TunnelState.Disconnected
+                tunnelState =
+                    savedInstanceState?.getParcelable(REAL_TUNNEL_STATE_ARG)
+                        ?: TunnelState.Disconnected
             }
 
         accountExpiryNotification.onClick = {
@@ -134,6 +138,11 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     override fun onResume() {
         super.onResume()
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(REAL_TUNNEL_STATE_ARG, realTunnelState)
     }
 
     val shared =
@@ -227,6 +236,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         if (realState.isTunnelErrorStateDueToExpiredAccount()) {
             openOutOfTimeScreen()
         }
+
+        realTunnelState = realState
     }
 
     private fun openSwitchLocationScreen() {
@@ -237,7 +248,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 R.anim.do_nothing,
                 R.anim.fragment_exit_to_bottom
             )
-            replace(R.id.main_fragment, SelectLocationFragment())
+            add(R.id.main_fragment, SelectLocationFragment())
             addToBackStack(null)
             commitAllowingStateLoss()
         }
@@ -260,5 +271,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     companion object {
         const val TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS: Long = 200
+        const val REAL_TUNNEL_STATE_ARG = "arg.real_tunnel_state"
     }
 }
