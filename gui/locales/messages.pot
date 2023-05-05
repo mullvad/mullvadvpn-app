@@ -1680,6 +1680,9 @@ msgstr ""
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
+msgid "Manage account"
+msgstr ""
+
 msgid "Mullvad account number"
 msgstr ""
 

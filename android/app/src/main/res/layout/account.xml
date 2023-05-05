@@ -70,7 +70,7 @@
                 <Space android:layout_width="match_parent"
                        android:layout_height="0dp"
                        android:layout_weight="1" />
-                <include layout="@layout/payment_buttons" />
+                <include layout="@layout/account_buttons" />
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/logout"
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
