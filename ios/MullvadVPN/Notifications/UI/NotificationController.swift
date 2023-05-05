@@ -25,6 +25,7 @@ final class NotificationController: UIViewController {
 
     override func loadView() {
         view = NotificationContainerView(frame: UIScreen.main.bounds)
+        view.clipsToBounds = true
     }
 
     override func viewDidLoad() {
