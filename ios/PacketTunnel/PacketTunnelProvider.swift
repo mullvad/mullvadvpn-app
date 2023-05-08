@@ -143,10 +143,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger = Logger(label: "PacketTunnelProvider")
         tunnelLogger = Logger(label: "WireGuard")
 
+        let containerURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
         let addressCache = REST.AddressCache(
-            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
-            isReadOnly: true
-        )!
+            canWriteToCache: false, cacheFolder: containerURL
+        )
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)

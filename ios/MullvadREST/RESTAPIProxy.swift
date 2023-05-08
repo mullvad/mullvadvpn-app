@@ -37,7 +37,10 @@ extension REST {
                 )
             }
 
-            let responseHandler = REST.apiFilterResponseHandler(with: responseDecoder)
+            let responseHandler = REST.defaultResponseHandler(
+                decoding: [AnyIPEndpoint].self,
+                with: responseDecoder
+            )
 
             return addOperation(
                 name: "get-api-addrs",

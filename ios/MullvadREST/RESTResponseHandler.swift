@@ -68,31 +68,4 @@ extension REST {
             }
         }
     }
-
-    /// A response handler that parses a JSON response that produces an array of `AnyIPEndpoint`s
-    ///
-    /// All results but the first will be ignored.
-    /// - Parameter decoder: A JSON decoder
-    /// - Returns: An array containing the first endpoint found in `data`, or a default value in case none were
-    /// found.
-    static func apiFilterResponseHandler(
-        with decoder: JSONDecoder
-    ) -> AnyResponseHandler<[AnyIPEndpoint]> {
-        return AnyResponseHandler { response, data in
-            if HTTPStatus.isSuccess(response.statusCode) {
-                return .decoding {
-                    guard let result = try decoder.decode([AnyIPEndpoint].self, from: data).first
-                    else { return [defaultAPIEndpoint] }
-                    return [result]
-                }
-            } else {
-                return .unhandledResponse(
-                    try? decoder.decode(
-                        ServerErrorResponse.self,
-                        from: data
-                    )
-                )
-            }
-        }
-    }
 }

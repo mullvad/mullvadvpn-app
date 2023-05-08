@@ -51,10 +51,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         logger = Logger(label: "AppDelegate")
 
+        let containerURL = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
+
         addressCache = REST.AddressCache(
-            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
-            isReadOnly: false
-        )!
+            canWriteToCache: true, cacheFolder: containerURL
+        )
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in
