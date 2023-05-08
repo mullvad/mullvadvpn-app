@@ -48,11 +48,6 @@
                                                               android:layout_height="wrap_content"
                                                               android:layout_marginTop="@dimen/vertical_space"
                                                               mullvad:text="@string/settings_account" />
-                <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/preferences"
-                                                               android:layout_width="match_parent"
-                                                               android:layout_height="wrap_content"
-                                                               android:layout_marginTop="1dp"
-                                                               mullvad:text="@string/settings_preferences" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/advanced"
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
