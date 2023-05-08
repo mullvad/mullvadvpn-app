@@ -5,6 +5,8 @@ import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 
 data class AdvancedSettingsViewModelState(
     val mtuValue: String,
+    val isAutoConnectEnabled: Boolean,
+    val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
     val isAllowLanEnabled: Boolean,
     val customDnsList: List<CustomDnsItem>,
@@ -16,6 +18,8 @@ data class AdvancedSettingsViewModelState(
             is AdvancedSettingsDialogState.MtuDialog ->
                 AdvancedSettingsUiState.MtuDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -25,15 +29,29 @@ data class AdvancedSettingsViewModelState(
             is AdvancedSettingsDialogState.DnsDialog ->
                 AdvancedSettingsUiState.DnsDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     stagedDns = dialogState.stagedDns
                 )
+            is AdvancedSettingsDialogState.LocalNetworkSharingInfoDialog ->
+                AdvancedSettingsUiState.LocalNetworkSharingInfoDialogUiState(
+                    mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions
+                )
             is AdvancedSettingsDialogState.ContentBlockersInfoDialog ->
                 AdvancedSettingsUiState.ContentBlockersInfoDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -42,6 +60,8 @@ data class AdvancedSettingsViewModelState(
             is AdvancedSettingsDialogState.CustomDnsInfoDialog ->
                 AdvancedSettingsUiState.CustomDnsInfoDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -50,6 +70,8 @@ data class AdvancedSettingsViewModelState(
             is AdvancedSettingsDialogState.MalwareInfoDialog ->
                 AdvancedSettingsUiState.MalwareInfoDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -58,6 +80,8 @@ data class AdvancedSettingsViewModelState(
             else ->
                 AdvancedSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -72,6 +96,8 @@ data class AdvancedSettingsViewModelState(
         fun default() =
             AdvancedSettingsViewModelState(
                 mtuValue = EMPTY_STRING,
+                isAutoConnectEnabled = false,
+                isLocalNetworkSharingEnabled = false,
                 isCustomDnsEnabled = false,
                 customDnsList = listOf(),
                 contentBlockersOptions = DefaultDnsOptions(),
@@ -87,6 +113,8 @@ sealed class AdvancedSettingsDialogState {
     data class MtuDialog(val mtuEditValue: String) : AdvancedSettingsDialogState()
 
     data class DnsDialog(val stagedDns: StagedDns) : AdvancedSettingsDialogState()
+
+    object LocalNetworkSharingInfoDialog : AdvancedSettingsDialogState()
 
     object ContentBlockersInfoDialog : AdvancedSettingsDialogState()
 

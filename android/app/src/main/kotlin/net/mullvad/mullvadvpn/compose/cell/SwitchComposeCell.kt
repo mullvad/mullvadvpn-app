@@ -46,6 +46,7 @@ private fun PreviewSwitchComposeCell() {
 fun SwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    subtitle: String? = null,
     isEnabled: Boolean = true,
     background: Color = MullvadBlue,
     onCellClicked: (Boolean) -> Unit = {},
@@ -57,21 +58,22 @@ fun SwitchComposeCell(
         title = {
             SwitchCellTitle(
                 title = title,
-                modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
+                modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive),
             )
         },
+        subtitle = getCellSubtitle(content = subtitle),
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
                 onSwitchClicked = null,
                 isEnabled = isEnabled,
                 isToggled = isToggled,
-                onInfoClicked = onInfoClicked
+                onInfoClicked = onInfoClicked,
             )
         },
         background = background,
         onCellClicked = { onCellClicked(!isToggled) },
-        subtitleModifier = subtitleModifier
+        subtitleModifier = subtitleModifier,
     )
 }
 
@@ -84,7 +86,7 @@ fun SwitchCellTitle(title: String, modifier: Modifier) {
         fontWeight = FontWeight.Bold,
         fontSize = textSize,
         color = MullvadWhite,
-        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
+        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight(),
     )
 }
 
@@ -115,11 +117,27 @@ fun SwitchCellView(
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
-                tint = MullvadWhite
+                tint = MullvadWhite,
             )
         }
 
         CellSwitch(isChecked = isToggled, isEnabled = isEnabled, onCheckedChange = onSwitchClicked)
+    }
+}
+
+@Composable
+fun getCellSubtitle(content: String?): @Composable (() -> Unit)? {
+    val textSize = dimensionResource(id = R.dimen.text_small).value.sp
+    return if (content != null) {
+        {
+            Text(
+                text = content,
+                fontSize = textSize,
+                color = MullvadWhite60,
+            )
+        }
+    } else {
+        null
     }
 }
 
@@ -134,10 +152,10 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
                     R.string.custom_dns_footer
                 } else {
                     R.string.custom_dns_disable_mode_subtitle
-                }
+                },
             ),
         textSize = textSize,
         textColor = MullvadWhite60.toArgb(),
-        modifier = modifier
+        modifier = modifier,
     )
 }
