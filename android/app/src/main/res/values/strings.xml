@@ -186,4 +186,17 @@
     </string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
+    <string name="local_network_sharing_info">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</string>
+    <string name="local_network_sharing_additional_info">It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</string>
+    <string name="local_network_sharing_ip_ranges">
+        <![CDATA[<ul>
+                <li>10.0.0.0/8</li>
+                <li>172.16.0.0/12</li>
+                <li>192.168.0.0/16</li>
+                <li>169.254.0.0/16</li>
+                <li>0xfe80::/10</li>
+                <li>0xfc00::/7</li>
+              </ul>]]>
+    </string>
+
 </resources>
