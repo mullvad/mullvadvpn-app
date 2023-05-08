@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Rename "Advanced settings" to "VPN Settings".
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
+- Migrate split tunneling view to compose.
 
 ### Fixed
 #### Android
