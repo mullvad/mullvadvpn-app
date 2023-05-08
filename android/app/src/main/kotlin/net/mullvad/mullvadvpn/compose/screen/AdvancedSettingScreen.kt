@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
+import net.mullvad.mullvadvpn.compose.dialog.LocalNetworkSharingInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
@@ -71,6 +72,7 @@ private fun PreviewAdvancedSettings() {
     AdvancedSettingScreen(
         uiState =
             AdvancedSettingsUiState.DefaultUiState(
+                isAutoConnectEnabled = true,
                 mtu = "1337",
                 isCustomDnsEnabled = true,
                 customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
@@ -81,6 +83,8 @@ private fun PreviewAdvancedSettings() {
         onRestoreMtuClick = {},
         onCancelMtuDialogClicked = {},
         onSplitTunnelingNavigationClick = {},
+        onToggleAutoConnect = {},
+        onToggleLocalNetworkSharing = {},
         onToggleDnsClick = {},
         onToggleBlockAds = {},
         onToggleBlockTrackers = {},
@@ -92,12 +96,13 @@ private fun PreviewAdvancedSettings() {
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
+        onLocalNetworkSharingInfoClick = {},
         onContentsBlockersInfoClicked = {},
         onMalwareInfoClicked = {},
         onCustomDnsInfoClicked = {},
         onDismissInfoClicked = {},
         onBackClick = {},
-        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
     )
 }
 
@@ -113,6 +118,8 @@ fun AdvancedSettingScreen(
     onRestoreMtuClick: () -> Unit = {},
     onCancelMtuDialogClicked: () -> Unit = {},
     onSplitTunnelingNavigationClick: () -> Unit = {},
+    onToggleAutoConnect: (Boolean) -> Unit = {},
+    onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockTrackers: (Boolean) -> Unit = {},
@@ -124,6 +131,7 @@ fun AdvancedSettingScreen(
     onSaveDnsClick: () -> Unit = {},
     onRemoveDnsClick: () -> Unit = {},
     onCancelDnsDialogClick: () -> Unit = {},
+    onLocalNetworkSharingInfoClick: () -> Unit = {},
     onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
     onCustomDnsInfoClicked: () -> Unit = {},
@@ -142,7 +150,7 @@ fun AdvancedSettingScreen(
                 onMtuValueChanged = { onMtuInputChange(it) },
                 onSave = { onSaveMtuClick() },
                 onRestoreDefaultValue = { onRestoreMtuClick() },
-                onDismiss = { onCancelMtuDialogClicked() }
+                onDismiss = { onCancelMtuDialogClicked() },
             )
         }
         is AdvancedSettingsUiState.DnsDialogUiState -> {
@@ -152,8 +160,11 @@ fun AdvancedSettingScreen(
                 onIpAddressChanged = { onDnsInputChange(it) },
                 onAttemptToSave = { onSaveDnsClick() },
                 onRemove = { onRemoveDnsClick() },
-                onDismiss = { onCancelDnsDialogClick() }
+                onDismiss = { onCancelDnsDialogClick() },
             )
+        }
+        is AdvancedSettingsUiState.LocalNetworkSharingInfoDialogUiState -> {
+            LocalNetworkSharingInfoDialog(onDismissInfoClicked)
         }
         is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
             ContentBlockersInfoDialog(onDismissInfoClicked)
@@ -186,7 +197,7 @@ fun AdvancedSettingScreen(
             val scaffoldModifier =
                 Modifier.road(
                     whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
+                    whenExpanded = Alignment.BottomStart,
                 )
             CollapsingTopBar(
                 backgroundColor = MullvadDarkBlue,
@@ -194,7 +205,7 @@ fun AdvancedSettingScreen(
                 title = stringResource(id = R.string.settings_advanced),
                 progress = progress,
                 modifier = scaffoldModifier,
-                backTitle = stringResource(id = R.string.settings)
+                backTitle = stringResource(id = R.string.settings),
             )
         },
     ) {
@@ -219,14 +230,37 @@ fun AdvancedSettingScreen(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .animateContentSize(),
-            state = lazyListState
+            state = lazyListState,
         ) {
-            item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                SwitchComposeCell(
+                    title = stringResource(R.string.auto_connect),
+                    subtitle = stringResource(id = R.string.auto_connect_footer),
+                    isToggled = uiState.isAutoConnectEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) },
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                SwitchComposeCell(
+                    title = stringResource(R.string.local_network_sharing),
+                    isToggled = uiState.isAllowLanEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
+                    onInfoClicked = { onLocalNetworkSharingInfoClick() },
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
+            }
 
             itemWithDivider {
                 NavigationComposeCell(
                     title = stringResource(id = R.string.split_tunneling),
-                    onClick = { onSplitTunnelingNavigationClick.invoke() }
+                    onClick = { onSplitTunnelingNavigationClick.invoke() },
                 )
             }
 
@@ -236,7 +270,7 @@ fun AdvancedSettingScreen(
                     isExpanded = !expandContentBlockersState,
                     isEnabled = !uiState.isCustomDnsEnabled,
                     onInfoClicked = { onContentsBlockersInfoClicked() },
-                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
+                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState },
                 )
             }
 
@@ -247,7 +281,7 @@ fun AdvancedSettingScreen(
                         isToggled = uiState.contentBlockersOptions.blockAds,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAds(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
                     )
                 }
                 itemWithDivider {
@@ -256,7 +290,7 @@ fun AdvancedSettingScreen(
                         isToggled = uiState.contentBlockersOptions.blockTrackers,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
                     )
                 }
                 itemWithDivider {
@@ -266,7 +300,7 @@ fun AdvancedSettingScreen(
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockMalware(it) },
                         onInfoClicked = { onMalwareInfoClicked() },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
                     )
                 }
                 itemWithDivider {
@@ -275,7 +309,7 @@ fun AdvancedSettingScreen(
                         isToggled = uiState.contentBlockersOptions.blockGambling,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockGambling(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
                     )
                 }
                 itemWithDivider {
@@ -284,7 +318,7 @@ fun AdvancedSettingScreen(
                         isToggled = uiState.contentBlockersOptions.blockAdultContent,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
                     )
                 }
 
@@ -296,8 +330,8 @@ fun AdvancedSettingScreen(
                                     start = cellHorizontalSpacing,
                                     top = topPadding,
                                     end = cellHorizontalSpacing,
-                                    bottom = cellVerticalSpacing
-                                )
+                                    bottom = cellVerticalSpacing,
+                                ),
                         )
                     }
                 }
@@ -310,7 +344,7 @@ fun AdvancedSettingScreen(
                     isToggled = uiState.isCustomDnsEnabled,
                     isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
                     onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                    onInfoClicked = { onCustomDnsInfoClicked() }
+                    onInfoClicked = { onCustomDnsInfoClicked() },
                 )
             }
 
@@ -321,7 +355,7 @@ fun AdvancedSettingScreen(
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && uiState.isAllowLanEnabled.not(),
                         onClick = { onDnsClick(index) },
-                        modifier = Modifier.animateItemPlacement()
+                        modifier = Modifier.animateItemPlacement(),
                     )
                     Divider()
                 }
@@ -353,7 +387,7 @@ fun AdvancedSettingScreen(
                                 top = topPadding,
                                 end = cellHorizontalSpacing,
                                 bottom = cellVerticalSpacing,
-                            )
+                            ),
                 )
             }
         }
