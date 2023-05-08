@@ -24,7 +24,10 @@ extension CustomDateComponentsFormatting {
         calendar: Calendar = Calendar.current,
         unitsStyle: DateComponentsFormatter.UnitsStyle
     ) -> String? {
-        let years = calendar.dateComponents([.year], from: start, to: max(start, end)).year ?? 0
+        let now = Date()
+        let startDate = start
+        let endDate = end < now ? now : end
+        let years = calendar.dateComponents([.year], from: startDate, to: endDate).year ?? 0
 
         let formatter = DateComponentsFormatter()
         formatter.calendar = calendar
@@ -32,6 +35,6 @@ extension CustomDateComponentsFormatting {
         formatter.maximumUnitCount = 1
         formatter.allowedUnits = years >= 2 ? .year : .day
 
-        return formatter.string(from: start, to: end)
+        return formatter.string(from: startDate, to: endDate)
     }
 }
