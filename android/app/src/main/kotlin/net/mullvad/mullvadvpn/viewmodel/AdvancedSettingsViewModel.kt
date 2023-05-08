@@ -210,6 +210,22 @@ class AdvancedSettingsViewModel(
             hideDialog()
         }
 
+    fun onToggleAutoConnect(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository.setAutoConnect(
+                isEnabled
+            )
+        }
+    }
+
+    fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository.setLocalNetworkSharing(
+                isEnabled
+            )
+        }
+    }
+
     fun onToggleDnsClick(isEnabled: Boolean) {
         updateCustomDnsState(isEnabled)
         showApplySettingChangesWarningToast()
