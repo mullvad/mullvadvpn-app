@@ -1611,6 +1611,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "<ul><li>10.0.0.0/8</li><li>172.16.0.0/12</li><li>192.168.0.0/16</li><li>169.254.0.0/16</li><li>0xfe80::/10</li><li>0xfc00::/7</li></ul>"
+msgstr ""
+
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
