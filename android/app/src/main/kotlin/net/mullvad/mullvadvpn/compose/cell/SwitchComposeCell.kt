@@ -46,33 +46,35 @@ private fun PreviewSwitchComposeCell() {
 fun SwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    subtitle: String? = null,
     isEnabled: Boolean = true,
     background: Color = MullvadBlue,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val subtitleModifier = Modifier
-
-    BaseCell(
-        title = {
-            SwitchCellTitle(
-                title = title,
-                modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
-            )
-        },
-        isRowEnabled = isEnabled,
-        bodyView = {
-            SwitchCellView(
-                onSwitchClicked = null,
-                isEnabled = isEnabled,
-                isToggled = isToggled,
-                onInfoClicked = onInfoClicked
-            )
-        },
-        background = background,
-        onCellClicked = { onCellClicked(!isToggled) },
-        subtitleModifier = subtitleModifier
-    )
+    Modifier.also {
+        BaseCell(
+            title = {
+                SwitchCellTitle(
+                    title = title,
+                    modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
+                )
+            },
+            subtitle = subtitle?.let { getCellSubtitle(content = subtitle) },
+            isRowEnabled = isEnabled,
+            bodyView = {
+                SwitchCellView(
+                    onSwitchClicked = null,
+                    isEnabled = isEnabled,
+                    isToggled = isToggled,
+                    onInfoClicked = onInfoClicked
+                )
+            },
+            background = background,
+            onCellClicked = { onCellClicked(!isToggled) },
+            subtitleModifier = it
+        )
+    }
 }
 
 @Composable
@@ -100,7 +102,7 @@ fun SwitchCellView(
     val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (onInfoClicked != null) {
             Icon(
@@ -110,7 +112,7 @@ fun SwitchCellView(
                             start = horizontalPadding,
                             end = horizontalPadding,
                             top = verticalPadding,
-                            bottom = verticalPadding,
+                            bottom = verticalPadding
                         )
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
@@ -121,6 +123,12 @@ fun SwitchCellView(
 
         CellSwitch(isChecked = isToggled, isEnabled = isEnabled, onCheckedChange = onSwitchClicked)
     }
+}
+
+@Composable
+fun getCellSubtitle(content: String): @Composable (() -> Unit) {
+    val textSize = dimensionResource(id = R.dimen.text_small).value.sp
+    return { Text(text = content, fontSize = textSize, color = MullvadWhite60) }
 }
 
 @Composable
