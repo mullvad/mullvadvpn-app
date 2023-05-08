@@ -103,6 +103,10 @@ class LoginViewController: UIViewController, RootContainment {
         return false
     }
 
+    var prefersNotificationBarHidden: Bool {
+        return true
+    }
+
     init(interactor: LoginInteractor) {
         self.interactor = interactor
         super.init(nibName: nil, bundle: nil)

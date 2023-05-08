@@ -735,7 +735,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
-        let configuration = RootConfigration(
+        let configuration = RootConfiguration(
             deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
             showsAccountButton: deviceState.isLoggedIn,
@@ -869,6 +869,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
+        let shouldShowDeviceInfo = !notifications
+            .contains(where: { $0.identifier == RegisteredDeviceInAppNotificationProvider.identifier })
+        updateView(deviceState: tunnelManager.deviceState, showDeviceInfo: shouldShowDeviceInfo)
         notificationController.setNotifications(notifications, animated: true)
     }
 

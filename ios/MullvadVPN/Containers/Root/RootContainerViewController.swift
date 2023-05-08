@@ -41,6 +41,15 @@ protocol RootContainment {
 
     /// Return true if the view controller prefers header bar hidden
     var prefersHeaderBarHidden: Bool { get }
+
+    /// Return true if the view controller prefers notification  bar hidden
+    var prefersNotificationBarHidden: Bool { get }
+}
+
+extension RootContainment {
+    var prefersNotificationBarHidden: Bool {
+        false
+    }
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject {
@@ -70,7 +79,7 @@ class RootContainerViewController: UIViewController {
     let transitionContainer = UIView(frame: UIScreen.main.bounds)
     private var presentationContainerAccountButton: UIButton?
     private var presentationContainerSettingsButton: UIButton?
-    private var configuration = RootConfigration(showsAccountButton: false, showsDeviceInfo: true)
+    private var configuration = RootConfiguration(showsAccountButton: false, showsDeviceInfo: true)
 
     private(set) var headerBarPresentation = HeaderBarPresentation.default
     private(set) var headerBarHidden = false
@@ -469,6 +478,12 @@ class RootContainerViewController: UIViewController {
                 {
                     self.endChildControllerTransition(sourceViewController)
                 }
+
+                self
+                    .hideNotificationView(
+                        (targetViewController as? RootContainment)?
+                            .prefersNotificationBarHidden ?? false
+                    )
             }
 
             // Notify the added controllers that they finished a transition into the container
@@ -763,6 +778,10 @@ class RootContainerViewController: UIViewController {
         notificationController.view.removeFromSuperview()
         notificationController.removeFromParent()
     }
+
+    private func hideNotificationView(_ isHidden: Bool) {
+        notificationController?.view.isHidden = isHidden
+    }
 }
 
 /// A UIViewController extension that gives view controllers an access to root container
@@ -787,7 +806,7 @@ extension UIViewController {
 }
 
 extension RootContainerViewController {
-    func update(configuration: RootConfigration) {
+    func update(configuration: RootConfiguration) {
         self.configuration = configuration
 
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
