@@ -46,13 +46,14 @@ private fun PreviewSwitchComposeCell() {
 fun SwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    subtitle: String? = null,
     isEnabled: Boolean = true,
     background: Color = MullvadBlue,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val subtitleModifier = Modifier
 
+    val textSize = dimensionResource(id = R.dimen.text_small).value.sp
     BaseCell(
         title = {
             SwitchCellTitle(
@@ -60,6 +61,8 @@ fun SwitchComposeCell(
                 modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
             )
         },
+        subtitle =
+            subtitle?.let { { Text(text = it, fontSize = textSize, color = MullvadWhite60) } },
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
@@ -70,8 +73,7 @@ fun SwitchComposeCell(
             )
         },
         background = background,
-        onCellClicked = { onCellClicked(!isToggled) },
-        subtitleModifier = subtitleModifier
+        onCellClicked = { onCellClicked(!isToggled) }
     )
 }
 
@@ -100,7 +102,7 @@ fun SwitchCellView(
     val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (onInfoClicked != null) {
             Icon(
@@ -110,7 +112,7 @@ fun SwitchCellView(
                             start = horizontalPadding,
                             end = horizontalPadding,
                             top = verticalPadding,
-                            bottom = verticalPadding,
+                            bottom = verticalPadding
                         )
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
