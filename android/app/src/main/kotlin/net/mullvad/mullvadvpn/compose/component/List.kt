@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -60,15 +61,17 @@ fun ListItem(
     height: Dp = Dimens.listItemHeight,
     isLoading: Boolean,
     @DrawableRes iconResourceId: Int? = null,
-    onClick: () -> Unit
+    background: Color? = null,
+    onClick: (() -> Unit)?
 ) {
+    val itemColor = background ?: MaterialTheme.colorScheme.primary
     Box(
         modifier =
             Modifier.fillMaxWidth()
                 .padding(vertical = Dimens.listItemDivider)
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = height)
-                .background(MaterialTheme.colorScheme.primary),
+                .background(itemColor),
     ) {
         Column(
             modifier =
@@ -98,7 +101,9 @@ fun ListItem(
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Remove",
-                    modifier = Modifier.align(Alignment.CenterEnd).clickable { onClick() }
+                    modifier =
+                        onClick?.let { Modifier.align(Alignment.CenterEnd).clickable { onClick() } }
+                            ?: Modifier.align(Alignment.CenterEnd)
                 )
             }
         }

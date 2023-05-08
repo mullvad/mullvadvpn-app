@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val MullvadBeige = Color(0xFFFFCD86)
 val MullvadBlue = Color(0xFF294D73)
 val MullvadBlue60 = Color(0x99294D73)
+val MullvadBlue40 = Color(0x66294D73)
 val MullvadBlue20 = Color(0x33294D73)
 val MullvadBrown = Color(0xFFD2943B)
 val MullvadDarkBlue = Color(0xFF192E45)

@@ -6,8 +6,10 @@ import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 
 inline fun LazyListScope.itemWithDivider(
+    contentType: Any? = null,
     crossinline itemContent: @Composable LazyItemScope.() -> Unit
-) = item {
-    itemContent()
-    Divider()
-}
+) =
+    item(contentType = contentType) {
+        itemContent()
+        Divider()
+    }
