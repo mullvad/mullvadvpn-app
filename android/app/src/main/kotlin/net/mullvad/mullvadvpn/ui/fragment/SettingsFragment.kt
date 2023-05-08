@@ -47,7 +47,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
-    private lateinit var preferencesMenu: View
     private lateinit var advancedMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
@@ -70,11 +69,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         accountMenu =
             view.findViewById<AccountCell>(R.id.account).apply {
                 targetFragment = AccountFragment::class
-            }
-
-        preferencesMenu =
-            view.findViewById<NavigateCell>(R.id.preferences).apply {
-                targetFragment = PreferencesFragment::class
             }
 
         advancedMenu =
@@ -185,7 +179,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
             }
 
         accountMenu.visibility = visibility
-        preferencesMenu.visibility = visibility
         advancedMenu.visibility = visibility
     }
 
