@@ -12,7 +12,7 @@ on:
       - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
       - android/gradle/verification-metadata.xml
       - android/gradle/wrapper/gradle-wrapper.properties
-      - building/build-and-publish.sh
+      - building/build-and-publish-container-image.sh
       - building/mullvad-app-container-signing.asc
       - building/linux-container-image.txt
       - building/android-container-image.txt
@@ -27,11 +27,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Verify signatures
         run: |-
-          commits=${{ github.event.pull_request.commits }}
-          if [[ -n "$commits" ]]; then
-              echo "Fetching $commits commits"
-              # FIXME: Temporarily simplified to avoid:
-              # https://securitylab.github.com/research/github-actions-untrusted-input/#script-injections
-              git fetch --depth="$(( commits + 1 ))"
-          fi
+          base_ref=${{ github.event.pull_request.base.sha }}
+          head_ref=${{ github.event.pull_request.head.sha }}
+          git fetch --no-tags --prune --progress --no-recurse-submodules --shallow-exclude=main \
+          origin main $base_ref $head_ref
           ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main
