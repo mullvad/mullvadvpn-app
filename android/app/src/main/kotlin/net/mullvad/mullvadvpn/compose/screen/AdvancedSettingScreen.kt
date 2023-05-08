@@ -58,6 +58,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
+import net.mullvad.mullvadvpn.compose.dialog.LocalNetworkSharingInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
@@ -76,6 +77,7 @@ private fun PreviewAdvancedSettings() {
     AdvancedSettingScreen(
         uiState =
             AdvancedSettingsUiState.DefaultUiState(
+                isAutoConnectEnabled = true,
                 mtu = "1337",
                 isCustomDnsEnabled = true,
                 customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
@@ -86,6 +88,8 @@ private fun PreviewAdvancedSettings() {
         onRestoreMtuClick = {},
         onCancelMtuDialogClicked = {},
         onSplitTunnelingNavigationClick = {},
+        onToggleAutoConnect = {},
+        onToggleLocalNetworkSharing = {},
         onToggleDnsClick = {},
         onToggleBlockAds = {},
         onToggleBlockTrackers = {},
@@ -97,6 +101,7 @@ private fun PreviewAdvancedSettings() {
         onSaveDnsClick = {},
         onRemoveDnsClick = {},
         onCancelDnsDialogClick = {},
+        onLocalNetworkSharingInfoClick = {},
         onContentsBlockersInfoClicked = {},
         onMalwareInfoClicked = {},
         onCustomDnsInfoClicked = {},
@@ -121,6 +126,8 @@ fun AdvancedSettingScreen(
     onRestoreMtuClick: () -> Unit = {},
     onCancelMtuDialogClicked: () -> Unit = {},
     onSplitTunnelingNavigationClick: () -> Unit = {},
+    onToggleAutoConnect: (Boolean) -> Unit = {},
+    onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockTrackers: (Boolean) -> Unit = {},
@@ -132,6 +139,7 @@ fun AdvancedSettingScreen(
     onSaveDnsClick: () -> Unit = {},
     onRemoveDnsClick: () -> Unit = {},
     onCancelDnsDialogClick: () -> Unit = {},
+    onLocalNetworkSharingInfoClick: () -> Unit = {},
     onContentsBlockersInfoClicked: () -> Unit = {},
     onMalwareInfoClicked: () -> Unit = {},
     onCustomDnsInfoClicked: () -> Unit = {},
@@ -152,7 +160,7 @@ fun AdvancedSettingScreen(
                 onMtuValueChanged = { onMtuInputChange(it) },
                 onSave = { onSaveMtuClick() },
                 onRestoreDefaultValue = { onRestoreMtuClick() },
-                onDismiss = { onCancelMtuDialogClicked() }
+                onDismiss = { onCancelMtuDialogClicked() },
             )
         }
         is AdvancedSettingsUiState.DnsDialogUiState -> {
@@ -162,8 +170,11 @@ fun AdvancedSettingScreen(
                 onIpAddressChanged = { onDnsInputChange(it) },
                 onAttemptToSave = { onSaveDnsClick() },
                 onRemove = { onRemoveDnsClick() },
-                onDismiss = { onCancelDnsDialogClick() }
+                onDismiss = { onCancelDnsDialogClick() },
             )
+        }
+        is AdvancedSettingsUiState.LocalNetworkSharingInfoDialogUiState -> {
+            LocalNetworkSharingInfoDialog(onDismissInfoClicked)
         }
         is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
             ContentBlockersInfoDialog(onDismissInfoClicked)
@@ -199,7 +210,7 @@ fun AdvancedSettingScreen(
             val scaffoldModifier =
                 Modifier.road(
                     whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
+                    whenExpanded = Alignment.BottomStart,
                 )
             CollapsingTopBar(
                 backgroundColor = MullvadDarkBlue,
@@ -207,7 +218,7 @@ fun AdvancedSettingScreen(
                 title = stringResource(id = R.string.settings_advanced),
                 progress = progress,
                 modifier = scaffoldModifier,
-                backTitle = stringResource(id = R.string.settings)
+                backTitle = stringResource(id = R.string.settings),
             )
         },
     ) {
@@ -234,7 +245,30 @@ fun AdvancedSettingScreen(
                     .animateContentSize(),
             state = lazyListState
         ) {
-            item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                SwitchComposeCell(
+                    title = stringResource(R.string.auto_connect),
+                    subtitle = stringResource(id = R.string.auto_connect_footer),
+                    isToggled = uiState.isAutoConnectEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                SwitchComposeCell(
+                    title = stringResource(R.string.local_network_sharing),
+                    isToggled = uiState.isAllowLanEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
+                    onInfoClicked = { onLocalNetworkSharingInfoClick() }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
+            }
 
             itemWithDivider {
                 NavigationComposeCell(
