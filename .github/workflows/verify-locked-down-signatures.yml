@@ -33,5 +33,6 @@ jobs:
               # FIXME: Temporarily simplified to avoid:
               # https://securitylab.github.com/research/github-actions-untrusted-input/#script-injections
               git fetch --depth="$(( commits + 1 ))"
+              echo test
           fi
           ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main
