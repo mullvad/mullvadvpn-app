@@ -29,6 +29,5 @@ jobs:
         run: |-
           base_ref=${{ github.event.pull_request.base.sha }}
           head_ref=${{ github.event.pull_request.head.sha }}
-          git fetch --no-tags --prune --progress --no-recurse-submodules --shallow-exclude=main \
-          origin main $base_ref $head_ref
+          git fetch --no-recurse-submodules --shallow-exclude=main origin main $base_ref $head_ref
           ci/verify-locked-down-signatures.sh --import-gpg-keys --whitelist origin/main
