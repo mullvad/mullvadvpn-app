@@ -347,21 +347,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func setupNotificationHandler() {
         NotificationManager.shared.notificationProviders = [
-            RegisteredDeviceInAppNotification(tunnelManager: tunnelManager, completionHandler: { deviceState in
-                let sceneDelegate = UIApplication.shared.connectedScenes
-                    .first?.delegate as? SceneDelegate
-                sceneDelegate?.didDismissRegisteredDeviceInAppBanner(deviceState: deviceState)
-            }),
+            RegisteredDeviceInAppNotification(tunnelManager: tunnelManager),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
-            AccountExpirySystemNotificationProvider(
-                tunnelManager: tunnelManager,
-                defaultActionHandler: {
-                    let sceneDelegate = UIApplication.shared.connectedScenes
-                        .first?.delegate as? SceneDelegate
-
-                    sceneDelegate?.showUserAccount()
-                }
-            ),
+            AccountExpirySystemNotificationProvider(tunnelManager: tunnelManager),
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
         ]
         UNUserNotificationCenter.current().delegate = self

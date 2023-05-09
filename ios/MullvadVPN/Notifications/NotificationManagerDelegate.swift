@@ -13,4 +13,6 @@ protocol NotificationManagerDelegate: AnyObject {
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     )
+
+    func notificationManager(_ manager: NotificationManager, didReceiveResponse: NotificationResponse)
 }

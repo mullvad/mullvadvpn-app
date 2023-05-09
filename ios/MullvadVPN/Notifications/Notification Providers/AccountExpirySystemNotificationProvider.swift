@@ -12,9 +12,10 @@ import UserNotifications
 final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {
     private var accountExpiry: Date?
     private var tunnelObserver: TunnelBlockObserver?
-    private var defaultActionHandler: (() -> Void)?
 
-    init(tunnelManager: TunnelManager, defaultActionHandler: (() -> Void)? = nil) {
+    static let identifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
+
+    init(tunnelManager: TunnelManager) {
         super.init()
 
         let tunnelObserver = TunnelBlockObserver(
@@ -29,11 +30,10 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
-        self.defaultActionHandler = defaultActionHandler
     }
 
     override var identifier: String {
-        return "net.mullvad.MullvadVPN.AccountExpiryNotification"
+        return Self.identifier
     }
 
     // MARK: - SystemNotificationProvider
@@ -76,18 +76,6 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     var shouldRemoveDeliveredRequests: Bool {
         // Remove delivered notifications when account expiry is not set (user logged out)
         return shouldRemovePendingOrDeliveredRequests
-    }
-
-    func handleResponse(_ response: UNNotificationResponse) -> Bool {
-        guard response.notification.request.identifier == identifier else {
-            return false
-        }
-
-        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-            defaultActionHandler?()
-        }
-
-        return true
     }
 
     // MARK: - Private

@@ -11,12 +11,9 @@ import UIKit.UIColor
 import UIKit.UIFont
 
 final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotificationProvider {
-    typealias CompletionHandler = (DeviceState) -> Void
-
     // MARK: - private properties
 
     private let tunnelManager: TunnelManager
-    private let completionHandler: CompletionHandler?
 
     private var shouldShowBanner = false
     private var deviceState: DeviceState
@@ -53,9 +50,11 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
                     guard let self = self else { return }
+
+                    self.sendAction()
+
                     self.shouldShowBanner = false
                     self.invalidate()
-                    self.completionHandler?(self.deviceState)
                 }
             )
         )
@@ -63,16 +62,17 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
 
     // MARK: - initialize
 
-    init(tunnelManager: TunnelManager, completionHandler: CompletionHandler? = nil) {
+    static let identifier = "net.mullvad.MullvadVPN.RegisteredDeviceInAppNotification"
+
+    init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
-        self.completionHandler = completionHandler
         deviceState = tunnelManager.deviceState
         super.init()
         addObservers()
     }
 
     override var identifier: String {
-        "net.mullvad.MullvadVPN.AccountCreationInAppNotification"
+        return Self.identifier
     }
 
     private func addObservers() {
