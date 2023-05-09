@@ -11,8 +11,8 @@ import Logging
 import MullvadTypes
 
 extension Logger {
-    public func error<T: Error>(
-        error: T,
+    public func error(
+        error: some Error,
         message: @autoclosure () -> String? = nil,
         metadata: @autoclosure () -> Logger.Metadata? = nil,
         source: @autoclosure () -> String? = nil,

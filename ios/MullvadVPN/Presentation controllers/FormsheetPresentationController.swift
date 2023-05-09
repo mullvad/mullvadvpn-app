@@ -58,7 +58,7 @@ class FormsheetPresentationController: UIPresentationController {
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
-        guard let containerView = containerView else {
+        guard let containerView else {
             return super.frameOfPresentedViewInContainerView
         }
 

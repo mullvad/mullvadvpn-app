@@ -73,7 +73,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         return body
     }
 
-    func write<Target: TextOutputStream>(to stream: inout Target) {
+    func write(to stream: inout some TextOutputStream) {
         print("System information:", to: &stream)
         for (key, value) in metadata {
             print("\(key.rawValue): \(value)", to: &stream)

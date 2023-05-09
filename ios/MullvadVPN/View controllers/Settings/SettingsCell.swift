@@ -45,7 +45,7 @@ class SettingsCell: UITableViewCell {
                 renderingMode: .alwaysOriginal
             )
 
-            if let image = image {
+            if let image {
                 disclosureImageView.image = image
                 disclosureImageView.sizeToFit()
                 accessoryView = disclosureImageView

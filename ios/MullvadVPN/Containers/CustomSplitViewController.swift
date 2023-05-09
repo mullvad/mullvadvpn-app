@@ -56,7 +56,7 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
     }
 
     private func updateDividerColor() {
-        guard let dividerColor = dividerColor else { return }
+        guard let dividerColor else { return }
 
         dividerView?.backgroundColor = dividerColor
     }

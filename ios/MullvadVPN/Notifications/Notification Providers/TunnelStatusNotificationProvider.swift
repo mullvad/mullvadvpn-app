@@ -20,9 +20,9 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        if let packetTunnelError = packetTunnelError {
+        if let packetTunnelError {
             return notificationDescription(for: packetTunnelError)
-        } else if let tunnelManagerError = tunnelManagerError {
+        } else if let tunnelManagerError {
             return notificationDescription(for: tunnelManagerError)
         } else if isWaitingForConnectivity {
             return connectivityNotificationDescription()

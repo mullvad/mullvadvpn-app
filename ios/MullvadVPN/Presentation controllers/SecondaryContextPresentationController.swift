@@ -18,7 +18,7 @@ class SecondaryContextPresentationController: FormsheetPresentationController {
 
         updateHeaderBarHidden()
 
-        if let containerView = containerView,
+        if let containerView,
            let rootContainer = presentingViewController as? RootContainerViewController
         {
             rootContainer.addTrailingButtonsToPresentationContainer(containerView)

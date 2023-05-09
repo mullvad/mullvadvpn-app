@@ -18,7 +18,7 @@ public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
         self.port = port
     }
 
-    public init?<S>(string: S) where S: StringProtocol {
+    public init?(string: some StringProtocol) {
         let components = string.split(
             separator: ":",
             maxSplits: 2,

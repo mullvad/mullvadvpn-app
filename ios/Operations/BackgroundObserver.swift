@@ -42,7 +42,7 @@ public final class BackgroundObserver: OperationObserver {
     }
 
     public func operationDidFinish(_ operation: Operation, error: Error?) {
-        if let taskIdentifier = taskIdentifier {
+        if let taskIdentifier {
             application.endBackgroundTask(taskIdentifier)
         }
     }

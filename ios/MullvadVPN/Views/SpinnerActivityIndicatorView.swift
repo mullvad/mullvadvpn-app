@@ -116,7 +116,7 @@ class SpinnerActivityIndicatorView: UIView {
     }
 
     private func unregisterSceneActivationObserver() {
-        if let sceneActivationObserver = sceneActivationObserver {
+        if let sceneActivationObserver {
             NotificationCenter.default.removeObserver(sceneActivationObserver)
             self.sceneActivationObserver = nil
         }

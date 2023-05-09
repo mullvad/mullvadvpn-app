@@ -324,21 +324,21 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         paymentState = .restoringPurchases
 
         _ = interactor.restorePurchases(for: accountData.number) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             switch result {
             case let .success(response):
-                self.showAlertIfNoTimeAdded(with: response, context: .restoration) {
+                showAlertIfNoTimeAdded(with: response, context: .restoration) {
                     self.paymentState = .none
                 }
 
             case let .failure(error as StorePaymentManagerError):
-                self.showRestorePurchasesErrorAlert(error: error) {
+                showRestorePurchasesErrorAlert(error: error) {
                     self.paymentState = .none
                 }
 
             default:
-                self.paymentState = .none
+                paymentState = .none
             }
         }
     }

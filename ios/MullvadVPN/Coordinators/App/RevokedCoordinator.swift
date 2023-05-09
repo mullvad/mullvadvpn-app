@@ -24,9 +24,9 @@ final class RevokedCoordinator: Coordinator {
         let controller = RevokedDeviceViewController(interactor: interactor)
 
         controller.didFinish = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.didFinish?(self)
+            didFinish?(self)
         }
 
         navigationController.pushViewController(controller, animated: animated)

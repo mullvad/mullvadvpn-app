@@ -30,9 +30,9 @@ public final class URLRequestProxy {
         dispatchQueue.async {
             let task = self.urlSession
                 .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
-                    guard let self = self else { return }
+                    guard let self else { return }
 
-                    self.dispatchQueue.async {
+                    dispatchQueue.async {
                         let response = ProxyURLResponse(
                             data: data,
                             response: response,

@@ -572,7 +572,7 @@ final class ApplicationRouter {
             return !skipRouteGroups.contains(pendingRoute.operation.routeGroup)
         }
 
-        guard let pendingRoute = pendingRoute else {
+        guard let pendingRoute else {
             isProcessingPendingRoutes = false
             return
         }

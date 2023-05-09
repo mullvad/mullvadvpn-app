@@ -16,7 +16,7 @@ extension MullvadEndpoint {
     }
 
     var ipv6RelayEndpoint: Endpoint? {
-        guard let ipv6Relay = ipv6Relay else { return nil }
+        guard let ipv6Relay else { return nil }
 
         return Endpoint(host: .ipv6(ipv6Relay.ip), port: .init(integerLiteral: ipv6Relay.port))
     }

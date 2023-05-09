@@ -36,21 +36,21 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
         let controller = SelectLocationViewController()
 
         controller.didSelectRelay = { [weak self] relay in
-            guard let self = self else { return }
+            guard let self else { return }
 
             let newConstraints = RelayConstraints(location: .only(relay))
 
-            self.tunnelManager.setRelayConstraints(newConstraints) {
+            tunnelManager.setRelayConstraints(newConstraints) {
                 self.tunnelManager.startTunnel()
             }
 
-            self.didFinish?(self, relay)
+            didFinish?(self, relay)
         }
 
         controller.didFinish = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.didFinish?(self, nil)
+            didFinish?(self, nil)
         }
 
         relayCacheTracker.addObserver(self)

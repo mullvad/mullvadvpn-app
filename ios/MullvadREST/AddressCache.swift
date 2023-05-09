@@ -240,7 +240,7 @@ extension REST {
                 byAccessor: accessor
             )
 
-            if let error = error {
+            if let error {
                 result = .failure(error)
             }
 
@@ -284,7 +284,7 @@ extension REST {
                 byAccessor: accessor
             )
 
-            if let error = error {
+            if let error {
                 result = .failure(error)
             }
 

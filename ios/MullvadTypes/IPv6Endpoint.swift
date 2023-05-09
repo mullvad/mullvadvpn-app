@@ -18,7 +18,7 @@ public struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
         self.port = port
     }
 
-    public init?<S>(string: S) where S: StringProtocol {
+    public init?(string: some StringProtocol) {
         guard let lastColon = string.lastIndex(of: ":"), lastColon != string.endIndex else {
             return nil
         }

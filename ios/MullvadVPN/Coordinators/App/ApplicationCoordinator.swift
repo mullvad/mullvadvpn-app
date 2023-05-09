@@ -239,7 +239,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case let .settings(subRoute):
             let coordinator = context.presentedRoute.coordinator as! SettingsCoordinator
 
-            if let subRoute = subRoute {
+            if let subRoute {
                 coordinator.navigate(
                     to: subRoute,
                     animated: context.isAnimated,
@@ -534,12 +534,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinishPayment = { [weak self] coordinator in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            if self.shouldDismissOutOfTime() {
-                self.router.dismiss(.outOfTime, animated: true)
+            if shouldDismissOutOfTime() {
+                router.dismiss(.outOfTime, animated: true)
 
-                self.continueFlow(animated: true)
+                continueFlow(animated: true)
             }
         }
 

@@ -53,7 +53,7 @@ final class ObserverList<T> {
             return box == observer
         }
 
-        if let index = index {
+        if let index {
             observers.remove(at: index)
         }
 

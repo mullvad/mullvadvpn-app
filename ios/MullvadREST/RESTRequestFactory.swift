@@ -99,7 +99,7 @@ extension REST {
             self.bodyEncoder = bodyEncoder
         }
 
-        mutating func setHTTPBody<T: Encodable>(value: T) throws {
+        mutating func setHTTPBody(value: some Encodable) throws {
             restRequest.urlRequest.httpBody = try bodyEncoder.encode(value)
         }
 
@@ -180,7 +180,7 @@ extension REST {
                 withAllowedCharacters: allowedCharacters
             )
 
-            if let encoded = encoded {
+            if let encoded {
                 replacements[name] = encoded
             } else {
                 throw Error.percentEncoding

@@ -233,7 +233,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         selectedRelayLocation = relayLocation
         var locationList = snapshot().itemIdentifiers
 
-        guard let selectedRelayLocation = selectedRelayLocation,
+        guard let selectedRelayLocation,
               !locationList.contains(selectedRelayLocation) else { return }
 
         let selectedLocationTree = selectedRelayLocation.ascendants + [selectedRelayLocation]
@@ -507,7 +507,7 @@ private func fileSortComparator(_ a: String, _ b: String) -> Bool {
     return a.localizedStandardCompare(b) == .orderedAscending
 }
 
-private extension Array where Element == RelayLocation {
+private extension [RelayLocation] {
     mutating func addLocations(_ locations: [RelayLocation], at index: Int) {
         if index < count {
             insert(contentsOf: locations, at: index)

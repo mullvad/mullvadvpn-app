@@ -127,7 +127,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     func addPayment(_ payment: SKPayment, for accountNumber: String) {
         // Validate account token before adding new payment to the queue.
         validateAccount(accountNumber: accountNumber) { error in
-            if let error = error {
+            if let error {
                 let event = StorePaymentEvent.failure(
                     StorePaymentFailure(
                         transaction: nil,
@@ -336,7 +336,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 break
             }
 
-            if let event = event {
+            if let event {
                 self.observerList.forEach { observer in
                     observer.storePaymentManager(self, didReceiveEvent: event)
                 }

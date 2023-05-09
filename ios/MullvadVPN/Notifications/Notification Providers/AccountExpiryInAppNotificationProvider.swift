@@ -37,7 +37,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
 
     var notificationDescriptor: InAppNotificationDescriptor? {
         let now = Date()
-        guard let accountExpiry = accountExpiry, let triggerDate = triggerDate, now >= triggerDate,
+        guard let accountExpiry, let triggerDate, now >= triggerDate,
               now < accountExpiry
         else {
             return nil
@@ -59,7 +59,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
             duration = formatter.string(from: now, to: accountExpiry)
         }
 
-        guard let duration = duration else { return nil }
+        guard let duration else { return nil }
 
         return InAppNotificationDescriptor(
             identifier: identifier,
@@ -82,7 +82,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     // MARK: - Private
 
     private var triggerDate: Date? {
-        guard let accountExpiry = accountExpiry else { return nil }
+        guard let accountExpiry else { return nil }
 
         return Calendar.current.date(
             byAdding: .day,
@@ -104,7 +104,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     private func updateTimer() {
         timer?.cancel()
 
-        guard let triggerDate = triggerDate else {
+        guard let triggerDate else {
             return
         }
 

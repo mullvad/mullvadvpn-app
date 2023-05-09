@@ -60,7 +60,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             navigationController.pushViewController(rootController, animated: false)
         }
 
-        if let initialRoute = initialRoute, initialRoute != .root,
+        if let initialRoute, initialRoute != .root,
            let nextController = makeViewController(for: initialRoute)
         {
             navigationController.pushViewController(nextController, animated: false)
@@ -102,7 +102,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
                     [rootController, nextViewController].compactMap { $0 },
                     animated: animated
                 )
-            } else if let nextViewController = nextViewController {
+            } else if let nextViewController {
                 navigationController.pushViewController(nextViewController, animated: animated)
             }
 

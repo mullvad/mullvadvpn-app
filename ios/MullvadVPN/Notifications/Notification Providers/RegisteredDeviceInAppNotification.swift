@@ -49,12 +49,12 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
             action: .init(
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
-                    guard let self = self else { return }
+                    guard let self else { return }
 
-                    self.sendAction()
+                    sendAction()
 
-                    self.shouldShowBanner = false
-                    self.invalidate()
+                    shouldShowBanner = false
+                    invalidate()
                 }
             )
         )
@@ -78,11 +78,11 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
     private func addObservers() {
         tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
-                guard let self = self, case .loggedIn = deviceState else { return }
+                guard let self, case .loggedIn = deviceState else { return }
 
-                self.shouldShowBanner = true
+                shouldShowBanner = true
                 self.deviceState = deviceState
-                self.invalidate()
+                invalidate()
             })
         tunnelObserver.flatMap { tunnelManager.addObserver($0) }
     }

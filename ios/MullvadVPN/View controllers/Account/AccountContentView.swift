@@ -286,7 +286,7 @@ class AccountNumberRow: UIView {
     }
 
     private var displayAccountNumber: String? {
-        guard let accountNumber = accountNumber else {
+        guard let accountNumber else {
             return nil
         }
 
@@ -310,7 +310,7 @@ class AccountNumberRow: UIView {
     }
 
     private var _accessibilityAttributedValue: NSAttributedString? {
-        guard let accountNumber = accountNumber else {
+        guard let accountNumber else {
             return nil
         }
 
@@ -417,7 +417,7 @@ class AccountExpiryRow: UIView {
         didSet {
             let expiry = value
 
-            if let expiry = expiry, expiry <= Date() {
+            if let expiry, expiry <= Date() {
                 let localizedString = NSLocalizedString(
                     "ACCOUNT_OUT_OF_TIME_LABEL",
                     tableName: "Account",

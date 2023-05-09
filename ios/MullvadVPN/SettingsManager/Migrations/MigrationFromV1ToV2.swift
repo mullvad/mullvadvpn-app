@@ -111,7 +111,7 @@ final class MigrationFromV1ToV2: Migration {
         }
 
         let newDeviceState: DeviceState
-        if let device = device {
+        if let device {
             logger.debug("Found device matching public key stored in legacy settings.")
 
             // Match private key.

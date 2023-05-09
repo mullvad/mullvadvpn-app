@@ -42,7 +42,7 @@ class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
     }
 
     func popFromNavigationStack(animated: Bool, completion: @escaping () -> Void) {
-        guard let viewController = viewController else {
+        guard let viewController else {
             completion()
             return
         }

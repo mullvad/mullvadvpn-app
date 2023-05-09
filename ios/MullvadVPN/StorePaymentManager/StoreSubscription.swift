@@ -32,7 +32,7 @@ extension SKProduct {
     }
 }
 
-extension Set where Element == StoreSubscription {
+extension Set<StoreSubscription> {
     var productIdentifiersSet: Set<String> {
         return Set<String>(map { $0.rawValue })
     }

@@ -106,8 +106,8 @@ extension Presenting {
 
      Automatically adds child and removes it upon interactive dismissal.
      */
-    func presentChild<T: Presentable>(
-        _ child: T,
+    func presentChild(
+        _ child: some Presentable,
         animated: Bool,
         configuration: ModalPresentationConfiguration = ModalPresentationConfiguration(),
         completion: (() -> Void)? = nil
@@ -115,7 +115,7 @@ extension Presenting {
         var configuration = configuration
 
         configuration.notifyInteractiveDismissal { [weak child] in
-            guard let child = child else { return }
+            guard let child else { return }
 
             child.modalConfiguration = nil
             child.removeFromParent()

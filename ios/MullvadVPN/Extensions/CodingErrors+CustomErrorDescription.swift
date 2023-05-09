@@ -42,7 +42,7 @@ extension EncodingError: CustomErrorDescriptionProtocol {
     }
 }
 
-private extension Array where Element == CodingKey {
+private extension [CodingKey] {
     var codingPathString: String {
         if isEmpty {
             return "<root>"

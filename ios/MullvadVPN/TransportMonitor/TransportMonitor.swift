@@ -28,7 +28,7 @@ final class TransportMonitor {
                 tunnel.status == .connected
         }
 
-        if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
+        if let tunnel, shouldByPassVPN(tunnel: tunnel) {
             return PacketTunnelTransport(tunnel: tunnel)
         } else {
             return urlSessionTransport

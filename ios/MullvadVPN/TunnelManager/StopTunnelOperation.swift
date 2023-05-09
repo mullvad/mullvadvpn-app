@@ -46,7 +46,7 @@ class StopTunnelOperation: ResultOperation<Void> {
 
             tunnel.saveToPreferences { error in
                 self.dispatchQueue.async {
-                    if let error = error {
+                    if let error {
                         self.finish(result: .failure(error))
                     } else {
                         tunnel.stop()

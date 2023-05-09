@@ -88,7 +88,7 @@ final class SelectLocationViewController: UIViewController {
 
         dataSource?.selectedRelayLocation = relayLocation
 
-        if let cachedRelays = cachedRelays {
+        if let cachedRelays {
             dataSource?.setRelays(cachedRelays.relays)
         }
     }

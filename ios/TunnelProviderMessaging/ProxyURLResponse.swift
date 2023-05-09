@@ -31,7 +31,7 @@ public struct URLErrorWrapper: Codable {
     }
 
     public var originalError: Error? {
-        guard let code = code else { return nil }
+        guard let code else { return nil }
 
         return URLError(URLError.Code(rawValue: code))
     }
@@ -53,7 +53,7 @@ public struct HTTPURLResponseWrapper: Codable {
     }
 
     public var originalResponse: HTTPURLResponse? {
-        guard let url = url else { return nil }
+        guard let url else { return nil }
 
         return HTTPURLResponse(
             url: url,

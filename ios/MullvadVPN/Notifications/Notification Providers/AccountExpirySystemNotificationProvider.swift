@@ -39,7 +39,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     // MARK: - SystemNotificationProvider
 
     var notificationRequest: UNNotificationRequest? {
-        guard let trigger = trigger else { return nil }
+        guard let trigger else { return nil }
 
         _ = NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
@@ -81,7 +81,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     // MARK: - Private
 
     private var trigger: UNNotificationTrigger? {
-        guard let accountExpiry = accountExpiry else { return nil }
+        guard let accountExpiry else { return nil }
 
         guard let triggerDate = Calendar.current.date(
             byAdding: .day,

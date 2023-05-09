@@ -97,10 +97,10 @@ class AutomaticKeyboardResponder {
             \.frame,
             options: [.new],
             changeHandler: { [weak self] containingView, change in
-                guard let self = self,
-                      let keyboardFrameValue = self.lastKeyboardRect else { return }
+                guard let self,
+                      let keyboardFrameValue = lastKeyboardRect else { return }
 
-                self.adjustContentInsets(keyboardRect: keyboardFrameValue)
+                adjustContentInsets(keyboardRect: keyboardFrameValue)
             }
         )
     }
@@ -153,7 +153,7 @@ class AutomaticKeyboardResponder {
     }
 
     private func adjustContentInsets(keyboardRect: CGRect) {
-        guard let targetView = targetView, let superview = targetView.superview else { return }
+        guard let targetView, let superview = targetView.superview else { return }
 
         // Compute the target view frame within screen coordinates
         let screenRect = superview.convert(targetView.frame, to: nil)
@@ -168,7 +168,7 @@ class AutomaticKeyboardResponder {
 extension AutomaticKeyboardResponder {
     /// A convenience initializer that automatically assigns the offset to the scroll view
     /// subclasses
-    convenience init<T: UIScrollView>(targetView: T) {
+    convenience init(targetView: some UIScrollView) {
         self.init(targetView: targetView) { scrollView, offset in
             if scrollView.canBecomeFirstResponder {
                 scrollView.contentInset.bottom = targetView.isFirstResponder ? offset : 0

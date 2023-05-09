@@ -156,10 +156,10 @@ extension REST {
             do {
                 networkTask = try transport
                     .sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
-                        guard let self = self else { return }
+                        guard let self else { return }
 
-                        self.dispatchQueue.async {
-                            if let error = error {
+                        dispatchQueue.async {
+                            if let error {
                                 self.didReceiveError(
                                     error,
                                     transport: transport,

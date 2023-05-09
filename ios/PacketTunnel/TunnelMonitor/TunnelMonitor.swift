@@ -130,7 +130,7 @@ final class TunnelMonitor: PingerDelegate {
                     return .retryHeartbeatPing
                 }
 
-                guard let lastSeenRx = lastSeenRx, let lastSeenTx = lastSeenTx else { return .ok }
+                guard let lastSeenRx, let lastSeenTx else { return .ok }
 
                 let rxTimeElapsed = now.timeIntervalSince(lastSeenRx)
                 let txTimeElapsed = now.timeIntervalSince(lastSeenTx)
@@ -360,7 +360,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func addDefaultPathObserver() {
-        guard let packetTunnelProvider = packetTunnelProvider else { return }
+        guard let packetTunnelProvider else { return }
 
         defaultPathObserver?.invalidate()
 
@@ -368,14 +368,14 @@ final class TunnelMonitor: PingerDelegate {
 
         defaultPathObserver = packetTunnelProvider
             .observe(\.defaultPath, options: [.new]) { [weak self] _, change in
-                guard let self = self else { return }
+                guard let self else { return }
 
-                self.nslock.lock()
+                nslock.lock()
                 defer { self.nslock.unlock() }
 
                 let newValue = change.newValue.flatMap { $0 }
                 if let newPath = newValue {
-                    self.handleNetworkPathUpdate(newPath)
+                    handleNetworkPathUpdate(newPath)
                 }
             }
 
@@ -385,7 +385,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func removeDefaultPathObserver() {
-        guard let defaultPathObserver = defaultPathObserver else { return }
+        guard let defaultPathObserver else { return }
 
         logger.trace("Remove default path observer.")
 
@@ -397,7 +397,7 @@ final class TunnelMonitor: PingerDelegate {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress = probeAddress, let newStats = getStats(),
+        guard let probeAddress, let newStats = getStats(),
               state.connectionState == .connecting || state.connectionState == .connected
         else { return }
 
@@ -523,7 +523,7 @@ final class TunnelMonitor: PingerDelegate {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress = probeAddress else { return }
+        guard let probeAddress else { return }
 
         if sender.rawValue != probeAddress.rawValue {
             logger.trace("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
@@ -602,7 +602,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func stopConnectivityCheckTimer() {
-        guard let timer = timer else { return }
+        guard let timer else { return }
 
         logger.trace("Stop connectivity check timer.")
 
@@ -658,7 +658,7 @@ final class TunnelMonitor: PingerDelegate {
             return nil
         }
 
-        guard let result = result else {
+        guard let result else {
             logger.debug("Received nil string for stats.")
             return nil
         }

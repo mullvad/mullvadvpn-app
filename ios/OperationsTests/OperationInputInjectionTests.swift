@@ -54,7 +54,7 @@ class OperationInputInjectionTests: XCTestCase {
             var b: Int?
 
             func reduce() -> Int? {
-                guard let a = a, let b = b else { return nil }
+                guard let a, let b else { return nil }
 
                 return a + b
             }
