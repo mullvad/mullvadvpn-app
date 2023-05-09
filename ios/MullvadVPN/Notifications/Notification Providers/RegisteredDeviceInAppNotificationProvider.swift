@@ -10,26 +10,29 @@ import Foundation
 import UIKit.UIColor
 import UIKit.UIFont
 
-final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotificationProvider {
-    typealias CompletionHandler = (DeviceState) -> Void
+final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
+    InAppNotificationProvider
+{
+    static let identifier = "net.mullvad.MullvadVPN.RegisteredDeviceInAppNotification"
 
     // MARK: - private properties
 
     private let tunnelManager: TunnelManager
-    private let completionHandler: CompletionHandler?
 
-    private var shouldShowBanner = false
-    private var deviceState: DeviceState
+    private var storedDeviceData: StoredDeviceData? {
+        tunnelManager.deviceState.deviceData
+    }
+
     private var tunnelObserver: TunnelBlockObserver?
+    private var isNewDeviceRegistered = false
 
     private var attributedBody: NSAttributedString {
-        guard case let .loggedIn(_, storedDeviceData) = deviceState else { return .init(string: "") }
         let formattedString = NSLocalizedString(
             "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY",
             value: "Welcome, this device is now called **%@**. For more details see the info button in Account.",
             comment: ""
         )
-        let deviceName = storedDeviceData.capitalizedName
+        let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
         return NSMutableAttributedString(markdownString: string, font: .systemFont(ofSize: 14.0)) { deviceName in
             return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
@@ -39,7 +42,7 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
     // MARK: - public properties
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        guard shouldShowBanner else { return nil }
+        guard isNewDeviceRegistered else { return nil }
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .success,
@@ -52,10 +55,7 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
             action: .init(
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
-                    guard let self = self else { return }
-                    self.shouldShowBanner = false
-                    self.invalidate()
-                    self.completionHandler?(self.deviceState)
+                    self?.invalidate()
                 }
             )
         )
@@ -63,26 +63,33 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
 
     // MARK: - initialize
 
-    init(tunnelManager: TunnelManager, completionHandler: CompletionHandler? = nil) {
+    init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
-        self.completionHandler = completionHandler
-        deviceState = tunnelManager.deviceState
         super.init()
         addObservers()
     }
 
     override var identifier: String {
-        "net.mullvad.MullvadVPN.AccountCreationInAppNotification"
+        Self.identifier
     }
 
     private func addObservers() {
         tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
-                guard let self = self, case .loggedIn = deviceState else { return }
+                if previousDeviceState == .loggedOut,
+                   case .loggedIn = deviceState
+                {
+                    self?.isNewDeviceRegistered = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: .init(block: { [weak self] in
+                        self?.invalidate()
+                        self?.isNewDeviceRegistered = false
+                    }))
 
-                self.shouldShowBanner = true
-                self.deviceState = deviceState
-                self.invalidate()
+                } else if case .loggedIn = previousDeviceState,
+                          deviceState == .loggedOut || deviceState == .revoked
+                {
+                    self?.invalidate()
+                }
             })
         tunnelObserver.flatMap { tunnelManager.addObserver($0) }
     }

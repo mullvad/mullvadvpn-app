@@ -735,7 +735,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
-        let configuration = RootConfigration(
+        let configuration = RootConfiguration(
             deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
             showsAccountButton: deviceState.isLoggedIn,
@@ -779,10 +779,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     func showAccount() {
         router.present(.account)
-    }
-
-    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
-        updateView(deviceState: deviceState)
     }
 
     // MARK: - UISplitViewControllerDelegate
@@ -869,6 +865,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
+        let showsDeviceInfo = !notifications
+            .contains(where: { $0.identifier == RegisteredDeviceInAppNotificationProvider.identifier }) && tunnelManager
+            .deviceState.isLoggedIn
+        updateView(deviceState: tunnelManager.deviceState, showDeviceInfo: showsDeviceInfo)
         notificationController.setNotifications(notifications, animated: true)
     }
 
