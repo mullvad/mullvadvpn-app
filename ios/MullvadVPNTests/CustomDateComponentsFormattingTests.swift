@@ -25,6 +25,22 @@ class CustomDateComponentsFormattingTests: XCTestCase {
         XCTAssertEqual(result, "2 years")
     }
 
+    func testTimeIsPassedFormatting() throws {
+        var dateComponents = DateComponents()
+        dateComponents.day = -1
+
+        let (startDate, endDate) = makeDateRange(addingComponents: dateComponents)
+
+        let result = CustomDateComponentsFormatting.localizedString(
+            from: startDate,
+            to: endDate,
+            calendar: calendar,
+            unitsStyle: .full
+        )
+
+        XCTAssertEqual(result, "0 days")
+    }
+
     func testLessThanTwoYearsFormatting() throws {
         var dateComponents = DateComponents()
         dateComponents.day = 365
