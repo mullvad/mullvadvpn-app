@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,9 +16,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -31,11 +28,11 @@ import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.ui.widget.AccountManagementButton
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
-import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
@@ -72,7 +69,7 @@ class AccountFragment : BaseFragment() {
     private var hasConnectivity = true
         set(value) {
             field = value
-            sitePaymentButton.setEnabled(value)
+            accountManagementButton.isEnabled = value
         }
 
     private var isOffline = true
@@ -94,7 +91,7 @@ class AccountFragment : BaseFragment() {
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
     private lateinit var deviceNameView: InformationView
-    private lateinit var sitePaymentButton: SitePaymentButton
+    private lateinit var accountManagementButton: AccountManagementButton
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
@@ -121,21 +118,17 @@ class AccountFragment : BaseFragment() {
             requireMainActivity().onBackPressed()
         }
 
-        sitePaymentButton =
-            view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-                newAccount = false
-
+        accountManagementButton =
+            view.findViewById<AccountManagementButton>(R.id.account_management).apply {
                 setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                    setEnabled(false)
+                    isEnabled = false
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
                         context.openAccountPageInBrowser(token)
                     }
-                    setEnabled(true)
+                    isEnabled = true
                     checkForAddedTime()
                 }
             }
-
-        sitePaymentButton.isVisible = BuildTypes.RELEASE != BuildConfig.BUILD_TYPE
 
         redeemVoucherButton =
             view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
