@@ -155,7 +155,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
         return try RelaySelector.evaluate(
             relays: cachedRelays.relays,
-            constraints: tunnelSettings.relayConstraints
+            constraints: tunnelSettings.relayConstraints,
+            numberOfFailedAttempts: 0
         )
     }
 }

@@ -10,6 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
+private let defaultPort: UInt16 = 53
+
 public enum RelaySelector {
     /**
      Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
@@ -24,13 +26,17 @@ public enum RelaySelector {
      */
     public static func evaluate(
         relays: REST.ServerRelaysResponse,
-        constraints: RelayConstraints
+        constraints: RelayConstraints,
+        numberOfFailedAttempts: UInt
     ) throws -> RelaySelectorResult {
         let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
+        let port = applyConstraints(
+            constraints,
+            rawPortRanges: relays.wireguard.portRanges,
+            numberOfFailedAttempts: numberOfFailedAttempts
+        )
 
-        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays),
-              let port = pickRandomPort(rawPortRanges: relays.wireguard.portRanges)
-        else {
+        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays), let port = port else {
             throw NoRelaysSatisfyingConstraintsError()
         }
 
@@ -80,6 +86,20 @@ public enum RelaySelector {
         }.filter { relayWithLocation -> Bool in
             return relayWithLocation.relay.active
         }
+    }
+
+    /// Produce a port that is either user provided or randomly selected, satisfying the given constraints.
+    private static func applyConstraints(
+        _ constraints: RelayConstraints,
+        rawPortRanges: [[UInt16]],
+        numberOfFailedAttempts: UInt
+    ) -> UInt16? {
+        // 1. First two attempts should pick a random port.
+        // 2. The next two should pick port 53.
+        // 3. Repeat steps 1 and 2.
+        let useDefaultPort = (numberOfFailedAttempts % 4 == 2) || (numberOfFailedAttempts % 4 == 3)
+
+        return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
     }
 
     private static func pickRandomRelay(relays: [RelayWithLocation]) -> RelayWithLocation? {

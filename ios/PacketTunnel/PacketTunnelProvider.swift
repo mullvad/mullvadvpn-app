@@ -117,7 +117,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             lastErrors: errors.compactMap { $0 },
             isNetworkReachable: isNetworkReachable,
             deviceCheck: deviceCheck,
-            tunnelRelay: selectorResult?.packetTunnelRelay
+            tunnelRelay: selectorResult?.packetTunnelRelay,
+            numberOfFailedAttempts: numberOfFailedAttempts
         )
     }
 
@@ -674,7 +675,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         return try RelaySelector.evaluate(
             relays: cachedRelayList.relays,
-            constraints: relayConstraints
+            constraints: relayConstraints,
+            numberOfFailedAttempts: packetTunnelStatus.numberOfFailedAttempts
         )
     }
 

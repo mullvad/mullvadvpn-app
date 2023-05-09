@@ -46,15 +46,20 @@ public struct PacketTunnelStatus: Codable, Equatable {
     /// Current relay.
     public var tunnelRelay: PacketTunnelRelay?
 
+    /// Number of consecutive connection failure attempts.
+    public var numberOfFailedAttempts: UInt
+
     public init(
         lastErrors: [PacketTunnelErrorWrapper] = [],
         isNetworkReachable: Bool = true,
         deviceCheck: DeviceCheck? = nil,
-        tunnelRelay: PacketTunnelRelay? = nil
+        tunnelRelay: PacketTunnelRelay? = nil,
+        numberOfFailedAttempts: UInt = 0
     ) {
         self.lastErrors = lastErrors
         self.isNetworkReachable = isNetworkReachable
         self.deviceCheck = deviceCheck
         self.tunnelRelay = tunnelRelay
+        self.numberOfFailedAttempts = numberOfFailedAttempts
     }
 }
