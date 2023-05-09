@@ -781,10 +781,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         router.present(.account)
     }
 
-    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
-        updateView(deviceState: deviceState)
-    }
-
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
@@ -869,6 +865,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
+        let showsDeviceInfo = !notifications
+            .contains(where: { $0.identifier == RegisteredDeviceInAppNotificationProvider.identifier }) && tunnelManager
+            .deviceState.isLoggedIn
+        updateView(deviceState: tunnelManager.deviceState, showDeviceInfo: showsDeviceInfo)
         notificationController.setNotifications(notifications, animated: true)
     }
 
