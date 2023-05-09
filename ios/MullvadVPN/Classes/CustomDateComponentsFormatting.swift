@@ -32,6 +32,6 @@ extension CustomDateComponentsFormatting {
         formatter.maximumUnitCount = 1
         formatter.allowedUnits = years >= 2 ? .year : .day
 
-        return formatter.string(from: start, to: end)
+        return formatter.string(from: start, to: max(start, end))
     }
 }
