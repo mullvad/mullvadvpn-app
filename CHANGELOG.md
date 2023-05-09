@@ -66,6 +66,16 @@ Line wrap the file at 100 chars.                                              Th
   packages.
 
 
+## [android/2023.1-beta2] - 2023-05-09
+### Added
+#### Android
+- Add "Manage account" button to the account view.
+
+### Fixed
+#### Android
+- Fix missing payment info in out-of-time view.
+
+
 ## [android/2023.1-beta1] - 2023-05-03
 ### Added
 #### Android
