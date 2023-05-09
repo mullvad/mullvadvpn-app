@@ -14,7 +14,7 @@ final class TunnelBlockObserver: TunnelObserver {
     typealias DidUpdateDeviceStateHandler = (
         _ tunnelManager: TunnelManager,
         _ deviceState: DeviceState,
-        _ previousDeviceStaate: DeviceState
+        _ previousDeviceState: DeviceState
     ) -> Void
     typealias DidUpdateTunnelSettingsHandler = (TunnelManager, TunnelSettingsV2) -> Void
     typealias DidFailWithErrorHandler = (TunnelManager, Error) -> Void

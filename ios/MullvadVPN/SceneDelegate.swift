@@ -40,10 +40,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         appCoordinator?.showAccount()
     }
 
-    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
-        appCoordinator?.didDismissRegisteredDeviceInAppBanner(deviceState: deviceState)
-    }
-
     // MARK: - Private
 
     private func addTunnelObserver() {
