@@ -115,11 +115,26 @@ final class NotificationManager: NotificationProviderDelegate {
     }
 
     func handleSystemNotificationResponse(_ response: UNNotificationResponse) {
-        for case let notificationProvider as SystemNotificationProvider in notificationProviders {
-            if notificationProvider.handleResponse(response) {
-                return
-            }
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        guard let sourceProvider = notificationProviders.first(where: { notificationProvider in
+            guard let notificationProvider = notificationProvider as? SystemNotificationProvider else { return false }
+
+            return response.notification.request.identifier == notificationProvider.identifier
+        }) else {
+            logger.warning(
+                "Received response with request identifier: \(response.notification.request.identifier) that didn't map to any notification provider"
+            )
+            return
         }
+
+        let notificationResponse = NotificationResponse(
+            providerIdentifier: sourceProvider.identifier,
+            actionIdentifier: response.actionIdentifier,
+            systemResponse: response
+        )
+
+        delegate?.notificationManager(self, didReceiveResponse: notificationResponse)
     }
 
     // MARK: - Private
@@ -131,9 +146,7 @@ final class NotificationManager: NotificationProviderDelegate {
         userNotificationCenter.getNotificationSettings { notificationSettings in
             switch notificationSettings.authorizationStatus {
             case .notDetermined:
-                userNotificationCenter.requestAuthorization(
-                    options: authorizationOptions
-                ) { granted, error in
+                userNotificationCenter.requestAuthorization(options: authorizationOptions) { granted, error in
                     if let error = error {
                         self.logger.error(
                             error: error,
@@ -222,5 +235,16 @@ final class NotificationManager: NotificationProviderDelegate {
                 notifications: inAppNotificationDescriptors
             )
         }
+    }
+
+    func notificationProvider(_ notificationProvider: NotificationProvider, didReceiveAction actionIdentifier: String) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        let notificationResponse = NotificationResponse(
+            providerIdentifier: notificationProvider.identifier,
+            actionIdentifier: actionIdentifier
+        )
+
+        delegate?.notificationManager(self, didReceiveResponse: notificationResponse)
     }
 }

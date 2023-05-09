@@ -34,16 +34,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         return appDelegate.tunnelManager
     }
 
-    // MARK: - Deep link
-
-    func showUserAccount() {
-        appCoordinator?.showAccount()
-    }
-
-    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
-        appCoordinator?.didDismissRegisteredDeviceInAppBanner(deviceState: deviceState)
-    }
-
     // MARK: - Private
 
     private func addTunnelObserver() {

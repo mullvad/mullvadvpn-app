@@ -775,16 +775,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         return router.isPresenting(.settings)
     }
 
-    // MARK: - Deep link
-
-    func showAccount() {
-        router.present(.account)
-    }
-
-    func didDismissRegisteredDeviceInAppBanner(deviceState: DeviceState) {
-        updateView(deviceState: deviceState)
-    }
-
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
@@ -870,6 +860,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         notifications: [InAppNotificationDescriptor]
     ) {
         notificationController.setNotifications(notifications, animated: true)
+    }
+
+    func notificationManager(_ manager: NotificationManager, didReceiveResponse response: NotificationResponse) {
+        if response.providerIdentifier == AccountExpirySystemNotificationProvider.identifier {
+            router.present(.account)
+        } else if response.providerIdentifier == RegisteredDeviceInAppNotification.identifier {
+            updateView(deviceState: tunnelManager.deviceState)
+        }
     }
 
     // MARK: - Presenting
