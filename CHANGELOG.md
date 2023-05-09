@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Add DNS content blockers.
+- Add UDP-over-TCP
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a

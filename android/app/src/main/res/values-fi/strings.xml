@@ -17,6 +17,7 @@
     <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
     <string name="auto_connect_footer">Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan.</string>
+    <string name="automatic">Automaattinen</string>
     <string name="back">Takaisin</string>
     <string name="block_ads_title">Mainokset</string>
     <string name="block_adult_content_title">Aikuisille suunnattu sisältö</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">Mikään palvelin ei vastaa asetuksiasi. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia.</string>
     <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_blocking_internet">VERKKOLIIKENTEESI SAATTAA VUOTAA</string>
+    <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
+    <string name="obfuscation_on_udp_over_tcp">Käytössä (UDP TCP:n kautta)</string>
+    <string name="obfuscation_title">Hämäysteknologia</string>
+    <string name="off">Pois</string>
     <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="paid_until">Maksu ennen</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">Vaihda VPN:ää</string>
     <string name="try_again">Yritä uudelleen</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
     <string name="unsecured">Suojaamaton</string>
     <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>

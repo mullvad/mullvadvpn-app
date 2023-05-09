@@ -51,7 +51,9 @@ class AdvancedFragment : BaseFragment() {
                         onDismissInfoClicked = vm::onDismissInfoClick,
                         onBackClick = { activity?.onBackPressed() },
                         onStopEvent = vm::onStopEvent,
-                        toastMessagesSharedFlow = vm.toastMessages
+                        toastMessagesSharedFlow = vm.toastMessages,
+                        onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
+                        onObfuscationInfoClicked = vm::onObfuscationInfoClicked
                     )
                 }
             }

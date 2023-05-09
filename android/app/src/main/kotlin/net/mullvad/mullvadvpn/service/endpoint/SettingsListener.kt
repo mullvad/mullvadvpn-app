@@ -8,9 +8,7 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.*
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.util.EventNotifier
 
@@ -19,6 +17,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         class SetAllowLan(val allow: Boolean) : Command()
         class SetAutoConnect(val autoConnect: Boolean) : Command()
         class SetWireGuardMtu(val mtu: Int?) : Command()
+        class SetObfuscationSettings(val settings: ObfuscationSettings?) : Command()
     }
 
     private val commandChannel = spawnActor()
@@ -26,6 +25,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)
+    val obfuscationSettingsNotifier = EventNotifier<ObfuscationSettings?>(null)
     val settingsNotifier = EventNotifier<Settings?>(null)
 
     var settings by settingsNotifier.notifiable()
@@ -55,6 +55,10 @@ class SettingsListener(endpoint: ServiceEndpoint) {
             registerHandler(Request.SetWireGuardMtu::class) { request ->
                 commandChannel.trySendBlocking(Command.SetWireGuardMtu(request.mtu))
             }
+
+            registerHandler(Request.SetObfuscationSettings::class) { request ->
+                commandChannel.trySendBlocking(Command.SetObfuscationSettings(request.settings))
+            }
         }
     }
 
@@ -64,6 +68,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
         dnsOptionsNotifier.unsubscribeAll()
         relaySettingsNotifier.unsubscribeAll()
+        obfuscationSettingsNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
     }
 
@@ -96,6 +101,10 @@ class SettingsListener(endpoint: ServiceEndpoint) {
                     relaySettingsNotifier.notify(newSettings.relaySettings)
                 }
 
+                if (settings?.obfuscationSettings != newSettings.obfuscationSettings) {
+                    obfuscationSettingsNotifier.notify(newSettings.obfuscationSettings)
+                }
+
                 settings = newSettings
             }
         }
@@ -110,6 +119,8 @@ class SettingsListener(endpoint: ServiceEndpoint) {
                         is Command.SetAutoConnect ->
                             daemon.await().setAutoConnect(command.autoConnect)
                         is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
+                        is Command.SetObfuscationSettings ->
+                            daemon.await().setObfuscationSettings(command.settings)
                     }
                 }
             } catch (exception: ClosedReceiveChannelException) {

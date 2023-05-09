@@ -17,6 +17,7 @@
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
     <string name="auto_connect">自動接続</string>
     <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
+    <string name="automatic">自動</string>
     <string name="back">戻る</string>
     <string name="block_ads_title">広告</string>
     <string name="block_adult_content_title">アダルトコンテンツ</string>
@@ -107,6 +108,10 @@
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
+    <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
+    <string name="obfuscation_on_udp_over_tcp">オン (UDP-over-TCP)</string>
+    <string name="obfuscation_title">難読化</string>
+    <string name="off">オフ</string>
     <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
     <string name="paid_until">次の日時まで支払い済み</string>
@@ -142,6 +147,7 @@
     <string name="toggle_vpn">VPNの切り替え</string>
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>
+    <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
     <string name="unsecured">セキュリティ保護されていません</string>
     <string name="unsecured_connection">セキュリティ保護されていない接続</string>
     <string name="unsupported_version">未対応のバージョン</string>
