@@ -735,7 +735,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
-        let configuration = RootConfigration(
+        let configuration = RootConfiguration(
             deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
             showsAccountButton: deviceState.isLoggedIn,
@@ -865,7 +865,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     func notificationManager(_ manager: NotificationManager, didReceiveResponse response: NotificationResponse) {
         if response.providerIdentifier == AccountExpirySystemNotificationProvider.identifier {
             router.present(.account)
-        } else if response.providerIdentifier == RegisteredDeviceInAppNotification.identifier {
+        } else if response.providerIdentifier == RegisteredDeviceInAppNotificationProvider.identifier {
             updateView(deviceState: tunnelManager.deviceState)
         }
     }
