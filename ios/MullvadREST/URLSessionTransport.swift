@@ -55,10 +55,6 @@ extension REST {
             )
         }
 
-        deinit {
-            shadowSocksProxy.stop()
-        }
-
         public func sendRequest(
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
