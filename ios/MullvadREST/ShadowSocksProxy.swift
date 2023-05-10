@@ -31,7 +31,9 @@ public class ShadowSocksProxy {
     ///
     /// - Returns: The local port for the shadow socks proxy when it has started, 0 otherwise.
     public func localPort() -> UInt16 {
-        proxyConfig.port
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return proxyConfig.port
     }
 
     deinit {
