@@ -12,7 +12,7 @@ import UIKit.UIImage
 /// Struct describing in-app notification.
 struct InAppNotificationDescriptor: Equatable {
     /// Notification identifier.
-    var identifier: String
+    var identifier: NotificationProviderIdentifier
 
     /// Notification banner style.
     var style: NotificationBannerStyle

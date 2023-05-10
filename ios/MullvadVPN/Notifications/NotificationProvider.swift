@@ -25,8 +25,8 @@ class NotificationProvider: NotificationProviderProtocol {
      Override in subclasses and make sure each provider has unique identifier. It's preferred that identifiers use
      reverse domain name, for instance: `com.example.app.ProviderName`.
      */
-    var identifier: String {
-        return "default"
+    var identifier: NotificationProviderIdentifier {
+        .default
     }
 
     /**

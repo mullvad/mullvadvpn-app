@@ -14,7 +14,7 @@ import UserNotifications
  */
 struct NotificationResponse {
     /// Provider identifier.
-    var providerIdentifier: String
+    var providerIdentifier: NotificationProviderIdentifier
 
     /// Action identifier, i.e UNNotificationDefaultActionIdentifier or any custom.
     var actionIdentifier: String
