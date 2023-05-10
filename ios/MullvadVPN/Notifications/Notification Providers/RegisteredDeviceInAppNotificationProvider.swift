@@ -10,7 +10,6 @@ import Foundation
 import UIKit.UIColor
 import UIKit.UIFont
 
-
 final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
     InAppNotificationProvider
 {
@@ -56,7 +55,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
             action: .init(
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
-                    guard let self = self else { return }
+                    guard let self else { return }
                     self.sendAction()
                     self.invalidate()
                 }
@@ -83,10 +82,10 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
                    case .loggedIn = deviceState
                 {
                     self?.isNewDeviceRegistered = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: .init(block: { [weak self] in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                         self?.invalidate()
                         self?.isNewDeviceRegistered = false
-                    }))
+                    }
 
                 } else if case .loggedIn = previousDeviceState,
                           deviceState == .loggedOut || deviceState == .revoked
