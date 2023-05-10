@@ -28,7 +28,7 @@ extension REST {
         private let canWriteToCache: Bool
 
         /// The name of the cache file on disk
-        internal static let cacheFileName = "api-ip-address.txt"
+        internal static let cacheFileName = "api-ip-address.json"
 
         /// The default set of endpoints to use as a fallback mechanism
         private static let defaultCachedAddresses = CachedAddresses(
@@ -129,9 +129,6 @@ extension REST {
         ///
         /// If no cache file is present, a default API endpoint will be selected instead
         private func initCache() {
-            cacheLock.lock()
-            defer { cacheLock.unlock() }
-
             // The first time the application is ran, this statement will fail as there is no cache. This is fine.
             // The cache will be filled when either `getCurrentEndpoint` or `setEndpoints()` are called.
             do {
