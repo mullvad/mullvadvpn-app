@@ -26,7 +26,7 @@ extension REST {
         public func sendRequest(
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
-        ) throws -> Cancellable {
+        ) -> Cancellable {
             let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
             dataTask.resume()
             return dataTask
@@ -55,14 +55,10 @@ extension REST {
             )
         }
 
-        deinit {
-            shadowSocksProxy.stop()
-        }
-
         public func sendRequest(
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
-        ) throws -> Cancellable {
+        ) -> Cancellable {
             // Start the shadow socks proxy in order to get a local port
             shadowSocksProxy.start()
 

@@ -7,20 +7,24 @@
 //
 
 import Foundation
+import MullvadREST
+import MullvadTypes
 
 public final class URLRequestProxy {
     /// Serial queue used for synchronizing access to class members.
     private let dispatchQueue: DispatchQueue
 
-    /// URL session used for proxy requests.
-    private let urlSession: URLSession
+    private let transportProvider: () -> RESTTransportProvider?
 
     /// List of all proxied network requests bypassing VPN.
-    private var proxiedRequests: [UUID: URLSessionDataTask] = [:]
+    private var proxiedRequests: [UUID: Cancellable] = [:]
 
-    public init(urlSession: URLSession, dispatchQueue: DispatchQueue) {
-        self.urlSession = urlSession
+    public init(
+        dispatchQueue: DispatchQueue,
+        transportProvider: @escaping () -> RESTTransportProvider?
+    ) {
         self.dispatchQueue = dispatchQueue
+        self.transportProvider = transportProvider
     }
 
     public func sendRequest(
@@ -28,29 +32,28 @@ public final class URLRequestProxy {
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
         dispatchQueue.async {
-            let task = self.urlSession
-                .dataTask(with: proxyRequest.urlRequest) { [weak self] data, response, error in
-                    guard let self = self else { return }
+            // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
+            let transportProvider = self.transportProvider()
+            let transport = proxyRequest.useShadowsocksTransport
+                ? transportProvider?.shadowSocksTransport()
+                : transportProvider?.transport()
+            guard let transport = transport else { return }
+            // The task sent by `transport.sendRequest` comes in an already resumed state
+            let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
+                guard let self = self else { return }
+                // However there is no guarantee about which queue the execution resumes on
+                // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
+                self.dispatchQueue.async {
+                    let response = ProxyURLResponse(data: data, response: response, error: error)
+                    _ = self.removeRequest(identifier: proxyRequest.id)
 
-                    self.dispatchQueue.async {
-                        let response = ProxyURLResponse(
-                            data: data,
-                            response: response,
-                            error: error
-                        )
-
-                        _ = self.removeRequest(identifier: proxyRequest.id)
-
-                        completionHandler(response)
-                    }
+                    completionHandler(response)
                 }
-
+            }
             // All tasks should have unique identifiers, but if not, cancel the task scheduled
             // earlier.
             let oldTask = self.addRequest(identifier: proxyRequest.id, task: task)
             oldTask?.cancel()
-
-            task.resume()
         }
     }
 
@@ -62,11 +65,13 @@ public final class URLRequestProxy {
         }
     }
 
-    private func addRequest(identifier: UUID, task: URLSessionDataTask) -> URLSessionDataTask? {
+    private func addRequest(identifier: UUID, task: Cancellable) -> Cancellable? {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
         return proxiedRequests.updateValue(task, forKey: identifier)
     }
 
-    private func removeRequest(identifier: UUID) -> URLSessionDataTask? {
+    private func removeRequest(identifier: UUID) -> Cancellable? {
+        dispatchPrecondition(condition: .onQueue(dispatchQueue))
         return proxiedRequests.removeValue(forKey: identifier)
     }
 }

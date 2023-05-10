@@ -150,14 +150,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
+        let transportProvider = TunnelTransportProvider(
+            urlSessionTransport: urlSessionTransport,
+            relayCache: relayCache
+        )
+
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { () -> RESTTransport? in
-                return urlSessionTransport
-            },
+            transportProvider: { transportProvider },
             addressCache: addressCache
         )
 
-        urlRequestProxy = URLRequestProxy(urlSession: urlSession, dispatchQueue: dispatchQueue)
+        urlRequestProxy = URLRequestProxy(
+            dispatchQueue: dispatchQueue,
+            transportProvider: { transportProvider }
+        )
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 

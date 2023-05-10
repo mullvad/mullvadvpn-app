@@ -16,6 +16,8 @@ public class ShadowSocksProxy {
     private let remotePort: UInt16
     private let password: String
     private let cipher: String
+    private var didStart = false
+    private let stateLock = NSLock()
 
     public init(remoteAddress: IPAddress, remotePort: UInt16, password: String, cipher: String) {
         proxyConfig = ProxyHandle(context: nil, port: 0)
@@ -29,11 +31,22 @@ public class ShadowSocksProxy {
     ///
     /// - Returns: The local port for the shadow socks proxy when it has started, 0 otherwise.
     public func localPort() -> UInt16 {
-        proxyConfig.port
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return proxyConfig.port
+    }
+
+    deinit {
+        stop()
     }
 
     /// Starts the socks proxy
     public func start() {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        guard didStart == false else { return }
+        didStart = true
+
         // Get the raw bytes of `addr.rawValue`
         remoteAddress.rawValue.withUnsafeBytes { unsafeAddressPointer in
 
@@ -58,6 +71,11 @@ public class ShadowSocksProxy {
 
     /// Stops the socks proxy
     public func stop() {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        guard didStart == true else { return }
+        didStart = false
+
         _ = withUnsafePointer(to: proxyConfig) { pointer in
             stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
         }

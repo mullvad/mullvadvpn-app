@@ -10,13 +10,18 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import RelayCache
+import RelaySelector
 
-final class TransportMonitor {
+final class TransportMonitor: RESTTransportProvider {
     private let tunnelManager: TunnelManager
     private let tunnelStore: TunnelStore
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
     private let logger = Logger(label: "TransportMonitor")
+
+    // MARK: -
+
+    // MARK: Public API
 
     init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, relayCacheTracker: RelayCacheTracker) {
         self.tunnelManager = tunnelManager
@@ -26,16 +31,17 @@ final class TransportMonitor {
         urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
     }
 
-    /// The transport session that automatically rewrites the host and port of each `URLRequest` it creates to a locally
-    /// hosted shadow socks proxy instance
-    var shadowSocksTransport: RESTTransport? {
-        let cachedRelays: CachedRelays
-        do {
-            cachedRelays = try relayCacheTracker.getCachedRelays()
+    public func transport() -> MullvadREST.RESTTransport? {
+        return selectTransport(urlSessionTransport, useShadowsocksTransport: false)
+    }
 
-            let shadowSocksConfiguration = cachedRelays.relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }
-                .randomElement()
-            let shadowSocksBridgeRelay = cachedRelays.relays.bridge.relays.randomElement()
+    public func shadowSocksTransport() -> RESTTransport? {
+        let shadowSocksTransport: RESTTransport
+        do {
+            let cachedRelays = try relayCacheTracker.getCachedRelays()
+
+            let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+            let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
 
             guard let shadowSocksConfiguration = shadowSocksConfiguration,
                   let shadowSocksBridgeRelay = shadowSocksBridgeRelay
@@ -51,7 +57,7 @@ final class TransportMonitor {
                 shadowSocksBridgeRelay: shadowSocksBridgeRelay
             )
 
-            return transport
+            shadowSocksTransport = transport
         } catch {
             logger.error(
                 error: error,
@@ -59,9 +65,25 @@ final class TransportMonitor {
             )
             return nil
         }
+        return selectTransport(shadowSocksTransport, useShadowsocksTransport: true)
     }
 
-    var transport: RESTTransport? {
+    // MARK: -
+
+    // MARK: Private API
+
+    /// Selects a transport to use for sending an `URLRequest`
+    ///
+    /// This method returns the appropriate transport layer based on whether a tunnel is available, and whether it
+    /// should be bypassed
+    /// whenever a transport is requested.
+    ///
+    /// - Parameters:
+    ///   - transport: The transport to use if there is no tunnel, or if it shouldn't be bypassed
+    ///   - useShadowsocksTransport: A hint for enforcing a Shadowsocks transport when proxying a request via an
+    /// available `Tunnel`
+    /// - Returns: A transport to use for sending an `URLRequest`
+    private func selectTransport(_ transport: RESTTransport, useShadowsocksTransport: Bool) -> RESTTransport {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
             return tunnel.status == .connecting ||
                 tunnel.status == .reasserting ||
@@ -69,10 +91,12 @@ final class TransportMonitor {
         }
 
         if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
-            return PacketTunnelTransport(tunnel: tunnel)
-        } else {
-            return urlSessionTransport
+            return PacketTunnelTransport(
+                tunnel: tunnel,
+                useShadowsocksTransport: useShadowsocksTransport
+            )
         }
+        return transport
     }
 
     private func shouldByPassVPN(tunnel: Tunnel) -> Bool {
