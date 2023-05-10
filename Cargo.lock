@@ -380,6 +380,7 @@ version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6358dedf60f4d9b8db43ad187391afe959746101346fe51bb978126bec61dfb"
 dependencies = [
+ "clap 3.2.25",
  "heck",
  "indexmap",
  "log",
@@ -463,6 +464,21 @@ dependencies = [
 
 [[package]]
 name = "clap"
+version = "3.2.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ea181bf566f71cb9a5d17a59e1871af638180a18fb0035c92ae62b705207123"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_lex 0.2.4",
+ "indexmap",
+ "strsim 0.10.0",
+ "termcolor",
+ "textwrap",
+]
+
+[[package]]
+name = "clap"
 version = "4.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34d21f9bf1b425d2968943631ec91202fe5e837264063503708b83013f8fc938"
@@ -481,7 +497,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "bitflags",
- "clap_lex",
+ "clap_lex 0.4.1",
  "once_cell",
  "strsim 0.10.0",
 ]
@@ -492,7 +508,7 @@ version = "4.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a19591b2ab0e3c04b588a0e04ddde7b9eaa423646d1b4a8092879216bf47473"
 dependencies = [
- "clap",
+ "clap 4.2.7",
 ]
 
 [[package]]
@@ -505,6 +521,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.15",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
 ]
 
 [[package]]
@@ -1253,9 +1278,12 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.3.1"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fed44880c466736ef9a5c5b5facefb5ed0785676d0c02d612db14e54f0d84286"
+checksum = "ee512640fe35acbfb4bb779db6f0d80704c2cacfa2e39b601ef3e3f47d1ae4c7"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "hermit-abi"
@@ -1359,9 +1387,9 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
-version = "0.14.26"
+version = "0.14.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab302d72a6f11a3b910431ff93aae7e773078c769f0a3ef15fb9ec692ed147d4"
+checksum = "abfba89e19b959ca163c7752ba59d737c1ceea53a5d31a149c805446fc958064"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -1374,7 +1402,7 @@ dependencies = [
  "httpdate",
  "itoa 1.0.1",
  "pin-project-lite",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "tokio",
  "tower-service",
  "tracing",
@@ -1522,7 +1550,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "723519edce41262b05d4143ceb95050e4c614f483e78e9fd9e39a8275a84ad98"
 dependencies = [
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "widestring 0.5.1",
  "winapi",
  "winreg",
@@ -1560,7 +1588,7 @@ checksum = "adcf93614601c8129ddf72e2d5633df827ba6551541c6d8c59520a371475be1f"
 dependencies = [
  "hermit-abi 0.3.1",
  "io-lifetimes",
- "rustix 0.37.7",
+ "rustix 0.37.3",
  "windows-sys 0.48.0",
 ]
 
@@ -1683,9 +1711,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.141"
+version = "0.2.144"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3304a64d199bb964be99741b7a14d26972741915b3649639149b2479bb46f4b5"
+checksum = "2b00cc1c228a6782d0f076e7b232802e0c5689d41bb5df366f2a6b6621cfdfe1"
 
 [[package]]
 name = "libdbus-sys"
@@ -1710,15 +1738,9 @@ checksum = "f051f77a7c8e6957c0696eac88f26b0117e54f52d3fc682ab19397a8812846a4"
 
 [[package]]
 name = "linux-raw-sys"
-<<<<<<< HEAD
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b64f40e5e03e0d54f03845c8197d0291253cdbedfb1cb46b13c2c117554a9f4c"
-=======
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f508063cc7bb32987c71511216bd5a32be15bccb6a80b52df8b9d7f01fc3aa2"
->>>>>>> dbf4d0573 (Add shadowsocks-proxy crate)
 
 [[package]]
 name = "lock_api"
@@ -1909,7 +1931,7 @@ dependencies = [
  "anyhow",
  "base64 0.13.0",
  "chrono",
- "clap",
+ "clap 4.2.7",
  "clap_complete",
  "env_logger 0.10.0",
  "futures",
@@ -1933,7 +1955,7 @@ dependencies = [
  "android_logger",
  "cfg-if",
  "chrono",
- "clap",
+ "clap 4.2.7",
  "ctrlc",
  "dirs-next",
  "duct",
@@ -2062,7 +2084,7 @@ dependencies = [
 name = "mullvad-problem-report"
 version = "0.0.0"
 dependencies = [
- "clap",
+ "clap 4.2.7",
  "dirs-next",
  "duct",
  "env_logger 0.10.0",
@@ -2107,7 +2129,7 @@ dependencies = [
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
- "clap",
+ "clap 4.2.7",
  "env_logger 0.10.0",
  "err-derive",
  "lazy_static",
@@ -2127,7 +2149,7 @@ name = "mullvad-types"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "clap",
+ "clap 4.2.7",
  "err-derive",
  "ipnetwork",
  "jnix",
@@ -2399,12 +2421,10 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-=======
 name = "os_str_bytes"
-version = "6.0.0"
+version = "6.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e22443d1643a904602595ba1cd8f7d896afe56d26712531c5ff73a15b2fbf64"
+checksum = "ceedf44fb00f2d1984b0bc98102627ce622e083e49a5bacdb3e514fa4238e267"
 
 [[package]]
 name = "oslog"
@@ -2418,7 +2438,6 @@ dependencies = [
 ]
 
 [[package]]
->>>>>>> dbf4d0573 (Add shadowsocks-proxy crate)
 name = "p256"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3033,25 +3052,15 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-<<<<<<< HEAD
 version = "0.37.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b24138615de35e32031d041a09032ef3487a616d901ca4db224e7d557efae2"
-=======
-version = "0.37.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2aae838e49b3d63e9274e1c01833cc8139d3fec468c3b84688c628f44b1ae11d"
->>>>>>> dbf4d0573 (Add shadowsocks-proxy crate)
 dependencies = [
  "bitflags",
  "errno 0.3.1",
  "io-lifetimes",
  "libc",
-<<<<<<< HEAD
  "linux-raw-sys 0.3.6",
-=======
- "linux-raw-sys 0.3.2",
->>>>>>> dbf4d0573 (Add shadowsocks-proxy crate)
  "windows-sys 0.45.0",
 ]
 
@@ -3252,7 +3261,7 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "spin 0.9.2",
  "thiserror",
  "tokio",
@@ -3353,7 +3362,7 @@ dependencies = [
  "regex",
  "serde",
  "shadowsocks 1.15.3",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "spin 0.9.2",
  "thiserror",
  "tokio",
@@ -3458,9 +3467,9 @@ checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 
 [[package]]
 name = "socket2"
-version = "0.4.9"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64a4a911eed85daf18834cfaa86a79b7d266ff93ff5ba14005426219480ed662"
+checksum = "66d72b759436ae32898a2af0a14218dbf55efde3feeb170eb623637db85ee1e0"
 dependencies = [
  "libc",
  "winapi",
@@ -3635,7 +3644,7 @@ dependencies = [
  "rtnetlink",
  "shadowsocks-service 1.16.0",
  "shell-escape",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "subslice",
  "system-configuration",
  "talpid-dbus",
@@ -3695,7 +3704,7 @@ dependencies = [
  "prost",
  "shadowsocks-service 1.16.0",
  "shell-escape",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-types",
@@ -3753,7 +3762,7 @@ dependencies = [
  "netlink-packet-route",
  "netlink-sys",
  "rtnetlink",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "talpid-types",
  "talpid-windows-net",
  "tokio",
@@ -3830,7 +3839,7 @@ dependencies = [
  "err-derive",
  "futures",
  "libc",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "winapi",
  "windows-sys 0.45.0",
 ]
@@ -3859,7 +3868,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rtnetlink",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "talpid-dbus",
  "talpid-routing",
  "talpid-tunnel",
@@ -3895,6 +3904,12 @@ checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
 dependencies = [
  "winapi-util",
 ]
+
+[[package]]
+name = "textwrap"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "222a222a5bfe1bba4a77b45ec488a741b3cb8872e5e499451fd7d0129c9c7c3d"
 
 [[package]]
 name = "thiserror"
@@ -3965,7 +3980,7 @@ dependencies = [
  "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "tokio-macros",
  "windows-sys 0.45.0",
 ]
@@ -4025,7 +4040,7 @@ dependencies = [
  "log",
  "once_cell",
  "pin-project",
- "socket2 0.4.9",
+ "socket2 0.4.4",
  "tokio",
  "windows-sys 0.36.1",
 ]
