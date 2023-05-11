@@ -80,7 +80,6 @@ impl RoutingSocket {
         match self.socket.write(&msg).await {
             Ok(_) => self.wait_for_response(seq).await,
             Err(err) => {
-                self.seq -= 1;
                 Err(Error::WriteError(err))
             }
         }
@@ -109,7 +108,7 @@ impl RoutingSocket {
     /// Will panic if the message length ends up overflowing an i32.
     fn next_route_msg(&mut self, message: &RouteMessage, msg_type: MessageType) -> (Vec<u8>, i32) {
         let seq = self.seq;
-        self.seq += 1;
+        self.seq = seq.wrapping_add(1);
 
         let (header, payload) = message.payload(msg_type, seq, self.own_pid);
         let mut msg_buffer = vec![0u8; header.rtm_msglen.into()];
