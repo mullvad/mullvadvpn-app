@@ -8,7 +8,28 @@ on:
       - '**/*.rs'
   workflow_dispatch:
 jobs:
-  clippy_check:
+  prepare-android:
+    name: Prepare Android container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image_android=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image_android=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image_android: ${{ env.inner_container_image_android }}
+
+  clippy-check-desktop:
+    name: Clippy linting, desktop
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -43,3 +64,21 @@ jobs:
           export RUSTFLAGS="--deny warnings"
           source env.sh
           time cargo clippy --locked -- -W clippy::unused_async
+
+  clippy-check-android:
+    name: Clippy linting, Android
+    needs: prepare-android
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-android.outputs.container_image_android }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Clippy check
+        shell: bash
+        run: |-
+          export RUSTFLAGS="--deny warnings"
+          source env.sh
+          time cargo clippy --locked --target x86_64-linux-android -- -W clippy::unused_async
