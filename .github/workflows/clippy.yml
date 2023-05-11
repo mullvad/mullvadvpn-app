@@ -74,6 +74,11 @@ jobs:
       image: ${{ needs.prepare-android.outputs.container_image_android }}
 
     steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
