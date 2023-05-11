@@ -1,5 +1,7 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
 #![cfg_attr(target_os = "windows", allow(dead_code))]
+use crate::Route;
+
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::RequiredRoute;
 #[cfg(target_os = "linux")]
@@ -87,6 +89,16 @@ impl RouteManagerHandle {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::NewDefaultRouteListener(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Get current non-tunnel default routes.
+    #[cfg(target_os = "macos")]
+    pub async fn get_default_routes(&self) -> Result<(Option<Route>, Option<Route>), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetDefaultRoutes(response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
@@ -200,8 +212,8 @@ pub(crate) enum RouteManagerCommand {
     Shutdown(oneshot::Sender<()>),
     #[cfg(target_os = "macos")]
     NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
-    #[cfg(target_os = "linux")]
-    CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "macos")]
+    GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
     #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]

@@ -1,6 +1,6 @@
 use crate::{
     imp::{imp::watch::data::{RouteSocketMessage}, RouteManagerCommand},
-    NetNode, RequiredRoute, Route,
+    NetNode, RequiredRoute, Route, Node,
 };
 
 use futures::{
@@ -200,6 +200,32 @@ impl RouteManagerImpl {
                             let (events_tx, events_rx) = mpsc::unbounded();
                             self.default_route_listeners.push(events_tx);
                             let _ = tx.send(events_rx);
+                        }
+                        Some(RouteManagerCommand::GetDefaultRoutes(tx)) => {
+                            // NOTE: The device name isn't really relevant here,
+                            // as we only care about routes with a gateway IP.
+                            let v4_route = self.v4_default_route.as_ref().map(|route| {
+                                Route {
+                                    node: Node {
+                                        device: None,
+                                        ip: route.gateway_ip(),
+                                    },
+                                    prefix: v4_default(),
+                                    metric: None,
+                                }
+                            });
+                            let v6_route = self.v6_default_route.as_ref().map(|route| {
+                                Route {
+                                    node: Node {
+                                        device: None,
+                                        ip: route.gateway_ip(),
+                                    },
+                                    prefix: v6_default(),
+                                    metric: None,
+                                }
+                            });
+
+                            let _ = tx.send((v4_route, v6_route));
                         }
 
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {

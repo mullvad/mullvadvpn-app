@@ -63,9 +63,15 @@ pub async fn spawn_monitor(
 ) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
 
-    // FIXME: initialize using current routes
-    let v4_connectivity = true;
-    let v6_connectivity = false;
+    let (v4_connectivity, v6_connectivity) = match route_manager_handle.get_default_routes().await {
+        Ok((v4_route, v6_route)) => {
+            (v4_route.is_some(), v6_route.is_some())
+        }
+        Err(error) => {
+            log::warn!("Failed to initialize offline monitor: {error}");
+            (true, true)
+        }
+    };
 
     let state = Arc::new(Mutex::new(ConnectivityState {
         v4_connectivity,
