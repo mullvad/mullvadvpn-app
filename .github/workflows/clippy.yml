@@ -78,7 +78,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Clippy check
+        shell: bash
         env:
           RUSTFLAGS: --deny warnings
         run: |
+          source env.sh x86_64-linux-android
           cargo clippy --locked --target x86_64-linux-android -- -W clippy::unused_async
