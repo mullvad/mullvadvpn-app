@@ -345,25 +345,22 @@ export default class AppRenderer {
     this.previousLoginState = this.loginState;
     this.loginState = 'logging in';
 
-    try {
-      await IpcRendererEventChannel.account.login(accountToken);
-    } catch (e) {
-      const error = e as Error;
-      if (error.message === 'Too many devices') {
+    const response = await IpcRendererEventChannel.account.login(accountToken);
+    if (response?.type === 'error') {
+      if (response.error === 'too-many-devices') {
         try {
           await this.fetchDevices(accountToken);
 
-          actions.account.loginTooManyDevices(error);
+          actions.account.loginTooManyDevices();
           this.loginState = 'too many devices';
 
           this.history.reset(RoutePath.tooManyDevices, { transition: transitions.push });
         } catch (e) {
-          const error = e as Error;
           log.error('Failed to fetch device list');
-          actions.account.loginFailed(error);
+          actions.account.loginFailed('list-devices');
         }
       } else {
-        actions.account.loginFailed(error);
+        actions.account.loginFailed(response.error);
       }
     }
   };

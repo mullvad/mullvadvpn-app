@@ -1,5 +1,6 @@
 import { closeToExpiry } from '../shared/account-expiry';
 import {
+  AccountDataError,
   AccountToken,
   DeviceEvent,
   DeviceState,
@@ -7,7 +8,6 @@ import {
   IDeviceRemoval,
   TunnelState,
 } from '../shared/daemon-rpc-types';
-import { messages } from '../shared/gettext';
 import log from '../shared/logging';
 import {
   AccountExpiredNotificationProvider,
@@ -17,7 +17,6 @@ import {
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { DaemonRpc } from './daemon-rpc';
-import { InvalidAccountError } from './errors';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { NotificationSender } from './notification-controller';
 import { TunnelStateProvider } from './tunnel-state';
@@ -70,7 +69,9 @@ export default class Account {
 
   public registerIpcListeners() {
     IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
-    IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
+    IpcMainEventChannel.account.handleLogin(
+      async (token: AccountToken) => (await this.login(token)) ?? undefined,
+    );
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
@@ -162,18 +163,12 @@ export default class Account {
     }
   }
 
-  private async login(accountToken: AccountToken): Promise<void> {
-    try {
-      await this.daemonRpc.loginAccount(accountToken);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to login: ${error.message}`);
+  private async login(accountToken: AccountToken): Promise<AccountDataError | void> {
+    const error = await this.daemonRpc.loginAccount(accountToken);
 
-      if (error instanceof InvalidAccountError) {
-        throw Error(messages.gettext('Invalid account number'));
-      } else {
-        throw error;
-      }
+    if (error) {
+      log.error(`Failed to login: ${error.error}`);
+      return error;
     }
   }
 

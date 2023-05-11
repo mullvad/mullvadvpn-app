@@ -1,13 +1,20 @@
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
-import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
+import {
+  AccountDataError,
+  AccountDataResponse,
+  AccountToken,
+  IAccountData,
+  VoucherResponse,
+} from '../shared/daemon-rpc-types';
 import { dateByAddingComponent, DateComponent } from '../shared/date-helper';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
-import { InvalidAccountError } from './errors';
+
+export type AccountFetchError = AccountDataError['error'] | 'cancelled';
 
 interface IAccountFetchWatcher {
   onFinish: () => void;
-  onError: (error: Error) => void;
+  onError: (error: AccountFetchError) => void;
 }
 
 // Account data is valid for 1 minute unless the account has expired.
@@ -26,7 +33,7 @@ export default class AccountDataCache {
   private watchers: IAccountFetchWatcher[] = [];
 
   constructor(
-    private fetchHandler: (token: AccountToken) => Promise<IAccountData>,
+    private fetchHandler: (token: AccountToken) => Promise<AccountDataResponse>,
     private updateHandler: (data?: IAccountData) => void,
   ) {}
 
@@ -64,7 +71,7 @@ export default class AccountDataCache {
     this.validUntil = undefined;
     this.updateHandler();
     this.notifyWatchers((watcher) => {
-      watcher.onError(new Error('Cancelled'));
+      watcher.onError('cancelled');
     });
   }
 
@@ -94,27 +101,25 @@ export default class AccountDataCache {
 
   private async performFetch(accountToken: AccountToken) {
     this.performingFetch = true;
-    try {
-      // it's possible for invalidate() to be called or for a fetch for a different account token
-      // to start before this fetch completes, so checking if the current account token is the one
-      // used is necessary below.
-      const accountData = await this.fetchHandler(accountToken);
-
+    // it's possible for invalidate() to be called or for a fetch for a different account token
+    // to start before this fetch completes, so checking if the current account token is the one
+    // used is necessary below.
+    const response = await this.fetchHandler(accountToken);
+    if ('error' in response) {
       if (this.currentAccount === accountToken) {
-        this.setValue(accountData);
+        this.handleFetchError(accountToken, response.error);
+        this.performingFetch = false;
+      }
+    } else {
+      if (this.currentAccount === accountToken) {
+        this.setValue(response);
 
-        const refetchDelay = this.calculateRefetchDelay(accountData.expiry);
+        const refetchDelay = this.calculateRefetchDelay(response.expiry);
         if (refetchDelay) {
           this.scheduleFetch(accountToken, refetchDelay);
         }
 
         this.waitStrategy.reset();
-        this.performingFetch = false;
-      }
-    } catch (e) {
-      const error = e as Error;
-      if (this.currentAccount === accountToken) {
-        this.handleFetchError(accountToken, error);
         this.performingFetch = false;
       }
     }
@@ -131,9 +136,9 @@ export default class AccountDataCache {
     }
   }
 
-  private handleFetchError(accountToken: AccountToken, error: Error) {
+  private handleFetchError(accountToken: AccountToken, error: AccountDataError['error']) {
     this.notifyWatchers((w) => w.onError(error));
-    if (!(error instanceof InvalidAccountError)) {
+    if (error !== 'invalid-account') {
       this.scheduleRetry(accountToken);
     }
   }

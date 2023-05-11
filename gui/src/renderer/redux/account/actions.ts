@@ -1,4 +1,4 @@
-import { AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
+import { AccountDataError, AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
@@ -13,12 +13,11 @@ interface ILoggedInAction {
 
 interface ILoginFailedAction {
   type: 'LOGIN_FAILED';
-  error: Error;
+  error: AccountDataError['error'];
 }
 
 interface ILoginTooManyDevicesAction {
   type: 'TOO_MANY_DEVICES';
-  error: Error;
 }
 
 interface IPrepareLogoutAction {
@@ -115,17 +114,16 @@ function loggedIn(accountToken: AccountToken, device?: IDevice): ILoggedInAction
   };
 }
 
-function loginFailed(error: Error): ILoginFailedAction {
+function loginFailed(error: AccountDataError['error']): ILoginFailedAction {
   return {
     type: 'LOGIN_FAILED',
     error,
   };
 }
 
-function loginTooManyDevices(error: Error): ILoginTooManyDevicesAction {
+function loginTooManyDevices(): ILoginTooManyDevicesAction {
   return {
     type: 'TOO_MANY_DEVICES',
-    error,
   };
 }
 

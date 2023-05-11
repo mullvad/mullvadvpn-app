@@ -2,6 +2,7 @@ import { GetTextTranslations } from 'gettext-parser';
 
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from './application-types';
 import {
+  AccountDataError,
   AccountToken,
   BridgeSettings,
   BridgeState,
@@ -183,7 +184,7 @@ export const ipcSchema = {
     device: notifyRenderer<DeviceEvent>(),
     devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
-    login: invoke<AccountToken, void>(),
+    login: invoke<AccountToken, AccountDataError | undefined>(),
     logout: invoke<void, void>(),
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),

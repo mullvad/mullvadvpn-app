@@ -1,11 +1,13 @@
-import { AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
+import { AccountDataError, AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
 import { ReduxAction } from '../store';
 
 type LoginMethod = 'existing_account' | 'new_account';
 export type LoginState =
   | { type: 'none'; deviceRevoked: boolean }
   | { type: 'logging in' | 'ok'; method: LoginMethod }
-  | { type: 'failed' | 'too many devices'; method: LoginMethod; error: Error };
+  | { type: 'too many devices'; method: LoginMethod }
+  | { type: 'failed'; method: 'existing_account'; error: AccountDataError['error'] }
+  | { type: 'failed'; method: 'new_account'; error: Error };
 export interface IAccountReduxState {
   accountToken?: AccountToken;
   deviceName?: string;
@@ -52,7 +54,7 @@ export default function (
     case 'TOO_MANY_DEVICES':
       return {
         ...state,
-        status: { type: 'too many devices', method: 'existing_account', error: action.error },
+        status: { type: 'too many devices', method: 'existing_account' },
       };
     case 'PREPARE_LOG_OUT':
       return {

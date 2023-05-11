@@ -1,6 +1,14 @@
 export interface IAccountData {
   expiry: string;
 }
+
+export type AccountDataError = {
+  type: 'error';
+  error: 'invalid-account' | 'too-many-devices' | 'list-devices' | 'communication';
+};
+
+export type AccountDataResponse = ({ type: 'success' } & IAccountData) | AccountDataError;
+
 export type AccountToken = string;
 export type Ip = string;
 export interface ILocation {
