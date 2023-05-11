@@ -184,7 +184,6 @@ impl RouteManagerImpl {
         loop {
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
-                    // TODO: forward default route changes
                     self.handle_route_message(route_message).await;
                 }
 
