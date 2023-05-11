@@ -10,23 +10,27 @@ import Foundation
 import UIKit.UIColor
 import UIKit.UIFont
 
-final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotificationProvider {
+final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
+    InAppNotificationProvider
+{
     // MARK: - private properties
 
     private let tunnelManager: TunnelManager
 
-    private var shouldShowBanner = false
-    private var deviceState: DeviceState
+    private var storedDeviceData: StoredDeviceData? {
+        tunnelManager.deviceState.deviceData
+    }
+
     private var tunnelObserver: TunnelBlockObserver?
+    private var isNewDeviceRegistered = false
 
     private var attributedBody: NSAttributedString {
-        guard case let .loggedIn(_, storedDeviceData) = deviceState else { return .init(string: "") }
         let formattedString = NSLocalizedString(
             "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY",
             value: "Welcome, this device is now called **%@**. For more details see the info button in Account.",
             comment: ""
         )
-        let deviceName = storedDeviceData.capitalizedName
+        let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
         return NSMutableAttributedString(markdownString: string, font: .systemFont(ofSize: 14.0)) { deviceName in
             return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
@@ -36,7 +40,7 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
     // MARK: - public properties
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        guard shouldShowBanner else { return nil }
+        guard isNewDeviceRegistered else { return nil }
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .success,
@@ -49,11 +53,9 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
             action: .init(
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
-                    guard let self = self else { return }
-
+                    guard let self else { return }
+                    self.isNewDeviceRegistered = false
                     self.sendAction()
-
-                    self.shouldShowBanner = false
                     self.invalidate()
                 }
             )
@@ -62,27 +64,33 @@ final class RegisteredDeviceInAppNotification: NotificationProvider, InAppNotifi
 
     // MARK: - initialize
 
-    static let identifier = "net.mullvad.MullvadVPN.RegisteredDeviceInAppNotification"
-
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
-        deviceState = tunnelManager.deviceState
         super.init()
         addObservers()
     }
 
-    override var identifier: String {
-        return Self.identifier
+    override var identifier: NotificationProviderIdentifier {
+        .registeredDeviceInAppNotification
     }
 
     private func addObservers() {
         tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
-                guard let self = self, case .loggedIn = deviceState else { return }
+                if previousDeviceState == .loggedOut,
+                   case .loggedIn = deviceState
+                {
+                    self?.isNewDeviceRegistered = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                        self?.invalidate()
+                    }
 
-                self.shouldShowBanner = true
-                self.deviceState = deviceState
-                self.invalidate()
+                } else if case .loggedIn = previousDeviceState,
+                          deviceState == .loggedOut || deviceState == .revoked
+                {
+                    self?.isNewDeviceRegistered = false
+                    self?.invalidate()
+                }
             })
         tunnelObserver.flatMap { tunnelManager.addObserver($0) }
     }

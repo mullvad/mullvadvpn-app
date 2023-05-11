@@ -20,7 +20,8 @@ private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate
+    UISplitViewControllerDelegate, ApplicationRouterDelegate,
+    NotificationManagerDelegate
 {
     /**
      Application router.
@@ -707,8 +708,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         switch deviceState {
         case let .loggedIn(accountData, _):
+            let shouldHideDeviceInfo = previousDeviceState == .loggedOut
             updateOutOfTimeTimer(accountData: accountData)
-            updateView(deviceState: deviceState, showDeviceInfo: false)
+            updateView(deviceState: deviceState, showDeviceInfo: !shouldHideDeviceInfo)
 
             // Handle transition to and from expired state.
             let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
@@ -727,6 +729,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
+            updateView(deviceState: deviceState, showDeviceInfo: false)
 
         case .loggedOut:
             cancelOutOfTimeTimer()
@@ -735,7 +738,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
-        let configuration = RootConfigration(
+        let configuration = RootConfiguration(
             deviceName: deviceState.deviceData?.capitalizedName,
             expiry: deviceState.accountData?.expiry,
             showsAccountButton: deviceState.isLoggedIn,
@@ -863,10 +866,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func notificationManager(_ manager: NotificationManager, didReceiveResponse response: NotificationResponse) {
-        if response.providerIdentifier == AccountExpirySystemNotificationProvider.identifier {
+        switch response.providerIdentifier {
+        case .accountExpirySystemNotification:
             router.present(.account)
-        } else if response.providerIdentifier == RegisteredDeviceInAppNotification.identifier {
+        case .registeredDeviceInAppNotification:
             updateView(deviceState: tunnelManager.deviceState)
+        default: return
         }
     }
 

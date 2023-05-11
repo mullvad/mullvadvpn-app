@@ -63,11 +63,11 @@ final class NotificationManager: NotificationProviderDelegate {
         for notificationProvider in notificationProviders {
             if let notificationProvider = notificationProvider as? SystemNotificationProvider {
                 if notificationProvider.shouldRemovePendingRequests {
-                    pendingRequestIdentifiersToRemove.append(notificationProvider.identifier)
+                    pendingRequestIdentifiersToRemove.append(notificationProvider.identifier.domainIdentifier)
                 }
 
                 if notificationProvider.shouldRemoveDeliveredRequests {
-                    deliveredRequestIdentifiersToRemove.append(notificationProvider.identifier)
+                    deliveredRequestIdentifiersToRemove.append(notificationProvider.identifier.domainIdentifier)
                 }
 
                 if let request = notificationProvider.notificationRequest {
@@ -120,7 +120,7 @@ final class NotificationManager: NotificationProviderDelegate {
         guard let sourceProvider = notificationProviders.first(where: { notificationProvider in
             guard let notificationProvider = notificationProvider as? SystemNotificationProvider else { return false }
 
-            return response.notification.request.identifier == notificationProvider.identifier
+            return response.notification.request.identifier == notificationProvider.identifier.domainIdentifier
         }) else {
             logger.warning(
                 "Received response with request identifier: \(response.notification.request.identifier) that didn't map to any notification provider"
@@ -179,13 +179,13 @@ final class NotificationManager: NotificationProviderDelegate {
 
             if notificationProvider.shouldRemovePendingRequests {
                 notificationCenter.removePendingNotificationRequests(withIdentifiers: [
-                    notificationProvider.identifier,
+                    notificationProvider.identifier.domainIdentifier,
                 ])
             }
 
             if notificationProvider.shouldRemoveDeliveredRequests {
                 notificationCenter.removeDeliveredNotifications(withIdentifiers: [
-                    notificationProvider.identifier,
+                    notificationProvider.identifier.domainIdentifier,
                 ])
             }
 
