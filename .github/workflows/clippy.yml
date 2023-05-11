@@ -83,4 +83,4 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh x86_64-linux-android
-          cargo clippy --locked --target x86_64-linux-android -- -W clippy::unused_async
+          cargo clippy +stable --locked --target x86_64-linux-android -- -W clippy::unused_async
