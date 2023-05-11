@@ -137,7 +137,8 @@ struct AppliedRoute {
 pub struct RouteManagerImpl {
     routing_table: RoutingTable,
     default_destinations: HashSet<IpNetwork>,
-    tunnel_default_route: Option<watch::data::RouteMessage>,
+    v4_tunnel_default_route: Option<watch::data::RouteMessage>,
+    v6_tunnel_default_route: Option<watch::data::RouteMessage>,
     applied_routes: BTreeMap<RouteDestination, AppliedRoute>,
     v4_default_route: Option<watch::data::RouteMessage>,
     v6_default_route: Option<watch::data::RouteMessage>,
@@ -151,7 +152,8 @@ impl RouteManagerImpl {
         Ok(Self {
             routing_table,
             default_destinations: HashSet::new(),
-            tunnel_default_route: None,
+            v4_tunnel_default_route: None,
+            v6_tunnel_default_route: None,
             applied_routes: BTreeMap::new(),
             v4_default_route: None,
             v6_default_route: None,
@@ -297,10 +299,6 @@ impl RouteManagerImpl {
             if route.prefix.prefix() == 0 {
                 // TODO: simplify by just ifscoping existing route here?
 
-                // FIXME: ignoring v6
-                if route.prefix.is_ipv6() {
-                    continue;
-                }
                 log::debug!("FIXME: Default tunnel route: {message:?}");
 
                 //FIXME: remove: let cstr_device = CString::new(device).expect("FIXME: handle better");
@@ -308,7 +306,11 @@ impl RouteManagerImpl {
 
                 //FIXME: remove: log::debug!("FIXME: tun index: {idx}");
 
-                self.tunnel_default_route = Some(message);
+                if route.prefix.is_ipv4() {
+                    self.v4_tunnel_default_route = Some(message);
+                } else {
+                    self.v6_tunnel_default_route = Some(message);
+                }
                 continue;
             }
 
@@ -423,12 +425,14 @@ impl RouteManagerImpl {
         let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
 
         // Ignore the new route if it is our tunnel route, lest we create a loop
-        if let Some(tunnel_route) = self.tunnel_default_route.clone() {
-            let tun_gateway_link_addr = tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
+        for tunnel_default_route in [&self.v4_tunnel_default_route, &self.v6_tunnel_default_route] {
+            if let Some(tunnel_route) = tunnel_default_route.clone() {
+                let tun_gateway_link_addr = tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
 
-            if new_gateway_link_addr == tun_gateway_link_addr {
-                log::debug!("FIXME: ignoring tunnel default route");
-                return Ok(());
+                if new_gateway_link_addr == tun_gateway_link_addr {
+                    log::debug!("FIXME: ignoring tunnel default route");
+                    return Ok(());
+                }
             }
         }
 
@@ -499,30 +503,32 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    /// Replace the default route with an ifscope route, and
+    /// Replace the default routes with an ifscope route, and
     /// add a new default tunnel route.
     async fn apply_tunnel_default_route(&mut self) -> Result<()> {
-        let tunnel_route = match self.tunnel_default_route.clone() {
-            Some(route) => route,
-            None => return Ok(()),
-        };
+        for tunnel_route in [self.v4_tunnel_default_route.clone(), self.v6_tunnel_default_route.clone()] {
+            let tunnel_route = match tunnel_route {
+                Some(route) => route,
+                None => return Ok(()),
+            };
 
-        // Do nothing if the default route is already ifscoped or non-existent
-        let ((true, default_route, _) | (false, _, default_route)) = (tunnel_route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
-        match default_route {
-            Some(route) if route.is_ifscope() => return Ok(()),
-            None => return Ok(()),
-            Some(_) => (),
+            // Do nothing if the default route is already ifscoped or non-existent
+            let ((true, default_route, _) | (false, _, default_route)) = (tunnel_route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
+            match default_route {
+                Some(route) if route.is_ifscope() => return Ok(()),
+                None => return Ok(()),
+                Some(_) => (),
+            }
+
+            log::debug!("Adding default route for tunnel");
+
+            // Replace the default route with an ifscope route
+            self.set_default_route_ifscope(tunnel_route.is_ipv4(), true).await?;
+            let _ = self.routing_table.delete_route(&tunnel_route).await;
+            self.add_route_with_record(tunnel_route).await?;
+
+            log::debug!("FIXME: added replacement");
         }
-
-        log::debug!("Adding default route for tunnel");
-
-        // Replace the default route with an ifscope route
-        self.set_default_route_ifscope(tunnel_route.is_ipv4(), true).await?;
-        let _ = self.routing_table.delete_route(&tunnel_route).await;
-        self.add_route_with_record(tunnel_route).await?;
-
-        log::debug!("FIXME: added replacement");
 
         Ok(())
     }
@@ -674,13 +680,11 @@ impl RouteManagerImpl {
             log::error!("Failed to restore default routes: {error}");
         }
 
-        // We have already removed the applied default route
-        self.tunnel_default_route = None;
+        // We have already removed the applied default routes
+        self.v4_tunnel_default_route = None;
+        self.v6_tunnel_default_route = None;
 
         self.default_destinations.clear();
-
-        //self.v4_default_route = None;
-        //self.v6_default_route = None;
 
         Ok(())
     }
