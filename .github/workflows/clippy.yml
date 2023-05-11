@@ -60,8 +60,9 @@ jobs:
 
       - name: Clippy check
         shell: bash
-        run: |-
-          export RUSTFLAGS="--deny warnings"
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
           source env.sh
           time cargo clippy --locked -- -W clippy::unused_async
 
@@ -77,8 +78,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Clippy check
-        shell: bash
-        run: |-
-          export RUSTFLAGS="--deny warnings"
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
           source env.sh
           time cargo clippy --locked --target x86_64-linux-android -- -W clippy::unused_async
