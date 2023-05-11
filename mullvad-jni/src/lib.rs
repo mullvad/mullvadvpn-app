@@ -30,7 +30,6 @@ use mullvad_types::{
 use std::{
     io,
     path::{Path, PathBuf},
-    ptr,
     sync::{
         atomic::{AtomicUsize, Ordering},
         mpsc, Arc, Once,
@@ -82,12 +81,12 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
         match result {
             Ok(account_data) => GetAccountDataResult::Ok(account_data),
             Err(error) => match error {
-                daemon_interface::Error::RpcError(RestError::ApiError(status, _code))
+                daemon_interface::Error::Api(RestError::ApiError(status, _code))
                     if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
                 {
                     GetAccountDataResult::InvalidAccount
                 }
-                daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
+                daemon_interface::Error::Api(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
         }
@@ -117,7 +116,7 @@ impl From<Result<(), daemon_interface::Error>> for LoginResult {
                         _ => LoginResult::OtherError,
                     }
                 }
-                daemon_interface::Error::RpcError(_) => LoginResult::RpcError,
+                daemon_interface::Error::Api(_) => LoginResult::RpcError,
                 _ => LoginResult::OtherError,
             },
         }
@@ -146,7 +145,7 @@ impl From<Result<(), daemon_interface::Error>> for RemoveDeviceResult {
                         _ => RemoveDeviceResult::OtherError,
                     }
                 }
-                daemon_interface::Error::RpcError(_) => RemoveDeviceResult::RpcError,
+                daemon_interface::Error::Api(_) => RemoveDeviceResult::RpcError,
                 _ => RemoveDeviceResult::OtherError,
             },
         }
@@ -181,14 +180,12 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
 impl From<daemon_interface::Error> for VoucherSubmissionError {
     fn from(error: daemon_interface::Error) -> Self {
         match error {
-            daemon_interface::Error::RpcError(RestError::ApiError(_, code)) => {
-                match code.as_str() {
-                    mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
-                    mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
-                    _ => VoucherSubmissionError::RpcError,
-                }
-            }
-            daemon_interface::Error::RpcError(_) => VoucherSubmissionError::RpcError,
+            daemon_interface::Error::Api(RestError::ApiError(_, code)) => match code.as_str() {
+                mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
+                mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
+                _ => VoucherSubmissionError::RpcError,
+            },
+            daemon_interface::Error::Api(_) => VoucherSubmissionError::RpcError,
             _ => VoucherSubmissionError::OtherError,
         }
     }
@@ -559,7 +556,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deiniti
 
     set_daemon_interface_address(&env, &this, 0);
 
-    if daemon_interface_address != ptr::null_mut() {
+    if !daemon_interface_address.is_null() {
         let _ = unsafe { Box::from_raw(daemon_interface_address) };
     }
 }
@@ -567,7 +564,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deiniti
 fn get_daemon_interface<'a>(address: jlong) -> Option<&'a mut DaemonInterface> {
     let pointer = address as *mut DaemonInterface;
 
-    if pointer != ptr::null_mut() {
+    if !pointer.is_null() {
         Some(Box::leak(unsafe { Box::from_raw(pointer) }))
     } else {
         log::error!("Attempt to get daemon interface while it is null");
@@ -1206,7 +1203,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setObfu
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
-        daemon_interface::Error::RpcError(RestError::Aborted) => {
+        daemon_interface::Error::Api(RestError::Aborted) => {
             log::debug!("Request to {} cancelled", request);
         }
         error => {

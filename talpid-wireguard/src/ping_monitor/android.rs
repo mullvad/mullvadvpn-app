@@ -50,7 +50,7 @@ impl super::Pinger for Pinger {
     }
 
     fn reset(&mut self) {
-        let processes = std::mem::replace(&mut self.processes, vec![]);
+        let processes = std::mem::take(&mut self.processes);
         for proc in processes {
             if proc
                 .try_wait()
