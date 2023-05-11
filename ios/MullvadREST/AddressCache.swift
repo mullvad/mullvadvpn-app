@@ -200,7 +200,7 @@ extension REST {
             case .reading:
                 fileCoordinator.coordinate(
                     readingItemAt: cacheFileURL,
-                    options: [],
+                    options: [.withoutChanges],
                     error: &error,
                     byAccessor: accessor
                 )
