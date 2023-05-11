@@ -74,6 +74,7 @@ extension REST {
                     logger.error(error: error)
                 }
             }
+
             return currentEndpoint
         }
 
@@ -143,12 +144,11 @@ extension REST {
         ///
         /// - Returns: A list of cached API endpoints in a `CachedAddresses` form
         private func readFromCache() throws -> CachedAddresses {
-            let unknownReadError = NSError(domain: NSPOSIXErrorDomain, code: NSFileReadUnknownError)
-            var result: Result<CachedAddresses, Swift.Error> = .failure(unknownReadError)
+            let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
-            let readCacheAccessor = { (fileURL: URL) in
-                result = Result {
-                    let data = try Data(contentsOf: fileURL)
+            let result = try fileCoordinator
+                .coordinate(readingItemAt: cacheFileURL, options: [.withoutChanges]) { file in
+                    let data = try Data(contentsOf: file)
                     let cachedAddresses = try JSONDecoder().decode(CachedAddresses.self, from: data)
 
                     if cachedAddresses.endpoints.isEmpty {
@@ -157,69 +157,20 @@ extension REST {
 
                     return cachedAddresses
                 }
-            }
 
-            if let error = accessCache(for: .reading, accessor: readCacheAccessor) {
-                result = .failure(error)
-            }
-            return try result.get()
+            return result
         }
 
         /// Writes the cache file to the disk
         private func writeToCache() throws {
             precondition(canWriteToCache == true)
-
-            let unknownWriteError = NSError(domain: NSPOSIXErrorDomain, code: NSFileWriteUnknownError)
-            var result: Result<Void, Swift.Error> = .failure(unknownWriteError)
-
-            let writeCacheAccessor = { (fileURL: URL) in
-                result = Result {
-                    let data = try JSONEncoder().encode(self.cachedAddresses)
-                    try data.write(to: fileURL)
-                }
-            }
-
-            if let error = accessCache(for: .writing, accessor: writeCacheAccessor) {
-                result = .failure(error)
-            }
-            return try result.get()
-        }
-
-        /// A helper function that uses an `NSFileCoordinator` to either read, or write the cache file from disk
-        ///
-        /// - Parameters:
-        ///   - action: `.reading` or `.writing`
-        ///   - accessor: The `accessor` closure used by `NSFileCoordinator`
-        /// - Returns: `nil`, or `Swift.Error` if an error happened when accessing the cache file
-        private func accessCache(for action: CacheAction, accessor: (URL) -> Void) -> Swift.Error? {
             let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
-            var error: NSError?
-
-            switch action {
-            case .reading:
-                fileCoordinator.coordinate(
-                    readingItemAt: cacheFileURL,
-                    options: [.withoutChanges],
-                    error: &error,
-                    byAccessor: accessor
-                )
-
-            case .writing:
-                fileCoordinator.coordinate(
-                    writingItemAt: cacheFileURL,
-                    options: [.forReplacing],
-                    error: &error,
-                    byAccessor: accessor
-                )
+            try fileCoordinator.coordinate(writingItemAt: cacheFileURL, options: [.forReplacing]) { file in
+                let data = try JSONEncoder().encode(self.cachedAddresses)
+                try data.write(to: file)
             }
-            return error
         }
-    }
-
-    enum CacheAction {
-        case reading
-        case writing
     }
 
     struct CachedAddresses: Codable {

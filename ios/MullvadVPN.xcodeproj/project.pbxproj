@@ -365,6 +365,7 @@
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
+		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
 		A9CF11FD2A0518E7001D9565 /* AddressCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
@@ -955,6 +956,7 @@
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Appearance.swift"; sourceTree = "<group>"; };
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
+		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
 		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
@@ -1192,6 +1194,7 @@
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
+				A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */,
@@ -2839,6 +2842,7 @@
 				58D22406294C90210029F5F8 /* IPv4Endpoint.swift in Sources */,
 				58D22407294C90210029F5F8 /* IPv6Endpoint.swift in Sources */,
 				58CAFA032985367600BE19F7 /* Promise.swift in Sources */,
+				A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */,
 				58D22408294C90210029F5F8 /* AnyIPEndpoint.swift in Sources */,
 				58D22409294C90210029F5F8 /* AnyIPAddress.swift in Sources */,
 				58D2240A294C90210029F5F8 /* IPAddress+Codable.swift in Sources */,
