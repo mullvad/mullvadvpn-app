@@ -280,7 +280,7 @@ impl AndroidTunProvider {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
-                .map_err(|cause| Error::AttachJvmToThread(cause))?,
+                .map_err(Error::AttachJvmToThread)?,
         );
         let create_tun_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")
@@ -351,7 +351,7 @@ impl VpnServiceTun {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
-                .map_err(|cause| Error::AttachJvmToThread(cause))?,
+                .map_err(Error::AttachJvmToThread)?,
         );
         let create_tun_method = env
             .get_method_id(&self.class, "bypass", "(I)Z")

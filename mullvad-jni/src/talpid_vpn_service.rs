@@ -101,7 +101,7 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
         // pick any random route to select between Ipv4 and Ipv6
         // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
         // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
-        let should_generate_ipv4 = is_ipv6_enabled == false || thread_rng().gen();
+        let should_generate_ipv4 = !is_ipv6_enabled || thread_rng().gen();
 
         let rand_port = thread_rng().gen();
         let (local_addr, rand_dest_addr) = if should_generate_ipv4 || tried_ipv6 {
@@ -109,7 +109,7 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
             thread_rng().fill(&mut ipv4_bytes);
             (
                 SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0),
-                SocketAddr::new(IpAddr::from(ipv4_bytes).into(), rand_port),
+                SocketAddr::new(IpAddr::from(ipv4_bytes), rand_port),
             )
         } else {
             let mut ipv6_bytes = [0u8; 16];
@@ -117,7 +117,7 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
             thread_rng().fill(&mut ipv6_bytes);
             (
                 SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
-                SocketAddr::new(IpAddr::from(ipv6_bytes).into(), rand_port),
+                SocketAddr::new(IpAddr::from(ipv6_bytes), rand_port),
             )
         };
 
