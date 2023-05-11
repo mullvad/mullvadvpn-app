@@ -326,66 +326,9 @@ impl RouteManagerImpl {
 
                 // We're ignoring default route removals. We instead add back the tunnel route
                 // when a default route is added.
-
-                // If the default route is deleted, just forget about it. We don't have to do anything else. FIXME: verify
-                // FIXME: wrong? we need to add back tunnel route? maybe we can just do that when route is added
-                let is_default_ip = route.is_default().map_err(Error::InvalidData);
-                //let is_default_link = route.is_default_link().map_err(Error::InvalidData);
-                let is_default_link = Ok(false);
-                match is_default_ip.and_then(|default_ip| Ok(default_ip || is_default_link?)) {
+                match route.is_default().map_err(Error::InvalidData) {
                     Ok(true) => {
                         log::debug!("A default route was removed: {route:?}");
-
-                        /*
-                        // FIXME: if af_link, remove both ip routes
-
-                        if let Some(gateway) = route.gateway() {
-                            if let Some(link_addr) = gateway.as_link_addr() {
-                                log::debug!("FIXME: AS LINK ADDR!");
-                                
-                                if let Some(tunnel_route) = self.tunnel_default_route {
-                                    tunnel_route.gateway()
-                                }
-                            }
-                        }
-
-                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
-
-                        if let Some(default) = default_route {
-                            if route.is_ifscope() {
-                                if route.gateway().is_none() || default.gateway() != route.gateway() {
-                                    return;
-                                }
-                            } else {
-                                // FIXME
-                                return;
-                            }
-
-                            //std::mem::take(default_route);
-
-                            // Notify default route listeners
-                            //self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
-
-                            /*log::debug!("HERE IS THE CURRENT DEFAULT_ROUTE: {default:?}");
-                            if route.is_ifscope() != default.is_ifscope() {
-                                return;
-                            }
-
-                            if route.gateway().is_some() && default.gateway() == route.gateway() {
-                                log::debug!("FIXME: CURRENT DEFAULT ROUTE WAS REMOVED");
-
-                                // FIXME: is this handled properly?
-
-                                // NOTE: Not making any changes to existing routes
-
-                                std::mem::take(default_route);
-
-                                // Notify default route listeners
-                                self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
-                            }*/
-                        }
-
-                        */
 
                         if route.is_ifscope() {
                             // Actually kind of incorrect, since this matches against the tunnel interface
@@ -396,7 +339,12 @@ impl RouteManagerImpl {
                         let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
                         if std::mem::take(default_route).is_some() {
                             // Notify default route listeners
-                            self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::Removed).is_ok());
+                            let event = if route.is_ipv4() {
+                                DefaultRouteEvent::RemovedV4
+                            } else {
+                                DefaultRouteEvent::RemovedV6
+                            };
+                            self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
                         }
                     }
                     Ok(false) => {
@@ -497,6 +445,7 @@ impl RouteManagerImpl {
             }
         }
 
+        let is_ipv4 = route.is_ipv4();
         let new_route = Some(route);
 
         if &new_route != default_route {
@@ -504,7 +453,12 @@ impl RouteManagerImpl {
             log::debug!("New default route: {old_route:?} -> {default_route:?}");
 
             // Notify default route listeners
-            self.default_route_listeners.retain(|tx| tx.unbounded_send(DefaultRouteEvent::AddedOrChanged).is_ok());
+            let event = if is_ipv4 {
+                DefaultRouteEvent::AddedOrChangedV4
+            } else {
+                DefaultRouteEvent::AddedOrChangedV6
+            };
+            self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
 
             // Substitute route with a tunnel route
             self.apply_tunnel_default_route().await?;

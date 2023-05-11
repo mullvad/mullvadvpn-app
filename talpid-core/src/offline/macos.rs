@@ -87,30 +87,28 @@ pub async fn spawn_monitor(
             };
 
             let mut state = state.lock().unwrap();
-            
-            // FIXME: v6 connectivity
 
-            log::debug!("Default route event: {event:?}");
+            log::trace!("Default route event: {event:?}");
 
             let previous_connectivity = state.get_connectivity();
 
             match event {
-                DefaultRouteEvent::AddedOrChanged => {
+                DefaultRouteEvent::AddedOrChangedV4 => {
                     state.v4_connectivity = true;
                 }
-                DefaultRouteEvent::Removed => {
+                DefaultRouteEvent::AddedOrChangedV6 => {
+                    state.v6_connectivity = true;
+                }
+                DefaultRouteEvent::RemovedV4 => {
                     state.v4_connectivity = false;
+                }
+                DefaultRouteEvent::RemovedV6 => {
+                    state.v6_connectivity = false;
                 }
             }
 
             let new_connectivity = state.get_connectivity();
             if previous_connectivity != new_connectivity {
-                log::info!("FIXME: remove Connectivity changed: {}", if new_connectivity {
-                    "Connected"
-                } else {
-                    "Offline"
-                });
-
                 if let Some(update_state) = state_update_handle.take() {
                     update_state.abort();
                 }

@@ -222,10 +222,14 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "macos")]
 #[derive(Debug, Clone, Copy)]
 pub enum DefaultRouteEvent {
-    /// Added or updated a non-tunnel default route
-    AddedOrChanged,
-    /// Non-tunnel default route was removed
-    Removed,
+    /// Added or updated a non-tunnel default IPv4 route
+    AddedOrChangedV4,
+    /// Added or updated a non-tunnel default IPv6 route
+    AddedOrChangedV6,
+    /// Non-tunnel default IPv4 route was removed
+    RemovedV4,
+    /// Non-tunnel default IPv6 route was removed
+    RemovedV6,
 }
 
 #[cfg(target_os = "linux")]
