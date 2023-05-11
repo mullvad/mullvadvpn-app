@@ -25,10 +25,10 @@ pub enum Error {
     NoSender,
 
     #[error(display = "Error performing RPC with the remote API")]
-    RpcError(#[error(source)] mullvad_api::rest::Error),
+    Api(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to update settings")]
-    SettingsError,
+    UpdateSettings,
 
     #[error(display = "Daemon returned an error")]
     OtherError(#[error(source)] mullvad_daemon::Error),
@@ -37,12 +37,12 @@ pub enum Error {
 impl From<mullvad_daemon::Error> for Error {
     fn from(error: mullvad_daemon::Error) -> Error {
         match error {
-            mullvad_daemon::Error::RestError(error) => Error::RpcError(error),
+            mullvad_daemon::Error::RestError(error) => Error::Api(error),
             mullvad_daemon::Error::LoginError(device::Error::OtherRestError(error)) => {
-                Error::RpcError(error)
+                Error::Api(error)
             }
             mullvad_daemon::Error::ListDevicesError(device::Error::OtherRestError(error)) => {
-                Error::RpcError(error)
+                Error::Api(error)
             }
             error => Error::OtherError(error),
         }
@@ -93,7 +93,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(Error::RpcError)
+            .map_err(Error::Api)
     }
 
     pub fn get_account_history(&self) -> Result<Option<AccountToken>> {
@@ -119,7 +119,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetCurrentLocation(tx))?;
 
-        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_current_version(&self) -> Result<String> {
@@ -127,7 +127,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetCurrentVersion(tx))?;
 
-        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_relay_locations(&self) -> Result<RelayList> {
@@ -135,7 +135,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetRelayLocations(tx))?;
 
-        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_settings(&self) -> Result<Settings> {
@@ -143,7 +143,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetSettings(tx))?;
 
-        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_state(&self) -> Result<TunnelState> {
@@ -151,7 +151,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetState(tx))?;
 
-        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_version_info(&self) -> Result<AppVersionInfo> {
@@ -259,7 +259,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     pub fn set_auto_connect(&self, auto_connect: bool) -> Result<()> {
@@ -269,7 +269,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     pub fn set_dns_options(&self, dns_options: DnsOptions) -> Result<()> {
@@ -279,7 +279,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     pub fn set_wireguard_mtu(&self, wireguard_mtu: Option<u16>) -> Result<()> {
@@ -289,7 +289,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     pub fn shutdown(&self) -> Result<()> {
@@ -313,7 +313,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     pub fn set_obfuscation_settings(&self, settings: ObfuscationSettings) -> Result<()> {
@@ -323,7 +323,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(|_| Error::SettingsError)
+            .map_err(|_| Error::UpdateSettings)
     }
 
     fn send_command(&self, command: DaemonCommand) -> Result<()> {

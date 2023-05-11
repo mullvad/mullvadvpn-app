@@ -98,7 +98,7 @@ impl JniEventHandler<'_> {
 
         thread::spawn(move || match jvm.attach_current_thread() {
             Ok(attach_guard) => {
-                let env = JnixEnv::from(attach_guard.clone());
+                let env = JnixEnv::from(*attach_guard);
 
                 match JniEventHandler::new(env, mullvad_ipc_client.as_obj(), rx) {
                     Ok(mut listener) => listener.run(),

@@ -205,7 +205,10 @@ pub(crate) fn create_bypass_tx(
     let daemon_tx = event_sender.to_specialized_sender();
     tokio::spawn(async move {
         while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
-            if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
+            if daemon_tx
+                .send(DaemonCommand::BypassSocket(raw_fd, done_tx))
+                .is_err()
+            {
                 log::error!("Can't send socket bypass request to daemon");
                 break;
             }
