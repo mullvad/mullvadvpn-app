@@ -85,10 +85,13 @@ impl RoutingTable {
             }
             // FIXME: probably wrong? but fails in some cases without this, despite route being added. errno 3
             Ok(RouteSocketMessage::GetRoute(_route)) => Ok(()),
-            Ok(anything_else) => Err(Error::UnexpectedMessageType(
-                anything_else,
-                MessageType::RTM_ADD,
-            )),
+            Ok(anything_else) => {
+                log::error!("Unexpected route message: {anything_else:?}");
+                Err(Error::UnexpectedMessageType(
+                    anything_else,
+                    MessageType::RTM_ADD,
+                ))
+            }
 
             Err(err) => Err(err),
         }

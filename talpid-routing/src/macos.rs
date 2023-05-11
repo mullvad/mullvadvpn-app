@@ -231,7 +231,7 @@ impl RouteManagerImpl {
                         }
 
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {
-                            log::debug!("FIXME: Adding routes: {routes:?}");
+                            log::debug!("Adding routes: {routes:?}");
                             let _ = tx.send(self.add_required_routes(routes).await);
                         }
                         Some(RouteManagerCommand::ClearRoutes) => {
@@ -255,8 +255,6 @@ impl RouteManagerImpl {
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         // TODO: roll back changes if not all succeed?
 
-        // FIXME: all routes need link addr? probably not
-
         let mut routes_to_apply = vec![];
 
         for route in required_routes {
@@ -274,38 +272,26 @@ impl RouteManagerImpl {
 
         // Add routes not using the default interface
         for route in routes_to_apply {
-            // FIXME: handle non-link addrs
-
-            if route.node.device.is_none() {
-                log::debug!("FIXME: skipping route with no device: {route:?}");
+            let message = if let Some(ref device) = route.node.device {
+                // If we specify route by interface name, use the link address of the given interface
+                match interface_link_addrs.get(device) {
+                    Some(link_addr) => {
+                        RouteMessage::new_route(Destination::from(route.prefix))
+                            .set_gateway_sockaddr(link_addr.clone())
+                    }
+                    None => {
+                        log::error!("Route with unknown device: {route:?}, {device}");
+                        continue;
+                    }
+                }
+            } else {
+                log::error!("Specifying gateway by IP rather than device is unimplemented");
                 continue;
-            }
-
-            // If we specify route by interface name, use the link address of the given interface
-            let device = route.node.device.clone().unwrap();
-            let link_addr = interface_link_addrs.get(&device);
-
-            if link_addr.is_none() {
-                log::debug!("FIXME: route with unknown device: {route:?}, {device}");
-                // FIXME: should probably fail
-                continue;
-            }
-
-            let message = RouteMessage::new_route(Destination::from(route.prefix))
-                .set_gateway_sockaddr(link_addr.cloned().unwrap());
+            };
 
             // Default routes are a special case: We must apply it after replacing the current
             // default route with an ifscope route.
             if route.prefix.prefix() == 0 {
-                // TODO: simplify by just ifscoping existing route here?
-
-                log::debug!("FIXME: Default tunnel route: {message:?}");
-
-                //FIXME: remove: let cstr_device = CString::new(device).expect("FIXME: handle better");
-                //FIXME: remove: let idx = unsafe { if_nametoindex(cstr_device.as_ptr()) };
-
-                //FIXME: remove: log::debug!("FIXME: tun index: {idx}");
-
                 if route.prefix.is_ipv4() {
                     self.v4_tunnel_default_route = Some(message);
                 } else {
@@ -318,19 +304,13 @@ impl RouteManagerImpl {
             self.add_route_with_record(message).await?;
         }
 
-        if let Err(error) = self.apply_tunnel_default_route().await {
-            log::debug!("FIXME: applied tunnel def FAILEd");
-            return Err(error);
-        }
+        self.apply_tunnel_default_route().await?;
 
         // Add routes that use the default interface
         if let Err(error) = self.apply_default_destinations().await {
             self.default_destinations.clear();
-            log::debug!("FIXME: applied dests FAILEd");
             return Err(error);
         }
-
-        log::debug!("FIXME: applied dests");
 
         Ok(())
     }
@@ -356,7 +336,7 @@ impl RouteManagerImpl {
                 // when a default route is added.
                 match route.is_default().map_err(Error::InvalidData) {
                     Ok(true) => {
-                        log::debug!("A default route was removed: {route:?}");
+                        log::trace!("A default route was removed: {route:?}");
 
                         if route.is_ifscope() {
                             // Actually kind of incorrect, since this matches against the tunnel interface
@@ -375,33 +355,19 @@ impl RouteManagerImpl {
                             self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
                         }
                     }
-                    Ok(false) => {
-                        //log::debug!("A non-default route was removed: {route:?}");
-                    }
+                    Ok(false) => (),
                     Err(error) => {
                         log::error!("Failed to check whether route is default route: {error}");
                     }
                 }
-
-                // prev note on "delete":
-                // handle deletion of a route - only interested default route removals
-                // or routes that were applied for our tunnel interface
             }
 
             Ok(RouteSocketMessage::AddRoute(route))
             | Ok(RouteSocketMessage::ChangeRoute(route)) => {
                 // Refresh routes that are using the default interface
-                // FIXME: detect default route changes
-                log::debug!("A route was added/changed: {route:?}");
-
                 if let Err(error) = self.handle_route_change(route).await {
                     log::error!("Failed to process route change: {error}");
                 }
-
-                // prev note on "add":
-                // handle new route - if it's a default route, current best default
-                // route should be updated. if it's a default route whilst engaged,
-                // remove it, route the tunne traffic through it, and apply
             }
             // ignore all other message types
             Ok(_) => {}
@@ -418,7 +384,12 @@ impl RouteManagerImpl {
     ) -> Result<()> {
         // Ignore routes that aren't default routes
         if !route.is_default().map_err(Error::InvalidData)? {
-            log::debug!("FIXME: ignoring non-default route");
+            return Ok(());
+        }
+        // Ignore changes to ifscoped routes
+        // This may seem incorrect if the route is the preferred relay route,
+        // but it just works
+        if route.is_ifscope() {
             return Ok(());
         }
     
@@ -430,52 +401,33 @@ impl RouteManagerImpl {
                 let tun_gateway_link_addr = tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
 
                 if new_gateway_link_addr == tun_gateway_link_addr {
-                    log::debug!("FIXME: ignoring tunnel default route");
                     return Ok(());
-                }
-            }
-        }
-
-        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
-
-        // Ignore changes to ifscoped routes unless they affect the current default interface.
-        if route.is_ifscope() {
-            if let Some(default_route) = default_route {
-                let default_gateway_link_addr = default_route.gateway().and_then(|addr| addr.as_link_addr());
-
-                if new_gateway_link_addr != default_gateway_link_addr {
-                    log::debug!("FIXME: ignoring non-default ifscoped route change");
-                    return Ok(());
-                }
-
-                // We only care about the gateway IP changing
-                // ignore other changes
-            }
-
-            log::debug!("FIXME: 'tis an ifscoped change");
-            return Ok(()); // FIXME: don't ignore
-        } else {
-            // Get complete route
-            // TODO: Is this overkill? We don't get the interface index without this
-            let default_dest = if route.is_ipv4() {
-                v4_default()
-            } else {
-                v6_default()
-            };
-            match self.routing_table.get_route(default_dest).await {
-                Ok(Some(new_route)) => route = new_route,
-                Ok(None) => {
-                    log::warn!("Expected to find default route");
-                    return Ok(());
-                }
-                Err(error) => {
-                    log::error!("Failed to get default route");
-                    return Err(Error::RoutingTable(error));
                 }
             }
         }
 
         let is_ipv4 = route.is_ipv4();
+        let ((true, default_route, _) | (false, _, default_route)) = (is_ipv4, &mut self.v4_default_route, &mut self.v6_default_route);
+
+        // Fetch the default route directly from the routing table.
+        // The message we receive seems incomplete at times.
+        let default_dest = if is_ipv4 {
+            v4_default()
+        } else {
+            v6_default()
+        };
+        match self.routing_table.get_route(default_dest).await {
+            Ok(Some(new_route)) => route = new_route,
+            Ok(None) => {
+                log::warn!("Expected to find default route");
+                return Ok(());
+            }
+            Err(error) => {
+                log::error!("Failed to get default route");
+                return Err(Error::RoutingTable(error));
+            }
+        }
+
         let new_route = Some(route);
 
         if &new_route != default_route {
@@ -494,10 +446,7 @@ impl RouteManagerImpl {
             self.apply_tunnel_default_route().await?;
 
             // Update routes using default interface
-            log::debug!("FIXME: Reapplying default destination routes");
             self.apply_default_destinations().await?;
-        } else {
-            log::debug!("FIXME: ignoring irrelevant default route: {new_route:?}");
         }
 
         Ok(())
@@ -524,10 +473,7 @@ impl RouteManagerImpl {
 
             // Replace the default route with an ifscope route
             self.set_default_route_ifscope(tunnel_route.is_ipv4(), true).await?;
-            let _ = self.routing_table.delete_route(&tunnel_route).await;
             self.add_route_with_record(tunnel_route).await?;
-
-            log::debug!("FIXME: added replacement");
         }
 
         Ok(())
@@ -556,35 +502,18 @@ impl RouteManagerImpl {
             };
             let gateway = match gateway {
                 Some(gateway) => gateway,
-                None => {
-                    log::debug!(
-                        "FIXME: not adding default destination because there's no gateway addr"
-                    );
-                    continue;
-                }
+                None => continue,
             };
             let route =
                 RouteMessage::new_route(Destination::Network(dest)).set_gateway_sockaddr(gateway);
 
-            // FIXME: don't needlessly delete. it might not even exist
-            // TODO: only succeed if it fails because no exist? add_route_with_record could replace route on its own (if there's a record)
-
             // TODO: can we do better than linearly searching?
             if let Some(dest) = self.applied_routes.iter().find(|(applied_dest, _route)| applied_dest.network == dest).map(|(dest, _)| dest.clone()) {
                 let _ = self.routing_table.delete_route(&route).await;
-
                 self.applied_routes.remove(&dest);
             }
 
-            log::debug!("FIXME: ADDING ROUTE: {dest:?} {route:?}");
-            // FIXME: return
-            let result = self.add_route_with_record(route).await;
-
-            if result.is_err() {
-                log::debug!("FIXME: addr error: {:?}", result);
-            }
-
-            result?;
+            self.add_route_with_record(route).await?;
         }
 
         Ok(())
@@ -597,38 +526,25 @@ impl RouteManagerImpl {
         let default_route = match (ipv4, &mut self.v4_default_route, &mut self.v6_default_route) {
             ((true, Some(default_route), _) | (false, _, Some(default_route))) => default_route,
             _ => {
-                log::debug!("FIXME: THERE IS NO DEFAULT ROUTE. IGNORING");
                 return Ok(());
             }
         };
 
         if default_route.is_ifscope() == should_be_ifscoped {
-            log::debug!("FIXME: PREF NON-TUNNEL DEFAULT ROUTE IS ALREADY SET TO DESIRED IFSCOPED STATE. IGNORING");
             return Ok(());
         }
         
-        //FIXME
         let ifscope_index = if should_be_ifscoped {
             let n = default_route.interface_index();
             if n == 0 {
-                log::warn!("Cannot find interface index of default interface");
+                log::error!("Cannot find interface index of default interface");
             }
             n
         } else {
             0
         };
-        /*let ifscope_index = if should_be_ifscoped {
-            default_route.interface_sockaddr_index().unwrap_or_else(|| {
-                log::warn!("Cannot find interface index of default interface");
-                0
-            })
-        } else {
-            0
-        };*/
         let new_route = default_route.clone().set_ifscope(ifscope_index);
         let old_route = std::mem::replace(default_route, new_route);
-
-        log::debug!("FIXME: Replacing default route with ifscope route (or vice versa): {old_route:?} -> {default_route:?}");
 
         self.routing_table
             .delete_route(&old_route)
@@ -642,16 +558,11 @@ impl RouteManagerImpl {
     }
 
     async fn add_route_with_record(&mut self, route: RouteMessage) -> Result<()> {
-        let result = self
+        self
             .routing_table
             .add_route(&route)
             .await
-            .map_err(Error::AddRoute);
-
-        // FIXME: just erturn
-        if result.is_err() {
-            log::debug!("FIXME: failed to add route: {result:?}");
-        }
+            .map_err(Error::AddRoute)?;
 
         let destination = RouteDestination::try_from(&route).map_err(Error::InvalidData)?;
 
@@ -663,10 +574,7 @@ impl RouteManagerImpl {
     async fn cleanup_routes(&mut self) -> Result<()> {
         // Remove all applied routes. This includes default destination routes
         let old_routes = std::mem::take(&mut self.applied_routes);
-        for (dest, route) in old_routes.into_iter().map(|(dest, route)| (dest, route.route)) {
-            log::debug!("FIXME: deleting route: {route:?}");
-            log::debug!("FIXME: deleting DEST: {:?} {:?}, {:?}", dest.gateway, dest.interface, dest.network);
-
+        for (_dest, route) in old_routes.into_iter().map(|(dest, route)| (dest, route.route)) {
             match self.routing_table.delete_route(&route).await {
                 Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
                 Err(err) => {
@@ -706,9 +614,6 @@ fn get_interface_link_addresses() -> Result<BTreeMap<String, SockaddrStorage>> {
         if addr.address.and_then(|addr| addr.family()) != Some(AddressFamily::Link) {
             continue;
         }
-
-        log::debug!("FIXME: enum addrs, {}", addr.interface_name);
-
         gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
     }
     Ok(gateway_link_addrs)
