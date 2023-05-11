@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RootConfigration {
+struct RootConfiguration {
     var deviceName: String?
     var expiry: Date?
     var showsAccountButton: Bool

@@ -180,7 +180,7 @@ class HeaderBarView: UIView {
 }
 
 extension HeaderBarView {
-    func update(configuration: RootConfigration) {
+    func update(configuration: RootConfiguration) {
         if let name = configuration.deviceName {
             let formattedDeviceName = NSLocalizedString(
                 "DEVICE_NAME_HEADER_VIEW",

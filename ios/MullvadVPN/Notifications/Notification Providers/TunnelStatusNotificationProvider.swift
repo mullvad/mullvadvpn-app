@@ -15,8 +15,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     private var tunnelManagerError: Error?
     private var tunnelObserver: TunnelBlockObserver?
 
-    override var identifier: String {
-        return "net.mullvad.MullvadVPN.TunnelStatusNotificationProvider"
+    override var identifier: NotificationProviderIdentifier {
+        return .tunnelStatusNotificationProvider
     }
 
     var notificationDescriptor: InAppNotificationDescriptor? {

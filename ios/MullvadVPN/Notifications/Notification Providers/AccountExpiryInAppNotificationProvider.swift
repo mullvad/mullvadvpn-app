@@ -29,8 +29,8 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         tunnelManager.addObserver(tunnelObserver)
     }
 
-    override var identifier: String {
-        return "net.mullvad.MullvadVPN.AccountExpiryInAppNotification"
+    override var identifier: NotificationProviderIdentifier {
+        .accountExpiryInAppNotification
     }
 
     // MARK: - InAppNotificationProvider

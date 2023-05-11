@@ -12,7 +12,7 @@ import Foundation
 protocol NotificationProviderProtocol {
     /// Unique provider identifier used to identify notification providers and notifications
     /// produced by them.
-    var identifier: String { get }
+    var identifier: NotificationProviderIdentifier { get }
 
     /// Tell notification manager to update the associated notification.
     func invalidate()

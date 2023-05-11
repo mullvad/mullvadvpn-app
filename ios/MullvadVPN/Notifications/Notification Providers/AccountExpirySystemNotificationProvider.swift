@@ -13,8 +13,6 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     private var accountExpiry: Date?
     private var tunnelObserver: TunnelBlockObserver?
 
-    static let identifier = "net.mullvad.MullvadVPN.AccountExpiryNotification"
-
     init(tunnelManager: TunnelManager) {
         super.init()
 
@@ -32,8 +30,8 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         self.tunnelObserver = tunnelObserver
     }
 
-    override var identifier: String {
-        return Self.identifier
+    override var identifier: NotificationProviderIdentifier {
+        .accountExpirySystemNotification
     }
 
     // MARK: - SystemNotificationProvider
@@ -62,7 +60,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
-            identifier: identifier,
+            identifier: identifier.domainIdentifier,
             content: content,
             trigger: trigger
         )
