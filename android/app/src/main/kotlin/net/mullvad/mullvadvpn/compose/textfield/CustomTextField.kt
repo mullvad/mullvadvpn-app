@@ -46,6 +46,7 @@ private const val NEWLINE_STRING = "\n"
 @OptIn(ExperimentalComposeUiApi::class)
 fun CustomTextField(
     value: String,
+    keyboardType: KeyboardType,
     modifier: Modifier = Modifier,
     onValueChanged: (String) -> Unit,
     onFocusChange: (Boolean) -> Unit,
@@ -110,7 +111,7 @@ fun CustomTextField(
         maxLines = 1,
         keyboardOptions =
             KeyboardOptions(
-                keyboardType = KeyboardType.Number,
+                keyboardType = keyboardType,
                 imeAction = ImeAction.Done,
                 autoCorrect = false,
             ),
