@@ -230,6 +230,8 @@ function Device(props: IDeviceProps) {
             )}>
             <ImageView
               source="icon-close"
+              width={18}
+              height={18}
               tintColor={colors.white40}
               tintHoverColor={colors.white60}
             />
