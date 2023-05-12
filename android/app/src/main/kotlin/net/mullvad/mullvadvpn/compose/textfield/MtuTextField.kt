@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun MtuTextField(
@@ -17,6 +18,7 @@ fun MtuTextField(
 ) {
     CustomTextField(
         value = value,
+        keyboardType = KeyboardType.Number,
         modifier = modifier,
         onValueChanged = onValueChanged,
         onFocusChange = onFocusChange,
