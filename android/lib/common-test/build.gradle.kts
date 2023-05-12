@@ -7,9 +7,7 @@ android {
     namespace = "net.mullvad.mullvadvpn.lib.common.test"
     compileSdk = Versions.Android.compileSdkVersion
 
-    defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
-    }
+    defaultConfig { minSdk = Versions.Android.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
