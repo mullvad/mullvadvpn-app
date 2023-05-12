@@ -22,7 +22,7 @@
 //! [`NWPathMonitor`]: https://developer.apple.com/documentation/network/nwpathmonitor
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
 use talpid_routing::{RouteManagerHandle, DefaultRouteEvent};
-use std::{sync::{Arc, Mutex}, time::Duration};
+use std::{sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}, time::Duration};
 
 /// How long to wait before announcing changes to the offline state
 const DEBOUNCE_INTERVAL: Duration = Duration::from_secs(2);
@@ -73,10 +73,12 @@ pub async fn spawn_monitor(
         }
     };
 
-    let state = Arc::new(Mutex::new(ConnectivityState {
+    let state = ConnectivityState {
         v4_connectivity,
         v6_connectivity,
-    }));
+    };
+    let initial_connectivity = state.get_connectivity();
+    let state = Arc::new(Mutex::new(state));
 
     let mut route_listener = route_manager_handle.default_route_listener().await?;
     let weak_state = Arc::downgrade(&state);
@@ -85,6 +87,7 @@ pub async fn spawn_monitor(
     // Detect changes to the default route
     tokio::spawn(async move {
         let mut state_update_handle: Option<tokio::task::JoinHandle<()>> = None;
+        let prev_notified_state = Arc::new(AtomicBool::new(initial_connectivity));
 
         while let Some(event) = route_listener.next().await {
             let state = match weak_state.upgrade() {
@@ -119,6 +122,8 @@ pub async fn spawn_monitor(
                     update_state.abort();
                 }
 
+                let prev_notified = prev_notified_state.clone();
+
                 let notify_copy = weak_notify_tx.clone();
                 let update_task = tokio::spawn(async move {
                     let notify_tx = match notify_copy.upgrade() {
@@ -128,6 +133,11 @@ pub async fn spawn_monitor(
 
                     // Debounce event updates
                     tokio::time::sleep(DEBOUNCE_INTERVAL).await;
+
+                    if prev_notified.swap(new_connectivity, Ordering::AcqRel) == new_connectivity {
+                        // We don't care about network changes here
+                        return;
+                    }
 
                     log::info!("Connectivity changed: {}", if new_connectivity {
                         "Connected"
