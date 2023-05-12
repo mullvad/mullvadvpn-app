@@ -350,7 +350,7 @@ function BridgeModeSelector() {
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
-        type={ModalAlertType.info}
+        type={ModalAlertType.caution}
         message={messages.gettext('This setting increases latency. Use only if needed.')}
         buttons={[
           <AppButton.RedButton key="confirm" onClick={confirmBridgeState}>

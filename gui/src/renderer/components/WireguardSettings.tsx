@@ -396,7 +396,7 @@ function MultihopSetting() {
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
-        type={ModalAlertType.info}
+        type={ModalAlertType.caution}
         message={
           // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
           messages.gettext('This setting increases latency. Use only if needed.')
