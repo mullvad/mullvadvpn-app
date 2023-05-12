@@ -454,6 +454,14 @@ impl RouteManagerImpl {
     /// Replace the default routes with an ifscope route, and
     /// add a new default tunnel route.
     async fn apply_tunnel_default_route(&mut self) -> Result<()> {
+        // As long as the relay route has a way of reaching the internet, we'll want to add a tunnel route for both
+        // IPv4 and IPv6.
+        // FIXME: This is incorrect. We're assuming that any "default destination" is used for tunneling.
+        let (v4_conn, v6_conn) = self.default_destinations
+            .iter()
+            .fold((false, false), |(v4, v6), route| (v4 || route.is_ipv4(), v6 || route.is_ipv6()));
+        let relay_route_is_valid = (v4_conn && self.v4_default_route.is_some()) || (v6_conn && self.v6_default_route.is_some());
+
         for tunnel_route in [self.v4_tunnel_default_route.clone(), self.v6_tunnel_default_route.clone()] {
             let tunnel_route = match tunnel_route {
                 Some(route) => route,
@@ -464,7 +472,11 @@ impl RouteManagerImpl {
             let ((true, default_route, _) | (false, _, default_route)) = (tunnel_route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
             match default_route {
                 Some(route) if route.is_ifscope() => return Ok(()),
-                None => return Ok(()),
+                None => {
+                    if !relay_route_is_valid {
+                        return Ok(());
+                    }
+                }
                 Some(_) => (),
             }
 
