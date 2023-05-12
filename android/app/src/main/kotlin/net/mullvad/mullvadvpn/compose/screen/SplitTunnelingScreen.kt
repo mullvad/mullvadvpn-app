@@ -7,17 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
@@ -29,10 +26,7 @@ import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Preview
 @Composable
@@ -76,11 +70,9 @@ fun SplitTunnelingScreen(
 ) {
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
-    val mediumPadding = dimensionResource(id = R.dimen.medium_padding)
-    val progressSize = dimensionResource(id = R.dimen.progress_size)
 
     CollapsableAwareToolbarScaffold(
-        backgroundColor = MullvadDarkBlue,
+        backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
         scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
@@ -92,7 +84,7 @@ fun SplitTunnelingScreen(
                     whenExpanded = Alignment.BottomStart
                 )
             CollapsingTopBar(
-                backgroundColor = MullvadDarkBlue,
+                backgroundColor = MaterialTheme.colorScheme.background,
                 onBackClicked = { onBackClick() },
                 title = stringResource(id = R.string.split_tunneling),
                 progress = progress,
@@ -104,14 +96,13 @@ fun SplitTunnelingScreen(
         LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
             item(contentType = TYPE_DESCRIPTION) {
                 Text(
-                    color = MullvadWhite60,
+                    style = MaterialTheme.typography.bodySmall,
                     text = stringResource(id = R.string.split_tunneling_description),
-                    fontSize = 13.sp,
                     modifier =
                         Modifier.padding(
-                            start = mediumPadding,
-                            end = mediumPadding,
-                            bottom = mediumPadding
+                            start = Dimens.mediumPadding,
+                            end = Dimens.mediumPadding,
+                            bottom = Dimens.mediumPadding
                         )
                 )
             }
@@ -119,8 +110,12 @@ fun SplitTunnelingScreen(
                 SplitTunnelingUiState.Loading -> {
                     item {
                         CircularProgressIndicator(
-                            color = MullvadWhite,
-                            modifier = Modifier.size(width = progressSize, height = progressSize)
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier =
+                                Modifier.size(
+                                    width = Dimens.progressSize,
+                                    height = Dimens.progressSize
+                                )
                         )
                     }
                 }
@@ -131,13 +126,11 @@ fun SplitTunnelingScreen(
                                 title = {
                                     Text(
                                         text = stringResource(id = R.string.exclude_applications),
-                                        color = Color.White,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                 },
                                 bodyView = {},
-                                background = MullvadBlue,
+                                background = MaterialTheme.colorScheme.primary,
                             )
                         }
                         items(
@@ -153,7 +146,7 @@ fun SplitTunnelingScreen(
                                 removeFromExcluded(listItem.packageName)
                             }
                         }
-                        item { Spacer(modifier = Modifier.height(mediumPadding)) }
+                        item { Spacer(modifier = Modifier.height(Dimens.mediumPadding)) }
                     }
 
                     itemWithDivider(contentType = TYPE_SWITCH_CELL) {
@@ -168,13 +161,11 @@ fun SplitTunnelingScreen(
                             title = {
                                 Text(
                                     text = stringResource(id = R.string.all_applications),
-                                    color = Color.White,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    style = MaterialTheme.typography.titleMedium
                                 )
                             },
                             bodyView = {},
-                            background = MullvadBlue,
+                            background = MaterialTheme.colorScheme.primary,
                         )
                     }
                     items(

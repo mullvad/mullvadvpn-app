@@ -9,18 +9,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.compose.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.compose.theme.dimensions.defaultDimensions
+import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale
 
 // Add our own definitions here
-private val MullvadTypography = Typography()
+private val MullvadTypography =
+    Typography(
+        titleMedium =
+            TextStyle(
+                color = MullvadWhite,
+                fontSize = TypeScale.TextMediumPlus,
+                fontWeight = FontWeight.SemiBold
+            ),
+        bodySmall =
+            TextStyle(
+                color = MullvadWhite60,
+                fontSize = TypeScale.TextSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+    )
 
 private val MullvadColorPalette =
     lightColorScheme(
         primary = MullvadBlue,
         secondary = MullvadDarkBlue,
         tertiary = MullvadRed,
+        background = MullvadDarkBlue,
+        onBackground = MullvadWhite,
+        primaryContainer = MullvadBlue40,
         onSurfaceVariant = MullvadWhite,
         onPrimary = MullvadWhite
     )
