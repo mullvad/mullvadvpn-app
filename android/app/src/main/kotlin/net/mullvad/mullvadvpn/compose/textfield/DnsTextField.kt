@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
@@ -17,6 +18,7 @@ fun DnsTextField(
 ) {
     CustomTextField(
         value = value,
+        keyboardType = KeyboardType.Text,
         modifier = modifier,
         onValueChanged = onValueChanged,
         onFocusChange = onFocusChanges,
