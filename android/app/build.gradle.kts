@@ -1,7 +1,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
-import java.util.Properties
+import java.util.*
 
 plugins {
     id(Dependencies.Plugin.androidApplicationId)
@@ -55,11 +55,7 @@ android {
             }
         }
 
-        buildTypes {
-            getByName("release") {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
+        buildTypes { getByName("release") { signingConfig = signingConfigs.getByName("release") } }
     }
 
     buildTypes {
@@ -88,23 +84,18 @@ android {
 
     sourceSets {
         getByName("main") {
-            val changelogDir = gradleLocalProperties(rootProject.projectDir).getOrDefault(
-                "OVERRIDE_CHANGELOG_DIR",
-                defaultChangeLogAssetsDirectory
-            )
+            val changelogDir =
+                gradleLocalProperties(rootProject.projectDir)
+                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangeLogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
             jniLibs.srcDirs(extraJniDirectory)
         }
     }
 
-    buildFeatures {
-        compose = true
-    }
+    buildFeatures { compose = true }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion
-    }
+    composeOptions { kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -114,12 +105,13 @@ android {
     kotlinOptions {
         allWarningsAsErrors = false
         jvmTarget = Versions.jvmTarget
-        freeCompilerArgs = listOf(
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
-            // Opt-in option for Koin annotation of KoinComponent.
-            "-opt-in=kotlin.RequiresOptIn"
-        )
+        freeCompilerArgs =
+            listOf(
+                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
+                // Opt-in option for Koin annotation of KoinComponent.
+                "-opt-in=kotlin.RequiresOptIn"
+            )
     }
 
     tasks.withType<com.android.build.gradle.tasks.MergeSourceSetFolders> {
@@ -143,29 +135,29 @@ android {
     packaging {
         jniLibs.useLegacyPackaging = true
         resources {
-            pickFirsts += setOf(
-                // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
-                "META-INF/AL2.0",
-                "META-INF/LGPL2.1",
-                // Fixes packaging error caused by: jetified-junit-*
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE-notice.md"
-            )
+            pickFirsts +=
+                setOf(
+                    // Fixes packaging error caused by: androidx.compose.ui:ui-test-junit4
+                    "META-INF/AL2.0",
+                    "META-INF/LGPL2.1",
+                    // Fixes packaging error caused by: jetified-junit-*
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md"
+                )
         }
     }
 
     applicationVariants.configureEach {
-        val alwaysShowChangelog = gradleLocalProperties(rootProject.projectDir)
-            .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
+        val alwaysShowChangelog =
+            gradleLocalProperties(rootProject.projectDir).getProperty("ALWAYS_SHOW_CHANGELOG")
+                ?: "false"
 
-        buildConfigField(
-            "boolean",
-            "ALWAYS_SHOW_CHANGELOG",
-            alwaysShowChangelog
-        )
+        buildConfigField("boolean", "ALWAYS_SHOW_CHANGELOG", alwaysShowChangelog)
 
-        val enableInAppVersionNotifications = gradleLocalProperties(rootProject.projectDir)
-            .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
+        val enableInAppVersionNotifications =
+            gradleLocalProperties(rootProject.projectDir)
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
+                ?: "true"
 
         buildConfigField(
             "boolean",
@@ -212,9 +204,7 @@ afterEvaluate {
     }
 }
 
-play {
-    serviceAccountCredentials.set(file("play-api-key.json"))
-}
+play { serviceAccountCredentials.set(file("play-api-key.json")) }
 
 configurations.all {
     resolutionStrategy {
