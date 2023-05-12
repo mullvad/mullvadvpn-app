@@ -7,23 +7,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ListItem
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue40
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite40
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.ui.widget.ApplicationImageView
 
 @Preview
 @Composable
 fun PreviewTunnelingCell() {
-    Column(modifier = Modifier.background(color = MullvadWhite40)) {
+    Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
         SplitTunnelingCell("Mullvad VPN", "", false) {}
         SplitTunnelingCell("Mullvad VPN", "", true) {}
     }
@@ -36,17 +35,16 @@ fun SplitTunnelingCell(
     isSelected: Boolean,
     onCellClicked: () -> Unit
 ) {
-    val startPadding = dimensionResource(id = R.dimen.cell_left_padding)
-    val endPadding = dimensionResource(id = R.dimen.cell_right_padding)
-    val iconSize = dimensionResource(id = R.dimen.icon_size)
     Box(
         modifier =
-            Modifier.background(MullvadBlue40)
-                .padding(top = 1.dp, bottom = 1.dp, start = startPadding, end = endPadding)
+            Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(vertical = Dimens.listItemDivider)
                 .clickable { onCellClicked() }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.padding(start = Dimens.cellLeftPadding, end = Dimens.cellRightPadding)
         ) {
             packageName?.let {
                 AndroidView(
@@ -54,7 +52,7 @@ fun SplitTunnelingCell(
                     update = { applicationImageView ->
                         applicationImageView.packageName = packageName
                     },
-                    modifier = Modifier.size(width = iconSize, height = iconSize)
+                    modifier = Modifier.size(width = Dimens.iconSize, height = Dimens.iconSize)
                 )
             }
             ListItem(
@@ -66,7 +64,7 @@ fun SplitTunnelingCell(
                     } else {
                         R.drawable.ic_icons_add
                     },
-                background = MullvadBlue40,
+                background = Color.Transparent,
                 onClick = null
             )
         }

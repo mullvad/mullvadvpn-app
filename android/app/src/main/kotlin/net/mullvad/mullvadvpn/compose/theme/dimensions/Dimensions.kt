@@ -11,7 +11,11 @@ data class Dimensions(
     val listItemHeightExtra: Dp = 60.dp,
     val loadingSpinnerSize: Dp = 24.dp,
     val loadingSpinnerStrokeWidth: Dp = 3.dp,
-    val loadingSpinnerPadding: Dp = 12.dp
+    val loadingSpinnerPadding: Dp = 12.dp,
+    val cellLeftPadding: Dp = 22.dp,
+    val cellRightPadding: Dp = 16.dp,
+    val iconSize: Dp = 24.dp,
+    val progressSize: Dp = 60.dp
 )
 
 val defaultDimensions = Dimensions()
