@@ -337,13 +337,21 @@ impl RouteManagerImpl {
                     Ok(true) => {
                         log::trace!("A default route was removed: {route:?}");
 
-                        if route.is_ifscope() {
-                            // Actually kind of incorrect, since this matches against the tunnel interface
-                            // I'm using tunnel interface removal as a proxy for no internet in that case
-                            return;
+                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
+                        let ((true, tun_route, _) | (false, _, tun_route)) = (route.is_ipv4(), &mut self.v4_tunnel_default_route, &mut self.v6_tunnel_default_route);
+
+                        // We must check if the deleted default route matches the expected one,
+                        // since we're not ignoring ifscoped routes.
+                        // Deleting the actual (tunnel) default route counts as well.
+                        if let Some(default) = default_route {
+                            if tun_route.as_ref().map(|route| route.gateway() == default.gateway()).unwrap_or(false) {
+                                log::debug!("Tunnel default route was deleted");
+                            } else if default.is_ifscope() && default.gateway() != route.gateway() {
+                                log::trace!("Ignoring mismatching default route");
+                                return;
+                            }
                         }
 
-                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
                         if std::mem::take(default_route).is_some() {
                             // Notify default route listeners
                             let event = if route.is_ipv4() {
@@ -385,13 +393,17 @@ impl RouteManagerImpl {
         if !route.is_default().map_err(Error::InvalidData)? {
             return Ok(());
         }
-        // Ignore changes to ifscoped routes
-        // This may seem incorrect if the route is the preferred relay route,
-        // but it just works
-        if route.is_ifscope() {
+
+        let is_ipv4 = route.is_ipv4();
+        let ((true, default_route, _) | (false, _, default_route)) = (is_ipv4, &mut self.v4_default_route, &mut self.v6_default_route);
+
+        // Ignore changes to ifscoped routes, unless all we have are ifscoped routes
+        // `have_preferred_default` will be true when macOS itself replaces the default route
+        let have_preferred_default = default_route.as_ref().map(|route| route.gateway_ip().is_some()).unwrap_or(false);
+        if route.is_ifscope() && have_preferred_default {
             return Ok(());
         }
-    
+
         let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
 
         // Ignore the new route if it is our tunnel route, lest we create a loop
@@ -405,25 +417,25 @@ impl RouteManagerImpl {
             }
         }
 
-        let is_ipv4 = route.is_ipv4();
-        let ((true, default_route, _) | (false, _, default_route)) = (is_ipv4, &mut self.v4_default_route, &mut self.v6_default_route);
-
         // Fetch the default route directly from the routing table.
         // The message we receive seems incomplete at times.
-        let default_dest = if is_ipv4 {
-            v4_default()
-        } else {
-            v6_default()
-        };
-        match self.routing_table.get_route(default_dest).await {
-            Ok(Some(new_route)) => route = new_route,
-            Ok(None) => {
-                log::warn!("Expected to find default route");
-                return Ok(());
-            }
-            Err(error) => {
-                log::error!("Failed to get default route");
-                return Err(Error::RoutingTable(error));
+        // If we're using an ifscope route, we can't fetch it like this
+        if have_preferred_default {
+            let default_dest = if is_ipv4 {
+                v4_default()
+            } else {
+                v6_default()
+            };
+            match self.routing_table.get_route(default_dest).await {
+                Ok(Some(new_route)) => route = new_route,
+                Ok(None) => {
+                    log::warn!("Expected to find default route");
+                    return Ok(());
+                }
+                Err(error) => {
+                    log::error!("Failed to get default route");
+                    return Err(Error::RoutingTable(error));
+                }
             }
         }
 
@@ -468,16 +480,14 @@ impl RouteManagerImpl {
                 None => return Ok(()),
             };
 
-            // Do nothing if the default route is already ifscoped or non-existent
             let ((true, default_route, _) | (false, _, default_route)) = (tunnel_route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
             match default_route {
-                Some(route) if route.is_ifscope() => return Ok(()),
+                Some(_route) => (),
                 None => {
                     if !relay_route_is_valid {
                         return Ok(());
                     }
                 }
-                Some(_) => (),
             }
 
             log::debug!("Adding default route for tunnel");
