@@ -14,11 +14,15 @@ import io.mockk.verifyAll
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import org.junit.After
 import org.junit.Before
@@ -32,6 +36,8 @@ class SplitTunnelingViewModelTest {
     @get:Rule val timeout = Timeout(3000L, TimeUnit.MILLISECONDS)
     private val mockedApplicationsProvider = mockk<ApplicationsProvider>()
     private val mockedSplitTunneling = mockk<SplitTunneling>()
+    private val mockedServiceConnectionManager = mockk<ServiceConnectionManager>()
+    private val mockedServiceConnectionContainer = mockk<ServiceConnectionContainer>()
     private lateinit var testSubject: SplitTunnelingViewModel
 
     @Before
@@ -67,7 +73,7 @@ class SplitTunnelingViewModelTest {
                 }
             initTestSubject(emptyList())
             val expectedState =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = emptyList(),
                     includedApps = emptyList(),
                     showSystemApps = false
@@ -88,7 +94,7 @@ class SplitTunnelingViewModelTest {
             initTestSubject(listOf(appExcluded, appNotExcluded))
 
             val expectedState =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = listOf(appExcluded),
                     includedApps = listOf(appNotExcluded),
                     showSystemApps = false
@@ -119,13 +125,13 @@ class SplitTunnelingViewModelTest {
             initTestSubject(listOf(app))
 
             val expectedStateBeforeAction =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = listOf(app),
                     includedApps = emptyList(),
                     showSystemApps = false
                 )
             val expectedStateAfterAction =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = emptyList(),
                     includedApps = listOf(app),
                     showSystemApps = false
@@ -160,14 +166,14 @@ class SplitTunnelingViewModelTest {
             initTestSubject(listOf(app))
 
             val expectedStateBeforeAction =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = emptyList(),
                     includedApps = listOf(app),
                     showSystemApps = false
                 )
 
             val expectedStateAfterAction =
-                SplitTunnelingUiState.Data(
+                SplitTunnelingUiState.ShowAppList(
                     excludedApps = listOf(app),
                     includedApps = emptyList(),
                     showSystemApps = false
@@ -189,10 +195,15 @@ class SplitTunnelingViewModelTest {
 
     private fun initTestSubject(appList: List<AppData>) {
         every { mockedApplicationsProvider.getAppsList() } returns appList
+        every { mockedServiceConnectionManager.connectionState } returns
+            MutableStateFlow(
+                ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
+            )
+        every { mockedServiceConnectionContainer.splitTunneling } returns mockedSplitTunneling
         testSubject =
             SplitTunnelingViewModel(
                 mockedApplicationsProvider,
-                mockedSplitTunneling,
+                mockedServiceConnectionManager,
                 testCoroutineRule.testDispatcher
             )
     }

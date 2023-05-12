@@ -22,3 +22,6 @@ fun ServiceConnectionManager.relayListListener() =
 
 fun ServiceConnectionManager.settingsListener() =
     this.connectionState.value.readyContainer()?.settingsListener
+
+fun ServiceConnectionManager.splitTunneling() =
+    this.connectionState.value.readyContainer()?.splitTunneling

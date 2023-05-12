@@ -9,24 +9,11 @@ import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.SplitTunnelingScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.di.APPS_SCOPE
-import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
-import org.koin.android.ext.android.getKoin
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.viewModel
-import org.koin.core.qualifier.named
-import org.koin.core.scope.Scope
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
-    private val scope: Scope =
-        getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE)).also { appsScope ->
-            getKoin().getScopeOrNull(SERVICE_CONNECTION_SCOPE)?.let { serviceConnectionScope ->
-                appsScope.linkTo(serviceConnectionScope)
-            }
-        }
-    private val viewModel by
-        scope.viewModel<SplitTunnelingViewModel>(owner = { ViewModelOwner.from(this, this) })
+class SplitTunnelingFragment : BaseFragment() {
+    private val viewModel: SplitTunnelingViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,10 +34,5 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        scope.close()
-        super.onDestroy()
     }
 }
