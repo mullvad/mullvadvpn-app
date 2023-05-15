@@ -150,7 +150,7 @@ pub enum RouteManagerCommand {
 impl RouteManager {
     /// Creates a new route manager that will apply the provided routes and ensure they exist until
     /// it's stopped.
-    pub async fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
+    pub async fn new() -> Result<Self> {
         let internal = match RouteManagerInternal::new() {
             Ok(internal) => internal,
             Err(_) => return Err(Error::FailedToStartManager),
@@ -160,7 +160,6 @@ impl RouteManager {
             manage_tx: Some(manage_tx),
         };
         tokio::spawn(RouteManager::listen(manage_rx, internal));
-        manager.add_routes(required_routes).await?;
 
         Ok(manager)
     }

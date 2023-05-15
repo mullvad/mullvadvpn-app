@@ -148,11 +148,7 @@ pub struct RouteManagerImpl {
 }
 
 impl RouteManagerImpl {
-    pub async fn new(
-        required_routes: HashSet<RequiredRoute>,
-        table_id: u32,
-        fwmark: u32,
-    ) -> Result<Self> {
+    pub async fn new(table_id: u32, fwmark: u32) -> Result<Self> {
         let (mut connection, handle, messages) =
             rtnetlink::new_connection().map_err(Error::Connect)?;
 
@@ -179,7 +175,6 @@ impl RouteManagerImpl {
         };
 
         monitor.clear_routing_rules().await?;
-        monitor.add_required_routes(required_routes).await?;
 
         Ok(monitor)
     }
