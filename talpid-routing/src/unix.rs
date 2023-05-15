@@ -4,18 +4,12 @@ use crate::Route;
 
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::RequiredRoute;
-#[cfg(target_os = "linux")]
-use super::Route;
 
 use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{
-    collections::HashSet,
-    io,
-    net::{Ipv4Addr, Ipv6Addr},
-};
+use std::{collections::HashSet, io};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -182,26 +176,6 @@ impl RouteManagerHandle {
 /// Represents a firewall mark.
 #[cfg(target_os = "linux")]
 type Fwmark = u32;
-
-/// IPv6 addresess for tunnel interface
-#[cfg(target_os = "macos")]
-#[derive(Clone, Copy, Debug)]
-pub struct TunnelRoutesV4 {
-    /// IPv4 gateway of the tunnel
-    pub tunnel_gateway: Ipv4Addr,
-    /// IPv4 interface address
-    pub tunnel_ip: Ipv4Addr,
-}
-
-/// IPv6 addresess for tunnel interface
-#[cfg(target_os = "macos")]
-#[derive(Copy, Clone, Debug)]
-pub struct TunnelRoutesV6 {
-    /// IPv6 gateway of the tunnel
-    pub tunnel_gateway: Ipv6Addr,
-    /// IPv6 interface address
-    pub tunnel_ip: Ipv6Addr,
-}
 
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
