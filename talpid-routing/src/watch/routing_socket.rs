@@ -1,14 +1,13 @@
 use std::{
     collections::VecDeque,
     mem::size_of,
-    num::NonZeroU16,
     os::unix::prelude::{FromRawFd, RawFd},
     pin::Pin,
     task::{ready, Context, Poll},
 };
 
 use nix::{
-    fcntl::{self, OFlag},
+    fcntl,
     sys::socket::{socket, AddressFamily, SockFlag, SockType},
 };
 use std::{
@@ -17,13 +16,10 @@ use std::{
 };
 
 use super::data::{
-    rt_msghdr_short, AddressFlag, MessageType, RouteFlag, RouteMessage, RouteSocketAddress,
+    rt_msghdr_short, MessageType, RouteMessage,
 };
 
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
-
-/// Routing socket interface version
-const RTM_VERSION: libc::c_uchar = 5;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -152,8 +148,7 @@ impl RoutingSocketInner {
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
-                // TODO: handle errors?
-                Err(err) => continue,
+                Err(_err) => continue,
             }
         }
     }

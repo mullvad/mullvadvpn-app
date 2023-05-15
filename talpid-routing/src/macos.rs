@@ -5,8 +5,8 @@ use crate::{
 
 use futures::{
     channel::mpsc,
-    future::{self, FutureExt},
-    stream::{Stream, StreamExt, TryStreamExt},
+    future::FutureExt,
+    stream::StreamExt,
 };
 use ipnetwork::IpNetwork;
 use nix::sys::socket::{SockaddrLike, AddressFamily, SockaddrStorage};
@@ -15,12 +15,7 @@ use std::{
     collections::{BTreeMap, HashSet},
     io,
     net::{Ipv4Addr, Ipv6Addr},
-    process::Stdio,
 };
-
-use tokio::{io::AsyncBufReadExt, process::Command};
-use tokio_stream::wrappers::LinesStream;
-
 use self::{
     watch::{
         data::{Destination, RouteDestination, RouteMessage},
@@ -29,8 +24,6 @@ use self::{
 };
 
 use super::DefaultRouteEvent;
-
-mod ip6addr_ext;
 
 pub mod watch;
 mod interface;
@@ -509,7 +502,7 @@ impl RouteManagerImpl {
     /// instead.
     async fn set_default_route_ifscope(&mut self, ipv4: bool, should_be_ifscoped: bool) -> Result<()> {
         let default_route = match (ipv4, &mut self.v4_default_route, &mut self.v6_default_route) {
-            ((true, Some(default_route), _) | (false, _, Some(default_route))) => default_route,
+            (true, Some(default_route), _) | (false, _, Some(default_route)) => default_route,
             _ => {
                 return Ok(());
             }

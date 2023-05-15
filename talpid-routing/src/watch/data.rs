@@ -1,15 +1,11 @@
 use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
-    ffi::{OsStr, OsString},
+    collections::BTreeMap,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
-    os::unix::prelude::OsStringExt,
 };
-
 use ipnetwork::IpNetwork;
 use nix::{
     ifaddrs::InterfaceAddress,
-    net::if_::if_nametoindex,
-    sys::socket::{SockaddrIn, SockaddrIn6, SockaddrLike, SockaddrStorage},
+    sys::socket::{SockaddrLike, SockaddrStorage},
 };
 
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
@@ -417,7 +413,6 @@ pub struct AddressMessage {
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
     interface_index: u16,
     ifam_type: libc::c_uchar,
-    flags: RouteFlag,
 }
 
 impl AddressMessage {
@@ -480,9 +475,6 @@ impl AddressMessage {
 
         let payload = &buffer[HEADER_SIZE..std::cmp::min(msg_len, buffer.len())];
 
-        let flags = RouteFlag::from_bits(header.ifam_flags)
-            .ok_or(Error::UnknownRouteFlag(header.ifam_flags))?;
-
         let address_flags = AddressFlag::from_bits(header.ifam_addrs)
             .ok_or(Error::UnknownAddressFlag(header.ifam_addrs))?;
 
@@ -492,7 +484,6 @@ impl AddressMessage {
 
         Ok(Self {
             sockaddrs,
-            flags,
             ifam_type: header.ifam_type,
             interface_index: header.ifam_index,
         })
@@ -628,15 +619,6 @@ impl RouteSocketMessage {
                 std::mem::size_of::<rt_msghdr_short>(),
             )),
         }
-    }
-}
-
-/// hush, this will come in later
-fn align_to_nearest_u32(idx: usize) -> usize {
-    if idx > 0 {
-        1 + (((idx) - 1) | (std::mem::size_of::<u32>() - 1))
-    } else {
-        std::mem::size_of::<u32>()
     }
 }
 
@@ -942,7 +924,6 @@ impl RouteSocketAddress {
                 // the smallest size being 4 bytes.
                 let buffer_size = len + len % 4;
                 let mut buffer = vec![0u8; buffer_size as usize];
-                let mut buffer_ptr = buffer.as_mut_ptr();
                 unsafe {
                     // SAFETY: copying conents of addr into buffer is safe, as long as addr.len()
                     // returns a correct size for the socket address pointer.
@@ -1011,12 +992,6 @@ impl RouteSocketAddress {
             _ => None,
         }
     }
-
-    pub fn set_interface_index(mut self, index: u16) -> Self {
-        unimplemented!()
-        // self.insert_sockaddr(RouteSocketAddress::IfName(Some(sockaddr)));
-        // self
-    }
 }
 
 /// Route socket addreses should be ordered by their corresponding address flag when a route
@@ -1033,12 +1008,6 @@ struct sockaddr_hdr {
     sa_len: u8,
     sa_family: libc::sa_family_t,
     padding: u16,
-}
-
-pub enum InterfaceIdentifier {
-    Index(u16),
-    Name(OsString),
-    Unspecified,
 }
 
 /// An iterator to consume a byte buffer containing socket address structures originating from a
@@ -1061,7 +1030,7 @@ impl<'a> RouteSockAddrIterator<'a> {
 
     /// Advances internal byte buffer by given amount. The byte amount will be padded to be
     /// aligned to 4 bytes if there's more data in the buffer.
-    fn advance_buffer(&mut self, mut saddr_len: u8) {
+    fn advance_buffer(&mut self, saddr_len: u8) {
         let saddr_len = usize::from(saddr_len);
 
         // if consumed as many bytes as are left in the buffer, the buffer can be cleared
@@ -1201,10 +1170,6 @@ impl rt_msghdr_short {
             None
         }
     }
-
-    fn is_err(&self) -> bool {
-        self.rtm_errno != 0
-    }
 }
 
 #[derive(PartialEq, PartialOrd, Ord, Eq, Clone)]
@@ -1212,24 +1177,6 @@ pub struct RouteDestination {
     pub network: IpNetwork,
     pub interface: Option<u16>,
     pub gateway: Option<IpAddr>,
-}
-
-impl RouteDestination {
-    pub fn is_default(&self) -> bool {
-        if self.network.prefix() != 0 {
-            return false;
-        }
-        // TODO: probably redundant?
-        match self.network.ip() {
-            IpAddr::V4(Ipv4Addr::UNSPECIFIED) => true,
-            IpAddr::V6(Ipv6Addr::UNSPECIFIED) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_ipv4(&self) -> bool {
-        self.network.is_ipv4()
-    }
 }
 
 impl TryFrom<&RouteMessage> for RouteDestination {

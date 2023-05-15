@@ -1,4 +1,4 @@
-use std::{net::{Ipv6Addr, Ipv4Addr}, ffi::{CStr, CString}};
+use std::{net::{Ipv6Addr, Ipv4Addr}, ffi::CString};
 
 use ipnetwork::IpNetwork;
 use nix::net::if_::if_nametoindex;

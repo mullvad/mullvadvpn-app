@@ -1,20 +1,6 @@
-use ipnetwork::IpNetwork;
-use nix::{
-    ifaddrs::{getifaddrs, InterfaceAddress},
-    sys::socket::{socket, AddressFamily, SockFlag, SockType, SockaddrLike, SockaddrStorage},
-};
-use std::{
-    collections::BTreeMap,
-    io::{self, Read},
-    mem,
-    net::{IpAddr, SocketAddr},
-};
-use tokio::io::unix::AsyncFd;
-
-use crate::imp::imp::watch::data::RouteSocketAddress;
-
+use std::io;
 use self::data::{
-    Destination, Interface, MessageType, RouteFlag, RouteMessage, RouteSocketMessage,
+    MessageType, RouteMessage, RouteSocketMessage,
 };
 
 pub(crate) mod data;
@@ -97,20 +83,6 @@ impl RoutingTable {
         }
     }
 
-    pub async fn change_route(&mut self, message: &RouteMessage) -> Result<()> {
-        let response = self
-            .alter_routing_table(message, MessageType::RTM_CHANGE)
-            .await?;
-
-        match response {
-            RouteSocketMessage::ChangeRoute(_route) => Ok(()),
-            anything_else => Err(Error::UnexpectedMessageType(
-                anything_else,
-                MessageType::RTM_CHANGE,
-            )),
-        }
-    }
-
     async fn alter_routing_table(
         &mut self,
         message: &RouteMessage,
@@ -154,20 +126,6 @@ impl RoutingTable {
                 MessageType::RTM_DELETE,
             )),
         }
-    }
-
-    pub async fn get_route_for_destination(
-        &mut self,
-        destination: impl Into<Destination>,
-    ) -> Result<Option<data::RouteMessage>> {
-        let destination = destination.into();
-
-        let mut msg = RouteMessage::new_route(destination);
-        if destination.is_network() {
-            msg = msg.set_gateway_route(true);
-        }
-
-        self.get_route(&msg).await
     }
 
     pub async fn get_route(
