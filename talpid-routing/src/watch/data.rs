@@ -9,7 +9,7 @@ use ipnetwork::IpNetwork;
 use nix::{
     ifaddrs::InterfaceAddress,
     net::if_::if_nametoindex,
-    sys::socket::{SockAddr, SockaddrIn, SockaddrIn6, SockaddrLike, SockaddrStorage},
+    sys::socket::{SockaddrIn, SockaddrIn6, SockaddrLike, SockaddrStorage},
 };
 
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
