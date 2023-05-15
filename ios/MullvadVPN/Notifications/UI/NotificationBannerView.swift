@@ -10,7 +10,7 @@ import UIKit
 
 final class NotificationBannerView: UIView {
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
-    private static let buttonSize = CGSize(width: 18, height: 18)
+    private static let buttonSize = CGSize(width: 32, height: 32)
 
     private let backgroundView: UIVisualEffectView = {
         let effect = UIBlurEffect(style: .dark)
@@ -63,10 +63,11 @@ final class NotificationBannerView: UIView {
         return view
     }()
 
-    private let actionButton: UIButton = {
-        let button = UIButton(type: .system)
+    private let actionButton: CustomButton = {
+        let button = CustomButton()
         button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.imageAlignment = .leadingFixed
         return button
     }()
 
