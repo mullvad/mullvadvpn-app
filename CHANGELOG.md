@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add UDP-over-TCP
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
+- Add creation date below device name in the device list screen.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
@@ -52,7 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
 - Fix content blockers expand state not being kept when returning from split tunneling.
-- Fix connection header flickering
+- Fix connection header flickering.
 
 
 ## [2023.4-beta1] - 2023-05-02

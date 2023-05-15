@@ -8,6 +8,7 @@ data class Dimensions(
     val smallPadding: Dp = 8.dp,
     val listItemDivider: Dp = 1.dp,
     val listItemHeight: Dp = 50.dp,
+    val listItemHeightExtra: Dp = 60.dp,
     val loadingSpinnerSize: Dp = 24.dp,
     val loadingSpinnerStrokeWidth: Dp = 3.dp,
     val loadingSpinnerPadding: Dp = 12.dp
