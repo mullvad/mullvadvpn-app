@@ -392,6 +392,8 @@ impl RouteManagerImpl {
 
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
         let best_route = interface::get_best_default_route(&mut self.routing_table, family).await;
+        // FIXME: remove logging
+        log::debug!("Best route: {best_route:?}");
 
         let default_route = match family {
             interface::Family::V4 => &mut self.v4_default_route,
@@ -516,6 +518,9 @@ impl RouteManagerImpl {
         if default_route.is_ifscope() == should_be_ifscoped {
             return Ok(());
         }
+
+        // FIXME: remove logging
+        log::debug!("Setting non-ifscope: {default_route:?}");
         
         let ifscope_index = if should_be_ifscoped {
             let n = default_route.interface_index();
@@ -558,6 +563,8 @@ impl RouteManagerImpl {
         // Remove all applied routes. This includes default destination routes
         let old_routes = std::mem::take(&mut self.applied_routes);
         for (_dest, route) in old_routes.into_iter().map(|(dest, route)| (dest, route.route)) {
+            // FIXME: remove logging
+            log::debug!("Removing route: {route:?}");
             match self.routing_table.delete_route(&route).await {
                 Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
                 Err(err) => {
