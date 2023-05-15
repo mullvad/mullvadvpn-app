@@ -50,15 +50,19 @@ class SettingsRepository(
             )
     }
 
-    fun isLocalNetworkSharingEnabled(): Boolean {
-        return serviceConnectionManager.settingsListener()?.allowLan ?: false
-    }
-
     fun setWireguardMtu(value: Int?) {
         serviceConnectionManager.settingsListener()?.wireguardMtu = value
     }
 
     fun setObfuscationOptions(value: ObfuscationSettings) {
         serviceConnectionManager.settingsListener()?.obfuscationSettings = value
+    }
+
+    fun setAutoConnect(isEnabled: Boolean) {
+        serviceConnectionManager.settingsListener()?.autoConnect = isEnabled
+    }
+
+    fun setLocalNetworkSharing(isEnabled: Boolean) {
+        serviceConnectionManager.settingsListener()?.allowLan = isEnabled
     }
 }

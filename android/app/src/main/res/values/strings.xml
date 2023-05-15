@@ -194,4 +194,6 @@
     <string name="off">Off</string>
     <string name="udp_over_tcp_port_info">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</string>
     <string name="created_x">Created: %s</string>
+    <string name="local_network_sharing_info">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</string>
+    <string name="local_network_sharing_additional_info">It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</string>
 </resources>

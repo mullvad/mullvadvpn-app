@@ -46,6 +46,8 @@ class AdvancedSettingsViewModel(
         combine(repository.settingsUpdates, dialogState) { settings, dialogState ->
                 AdvancedSettingsViewModelState(
                     mtuValue = settings?.mtuString() ?: "",
+                    isAutoConnectEnabled = settings?.autoConnect ?: false,
+                    isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     contentBlockersOptions = settings?.contentBlockersSettings()
@@ -98,6 +100,10 @@ class AdvancedSettingsViewModel(
 
     fun onCancelDialogClick() {
         hideDialog()
+    }
+
+    fun onLocalNetworkSharingInfoClick() {
+        dialogState.update { AdvancedSettingsDialogState.LocalNetworkSharingInfoDialog }
     }
 
     fun onContentsBlockerInfoClick() {
@@ -209,6 +215,14 @@ class AdvancedSettingsViewModel(
 
             hideDialog()
         }
+
+    fun onToggleAutoConnect(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) { repository.setAutoConnect(isEnabled) }
+    }
+
+    fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) { repository.setLocalNetworkSharing(isEnabled) }
+    }
 
     fun onToggleDnsClick(isEnabled: Boolean) {
         updateCustomDnsState(isEnabled)
