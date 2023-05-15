@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,6 +70,8 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
+
+const val SETTINGS_LIST_TEST_TAG = "settings_list_tag"
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
@@ -240,6 +243,7 @@ fun AdvancedSettingScreen(
         LazyColumn(
             modifier =
                 Modifier.drawVerticalScrollbar(lazyListState)
+                    .testTag(SETTINGS_LIST_TEST_TAG)
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .animateContentSize(),

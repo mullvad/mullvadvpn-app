@@ -5,8 +5,10 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
@@ -249,13 +251,13 @@ class AdvancedSettingsScreenTest {
                             listOf(
                                 CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
                                 CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false),
-                            ),
+                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false)
+                            )
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
-
+        composeTestRule.onNodeWithTag(SETTINGS_LIST_TEST_TAG).performScrollToIndex(2)
         // Assert
         composeTestRule.apply {
             onNodeWithText(DUMMY_DNS_ADDRESS).assertExists()
@@ -274,7 +276,7 @@ class AdvancedSettingsScreenTest {
                 uiState =
                     AdvancedSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = false,
-                        customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false)),
+                        customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false))
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -296,7 +298,7 @@ class AdvancedSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -317,7 +319,7 @@ class AdvancedSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = false,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -338,7 +340,7 @@ class AdvancedSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -359,7 +361,7 @@ class AdvancedSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = false,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -401,7 +403,7 @@ class AdvancedSettingsScreenTest {
                     AdvancedSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
-                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
+                                item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false)
                             ),
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
@@ -423,8 +425,8 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.EditDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                index = 0,
-                            ),
+                                index = 0
+                            )
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -445,9 +447,9 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                validationResult = StagedDns.ValidationResult.Success,
+                                validationResult = StagedDns.ValidationResult.Success
                             ),
-                        isAllowLanEnabled = false,
+                        isAllowLanEnabled = false
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -468,9 +470,9 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                validationResult = StagedDns.ValidationResult.Success,
+                                validationResult = StagedDns.ValidationResult.Success
                             ),
-                        isAllowLanEnabled = true,
+                        isAllowLanEnabled = true
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -491,9 +493,9 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.Success,
+                                validationResult = StagedDns.ValidationResult.Success
                             ),
-                        isAllowLanEnabled = true,
+                        isAllowLanEnabled = true
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -514,9 +516,9 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.Success,
+                                validationResult = StagedDns.ValidationResult.Success
                             ),
-                        isAllowLanEnabled = false,
+                        isAllowLanEnabled = false
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -537,8 +539,8 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.InvalidAddress,
-                            ),
+                                validationResult = StagedDns.ValidationResult.InvalidAddress
+                            )
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -559,8 +561,8 @@ class AdvancedSettingsScreenTest {
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                validationResult = StagedDns.ValidationResult.DuplicateAddress,
-                            ),
+                                validationResult = StagedDns.ValidationResult.DuplicateAddress
+                            )
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
