@@ -93,7 +93,7 @@ impl RouteMessage {
             _ => None,
         });
 
-        // FIXME: figure out if this is superfluous. try to get route etc.
+        // TODO: This might be superfluous
         let netmask_is_default = match netmask {
             // empty socket address implies that it is a 'default' netmask
             Some(None) => true,
