@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,6 +65,8 @@ import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
@@ -240,6 +243,7 @@ fun AdvancedSettingScreen(
         LazyColumn(
             modifier =
                 Modifier.drawVerticalScrollbar(lazyListState)
+                    .testTag(LAZY_LIST_TEST_TAG)
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .animateContentSize(),
@@ -451,6 +455,7 @@ fun AdvancedSettingScreen(
                     isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
                     modifier =
                         Modifier.background(MullvadDarkBlue)
+                            .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)
                             .padding(
                                 start = cellHorizontalSpacing,
                                 top = topPadding,
