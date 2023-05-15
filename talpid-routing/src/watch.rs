@@ -67,8 +67,6 @@ impl RoutingTable {
             {
                 Ok(())
             }
-            // FIXME: probably wrong? but fails in some cases without this, despite route being added. errno 3
-            Ok(RouteSocketMessage::GetRoute(_route)) => Ok(()),
             Ok(anything_else) => {
                 log::error!("Unexpected route message: {anything_else:?}");
                 Err(Error::UnexpectedMessageType(
@@ -117,8 +115,6 @@ impl RoutingTable {
             RouteSocketMessage::DeleteRoute(route) if route.errno() != 0 => {
                 Err(Error::Deletion(route))
             }
-            // FIXME: probably wrong? but fails in some cases without this, despite route being added. errno 3
-            RouteSocketMessage::GetRoute(_route) => Ok(()),
             anything_else => Err(Error::UnexpectedMessageType(
                 anything_else,
                 MessageType::RTM_DELETE,
