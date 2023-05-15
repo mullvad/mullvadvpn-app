@@ -36,6 +36,11 @@ extension UISearchBar {
         func apply(to searchBar: UISearchBar) {
             let textField = searchBar.searchTextField
 
+            searchBar.setImage(
+                UIImage(named: "IconCloseSml")?.withTintColor(leftViewTintColor),
+                for: .clear,
+                state: .normal
+            )
             textField.leftView?.tintColor = leftViewTintColor
             textField.tintColor = textColor
             textField.textColor = textColor
