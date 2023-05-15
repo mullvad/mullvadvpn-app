@@ -15,9 +15,7 @@ use std::{
     io::{self, Read, Write},
 };
 
-use super::data::{
-    rt_msghdr_short, MessageType, RouteMessage,
-};
+use super::data::{rt_msghdr_short, MessageType, RouteMessage};
 
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
 
@@ -75,9 +73,7 @@ impl RoutingSocket {
         let (msg, seq) = self.next_route_msg(message, message_type);
         match self.socket.write(&msg).await {
             Ok(_) => self.wait_for_response(seq).await,
-            Err(err) => {
-                Err(Error::WriteError(err))
-            }
+            Err(err) => Err(Error::WriteError(err)),
         }
     }
 

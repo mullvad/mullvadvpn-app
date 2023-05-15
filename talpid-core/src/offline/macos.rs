@@ -21,8 +21,14 @@
 //! [`SCNetworkReachability`]: https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
 //! [`NWPathMonitor`]: https://developer.apple.com/documentation/network/nwpathmonitor
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
-use talpid_routing::{RouteManagerHandle, DefaultRouteEvent};
-use std::{sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}, time::Duration};
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
+    time::Duration,
+};
+use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
 
 /// How long to wait before announcing changes to the offline state
 const DEBOUNCE_INTERVAL: Duration = Duration::from_secs(2);
@@ -64,9 +70,7 @@ pub async fn spawn_monitor(
     let notify_tx = Arc::new(notify_tx);
 
     let (v4_connectivity, v6_connectivity) = match route_manager_handle.get_default_routes().await {
-        Ok((v4_route, v6_route)) => {
-            (v4_route.is_some(), v6_route.is_some())
-        }
+        Ok((v4_route, v6_route)) => (v4_route.is_some(), v6_route.is_some()),
         Err(error) => {
             log::warn!("Failed to initialize offline monitor: {error}");
             (true, true)
@@ -139,11 +143,14 @@ pub async fn spawn_monitor(
                         return;
                     }
 
-                    log::info!("Connectivity changed: {}", if new_connectivity {
-                        "Connected"
-                    } else {
-                        "Offline"
-                    });
+                    log::info!(
+                        "Connectivity changed: {}",
+                        if new_connectivity {
+                            "Connected"
+                        } else {
+                            "Offline"
+                        }
+                    );
 
                     let _ = notify_tx.unbounded_send(!new_connectivity);
                 });

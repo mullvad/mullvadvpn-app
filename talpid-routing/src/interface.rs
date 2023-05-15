@@ -1,10 +1,20 @@
-use std::{net::{Ipv6Addr, Ipv4Addr}, ffi::CString};
+use std::{
+    ffi::CString,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 use ipnetwork::IpNetwork;
 use nix::net::if_::if_nametoindex;
-use system_configuration::{preferences::SCPreferences, core_foundation::string::CFString, network_configuration::{SCNetworkService, SCNetworkSet}};
+use system_configuration::{
+    core_foundation::string::CFString,
+    network_configuration::{SCNetworkService, SCNetworkSet},
+    preferences::SCPreferences,
+};
 
-use super::watch::{RoutingTable, data::{RouteMessage, Destination}};
+use super::watch::{
+    data::{Destination, RouteMessage},
+    RoutingTable,
+};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -14,9 +24,13 @@ pub enum Family {
 
 /// Attempt to retrieve the best current default route.
 /// Note: The tunnel interface is not even listed in the service order, so it will be skipped.
-pub async fn get_best_default_route(routing_table: &mut RoutingTable, family: Family) -> Option<RouteMessage> {
+pub async fn get_best_default_route(
+    routing_table: &mut RoutingTable,
+    family: Family,
+) -> Option<RouteMessage> {
     // TODO:
-    // for table w/o relay route, just add a tunnel default route always. only need one where the relay route is
+    // for table w/o relay route, just add a tunnel default route always. only need one where the
+    // relay route is
 
     let destination = match family {
         Family::V4 => v4_default(),

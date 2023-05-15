@@ -1,11 +1,11 @@
-use std::{
-    collections::BTreeMap,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
-};
 use ipnetwork::IpNetwork;
 use nix::{
     ifaddrs::InterfaceAddress,
     sys::socket::{SockaddrLike, SockaddrStorage},
+};
+use std::{
+    collections::BTreeMap,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
 };
 
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
@@ -25,8 +25,7 @@ impl RouteMessage {
         match destination {
             Destination::Network(net) => {
                 let dest_addr = SockaddrStorage::from(SocketAddr::from((net.ip(), 0)));
-                let destination =
-                    RouteSocketAddress::Destination(Some(dest_addr));
+                let destination = RouteSocketAddress::Destination(Some(dest_addr));
                 let netmask =
                     RouteSocketAddress::Netmask(Some(SocketAddr::from((net.mask(), 0)).into()));
                 sockaddrs.insert(destination.address_flag(), destination);
@@ -69,11 +68,11 @@ impl RouteMessage {
     }
 
     pub fn is_default_link(&self) -> Result<bool> {
-        let destination_is_default = self.destination()?.and_then(|addr| {
-            addr.as_link_addr().and_then(|addr| addr.addr())
-        })
-        .map(|addr| addr == [0u8; 6])
-        .unwrap_or(false);
+        let destination_is_default = self
+            .destination()?
+            .and_then(|addr| addr.as_link_addr().and_then(|addr| addr.addr()))
+            .map(|addr| addr == [0u8; 6])
+            .unwrap_or(false);
 
         // TODO: check netmask?
 
@@ -388,7 +387,7 @@ impl RouteMessage {
             self.interface_index = iface_index;
             self.route_flags.insert(RouteFlag::RTF_IFSCOPE);
         } else {
-            //self.interface_index = iface_index;
+            // self.interface_index = iface_index;
             self.route_flags.remove(RouteFlag::RTF_IFSCOPE);
         }
 

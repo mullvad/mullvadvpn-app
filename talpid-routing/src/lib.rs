@@ -20,10 +20,7 @@ mod imp;
 use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
 #[cfg(target_os = "macos")]
-pub use imp::{
-    DefaultRouteEvent, PlatformError,
-    TunnelRoutesV4, TunnelRoutesV6,
-};
+pub use imp::{DefaultRouteEvent, PlatformError, TunnelRoutesV4, TunnelRoutesV6};
 
 pub use imp::{Error, RouteManager};
 

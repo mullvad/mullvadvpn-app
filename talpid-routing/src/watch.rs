@@ -1,7 +1,5 @@
+use self::data::{MessageType, RouteMessage, RouteSocketMessage};
 use std::io;
-use self::data::{
-    MessageType, RouteMessage, RouteSocketMessage,
-};
 
 pub(crate) mod data;
 pub(crate) mod routing_socket;
