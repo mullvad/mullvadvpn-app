@@ -217,6 +217,8 @@ pub(crate) enum RouteManagerCommand {
     #[cfg(target_os = "macos")]
     GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
     #[cfg(target_os = "linux")]
+    CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
