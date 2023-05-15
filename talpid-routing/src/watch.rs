@@ -156,7 +156,7 @@ impl RoutingTable {
         }
     }
 
-    pub async fn get_route(
+    pub async fn get_route_for_destination(
         &mut self,
         destination: impl Into<Destination>,
     ) -> Result<Option<data::RouteMessage>> {
@@ -167,9 +167,16 @@ impl RoutingTable {
             msg = msg.set_gateway_route(true);
         }
 
+        self.get_route(&msg).await
+    }
+
+    pub async fn get_route(
+        &mut self,
+        message: &RouteMessage,
+    ) -> Result<Option<data::RouteMessage>> {
         let response = self
             .socket
-            .send_route_message(&msg, MessageType::RTM_GET)
+            .send_route_message(message, MessageType::RTM_GET)
             .await;
 
         let response = match response {

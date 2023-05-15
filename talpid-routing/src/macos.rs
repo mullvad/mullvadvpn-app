@@ -33,6 +33,7 @@ use super::DefaultRouteEvent;
 mod ip6addr_ext;
 
 pub mod watch;
+mod interface;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -165,21 +166,13 @@ impl RouteManagerImpl {
         let mut manage_rx = manage_rx.fuse();
 
         // Initialize default routes
-        // NOTE: This isn't race-free, as we're not listening for route changes before initializing 
-        self.v4_default_route = self.routing_table
-            .get_route(v4_default())
-            .await
-            .unwrap_or_else(|error| {
-                log::error!("{}", error.display_chain_with_msg("Failed to get initial default v4 route"));
-                None
-            });
-        self.v6_default_route = self.routing_table
-            .get_route(v6_default())
-            .await
-            .unwrap_or_else(|error| {
-                log::error!("{}", error.display_chain_with_msg("Failed to get initial default v6 route"));
-                None
-            });
+        // NOTE: This isn't race-free, as we're not listening for route changes before initializing
+        self.update_best_default_route(interface::Family::V4).await.unwrap_or_else(|error| {
+            log::error!("{}", error.display_chain_with_msg("Failed to get initial default v4 route"));
+        });
+        self.update_best_default_route(interface::Family::V6).await.unwrap_or_else(|error| {
+            log::error!("{}", error.display_chain_with_msg("Failed to get initial default v6 route"));
+        });
 
         loop {
             futures::select_biased! {
@@ -337,29 +330,10 @@ impl RouteManagerImpl {
                     Ok(true) => {
                         log::trace!("A default route was removed: {route:?}");
 
-                        let ((true, default_route, _) | (false, _, default_route)) = (route.is_ipv4(), &mut self.v4_default_route, &mut self.v6_default_route);
-                        let ((true, tun_route, _) | (false, _, tun_route)) = (route.is_ipv4(), &mut self.v4_tunnel_default_route, &mut self.v6_tunnel_default_route);
+                        // TODO: may need to add back tunnel route if it does not exist
 
-                        // We must check if the deleted default route matches the expected one,
-                        // since we're not ignoring ifscoped routes.
-                        // Deleting the actual (tunnel) default route counts as well.
-                        if let Some(default) = default_route {
-                            if tun_route.as_ref().map(|route| route.gateway() == default.gateway()).unwrap_or(false) {
-                                log::debug!("Tunnel default route was deleted");
-                            } else if default.is_ifscope() && default.gateway() != route.gateway() {
-                                log::trace!("Ignoring mismatching default route");
-                                return;
-                            }
-                        }
-
-                        if std::mem::take(default_route).is_some() {
-                            // Notify default route listeners
-                            let event = if route.is_ipv4() {
-                                DefaultRouteEvent::RemovedV4
-                            } else {
-                                DefaultRouteEvent::RemovedV6
-                            };
-                            self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
+                        if let Err(error) = self.handle_route_change(route).await {
+                            log::error!("Failed to process route change: {error}");
                         }
                     }
                     Ok(false) => (),
@@ -387,26 +361,17 @@ impl RouteManagerImpl {
     /// Update routes that use the non-tunnel default interface
     async fn handle_route_change(
         &mut self,
-        mut route: watch::data::RouteMessage,
+        route: watch::data::RouteMessage,
     ) -> Result<()> {
         // Ignore routes that aren't default routes
         if !route.is_default().map_err(Error::InvalidData)? {
             return Ok(());
         }
 
-        let is_ipv4 = route.is_ipv4();
-        let ((true, default_route, _) | (false, _, default_route)) = (is_ipv4, &mut self.v4_default_route, &mut self.v6_default_route);
-
-        // Ignore changes to ifscoped routes, unless all we have are ifscoped routes
-        // `have_preferred_default` will be true when macOS itself replaces the default route
-        let have_preferred_default = default_route.as_ref().map(|route| route.gateway_ip().is_some()).unwrap_or(false);
-        if route.is_ifscope() && have_preferred_default {
-            return Ok(());
-        }
-
         let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
 
         // Ignore the new route if it is our tunnel route, lest we create a loop
+        // FIXME: might not be necessary? since no update will occur
         for tunnel_default_route in [&self.v4_tunnel_default_route, &self.v6_tunnel_default_route] {
             if let Some(tunnel_route) = tunnel_default_route.clone() {
                 let tun_gateway_link_addr = tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
@@ -417,48 +382,45 @@ impl RouteManagerImpl {
             }
         }
 
-        // Fetch the default route directly from the routing table.
-        // The message we receive seems incomplete at times.
-        // If we're using an ifscope route, we can't fetch it like this
-        if have_preferred_default {
-            let default_dest = if is_ipv4 {
-                v4_default()
-            } else {
-                v6_default()
-            };
-            match self.routing_table.get_route(default_dest).await {
-                Ok(Some(new_route)) => route = new_route,
-                Ok(None) => {
-                    log::warn!("Expected to find default route");
-                    return Ok(());
-                }
-                Err(error) => {
-                    log::error!("Failed to get default route");
-                    return Err(Error::RoutingTable(error));
-                }
-            }
+        self.update_best_default_route(if route.is_ipv4() {
+            interface::Family::V4
+        } else {
+            interface::Family::V6
+        })
+        .await
+    }
+
+    async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
+        let best_route = interface::get_best_default_route(&mut self.routing_table, family).await;
+
+        let default_route = match family {
+            interface::Family::V4 => &mut self.v4_default_route,
+            interface::Family::V6 => &mut self.v6_default_route,
+        };
+
+        if default_route == &best_route {
+            log::trace!("Default route is unchanged");
+            return Ok(());
         }
 
-        let new_route = Some(route);
+        let old_route = std::mem::replace(default_route, best_route);
 
-        if &new_route != default_route {
-            let old_route = std::mem::replace(default_route, new_route);
-            log::debug!("New default route: {old_route:?} -> {default_route:?}");
+        log::debug!("New default route: {old_route:?} -> {default_route:?}");
 
-            // Notify default route listeners
-            let event = if is_ipv4 {
-                DefaultRouteEvent::AddedOrChangedV4
-            } else {
-                DefaultRouteEvent::AddedOrChangedV6
-            };
-            self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
+        // Notify default route listeners
+        let event = match (family, default_route.is_some()) {
+            (interface::Family::V4, true) => DefaultRouteEvent::AddedOrChangedV4,
+            (interface::Family::V6, true) => DefaultRouteEvent::AddedOrChangedV6,
+            (interface::Family::V4, false) => DefaultRouteEvent::RemovedV4,
+            (interface::Family::V6, false) => DefaultRouteEvent::RemovedV6,
+        };
+        self.default_route_listeners.retain(|tx| tx.unbounded_send(event).is_ok());
 
-            // Substitute route with a tunnel route
-            self.apply_tunnel_default_route().await?;
+        // Substitute route with a tunnel route
+        self.apply_tunnel_default_route().await?;
 
-            // Update routes using default interface
-            self.apply_default_destinations().await?;
-        }
+        // Update routes using default interface
+        self.apply_default_destinations().await?;
 
         Ok(())
     }
