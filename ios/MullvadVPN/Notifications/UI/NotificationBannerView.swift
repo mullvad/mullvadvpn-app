@@ -9,9 +9,6 @@
 import UIKit
 
 final class NotificationBannerView: UIView {
-    private static let indicatorViewSize = CGSize(width: 12, height: 12)
-    private static let buttonSize = CGSize(width: 18, height: 18)
-
     private let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
 
     private let titleLabel: UILabel = {
@@ -43,7 +40,7 @@ final class NotificationBannerView: UIView {
     private let indicatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .dangerColor
-        view.layer.cornerRadius = NotificationBannerView.indicatorViewSize.width * 0.5
+        view.layer.cornerRadius = UIMetrics.inAppBannerSeverityIndicatorSize.width * 0.5
         view.layer.cornerCurve = .circular
         return view
     }()
@@ -119,8 +116,8 @@ final class NotificationBannerView: UIView {
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
             indicatorView.leadingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
-            indicatorView.widthAnchor.constraint(equalToConstant: Self.indicatorViewSize.width),
-            indicatorView.heightAnchor.constraint(equalToConstant: Self.indicatorViewSize.height),
+            indicatorView.widthAnchor.constraint(equalToConstant: UIMetrics.inAppBannerSeverityIndicatorSize.width),
+            indicatorView.heightAnchor.constraint(equalToConstant: UIMetrics.inAppBannerSeverityIndicatorSize.height),
 
             titleLabel.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
