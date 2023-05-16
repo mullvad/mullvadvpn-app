@@ -15,14 +15,14 @@ class RelayCountry(
         get() = cities.any { city -> city.active }
 
     override val hasChildren
-        get() = !cities.isEmpty()
+        get() = cities.isNotEmpty()
 
     override val visibleChildCount: Int
         get() {
-            if (expanded) {
-                return cities.map { city -> city.visibleItemCount }.sum()
+            return if (expanded) {
+                cities.sumOf { city -> city.visibleItemCount }
             } else {
-                return 0
+                0
             }
         }
 
@@ -36,9 +36,8 @@ class RelayCountry(
 
         if (expanded) {
             for (city in cities) {
-                val itemOrCount = city.getItem(remaining)
 
-                when (itemOrCount) {
+                when (val itemOrCount = city.getItem(remaining)) {
                     is GetItemResult.Item -> return itemOrCount
                     is GetItemResult.Count -> {
                         remaining -= itemOrCount.count

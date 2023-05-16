@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Rename "Advanced settings" to "VPN Settings".
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
 - Migrate split tunneling view to compose.
+- Migrate select Location view to compose.
 
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
