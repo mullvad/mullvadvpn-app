@@ -81,7 +81,8 @@ final class TunnelControlView: UIView {
         return button
     }()
 
-    private let selectLocationBlurView: TranslucentButtonBlurView
+    private let selectLocationButtonBlurView: TranslucentButtonBlurView
+    private let connectButtonBlurView: TranslucentButtonBlurView
     private let cancelButtonBlurView: TranslucentButtonBlurView
 
     private let splitDisconnectButton: DisconnectSplitButton = {
@@ -107,7 +108,8 @@ final class TunnelControlView: UIView {
     }
 
     override init(frame: CGRect) {
-        selectLocationBlurView = TranslucentButtonBlurView(button: selectLocationButton)
+        selectLocationButtonBlurView = TranslucentButtonBlurView(button: selectLocationButton)
+        connectButtonBlurView = TranslucentButtonBlurView(button: connectButton)
         cancelButtonBlurView = TranslucentButtonBlurView(button: cancelButton)
 
         super.init(frame: frame)
@@ -206,20 +208,10 @@ final class TunnelControlView: UIView {
     }
 
     private func updateButtonEnabledStates() {
-        let allButtons = [
-            connectButton,
-            selectLocationButton,
-            cancelButton,
-            splitDisconnectButton.primaryButton,
-            splitDisconnectButton.secondaryButton,
-        ]
+        let shouldEnableButtons = tunnelState.shouldEnableButtons
 
-        switch tunnelState {
-        case .waitingForConnectivity(.noNetwork):
-            allButtons.forEach { $0.isEnabled = false }
-        default:
-            allButtons.forEach { $0.isEnabled = true }
-        }
+        selectLocationButtonBlurView.isEnabled = shouldEnableButtons
+        connectButtonBlurView.isEnabled = shouldEnableButtons
     }
 
     private func updateTunnelRelay() {
@@ -396,7 +388,7 @@ final class TunnelControlView: UIView {
         case .cancel:
             return cancelButtonBlurView
         case .selectLocation:
-            return selectLocationBlurView
+            return selectLocationButtonBlurView
         }
     }
 
@@ -450,6 +442,14 @@ private extension TunnelState {
         case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork):
             return .dangerColor
         }
+    }
+
+    var shouldEnableButtons: Bool {
+        if case .waitingForConnectivity(.noNetwork) = self {
+            return false
+        }
+
+        return true
     }
 
     var localizedTitleForSecureLabel: String {

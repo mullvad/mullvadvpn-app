@@ -9,21 +9,29 @@
 import UIKit
 
 class TranslucentButtonBlurView: UIVisualEffectView {
-    init(button: AppButton) {
-        let effect = UIBlurEffect(style: button.style.blurEffectStyle)
+    let appButton: AppButton
 
+    var isEnabled: Bool {
+        didSet {
+            appButton.isEnabled = isEnabled
+
+            let effectStyle = appButton.isEnabled
+                ? appButton.style.blurEffectStyle
+                : appButton.style.disabledStateBlurEffectStyle
+            effect = UIBlurEffect(style: effectStyle)
+        }
+    }
+
+    init(button: AppButton) {
+        appButton = button
+        isEnabled = true
+
+        let effect = UIBlurEffect(style: button.style.blurEffectStyle)
         super.init(effect: effect)
 
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        contentView.addSubview(button)
-
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: contentView.topAnchor),
-            button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-        ])
+        contentView.addConstrainedSubviews([button]) {
+            button.pinEdgesToSuperview()
+        }
 
         layer.cornerRadius = UIMetrics.controlCornerRadius
         layer.maskedCorners = button.style.cornerMask(effectiveUserInterfaceLayoutDirection)
@@ -60,6 +68,15 @@ private extension AppButton.Style {
             return .systemUltraThinMaterialDark
         default:
             return .light
+        }
+    }
+
+    var disabledStateBlurEffectStyle: UIBlurEffect.Style {
+        switch self {
+        case .success, .translucentNeutral:
+            return .systemThinMaterialDark
+        default:
+            return blurEffectStyle
         }
     }
 }
