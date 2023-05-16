@@ -12,7 +12,6 @@ use ipnetwork::IpNetwork;
 use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
 use std::{
     collections::{BTreeMap, HashSet},
-    io,
     net::{Ipv4Addr, Ipv6Addr},
 };
 use talpid_types::ErrorExt;
@@ -28,45 +27,13 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Failed to add route.
-    #[error(display = "Failed to add route")]
-    FailedToAddRoute(#[error(source)] watch::Error),
-
-    /// Failed to add route via 'route' subcommand.
-    #[error(display = "Failed to add route via subcommand")]
-    FailedToAddRouteExec(#[error(source)] io::Error),
-
-    /// Failed to remove route.
-    #[error(display = "Failed to remove route")]
-    FailedToRemoveRoute(#[error(source)] io::Error),
-
-    /// Error while running "ip route".
-    #[error(display = "Error while running \"route get\"")]
-    FailedToRunRoute(#[error(source)] io::Error),
-
-    /// Error while monitoring routes with `route -nv monitor`
-    #[error(display = "Error while running \"route -nv monitor\"")]
-    FailedToMonitorRoutes(#[error(source)] io::Error),
-
-    /// Unexpected output from netstat
-    #[error(display = "Unexpected output from netstat")]
-    BadOutputFromNetstat,
-
     /// Encountered an error when interacting with the routing socket
     #[error(display = "Error occurred when interfacing with the routing table")]
     RoutingTable(#[error(source)] watch::Error),
 
-    /// Unknown interface
-    #[error(display = "Unknown interface: {}", _0)]
-    UnknownInterface(String),
-
     /// Failed to remvoe route
     #[error(display = "Error occurred when deleting a route")]
     DeleteRoute(#[error(source)] watch::Error),
-
-    /// Failed to change route
-    #[error(display = "Failed to change route")]
-    ChangeRoute(#[error(source)] watch::Error),
 
     /// Failed to add route
     #[error(display = "Error occurred when adding a route")]
@@ -79,30 +46,6 @@ pub enum Error {
     /// Received message isn't valid
     #[error(display = "Invalid data")]
     InvalidData(watch::data::Error),
-
-    /// Failed to resolve tunnel interface name to an interface index
-    #[error(display = "Failed to find tunnel interface by name")]
-    NoTunnelInterface,
-
-    /// Gateway route has no IP
-    #[error(display = "Gateway route has no gateway address")]
-    NoGatewayAddress,
-
-    /// Invalid gateway route
-    #[error(display = "Received gateway route is invalid")]
-    InvalidGatewayRoute(watch::data::RouteMessage),
-
-    /// Failed to obtain interface indices
-    #[error(display = "Failed to obtain list of interface names and indices")]
-    GetInterfaceNames(nix::Error),
-
-    /// Failed to find interface name
-    #[error(display = "Failed to find name for interface")]
-    GetInterfaceName,
-
-    /// Failed to create route destination from route message
-    #[error(display = "Failed to derive destination from route message")]
-    RouteDestination(watch::data::Error),
 }
 
 /// Route manager can be in 1 of 4 states -
