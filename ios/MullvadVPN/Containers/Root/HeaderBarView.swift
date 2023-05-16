@@ -13,15 +13,10 @@ class HeaderBarView: UIView {
     private let brandNameImage = UIImage(named: "LogoText")?
         .withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
 
-    let logoImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "LogoIcon"))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
+    private let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
 
-    lazy var brandNameImageView: UIImageView = {
+    private lazy var brandNameImageView: UIImageView = {
         let imageView = UIImageView(image: brandNameImage)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
@@ -30,13 +25,12 @@ class HeaderBarView: UIView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.spacing = 16.0
         return stackView
     }()
 
     private lazy var deviceName: UILabel = {
-        let label = UILabel(frame: .zero)
+        let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -44,11 +38,23 @@ class HeaderBarView: UIView {
     }()
 
     private lazy var timeLeft: UILabel = {
-        let label = UILabel(frame: .zero)
+        let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
+    }()
+
+    private lazy var buttonContainer: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
+        stackView.spacing = UIMetrics.headerBarButtonSpacing
+        return stackView
+    }()
+
+    private let borderLayer: CALayer = {
+        let layer = CALayer()
+        layer.backgroundColor = UIColor.HeaderBar.dividerColor.cgColor
+        return layer
     }()
 
     let accountButton: IncreasedHitButton = {
@@ -85,16 +91,10 @@ class HeaderBarView: UIView {
         let barButton = IncreasedHitButton(type: .system)
         barButton.setImage(buttonImage, for: .normal)
         barButton.setImage(disabledButtonImage, for: .disabled)
-        barButton.translatesAutoresizingMaskIntoConstraints = false
+        barButton.configureForAutoLayout()
 
         return barButton
     }
-
-    private let borderLayer: CALayer = {
-        let layer = CALayer()
-        layer.backgroundColor = UIColor.HeaderBar.dividerColor.cgColor
-        return layer
-    }()
 
     var showsDivider = false {
         didSet {
@@ -122,49 +122,36 @@ class HeaderBarView: UIView {
 
         [deviceName, timeLeft].forEach { deviceInfoHolder.addArrangedSubview($0) }
 
-        addConstrainedSubviews([logoImageView, brandNameImageView, accountButton, settingsButton, deviceInfoHolder]) {
+        addConstrainedSubviews([logoImageView, brandNameImageView, buttonContainer, deviceInfoHolder]) {
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
             logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
-            logoImageView.widthAnchor.constraint(equalToConstant: 44)
-            logoImageView.heightAnchor.constraint(
-                equalTo: logoImageView.widthAnchor,
-                multiplier: 1
-            )
+            logoImageView.widthAnchor.constraint(equalToConstant: UIMetrics.headerBarLogoSize)
+            logoImageView.heightAnchor.constraint(equalTo: logoImageView.widthAnchor, multiplier: 1)
 
             brandNameImageView.leadingAnchor.constraint(
-                equalTo: logoImageView.trailingAnchor,
-                constant: 9
+                equalToSystemSpacingAfter: logoImageView.trailingAnchor,
+                multiplier: 1
             )
             brandNameImageView.topAnchor.constraint(
                 equalTo: layoutMarginsGuide.topAnchor,
-                constant: 22
+                constant: UIMetrics.headerBarLogoSize * 0.5
             )
             brandNameImageView.widthAnchor.constraint(
                 equalTo: brandNameImageView.heightAnchor,
                 multiplier: brandNameAspectRatio
             )
-            brandNameImageView.heightAnchor.constraint(equalToConstant: 18)
-            layoutMarginsGuide.bottomAnchor.constraint(
-                equalTo: deviceInfoHolder.bottomAnchor,
-                constant: 8
-            )
+            brandNameImageView.heightAnchor.constraint(equalToConstant: UIMetrics.headerBarBrandNameHeight)
 
-            accountButton.leadingAnchor.constraint(
-                greaterThanOrEqualTo: brandNameImageView.trailingAnchor,
-                constant: 8
-            )
-            accountButton.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
-
-            settingsButton.leadingAnchor.constraint(
-                equalTo: accountButton.trailingAnchor,
-                constant: 20
-            ).withPriority(.defaultHigh)
-            settingsButton.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
-            settingsButton.centerYAnchor.constraint(equalTo: accountButton.centerYAnchor)
+            buttonContainer.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
+            buttonContainer.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
 
             deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
             deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
-            deviceInfoHolder.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 7)
+            deviceInfoHolder.topAnchor.constraint(equalToSystemSpacingBelow: logoImageView.bottomAnchor, multiplier: 1)
+            layoutMarginsGuide.bottomAnchor.constraint(
+                equalToSystemSpacingBelow: deviceInfoHolder.bottomAnchor,
+                multiplier: 1
+            )
         }
     }
 
@@ -176,6 +163,15 @@ class HeaderBarView: UIView {
         super.layoutSubviews()
 
         borderLayer.frame = CGRect(x: 0, y: frame.maxY - 1, width: frame.width, height: 1)
+        brandNameImageView.isHidden = shouldHideBrandName()
+    }
+
+    /// Returns `true` if container holding buttons intersects brand name.
+    private func shouldHideBrandName() -> Bool {
+        let buttonContainerRect = buttonContainer.convert(buttonContainer.bounds, to: nil)
+        let brandNameRect = brandNameImageView.convert(brandNameImageView.bounds, to: nil)
+
+        return brandNameRect.intersects(buttonContainerRect)
     }
 }
 
