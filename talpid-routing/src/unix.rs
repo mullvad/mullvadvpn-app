@@ -52,10 +52,6 @@ pub enum Error {
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
-    /// Failed to obtain a default route
-    // TODO: elaborate on this variant, possibly add more data
-    #[error(display = "Failed to obtain default routes")]
-    DefaultRoute,
 }
 
 /// Handle to a route manager.
