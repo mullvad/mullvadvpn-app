@@ -43,7 +43,6 @@ impl RoutingTable {
         Ok(Self { socket })
     }
 
-    // TODO: add_listener instead? but then self becomes actor
     pub async fn next_message(&mut self) -> Result<RouteSocketMessage> {
         let mut buf = [0u8; 2048];
         let bytes_read = self
