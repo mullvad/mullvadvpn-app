@@ -33,9 +33,7 @@ nix = { git = "https://github.com/nix-rust/nix", rev = "b13b7d18e0d2f4a8c05e4157
 libc = "0.2"
 bitflags = "1.2"
 talpid-time = { path = "../talpid-time" }
-# TODO: use real release before merging to master
-# system-configuration = { path = "../../src/system-configuration-rs/system-configuration/" }
-
+# TODO: use real release
 system-configuration = { git = "https://github.com/mullvad/system-configuration-rs", ref = "5df2d065fa6c40a75f4f93b8a1db598abfc16743" }
 
 
