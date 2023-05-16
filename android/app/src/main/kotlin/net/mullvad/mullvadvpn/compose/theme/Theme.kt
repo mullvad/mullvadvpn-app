@@ -59,7 +59,8 @@ private val MullvadColorPalette =
         onBackground = MullvadWhite,
         onSurfaceVariant = MullvadWhite,
         onPrimary = MullvadWhite,
-        onSecondary = MullvadWhite60
+        onSecondary = MullvadWhite60,
+        inversePrimary = MullvadGreen
     )
 
 val Shapes =
