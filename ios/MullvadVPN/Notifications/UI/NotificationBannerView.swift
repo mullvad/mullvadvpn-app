@@ -63,8 +63,8 @@ final class NotificationBannerView: UIView {
         return view
     }()
 
-    private let actionButton: UIButton = {
-        let button = UIButton(type: .system)
+    private let actionButton: IncreasedMarginTapAreaButton = {
+        let button = IncreasedMarginTapAreaButton(margin: 13)
         button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
