@@ -105,12 +105,6 @@ pub enum Error {
     RouteDestination(watch::data::Error),
 }
 
-#[derive(Clone, PartialEq)]
-struct AppliedRoute {
-    destination: watch::data::RouteDestination,
-    route: RouteMessage,
-}
-
 /// Route manager can be in 1 of 4 states -
 ///  - waiting for a route to be added or removed from the route table
 ///  - obtaining default routes
@@ -127,7 +121,7 @@ pub struct RouteManagerImpl {
     default_destinations: HashSet<IpNetwork>,
     v4_tunnel_default_route: Option<watch::data::RouteMessage>,
     v6_tunnel_default_route: Option<watch::data::RouteMessage>,
-    applied_routes: BTreeMap<RouteDestination, AppliedRoute>,
+    applied_routes: BTreeMap<RouteDestination, RouteMessage>,
     v4_default_route: Option<watch::data::RouteMessage>,
     v6_default_route: Option<watch::data::RouteMessage>,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
@@ -500,12 +494,11 @@ impl RouteManagerImpl {
             let route =
                 RouteMessage::new_route(Destination::Network(dest)).set_gateway_sockaddr(gateway);
 
-            // TODO: can we do better than linearly searching?
             if let Some(dest) = self
                 .applied_routes
-                .iter()
-                .find(|(applied_dest, _route)| applied_dest.network == dest)
-                .map(|(dest, _)| dest.clone())
+                .keys()
+                .find(|applied_dest| applied_dest.network == dest)
+                .cloned()
             {
                 let _ = self.routing_table.delete_route(&route).await;
                 self.applied_routes.remove(&dest);
@@ -570,8 +563,7 @@ impl RouteManagerImpl {
 
         let destination = RouteDestination::try_from(&route).map_err(Error::InvalidData)?;
 
-        self.applied_routes
-            .insert(destination.clone(), AppliedRoute { destination, route });
+        self.applied_routes.insert(destination, route);
         Ok(())
     }
 
@@ -580,7 +572,6 @@ impl RouteManagerImpl {
         let old_routes = std::mem::take(&mut self.applied_routes);
         for (_dest, route) in old_routes
             .into_iter()
-            .map(|(dest, route)| (dest, route.route))
         {
             // FIXME: remove logging
             log::debug!("Removing route: {route:?}");
