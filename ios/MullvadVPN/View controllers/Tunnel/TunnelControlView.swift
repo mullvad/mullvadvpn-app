@@ -81,7 +81,8 @@ final class TunnelControlView: UIView {
         return button
     }()
 
-    private let selectLocationBlurView: TranslucentButtonBlurView
+    private let selectLocationButtonBlurView: TranslucentButtonBlurView
+    private let connectButtonBlurView: TranslucentButtonBlurView
     private let cancelButtonBlurView: TranslucentButtonBlurView
 
     private let splitDisconnectButton: DisconnectSplitButton = {
@@ -107,7 +108,8 @@ final class TunnelControlView: UIView {
     }
 
     override init(frame: CGRect) {
-        selectLocationBlurView = TranslucentButtonBlurView(button: selectLocationButton)
+        selectLocationButtonBlurView = TranslucentButtonBlurView(button: selectLocationButton)
+        connectButtonBlurView = TranslucentButtonBlurView(button: connectButton)
         cancelButtonBlurView = TranslucentButtonBlurView(button: cancelButton)
 
         super.init(frame: frame)
@@ -214,11 +216,19 @@ final class TunnelControlView: UIView {
             splitDisconnectButton.secondaryButton,
         ]
 
+        let allBlurViews = [
+            connectButtonBlurView,
+            selectLocationButtonBlurView,
+            cancelButtonBlurView,
+        ]
+
         switch tunnelState {
         case .waitingForConnectivity(.noNetwork):
             allButtons.forEach { $0.isEnabled = false }
+            allBlurViews.forEach { $0.setEnabled(false) }
         default:
             allButtons.forEach { $0.isEnabled = true }
+            allBlurViews.forEach { $0.setEnabled(true) }
         }
     }
 
@@ -396,7 +406,7 @@ final class TunnelControlView: UIView {
         case .cancel:
             return cancelButtonBlurView
         case .selectLocation:
-            return selectLocationBlurView
+            return selectLocationButtonBlurView
         }
     }
 

@@ -9,6 +9,10 @@
 import UIKit
 
 class TranslucentButtonBlurView: UIVisualEffectView {
+    var appButton: AppButton? {
+        return contentView.subviews.first { $0 is AppButton } as? AppButton
+    }
+
     init(button: AppButton) {
         let effect = UIBlurEffect(style: button.style.blurEffectStyle)
 
@@ -32,6 +36,13 @@ class TranslucentButtonBlurView: UIVisualEffectView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func setEnabled(_ enabled: Bool) {
+        guard let buttonStyle = appButton?.style else { return }
+
+        let effectStyle = enabled ? buttonStyle.blurEffectStyle : buttonStyle.disabledStateBlurEffectStyle
+        effect = UIBlurEffect(style: effectStyle)
     }
 }
 
@@ -60,6 +71,15 @@ private extension AppButton.Style {
             return .systemUltraThinMaterialDark
         default:
             return .light
+        }
+    }
+
+    var disabledStateBlurEffectStyle: UIBlurEffect.Style {
+        switch self {
+        case .success, .translucentNeutral:
+            return .systemThinMaterialDark
+        default:
+            return blurEffectStyle
         }
     }
 }
