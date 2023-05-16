@@ -9,7 +9,6 @@
 import BackgroundTasks
 import MullvadLogging
 import MullvadREST
-import Network
 import Operations
 import RelayCache
 import StoreKit
