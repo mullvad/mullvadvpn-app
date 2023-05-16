@@ -68,4 +68,13 @@ extension UIMetrics {
 
     /// Maximum sidebar width in percentage points (0...1)
     static let maximumSplitViewSidebarWidthFraction: CGFloat = 0.3
+
+    /// Spacing between buttons in header bar.
+    static let headerBarButtonSpacing: CGFloat = 20
+
+    /// Size of a square logo image in header bar.
+    static let headerBarLogoSize: CGFloat = 44
+
+    /// Height of brand name. Width is automatically produced based on aspect ratio.
+    static let headerBarBrandNameHeight: CGFloat = 18
 }
