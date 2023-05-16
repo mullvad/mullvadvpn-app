@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Mostra lembretes quando o tempo da conta está prestes a expirar</string>
     <string name="account_time_notification_channel_name">Lembretes de tempo da conta</string>
     <string name="add_a_server">Adicionar um servidor</string>
+    <string name="add_dns_server_dialog_title">Adicionar servidor DNS</string>
     <string name="add_time_to_account">Compre crédito no nosso sítio da web ou reclame um voucher.</string>
+    <string name="agree_and_continue">Concordar e continuar</string>
     <string name="all_applications">Todas as aplicações</string>
     <string name="allow_lan_footer">Permite o acesso a outros dispositivos na mesma rede para partilha, impressão, etc.</string>
     <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
@@ -25,6 +27,7 @@
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">LIGAÇÃO BLOQUEADA</string>
     <string name="blocking_internet">A bloquear a Internet</string>
+    <string name="blocking_internet_device_offline">Bloqueio de Internet (dispositivo offline)</string>
     <string name="buy_credit">Comprar crédito</string>
     <string name="buy_more_credit">Comprar mais crédito</string>
     <string name="cancel">Cancelar</string>
@@ -61,9 +64,11 @@
     <string name="dns_content_blockers_title">Bloqueadores de conteúdo de DNS</string>
     <string name="dns_content_blockers_warning">Pode causar problemas em alguns sites, serviços e programas.</string>
     <string name="dont_have_an_account">Não tem um número de conta?</string>
+    <string name="duplicate_address_warning">Este endereço já foi introduzido.</string>
     <string name="edit_message">Editar mensagem</string>
     <string name="enable">Ativar</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
+    <string name="enter_value_placeholder">Introduzir MTU</string>
     <string name="enter_voucher_code">Introduza o código do voucher</string>
     <string name="error_occurred">Ocorreu um erro.</string>
     <string name="error_state">ERRO AO ESTABELECER LIGAÇÃO SEGURA</string>
@@ -113,12 +118,15 @@
     <string name="paid_until">Pago até</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="port_removal_notice">Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas.</string>
+    <string name="privacy_disclaimer_title">Privacidade</string>
     <string name="privacy_policy_label">Política de privacidade</string>
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
+    <string name="remove_button">Remover</string>
     <string name="report_a_problem">Reportar um problema</string>
+    <string name="reset_to_default_button">Repor para as predefinições</string>
     <string name="secure_connection">LIGAÇÃO SEGURA</string>
     <string name="secured">Seguro</string>
     <string name="select_location">Selecionar local</string>
@@ -130,6 +138,7 @@
     <string name="sent_contact">Se necessário, iremos contactá-lo através de %1$s</string>
     <string name="sent_thanks">Obrigado!</string>
     <string name="set_dns_error">Não foi possível definir o servidor DNS do sistema. Envie um relatório do problema.</string>
+    <string name="set_firewall_policy_error">Não foi possível aplicar as regras de firewall. Experimente a resolução de problemas ou envie um relatório do problema.</string>
     <string name="settings">Definições</string>
     <string name="settings_account">Conta</string>
     <string name="settings_advanced">Avançadas</string>
@@ -138,6 +147,7 @@
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
     <string name="split_tunneling_description">A divisão do túnel permite selecionar quais as aplicações que devem ser direcionadas através do túnel VPN.</string>
     <string name="start_tunnel_error">Não foi possível iniciar a ligação de túnel. Envie um relatório do problema.</string>
+    <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Alternar VPN</string>
@@ -151,8 +161,9 @@
     <string name="update_available">ESTÁ DISPONÍVEL UMA ATUALIZAÇÃO</string>
     <string name="update_available_description">Instalar o Mullvad VPN (%1$s) para ficar atualizado</string>
     <string name="update_available_footer">Atualização disponível, transfira-a para ficar seguro.</string>
+    <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="user_email_hint">O seu email (opcional)</string>
-    <string name="user_message_hint">Descreva o seu problema em Inglês ou Sueco.</string>
+    <string name="user_message_hint">Descreva o seu problema em inglês ou sueco.</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>

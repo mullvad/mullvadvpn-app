@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
+    <string name="add_dns_server_dialog_title">เพิ่มเซิร์ฟเวอร์ DNS</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
+    <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
@@ -25,6 +27,7 @@
     <string name="block_trackers_title">ตัวติดตาม</string>
     <string name="blocked_connection">การเชื่อมต่อที่ถูกบล็อก</string>
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
+    <string name="blocking_internet_device_offline">กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)</string>
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>
     <string name="cancel">ยกเลิก</string>
@@ -61,9 +64,11 @@
     <string name="dns_content_blockers_title">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับเว็บไซต์ บริการ และโปรแกรมบางอย่างได้</string>
     <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
+    <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
     <string name="edit_message">แก้ไขข้อความ</string>
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
+    <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
@@ -113,12 +118,15 @@
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="port_removal_notice">นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้</string>
+    <string name="privacy_disclaimer_title">ความเป็นส่วนตัว</string>
     <string name="privacy_policy_label">นโยบายความเป็นส่วนตัว</string>
     <string name="problem_report_description">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
     <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
+    <string name="remove_button">ลบ</string>
     <string name="report_a_problem">รายงานปัญหา</string>
+    <string name="reset_to_default_button">รีเซ็ตเป็นค่าเริ่มต้น</string>
     <string name="secure_connection">การเชื่อมต่อที่ปลอดภัย</string>
     <string name="secured">ปลอดภัย</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
@@ -130,6 +138,7 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
+    <string name="set_firewall_policy_error">ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
     <string name="settings_advanced">ขั้นสูง</string>
@@ -138,6 +147,7 @@
     <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling_description">การแยกอุโมงค์ทำให้สามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านอุโมงค์ VPN</string>
     <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดส่งรายงานปัญหา</string>
+    <string name="submit_button">ส่ง</string>
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
@@ -151,6 +161,7 @@
     <string name="update_available">มีการอัปเดตให้ใช้งาน</string>
     <string name="update_available_description">ติดตั้ง Mullvad VPN (%1$s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ</string>
     <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
+    <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดอธิบายปัญหาของคุณในภาษาอังกฤษหรือสวีเดน</string>
     <string name="view_logs">ดูบันทึกของแอป</string>

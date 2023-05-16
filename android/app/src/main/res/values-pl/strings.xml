@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
     <string name="add_a_server">Dodaj serwer</string>
+    <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
+    <string name="agree_and_continue">Zaakceptuj i kontynuuj</string>
     <string name="all_applications">Wszystkie aplikacje</string>
     <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -25,6 +27,7 @@
     <string name="block_trackers_title">Trackery</string>
     <string name="blocked_connection">ZABLOKOWANE POŁĄCZENIE</string>
     <string name="blocking_internet">Blokowanie Internetu</string>
+    <string name="blocking_internet_device_offline">Blokowanie Internetu (urządzenie rozłączone)</string>
     <string name="buy_credit">Kup doładowanie</string>
     <string name="buy_more_credit">Doładuj konto</string>
     <string name="cancel">Anuluj</string>
@@ -61,9 +64,11 @@
     <string name="dns_content_blockers_title">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami, usługami i programami.</string>
     <string name="dont_have_an_account">Nie masz numeru konta?</string>
+    <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_message">Edytuj wiadomość</string>
     <string name="enable">Włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
+    <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
@@ -113,12 +118,15 @@
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="port_removal_notice">Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane.</string>
+    <string name="privacy_disclaimer_title">Prywatność</string>
     <string name="privacy_policy_label">Polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
+    <string name="remove_button">Usuń</string>
     <string name="report_a_problem">Zgłoś problem</string>
+    <string name="reset_to_default_button">Przywróć domyślne</string>
     <string name="secure_connection">BEZPIECZNE POŁĄCZENIE</string>
     <string name="secured">Zabezpieczone</string>
     <string name="select_location">Wybierz lokalizację</string>
@@ -130,6 +138,7 @@
     <string name="sent_contact">W razie potrzeby skontaktujemy się z Tobą pod adresem %1$s</string>
     <string name="sent_thanks">Dziękujemy!</string>
     <string name="set_dns_error">Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problemu.</string>
+    <string name="set_firewall_policy_error">Nie można zastosować reguł zapory. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Zaawansowane</string>
@@ -138,6 +147,7 @@
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
+    <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Przełącz VPN</string>
@@ -151,8 +161,9 @@
     <string name="update_available">DOSTĘPNA JEST AKTUALIZACJA</string>
     <string name="update_available_description">Aby być na bieżąco, zainstaluj Mullvad VPN (%1$s)</string>
     <string name="update_available_footer">Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.</string>
+    <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="user_email_hint">Twój adres e-mail (opcjonalnie)</string>
-    <string name="user_message_hint">Opisz problem po angielsku lub szwedzku.</string>
+    <string name="user_message_hint">Opisz problem w języku angielskim lub szwedzkim.</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>

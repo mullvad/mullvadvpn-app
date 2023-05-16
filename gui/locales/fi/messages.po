@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-04-03 14:52\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -1113,12 +1113,12 @@ msgstr "Lähetä ongelmaraportti."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Yritä uudelleen tai lähetä ongelmaraportti."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Valinnan käynnistäminen ei onnistu. %(detailedErrorMessage)s"
@@ -1159,10 +1159,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "Jos poistut lomakkeelta ja yrität myöhemmin uudelleen, jo syöttämäsi tiedot säilyvät lomakkeella."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "Kuvaile ongelmaasi englanniksi tai ruotsiksi."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1197,6 +1193,10 @@ msgstr "Kiitos!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Tämä toiminto ei ole käytössä beetaversiossa."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1259,12 +1259,12 @@ msgid "Make sure you have NF tables support."
 msgstr "Varmista, että käytössäsi on Nftables-tuki."
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
-msgstr "Ongelma saattaa johtua vanhentuneesta ytimestä tai ytimen poistamisesta."
-
-msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr "Tämä virhe voi tapahtua, kun DNS:ää päivittää aktiivisesti jokin muu instanssi kuin Mullvad."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Ongelma saattaa johtua vanhentuneesta ytimestä."
 
 msgctxt "troubleshoot"
 msgid "Try reconnecting."
@@ -1369,10 +1369,6 @@ msgid "Adult content"
 msgstr "Aikuisille suunnattu sisältö"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
 
@@ -1438,6 +1434,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Paranna anonymiteettia reitittämällä liikenteen yhdelle %(wireguard)s-palvelimelle ja sitten toisen kautta ulos, mikä tekee jäljittämisestä vaikeampaa."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Tappokytkin"
 
@@ -1484,6 +1484,10 @@ msgstr "Lisättävä DNS-palvelin on julkinen ja toimii vain %(wireguard)sin kan
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Tämä sisäänrakennettu ominaisuus estää liikennettäsi vuotamasta VPN-tunnelin ulkopuolelle, jos verkkosi yhtäkkiä lakkaa toimimasta tai jos tunneli epäonnistuu yhteyden muodostamisessa. Se estää liikenteen, kunnes yhteys on muodostettu uudelleen."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1603,9 +1607,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
-msgid "Account authentication failed."
-msgstr "Tilin todentaminen epäonnistui."
-
 msgid "Account credit expires in a few minutes"
 msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
 
@@ -1615,11 +1616,20 @@ msgstr "Tilin käyttöaika päättyy pian"
 msgid "Account time reminders"
 msgstr "Muistutukset tilin käyttöajasta"
 
+msgid "Add DNS server"
+msgstr "Lisää DNS-palvelin"
+
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
+msgid "Agree and continue"
+msgstr "Hyväksy ja jatka"
+
 msgid "All applications"
 msgstr "Kaikki sovellukset"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "Aina päällä oleva VPN on määritetty toiselle sovellukselle"
@@ -1627,17 +1637,15 @@ msgstr "Aina päällä oleva VPN on määritetty toiselle sovellukselle"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle"
 
-msgid "Blocking all connections"
-msgstr "Kaikki yhteydet estetään"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "Internetyhteys on estetty (laite offline-tilassa)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
-
-msgid "Could not configure IPv6"
-msgstr "IPv6:n määritys epäonnistui"
 
 msgid "Critical error (your attention is required)"
 msgstr "Vakava virhe (vaatii huomiotasi)"
@@ -1648,26 +1656,14 @@ msgstr "Mukautetut DNS-palvelimen osoitteet %s ovat virheellisiä"
 msgid "Enable"
 msgstr "Ota käyttöön"
 
+msgid "Enter MTU"
+msgstr "Syötä MTU"
+
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu."
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai ilmoita meille ongelmasta."
-
 msgid "Failed to fetch list of devices"
 msgstr "Laiteluettelon nouto epäonnistui"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Mukautetun palvelimen isäntänimen selvittäminen epäonnistui"
-
-msgid "Failed to set system DNS server"
-msgstr "Järjestelmän DNS-palvelimen asettaminen epäonnistui"
-
-msgid "Failed to start tunnel connection"
-msgstr "Tunneliyhteyden muodostaminen epäonnistui"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta."
@@ -1678,17 +1674,24 @@ msgstr "Asenna Mullvad VPN (%s) pysyäksesi ajan tasalla"
 msgid "Mullvad account number"
 msgstr "Mullvad-tilin numero"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia"
-
-msgid "No relay server matches the current settings"
-msgstr "Mikään välityspalvelin ei vastaa nykyisiä asetuksia"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Kuvaile ongelmaasi englanniksi tai ruotsiksi."
 
 msgid "Preferences"
 msgstr "Asetukset"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "Tietosuoja"
+
 msgid "Privacy policy"
 msgstr "Tietosuojakäytäntö"
+
+msgid "Remove"
+msgstr "Poista"
+
+msgid "Reset to default"
+msgstr "Palauta oletusarvo"
 
 msgid "Secured"
 msgstr "Suojattu"
@@ -1708,20 +1711,32 @@ msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta."
 
+msgid "Submit"
+msgstr "Lähetä"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda."
+msgid "This address has already been entered."
+msgstr "Tämä osoite on annettu jo."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytössäsi on turvallisin versio ja ilmoittaakseen mahdollisista ongelmista nykyisessä käynnissä olevassa versiossa. Toiminto lähettää tiedon sovellusversiosta ja Android-järjestelmäversiosta Mullvadin palvelimille. Mullvad pitää laskuria käytettyjen sovellusversioiden ja Android-versioiden määrästä. Tietoja ei koskaan tallenneta tai käytetä tavalla, josta sinut voisi tunnistaa.\\n\\nJos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista muista asennetuista sovelluksista. Kyseinen luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
 msgid "Toggle VPN"
 msgstr "Vaihda VPN:ää"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle <b>%s</b> ennen Mullvad VPN:n käyttämistä."
 
 msgid "Unsecured"
 msgstr "Suojaamaton"
+
+msgid "Update DNS server"
+msgstr "Päivitä DNS-palvelin"
 
 msgid "Update available, download to remain safe."
 msgstr "Päivitys saatavilla. Lataa se pysyäksesi suojattuna."
@@ -1752,9 +1767,6 @@ msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
 
 msgid "You are running an unsupported app version."
 msgstr "Sovellusversiotasi ei tueta."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %s."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
