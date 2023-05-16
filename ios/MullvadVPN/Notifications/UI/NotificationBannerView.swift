@@ -125,10 +125,8 @@ final class NotificationBannerView: UIView {
             indicatorView.heightAnchor.constraint(equalToConstant: Self.indicatorViewSize.height),
 
             titleLabel.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
-            titleLabel.leadingAnchor.constraint(
-                equalToSystemSpacingAfter: indicatorView.trailingAnchor,
-                multiplier: 1
-            ),
+            titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
+            titleLabel.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
 
             bodyLabel.topAnchor.constraint(
                 equalToSystemSpacingBelow: titleLabel.bottomAnchor,
