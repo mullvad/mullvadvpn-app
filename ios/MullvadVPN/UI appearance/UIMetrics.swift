@@ -48,6 +48,12 @@ extension UIMetrics {
         trailing: 24
     )
 
+    /// Button frame
+    static let inAppBannerActionButtonSize = CGSize(width: 44, height: 44)
+
+    /// Spacing for the in-app banner anchor constraints for the button frame
+    static let inAppBannerActionButtonPadding: CGFloat = 14
+
     /// Spacing used in stack views of buttons
     static let interButtonSpacing: CGFloat = 16
 

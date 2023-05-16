@@ -10,7 +10,6 @@ import UIKit
 
 final class NotificationBannerView: UIView {
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
-    private static let buttonSize = CGSize(width: 18, height: 18)
 
     private let backgroundView: UIVisualEffectView = {
         let effect = UIBlurEffect(style: .dark)
@@ -136,11 +135,24 @@ final class NotificationBannerView: UIView {
             bodyLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             bodyLabel.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
 
-            actionButton.leadingAnchor.constraint(equalTo: bodyLabel.trailingAnchor),
-            actionButton.topAnchor.constraint(equalTo: bodyLabel.topAnchor),
-            actionButton.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: NotificationBannerView.buttonSize.width),
-            actionButton.heightAnchor.constraint(equalToConstant: NotificationBannerView.buttonSize.height),
+            actionButton.leadingAnchor.constraint(
+                equalTo: bodyLabel.trailingAnchor,
+                constant: UIMetrics.inAppBannerActionButtonPadding * -1
+            ),
+            actionButton.topAnchor.constraint(
+                equalTo: bodyLabel.topAnchor,
+                constant: UIMetrics.inAppBannerActionButtonPadding * -1
+            ),
+            actionButton.trailingAnchor.constraint(
+                equalTo: wrapperView.layoutMarginsGuide.trailingAnchor,
+                constant: UIMetrics.inAppBannerActionButtonPadding
+            ),
+            actionButton.widthAnchor.constraint(
+                equalToConstant: UIMetrics.inAppBannerActionButtonSize.width
+            ),
+            actionButton.heightAnchor.constraint(
+                equalToConstant: UIMetrics.inAppBannerActionButtonSize.height
+            ),
         ])
     }
 
