@@ -398,7 +398,6 @@ struct ifa_msghdr {
 pub struct AddressMessage {
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
     interface_index: u16,
-    ifam_type: libc::c_uchar,
 }
 
 impl AddressMessage {
@@ -457,7 +456,6 @@ impl AddressMessage {
 
         Ok(Self {
             sockaddrs,
-            ifam_type: header.ifam_type,
             interface_index: header.ifam_index,
         })
     }
