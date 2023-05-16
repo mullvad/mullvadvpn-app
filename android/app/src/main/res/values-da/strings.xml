@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
     <string name="add_a_server">Tilføj en server</string>
+    <string name="add_dns_server_dialog_title">Tilføj DNS-server</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
+    <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -26,6 +28,7 @@
     <string name="block_trackers_title">Trackere</string>
     <string name="blocked_connection">FORBINDELSE BLOKERET</string>
     <string name="blocking_internet">Blokerer internettet</string>
+    <string name="blocking_internet_device_offline">Blokering af internet (enhed offline)</string>
     <string name="buy_credit">Køb kredit</string>
     <string name="buy_more_credit">Køb mere kredit</string>
     <string name="cancel">Annuller</string>
@@ -60,9 +63,11 @@
     <string name="dns_content_blockers_subtitle">Deaktiver &lt;b&gt;%1$s&lt;/b&gt; nedenfor for at aktivere disse indstillinger.</string>
     <string name="dns_content_blockers_title">DNS-indholdsblokkere</string>
     <string name="dont_have_an_account">Har du ikke noget kontonummer?</string>
+    <string name="duplicate_address_warning">Denne adresse er allerede blevet indtastet.</string>
     <string name="edit_message">Rediger meddelelse</string>
     <string name="enable">Aktiver</string>
     <string name="enable_custom_dns">Brug brugerdefineret DNS-server</string>
+    <string name="enter_value_placeholder">Indtast MTU</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
     <string name="error_occurred">Der opstod en fejl.</string>
     <string name="error_state">KUNNE IKKE SIKRE FORBINDELSEN</string>
@@ -116,6 +121,7 @@
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="port_removal_notice">Dette vil slette alle videresendte porte. Lokale indstillinger vil blive gemt.</string>
+    <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
     <string name="quantum_creating_secure_connection">OPRETTER KVANTESIKKER FORBINDELSE</string>
@@ -126,7 +132,9 @@
     <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
+    <string name="remove_button">Fjern</string>
     <string name="report_a_problem">Rapporter et problem</string>
+    <string name="reset_to_default_button">Nulstil til standard</string>
     <string name="secure_connection">SIKKER TILSLUTNING</string>
     <string name="secured">Sikret</string>
     <string name="select_location">Vælg placering</string>
@@ -138,6 +146,7 @@
     <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig på %1$s</string>
     <string name="sent_thanks">Tak!</string>
     <string name="set_dns_error">Kan ikke indstille systemets DNS-server. Indsend en problemrapport.</string>
+    <string name="set_firewall_policy_error">Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport.</string>
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_preferences">Indstillinger</string>
@@ -146,6 +155,7 @@
     <string name="show_system_apps">Vis systemapps</string>
     <string name="split_tunneling_description">Split tunneling gør det muligt at vælge, hvilke applikationer der ikke skal dirigeres gennem VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kan ikke starte tunnelforbindelse. Indsend en problemrapport.</string>
+    <string name="submit_button">Indsend</string>
     <string name="switch_location">Skift placering</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Slå VPN til/fra</string>
@@ -160,6 +170,7 @@
     <string name="update_available">OPDATERING TILGÆNGELIG</string>
     <string name="update_available_description">Installer Mullvad VPN (%1$s) for at holde dig opdateret</string>
     <string name="update_available_footer">Opdatering tilgængelig, download den for at forblive sikker.</string>
+    <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>

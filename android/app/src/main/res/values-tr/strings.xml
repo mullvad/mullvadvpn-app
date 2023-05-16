@@ -8,9 +8,11 @@
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
     <string name="add_a_server">Sunucu ekle</string>
+    <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
+    <string name="agree_and_continue">Kabul et ve devam et</string>
     <string name="all_applications">Tüm uygulamalar</string>
-    <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
+    <string name="allow_lan_footer">Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="app_version">Uygulama sürümü</string>
@@ -26,6 +28,7 @@
     <string name="block_trackers_title">İzleyiciler</string>
     <string name="blocked_connection">ENGELLENEN BAĞLANTI</string>
     <string name="blocking_internet">İnternet bağlantısı engelleniyor</string>
+    <string name="blocking_internet_device_offline">İnternet bağlantısı engelleniyor (cihaz çevrimdışı)</string>
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
@@ -60,9 +63,11 @@
     <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki &lt;b&gt;%1$s&lt;/b&gt; seçeneğini devre dışı bırakın.</string>
     <string name="dns_content_blockers_title">DNS içerik engelleyiciler</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
+    <string name="duplicate_address_warning">Bu adres zaten girilmiş.</string>
     <string name="edit_message">Mesajı düzenle</string>
     <string name="enable">Etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
+    <string name="enter_value_placeholder">MTU\'yu girin</string>
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
@@ -116,6 +121,7 @@
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
+    <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
     <string name="quantum_creating_secure_connection">KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR</string>
@@ -126,7 +132,9 @@
     <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
+    <string name="remove_button">Kaldır</string>
     <string name="report_a_problem">Bir sorun bildir</string>
+    <string name="reset_to_default_button">Varsayılana sıfırla</string>
     <string name="secure_connection">GÜVENLİ BAĞLANTI</string>
     <string name="secured">Güvenli</string>
     <string name="select_location">Konum seçin</string>
@@ -138,6 +146,7 @@
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
+    <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_preferences">Tercihler</string>
@@ -146,6 +155,7 @@
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
+    <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
@@ -160,7 +170,9 @@
     <string name="update_available">GÜNCELLEME MEVCUT</string>
     <string name="update_available_description">Güncel kalmak için Mullvad VPN (%1$s) yükleyin</string>
     <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
+    <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
+    <string name="user_message_hint">Lütfen sorununuzu İngilizce veya İsveççe olarak açıklayın.</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>

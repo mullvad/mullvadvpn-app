@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2023-04-03 14:52\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -1102,12 +1102,12 @@ msgstr "โปรดส่งรายงานปัญหา"
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "โปรดลองใหม่อีกครั้ง หรือส่งรายงานปัญหา"
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "ไม่สามารถเปิดรายการที่เลือกได้ %(detailedErrorMessage)s"
@@ -1148,10 +1148,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "หากคุณออกจากแบบฟอร์มแล้วเข้ามาใหม่ในภายหลัง ข้อมูลที่คุณกรอกไว้จะยังคงอยู่ที่นี่ดังเดิม"
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "โปรดอธิบายปัญหาของคุณในภาษาอังกฤษหรือสวีเดน"
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1186,6 +1182,10 @@ msgstr "ขอบคุณ!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ตัวเลือกนี้จะไม่พร้อมใช้งาน ในขณะที่ใช้งานแอปเวอร์ชันเบต้า"
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1248,12 +1248,12 @@ msgid "Make sure you have NF tables support."
 msgstr "โปรดตรวจสอบให้แน่ใจว่าคุณมีการรองรับตาราง NF"
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
-msgstr "นี่อาจเกิดขึ้นได้ เนื่องจากเคอร์เนลล้าสมัย หรือคุณได้ลบเคอร์เนลออกไป"
-
-msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr "ข้อผิดพลาดนี้อาจเกิดขึ้น ในขณะที่อย่างอื่นนอกเหนือจาก Mullvad กำลังอัปเดต DNS อยู่"
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "นี่อาจเกิดจากเคอร์เนลที่ล้าสมัย"
 
 msgctxt "troubleshoot"
 msgid "Try reconnecting."
@@ -1358,10 +1358,6 @@ msgid "Adult content"
 msgstr "เนื้อหาสำหรับผู้ใหญ่"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ"
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "โปรดทราบ: การเปิดใช้งานสิ่งนี้จะทำให้คุณจำเป็นต้องเชื่อมต่อ Mullvad VPN ไว้ตลอดเวลา เพื่อที่จะเข้าถึงอินเทอร์เน็ต"
 
@@ -1427,6 +1423,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "ยกระดับการไม่ระบุตัวตน ด้วยการกำหนดเส้นทางการรับส่งข้อมูลของคุณไปยังเซิร์ฟเวอร์ %(wireguard)s เดียว และออกไปยังอีกเซิร์ฟเวอร์ เพื่อทำให้ติดตามได้ยากขึ้น"
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "คิลสวิตช์"
 
@@ -1473,6 +1473,10 @@ msgstr "เซิร์ฟเวอร์ DNS ที่คุณต้องก�
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "คุณสมบัติในตัวนี้ จะป้องกันไม่ให้การรับส่งข้อมูลของคุณรั่วไหลออกจากอุโมงค์ VPN หากเครือข่ายของคุณหยุดทำงานกะทันหัน หรือหากอุโมงค์ทำงานผิดพลาด โดยคุณสมบัตินี้จะบล็อกการรับส่งข้อมูลของคุณ จนกว่าการเชื่อมต่อจะถูกสร้างขึ้นมาใหม่"
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "คุณสมบัตินี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ"
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1592,9 +1596,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "พอร์ต TCP ใดที่โพรโทคอลข้อมูลที่คลุมเครือ UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
-msgid "Account authentication failed."
-msgstr "ไม่สามารถรับรองความถูกต้องของบัญชีได้"
-
 msgid "Account credit expires in a few minutes"
 msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
 
@@ -1604,11 +1605,20 @@ msgstr "เครดิตของบัญชีจะหมดอายุใ
 msgid "Account time reminders"
 msgstr "การแจ้งเตือนเวลาบัญชี"
 
+msgid "Add DNS server"
+msgstr "เพิ่มเซิร์ฟเวอร์ DNS"
+
 msgid "Advanced"
 msgstr "ขั้นสูง"
 
+msgid "Agree and continue"
+msgstr "ยอมรับและดำเนินการต่อ"
+
 msgid "All applications"
 msgstr "แอปพลิเคชันทั้งหมด"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ"
 
 msgid "Always-on VPN assigned to other app"
 msgstr "Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว"
@@ -1616,17 +1626,15 @@ msgstr "Always-on VPN ได้รับการมอบหมายไปย�
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น"
 
-msgid "Blocking all connections"
-msgstr "บล็อกการเชื่อมต่อทั้งหมด"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว"
 
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
-
-msgid "Could not configure IPv6"
-msgstr "ไม่สามารถกำหนดค่า IPv6 ได้"
 
 msgid "Critical error (your attention is required)"
 msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
@@ -1637,26 +1645,14 @@ msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่�
 msgid "Enable"
 msgstr "เปิดใช้งาน"
 
+msgid "Enter MTU"
+msgstr "ป้อน MTU"
+
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา"
-
 msgid "Failed to fetch list of devices"
 msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง"
-
-msgid "Failed to set system DNS server"
-msgstr "ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้"
-
-msgid "Failed to start tunnel connection"
-msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
@@ -1667,17 +1663,24 @@ msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัป
 msgid "Mullvad account number"
 msgstr "หมายเลขบัญชี Mullvad"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "ไม่มีเซิร์ฟเวอร์บริดจ์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
-
-msgid "No relay server matches the current settings"
-msgstr "ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
+msgid "Please describe your problem in English or Swedish."
+msgstr "โปรดอธิบายปัญหาของคุณในภาษาอังกฤษหรือสวีเดน"
 
 msgid "Preferences"
 msgstr "การกำหนดค่า"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "ความเป็นส่วนตัว"
+
 msgid "Privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"
+
+msgid "Remove"
+msgstr "ลบ"
+
+msgid "Reset to default"
+msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 
 msgid "Secured"
 msgstr "ปลอดภัย"
@@ -1697,20 +1700,32 @@ msgstr "แสดงการแจ้งเตือน ในขณะที�
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "การแยกอุโมงค์ทำให้สามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านอุโมงค์ VPN"
 
+msgid "Submit"
+msgstr "ส่ง"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า"
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างอุโมงค์ได้"
+msgid "This address has already been entered."
+msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "แอปจะดำเนินการตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้มั่นใจว่า คุณมีเวอร์ชันที่ปลอดภัยที่สุด และแจ้งปัญหาใดๆ เกี่ยวกับเวอร์ชันปัจจุบันที่ใช้อยู่ให้คุณทราบ การดำเนินการนี้จะส่งเวอร์ชันแอป และเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullvad โดย Mullvad จะเก็บหมายเลขเวอร์ชันแอปที่ใช้ และเวอร์ชัน Andriod เอาไว้ และข้อมูลจะได้รับการจัดเก็บ หรือใช้ในรูปแบบที่ไม่สามารถระบุตัวตนของคุณได้\\n\\nหากมีการใช้งานคุณสมบัติการแยกอุโมงค์อยู่ แอปจะสอบถามระบบของคุณ เพื่อดูรายการแอปพลิเคชันที่ติดตั้งทั้งหมด รายการนี้จะได้รับข้อมูลที่อยู่ในมุมมองการแยกอุโมงค์เท่านั้น โดยจะไม่มีการส่งรายการแอปพลิเคชันที่ติดตั้งออกไปจากอุปกรณ์"
 
 msgid "Toggle VPN"
 msgstr "เปิด/ปิด VPN"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา <b>%s</b> ก่อนที่จะใช้งาน Mullvad VPN"
 
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"
+
+msgid "Update DNS server"
+msgstr "อัปเดตเซิร์ฟเวอร์ DNS"
 
 msgid "Update available, download to remain safe."
 msgstr "มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้"
@@ -1741,9 +1756,6 @@ msgstr "คุณอาจมีการรับส่งข้อมูลท
 
 msgid "You are running an unsupported app version."
 msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน โปรดอัปเกรดเป็นเวอร์ชัน %s ทันที เพื่อให้แน่ใจในความปลอดภัยของคุณ"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Erinnerungen anzeigen, wenn die Kontozeit bald abläuft</string>
     <string name="account_time_notification_channel_name">Erinnerungen an die Kontozeit</string>
     <string name="add_a_server">Server hinzufügen</string>
+    <string name="add_dns_server_dialog_title">DNS-Server hinzufügen</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
+    <string name="agree_and_continue">Akzeptieren und weiter</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
@@ -26,6 +28,7 @@
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">GESPERRTE VERBINDUNG</string>
     <string name="blocking_internet">Internet wird gesperrt</string>
+    <string name="blocking_internet_device_offline">Internet sperren (Gerät offline)</string>
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
@@ -60,9 +63,11 @@
     <string name="dns_content_blockers_subtitle">Deaktivieren Sie unten &lt;b&gt;%1$s&lt;/b&gt;, um diese Einstellungen zu aktivieren.</string>
     <string name="dns_content_blockers_title">DNS-Inhaltssperren</string>
     <string name="dont_have_an_account">Sie haben keine Kontonummer?</string>
+    <string name="duplicate_address_warning">Diese Adresse wurde bereits eingetragen.</string>
     <string name="edit_message">Nachricht bearbeiten</string>
     <string name="enable">Aktivieren</string>
     <string name="enable_custom_dns">Benutzerdefinierten DNS-Server verwenden</string>
+    <string name="enter_value_placeholder">MTU eingeben</string>
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
@@ -116,6 +121,7 @@
     <string name="paid_until">Bezahlt bis</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="port_removal_notice">Dadurch werden alle weitergeleiteten Ports gelöscht. Die lokalen Einstellungen werden gespeichert.</string>
+    <string name="privacy_disclaimer_title">Datenschutz</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
     <string name="quantum_creating_secure_connection">QUANTENSICHERE VERBINDUNG WIRD ERSTELLT</string>
@@ -126,7 +132,9 @@
     <string name="reconnecting">Wiederherstellen der Verbindung</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
+    <string name="remove_button">Entfernen</string>
     <string name="report_a_problem">Problem melden</string>
+    <string name="reset_to_default_button">Auf Standard zurücksetzen</string>
     <string name="secure_connection">SICHERE VERBINDUNG</string>
     <string name="secured">Gesichert</string>
     <string name="select_location">Ort auswählen</string>
@@ -138,6 +146,7 @@
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
+    <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
     <string name="settings_preferences">Präferenzen</string>
@@ -146,6 +155,7 @@
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden.</string>
     <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
+    <string name="submit_button">Absenden</string>
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN umschalten</string>
@@ -160,6 +170,7 @@
     <string name="update_available">UPDATE VERFÜGBAR</string>
     <string name="update_available_description">Installieren Sie Mullvad VPN (%1$s), um auf dem neuesten Stand zu bleiben</string>
     <string name="update_available_footer">Update verfügbar, laden Sie es herunter, um sicher zu bleiben.</string>
+    <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>

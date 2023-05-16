@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Affiche des rappels lorsque le temps du compte va expirer</string>
     <string name="account_time_notification_channel_name">Rappels de temps pour le compte</string>
     <string name="add_a_server">Ajouter un serveur</string>
+    <string name="add_dns_server_dialog_title">Ajouter un serveur DNS</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
+    <string name="agree_and_continue">Accepter et continuer</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="allow_lan_footer">Autorise l\'accès aux autres appareils sur le même réseau pour partager, imprimer, etc.</string>
     <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
@@ -26,6 +28,7 @@
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">CONNEXION BLOQUÉE</string>
     <string name="blocking_internet">Internet bloqué</string>
+    <string name="blocking_internet_device_offline">Internet bloqué (appareil hors ligne)</string>
     <string name="buy_credit">Acheter des crédits</string>
     <string name="buy_more_credit">Acheter plus de crédits</string>
     <string name="cancel">Annuler</string>
@@ -60,9 +63,11 @@
     <string name="dns_content_blockers_subtitle">Désactivez &lt;b&gt;%1$s&lt;/b&gt; ci-dessous pour activer ces paramètres.</string>
     <string name="dns_content_blockers_title">Bloqueurs de contenu DNS</string>
     <string name="dont_have_an_account">Vous n\'avez pas de numéro de compte ?</string>
+    <string name="duplicate_address_warning">Cette adresse a déjà été saisie.</string>
     <string name="edit_message">Modifier le message</string>
     <string name="enable">Activer</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
+    <string name="enter_value_placeholder">Saisir le MTU</string>
     <string name="enter_voucher_code">Saisir un code de bon</string>
     <string name="error_occurred">Une erreur est survenue.</string>
     <string name="error_state">ÉCHEC DE LA SÉCURISATION DE LA CONNEXION</string>
@@ -116,6 +121,7 @@
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
+    <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
     <string name="quantum_creating_secure_connection">CRÉATION D\'UNE CONNEXION QUANTIQUE SÉCURISÉE</string>
@@ -126,7 +132,9 @@
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
+    <string name="remove_button">Supprimer</string>
     <string name="report_a_problem">Signaler un problème</string>
+    <string name="reset_to_default_button">Réinitialiser à la valeur par défaut</string>
     <string name="secure_connection">CONNEXION SÉCURISÉE</string>
     <string name="secured">Sécurisé</string>
     <string name="select_location">Sélectionner une localisation</string>
@@ -138,6 +146,7 @@
     <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
     <string name="sent_thanks">Merci !</string>
     <string name="set_dns_error">Impossible de définir le serveur DNS système. Veuillez envoyer un rapport de problème.</string>
+    <string name="set_firewall_policy_error">Impossible d\'appliquer les règles du pare-feu. Merci de résoudre le problème ou d\'envoyer un rapport de problème.</string>
     <string name="settings">Paramètres</string>
     <string name="settings_account">Compte</string>
     <string name="settings_preferences">Préférences</string>
@@ -146,6 +155,7 @@
     <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling_description">Le split tunneling permet de sélectionner quelles applications ne doivent pas passer par le tunnel VPN.</string>
     <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
+    <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
@@ -160,6 +170,7 @@
     <string name="update_available">MISE À JOUR DISPONIBLE</string>
     <string name="update_available_description">Installez Mullvad VPN (%1$s) pour rester à jour</string>
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
+    <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>

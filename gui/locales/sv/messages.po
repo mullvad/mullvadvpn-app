@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2023-04-03 14:52\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s har lagts till. Kontot är betalt till och med %(expiry)s."
@@ -799,7 +799,7 @@ msgstr "Låsningsläget är aktivt, anslutning blockerad"
 
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
-msgstr "Inga servrar matchar dina inställningar. Försök att ändra server eller med andra inställningar."
+msgstr "Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1113,12 +1113,12 @@ msgstr "Skicka en problemrapport."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Försök igen eller skicka en problemrapport."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Det gick inte att starta valet. %(detailedErrorMessage)s"
@@ -1159,10 +1159,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "Beskriv ditt problem på engelska eller svenska."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1197,6 +1193,10 @@ msgstr "Tack!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Det här alternativet är inte tillgängligt när du använder en betaversion."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1259,12 +1259,12 @@ msgid "Make sure you have NF tables support."
 msgstr "Se till att du har stöd för Nftables."
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
-msgstr "Det kan inträffa om kernel är gammal eller om du tagit bort en kernel."
-
-msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr "Det här felet kan inträffa när något annat än Mullvad aktivt uppdaterar DNS."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Det kan ha orsakats av en utgången kernel."
 
 msgctxt "troubleshoot"
 msgid "Try reconnecting."
@@ -1369,10 +1369,6 @@ msgid "Adult content"
 msgstr "Vuxet innehåll"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Tillåter åtkomst till andra enheter i samma nätverk för delning, utskrift etc."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Obs! Om du aktiverar detta behöver du alltid en Mullvad VPN-anslutning för att nå internet."
 
@@ -1438,6 +1434,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Förbättrar anonymiteten genom att dirigera trafiken till en %(wireguard)s-server och ut genom en annan, vilket gör det svårare att spåra."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill Switch"
 
@@ -1484,6 +1484,10 @@ msgstr "DNS-servern du vill lägga till är offentlig och fungerar bara med %(wi
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Den här inbyggda funktionen hindrar din trafik från att läcka utanför VPN-tunneln om ditt nätverk plötsligt slutar fungera eller om tunneln misslyckas. Den gör detta genom att blockera din trafik tills anslutningen återupprättats."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1603,9 +1607,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern."
 
-msgid "Account authentication failed."
-msgstr "Autentiseringen av kontot misslyckades."
-
 msgid "Account credit expires in a few minutes"
 msgstr "Kontokrediten slutar gälla om några minuter"
 
@@ -1615,11 +1616,20 @@ msgstr "Kontokrediten slutar snart gälla"
 msgid "Account time reminders"
 msgstr "Påminnelser om kontotid"
 
+msgid "Add DNS server"
+msgstr "Lägg till DNS-server"
+
 msgid "Advanced"
 msgstr "Avancerat"
 
+msgid "Agree and continue"
+msgstr "Godkänn och fortsätt"
+
 msgid "All applications"
 msgstr "Alla applikationer"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Tillåter åtkomst till andra enheter på samma nätverk för delning, utskrift osv."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "VPN som alltid är på har tilldelats till annan app"
@@ -1627,17 +1637,15 @@ msgstr "VPN som alltid är på har tilldelats till annan app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "VPN som alltid är på kan ha aktiverats för annan app"
 
-msgid "Blocking all connections"
-msgstr "Blockerar alla anslutningar"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "Blockerar internet (enheten är frånkopplad)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierade Mullvad-kontonummer till urklipp"
 
 msgid "Copied to clipboard"
 msgstr "Kopierat till urklipp"
-
-msgid "Could not configure IPv6"
-msgstr "Det gick inte att konfigurera IPv6"
 
 msgid "Critical error (your attention is required)"
 msgstr "Kritiskt fel (kräver din uppmärksamhet)"
@@ -1648,26 +1656,14 @@ msgstr "Anpassade DNS-serveradresser %s är ogiltiga"
 msgid "Enable"
 msgstr "Aktivera"
 
+msgid "Enter MTU"
+msgstr "Ange MTU"
+
 msgid "Excluded applications"
 msgstr "Exkluderade applikationer"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss."
-
 msgid "Failed to fetch list of devices"
 msgstr "Det gick inte att hämta lista med enheter"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Det gick inte att lösa värdnamnet för den anpassade servern"
-
-msgid "Failed to set system DNS server"
-msgstr "Det gick inte att ange systemets DNS-server"
-
-msgid "Failed to start tunnel connection"
-msgstr "Det gick inte att starta tunnelanslutning"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Om du loggar in tas blockering av internet bort på den här enheten."
@@ -1678,17 +1674,24 @@ msgstr "Installera Mullvad VPN (%s) för att hålla dig uppdaterad"
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Ingen bryggreläserver matchar de aktuella inställningarna"
-
-msgid "No relay server matches the current settings"
-msgstr "Ingen reläserver matchar de aktuella inställningarna"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Beskriv problemet på engelska eller svenska."
 
 msgid "Preferences"
 msgstr "Inställningar"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "Sekretess"
+
 msgid "Privacy policy"
 msgstr "Sekretesspolicy"
+
+msgid "Remove"
+msgstr "Ta bort"
+
+msgid "Reset to default"
+msgstr "Återställ till standard"
 
 msgid "Secured"
 msgstr "Skyddad"
@@ -1708,20 +1711,32 @@ msgstr "Visar påminnelser när kontots tidsgräns uppnås"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Delade tunnlar gör det möjligt att välja vilka applikationer som inte ska dirigeras genom VPN-tunneln."
 
+msgid "Submit"
+msgstr "Skicka"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under Inställningar."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "Denna enhet är frånkopplad, inga tunnlar kan skapas"
+msgid "This address has already been entered."
+msgstr "Adressen har redan angetts."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig.\\n\\nOm delade tunnlar används, ber appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten."
 
 msgid "Toggle VPN"
 msgstr "Växla VPN"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för <b>%s</b> innan du använder Mullvad VPN."
 
 msgid "Unsecured"
 msgstr "Oskyddad"
+
+msgid "Update DNS server"
+msgstr "Uppdatera DNS-server"
 
 msgid "Update available, download to remain safe."
 msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
@@ -1752,9 +1767,6 @@ msgstr "DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN"
 
 msgid "You are running an unsupported app version."
 msgstr "Du kör en appversion som inte stöds."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Du kör en appversion som inte stöds. Uppgradera till %s nu för att garantera din säkerhet"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
