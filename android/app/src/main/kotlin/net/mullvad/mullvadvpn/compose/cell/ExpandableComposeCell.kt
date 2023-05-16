@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
@@ -23,6 +24,7 @@ import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
 import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 
@@ -97,7 +99,10 @@ private fun ExpandableComposeCellBody(
             )
         }
 
-        ChevronView(isExpanded)
+        ChevronView(
+            isExpanded = isExpanded,
+            modifier = Modifier.size(Dimens.expandableCellChevronSize)
+        )
     }
 }
 
