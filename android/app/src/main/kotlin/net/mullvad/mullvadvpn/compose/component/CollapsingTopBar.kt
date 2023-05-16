@@ -49,6 +49,7 @@ fun CollapsingTopBar(
     title: String,
     progress: Float,
     backTitle: String,
+    backIcon: Int? = null,
     modifier: Modifier
 ) {
     val expandedToolbarHeight = dimensionResource(id = R.dimen.expanded_toolbar_height)
@@ -76,7 +77,7 @@ fun CollapsingTopBar(
             )
     ) {
         Image(
-            painter = painterResource(id = R.drawable.icon_back),
+            painter = painterResource(id = backIcon ?: R.drawable.icon_back),
             contentDescription = stringResource(id = R.string.back),
             modifier = Modifier.width(iconSize).height(iconSize)
         )
