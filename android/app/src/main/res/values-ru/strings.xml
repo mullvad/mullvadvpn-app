@@ -136,8 +136,8 @@
     <string name="set_dns_error">Не удалось установить системный DNS-сервер. Отправьте сообщение о проблеме.</string>
     <string name="settings">Настройки</string>
     <string name="settings_account">Учетная запись</string>
-    <string name="settings_advanced">Дополнительные</string>
     <string name="settings_preferences">Параметры</string>
+    <string name="settings_vpn">Настройки VPN</string>
     <string name="show_account_number">Показать номер учетной записи</string>
     <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling_description">Раздельное туннелирование позволяет выбрать, какие приложения не должны маршрутизироваться через VPN-туннель.</string>

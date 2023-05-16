@@ -136,8 +136,8 @@
     <string name="set_dns_error">无法设置系统 DNS 服务器。请发送问题报告。</string>
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
-    <string name="settings_advanced">高级</string>
     <string name="settings_preferences">偏好设置</string>
+    <string name="settings_vpn">VPN 设置</string>
     <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。</string>

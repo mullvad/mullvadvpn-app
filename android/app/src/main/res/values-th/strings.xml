@@ -136,8 +136,8 @@
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
-    <string name="settings_advanced">ขั้นสูง</string>
     <string name="settings_preferences">การกำหนดค่า</string>
+    <string name="settings_vpn">การตั้งค่า VPN</string>
     <string name="show_account_number">แสดงหมายเลขบัญชี</string>
     <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling_description">การแยกอุโมงค์ทำให้สามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านอุโมงค์ VPN</string>

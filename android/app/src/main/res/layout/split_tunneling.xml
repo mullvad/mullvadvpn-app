@@ -17,7 +17,7 @@
             <net.mullvad.mullvadvpn.ui.widget.BackButton android:id="@+id/back"
                                                          android:layout_width="wrap_content"
                                                          android:layout_height="wrap_content"
-                                                         mullvad:text="@string/settings_advanced" />
+                                                         mullvad:text="@string/settings_vpn" />
             <TextView android:id="@+id/collapsed_title"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
