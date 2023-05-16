@@ -16,14 +16,14 @@ class RelayCity(
         get() = relays.any { relay -> relay.active }
 
     override val hasChildren
-        get() = !relays.isEmpty()
+        get() = relays.isNotEmpty()
 
     override val visibleChildCount: Int
         get() {
-            if (expanded) {
-                return relays.size
+            return if (expanded) {
+                relays.size
             } else {
-                return 0
+                0
             }
         }
 
@@ -39,18 +39,18 @@ class RelayCity(
         val offset = position - 1
         val relayCount = relays.size
 
-        if (offset >= relayCount) {
-            return GetItemResult.Count(1 + relayCount)
+        return if (offset >= relayCount) {
+            GetItemResult.Count(1 + relayCount)
         } else {
-            return GetItemResult.Item(relays[offset])
+            GetItemResult.Item(relays[offset])
         }
     }
 
     fun getItemCount(): Int {
-        if (expanded) {
-            return 1 + relays.size
+        return if (expanded) {
+            1 + relays.size
         } else {
-            return 1
+            1
         }
     }
 }
