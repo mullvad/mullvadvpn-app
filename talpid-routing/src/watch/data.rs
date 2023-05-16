@@ -406,19 +406,6 @@ impl AddressMessage {
         self.interface_index
     }
 
-    pub fn print_sockaddrs(&self) {
-        println!("ifam_type - {}", self.ifam_type);
-        match self.address() {
-            Ok(addr) => println!("address - {addr}"),
-            Err(err) => {
-                println!("failed to get address {err:?}");
-            }
-        }
-        for (flag, addr) in &self.sockaddrs {
-            println!("{flag:?} - {addr:?}");
-        }
-    }
-
     pub fn address(&self) -> Result<IpAddr> {
         self.get_address(&AddressFlag::RTA_IFP)
             .or_else(|| self.get_address(&AddressFlag::RTA_IFA))
