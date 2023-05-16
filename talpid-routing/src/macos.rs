@@ -236,8 +236,6 @@ impl RouteManagerImpl {
     }
 
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
-        // TODO: roll back changes if not all succeed?
-
         let mut routes_to_apply = vec![];
 
         for route in required_routes {
