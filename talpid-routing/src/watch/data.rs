@@ -66,18 +66,6 @@ impl RouteMessage {
             .and_then(Self::socketaddress_to_ip)
     }
 
-    pub fn is_default_link(&self) -> Result<bool> {
-        let destination_is_default = self
-            .destination()?
-            .and_then(|addr| addr.as_link_addr().and_then(|addr| addr.addr()))
-            .map(|addr| addr == [0u8; 6])
-            .unwrap_or(false);
-
-        // TODO: check netmask?
-
-        Ok(destination_is_default)
-    }
-
     pub fn is_default(&self) -> Result<bool> {
         Ok(self.is_default_v4()? || self.is_default_v6()?)
     }
