@@ -19,7 +19,7 @@ use std::net::IpAddr;
 
 #[allow(clippy::module_inception)]
 #[cfg(target_os = "macos")]
-#[path = "macos.rs"]
+#[path = "macos/mod.rs"]
 pub mod imp;
 
 #[allow(clippy::module_inception)]

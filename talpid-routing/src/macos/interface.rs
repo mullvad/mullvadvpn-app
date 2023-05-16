@@ -11,9 +11,9 @@ use system_configuration::{
     preferences::SCPreferences,
 };
 
-use super::watch::{
+use super::{
     data::{Destination, RouteMessage},
-    RoutingTable,
+    watch::RoutingTable,
 };
 
 #[derive(Debug, PartialEq, Clone, Copy)]

@@ -1,12 +1,5 @@
-use crate::{
-    imp::{imp::watch::data::RouteSocketMessage, RouteManagerCommand},
-    NetNode, Node, RequiredRoute, Route,
-};
+use crate::{NetNode, Node, RequiredRoute, Route};
 
-use self::watch::{
-    data::{Destination, RouteDestination, RouteMessage},
-    RoutingTable,
-};
 use futures::{channel::mpsc, future::FutureExt, stream::StreamExt};
 use ipnetwork::IpNetwork;
 use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
@@ -15,11 +8,15 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
 };
 use talpid_types::ErrorExt;
+use watch::RoutingTable;
 
-use super::DefaultRouteEvent;
+use super::{DefaultRouteEvent, RouteManagerCommand};
+use data::{Destination, RouteDestination, RouteMessage, RouteSocketMessage};
 
+mod data;
 mod interface;
-pub mod watch;
+mod routing_socket;
+mod watch;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -45,7 +42,7 @@ pub enum Error {
 
     /// Received message isn't valid
     #[error(display = "Invalid data")]
-    InvalidData(watch::data::Error),
+    InvalidData(data::Error),
 }
 
 /// Route manager can be in 1 of 4 states -
@@ -62,11 +59,11 @@ pub enum Error {
 pub struct RouteManagerImpl {
     routing_table: RoutingTable,
     default_destinations: HashSet<IpNetwork>,
-    v4_tunnel_default_route: Option<watch::data::RouteMessage>,
-    v6_tunnel_default_route: Option<watch::data::RouteMessage>,
+    v4_tunnel_default_route: Option<data::RouteMessage>,
+    v6_tunnel_default_route: Option<data::RouteMessage>,
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
-    v4_default_route: Option<watch::data::RouteMessage>,
-    v6_default_route: Option<watch::data::RouteMessage>,
+    v4_default_route: Option<data::RouteMessage>,
+    v6_default_route: Option<data::RouteMessage>,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
 }
 
@@ -290,7 +287,7 @@ impl RouteManagerImpl {
     }
 
     /// Update routes that use the non-tunnel default interface
-    async fn handle_route_change(&mut self, route: watch::data::RouteMessage) -> Result<()> {
+    async fn handle_route_change(&mut self, route: data::RouteMessage) -> Result<()> {
         // Ignore routes that aren't default routes
         if !route.is_default().map_err(Error::InvalidData)? {
             return Ok(());
@@ -510,9 +507,7 @@ impl RouteManagerImpl {
     async fn cleanup_routes(&mut self) -> Result<()> {
         // Remove all applied routes. This includes default destination routes
         let old_routes = std::mem::take(&mut self.applied_routes);
-        for (_dest, route) in old_routes
-            .into_iter()
-        {
+        for (_dest, route) in old_routes.into_iter() {
             // FIXME: remove logging
             log::debug!("Removing route: {route:?}");
             match self.routing_table.delete_route(&route).await {

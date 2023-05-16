@@ -1,8 +1,8 @@
-use self::data::{MessageType, RouteMessage, RouteSocketMessage};
+use super::{
+    data::{self, MessageType, RouteMessage, RouteSocketMessage},
+    routing_socket,
+};
 use std::io;
-
-pub(crate) mod data;
-pub(crate) mod routing_socket;
 
 type Result<T> = std::result::Result<T, Error>;
 
