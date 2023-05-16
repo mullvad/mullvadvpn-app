@@ -10,8 +10,11 @@ import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.di.APP_PREFERENCES_NAME
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
+import net.mullvad.mullvadvpn.repository.LAST_SHOWED_CHANGELOG_VERSION_CODE
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
@@ -49,6 +52,12 @@ abstract class MockApiTest {
         mockWebServer.start()
         Log.d(LOG_TAG, "Mocked web server started using port: ${mockWebServer.port}")
         endpoint = createEndpoint(mockWebServer.port)
+
+        targetContext
+            .getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(LAST_SHOWED_CHANGELOG_VERSION_CODE, BuildConfig.VERSION_CODE)
+            .apply()
     }
 
     @After
