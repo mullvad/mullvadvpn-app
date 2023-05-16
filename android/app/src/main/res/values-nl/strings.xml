@@ -8,7 +8,9 @@
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
     <string name="add_a_server">Server toevoegen</string>
+    <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
+    <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
@@ -25,6 +27,7 @@
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">VERBINDING GEBLOKKEERD</string>
     <string name="blocking_internet">Internet blokkeren</string>
+    <string name="blocking_internet_device_offline">Internet blokkeren (apparaat offline)</string>
     <string name="buy_credit">Krediet kopen</string>
     <string name="buy_more_credit">Meer krediet kopen</string>
     <string name="cancel">Annuleren</string>
@@ -61,9 +64,11 @@
     <string name="dns_content_blockers_title">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_warning">Dit kan problemen veroorzaken met bepaalde websites, diensten en programma\'s.</string>
     <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
+    <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
     <string name="edit_message">Bericht bewerken</string>
     <string name="enable">Inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
+    <string name="enter_value_placeholder">Voer MTU in</string>
     <string name="enter_voucher_code">Vouchercode invoeren</string>
     <string name="error_occurred">Er is een fout opgetreden.</string>
     <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
@@ -113,12 +118,15 @@
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
+    <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
+    <string name="remove_button">Verwijderen</string>
     <string name="report_a_problem">Een probleem rapporteren</string>
+    <string name="reset_to_default_button">Standaardwaarde herstellen</string>
     <string name="secure_connection">BEVEILIGDE VERBINDING</string>
     <string name="secured">Beveiligd</string>
     <string name="select_location">Locatie selecteren</string>
@@ -130,6 +138,7 @@
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
+    <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_advanced">Geavanceerd</string>
@@ -138,6 +147,7 @@
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Split tunneling maakt het mogelijk te kiezen welke toepassingen niet via de VPN-tunnel moeten worden geleid.</string>
     <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
+    <string name="submit_button">Verzenden</string>
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
@@ -151,6 +161,7 @@
     <string name="update_available">UPDATE BESCHIKBAAR</string>
     <string name="update_available_description">Installeer Mullvad VPN (%1$s) om up-to-date te blijven</string>
     <string name="update_available_footer">Update beschikbaar, download deze om veilig te blijven.</string>
+    <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Beschrijf uw probleem in het Engels of Zweeds.</string>
     <string name="view_logs">Applogboeken weergeven</string>

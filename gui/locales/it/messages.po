@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2023-04-03 14:52\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Aggiunta di %(duration)s effettuata, account pagato fino al %(expiry)s."
@@ -1113,12 +1113,12 @@ msgstr "Invia una segnalazione del problema."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Riprova o invia una segnalazione del problema."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Impossibile avviare la selezione. %(detailedErrorMessage)s"
@@ -1159,10 +1159,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "Se esci dal modulo e riprovi più tardi, le informazioni già inserite saranno ancora qui."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "Descrivi il tuo problema in inglese o svedese."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1197,6 +1193,10 @@ msgstr "Grazie!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Opzione non disponibile nelle versioni beta."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Per consentirci di assisterti meglio, scrivi in ​​inglese o in svedese e indica da quale Paese ti stai connettendo."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1259,12 +1259,12 @@ msgid "Make sure you have NF tables support."
 msgstr "Assicurati di avere compatibilità per le tabelle NF."
 
 msgctxt "troubleshoot"
-msgid "This can happen because the kernel is old, or if you have removed a kernel."
-msgstr "Questo può accadere perché il kernel è obsoleto o se hai rimosso un kernel."
-
-msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
 msgstr "Questo errore può verificarsi quando qualcosa di diverso da Mullvad sta aggiornando attivamente il DNS."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Potrebbe essere causato da un kernel obsoleto."
 
 msgctxt "troubleshoot"
 msgid "Try reconnecting."
@@ -1369,10 +1369,6 @@ msgid "Adult content"
 msgstr "Contenuti per adulti"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Consenti l'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Attenzione: abilitando questa opzione, si richiederà sempre una connessione Mullvad VPN per navigare in Internet."
 
@@ -1438,6 +1434,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Aumenta l'anonimato instradando il tuo traffico in un server %(wireguard)s in entrata e in un altro in uscita, rendendo così più difficile il tracciamento."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill switch"
 
@@ -1484,6 +1484,10 @@ msgstr "Il server DNS che desideri aggiungere è pubblico e funzionerà solo con
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Questa funzione integrata impedisce al tuo traffico di fuoriuscire dal tunnel VPN qualora la tua rete smettesse improvvisamente di funzionare o qualora il tunnel si guastasse: lo fa bloccando il tuo traffico fino a quando la tua connessione non viene ristabilita."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Questa funzione consente l'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1603,9 +1607,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN."
 
-msgid "Account authentication failed."
-msgstr "Autenticazione account non riuscita."
-
 msgid "Account credit expires in a few minutes"
 msgstr "Il credito dell'account scadrà tra pochi minuti"
 
@@ -1615,11 +1616,20 @@ msgstr "Il credito dell'account scadrà presto"
 msgid "Account time reminders"
 msgstr "Promemoria temporali per l'account"
 
+msgid "Add DNS server"
+msgstr "Aggiungi server DNS"
+
 msgid "Advanced"
 msgstr "Avanzate"
 
+msgid "Agree and continue"
+msgstr "Accetta e continua"
+
 msgid "All applications"
 msgstr "Tutte le applicazioni"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Consenti l'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "VPN sempre attiva assegnata a un'altra app"
@@ -1627,17 +1637,15 @@ msgstr "VPN sempre attiva assegnata a un'altra app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "La VPN sempre attiva potrebbe essere abilitata per un'altra app"
 
-msgid "Blocking all connections"
-msgstr "Blocco di tutte le connessioni"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "Blocco di Internet (dispositivo offline)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Numero account di Mullvad copiato negli appunti"
 
 msgid "Copied to clipboard"
 msgstr "Copiato negli appunti"
-
-msgid "Could not configure IPv6"
-msgstr "Impossibile configurare IPv6"
 
 msgid "Critical error (your attention is required)"
 msgstr "Errore critico (è necessario intervenire)"
@@ -1648,26 +1656,14 @@ msgstr "Gli indirizzi del server DNS personalizzato %s non sono validi"
 msgid "Enable"
 msgstr "Abilita"
 
+msgid "Enter MTU"
+msgstr "Inserisci MTU"
+
 msgid "Excluded applications"
 msgstr "Applicazioni escluse"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli."
-
 msgid "Failed to fetch list of devices"
 msgstr "Impossibile recuperare l'elenco dei dispositivi"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Impossibile risolvere il nome host del server personalizzato"
-
-msgid "Failed to set system DNS server"
-msgstr "Impossibile impostare il server DNS di sistema"
-
-msgid "Failed to start tunnel connection"
-msgstr "Impossibile avviare la connessione tunnel"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Andare al login sbloccherà Internet su questo dispositivo."
@@ -1678,17 +1674,24 @@ msgstr "Installa Mullvad VPN (%s) per rimanere aggiornato"
 msgid "Mullvad account number"
 msgstr "Numero di account Mullvad"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Nessun bridge relay server corrispondente alle impostazioni correnti"
-
-msgid "No relay server matches the current settings"
-msgstr "Nessun relay server corrispondente alle impostazioni correnti"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Descrivi il tuo problema in inglese o svedese."
 
 msgid "Preferences"
 msgstr "Preferenze"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "Privacy"
+
 msgid "Privacy policy"
 msgstr "Informativa sulla privacy"
+
+msgid "Remove"
+msgstr "Rimuovi"
+
+msgid "Reset to default"
+msgstr "Ripristina predefiniti"
 
 msgid "Secured"
 msgstr "Protetto"
@@ -1708,20 +1711,32 @@ msgstr "Mostra promemoria quando il tempo dell'account sta per scadere"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Lo split tunneling consente di selezionare quali applicazioni non devono essere instradate attraverso il tunnel VPN."
 
+msgid "Submit"
+msgstr "Invia"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "Il dispositivo è offline. Impossibile stabilire tunnel"
+msgid "This address has already been entered."
+msgstr "Questo indirizzo è già stato inserito."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione corrente in esecuzione, l'app esegue automaticamente i controlli della versione. Questa operazione invia la versione dell'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene i contatori sul numero di versioni dell'app utilizzate e versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.\\n\\nSe viene utilizzata la funzione di split tunneling, l'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella visualizzazione split tunneling. L'elenco delle applicazioni installate non viene mai inviato dal dispositivo."
 
 msgid "Toggle VPN"
 msgstr "Attiva/disattiva VPN"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Impossibile applicare le regole del firewall. Consulta la risoluzione dei problemi o invia una segnalazione del problema."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per <b>%s</b> prima di utilizzare Mullvad VPN."
 
 msgid "Unsecured"
 msgstr "Non protetto"
+
+msgid "Update DNS server"
+msgstr "Aggiorna server DNS"
 
 msgid "Update available, download to remain safe."
 msgstr "Aggiornamento disponibile; esegui il download per rimanere protetto."
@@ -1752,9 +1767,6 @@ msgstr "POSSIBILI PERDITE NEL TRAFFICO DI RETE"
 
 msgid "You are running an unsupported app version."
 msgstr "Stai eseguendo una versione dell'app non supportata."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Stai eseguendo una versione dell'app non supportata. Aggiorna ora alla versione %s per continuare a essere protetto"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
