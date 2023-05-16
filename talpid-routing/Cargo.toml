@@ -49,4 +49,3 @@ windows-sys = { version = "0.45.0", features = [
 
 [dev-dependencies]
 tokio = { version = "1", features = [ "test-util" ] }
-base64 = "0.20"
