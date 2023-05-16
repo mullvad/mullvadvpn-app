@@ -91,7 +91,6 @@ final class NotificationBannerView: UIView {
     var action: InAppNotificationAction? {
         didSet {
             actionButton.setImage(action?.image, for: .normal)
-            actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
         }
     }
 
@@ -104,6 +103,8 @@ final class NotificationBannerView: UIView {
 
         backgroundView.contentView.addSubview(wrapperView)
         addSubview(backgroundView)
+
+        actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
             backgroundView.topAnchor.constraint(equalTo: topAnchor),
