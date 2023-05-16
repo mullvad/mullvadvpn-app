@@ -103,11 +103,6 @@ pub enum Error {
     #[error(display = "Failed to set up IP interfaces")]
     IpInterfacesError,
 
-    /// Configuration has no tunnel IPv4 address
-    #[cfg(target_os = "macos")]
-    #[error(display = "No IPv4 tunnel interface address")]
-    NoIpv4Address,
-
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
