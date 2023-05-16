@@ -136,8 +136,8 @@
     <string name="set_dns_error">Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problemu.</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
-    <string name="settings_advanced">Zaawansowane</string>
     <string name="settings_preferences">Preferencje</string>
+    <string name="settings_vpn">Ustawienia VPN</string>
     <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN.</string>

@@ -136,8 +136,8 @@
     <string name="set_dns_error">Kan ikke indstille systemets DNS-server. Indsend en problemrapport.</string>
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
-    <string name="settings_advanced">Avancerede indstillinger</string>
     <string name="settings_preferences">Indstillinger</string>
+    <string name="settings_vpn">VPN-indstillinger</string>
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapps</string>
     <string name="split_tunneling_description">Split tunneling gør det muligt at vælge, hvilke applikationer der ikke skal dirigeres gennem VPN-tunnelen.</string>

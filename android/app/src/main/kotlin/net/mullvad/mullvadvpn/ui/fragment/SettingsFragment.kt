@@ -47,7 +47,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
-    private lateinit var advancedMenu: View
+    private lateinit var vpnSettingsMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
@@ -71,9 +71,9 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
                 targetFragment = AccountFragment::class
             }
 
-        advancedMenu =
-            view.findViewById<NavigateCell>(R.id.advanced).apply {
-                targetFragment = AdvancedFragment::class
+        vpnSettingsMenu =
+            view.findViewById<NavigateCell>(R.id.vpn_settings).apply {
+                targetFragment = VpnSettingsFragment::class
             }
 
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
@@ -179,7 +179,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
             }
 
         accountMenu.visibility = visibility
-        advancedMenu.visibility = visibility
+        vpnSettingsMenu.visibility = visibility
     }
 
     private fun updateVersionInfo(versionInfo: VersionInfo) {

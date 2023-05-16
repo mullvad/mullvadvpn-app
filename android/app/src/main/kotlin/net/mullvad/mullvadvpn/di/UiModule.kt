@@ -21,7 +21,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
-import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -29,6 +28,7 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -89,7 +89,7 @@ val uiModule = module {
     }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel {
-        AdvancedSettingsViewModel(
+        VpnSettingsViewModel(
             get(),
             get(),
             get(),

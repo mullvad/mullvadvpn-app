@@ -136,8 +136,8 @@
     <string name="set_dns_error">Kunne ikke angi DNS-server for systemet. Send inn en problemrapport.</string>
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
-    <string name="settings_advanced">Avansert</string>
     <string name="settings_preferences">Preferanser</string>
+    <string name="settings_vpn">VPN-innstillinger</string>
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Tunneldeling gjør det mulig å velge hvilke applikasjoner som ikke skal rutes gjennom VPN-tunnelen.</string>

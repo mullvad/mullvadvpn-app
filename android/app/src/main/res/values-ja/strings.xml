@@ -136,8 +136,8 @@
     <string name="set_dns_error">システムのDNSサーバーを設定できません。問題の報告を送信してください。</string>
     <string name="settings">設定</string>
     <string name="settings_account">アカウント</string>
-    <string name="settings_advanced">詳細</string>
     <string name="settings_preferences">環境設定</string>
+    <string name="settings_vpn">VPN設定</string>
     <string name="show_account_number">アカウント番号の表示</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">スプリットトンネリングを使用すると、VPNトンネル経由でルーティングしないアプリケーションを選択できます。</string>
