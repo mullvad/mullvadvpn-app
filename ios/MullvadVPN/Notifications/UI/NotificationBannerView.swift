@@ -12,16 +12,10 @@ final class NotificationBannerView: UIView {
     private static let indicatorViewSize = CGSize(width: 12, height: 12)
     private static let buttonSize = CGSize(width: 18, height: 18)
 
-    private let backgroundView: UIVisualEffectView = {
-        let effect = UIBlurEffect(style: .dark)
-        let visualEffectView = UIVisualEffectView(effect: effect)
-        visualEffectView.translatesAutoresizingMaskIntoConstraints = false
-        return visualEffectView
-    }()
+    private let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
 
     private let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         textLabel.textColor = UIColor.InAppNotificationBanner.titleColor
         textLabel.numberOfLines = 0
@@ -35,7 +29,6 @@ final class NotificationBannerView: UIView {
 
     private let bodyLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.systemFont(ofSize: 17)
         textLabel.textColor = UIColor.InAppNotificationBanner.bodyColor
         textLabel.numberOfLines = 0
@@ -49,7 +42,6 @@ final class NotificationBannerView: UIView {
 
     private let indicatorView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .dangerColor
         view.layer.cornerRadius = NotificationBannerView.indicatorViewSize.width * 0.5
         view.layer.cornerCurve = .circular
@@ -58,7 +50,6 @@ final class NotificationBannerView: UIView {
 
     private let wrapperView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.directionalLayoutMargins = UIMetrics.inAppBannerNotificationLayoutMargins
         return view
     }()
@@ -66,7 +57,6 @@ final class NotificationBannerView: UIView {
     private let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
@@ -90,37 +80,37 @@ final class NotificationBannerView: UIView {
 
     var action: InAppNotificationAction? {
         didSet {
-            actionButton.setImage(action?.image, for: .normal)
+            let image = action?.image
+            let showsAction = image != nil
+
+            actionButton.setImage(image, for: .normal)
+            actionButton.isHidden = !showsAction
+
+            updateActionButtonConstraints(showsAction: showsAction)
         }
     }
+
+    private var actionButtonVisibleConstraints: [NSLayoutConstraint] = []
+    private var actionButtonHiddenConstraints: [NSLayoutConstraint] = []
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        for subview in [titleLabel, bodyLabel, indicatorView, actionButton] {
-            wrapperView.addSubview(subview)
-        }
-
-        backgroundView.contentView.addSubview(wrapperView)
-        addSubview(backgroundView)
-
         actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
 
+        wrapperView.addConstrainedSubviews([titleLabel, bodyLabel, indicatorView, actionButton])
+        backgroundView.contentView.addConstrainedSubviews([wrapperView]) {
+            wrapperView.pinEdgesToSuperview()
+        }
+        addConstrainedSubviews([backgroundView]) {
+            backgroundView.pinEdgesToSuperview()
+        }
+
+        actionButtonVisibleConstraints = [actionButton.leadingAnchor.constraint(equalTo: bodyLabel.trailingAnchor)]
+
         NSLayoutConstraint.activate([
-            backgroundView.topAnchor.constraint(equalTo: topAnchor),
-            backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            wrapperView.topAnchor.constraint(equalTo: backgroundView.contentView.topAnchor),
-            wrapperView.leadingAnchor.constraint(equalTo: backgroundView.contentView.leadingAnchor),
-            wrapperView.trailingAnchor
-                .constraint(equalTo: backgroundView.contentView.trailingAnchor),
-            wrapperView.bottomAnchor.constraint(equalTo: backgroundView.contentView.bottomAnchor),
-
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
-            indicatorView.leadingAnchor
-                .constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
+            indicatorView.leadingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
             indicatorView.widthAnchor.constraint(equalToConstant: Self.indicatorViewSize.width),
             indicatorView.heightAnchor.constraint(equalToConstant: Self.indicatorViewSize.height),
 
@@ -128,14 +118,12 @@ final class NotificationBannerView: UIView {
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
             titleLabel.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
 
-            bodyLabel.topAnchor.constraint(
-                equalToSystemSpacingBelow: titleLabel.bottomAnchor,
-                multiplier: 1
-            ),
+            bodyLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1),
             bodyLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            bodyLabel.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor)
+                .store(into: &actionButtonHiddenConstraints),
             bodyLabel.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
 
-            actionButton.leadingAnchor.constraint(equalTo: bodyLabel.trailingAnchor),
             actionButton.topAnchor.constraint(equalTo: bodyLabel.topAnchor),
             actionButton.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
             actionButton.widthAnchor.constraint(equalToConstant: NotificationBannerView.buttonSize.width),
@@ -149,6 +137,18 @@ final class NotificationBannerView: UIView {
 
     @objc private func didPress() {
         action?.handler?()
+    }
+
+    private func updateActionButtonConstraints(showsAction: Bool) {
+        if showsAction {
+            NSLayoutConstraint.deactivate(actionButtonHiddenConstraints)
+            NSLayoutConstraint.activate(actionButtonVisibleConstraints)
+        } else {
+            NSLayoutConstraint.deactivate(actionButtonVisibleConstraints)
+            NSLayoutConstraint.activate(actionButtonHiddenConstraints)
+        }
+
+        setNeedsLayout()
     }
 }
 

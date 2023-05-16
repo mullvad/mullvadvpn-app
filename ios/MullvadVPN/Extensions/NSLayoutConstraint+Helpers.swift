@@ -9,8 +9,15 @@
 import UIKit
 
 extension NSLayoutConstraint {
+    /// Sets constraint priority and returns `self`
     func withPriority(_ priority: UILayoutPriority) -> Self {
         self.priority = priority
+        return self
+    }
+
+    /// Stores constraint into array and returns `self`.
+    func store(into outConstraints: inout [NSLayoutConstraint]) -> Self {
+        outConstraints.append(self)
         return self
     }
 }
