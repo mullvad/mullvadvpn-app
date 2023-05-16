@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Dodano %(duration)s, konto opłacone do %(expiry)s."
@@ -140,6 +140,7 @@ msgstr "Połączono"
 msgid "Connecting"
 msgstr "Łączenie"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "TWORZENIE KWANTOWO BEZPIECZNEGO POŁĄCZENIA"
 
@@ -179,6 +180,9 @@ msgstr "BŁĄD ZABEZPIECZANIA POŁĄCZENIA"
 msgid "Filter"
 msgstr "Filtruj"
 
+msgid "Go to System Settings"
+msgstr "Przejdź do sekcji Ustawienia systemowe"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Jasne!"
@@ -216,6 +220,7 @@ msgstr "Wł."
 msgid "Open URL"
 msgstr "Otwórz adres URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KWANTOWO BEZPIECZNE POŁĄCZENIE"
 
@@ -243,6 +248,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "To ustawienie zwiększa latencję. Używaj go tylko w razie konieczności."
+
+msgid "Troubleshoot"
+msgstr "Rozwiązywanie problemów"
 
 msgid "Try a different search."
 msgstr "Wypróbuj inne wyszukiwanie."
@@ -631,6 +639,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Zamknij i uruchom ponownie aplikację."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Wyślij zgłoszenie problemu"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -650,6 +662,10 @@ msgstr "DOSTĘPNA JEST AKTUALIZACJA"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Łączenie z usługą systemową Mullvad..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Uprawnienie usługi Mullvad VPN zostało cofnięte. Przejdź do sekcji Ustawienia systemowe i zezwól na działanie usługi Mullvad VPN w ustawieniu „Pozwalaj w tle”."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -800,8 +816,12 @@ msgid "Disconnected and unsecure"
 msgstr "Rozłączony i niezabezpieczony"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Żadne serwery w wybranej lokalizacji nie pasują do Twoich ustawień."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Tryb Lockdown aktywny, połączenie zablokowane"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Żaden serwer nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -816,8 +836,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Nie można zastosować reguł zapory."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Nie można zastosować reguł zapory. Spróbuj wyłączyć oprogramowanie antywirusowe lub inne zabezpieczające."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Nie można zastosować reguł zapory. Spróbuj tymczasowo wyłączyć oprogramowanie antywirusowe lub inne zabezpieczające innych firm."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -828,8 +848,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "Nie można zablokować całego ruchu sieciowego. Spróbuj wyłączyć oprogramowanie antywirusowe lub zabezpieczające innych firm, lub wyślij zgłoszenie problemu."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Nie można zablokować całego ruchu sieciowego. Spróbuj tymczasowo wyłączyć oprogramowanie antywirusowe lub zabezpieczające innych firm, lub wyślij zgłoszenie problemu."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1115,12 +1135,12 @@ msgstr "Wyślij zgłoszenie problemu."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Spróbuj ponownie lub wyślij zgłoszenie problemu."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Nie można uruchomić wyboru. %(detailedErrorMessage)s"
@@ -1161,10 +1181,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "Jeśli wyjdziesz z formularza i spróbujesz ponownie później, zastaniesz już wprowadzone dane."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "Opisz problem po angielsku lub szwedzku."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1199,6 +1215,10 @@ msgstr "Dziękujemy!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "W wersji beta ta opcja jest niedostępna."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Abyśmy mogli lepiej Ci pomóc, napisz w języku angielskim lub szwedzkim i podaj kraj, z którego się łączysz."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1251,6 +1271,46 @@ msgstr "Połączono. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Łączenie. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Jeśli te kroki nie zadziałają, wyślij zgłoszenie problemu."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "Zapewnij obsługę podsystemu nftables."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Ten błąd może wystąpić, gdy coś innego niż Mullvad aktywnie aktualizuje DNS."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Może to być spowodowane nieaktualnym jądrem."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Spróbuj połączyć ponownie."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Spróbuj ponownie uruchomić urządzenie."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "Spróbuj wyłączyć połączenia przez sieć Wi-Fi w ustawieniach aplikacji FaceTime i uruchom ponownie system Mac."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Nie można skomunikować się ze sterownikiem jądra Mullvad."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Odinstaluj lub wyłącz inne aplikacje blokujące DNS, sieci i reklamy / witryny internetowe."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Zaktualizuj jądro."
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1331,10 +1391,6 @@ msgid "Adult content"
 msgstr "Treści dla dorosłych"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Uwaga: wskutek włączenia tej opcji w celu uzyskania dostępu do Internetu zawsze wymagane będzie połączenie przez Mullvad VPN."
 
@@ -1400,6 +1456,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Zwiększa anonimowość, kierując ruch do jednego serwera %(wireguard)s i wyprowadzając go z drugiego, co utrudnia śledzenie."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Zapewnia to poprzez umożliwienie komunikacji sieciowej poza tunelem do lokalnych zakresów adresów IP multiemisji i emisji, a także do i z następujących prywatnych zakresów adresów IP:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill switch"
 
@@ -1446,6 +1506,10 @@ msgstr "Serwer DNS, który chcesz dodać, jest publiczny i będzie działał wy�
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Ta wbudowana funkcja zapobiega wyciekowi ruchu poza tunel VPN w przypadku nagłej awarii sieci lub tunelu. Funkcja ta blokuje ruch do chwili ponownego nawiązania połączenia."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1499,6 +1563,10 @@ msgid "IP version"
 msgstr "Wersja IP"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1517,6 +1585,13 @@ msgstr "Wł. (UDP-przez-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Tunel odporny na ataki z użyciem komputerów kwantowych"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1543,15 +1618,16 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Umożliwia dostęp do %(wireguard)s urządzeniom obsługującym tylko protokół IPv6."
 
 msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych."
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "Port UDP-przez-TCP"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN."
-
-msgid "Account authentication failed."
-msgstr "Niepowodzenie uwierzytelnienia konta."
 
 msgid "Account credit expires in a few minutes"
 msgstr "Doładowanie konta wygasa za kilka minut"
@@ -1562,11 +1638,20 @@ msgstr "Doładowanie konta wkrótce wygasa"
 msgid "Account time reminders"
 msgstr "Przypomnienia o czasie na koncie"
 
+msgid "Add DNS server"
+msgstr "Dodaj serwer DNS"
+
 msgid "Advanced"
 msgstr "Zaawansowane"
 
+msgid "Agree and continue"
+msgstr "Zaakceptuj i kontynuuj"
+
 msgid "All applications"
 msgstr "Wszystkie aplikacje"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji"
@@ -1574,17 +1659,15 @@ msgstr "Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji"
 
-msgid "Blocking all connections"
-msgstr "Blokowanie wszystkich połączeń"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "Blokowanie Internetu (urządzenie rozłączone)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Skopiowano numer konta Mullvad do schowka"
 
 msgid "Copied to clipboard"
 msgstr "Skopiowano do schowka"
-
-msgid "Could not configure IPv6"
-msgstr "Nie można skonfigurować IPv6"
 
 msgid "Critical error (your attention is required)"
 msgstr "Błąd krytyczny (wymagana uwaga)"
@@ -1595,26 +1678,14 @@ msgstr "Niestandardowe adresy serwerów DNS %s są nieprawidłowe"
 msgid "Enable"
 msgstr "Włącz"
 
+msgid "Enter MTU"
+msgstr "Wprowadź MTU"
+
 msgid "Excluded applications"
 msgstr "Wykluczone aplikacje"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Błąd stosowania reguł zapory. Urządzenie może być obecnie niezabezpieczone"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam."
-
 msgid "Failed to fetch list of devices"
 msgstr "Nie udało się pobrać listy urządzeń"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Nie można rozpoznać nazwy hosta serwera niestandardowego"
-
-msgid "Failed to set system DNS server"
-msgstr "Niepowodzenie ustawienia systemowego serwera DNS"
-
-msgid "Failed to start tunnel connection"
-msgstr "Niepowodzenie uruchomienia połączenia tunelowego"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Przejście do logowania odblokuje Internet na tym urządzeniu."
@@ -1625,17 +1696,24 @@ msgstr "Aby być na bieżąco, zainstaluj Mullvad VPN (%s)"
 msgid "Mullvad account number"
 msgstr "Numer konta Mullvad"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Żaden pomostowy serwer przekazujący nie odpowiada bieżącym ustawieniom"
-
-msgid "No relay server matches the current settings"
-msgstr "Żaden serwer przekazujący nie odpowiada bieżącym ustawieniom"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Opisz problem w języku angielskim lub szwedzkim."
 
 msgid "Preferences"
 msgstr "Preferencje"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "Prywatność"
+
 msgid "Privacy policy"
 msgstr "Polityka prywatności"
+
+msgid "Remove"
+msgstr "Usuń"
+
+msgid "Reset to default"
+msgstr "Przywróć domyślne"
 
 msgid "Secured"
 msgstr "Zabezpieczone"
@@ -1655,20 +1733,32 @@ msgstr "Pokazuje przypomnienia, gdy kończy się czas na koncie"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN."
 
+msgid "Submit"
+msgstr "Prześlij"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "To urządzenie jest offline, nie można ustanowić tuneli"
+msgid "This address has already been entered."
+msgstr "Ten adres został już wprowadzony."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób umożlwiiający zidentyfikowanie Ciebie.\\n\\nJeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia."
 
 msgid "Toggle VPN"
 msgstr "Przełącz VPN"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Nie można zastosować reguł zapory. Rozwiąż problem lub wyślij zgłoszenie problemu."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w <b>%s</b>."
 
 msgid "Unsecured"
 msgstr "Niezabezpieczone"
+
+msgid "Update DNS server"
+msgstr "Zaktualizuj serwer DNS"
 
 msgid "Update available, download to remain safe."
 msgstr "Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją."
@@ -1699,9 +1789,6 @@ msgstr "TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ"
 
 msgid "You are running an unsupported app version."
 msgstr "Używasz nieobsługiwanej wersji aplikacji."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, uaktualnij teraz do wersji %s"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

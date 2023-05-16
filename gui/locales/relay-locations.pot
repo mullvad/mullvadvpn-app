@@ -46,6 +46,10 @@ msgstr ""
 msgid "Belgrade"
 msgstr ""
 
+#. CO BOG
+msgid "Bogota"
+msgstr ""
+
 #. US BOS
 msgid "Boston, MA"
 msgstr ""
@@ -100,6 +104,10 @@ msgstr ""
 
 #. US CLE
 msgid "Cleveland, OH"
+msgstr ""
+
+#. CO
+msgid "Colombia"
 msgstr ""
 
 #. DK CPH

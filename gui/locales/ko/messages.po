@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -107,6 +107,7 @@ msgstr "연결됨"
 msgid "Connecting"
 msgstr "연결 중"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "양자 보안 연결 생성 중"
 
@@ -146,6 +147,9 @@ msgstr "보안 연결 실패"
 msgid "Filter"
 msgstr "필터"
 
+msgid "Go to System Settings"
+msgstr "시스템 설정으로 이동"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "확인!"
@@ -183,6 +187,7 @@ msgstr "켜기"
 msgid "Open URL"
 msgstr "URL 열기"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "양자 보안 연결"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "이 설정을 사용하면 대기 시간이 길어집니다. 필요한 경우에만 사용하세요."
+
+msgid "Troubleshoot"
+msgstr "문제 해결"
 
 msgid "Try a different search."
 msgstr "다른 검색어를 시도하세요."
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "앱을 종료한 후 다시 시작하세요."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "문제 보고서 보내기"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "업데이트 사용 가능"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad 시스템 서비스에 연결하는 중..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN 서비스에 대한 권한이 취소되었습니다. 시스템 설정으로 이동한 다음, \"백그라운드에서 허용\" 설정에서 Mullvad VPN을 허용하세요."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "연결이 끊기고 안전하지 않음"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "선택한 위치에 설정과 일치하는 서버가 없습니다."
+msgid "Lockdown mode active, connection blocked"
+msgstr "잠금 모드 활성, 연결 차단"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "방화벽 규칙을 적용할 수 없습니다."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "방화벽 규칙을 적용할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화해 보세요."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "방화벽 규칙을 적용할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 일시적으로 비활성화해 보세요."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화하거나 문제 보고서를 보내주세요."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 일시적으로 비활성화하거나 문제 보고서를 보내주세요."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1082,12 +1102,12 @@ msgstr "문제 보고서를 보내주세요."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "다시 시도하거나 문제 보고서를 보내주세요."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "선택 항목을 시작할 수 없습니다. %(detailedErrorMessage)s"
@@ -1128,10 +1148,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "양식을 종료한 후 나중에 다시 시도해도 이미 입력한 정보는 그대로 유지됩니다."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "문제를 영어나 스웨덴어로 설명해 주세요."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1166,6 +1182,10 @@ msgstr "감사합니다!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1218,6 +1238,46 @@ msgstr "연결됨. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "연결 중. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "이러한 단계로 문제가 해결되지 않으면 문제 보고서를 보내주세요."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "NF 테이블이 지원되는지 확인하세요."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "이 오류는 Mullvad 이외의 항목이 DNS를 활발히 업데이트하고 있을 때 발생할 수 있습니다."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "오래된 커널이 원인일 수 있습니다."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "다시 연결해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "장치를 다시 시작해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTime 앱 설정에서 Wi-Fi 통화를 끄고 Mac을 다시 시작해 보세요."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvad 커널 드라이버와 통신할 수 없습니다."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "다른 DNS, 네트워킹 및 광고/웹사이트 차단 앱을 제거하거나 비활성화하세요."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "커널을 업데이트하세요."
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1298,10 +1358,6 @@ msgid "Adult content"
 msgstr "성인 콘텐츠"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 활성화하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
 
@@ -1367,6 +1423,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "트래픽을 하나의 %(wireguard)s 서버로 라우팅하고 다른 서버로 전달하여 익명성을 높이고 추적을 더 어렵게 만듭니다."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다."
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "킬 스위치"
 
@@ -1413,6 +1473,10 @@ msgstr "추가하려는 DNS 서버는 공용이며 %(wireguard)s에서만 작동
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "기본 제공되는 이 기능은 네트워크가 갑자기 작동을 멈추거나 터널에 장애가 발생하는 경우 연결이 다시 설정될 때까지 트래픽을 차단하여 VPN 터널 외부로 트래픽이 유출되는 것을 방지합니다."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1466,6 +1530,10 @@ msgid "IP version"
 msgstr "IP 버전"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1552,13 @@ msgstr "켜기(UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "포트"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "양자 저항 터널"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1510,15 +1585,16 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "이를 통해 IPv6만 지원하는 장치에서 %(wireguard)s에 액세스할 수 있습니다."
 
 msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다."
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "UDP-over-TCP 포트"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
-
-msgid "Account authentication failed."
-msgstr "계정 인증에 실패했습니다."
 
 msgid "Account credit expires in a few minutes"
 msgstr "계정 크레딧이 몇 분 후에 만료됨"
@@ -1529,11 +1605,20 @@ msgstr "계정 크레딧이 곧 만료됨"
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
 
+msgid "Add DNS server"
+msgstr "DNS 서버 추가"
+
 msgid "Advanced"
 msgstr "고급"
 
+msgid "Agree and continue"
+msgstr "동의하고 계속하기"
+
 msgid "All applications"
 msgstr "모든 애플리케이션"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "상시 접속 VPN이 다른 앱에 할당됨"
@@ -1541,17 +1626,15 @@ msgstr "상시 접속 VPN이 다른 앱에 할당됨"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다."
 
-msgid "Blocking all connections"
-msgstr "모든 연결 차단 중"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "인터넷 차단(장치 오프라인 상태)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "클립보드에 Mullvad 계정 번호 복사됨"
 
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"
-
-msgid "Could not configure IPv6"
-msgstr "IPv6를 구성할 수 없음"
 
 msgid "Critical error (your attention is required)"
 msgstr "심각한 오류(주의가 필요함)"
@@ -1562,26 +1645,14 @@ msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
 msgid "Enable"
 msgstr "사용"
 
+msgid "Enter MTU"
+msgstr "MTU 입력"
+
 msgid "Excluded applications"
 msgstr "제외된 애플리케이션"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다."
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요."
-
 msgid "Failed to fetch list of devices"
 msgstr "장치 목록을 가져오지 못함"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못함"
-
-msgid "Failed to set system DNS server"
-msgstr "시스템 DNS 서버를 설정하지 못함"
-
-msgid "Failed to start tunnel connection"
-msgstr "터널 연결을 시작하지 못함"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
@@ -1592,17 +1663,24 @@ msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "현재 설정과 일치하는 브리지 릴레이 서버가 없습니다."
-
-msgid "No relay server matches the current settings"
-msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
+msgid "Please describe your problem in English or Swedish."
+msgstr "문제를 영어나 스웨덴어로 설명해 주세요."
 
 msgid "Preferences"
 msgstr "환경 설정"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "개인 정보 보호"
+
 msgid "Privacy policy"
 msgstr "개인정보 보호정책"
+
+msgid "Remove"
+msgstr "제거"
+
+msgid "Reset to default"
+msgstr "기본값으로 재설정"
 
 msgid "Secured"
 msgstr "안전함"
@@ -1622,20 +1700,32 @@ msgstr "계정 시간이 만료되려고 할 때 알림 표시"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다."
 
+msgid "Submit"
+msgstr "제출"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
+msgid "This address has already been entered."
+msgstr "이 주소는 이미 입력되었습니다."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "가장 안전한 버전인지 확인하고 실행 중인 현재 버전 관련 문제를 알리기 위해 앱에서 버전 확인을 자동으로 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전과 Android 버전 수에 대한 카운터를 유지합니다. 데이터는 사용자를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.\\n\\n분할 터널링 기능이 사용되는 경우 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 절대 장치에서 전송되지 않습니다."
 
 msgid "Toggle VPN"
 msgstr "VPN 전환"
 
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
-msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%s</b>에 대한 상시 접속 VPN을 비활성화하십시오."
+msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%s</b>에 대한 상시 접속 VPN을 비활성화하세요."
 
 msgid "Unsecured"
 msgstr "안전하지 않음"
+
+msgid "Update DNS server"
+msgstr "DNS 서버 업데이트"
 
 msgid "Update available, download to remain safe."
 msgstr "업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요."
@@ -1666,9 +1756,6 @@ msgstr "네트워크 트래픽이 유출될 수 있습니다."
 
 msgid "You are running an unsupported app version."
 msgstr "지원되지 않는 앱 버전을 실행 중입니다."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

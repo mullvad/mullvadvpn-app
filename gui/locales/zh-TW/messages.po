@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -107,6 +107,7 @@ msgstr "已連線"
 msgid "Connecting"
 msgstr "正在連線"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "正在建立量子安全連線"
 
@@ -146,6 +147,9 @@ msgstr "保護連線失敗"
 msgid "Filter"
 msgstr "篩選"
 
+msgid "Go to System Settings"
+msgstr "前往「系統設定」"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "知道了！"
@@ -183,6 +187,7 @@ msgstr "開啟"
 msgid "Open URL"
 msgstr "開啟 URL"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子安全連線"
 
@@ -210,6 +215,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "此設定會助長延遲。請僅在需要時使用。"
+
+msgid "Troubleshoot"
+msgstr "故障排除"
 
 msgid "Try a different search."
 msgstr "請嘗試使用其他關鍵字。"
@@ -598,6 +606,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "請退出應用程式並重新啟動。"
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "傳送問題回報"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -617,6 +629,10 @@ msgstr "可用的更新"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN 服務的權限已遭到撤銷。請前往「系統設定」，並在「允許在背景中執行」設定下允許 Mullvad VPN。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -767,8 +783,12 @@ msgid "Disconnected and unsecure"
 msgstr "已中斷連線且未受保護"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "所選位置沒有伺服器與您的設定相符。"
+msgid "Lockdown mode active, connection blocked"
+msgstr "鎖定模式已啟用，連線已封鎖"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -783,8 +803,8 @@ msgid "Unable to apply firewall rules."
 msgstr "無法套用防火牆規則。"
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "無法套用防火牆規則。請嘗試停用任何第三方防毒軟體或安全軟體。"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "無法套用防火牆規則。請嘗試暫時停用任何第三方防毒軟體或安全軟體。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -795,8 +815,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "無法封鎖所有網路流量。請排除故障或傳送問題回報。"
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "無法封鎖所有網路流量。請嘗試停用任何第三方防毒軟體或安全軟體，或傳送問題回報。"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "無法封鎖所有網路流量。請嘗試暫時停用任何第三方防毒軟體或安全軟體，或傳送問題回報。"
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1082,12 +1102,12 @@ msgstr "請傳送問題回報。"
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "請再試一次或傳送問題回報。"
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "無法啟動所選項目。%(detailedErrorMessage)s"
@@ -1128,10 +1148,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。"
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "請用英語或瑞典語來說明您的問題。"
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1166,6 +1182,10 @@ msgstr "謝謝！"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "測試版無法使用此選項。"
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "為了給您提供更完善的協助，請您使用英語或瑞典語書寫，並註明您是從哪個國家/地區進行連線。"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1218,6 +1238,46 @@ msgstr "已連線。%(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "正在連線。%(location)s"
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "如果以上步驟仍無法解決問題，請傳送問題回報。"
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "請務必確認您能支援 nftables。"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "如果 Mullvad 以外的其他服務正在主動更新 DNS，即可能出現此錯誤。"
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "此問題可能是核心過時所引起。"
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "嘗試重新連線。"
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "嘗試重新啟動裝置。"
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "嘗試在 FaceTime App 設定中關閉 Wi-Fi 通話，並重新啟動 Mac。"
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "無法與 Mullvad 核心驅動程式通訊。"
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "將其他 DNS、網路和廣告/網站攔截應用程式解除安裝或停用。"
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "更新核心。"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1298,10 +1358,6 @@ msgid "Adult content"
 msgstr "成人內容"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "允許存取同一網路上的其他裝置，以進行共用、列印等。"
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
 
@@ -1367,6 +1423,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "藉由將您的流量路由到某個 %(wireguard)s 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播："
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "終止開關"
 
@@ -1413,6 +1473,10 @@ msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 %(wire
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "如果您的網路突然停止運作或通道發生故障，此內建功能可避免您的流量洩漏到 VPN 通道之外。這會封鎖您的流量，直到重新建立連線為止。"
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。"
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1466,6 +1530,10 @@ msgid "IP version"
 msgstr "IP 版本"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。"
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1484,6 +1552,13 @@ msgstr "開 (UDP-over-TCP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "連接埠"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "抗量子通道"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1510,15 +1585,16 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
 
 msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "UDP-over-TCP 連接埠"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。"
-
-msgid "Account authentication failed."
-msgstr "帳戶驗證失敗。"
 
 msgid "Account credit expires in a few minutes"
 msgstr "帳戶點數將在數分鐘後到期"
@@ -1529,11 +1605,20 @@ msgstr "帳戶點數即將到期"
 msgid "Account time reminders"
 msgstr "帳戶時間提醒"
 
+msgid "Add DNS server"
+msgstr "新增 DNS 伺服器"
+
 msgid "Advanced"
 msgstr "進階"
 
+msgid "Agree and continue"
+msgstr "同意並繼續"
+
 msgid "All applications"
 msgstr "所有應用程式"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "允許存取同一網路上的其他裝置，以進行分享、列印等。"
 
 msgid "Always-on VPN assigned to other app"
 msgstr "「始終啟用 VPN」已指派給其他應用程式"
@@ -1541,17 +1626,15 @@ msgstr "「始終啟用 VPN」已指派給其他應用程式"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "可能已為另一個應用程式啟用了「始終啟用 VPN」"
 
-msgid "Blocking all connections"
-msgstr "正在封鎖所有連線"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "封鎖網際網路 (裝置離線)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已將 Mullvad 帳號複製到剪貼簿"
 
 msgid "Copied to clipboard"
 msgstr "已複製到剪貼簿"
-
-msgid "Could not configure IPv6"
-msgstr "無法配置 IPv6"
 
 msgid "Critical error (your attention is required)"
 msgstr "嚴重錯誤 (需注意)"
@@ -1562,26 +1645,14 @@ msgstr "自訂 DNS 伺服器位址 %s 無效"
 msgid "Enable"
 msgstr "啟用"
 
+msgid "Enter MTU"
+msgstr "輸入 MTU"
+
 msgid "Excluded applications"
 msgstr "已排除的應用程式"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "無法套用防火牆規則。裝置目前可能不安全"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "無法封鎖所有網路流量。請排除故障或向我們回報問題。"
-
 msgid "Failed to fetch list of devices"
 msgstr "無法取得裝置清單"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "無法解析自訂伺服器的主機名稱"
-
-msgid "Failed to set system DNS server"
-msgstr "無法設定系統 DNS 伺服器"
-
-msgid "Failed to start tunnel connection"
-msgstr "無法啟動通道連線"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "若前往登入，則會在此裝置上解除對網際網路的封鎖。"
@@ -1592,17 +1663,24 @@ msgstr "安裝 Mullvad VPN (%s) 以維持最新狀態"
 msgid "Mullvad account number"
 msgstr "Mullvad 帳號"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "沒有與目前設定相符的橋接中繼伺服器"
-
-msgid "No relay server matches the current settings"
-msgstr "沒有與目前設定相符的中繼伺服器"
+msgid "Please describe your problem in English or Swedish."
+msgstr "請用英語或瑞典語來說明您的問題。"
 
 msgid "Preferences"
 msgstr "喜好設定"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "隱私權"
+
 msgid "Privacy policy"
 msgstr "隱私權政策"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Reset to default"
+msgstr "重設為預設值"
 
 msgid "Secured"
 msgstr "安全"
@@ -1622,20 +1700,32 @@ msgstr "在帳戶時間即將到期時顯示提醒"
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "利用拆分通道，您可以選擇哪些應用程式不應透過 VPN 通道進行路由。"
 
+msgid "Submit"
+msgstr "提交"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "若要使本機 DNS 伺服器運作，需先在「偏好設定」下啟用「本機網路共用」。"
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "此裝置目前離線中，無法建立通道"
+msgid "This address has already been entered."
+msgstr "此地址已輸入過。"
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。\\n\\n如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。這份清單只在分割通道的視圖中檢視，絕不會傳送至他處。"
 
 msgid "Toggle VPN"
 msgstr "切換 VPN"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "無法套用防火牆規則。請排除故障或傳送問題回報。"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 <b>%s</b> 停用「始終啟用 VPN」。"
 
 msgid "Unsecured"
 msgstr "不安全"
+
+msgid "Update DNS server"
+msgstr "更新 DNS 伺服器"
 
 msgid "Update available, download to remain safe."
 msgstr "更新可用，請下載以維持安全。"
@@ -1666,9 +1756,6 @@ msgstr "您的網路流量可能正在洩露"
 
 msgid "You are running an unsupported app version."
 msgstr "您所執行的應用程式版本不受支援。"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %s，以確保您的安全"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
