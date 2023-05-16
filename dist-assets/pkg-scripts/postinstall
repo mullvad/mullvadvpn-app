@@ -10,6 +10,16 @@ exec 2>&1 > $LOG_DIR/postinstall.log
 echo "Running postinstall at $(date)"
 
 INSTALL_DIR=$2
+
+# Run CLI to force macOS to check the certificate, and shut down the already running daemon, if one
+# exists.
+# This is a temporary workaround. After 2023.3, we switched from signing with Amagicom AB to
+# Mullvad AB certificates. This could potentially be removed when that version is no longer
+# supported.
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" || true
+"$TMPDIR/mullvad-setup" prepare-restart || \
+    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
+
 # NOTE: This path must be kept in sync with the path defined
 # in mullvad-daemon/src/macos_launch_daemon.rs
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
