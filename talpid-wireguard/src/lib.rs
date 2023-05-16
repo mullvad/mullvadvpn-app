@@ -860,7 +860,7 @@ impl WireguardMonitor {
             gateway_node.clone(),
         ))
         .chain(config.ipv6_gateway.map(|gateway| {
-            return RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node);
+            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
         }));
 
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
