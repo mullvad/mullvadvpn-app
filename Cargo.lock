@@ -3368,32 +3368,13 @@ dependencies = [
 
 [[package]]
 name = "system-configuration"
-version = "0.4.0"
-source = "git+https://github.com/mullvad/system-configuration-rs#5df2d065fa6c40a75f4f93b8a1db598abfc16743"
-dependencies = [
- "bitflags",
- "core-foundation",
- "system-configuration-sys 0.4.1",
-]
-
-[[package]]
-name = "system-configuration"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d75182f12f490e953596550b65ee31bda7c8e043d9386174b353bda50838c3fd"
+checksum = "ba3a3adc5c275d719af8cb4272ea1c4a6d668a777f37e115f6d11ddbc1c8e0e7"
 dependencies = [
  "bitflags",
  "core-foundation",
- "system-configuration-sys 0.5.0",
-]
-
-[[package]]
-name = "system-configuration-sys"
-version = "0.4.1"
-source = "git+https://github.com/mullvad/system-configuration-rs#5df2d065fa6c40a75f4f93b8a1db598abfc16743"
-dependencies = [
- "core-foundation-sys",
- "libc",
+ "system-configuration-sys",
 ]
 
 [[package]]
@@ -3448,7 +3429,7 @@ dependencies = [
  "shell-escape",
  "socket2",
  "subslice",
- "system-configuration 0.5.0",
+ "system-configuration",
  "talpid-dbus",
  "talpid-openvpn",
  "talpid-routing",
@@ -3567,7 +3548,7 @@ dependencies = [
  "nix 0.26.1",
  "rtnetlink",
  "socket2",
- "system-configuration 0.4.0",
+ "system-configuration",
  "talpid-time",
  "talpid-types",
  "talpid-windows-net",
