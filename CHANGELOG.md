@@ -66,6 +66,12 @@ Line wrap the file at 100 chars.                                              Th
   packages.
 
 
+## [android/2023.1] - 2023-05-16
+### Fixed
+#### Android
+- Fix DNS input keyboard type.
+
+
 ## [android/2023.1-beta2] - 2023-05-09
 ### Added
 #### Android
