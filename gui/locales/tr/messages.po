@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2023-02-06 12:43\n"
+"PO-Revision-Date: 2023-05-16 10:33\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -118,6 +118,7 @@ msgstr "Bağlandı"
 msgid "Connecting"
 msgstr "Bağlanılıyor"
 
+#. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR"
 
@@ -157,6 +158,9 @@ msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 msgid "Filter"
 msgstr "Filtrele"
 
+msgid "Go to System Settings"
+msgstr "Sistem Ayarlarına Git"
+
 #. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Anladım!"
@@ -194,6 +198,7 @@ msgstr "Açık"
 msgid "Open URL"
 msgstr "URL'yi aç"
 
+#. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI"
 
@@ -221,6 +226,9 @@ msgstr "TCP"
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
+
+msgid "Troubleshoot"
+msgstr "Sorun Giderme"
 
 msgid "Try a different search."
 msgstr "Farklı bir arama deneyin."
@@ -609,6 +617,10 @@ msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Lütfen uygulamadan çıkış yapın ve yeniden başlatın."
 
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Hata raporu gönder"
+
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
 #. Available placeholders:
@@ -628,6 +640,10 @@ msgstr "GÜNCELLEME MEVCUT"
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
+
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Mullvad VPN hizmetinin izni iptal edildi. Lütfen Sistem Ayarları'na giderek \"Arka Planda İzin Ver\" seçeneğinden Mullvad VPN'e izin verin."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -778,8 +794,12 @@ msgid "Disconnected and unsecure"
 msgstr "Bağlantı kesildi ve güvenli değil"
 
 msgctxt "notifications"
-msgid "No servers in your selected location match your settings."
-msgstr "Seçtiğiniz konumdaki hiçbir sunucu ayarlarınızla eşleşmiyor."
+msgid "Lockdown mode active, connection blocked"
+msgstr "Kilitleme modu etkin, bağlantı engellendi"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin."
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -794,8 +814,8 @@ msgid "Unable to apply firewall rules."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor."
 
 msgctxt "notifications"
-msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
-msgstr "Güvenlik duvarı kuralları uygulanamıyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin."
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Üçüncü taraf antivirüs veya güvenlik yazılımını geçici olarak devre dışı bırakmayı deneyin."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules. Try updating your kernel."
@@ -806,8 +826,8 @@ msgid "Unable to block all network traffic. Please troubleshoot or send a proble
 msgstr "Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
-msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or send a problem report."
-msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını devre dışı bırakmayı deneyin ya da bir hata raporu gönderin."
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güvenlik yazılımını geçici olarak devre dışı bırakmayı deneyin ya da bir hata raporu gönderin."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
@@ -1093,12 +1113,12 @@ msgstr "Lütfen bir hata raporu gönderin."
 
 #. This error message is shown if the user tries to launch an app that
 #. doesn't exist.
-#. This error message is shown if an application failes during startup.
+#. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Lütfen tekrar deneyin veya bir hata raporu gönderin."
 
-#. Error message showed in a dialog when an application failes to launch.
+#. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Başlatma seçenekleri kullanılamıyor %(detailedErrorMessage)s"
@@ -1139,10 +1159,6 @@ msgctxt "support-view"
 msgid "If you exit the form and try again later, the information you already entered will still be here."
 msgstr "Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır."
 
-msgctxt "support-view"
-msgid "Please describe your problem in English or Swedish."
-msgstr "Lütfen sorununuzu İngilizce veya Türkçe olarak tanımlayın."
-
 #. Title label in navigation bar
 #. Navigation button to the 'Report a problem' help view
 msgctxt "support-view"
@@ -1177,6 +1193,10 @@ msgstr "Teşekkürler!"
 msgctxt "support-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Beta sürümde bu seçenek kullanılamaz."
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin."
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -1229,6 +1249,46 @@ msgstr "Bağlandı. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Bağlanılıyor. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Bu adımlar işe yaramazsa lütfen bir hata raporu gönderin."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "NFtables desteğinizin olduğundan emin olun."
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Bu hata, Mullvad dışındaki bir yazılımın DNS'yi aktif olarak güncellemesi sırasında ortaya çıkabilir."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Bu durum, güncel olmayan bir çekirdekten kaynaklanabilir."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Yeniden bağlanmayı deneyin."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Cihazınızı yeniden başlatmayı deneyin."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "FaceTime uygulama ayarlarından Wi-Fi Aramasını kapatmayı deneyin ve Mac'i yeniden başlatın."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Diğer DNS, ağ iletişimi ve reklamları/web sitesi engelleme uygulamalarını kaldırın veya devre dışı bırakın."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Çekirdeğinizi güncelleyin."
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
@@ -1309,10 +1369,6 @@ msgid "Adult content"
 msgstr "Yetişkinlere özel içerik"
 
 msgctxt "vpn-settings-view"
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Dikkat: Bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
 
@@ -1378,6 +1434,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Trafiğinizi bir %(wireguard)s sunucusundan diğerine yönlendirerek gizliliği artırır ve izlemeyi zorlaştırır."
 
 msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:"
+
+msgctxt "vpn-settings-view"
 msgid "Kill switch"
 msgstr "Kill switch"
 
@@ -1424,6 +1484,10 @@ msgstr "Eklemek istediğiniz DNS sunucusu herkese açıktır ve yalnızca %(wire
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Bu dahili özellik, ağ bağlantınız aniden kesilirse veya tünelle ilgili bir sorun meydana gelirse ağ trafiğinizin VPN tünelinin dışına sızmasını önler ve bağlantınız yeniden kurulana kadar ağ trafiğinizi engeller."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir."
 
 msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and programs."
@@ -1477,6 +1541,10 @@ msgid "IP version"
 msgstr "IP sürümü"
 
 msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır."
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr "MTU"
 
@@ -1495,6 +1563,13 @@ msgstr "Açık (TCP üzerinden UDP)"
 msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Kuantuma dayanıklı tünel"
 
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
@@ -1521,15 +1596,16 @@ msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Bu, sadece IPv6'yı destekleyen cihazlarda %(wireguard)s için erişim izni sağlar."
 
 msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir."
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "TCP üzerinden UDP portu"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
-
-msgid "Account authentication failed."
-msgstr "Hesap kimlik doğrulaması başarısız oldu."
 
 msgid "Account credit expires in a few minutes"
 msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
@@ -1540,11 +1616,20 @@ msgstr "Hesap kredisinin süresi yakında doluyor"
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
 
+msgid "Add DNS server"
+msgstr "DNS sunucusu ekle"
+
 msgid "Advanced"
 msgstr "Gelişmiş"
 
+msgid "Agree and continue"
+msgstr "Kabul et ve devam et"
+
 msgid "All applications"
 msgstr "Tüm uygulamalar"
+
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir."
 
 msgid "Always-on VPN assigned to other app"
 msgstr "Her zaman açık VPN başka bir uygulamaya atandı"
@@ -1552,17 +1637,15 @@ msgstr "Her zaman açık VPN başka bir uygulamaya atandı"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 
-msgid "Blocking all connections"
-msgstr "Tüm bağlantılar engelleniyor"
+msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Blocking internet (device offline)"
+msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad hesap numarası panoya kopyalandı"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
-
-msgid "Could not configure IPv6"
-msgstr "IPv6 yapılandırılamadı"
 
 msgid "Critical error (your attention is required)"
 msgstr "Kritik hata (Lütfen dikkatli olun)"
@@ -1573,26 +1656,14 @@ msgstr "Özel DNS sunucu adresleri (%s) geçersiz"
 msgid "Enable"
 msgstr "Etkinleştir"
 
+msgid "Enter MTU"
+msgstr "MTU'yu girin"
+
 msgid "Excluded applications"
 msgstr "Hariç tutulan uygulamalar"
 
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin."
-
 msgid "Failed to fetch list of devices"
 msgstr "Cihaz listesi alınamadı"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Özel sunucu ana bilgisayar adı çözülemiyor"
-
-msgid "Failed to set system DNS server"
-msgstr "Sistem DNS sunucusu ayarlanamıyor"
-
-msgid "Failed to start tunnel connection"
-msgstr "Tünel bağlantısı başlatılamıyor"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Giriş yapmak bu cihazdaki internet engelini kaldıracaktır."
@@ -1603,17 +1674,24 @@ msgstr "Güncel kalmak için Mullvad VPN (%s) yükleyin"
 msgid "Mullvad account number"
 msgstr "Mullvad hesap numarası"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Geçerli ayarlarla eşleşen hiçbir köprü aktarma sunucusu yok"
-
-msgid "No relay server matches the current settings"
-msgstr "Geçerli ayarlarla eşleşen aktarma sunucusu yok"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Lütfen sorununuzu İngilizce veya İsveççe olarak açıklayın."
 
 msgid "Preferences"
 msgstr "Tercihler"
 
+msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
+msgid "Privacy"
+msgstr "Gizlilik"
+
 msgid "Privacy policy"
 msgstr "Gizlilik politikası"
+
+msgid "Remove"
+msgstr "Kaldır"
+
+msgid "Reset to default"
+msgstr "Varsayılana sıfırla"
 
 msgid "Secured"
 msgstr "Güvenli"
@@ -1633,20 +1711,32 @@ msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları g�
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar."
 
+msgid "Submit"
+msgstr "Gönder"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz."
 
-msgid "This device is offline, no tunnels can be established"
-msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
+msgid "This address has already been entered."
+msgstr "Bu adres zaten girilmiş."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.\\n\\nUygulama, bölünmüş tünel oluşturma özelliği kullanılıyorsa yüklü tüm uygulamaların listesini çıkarmak için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünel görünümünde alınabilir. Cihazdaki yüklü uygulamaların listesi asla gönderilmez."
 
 msgid "Toggle VPN"
 msgstr "VPN'i aç/kapat"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce lütfen Her zaman açık VPN'i <b>%s</b> için devre dışı bırakın."
 
 msgid "Unsecured"
 msgstr "Güvenli değil"
+
+msgid "Update DNS server"
+msgstr "DNS sunucusunu güncelle"
 
 msgid "Update available, download to remain safe."
 msgstr "Güncelleme mevcut, güvende kalmak için güncellemeyi indirin."
@@ -1677,9 +1767,6 @@ msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
 
 msgid "You are running an unsupported app version."
 msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi korumak için lütfen hemen %s sürümüne yükseltin"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
