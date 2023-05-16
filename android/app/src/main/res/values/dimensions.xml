@@ -2,7 +2,6 @@
     <dimen name="country_row_padding">18dp</dimen>
     <dimen name="city_row_padding">34dp</dimen>
     <dimen name="relay_row_padding">50dp</dimen>
-    <dimen name="list_item_divider">1dp</dimen>
     <dimen name="dialog_margin">14dp</dimen>
     <dimen name="account_login_input_height">48dp</dimen>
     <dimen name="account_login_corner_radius">4dp</dimen>
