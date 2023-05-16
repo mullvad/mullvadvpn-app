@@ -418,7 +418,7 @@ impl RouteManagerImpl {
     async fn apply_tunnel_default_route(&mut self) -> Result<()> {
         // As long as the relay route has a way of reaching the internet, we'll want to add a tunnel
         // route for both IPv4 and IPv6.
-        // FIXME: This is incorrect. We're assuming that any "default destination" is used for
+        // NOTE: This is incorrect. We're assuming that any "default destination" is used for
         // tunneling.
         let (v4_conn, v6_conn) = self
             .default_destinations
