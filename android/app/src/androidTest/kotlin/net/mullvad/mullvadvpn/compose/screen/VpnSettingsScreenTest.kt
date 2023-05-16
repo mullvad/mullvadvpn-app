@@ -17,7 +17,7 @@ import io.mockk.verify
 import io.mockk.verifyAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -26,7 +26,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class AdvancedSettingsScreenTest {
+class VpnSettingsScreenTest {
     @get:Rule val composeTestRule = createComposeRule()
 
     @Before
@@ -39,8 +39,8 @@ class AdvancedSettingsScreenTest {
     fun testDefaultState() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -60,8 +60,8 @@ class AdvancedSettingsScreenTest {
     fun testMtuCustomValue() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(mtu = VALID_DUMMY_MTU_VALUE),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(mtu = VALID_DUMMY_MTU_VALUE),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -76,8 +76,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(),
                 onMtuCellClick = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -95,8 +95,8 @@ class AdvancedSettingsScreenTest {
     fun testMtuDialogWithDefaultValue() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -110,9 +110,9 @@ class AdvancedSettingsScreenTest {
     fun testMtuDialogWithEditValue() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
+                    VpnSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -127,8 +127,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedInputHandler: (String) -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
                 onMtuInputChange = mockedInputHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -147,9 +147,9 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedSubmitHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
+                    VpnSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
                 onSaveMtuClick = mockedSubmitHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -167,9 +167,9 @@ class AdvancedSettingsScreenTest {
     fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.MtuDialogUiState(
+                    VpnSettingsUiState.MtuDialogUiState(
                         mtuEditValue = INVALID_DUMMY_MTU_VALUE
                     ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
@@ -186,8 +186,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
                 onRestoreMtuClick = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -206,8 +206,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
                 onCancelMtuDialogClicked = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -226,8 +226,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(),
                 onSplitTunnelingNavigationClick = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -245,9 +245,9 @@ class AdvancedSettingsScreenTest {
     fun testCustomDnsAddressesAndAddButtonVisibleWhenCustomDnsEnabled() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = false,
                         customDnsItems =
@@ -277,9 +277,9 @@ class AdvancedSettingsScreenTest {
     fun testCustomDnsAddressesAndAddButtonNotVisibleWhenCustomDnsDisabled() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = false,
                         customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false))
                     ),
@@ -299,9 +299,9 @@ class AdvancedSettingsScreenTest {
     fun testLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressIsUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = true,
                         customDnsItems =
@@ -320,9 +320,9 @@ class AdvancedSettingsScreenTest {
     fun testLanWarningNotShowedWhenLanTrafficDisabledAndLocalAddressIsNotUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = false,
                         customDnsItems =
@@ -341,9 +341,9 @@ class AdvancedSettingsScreenTest {
     fun testLanWarningNotShowedWhenLanTrafficEnabledAndLocalAddressIsNotUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = true,
                         customDnsItems =
@@ -362,9 +362,9 @@ class AdvancedSettingsScreenTest {
     fun testLanWarningShowedWhenAllowLanEnabledAndLocalDnsAddressIsUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DefaultUiState(
+                    VpnSettingsUiState.DefaultUiState(
                         isCustomDnsEnabled = true,
                         isAllowLanEnabled = false,
                         customDnsItems =
@@ -386,8 +386,8 @@ class AdvancedSettingsScreenTest {
         // Arrange
         val mockedClickHandler: (Int?) -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
-            AdvancedSettingScreen(
-                uiState = AdvancedSettingsUiState.DefaultUiState(isCustomDnsEnabled = true),
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(isCustomDnsEnabled = true),
                 onDnsClick = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
@@ -408,9 +408,9 @@ class AdvancedSettingsScreenTest {
     fun testShowDnsDialogForNewDnsServer() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false)
@@ -429,9 +429,9 @@ class AdvancedSettingsScreenTest {
     fun testShowDnsDialogForUpdatingDnsServer() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.EditDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
@@ -451,9 +451,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogLanWarningShownWhenLanTrafficDisabledAndLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
@@ -474,9 +474,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
@@ -497,9 +497,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndNonLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
@@ -520,9 +520,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficDisabledAndNonLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
@@ -543,9 +543,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
@@ -565,9 +565,9 @@ class AdvancedSettingsScreenTest {
     fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() {
         // Arrange
         composeTestRule.setContent {
-            AdvancedSettingScreen(
+            VpnSettingsScreen(
                 uiState =
-                    AdvancedSettingsUiState.DnsDialogUiState(
+                    VpnSettingsUiState.DnsDialogUiState(
                         stagedDns =
                             StagedDns.NewDns(
                                 item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),

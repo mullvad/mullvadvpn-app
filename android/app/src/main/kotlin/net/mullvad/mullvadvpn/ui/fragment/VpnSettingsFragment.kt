@@ -8,13 +8,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.screen.AdvancedSettingScreen
+import net.mullvad.mullvadvpn.compose.screen.VpnSettingsScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingsViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AdvancedFragment : BaseFragment() {
-    private val vm by viewModel<AdvancedSettingsViewModel>()
+class VpnSettingsFragment : BaseFragment() {
+    private val vm by viewModel<VpnSettingsViewModel>()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
@@ -26,7 +26,7 @@ class AdvancedFragment : BaseFragment() {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
-                    AdvancedSettingScreen(
+                    VpnSettingsScreen(
                         uiState = state,
                         onMtuCellClick = vm::onMtuCellClick,
                         onMtuInputChange = vm::onMtuInputChange,

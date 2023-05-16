@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 
-sealed interface AdvancedSettingsUiState {
+sealed interface VpnSettingsUiState {
     val mtu: String
     val isAutoConnectEnabled: Boolean
     val isLocalNetworkSharingEnabled: Boolean
@@ -24,7 +24,7 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class MtuDialogUiState(
         override val mtu: String = "",
@@ -36,7 +36,7 @@ sealed interface AdvancedSettingsUiState {
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         val mtuEditValue: String,
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class DnsDialogUiState(
         override val mtu: String = "",
@@ -48,7 +48,7 @@ sealed interface AdvancedSettingsUiState {
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         val stagedDns: StagedDns,
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class LocalNetworkSharingInfoDialogUiState(
         override val mtu: String = "",
@@ -59,7 +59,7 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class ContentBlockersInfoDialogUiState(
         override val mtu: String = "",
@@ -70,7 +70,7 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class CustomDnsInfoDialogUiState(
         override val mtu: String = "",
@@ -81,7 +81,7 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class MalwareInfoDialogUiState(
         override val mtu: String = "",
@@ -92,7 +92,7 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 
     data class ObfuscationInfoDialogUiState(
         override val mtu: String = "",
@@ -103,5 +103,5 @@ sealed interface AdvancedSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off
-    ) : AdvancedSettingsUiState
+    ) : VpnSettingsUiState
 }

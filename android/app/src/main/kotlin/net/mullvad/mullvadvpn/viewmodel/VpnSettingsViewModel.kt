@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
 
-class AdvancedSettingsViewModel(
+class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
     private val resources: Resources,
@@ -40,11 +40,11 @@ class AdvancedSettingsViewModel(
     val toastMessages = _toastMessages.asSharedFlow()
 
     private val dialogState =
-        MutableStateFlow<AdvancedSettingsDialogState>(AdvancedSettingsDialogState.NoDialog)
+        MutableStateFlow<VpnSettingsDialogState>(VpnSettingsDialogState.NoDialog)
 
     private val vmState =
         combine(repository.settingsUpdates, dialogState) { settings, dialogState ->
-                AdvancedSettingsViewModelState(
+                VpnSettingsViewModelState(
                     mtuValue = settings?.mtuString() ?: "",
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
@@ -61,29 +61,29 @@ class AdvancedSettingsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AdvancedSettingsViewModelState.default()
+                VpnSettingsViewModelState.default()
             )
 
     val uiState =
         vmState
-            .map(AdvancedSettingsViewModelState::toUiState)
+            .map(VpnSettingsViewModelState::toUiState)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AdvancedSettingsUiState.DefaultUiState()
+                VpnSettingsUiState.DefaultUiState()
             )
 
     fun onMtuCellClick() {
-        dialogState.update { AdvancedSettingsDialogState.MtuDialog(vmState.value.mtuValue) }
+        dialogState.update { VpnSettingsDialogState.MtuDialog(vmState.value.mtuValue) }
     }
 
     fun onMtuInputChange(value: String) {
-        dialogState.update { AdvancedSettingsDialogState.MtuDialog(value) }
+        dialogState.update { VpnSettingsDialogState.MtuDialog(value) }
     }
 
     fun onSaveMtuClick() =
         viewModelScope.launch(dispatcher) {
-            val dialog = dialogState.value as? AdvancedSettingsDialogState.MtuDialog
+            val dialog = dialogState.value as? VpnSettingsDialogState.MtuDialog
             dialog
                 ?.mtuEditValue
                 ?.toIntOrNull()
@@ -103,19 +103,19 @@ class AdvancedSettingsViewModel(
     }
 
     fun onLocalNetworkSharingInfoClick() {
-        dialogState.update { AdvancedSettingsDialogState.LocalNetworkSharingInfoDialog }
+        dialogState.update { VpnSettingsDialogState.LocalNetworkSharingInfoDialog }
     }
 
     fun onContentsBlockerInfoClick() {
-        dialogState.update { AdvancedSettingsDialogState.ContentBlockersInfoDialog }
+        dialogState.update { VpnSettingsDialogState.ContentBlockersInfoDialog }
     }
 
     fun onCustomDnsInfoClick() {
-        dialogState.update { AdvancedSettingsDialogState.CustomDnsInfoDialog }
+        dialogState.update { VpnSettingsDialogState.CustomDnsInfoDialog }
     }
 
     fun onMalwareInfoClick() {
-        dialogState.update { AdvancedSettingsDialogState.MalwareInfoDialog }
+        dialogState.update { VpnSettingsDialogState.MalwareInfoDialog }
     }
 
     fun onDismissInfoClick() {
@@ -136,13 +136,13 @@ class AdvancedSettingsViewModel(
             }
 
         if (stagedDns != null) {
-            dialogState.update { AdvancedSettingsDialogState.DnsDialog(stagedDns) }
+            dialogState.update { VpnSettingsDialogState.DnsDialog(stagedDns) }
         }
     }
 
     fun onDnsInputChange(ipAddress: String) {
         dialogState.update { state ->
-            val dialog = state as? AdvancedSettingsDialogState.DnsDialog ?: return
+            val dialog = state as? VpnSettingsDialogState.DnsDialog ?: return
 
             val error =
                 when {
@@ -155,7 +155,7 @@ class AdvancedSettingsViewModel(
                     else -> StagedDns.ValidationResult.Success
                 }
 
-            return@update AdvancedSettingsDialogState.DnsDialog(
+            return@update VpnSettingsDialogState.DnsDialog(
                 stagedDns =
                     if (dialog.stagedDns is StagedDns.EditDns) {
                         StagedDns.EditDns(
@@ -184,7 +184,7 @@ class AdvancedSettingsViewModel(
     fun onSaveDnsClick() =
         viewModelScope.launch(dispatcher) {
             val dialog =
-                vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog ?: return@launch
+                vmState.value.dialogState as? VpnSettingsDialogState.DnsDialog ?: return@launch
 
             if (dialog.stagedDns.isValid().not()) return@launch
 
@@ -267,7 +267,7 @@ class AdvancedSettingsViewModel(
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
             val dialog =
-                vmState.value.dialogState as? AdvancedSettingsDialogState.DnsDialog ?: return@launch
+                vmState.value.dialogState as? VpnSettingsDialogState.DnsDialog ?: return@launch
 
             val updatedList =
                 vmState.value.customDnsList
@@ -302,7 +302,7 @@ class AdvancedSettingsViewModel(
     }
 
     fun onObfuscationInfoClicked() {
-        dialogState.update { AdvancedSettingsDialogState.ObfuscationInfoDialog }
+        dialogState.update { VpnSettingsDialogState.ObfuscationInfoDialog }
     }
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
@@ -315,7 +315,7 @@ class AdvancedSettingsViewModel(
         }
 
     private fun hideDialog() {
-        dialogState.update { AdvancedSettingsDialogState.NoDialog }
+        dialogState.update { VpnSettingsDialogState.NoDialog }
     }
 
     private fun String.isDuplicateDns(stagedIndex: Int? = null): Boolean {

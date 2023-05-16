@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
-import net.mullvad.mullvadvpn.viewmodel.AdvancedSettingsViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -89,7 +89,7 @@ val uiModule = module {
     }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel {
-        AdvancedSettingsViewModel(
+        VpnSettingsViewModel(
             get(),
             get(),
             get(),

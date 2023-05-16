@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
-data class AdvancedSettingsViewModelState(
+data class VpnSettingsViewModelState(
     val mtuValue: String,
     val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
@@ -13,12 +13,12 @@ data class AdvancedSettingsViewModelState(
     val customDnsList: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
     val selectedObfuscation: SelectedObfuscation,
-    val dialogState: AdvancedSettingsDialogState
+    val dialogState: VpnSettingsDialogState
 ) {
-    fun toUiState(): AdvancedSettingsUiState {
+    fun toUiState(): VpnSettingsUiState {
         return when (dialogState) {
-            is AdvancedSettingsDialogState.MtuDialog ->
-                AdvancedSettingsUiState.MtuDialogUiState(
+            is VpnSettingsDialogState.MtuDialog ->
+                VpnSettingsUiState.MtuDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -29,8 +29,8 @@ data class AdvancedSettingsViewModelState(
                     mtuEditValue = dialogState.mtuEditValue,
                     selectedObfuscation = selectedObfuscation
                 )
-            is AdvancedSettingsDialogState.DnsDialog ->
-                AdvancedSettingsUiState.DnsDialogUiState(
+            is VpnSettingsDialogState.DnsDialog ->
+                VpnSettingsUiState.DnsDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -41,8 +41,8 @@ data class AdvancedSettingsViewModelState(
                     stagedDns = dialogState.stagedDns,
                     selectedObfuscation = selectedObfuscation
                 )
-            is AdvancedSettingsDialogState.LocalNetworkSharingInfoDialog ->
-                AdvancedSettingsUiState.LocalNetworkSharingInfoDialogUiState(
+            is VpnSettingsDialogState.LocalNetworkSharingInfoDialog ->
+                VpnSettingsUiState.LocalNetworkSharingInfoDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -51,8 +51,8 @@ data class AdvancedSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions
                 )
-            is AdvancedSettingsDialogState.ContentBlockersInfoDialog ->
-                AdvancedSettingsUiState.ContentBlockersInfoDialogUiState(
+            is VpnSettingsDialogState.ContentBlockersInfoDialog ->
+                VpnSettingsUiState.ContentBlockersInfoDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -62,8 +62,8 @@ data class AdvancedSettingsViewModelState(
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation
                 )
-            is AdvancedSettingsDialogState.CustomDnsInfoDialog ->
-                AdvancedSettingsUiState.CustomDnsInfoDialogUiState(
+            is VpnSettingsDialogState.CustomDnsInfoDialog ->
+                VpnSettingsUiState.CustomDnsInfoDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -72,8 +72,8 @@ data class AdvancedSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions
                 )
-            is AdvancedSettingsDialogState.MalwareInfoDialog ->
-                AdvancedSettingsUiState.MalwareInfoDialogUiState(
+            is VpnSettingsDialogState.MalwareInfoDialog ->
+                VpnSettingsUiState.MalwareInfoDialogUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -83,8 +83,8 @@ data class AdvancedSettingsViewModelState(
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation
                 )
-            is AdvancedSettingsDialogState.ObfuscationInfoDialog ->
-                AdvancedSettingsUiState.ObfuscationInfoDialogUiState(
+            is VpnSettingsDialogState.ObfuscationInfoDialog ->
+                VpnSettingsUiState.ObfuscationInfoDialogUiState(
                     mtu = mtuValue,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
@@ -93,7 +93,7 @@ data class AdvancedSettingsViewModelState(
                     selectedObfuscation = selectedObfuscation
                 )
             else ->
-                AdvancedSettingsUiState.DefaultUiState(
+                VpnSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
                     isAutoConnectEnabled = isAutoConnectEnabled,
                     isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
@@ -110,7 +110,7 @@ data class AdvancedSettingsViewModelState(
         private const val EMPTY_STRING = ""
 
         fun default() =
-            AdvancedSettingsViewModelState(
+            VpnSettingsViewModelState(
                 mtuValue = EMPTY_STRING,
                 isAutoConnectEnabled = false,
                 isLocalNetworkSharingEnabled = false,
@@ -118,28 +118,28 @@ data class AdvancedSettingsViewModelState(
                 customDnsList = listOf(),
                 contentBlockersOptions = DefaultDnsOptions(),
                 isAllowLanEnabled = false,
-                dialogState = AdvancedSettingsDialogState.NoDialog,
+                dialogState = VpnSettingsDialogState.NoDialog,
                 selectedObfuscation = SelectedObfuscation.Auto
             )
     }
 }
 
-sealed class AdvancedSettingsDialogState {
-    object NoDialog : AdvancedSettingsDialogState()
+sealed class VpnSettingsDialogState {
+    object NoDialog : VpnSettingsDialogState()
 
-    data class MtuDialog(val mtuEditValue: String) : AdvancedSettingsDialogState()
+    data class MtuDialog(val mtuEditValue: String) : VpnSettingsDialogState()
 
-    data class DnsDialog(val stagedDns: StagedDns) : AdvancedSettingsDialogState()
+    data class DnsDialog(val stagedDns: StagedDns) : VpnSettingsDialogState()
 
-    object LocalNetworkSharingInfoDialog : AdvancedSettingsDialogState()
+    object LocalNetworkSharingInfoDialog : VpnSettingsDialogState()
 
-    object ContentBlockersInfoDialog : AdvancedSettingsDialogState()
+    object ContentBlockersInfoDialog : VpnSettingsDialogState()
 
-    object CustomDnsInfoDialog : AdvancedSettingsDialogState()
+    object CustomDnsInfoDialog : VpnSettingsDialogState()
 
-    object MalwareInfoDialog : AdvancedSettingsDialogState()
+    object MalwareInfoDialog : VpnSettingsDialogState()
 
-    object ObfuscationInfoDialog : AdvancedSettingsDialogState()
+    object ObfuscationInfoDialog : VpnSettingsDialogState()
 }
 
 sealed interface StagedDns {

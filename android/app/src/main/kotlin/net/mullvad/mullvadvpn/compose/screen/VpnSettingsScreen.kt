@@ -64,7 +64,7 @@ import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
-import net.mullvad.mullvadvpn.compose.state.AdvancedSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
@@ -76,10 +76,10 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-private fun PreviewAdvancedSettings() {
-    AdvancedSettingScreen(
+private fun PreviewVpnSettings() {
+    VpnSettingsScreen(
         uiState =
-            AdvancedSettingsUiState.DefaultUiState(
+            VpnSettingsUiState.DefaultUiState(
                 isAutoConnectEnabled = true,
                 mtu = "1337",
                 isCustomDnsEnabled = true,
@@ -120,9 +120,9 @@ private fun PreviewAdvancedSettings() {
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
 @Composable
-fun AdvancedSettingScreen(
+fun VpnSettingsScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    uiState: AdvancedSettingsUiState,
+    uiState: VpnSettingsUiState,
     onMtuCellClick: () -> Unit = {},
     onMtuInputChange: (String) -> Unit = {},
     onSaveMtuClick: () -> Unit = {},
@@ -157,7 +157,7 @@ fun AdvancedSettingScreen(
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
 
     when (uiState) {
-        is AdvancedSettingsUiState.MtuDialogUiState -> {
+        is VpnSettingsUiState.MtuDialogUiState -> {
             MtuDialog(
                 mtuValue = uiState.mtuEditValue,
                 onMtuValueChanged = { onMtuInputChange(it) },
@@ -166,7 +166,7 @@ fun AdvancedSettingScreen(
                 onDismiss = { onCancelMtuDialogClicked() }
             )
         }
-        is AdvancedSettingsUiState.DnsDialogUiState -> {
+        is VpnSettingsUiState.DnsDialogUiState -> {
             DnsDialog(
                 stagedDns = uiState.stagedDns,
                 isAllowLanEnabled = uiState.isAllowLanEnabled,
@@ -176,19 +176,19 @@ fun AdvancedSettingScreen(
                 onDismiss = { onCancelDnsDialogClick() }
             )
         }
-        is AdvancedSettingsUiState.LocalNetworkSharingInfoDialogUiState -> {
+        is VpnSettingsUiState.LocalNetworkSharingInfoDialogUiState -> {
             LocalNetworkSharingInfoDialog(onDismissInfoClicked)
         }
-        is AdvancedSettingsUiState.ContentBlockersInfoDialogUiState -> {
+        is VpnSettingsUiState.ContentBlockersInfoDialogUiState -> {
             ContentBlockersInfoDialog(onDismissInfoClicked)
         }
-        is AdvancedSettingsUiState.CustomDnsInfoDialogUiState -> {
+        is VpnSettingsUiState.CustomDnsInfoDialogUiState -> {
             CustomDnsInfoDialog(onDismissInfoClicked)
         }
-        is AdvancedSettingsUiState.MalwareInfoDialogUiState -> {
+        is VpnSettingsUiState.MalwareInfoDialogUiState -> {
             MalwareInfoDialog(onDismissInfoClicked)
         }
-        is AdvancedSettingsUiState.ObfuscationInfoDialogUiState -> {
+        is VpnSettingsUiState.ObfuscationInfoDialogUiState -> {
             ObfuscationInfoDialog(onDismissInfoClicked)
         }
         else -> {
