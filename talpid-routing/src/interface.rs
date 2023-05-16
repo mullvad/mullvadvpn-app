@@ -28,10 +28,6 @@ pub async fn get_best_default_route(
     routing_table: &mut RoutingTable,
     family: Family,
 ) -> Option<RouteMessage> {
-    // TODO:
-    // for table w/o relay route, just add a tunnel default route always. only need one where the
-    // relay route is
-
     let destination = match family {
         Family::V4 => v4_default(),
         Family::V6 => v6_default(),
