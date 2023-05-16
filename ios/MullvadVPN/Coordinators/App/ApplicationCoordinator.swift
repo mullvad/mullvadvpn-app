@@ -708,9 +708,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-            let shouldHideDeviceInfo = previousDeviceState == .loggedOut
+            let showsDeviceInfo = previousDeviceState != .loggedOut
             updateOutOfTimeTimer(accountData: accountData)
-            updateView(deviceState: deviceState, showDeviceInfo: !shouldHideDeviceInfo)
+            updateView(deviceState: deviceState, showDeviceInfo: showsDeviceInfo)
 
             // Handle transition to and from expired state.
             let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
