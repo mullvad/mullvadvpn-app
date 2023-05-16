@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
 - Remove purchasing information from release builds. This does not affect F-Droid builds.
 - Migrate split tunneling view to compose.
+- Migrate select Location view to compose.
 
 ### Fixed
 #### Android

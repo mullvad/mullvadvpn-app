@@ -15,6 +15,11 @@ data class Dimensions(
     val cellLeftPadding: Dp = 22.dp,
     val cellRightPadding: Dp = 16.dp,
     val listIconSize: Dp = 24.dp,
+    val countryRowPadding: Dp = 18.dp,
+    val cityRowPadding: Dp = 34.dp,
+    val relayRowPadding: Dp = 50.dp,
+    val sideMargin: Dp = 22.dp,
+    val verticalSpace: Dp = 20.dp,
     val progressIndicatorSize: Dp = 60.dp
 )
 
