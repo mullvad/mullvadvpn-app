@@ -11,9 +11,7 @@ exec 2>&1 > $LOG_DIR/preinstall.log
 
 echo "Running preinstall at $(date)"
 
-# Notify the running daemon that we are going to kill it and replace it with a newer version.
-"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || \
-    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
+cp "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" "$TMPDIR/" || echo "Failed to copy mullvad-setup"
 
 # Migrate cache files from <=2020.8-beta2 paths
 OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
