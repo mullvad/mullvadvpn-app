@@ -52,7 +52,7 @@
                                                          app:layout_collapseMode="pin"
                                                          app:layout_collapseParallaxMultiplier="0"
                                                          app:layout_scrollFlags="enterAlwaysCollapsed|enterAlways"
-                                                         app:text="@string/settings_advanced" />
+                                                         app:text="@string/settings_vpn" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerView"

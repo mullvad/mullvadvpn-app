@@ -136,8 +136,8 @@
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
-    <string name="settings_advanced">Gelişmiş</string>
     <string name="settings_preferences">Tercihler</string>
+    <string name="settings_vpn">VPN ayarları</string>
     <string name="show_account_number">Hesap numarasını göster</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize imkan sağlar.</string>

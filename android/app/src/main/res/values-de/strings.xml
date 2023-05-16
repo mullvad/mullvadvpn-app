@@ -136,8 +136,8 @@
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
-    <string name="settings_advanced">Erweitert</string>
     <string name="settings_preferences">Präferenzen</string>
+    <string name="settings_vpn">VPN-Einstellungen</string>
     <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden.</string>

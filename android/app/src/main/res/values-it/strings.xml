@@ -136,8 +136,8 @@
     <string name="set_dns_error">Impossibile impostare il server DNS di sistema. Invia una segnalazione del problema.</string>
     <string name="settings">Impostazioni</string>
     <string name="settings_account">Account</string>
-    <string name="settings_advanced">Avanzate</string>
     <string name="settings_preferences">Preferenze</string>
+    <string name="settings_vpn">Impostazioni VPN</string>
     <string name="show_account_number">Mostra numero di account</string>
     <string name="show_system_apps">Mostra app di sistema</string>
     <string name="split_tunneling_description">Lo split tunneling consente di selezionare quali applicazioni non devono essere instradate attraverso il tunnel VPN.</string>
