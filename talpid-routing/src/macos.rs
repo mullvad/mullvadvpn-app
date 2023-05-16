@@ -356,7 +356,6 @@ impl RouteManagerImpl {
         let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
 
         // Ignore the new route if it is our tunnel route, lest we create a loop
-        // FIXME: might not be necessary? since no update will occur
         for tunnel_default_route in [&self.v4_tunnel_default_route, &self.v6_tunnel_default_route] {
             if let Some(tunnel_route) = tunnel_default_route.clone() {
                 let tun_gateway_link_addr =
