@@ -35,7 +35,6 @@ pub struct RoutingTable {
     socket: routing_socket::RoutingSocket,
 }
 
-// TODO: Ensure that route socket messages with error messages in them get returned as a result
 impl RoutingTable {
     pub fn new() -> Result<Self> {
         let socket = routing_socket::RoutingSocket::new().map_err(Error::RoutingSocket)?;
