@@ -18,7 +18,6 @@ pub struct RouteMessage {
 }
 
 impl RouteMessage {
-    // TODO: name seems too specific
     pub fn new_route(destination: Destination) -> Self {
         let mut route_flags = RouteFlag::RTF_STATIC | RouteFlag::RTF_DONE | RouteFlag::RTF_UP;
         let mut sockaddrs = BTreeMap::new();
