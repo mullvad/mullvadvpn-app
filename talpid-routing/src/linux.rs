@@ -898,14 +898,13 @@ impl NetworkInterface {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::collections::HashSet;
 
     /// Tests if dropping inside a tokio runtime panics
     #[test]
     fn test_drop_in_executor() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         runtime.block_on(async {
-            let manager = RouteManagerImpl::new(HashSet::new(), 0, 0)
+            let manager = RouteManagerImpl::new(0, 0)
                 .await
                 .expect("Failed to initialize route manager");
             std::mem::drop(manager);
@@ -917,7 +916,7 @@ mod test {
     fn test_drop() {
         let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         let manager = runtime.block_on(async {
-            RouteManagerImpl::new(HashSet::new(), 1000, 1000)
+            RouteManagerImpl::new(1000, 1000)
                 .await
                 .expect("Failed to initialize route manager")
         });
