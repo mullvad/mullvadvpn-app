@@ -48,6 +48,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
     private lateinit var vpnSettingsMenu: View
+    private lateinit var splitTunnelingMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
@@ -74,6 +75,11 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         vpnSettingsMenu =
             view.findViewById<NavigateCell>(R.id.vpn_settings).apply {
                 targetFragment = VpnSettingsFragment::class
+            }
+
+        splitTunnelingMenu =
+            view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
+                targetFragment = SplitTunnelingFragment::class
             }
 
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
@@ -180,6 +186,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
         accountMenu.visibility = visibility
         vpnSettingsMenu.visibility = visibility
+        splitTunnelingMenu.visibility = visibility
     }
 
     private fun updateVersionInfo(versionInfo: VersionInfo) {

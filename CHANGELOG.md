@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
   is turned off.
 - Add creation date below device name in the device list screen.
 - Changed `AdvancedSettings` page's name and title into `VPN Settings`.
+- Changed `SplitTunneling` menu location from `VPN Settings` to `Settings`.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a

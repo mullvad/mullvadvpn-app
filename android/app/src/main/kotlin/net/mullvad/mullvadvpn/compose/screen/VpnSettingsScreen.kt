@@ -50,7 +50,6 @@ import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
-import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchCellTitle
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
@@ -90,7 +89,6 @@ private fun PreviewVpnSettings() {
         onSaveMtuClick = {},
         onRestoreMtuClick = {},
         onCancelMtuDialogClicked = {},
-        onSplitTunnelingNavigationClick = {},
         onToggleAutoConnect = {},
         onToggleLocalNetworkSharing = {},
         onToggleDnsClick = {},
@@ -128,7 +126,6 @@ fun VpnSettingsScreen(
     onSaveMtuClick: () -> Unit = {},
     onRestoreMtuClick: () -> Unit = {},
     onCancelMtuDialogClicked: () -> Unit = {},
-    onSplitTunnelingNavigationClick: () -> Unit = {},
     onToggleAutoConnect: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
@@ -272,13 +269,6 @@ fun VpnSettingsScreen(
             item {
                 Spacer(modifier = Modifier.height(cellVerticalSpacing))
                 MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
-            }
-
-            itemWithDivider {
-                NavigationComposeCell(
-                    title = stringResource(id = R.string.split_tunneling),
-                    onClick = { onSplitTunnelingNavigationClick.invoke() }
-                )
             }
 
             itemWithDivider {

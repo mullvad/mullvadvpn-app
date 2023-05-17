@@ -49,7 +49,6 @@ class VpnSettingsScreenTest {
         composeTestRule.apply {
             onNodeWithText("WireGuard MTU").assertExists()
             onNodeWithText("Default").assertExists()
-            onNodeWithText("Split tunneling").assertExists()
             onNodeWithText("Use custom DNS server").assertExists()
             onNodeWithText("Add a server").assertDoesNotExist()
         }
@@ -211,26 +210,6 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule.onNodeWithText("Cancel").performClick()
-
-        // Assert
-        verify { mockedClickHandler.invoke() }
-    }
-
-    @Test
-    @OptIn(ExperimentalMaterialApi::class)
-    fun testClickSplitTunneling() {
-        // Arrange
-        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
-            VpnSettingsScreen(
-                uiState = VpnSettingsUiState.DefaultUiState(),
-                onSplitTunnelingNavigationClick = mockedClickHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
-            )
-        }
-
-        // Act
-        composeTestRule.onNodeWithText("Split tunneling").performClick()
 
         // Assert
         verify { mockedClickHandler.invoke() }
