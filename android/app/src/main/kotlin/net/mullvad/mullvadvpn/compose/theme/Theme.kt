@@ -25,7 +25,19 @@ private val MullvadTypography =
                 fontSize = TypeScale.TextBig,
                 fontWeight = FontWeight.Bold
             ),
-        bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall)
+        bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall),
+        titleMedium =
+            TextStyle(
+                color = MullvadWhite,
+                fontSize = TypeScale.TextMediumPlus,
+                fontWeight = FontWeight.SemiBold
+            ),
+        labelMedium =
+            TextStyle(
+                color = MullvadWhite60,
+                fontSize = TypeScale.TextSmall,
+                fontWeight = FontWeight.SemiBold
+            )
     )
 
 private val MullvadColorPalette =
@@ -33,6 +45,9 @@ private val MullvadColorPalette =
         primary = MullvadBlue,
         secondary = MullvadDarkBlue,
         tertiary = MullvadRed,
+        background = MullvadDarkBlue,
+        onBackground = MullvadWhite,
+        primaryContainer = MullvadBlue40,
         onSurfaceVariant = MullvadWhite,
         onPrimary = MullvadWhite
     )
