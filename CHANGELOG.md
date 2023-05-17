@@ -55,6 +55,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix content blockers expand state not being kept when returning from split tunneling.
 - Fix connection header flickering.
 
+#### macOS
+- Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
+
 
 ## [2023.4-beta1] - 2023-05-02
 ### Added
