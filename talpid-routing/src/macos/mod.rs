@@ -252,25 +252,11 @@ impl RouteManagerImpl {
                     }
                 }
 
-                // We're ignoring default route removals. We instead add back the tunnel route
-                // when a default route is added.
-                match route.is_default().map_err(Error::InvalidData) {
-                    Ok(true) => {
-                        log::trace!("A default route was removed: {route:?}");
-
-                        // TODO: may need to add back tunnel route if it does not exist
-
-                        if let Err(error) = self.handle_route_change(route).await {
-                            log::error!("Failed to process route change: {error}");
-                        }
-                    }
-                    Ok(false) => (),
-                    Err(error) => {
-                        log::error!("Failed to check whether route is default route: {error}");
-                    }
+                // TODO: may need to add back tunnel route if it does not exist
+                if let Err(error) = self.handle_route_change(route).await {
+                    log::error!("Failed to process route change: {error}");
                 }
             }
-
             Ok(RouteSocketMessage::AddRoute(route))
             | Ok(RouteSocketMessage::ChangeRoute(route)) => {
                 // Refresh routes that are using the default interface
