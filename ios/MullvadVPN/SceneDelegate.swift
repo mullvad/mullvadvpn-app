@@ -69,7 +69,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         )
 
         appCoordinator?.onShowSettings = { [weak self] in
-            // Refresh account data each time user opens settings
+            // Refresh account data and device each time user opens settings
+            self?.refreshDeviceAndAccountData(forceUpdate: true)
+        }
+
+        appCoordinator?.onShowAccount = { [weak self] in
+            // Refresh account data and device each time user opens account controller
             self?.refreshDeviceAndAccountData(forceUpdate: true)
         }
 
@@ -102,13 +107,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
 
     private func refreshDeviceAndAccountData(forceUpdate: Bool) {
         let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
+        let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
 
         let condition: AccountDataThrottling.Condition
 
         if forceUpdate {
             condition = .always
         } else {
-            condition = isPresentingSettings ? .always : .whenCloseToExpiryAndBeyond
+            condition = isPresentingSettings || isPresentingAccount ? .always : .whenCloseToExpiryAndBeyond
         }
 
         accountDataThrottling?.requestUpdate(condition: condition)
