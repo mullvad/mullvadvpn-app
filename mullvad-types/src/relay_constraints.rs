@@ -588,6 +588,7 @@ pub enum SelectedObfuscation {
     Auto,
     #[default]
     Off,
+    #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
 }
 
