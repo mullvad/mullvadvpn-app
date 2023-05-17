@@ -100,10 +100,10 @@ impl ShadowsocksRuntime {
 
         std::thread::spawn(move || {
             runtime.spawn(async move {
-                match Server::new(config).await {
+                match Server::create(config).await {
                     Ok(server) => {
                         let _ = startup_done_tx.send(Ok(()));
-                        let _ = server.run().await;
+                        let _ = server.wait_until_exit().await;
                     }
                     Err(err) => {
                         let _ = startup_done_tx.send(Err(err));

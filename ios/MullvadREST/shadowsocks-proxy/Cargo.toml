@@ -11,7 +11,7 @@ bench = false
 
 [dependencies]
 shadowsocks-service.git = "https://github.com/mullvad/shadowsocks-rust"
-shadowsocks-service.rev = "8365bc190f12bda10397584be8b786ffcaf90aeb"
+shadowsocks-service.rev = "8f6afd081a9440fff2dda565908eddc27a3295f1"
 shadowsocks-service.features = [ "local", "stream-cipher", "local-http", "local-tunnel" ]
 
 tokio = "1"
