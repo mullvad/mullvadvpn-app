@@ -44,7 +44,8 @@ allow = [
     "BSD-2-Clause",
     # https://github.com/briansmith/ring/issues/902
     "LicenseRef-ring",
-    "Unicode-DFS-2016"
+    "Unicode-DFS-2016",
+    "CC0-1.0",
 ]
 
 deny = []
