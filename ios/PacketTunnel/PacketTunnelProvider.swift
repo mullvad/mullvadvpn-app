@@ -708,9 +708,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             devicesProxy: devicesProxy,
             shouldImmediatelyRotateKeyOnMismatch: shouldImmediatelyRotateKeyOnMismatch
         ) { checkResult in
-            if checkResult.deviceCheck?.isInvalidAccount == .some(true) ||
-                checkResult.deviceCheck?.isRevokedDevice == .some(true)
-            {
+            if checkResult.deviceCheck?.isAccountInvalid == true || checkResult.deviceCheck?.isDeviceRevoked == true {
                 // Stop tunnel monitor when device is revoked or account is invalid.
                 self.tunnelMonitor.stop()
             } else if checkResult.isKeyRotated {
