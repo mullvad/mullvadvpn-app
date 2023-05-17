@@ -1,14 +1,19 @@
 [package]
 name = "shadowsocks-proxy"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
+license = "GPL-3.0"
+publish = false
 
 [lib]
 crate-type = [ "rlib", "staticlib" ]
 bench = false
 
 [dependencies]
-shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "8365bc190f12bda10397584be8b786ffcaf90aeb",  features = [ "local", "stream-cipher", "local-http", "local-tunnel" ] }
+shadowsocks-service.git = "https://github.com/mullvad/shadowsocks-rust"
+shadowsocks-service.rev = "8365bc190f12bda10397584be8b786ffcaf90aeb"
+shadowsocks-service.features = [ "local", "stream-cipher", "local-http", "local-tunnel" ]
+
 tokio = "1"
 libc = "0.2"
 log = "0.4"
