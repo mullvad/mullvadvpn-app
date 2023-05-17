@@ -655,15 +655,9 @@ final class TunnelManager: StorePaymentObserver {
     private func handleDeviceCheck(_ deviceCheck: DeviceCheck) {
         // Packet tunnel may have attempted or rotated the key.
         // In that case we have to reload device state from Keychain as it's likely modified by packet tunnel.
-        var shouldRefreshDeviceState = false
-
         if lastDeviceCheck?.lastKeyRotationAttemptDate != deviceCheck.lastKeyRotationAttemptDate,
            deviceCheck.lastKeyRotationAttemptDate != nil
         {
-            shouldRefreshDeviceState = true
-        }
-
-        if shouldRefreshDeviceState {
             refreshDeviceState()
         }
 
