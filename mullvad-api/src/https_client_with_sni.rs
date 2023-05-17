@@ -16,8 +16,9 @@ use hyper::{
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
+    crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
-    ServerConfig, crypto::CipherKind,
+    ServerConfig,
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};

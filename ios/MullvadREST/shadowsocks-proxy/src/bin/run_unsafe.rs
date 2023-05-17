@@ -43,9 +43,7 @@ fn main() {
     println!("Running proxy on port {}", ctx.port);
     let _ = std::io::stdin().read_line(&mut String::new());
     println!("Stopping proxy");
-    let retval = unsafe {
-        shadowsocks_proxy::stop_shadowsocks_proxy(&mut ctx as *mut _)
-    };
+    let retval = unsafe { shadowsocks_proxy::stop_shadowsocks_proxy(&mut ctx as *mut _) };
     if retval != 0 {
         println!("Failed to stop proxy");
     }
