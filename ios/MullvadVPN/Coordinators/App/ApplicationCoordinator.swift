@@ -705,12 +705,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
         splitViewController.preferredDisplayMode = deviceState.splitViewMode
+        updateView(
+            deviceState: deviceState,
+            showDeviceInfo: shouldShowDeviceInfo(deviceState, previousDeviceState: previousDeviceState)
+        )
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-            let shouldHideDeviceInfo = previousDeviceState == .loggedOut
             updateOutOfTimeTimer(accountData: accountData)
-            updateView(deviceState: deviceState, showDeviceInfo: !shouldHideDeviceInfo)
 
             // Handle transition to and from expired state.
             let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
@@ -729,12 +731,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
-            updateView(deviceState: deviceState, showDeviceInfo: false)
 
         case .loggedOut:
             cancelOutOfTimeTimer()
-            updateView(deviceState: deviceState, showDeviceInfo: false)
         }
+    }
+
+    private func shouldShowDeviceInfo(_ deviceState: DeviceState, previousDeviceState: DeviceState) -> Bool {
+        if previousDeviceState == .loggedOut,
+           case .loggedIn = deviceState
+        {
+            return false
+
+        } else if case .loggedIn = previousDeviceState,
+                  deviceState == .loggedOut || deviceState == .revoked
+        {
+            return false
+        }
+        return true
     }
 
     private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
