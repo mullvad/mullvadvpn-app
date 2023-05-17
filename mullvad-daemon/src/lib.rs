@@ -926,10 +926,16 @@ where
         &mut self,
         tunnel_state_transition: &TunnelStateTransition,
     ) {
+        let svc = self.api_handle.service();
         match (&self.tunnel_state, &tunnel_state_transition) {
-            // Only reset the API sockets when entering or leaving the connected state
-            (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
-                self.api_handle.service().reset();
+            // Close API sockets when entering or leaving the connected state
+            (&TunnelState::Connected { .. }, _) => {
+                svc.force_direct_mode(false);
+                svc.reset();
+            }
+            (_, &TunnelStateTransition::Connected(_)) => {
+                svc.force_direct_mode(true);
+                svc.reset();
             }
             _ => (),
         };

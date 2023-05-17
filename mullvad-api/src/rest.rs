@@ -125,6 +125,7 @@ pub(crate) struct RequestService<
     new_address_callback: F,
     address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
+    force_direct_connection_mode: bool,
 }
 
 impl<
@@ -149,11 +150,11 @@ impl<
         );
 
         #[cfg(feature = "api-override")]
-        let force_direct_connection = API.force_direct_connection;
+        let force_direct_connection_mode = API.force_direct_connection;
         #[cfg(not(feature = "api-override"))]
-        let force_direct_connection = false;
+        let force_direct_connection_mode = false;
 
-        if force_direct_connection {
+        if force_direct_connection_mode {
             log::debug!("API proxies are disabled");
         } else if let Some(config) = proxy_config_provider.next().await {
             connector_handle.set_connection_mode(config);
@@ -173,6 +174,7 @@ impl<
             new_address_callback,
             address_cache,
             api_availability,
+            force_direct_connection_mode,
         };
         let handle = RequestServiceHandle { tx: command_tx };
         tokio::spawn(service.into_future());
@@ -207,7 +209,7 @@ impl<
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                             if let Some(tx) = tx {
-                                let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
+                                let _ = tx.unbounded_send(RequestCommand::UseNextConnectionMode);
                             }
                         }
                     }
@@ -223,24 +225,46 @@ impl<
             RequestCommand::Reset => {
                 self.connector_handle.reset();
             }
-            RequestCommand::NextApiConfig => {
-                #[cfg(feature = "api-override")]
-                if API.force_direct_connection {
-                    log::debug!("Ignoring API connection mode");
+            RequestCommand::ForceDirectConnectionMode(enabled) => {
+                if self.force_direct_connection_mode == enabled {
                     return;
                 }
-
-                if let Some(new_config) = self.proxy_config_provider.next().await {
-                    let endpoint = match new_config.get_endpoint() {
-                        Some(endpoint) => endpoint,
-                        None => self.address_cache.get_address().await,
-                    };
-                    // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(endpoint).await {
-                        self.connector_handle.set_connection_mode(new_config);
-                    }
-                }
+                self.force_direct_connection_mode = enabled;
+                self.use_next_connection_mode().await;
             }
+            RequestCommand::UseNextConnectionMode => {
+                self.use_next_connection_mode().await;
+            }
+        }
+    }
+
+    async fn use_next_connection_mode(&mut self) {
+        #[cfg(feature = "api-override")]
+        if API.force_direct_connection {
+            log::debug!("Ignoring API connection mode");
+            return;
+        }
+
+        let connection_mode = if self.force_direct_connection_mode {
+            None
+        } else {
+            self.proxy_config_provider
+                .next()
+                .await
+                .and_then(|config| config.get_endpoint().map(|endpoint| (config, endpoint)))
+        };
+
+        let (connection_mode, endpoint) = match connection_mode {
+            Some(mode) => mode,
+            None => (
+                ApiConnectionMode::Direct,
+                self.address_cache.get_address().await,
+            ),
+        };
+
+        // Switch to new connection mode unless rejected by address change callback
+        if (self.new_address_callback)(endpoint).await {
+            self.connector_handle.set_connection_mode(connection_mode);
         }
     }
 
@@ -264,6 +288,13 @@ impl RequestServiceHandle {
         let _ = self.tx.unbounded_send(RequestCommand::Reset);
     }
 
+    /// Drop in-flight requests and disable the API bridge proxy if true.
+    pub fn force_direct_mode(&self, enabled: bool) {
+        let _ = self
+            .tx
+            .unbounded_send(RequestCommand::ForceDirectConnectionMode(enabled));
+    }
+
     /// Submits a `RestRequest` for execution to the request service.
     pub async fn request(&self, request: RestRequest) -> Result<Response> {
         let (completion_tx, completion_rx) = oneshot::channel();
@@ -276,7 +307,7 @@ impl RequestServiceHandle {
     /// Forcibly update the connection mode.
     pub fn next_api_endpoint(&self) -> Result<()> {
         self.tx
-            .unbounded_send(RequestCommand::NextApiConfig)
+            .unbounded_send(RequestCommand::UseNextConnectionMode)
             .map_err(|_| Error::SendError)
     }
 }
@@ -288,7 +319,8 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
-    NextApiConfig,
+    ForceDirectConnectionMode(bool),
+    UseNextConnectionMode,
 }
 
 /// A REST request that is sent to the RequestService to be executed.
