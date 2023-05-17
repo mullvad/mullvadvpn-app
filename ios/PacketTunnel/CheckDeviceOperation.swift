@@ -79,7 +79,7 @@ final class CheckDeviceOperation: AsyncOperation {
                 checkResult.error = result.error
 
                 // Attempt to rotate the key when key mismatch is detected.
-                if checkResult.deviceCheck?.isKeyMismatch == .some(true) {
+                if checkResult.deviceCheck?.isKeyMismatch == true {
                     self.maybeRotateKey { isKeyRotated, error in
                         if isKeyRotated {
                             checkResult.deviceCheck?.isKeyMismatch = false
