@@ -42,6 +42,7 @@ allow = [
     "ISC",
     "BSD-3-Clause",
     "BSD-2-Clause",
+    "CC0-1.0",
     # https://github.com/briansmith/ring/issues/902
     "LicenseRef-ring",
     "Unicode-DFS-2016"
