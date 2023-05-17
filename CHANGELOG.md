@@ -26,13 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add `--help` and `--version` options to the desktop GUI application.
 
 #### Android
-- Add DNS content blockers.
-- Add UDP-over-TCP
+- Add UDP-over-TCP.
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
 - Add creation date below device name in the device list screen.
-- Changed `AdvancedSettings` page's name and title into `VPN Settings`.
-- Changed `SplitTunneling` menu location from `VPN Settings` to `Settings`.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
@@ -46,16 +43,48 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
 
 #### Android
-- Clarify some of the error messages showed in notifications.
-- Change and add text in Content blockers informational dialog.
-- Update advanced settings scrollbar appearance.
+- Rename "Advanced settings" to "VPN Settings".
+- Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
+
+### Fixed
+#### Android
+- Fix connection header flickering.
+
+
+## [android/2023.1] - 2023-05-16
+### Fixed
+#### Android
+- Fix DNS input keyboard type.
+
+
+## [android/2023.1-beta2] - 2023-05-09
+### Added
+#### Android
+- Add "Manage account" button to the account view.
+
+### Fixed
+#### Android
+- Fix missing payment info in out-of-time view.
+
+
+## [android/2023.1-beta1] - 2023-05-03
+### Added
+#### Android
+- Add themed icon.
+- Add DNS content blockers.
+
+### Changed
+#### Android
+- Clarify some of the error messages throughout the app.
+- Increase WireGuard key rotation interval to 14 days.
+- Change the DNS/MTU input to rely on dialogs in order to improve the UX on some devices.
+- Hide "Buy more credit" buttons in the default release build published to Google Play, our website
+  and GitHub. The buttons are still visible for F-Droid builds.
 
 ### Fixed
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
-- Fix content blockers expand state not being kept when returning from split tunneling.
-- Fix connection header flickering.
 
 
 ## [2023.4-beta1] - 2023-05-02
