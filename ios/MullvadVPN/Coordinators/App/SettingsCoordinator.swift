@@ -118,7 +118,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         animated: Bool
     ) {
         /*
-         Navigation controller tends to call this delegate method on `viewWillAppear`, for instance during cancellation
+         Navigation controller calls this delegate method on `viewWillAppear`, for instance during cancellation
          of interactive dismissal of a modally presented settings navigation controller, so it's important that we
          ignore repeating routes.
          */
