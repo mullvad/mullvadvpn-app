@@ -62,16 +62,16 @@ class SplitTunnelingViewModel(
         splitTunneling.persist()
         super.onCleared()
     }
-
-    fun removeFromExcluded(packageName: String) {
+    
+    fun onIncludeAppClick(packageName: String) {
         viewModelScope.launch(dispatcher) { splitTunneling.includeApp(packageName) }
     }
 
-    fun addToExcluded(packageName: String) {
+    fun onExcludeAppClick(packageName: String) {
         viewModelScope.launch(dispatcher) { splitTunneling.excludeApp(packageName) }
     }
 
-    fun setShowSystemApps(show: Boolean) {
+    fun onShowSystemAppsClicked(show: Boolean) {
         viewModelScope.launch(dispatcher) { showSystemApps.emit(show) }
     }
 
