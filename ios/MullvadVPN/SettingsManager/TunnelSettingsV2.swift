@@ -181,7 +181,7 @@ extension StoredWgKeyData {
      To dampen the effect of packet tunnel entering into a restart cycle and going on a key rotation rampage,
      this function adds a cooldown interval to prevent it from pushing keys too often.
      */
-    func isPacketTunnelShouldRotateTheKey(shouldRotateImmediately: Bool) -> Bool {
+    func shouldPacketTunnelRotateTheKey(shouldRotateImmediately: Bool) -> Bool {
         guard let lastRotationAttemptDate = lastRotationAttemptDate else { return true }
 
         let retryInterval: TimeInterval = 60 * 60 * 24

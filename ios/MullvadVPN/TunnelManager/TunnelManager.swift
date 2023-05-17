@@ -675,9 +675,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         // Packet tunnel received new account expiry.
-        if lastDeviceCheck?.accountExpiry != deviceCheck.accountExpiry,
-           let accountExpiry = deviceCheck.accountExpiry
-        {
+        if let accountExpiry = deviceCheck.accountExpiry, accountExpiry != lastDeviceCheck?.accountExpiry {
             scheduleDeviceStateUpdate(taskName: "Update account expiry", reconnectTunnel: false) { deviceState in
                 deviceState.updateData { accountData, _ in
                     accountData.expiry = accountExpiry

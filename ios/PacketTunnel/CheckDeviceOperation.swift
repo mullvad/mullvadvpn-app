@@ -141,7 +141,7 @@ final class CheckDeviceOperation: AsyncOperation {
             var deviceState = try SettingsManager.readDeviceState()
             guard case .loggedIn(let accountData, var deviceData) = deviceState else { throw InvalidDeviceState() }
 
-            guard deviceData.wgKeyData.isPacketTunnelShouldRotateTheKey(
+            guard deviceData.wgKeyData.shouldPacketTunnelRotateTheKey(
                 shouldRotateImmediately: shouldImmediatelyRotateKeyOnMismatch
             ) else {
                 completion(false, nil)
