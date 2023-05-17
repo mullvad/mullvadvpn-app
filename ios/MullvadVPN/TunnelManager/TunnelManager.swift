@@ -662,7 +662,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         // Packet tunnel detected that device is revoked.
-        if lastDeviceCheck?.isRevokedDevice != deviceCheck.isRevokedDevice, deviceCheck.isRevokedDevice ?? false {
+        if lastDeviceCheck?.isDeviceRevoked != deviceCheck.isDeviceRevoked, deviceCheck.isDeviceRevoked ?? false {
             scheduleDeviceStateUpdate(taskName: "Set device revoked", reconnectTunnel: false) { deviceState in
                 deviceState = .revoked
             }

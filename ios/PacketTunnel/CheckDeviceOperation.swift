@@ -216,11 +216,11 @@ final class CheckDeviceOperation: AsyncOperation {
         switch accountResult {
         case let .success(serverAccountData):
             deviceCheck.accountExpiry = serverAccountData.expiry
-            deviceCheck.isInvalidAccount = false
+            deviceCheck.isAccountInvalid = false
 
         case let .failure(error):
             if let error = error as? REST.Error, error.compareErrorCode(.invalidAccount) {
-                deviceCheck.isInvalidAccount = true
+                deviceCheck.isAccountInvalid = true
             }
 
             if !error.isOperationCancellationError {
@@ -230,12 +230,12 @@ final class CheckDeviceOperation: AsyncOperation {
 
         switch deviceResult {
         case let .success(serverDevice):
-            deviceCheck.isRevokedDevice = false
+            deviceCheck.isDeviceRevoked = false
             deviceCheck.isKeyMismatch = serverDevice.pubkey != deviceData.wgKeyData.privateKey.publicKey
 
         case let .failure(error):
             if let error = error as? REST.Error, error.compareErrorCode(.deviceNotFound) {
-                deviceCheck.isRevokedDevice = true
+                deviceCheck.isDeviceRevoked = true
             }
 
             if !error.isOperationCancellationError {

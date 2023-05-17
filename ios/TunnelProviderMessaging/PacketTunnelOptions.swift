@@ -48,7 +48,7 @@ public struct PacketTunnelOptions {
     }
 
     public func isOnDemand() -> Bool {
-        return _rawOptions[Keys.isOnDemand.rawValue] as? Int == .some(1)
+        return _rawOptions[Keys.isOnDemand.rawValue] as? Int == 1
     }
 
     /// Encode custom parameter value

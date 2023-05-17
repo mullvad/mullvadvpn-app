@@ -14,12 +14,14 @@ public struct DeviceCheck: Codable, Equatable {
     public var accountExpiry: Date?
 
     /// Invalid account. Often happens when account is removed on our backend.
-    public var isInvalidAccount: Bool?
+    public var isAccountInvalid: Bool?
 
-    /// Device is revoked.
-    public var isRevokedDevice: Bool?
+    /// Whteher device is revoked. Usually happens when device is removed on our backend.
+    public var isDeviceRevoked: Bool?
 
     /// Whether the key stored on device does not match the key stored on backend.
+    /// May happen during key rotation when the new key is passed to our backend but no acknowledgment received back
+    /// to confirm that rotation has succeeded.
     public var isKeyMismatch: Bool?
 
     /// Last time packet tunnel had an attempt to rotate the key whether successfully or not.
@@ -33,8 +35,8 @@ public struct DeviceCheck: Codable, Equatable {
         lastKeyRotationDate: Date? = nil
     ) {
         self.accountExpiry = accountExpiry
-        self.isInvalidAccount = isInvalidAccount
-        self.isRevokedDevice = isRevokedDevice
+        isAccountInvalid = isInvalidAccount
+        isDeviceRevoked = isRevokedDevice
         self.isKeyMismatch = isKeyMismatch
         lastKeyRotationAttemptDate = lastKeyRotationDate
     }
@@ -47,8 +49,8 @@ public struct DeviceCheck: Codable, Equatable {
 
     public mutating func merge(with other: DeviceCheck) {
         other.accountExpiry.flatMap { accountExpiry = $0 }
-        other.isInvalidAccount.flatMap { isInvalidAccount = $0 }
-        other.isRevokedDevice.flatMap { isRevokedDevice = $0 }
+        other.isAccountInvalid.flatMap { isAccountInvalid = $0 }
+        other.isDeviceRevoked.flatMap { isDeviceRevoked = $0 }
         other.isKeyMismatch.flatMap { isKeyMismatch = $0 }
         other.lastKeyRotationAttemptDate.flatMap { lastKeyRotationAttemptDate = $0 }
     }
