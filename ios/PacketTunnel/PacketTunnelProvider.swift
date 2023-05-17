@@ -401,8 +401,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         checkDeviceStateTask?.cancel()
         checkDeviceStateTask = nil
 
-        deviceCheck = nil
-
         setReconnecting(false)
     }
 
