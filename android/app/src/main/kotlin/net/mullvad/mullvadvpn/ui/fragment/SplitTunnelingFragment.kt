@@ -18,7 +18,7 @@ import org.koin.androidx.viewmodel.scope.viewModel
 import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
 
-class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
+class SplitTunnelingFragment : BaseFragment() {
     private val scope: Scope =
         getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE)).also { appsScope ->
             getKoin().getScopeOrNull(SERVICE_CONNECTION_SCOPE)?.let { serviceConnectionScope ->

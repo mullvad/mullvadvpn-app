@@ -1,74 +1,95 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ListItem
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue40
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite40
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
 import net.mullvad.mullvadvpn.ui.widget.ApplicationImageView
 
 @Preview
 @Composable
 fun PreviewTunnelingCell() {
-    Column(modifier = Modifier.background(color = MullvadWhite40)) {
-        SplitTunnelingCell("Mullvad VPN", "", false) {}
-        SplitTunnelingCell("Mullvad VPN", "", true) {}
+    AppTheme {
+        Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+            SplitTunnelingCell("Mullvad VPN", "", false)
+            SplitTunnelingCell("Mullvad VPN", "", true)
+        }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SplitTunnelingCell(
     title: String,
     packageName: String?,
     isSelected: Boolean,
-    onCellClicked: () -> Unit
+    modifier: Modifier = Modifier,
+    onCellClicked: () -> Unit = {}
 ) {
-    val startPadding = dimensionResource(id = R.dimen.cell_left_padding)
-    val endPadding = dimensionResource(id = R.dimen.cell_right_padding)
-    val iconSize = dimensionResource(id = R.dimen.icon_size)
-    Box(
+    Row(
         modifier =
-            Modifier.background(MullvadBlue40)
-                .padding(top = 1.dp, bottom = 1.dp, start = startPadding, end = endPadding)
-                .clickable { onCellClicked() }
+            modifier
+                .wrapContentHeight()
+                .defaultMinSize(minHeight = Dimens.listItemHeightExtra)
+                .fillMaxWidth()
+                .padding(vertical = Dimens.listItemDivider)
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .clickable(onClick = onCellClicked)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            packageName?.let {
-                AndroidView(
-                    factory = { context -> ApplicationImageView(context) },
-                    update = { applicationImageView ->
-                        applicationImageView.packageName = packageName
-                    },
-                    modifier = Modifier.size(width = iconSize, height = iconSize)
-                )
-            }
-            ListItem(
-                text = title,
-                isLoading = false,
-                iconResourceId =
-                    if (isSelected) {
-                        R.drawable.ic_icons_remove
-                    } else {
-                        R.drawable.ic_icons_add
-                    },
-                background = MullvadBlue40,
-                onClick = null
-            )
-        }
+        AndroidView(
+            factory = { context -> ApplicationImageView(context) },
+            update = { applicationImageView ->
+                applicationImageView.packageName = packageName ?: ""
+            },
+            // onReset = {}, TODO Restore this when we update the library
+            modifier =
+                Modifier.padding(start = Dimens.cellLeftPadding)
+                    .align(Alignment.CenterVertically)
+                    .size(width = Dimens.listIconSize, height = Dimens.listIconSize)
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.listItemText,
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier =
+                Modifier.weight(1f)
+                    .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding)
+                    .align(Alignment.CenterVertically)
+        )
+        Image(
+            painter =
+                painterResource(
+                    id =
+                        if (isSelected) {
+                            R.drawable.ic_icons_remove
+                        } else {
+                            R.drawable.ic_icons_add
+                        }
+                ),
+            contentDescription = null,
+            modifier =
+                Modifier.padding(end = Dimens.cellRightPadding)
+                    .align(Alignment.CenterVertically)
+                    .padding(horizontal = Dimens.loadingSpinnerPadding)
+        )
     }
 }
