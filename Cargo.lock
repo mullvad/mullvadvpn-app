@@ -1917,7 +1917,7 @@ dependencies = [
  "rustls-pemfile",
  "serde",
  "serde_json",
- "shadowsocks 1.16.0",
+ "shadowsocks 1.15.3",
  "talpid-time",
  "talpid-types",
  "tokio",
@@ -3244,37 +3244,6 @@ name = "shadowsocks"
 version = "1.15.3"
 source = "git+https://github.com/mullvad/shadowsocks-rust?rev=8f6afd081a9440fff2dda565908eddc27a3295f1#8f6afd081a9440fff2dda565908eddc27a3295f1"
 dependencies = [
- "async-trait",
- "base64 0.21.0",
- "blake3",
- "byte_string",
- "bytes",
- "cfg-if",
- "futures",
- "libc",
- "log",
- "once_cell",
- "percent-encoding",
- "pin-project",
- "sendfd",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "shadowsocks-crypto",
- "socket2 0.4.9",
- "spin 0.9.2",
- "thiserror",
- "tokio",
- "tokio-tfo",
- "url",
- "windows-sys 0.45.0",
-]
-
-[[package]]
-name = "shadowsocks"
-version = "1.16.0"
-source = "git+https://github.com/mullvad/shadowsocks-rust?rev=06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a#06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a"
-dependencies = [
  "arc-swap",
  "async-trait",
  "base64 0.21.0",
@@ -3294,12 +3263,43 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
+ "socket2 0.4.9",
+ "spin 0.9.2",
+ "thiserror",
+ "tokio",
+ "tokio-tfo",
+ "trust-dns-resolver",
+ "url",
+ "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "shadowsocks"
+version = "1.16.0"
+source = "git+https://github.com/mullvad/shadowsocks-rust?rev=06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a#06f786b4e1b49d97bc2c722cc678a7a09c4f6d9a"
+dependencies = [
+ "async-trait",
+ "base64 0.21.0",
+ "blake3",
+ "byte_string",
+ "bytes",
+ "cfg-if",
+ "futures",
+ "libc",
+ "log",
+ "once_cell",
+ "percent-encoding",
+ "pin-project",
+ "sendfd",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "shadowsocks-crypto",
  "socket2 0.5.3",
  "spin 0.9.2",
  "thiserror",
  "tokio",
  "tokio-tfo",
- "trust-dns-resolver 0.22.0 (git+https://github.com/bluejekyll/trust-dns.git)",
  "url",
  "windows-sys 0.48.0",
 ]
@@ -3642,7 +3642,7 @@ dependencies = [
  "regex",
  "resolv-conf",
  "rtnetlink",
- "shadowsocks-service 1.16.0",
+ "shadowsocks-service 1.15.3",
  "shell-escape",
  "socket2 0.4.9",
  "subslice",
@@ -4242,7 +4242,7 @@ dependencies = [
  "time 0.3.5",
  "tokio",
  "tracing",
- "trust-dns-proto 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "trust-dns-proto",
 ]
 
 [[package]]
@@ -4272,30 +4272,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "trust-dns-proto"
-version = "0.22.0"
-source = "git+https://github.com/bluejekyll/trust-dns.git#c551ebb45a4a15343b8305193fece2e5c23a84ed"
-dependencies = [
- "async-trait",
- "cfg-if",
- "data-encoding",
- "enum-as-inner",
- "futures-channel",
- "futures-io",
- "futures-util",
- "idna 0.3.0",
- "ipnet",
- "lazy_static",
- "rand 0.8.5",
- "smallvec",
- "thiserror",
- "tinyvec",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "trust-dns-resolver"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4313,27 +4289,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
- "trust-dns-proto 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "trust-dns-resolver"
-version = "0.22.0"
-source = "git+https://github.com/bluejekyll/trust-dns.git#c551ebb45a4a15343b8305193fece2e5c23a84ed"
-dependencies = [
- "cfg-if",
- "futures-util",
- "ipconfig",
- "lazy_static",
- "lru-cache",
- "parking_lot",
- "rand 0.8.5",
- "resolv-conf",
- "smallvec",
- "thiserror",
- "tokio",
- "tracing",
- "trust-dns-proto 0.22.0 (git+https://github.com/bluejekyll/trust-dns.git)",
+ "trust-dns-proto",
 ]
 
 [[package]]
@@ -4355,8 +4311,8 @@ dependencies = [
  "toml",
  "tracing",
  "trust-dns-client",
- "trust-dns-proto 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "trust-dns-resolver 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "trust-dns-proto",
+ "trust-dns-resolver",
 ]
 
 [[package]]
