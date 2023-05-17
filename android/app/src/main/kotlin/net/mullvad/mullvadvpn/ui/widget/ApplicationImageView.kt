@@ -16,9 +16,9 @@ import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.di.APPS_SCOPE
+import org.koin.core.scope.inject
 import org.koin.core.scope.KoinScopeComponent
 import org.koin.core.scope.Scope
-import org.koin.core.scope.inject
 
 class ApplicationImageView
 @JvmOverloads
