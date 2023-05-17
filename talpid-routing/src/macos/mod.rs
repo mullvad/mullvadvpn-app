@@ -355,28 +355,18 @@ impl RouteManagerImpl {
         let relay_route_is_valid = (v4_conn && self.v4_default_route.is_some())
             || (v6_conn && self.v6_default_route.is_some());
 
+        if !relay_route_is_valid {
+            return Ok(());
+        }
+
         for tunnel_route in [
             self.v4_tunnel_default_route.clone(),
             self.v6_tunnel_default_route.clone(),
         ] {
             let tunnel_route = match tunnel_route {
                 Some(route) => route,
-                None => return Ok(()),
+                None => continue,
             };
-
-            let ((true, default_route, _) | (false, _, default_route)) = (
-                tunnel_route.is_ipv4(),
-                &mut self.v4_default_route,
-                &mut self.v6_default_route,
-            );
-            match default_route {
-                Some(_route) => (),
-                None => {
-                    if !relay_route_is_valid {
-                        return Ok(());
-                    }
-                }
-            }
 
             log::debug!("Adding default route for tunnel");
 
