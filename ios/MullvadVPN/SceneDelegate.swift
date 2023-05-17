@@ -58,7 +58,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
 
         accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
         deviceDataThrottling = DeviceDataThrottling(tunnelManager: tunnelManager)
-        refreshDeviceAndAccountData(forceUpdate: true)
+        refreshLoginMetadata(forceUpdate: true)
 
         appCoordinator = ApplicationCoordinator(
             tunnelManager: tunnelManager,
@@ -69,8 +69,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         )
 
         appCoordinator?.onShowSettings = { [weak self] in
-            // Refresh account data each time user opens settings
-            self?.refreshDeviceAndAccountData(forceUpdate: true)
+            // Refresh account data and device each time user opens settings
+            self?.refreshLoginMetadata(forceUpdate: true)
+        }
+
+        appCoordinator?.onShowAccount = { [weak self] in
+            // Refresh account data and device each time user opens account controller
+            self?.refreshLoginMetadata(forceUpdate: true)
         }
 
         window?.rootViewController = appCoordinator?.rootViewController
@@ -100,15 +105,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         }
     }
 
-    private func refreshDeviceAndAccountData(forceUpdate: Bool) {
-        let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
+    /**
+     Refresh login metadata (account and device data) potentially throttling refresh requests based on recency of
+     the last issued request.
 
+     Account data is always refreshed when either settings or account are presented on screen, otherwise only when close
+     to or past expiry.
+
+     Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
+
+     For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
+     `DeviceDataThrottling` types.
+     */
+    private func refreshLoginMetadata(forceUpdate: Bool) {
         let condition: AccountDataThrottling.Condition
 
         if forceUpdate {
             condition = .always
         } else {
-            condition = isPresentingSettings ? .always : .whenCloseToExpiryAndBeyond
+            let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
+            let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
+
+            condition = isPresentingSettings || isPresentingAccount ? .always : .whenCloseToExpiryAndBeyond
         }
 
         accountDataThrottling?.requestUpdate(condition: condition)
@@ -149,7 +167,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         if isSceneConfigured {
-            refreshDeviceAndAccountData(forceUpdate: false)
+            refreshLoginMetadata(forceUpdate: false)
         }
 
         setShowsPrivacyOverlay(false)
