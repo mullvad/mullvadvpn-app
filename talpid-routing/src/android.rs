@@ -1,6 +1,5 @@
-use crate::{imp::RouteManagerCommand, RequiredRoute};
+use crate::imp::RouteManagerCommand;
 use futures::{channel::mpsc, stream::StreamExt};
-use std::collections::HashSet;
 
 /// Stub error type for routing errors on Android.
 #[derive(Debug, err_derive::Error)]
