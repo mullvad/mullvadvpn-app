@@ -6,6 +6,8 @@ const ANDROID_VERSION: &str =
 
 const VERSION_REGEX: &str = r"^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$";
 
+const ANDROID_STABLE_VERSION_CODE_SUFFIX: &str = "99";
+
 fn main() {
     let command = env::args().nth(1);
     match command.as_deref() {
@@ -41,19 +43,24 @@ fn to_semver(version: &str) -> String {
 /// Last two digits of the year (major)  ^^
 ///          Incrementing version (minor)  ^^
 ///                                  Unused  ^^
-///                 Beta number, 00 if stable  ^^
+///                 Beta number, 99 if stable  ^^
 ///
-/// # Example
+/// # Examples
 ///
 /// Version: 2021.34-beta5
 /// versionCode: 21340005
+///
+/// Version: 2021.34
+/// versionCode: 21340099
 fn to_android_version_code(version: &str) -> String {
     let version = parse_version(version);
     format!(
         "{}{:0>2}00{:0>2}",
         version.year,
         version.incremental,
-        version.beta.unwrap_or_default()
+        version
+            .beta
+            .unwrap_or(ANDROID_STABLE_VERSION_CODE_SUFFIX.to_string())
     )
 }
 
