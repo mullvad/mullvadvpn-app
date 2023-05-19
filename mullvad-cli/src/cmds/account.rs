@@ -65,7 +65,7 @@ impl Account {
             Account::Login { account } => {
                 Self::login(
                     &mut rpc,
-                    account.unwrap_or_else(|| from_stdin("Enter an account number: ")),
+                    unwrap_or_from_stdin(account, "Enter an account number: ").await,
                 )
                 .await
             }
@@ -215,6 +215,16 @@ async fn account_else_current(
             }
         }
     }
+}
+
+async fn unwrap_or_from_stdin(val: Option<String>, prompt_str: &'static str) -> String {
+    if let Some(val) = val {
+        return val;
+    }
+
+    tokio::task::spawn_blocking(|| from_stdin(prompt_str))
+        .await
+        .unwrap()
 }
 
 fn from_stdin(prompt_str: &'static str) -> String {
