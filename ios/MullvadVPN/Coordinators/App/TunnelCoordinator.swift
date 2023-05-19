@@ -11,6 +11,7 @@ import UIKit
 class TunnelCoordinator: Coordinator {
     private let tunnelManager: TunnelManager
     private let controller: TunnelViewController
+    private let alertPresenter = AlertPresenter()
 
     private var tunnelObserver: TunnelObserver?
 
@@ -31,6 +32,10 @@ class TunnelCoordinator: Coordinator {
         controller.shouldShowSelectLocationPicker = { [weak self] in
             self?.showSelectLocationPicker?()
         }
+
+        controller.shouldShowCancelTunnelAlert = { [weak self] in
+            self?.showCancelTunnelAlert()
+        }
     }
 
     func start() {
@@ -50,5 +55,46 @@ class TunnelCoordinator: Coordinator {
         let deviceState = tunnelManager.deviceState
 
         controller.setMainContentHidden(!deviceState.isLoggedIn, animated: animated)
+    }
+
+    private func showCancelTunnelAlert() {
+        let alertController = UIAlertController(
+            title: nil,
+            message: NSLocalizedString(
+                "CANCEL_TUNNEL_ALERT_MESSAGE",
+                tableName: "Main",
+                value: "If you disconnect now, you won’t be able to secure your connection until the device is online.",
+                comment: ""
+            ),
+            preferredStyle: .alert
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
+                    tableName: "Main",
+                    value: "Disconnect",
+                    comment: ""
+                ),
+                style: .destructive,
+                handler: { [weak self] _ in
+                    self?.tunnelManager.stopTunnel()
+                }
+            )
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
+                    tableName: "Main",
+                    value: "Cancel",
+                    comment: ""
+                ), style: .cancel
+            )
+        )
+
+        alertPresenter.enqueue(alertController, presentingController: rootViewController)
     }
 }
