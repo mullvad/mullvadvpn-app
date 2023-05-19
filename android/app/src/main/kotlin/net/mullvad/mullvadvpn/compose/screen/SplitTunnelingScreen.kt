@@ -98,7 +98,7 @@ fun SplitTunnelingScreen(
                 title = stringResource(id = R.string.split_tunneling),
                 progress = progress,
                 modifier = scaffoldModifier,
-                backTitle = stringResource(id = R.string.settings_vpn)
+                backTitle = stringResource(id = R.string.settings)
             )
         },
     ) {
