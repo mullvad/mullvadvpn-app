@@ -4,8 +4,8 @@ object Versions {
     const val junit = "4.13.2"
     const val jvmTarget = "1.8"
     const val koin = "2.2.3"
-    const val kotlin = "1.7.20"
-    const val kotlinCompilerExtensionVersion = "1.3.2"
+    const val kotlin = "1.8.21"
+    const val kotlinCompilerExtensionVersion = "1.4.7"
     const val kotlinx = "1.6.4"
     const val leakCanary = "2.10"
     const val mockk = "1.13.3"
@@ -50,8 +50,8 @@ object Versions {
 
     object Plugin {
         // The androidAapt plugin version must be in sync with the android plugin version.
-        const val android = "7.3.1"
-        const val androidAapt = "$android-8691043"
+        const val android = "7.4.2"
+        const val androidAapt = "$android-8841542"
         const val playPublisher = "3.7.0"
         const val dependencyCheck = "7.4.4"
         const val gradleVersions = "0.44.0"
