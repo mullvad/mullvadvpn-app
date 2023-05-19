@@ -17,6 +17,7 @@ class TunnelViewController: UIViewController, RootContainment {
     private let interactor: TunnelViewControllerInteractor
     private let contentView = TunnelControlView(frame: CGRect(x: 0, y: 0, width: 320, height: 480))
     private var tunnelState: TunnelState = .disconnected
+    private let alertPresenter = AlertPresenter()
 
     var shouldShowSelectLocationPicker: (() -> Void)?
 
@@ -68,7 +69,10 @@ class TunnelViewController: UIViewController, RootContainment {
             case .connect:
                 self?.interactor.startTunnel()
 
-            case .disconnect, .cancel:
+            case .cancel:
+                self?.showCancelTunnelAlert()
+
+            case .disconnect:
                 self?.interactor.stopTunnel()
 
             case .reconnect:
@@ -188,5 +192,46 @@ class TunnelViewController: UIViewController, RootContainment {
             contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+
+    private func showCancelTunnelAlert() {
+        let alertController = UIAlertController(
+            title: nil,
+            message: NSLocalizedString(
+                "CANCEL_TUNNEL_ALERT_MESSAGE",
+                tableName: "Main",
+                value: "If you disconnect now, you won’t be able to secure your connection until the device is online.",
+                comment: ""
+            ),
+            preferredStyle: .alert
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
+                    tableName: "Main",
+                    value: "Disconnect",
+                    comment: ""
+                ),
+                style: .destructive,
+                handler: { [weak self] _ in
+                    self?.interactor.stopTunnel()
+                }
+            )
+        )
+
+        alertController.addAction(
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
+                    tableName: "Main",
+                    value: "Cancel",
+                    comment: ""
+                ), style: .cancel
+            )
+        )
+
+        alertPresenter.enqueue(alertController, presentingController: self)
     }
 }

@@ -185,7 +185,7 @@ final class TunnelControlView: UIView {
             NSLocalizedString(
                 "CANCEL_BUTTON_TITLE",
                 tableName: "Main",
-                value: "Cancel",
+                value: "Disconnect",
                 comment: ""
             ), for: .normal
         )
@@ -321,7 +321,7 @@ final class TunnelControlView: UIView {
         )
         cancelButton.addTarget(
             self,
-            action: #selector(handleDisconnect),
+            action: #selector(handleCancel),
             for: .touchUpInside
         )
         splitDisconnectButton.primaryButton.addTarget(
@@ -423,6 +423,10 @@ final class TunnelControlView: UIView {
 
     @objc private func handleConnect() {
         actionHandler?(.connect)
+    }
+
+    @objc private func handleCancel() {
+        actionHandler?(.cancel)
     }
 
     @objc private func handleDisconnect() {
