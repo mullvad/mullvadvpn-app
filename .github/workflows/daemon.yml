@@ -165,4 +165,6 @@ jobs:
 
       - name: Build and test crates
         shell: bash
+        env:
+          CARGO_TARGET_DIR="C:\cargo-target"
         run: ./ci/check-rust.sh
