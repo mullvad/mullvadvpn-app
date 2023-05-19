@@ -360,7 +360,8 @@ impl Relay {
         let private_key_str = tokio::task::spawn_blocking(|| {
             let mut private_key_str = String::new();
             let _ = std::io::stdin().lock().read_line(&mut private_key_str);
-            if private_key_str.trim().is_empty() {
+            let private_key_str = private_key_str.trim().to_owned();
+            if private_key_str.is_empty() {
                 eprintln!("Expected to read private key from standard input");
             }
             private_key_str
