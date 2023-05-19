@@ -4,15 +4,12 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.parameter.parametersOf
-import org.koin.core.qualifier.named
-import org.koin.core.scope.KoinScopeComponent
-import org.koin.core.scope.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 // Container of classes that communicate with the service through an active connection
 //
@@ -23,12 +20,9 @@ class ServiceConnectionContainer(
     val connection: Messenger,
     onServiceReady: (ServiceConnectionContainer) -> Unit,
     onVpnPermissionRequest: () -> Unit
-) : KoinScopeComponent {
+) : KoinComponent {
     private val dispatcher =
         DispatchingHandler(Looper.getMainLooper()) { message -> Event.fromMessage(message) }
-
-    override val scope =
-        getKoin().getOrCreateScope(SERVICE_CONNECTION_SCOPE, named(SERVICE_CONNECTION_SCOPE), this)
 
     val accountDataSource = ServiceConnectionAccountDataSource(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)
@@ -37,8 +31,7 @@ class ServiceConnectionContainer(
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
 
-    // NOTE: `org.koin.core.scope.get` must be used here rather than `org.koin.core.component.get`.
-    val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
+    val splitTunneling = SplitTunneling(connection, dispatcher)
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
     val vpnPermission = VpnPermission(connection, dispatcher)
 
@@ -61,7 +54,6 @@ class ServiceConnectionContainer(
 
     fun onDestroy() {
         unregisterListener()
-        closeScope()
 
         dispatcher.onDestroy()
 

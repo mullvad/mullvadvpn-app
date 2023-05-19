@@ -56,10 +56,6 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/text_medium_plus</item>
     </style>
-    <style name="TextAppearance.Mullvad.Title2">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">@dimen/text_medium</item>
-    </style>
     <style name="TextAppearance.Mullvad.Small">
         <item name="android:textColor">@color/white60</item>
         <item name="android:textSize">@dimen/text_small</item>
@@ -89,17 +85,6 @@
     <style name="ListItem.Action.Double">
         <item name="android:clickable">false</item>
         <item name="android:focusable">false</item>
-    </style>
-    <style name="TextAppearance.Mullvad.CollapsingToolbar">
-        <item name="android:textColor">@color/white</item>
-    </style>
-    <style name="TextAppearance.Mullvad.CollapsingToolbar.Expanded">
-        <item name="android:textSize">30sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-    <style name="TextAppearance.Mullvad.CollapsingToolbar.Collapsed">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
     <!-- Switch Style -->
     <style name="AppTheme.Switch">

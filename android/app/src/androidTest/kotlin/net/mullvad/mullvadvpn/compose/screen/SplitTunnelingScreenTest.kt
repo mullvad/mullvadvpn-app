@@ -11,28 +11,21 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.di.APPS_SCOPE
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
-import org.koin.core.qualifier.named
-import org.koin.core.scope.Scope
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.getKoin
 
 class SplitTunnelingScreenTest {
     @get:Rule val composeTestRule = createComposeRule()
-    private lateinit var scope: Scope
 
     private val testModule = module {
-        scope(named(APPS_SCOPE)) {
-            scoped {
-                mockk<ApplicationsIconManager>().apply {
-                    every { getAppIcon(any()) } returns mockk(relaxed = true)
-                }
+        single {
+            mockk<ApplicationsIconManager>().apply {
+                every { getAppIcon(any()) } returns mockk(relaxed = true)
             }
         }
     }
@@ -41,12 +34,10 @@ class SplitTunnelingScreenTest {
     fun setup() {
         MockKAnnotations.init(this)
         loadKoinModules(testModule)
-        scope = getKoin().getOrCreateScope(APPS_SCOPE, named(APPS_SCOPE))
     }
 
     @After
     fun tearDown() {
-        scope.close()
         unloadKoinModules(testModule)
         unmockkAll()
     }
@@ -76,7 +67,7 @@ class SplitTunnelingScreenTest {
         composeTestRule.setContent {
             SplitTunnelingScreen(
                 uiState =
-                    SplitTunnelingUiState.Data(
+                    SplitTunnelingUiState.ShowAppList(
                         excludedApps = listOf(excludedApp),
                         includedApps = listOf(includedApp),
                         showSystemApps = false
@@ -104,7 +95,7 @@ class SplitTunnelingScreenTest {
         composeTestRule.setContent {
             SplitTunnelingScreen(
                 uiState =
-                    SplitTunnelingUiState.Data(
+                    SplitTunnelingUiState.ShowAppList(
                         excludedApps = emptyList(),
                         includedApps = listOf(includedApp),
                         showSystemApps = false
@@ -135,7 +126,7 @@ class SplitTunnelingScreenTest {
         composeTestRule.setContent {
             SplitTunnelingScreen(
                 uiState =
-                    SplitTunnelingUiState.Data(
+                    SplitTunnelingUiState.ShowAppList(
                         excludedApps = listOf(excludedApp),
                         includedApps = listOf(includedApp),
                         showSystemApps = false
@@ -162,7 +153,7 @@ class SplitTunnelingScreenTest {
         composeTestRule.setContent {
             SplitTunnelingScreen(
                 uiState =
-                    SplitTunnelingUiState.Data(
+                    SplitTunnelingUiState.ShowAppList(
                         excludedApps = listOf(excludedApp),
                         includedApps = listOf(includedApp),
                         showSystemApps = false
@@ -189,7 +180,7 @@ class SplitTunnelingScreenTest {
         composeTestRule.setContent {
             SplitTunnelingScreen(
                 uiState =
-                    SplitTunnelingUiState.Data(
+                    SplitTunnelingUiState.ShowAppList(
                         excludedApps = listOf(excludedApp),
                         includedApps = listOf(includedApp),
                         showSystemApps = false
