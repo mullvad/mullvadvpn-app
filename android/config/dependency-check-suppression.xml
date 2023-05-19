@@ -95,4 +95,12 @@
         <packageUrl regex="true">^pkg:maven/com\.squareup\.leakcanary/leakcanary\-android\-utils@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
+    <suppress until="2023-11-01Z">
+        <notes><![CDATA[
+        This CVE only affect Multiplatform Gradle Projects, which this project is not.
+        https://nvd.nist.gov/vuln/detail/CVE-2022-24329
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib.*@.*$</packageUrl>
+        <cve>CVE-2022-24329</cve>
+    </suppress>
 </suppressions>
