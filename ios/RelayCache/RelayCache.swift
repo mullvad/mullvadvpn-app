@@ -61,7 +61,7 @@ public final class RelayCache {
             byAccessor: accessor
         )
 
-        if let error = error {
+        if let error {
             result = .failure(error)
         }
 
@@ -88,7 +88,7 @@ public final class RelayCache {
             byAccessor: accessor
         )
 
-        if let error = error {
+        if let error {
             result = .failure(error)
         }
 

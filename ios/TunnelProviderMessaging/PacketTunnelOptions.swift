@@ -52,7 +52,7 @@ public struct PacketTunnelOptions {
     }
 
     /// Encode custom parameter value
-    private static func encode<T: Codable>(_ value: T) throws -> Data {
+    private static func encode(_ value: some Codable) throws -> Data {
         return try JSONEncoder().encode(value)
     }
 

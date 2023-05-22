@@ -21,7 +21,7 @@ public final class Promise<Success, Failure: Error> {
 
     public func observe(_ completion: @escaping (Result) -> Void) {
         nslock.lock()
-        if let result = result {
+        if let result {
             nslock.unlock()
             completion(result)
         } else {

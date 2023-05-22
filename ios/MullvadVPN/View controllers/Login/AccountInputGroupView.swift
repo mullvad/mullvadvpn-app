@@ -299,9 +299,9 @@ final class AccountInputGroupView: UIView {
     }
 
     func setOnReturnKey(_ onReturnKey: ((AccountInputGroupView) -> Bool)?) {
-        if let onReturnKey = onReturnKey {
+        if let onReturnKey {
             privateTextField.onReturnKey = { [weak self] _ -> Bool in
-                guard let self = self else { return true }
+                guard let self else { return true }
 
                 return onReturnKey(self)
             }
@@ -321,7 +321,7 @@ final class AccountInputGroupView: UIView {
     }
 
     func setLastUsedAccount(_ accountNumber: String?, animated: Bool) {
-        if let accountNumber = accountNumber {
+        if let accountNumber {
             let formattedNumber = accountNumber.formattedAccountNumber
 
             lastUsedAccountButton.accessibilityAttributedValue = NSAttributedString(
@@ -380,7 +380,7 @@ final class AccountInputGroupView: UIView {
     }
 
     @objc private func didTapLastUsedAccount() {
-        guard let lastUsedAccount = lastUsedAccount else { return }
+        guard let lastUsedAccount else { return }
 
         setAccount(lastUsedAccount)
         privateTextField.resignFirstResponder()

@@ -43,8 +43,8 @@ final class TransportMonitor: RESTTransportProvider {
             let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
             let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
 
-            guard let shadowSocksConfiguration = shadowSocksConfiguration,
-                  let shadowSocksBridgeRelay = shadowSocksBridgeRelay
+            guard let shadowSocksConfiguration,
+                  let shadowSocksBridgeRelay
             else {
                 logger.error("Could not get shadow socks bridge information.")
                 return nil
@@ -90,7 +90,7 @@ final class TransportMonitor: RESTTransportProvider {
                 tunnel.status == .connected
         }
 
-        if let tunnel = tunnel, shouldByPassVPN(tunnel: tunnel) {
+        if let tunnel, shouldByPassVPN(tunnel: tunnel) {
             return PacketTunnelTransport(
                 tunnel: tunnel,
                 useShadowsocksTransport: useShadowsocksTransport

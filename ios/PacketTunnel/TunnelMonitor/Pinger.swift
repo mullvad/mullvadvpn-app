@@ -86,7 +86,7 @@ final class Pinger {
             IPPROTO_ICMP,
             CFSocketCallBackType.readCallBack.rawValue,
             { socket, callbackType, address, data, info in
-                guard let socket = socket, let info = info, callbackType == .readCallBack else {
+                guard let socket, let info, callbackType == .readCallBack else {
                     return
                 }
 
@@ -104,7 +104,7 @@ final class Pinger {
             CFSocketSetSocketFlags(newSocket, flags | kCFSocketCloseOnInvalidate)
         }
 
-        if let interfaceName = interfaceName {
+        if let interfaceName {
             try bindSocket(newSocket, to: interfaceName)
         }
 
@@ -121,7 +121,7 @@ final class Pinger {
         stateLock.lock()
         defer { stateLock.unlock() }
 
-        if let socket = socket {
+        if let socket {
             CFSocketInvalidate(socket)
 
             self.socket = nil
@@ -134,7 +134,7 @@ final class Pinger {
         stateLock.lock()
         defer { stateLock.unlock() }
 
-        guard let socket = socket else {
+        guard let socket else {
             throw Error.closedSocket
         }
 
@@ -406,7 +406,7 @@ extension Pinger {
     }
 }
 
-private func in_chksum<S>(_ data: S) -> UInt16 where S: Sequence, S.Element == UInt8 {
+private func in_chksum(_ data: some Sequence<UInt8>) -> UInt16 {
     var iterator = data.makeIterator()
     var words = [UInt16]()
 

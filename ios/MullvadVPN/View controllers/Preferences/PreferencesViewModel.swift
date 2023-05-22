@@ -169,7 +169,7 @@ struct PreferencesViewModel: Equatable {
                 return entry.address == otherEntry.address
             }
 
-            if let sameEntryIndex = sameEntryIndex {
+            if let sameEntryIndex {
                 let sourceEntry = oldDNSDomains[sameEntryIndex]
 
                 mergedViewModel.customDNSDomains.append(sourceEntry)

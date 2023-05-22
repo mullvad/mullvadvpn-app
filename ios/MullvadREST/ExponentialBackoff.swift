@@ -23,7 +23,7 @@ struct ExponentialBackoff: IteratorProtocol {
     mutating func next() -> REST.Duration? {
         let next = _next
 
-        if let maxDelay = maxDelay, next > maxDelay {
+        if let maxDelay, next > maxDelay {
             return maxDelay
         }
 

@@ -74,7 +74,7 @@ extension Tunnel {
         )
 
         operation.onCancel { [weak self] _ in
-            guard let self = self else { return }
+            guard let self else { return }
 
             let cancelOperation = SendTunnelProviderMessageOperation(
                 dispatchQueue: dispatchQueue,

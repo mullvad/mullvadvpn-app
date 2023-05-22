@@ -63,7 +63,7 @@ extension REST {
                     pathTemplate: "relays"
                 )
 
-                if let etag = etag {
+                if let etag {
                     requestBuilder.setETagHeader(etag: etag)
                 }
 

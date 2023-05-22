@@ -51,7 +51,7 @@ enum SettingsManager {
     }
 
     static func setLastUsedAccount(_ string: String?) throws {
-        if let string = string {
+        if let string {
             guard let data = string.data(using: .utf8) else {
                 throw StringEncodingError(string: string)
             }
@@ -227,7 +227,7 @@ enum SettingsManager {
         )
 
         migration.migrate(with: store, parser: parser) { error in
-            if let error = error {
+            if let error {
                 let migrationError = SettingsMigrationError(
                     sourceVersion: .v1,
                     targetVersion: .v2,
@@ -303,7 +303,7 @@ enum SettingsManager {
             return settings.accountNumber == storedAccountNumber
         }
 
-        guard let matchingSettings = matchingSettings else {
+        guard let matchingSettings else {
             logger.debug(
                 "Could not find legacy settings matching the legacy account number."
             )

@@ -248,13 +248,13 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
     }
 
     private func makeRegion(center: CLLocationCoordinate2D?) -> MKCoordinateRegion {
-        guard let center = center else {
+        guard let center else {
             return makeZoomedOutRegion()
         }
 
         let sourceRegion = makeZoomedInRegion(center: center)
 
-        guard let alignmentView = alignmentView else {
+        guard let alignmentView else {
             return sourceRegion
         }
 

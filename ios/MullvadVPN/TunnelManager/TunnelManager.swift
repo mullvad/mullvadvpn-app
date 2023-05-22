@@ -168,7 +168,7 @@ final class TunnelManager: StorePaymentObserver {
         )
         loadTunnelOperation.completionQueue = .main
         loadTunnelOperation.completionHandler = { [weak self] completion in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if case let .failure(error) = completion {
                 self.logger.error(
@@ -203,7 +203,7 @@ final class TunnelManager: StorePaymentObserver {
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             completionHandler: { [weak self] result in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 DispatchQueue.main.async {
                     if let error = result.error {
@@ -239,7 +239,7 @@ final class TunnelManager: StorePaymentObserver {
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
         ) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             DispatchQueue.main.async {
                 if let error = result.error {
@@ -437,7 +437,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             self.updatePrivateKeyRotationTimer()
 
@@ -594,7 +594,7 @@ final class TunnelManager: StorePaymentObserver {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let tunnel = tunnel {
+        if let tunnel {
             subscribeVPNStatusObserver(tunnel: tunnel)
         } else {
             unsubscribeVPNStatusObserver()
@@ -774,7 +774,7 @@ final class TunnelManager: StorePaymentObserver {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let error = error, !error.isOperationCancellationError {
+        if let error, !error.isOperationCancellationError {
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
 
@@ -799,7 +799,7 @@ final class TunnelManager: StorePaymentObserver {
 
         statusObserver = tunnel
             .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 self.logger.debug("VPN connection status changed to \(status).")
 

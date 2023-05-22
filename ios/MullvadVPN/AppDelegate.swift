@@ -365,7 +365,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelStore.loadPersistentTunnels { error in
-                if let error = error {
+                if let error {
                     self.logger.error(
                         error: error,
                         message: "Failed to load persistent tunnels."
@@ -398,7 +398,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelManager.loadConfiguration { error in
                 // TODO: avoid throwing fatal error and show the problem report UI instead.
-                if let error = error {
+                if let error {
                     fatalError(error.localizedDescription)
                 }
 

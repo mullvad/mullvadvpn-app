@@ -74,7 +74,7 @@ public final class TransformOperation<Input, Output>: ResultOperation<Output>, I
     }
 
     override public func main() {
-        if let inputBlock = inputBlock {
+        if let inputBlock {
             _input = inputBlock()
         }
 

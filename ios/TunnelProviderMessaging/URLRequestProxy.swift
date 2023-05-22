@@ -37,13 +37,13 @@ public final class URLRequestProxy {
             let transport = proxyRequest.useShadowsocksTransport
                 ? transportProvider?.shadowSocksTransport()
                 : transportProvider?.transport()
-            guard let transport = transport else { return }
+            guard let transport else { return }
             // The task sent by `transport.sendRequest` comes in an already resumed state
             let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
-                guard let self = self else { return }
+                guard let self else { return }
                 // However there is no guarantee about which queue the execution resumes on
                 // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                self.dispatchQueue.async {
+                dispatchQueue.async {
                     let response = ProxyURLResponse(data: data, response: response, error: error)
                     _ = self.removeRequest(identifier: proxyRequest.id)
 

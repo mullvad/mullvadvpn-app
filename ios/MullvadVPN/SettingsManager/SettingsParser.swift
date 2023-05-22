@@ -34,12 +34,12 @@ struct SettingsParser {
     }
 
     /// Produces versioned data encoded as the given type
-    func producePayload<T: Codable>(_ payload: T, version: Int) throws -> Data {
+    func producePayload(_ payload: some Codable, version: Int) throws -> Data {
         return try encoder.encode(VersionedPayload(version: version, data: payload))
     }
 
     /// Produces unversioned data encoded as the given type
-    func produceUnversionedPayload<T: Codable>(_ payload: T) throws -> Data {
+    func produceUnversionedPayload(_ payload: some Codable) throws -> Data {
         return try encoder.encode(payload)
     }
 

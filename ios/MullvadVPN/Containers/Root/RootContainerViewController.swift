@@ -316,7 +316,7 @@ class RootContainerViewController: UIViewController {
     func setOverrideHeaderBarHidden(_ isHidden: Bool?, animated: Bool) {
         overrideHeaderBarHidden = isHidden
 
-        if let isHidden = isHidden {
+        if let isHidden {
             setHeaderBarHidden(isHidden, animated: animated)
         } else {
             updateHeaderBarHiddenFromChildPreferences(animated: animated)
@@ -458,13 +458,13 @@ class RootContainerViewController: UIViewController {
              otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
              */
             if shouldHandleAppearanceEvents {
-                if let targetViewController = targetViewController,
+                if let targetViewController,
                    sourceViewController != targetViewController
                 {
                     self.endChildControllerTransition(targetViewController)
                 }
 
-                if let sourceViewController = sourceViewController,
+                if let sourceViewController,
                    sourceViewController != targetViewController
                 {
                     self.endChildControllerTransition(sourceViewController)
@@ -528,7 +528,7 @@ class RootContainerViewController: UIViewController {
 
         // Begin appearance transition
         if shouldHandleAppearanceEvents {
-            if let sourceViewController = sourceViewController,
+            if let sourceViewController,
                sourceViewController != targetViewController
             {
                 beginChildControllerTransition(
@@ -537,7 +537,7 @@ class RootContainerViewController: UIViewController {
                     animated: shouldAnimate
                 )
             }
-            if let targetViewController = targetViewController,
+            if let targetViewController,
                sourceViewController != targetViewController
             {
                 beginChildControllerTransition(

@@ -147,7 +147,7 @@ extension REST {
                 ? transportProvider?.shadowSocksTransport()
                 : transportProvider?.transport()
 
-            guard let transport = transport else {
+            guard let transport else {
                 logger.error("Failed to obtain transport.")
                 finish(result: .failure(REST.Error.transport(NoTransportError())))
                 return
@@ -161,9 +161,9 @@ extension REST {
             )
 
             networkTask = transport.sendRequest(restRequest.urlRequest) { [weak self] data, response, error in
-                guard let self = self else { return }
-                self.dispatchQueue.async {
-                    if let error = error {
+                guard let self else { return }
+                dispatchQueue.async {
+                    if let error {
                         self.didReceiveError(
                             error,
                             transport: transport,

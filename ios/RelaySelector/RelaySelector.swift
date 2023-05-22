@@ -43,7 +43,7 @@ public enum RelaySelector {
             numberOfFailedAttempts: numberOfFailedAttempts
         )
 
-        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays), let port = port else {
+        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays), let port else {
             throw NoRelaysSatisfyingConstraintsError()
         }
 

@@ -252,7 +252,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             // Start tunnel.
             self.adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
                 self.dispatchQueue.async {
-                    if let error = error {
+                    if let error {
                         self.providerLogger.error(
                             error: error,
                             message: "Failed to start the tunnel."
@@ -297,7 +297,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                 self.adapter.stop { error in
                     self.dispatchQueue.async {
-                        if let error = error {
+                        if let error {
                             self.providerLogger.error(
                                 error: error,
                                 message: "Failed to stop the tunnel gracefully."
@@ -484,10 +484,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
         timer.setEventHandler { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.providerLogger.debug("Restart the tunnel that had startup failure.")
-            self.reconnectTunnel(
+            providerLogger.debug("Restart the tunnel that had startup failure.")
+            reconnectTunnel(
                 to: .automatic,
                 shouldStopTunnelMonitor: false
             ) { [weak self] error in
@@ -525,7 +525,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         adapter.start(tunnelConfiguration: emptyTunnelConfiguration) { error in
             self.dispatchQueue.async {
-                if let error = error {
+                if let error {
                     self.providerLogger.error(
                         error: error,
                         message: "Failed to start an empty tunnel."
@@ -560,7 +560,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let selectorResult: RelaySelectorResult
 
         var deviceState: DeviceState
-        if let cachedDeviceState = cachedDeviceState, useCachedDeviceState {
+        if let cachedDeviceState, useCachedDeviceState {
             deviceState = cachedDeviceState
         } else {
             deviceState = try SettingsManager.readDeviceState()
@@ -604,7 +604,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             }
         })
 
-        if let reconnectTunnelTask = reconnectTunnelTask {
+        if let reconnectTunnelTask {
             blockOperation.addDependency(reconnectTunnelTask)
         }
 
@@ -649,7 +649,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
         adapter.update(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
             self.dispatchQueue.async {
-                if let error = error {
+                if let error {
                     self.wgError = error
                     self.providerLogger.error(
                         error: error,
@@ -718,7 +718,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         let completionOperation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             var newAccountExpiry: Date?
             var newDeviceRevoked: Bool?
@@ -726,7 +726,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             switch accountOperation.result {
             case let .failure(error):
                 if !error.isOperationCancellationError {
-                    self.providerLogger.error(
+                    providerLogger.error(
                         error: error,
                         message: "Failed to fetch account data."
                     )
@@ -746,7 +746,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 {
                     newDeviceRevoked = true
                 } else if !error.isOperationCancellationError {
-                    self.providerLogger.error(
+                    providerLogger.error(
                         error: error,
                         message: "Failed to fetch device data."
                     )
@@ -756,7 +756,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 break
             }
 
-            if var deviceCheck = self.deviceCheck {
+            if var deviceCheck {
                 deviceCheck.update(
                     accountExpiry: newAccountExpiry,
                     isDeviceRevoked: newDeviceRevoked
@@ -764,7 +764,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
                 self.deviceCheck = deviceCheck
             } else {
-                self.deviceCheck = DeviceCheck(
+                deviceCheck = DeviceCheck(
                     identifier: UUID(),
                     isDeviceRevoked: newDeviceRevoked,
                     accountExpiry: newAccountExpiry
@@ -772,7 +772,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             }
 
             if newDeviceRevoked ?? false {
-                self.tunnelMonitor.stop()
+                tunnelMonitor.stop()
             }
         }
 
@@ -826,12 +826,12 @@ extension DeviceCheck {
     mutating func update(accountExpiry: Date?, isDeviceRevoked: Bool?) {
         var shouldChangeIdentifier = false
 
-        if let accountExpiry = accountExpiry, self.accountExpiry != accountExpiry {
+        if let accountExpiry, self.accountExpiry != accountExpiry {
             shouldChangeIdentifier = true
             self.accountExpiry = accountExpiry
         }
 
-        if let isDeviceRevoked = isDeviceRevoked, self.isDeviceRevoked != isDeviceRevoked {
+        if let isDeviceRevoked, self.isDeviceRevoked != isDeviceRevoked {
             shouldChangeIdentifier = true
             self.isDeviceRevoked = isDeviceRevoked
         }

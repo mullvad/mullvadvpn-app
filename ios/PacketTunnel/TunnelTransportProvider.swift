@@ -32,8 +32,8 @@ final class TunnelTransportProvider: RESTTransportProvider {
             let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
             let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
 
-            guard let shadowSocksConfiguration = shadowSocksConfiguration,
-                  let shadowSocksBridgeRelay = shadowSocksBridgeRelay
+            guard let shadowSocksConfiguration,
+                  let shadowSocksBridgeRelay
             else {
                 logger.error("Could not get shadow socks bridge information.")
                 return nil

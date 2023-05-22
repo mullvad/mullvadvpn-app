@@ -201,9 +201,9 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
         // Send IPC message.
         do {
             try tunnel.sendProviderMessage(messageData) { [weak self] responseData in
-                guard let self = self else { return }
+                guard let self else { return }
 
-                self.dispatchQueue.async {
+                dispatchQueue.async {
                     let decodingResult = Result { try self.decoderHandler(responseData) }
 
                     self.finish(result: decodingResult)
@@ -231,7 +231,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
             message: message,
             timeout: timeout,
             decoderHandler: { data in
-                if let data = data {
+                if let data {
                     return try TunnelProviderReply(messageData: data).value
                 } else {
                     throw EmptyTunnelProviderResponseError()

@@ -31,7 +31,7 @@ public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible
         }
     }
 
-    public init?<S>(string: S) where S: StringProtocol {
+    public init?(string: some StringProtocol) {
         if let ipv4Endpoint = IPv4Endpoint(string: string) {
             self = .ipv4(ipv4Endpoint)
         } else if let ipv6Endpoint = IPv6Endpoint(string: string) {

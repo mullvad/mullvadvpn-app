@@ -133,9 +133,9 @@ class LoginViewController: UIViewController, RootContainment {
         }
 
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
-            guard let self = self else { return true }
+            guard let self else { return true }
 
-            return self.attemptLogin()
+            return attemptLogin()
         }
 
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated

@@ -136,7 +136,7 @@ class CustomTextView: UITextView {
     }
 
     deinit {
-        if let notificationObserver = notificationObserver {
+        if let notificationObserver {
             NotificationCenter.default.removeObserver(notificationObserver)
         }
     }

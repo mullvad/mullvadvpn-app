@@ -29,11 +29,11 @@ class TermsOfServiceCoordinator: Coordinator, Presenting {
         }
 
         controller.completionHandler = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             TermsOfService.setAgreed()
 
-            self.didFinish?(self)
+            didFinish?(self)
         }
 
         navigationController.pushViewController(controller, animated: false)
