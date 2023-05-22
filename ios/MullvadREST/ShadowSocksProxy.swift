@@ -84,8 +84,8 @@ public class ShadowSocksProxy {
         guard didStart == true else { return }
         didStart = false
 
-        _ = withUnsafePointer(to: proxyConfig) { pointer in
-            stop_shadowsocks_proxy(UnsafeMutablePointer(mutating: pointer))
+        _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
+            stop_shadowsocks_proxy(config)
         }
     }
 }
