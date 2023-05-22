@@ -121,7 +121,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         _ device: DeviceViewModel,
         completionHandler: @escaping () -> Void
     ) {
-        showDeleteConfirmation(deviceName: device.name) { [weak self] shouldDelete in
+        showLogoutConfirmation(deviceName: device.name) { [weak self] shouldDelete in
             guard let self else { return }
 
             guard shouldDelete else {
@@ -156,32 +156,29 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 
     private func showErrorAlert(title: String, error: Error) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: title,
-            message: getErrorDescription(error),
-            preferredStyle: .alert
+            message: getErrorDescription(error)
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "ERROR_ALERT_OK_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel
-            )
+            title: NSLocalizedString(
+                "ERROR_ALERT_OK_ACTION",
+                tableName: "DeviceManagement",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
-    private func showDeleteConfirmation(
+    private func showLogoutConfirmation(
         deviceName: String,
         completion: @escaping (_ shouldDelete: Bool) -> Void
     ) {
-        let localizedTitle = String(
+        let message = String(
             format: NSLocalizedString(
                 "DELETE_ALERT_TITLE",
                 tableName: "DeviceManagement",
@@ -190,42 +187,36 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             ), deviceName
         )
 
-        let alertController = UIAlertController(
-            title: localizedTitle,
-            message: nil,
-            preferredStyle: .alert
+        let alertController = CustomAlertViewController(
+            message: message,
+            icon: .alert
         )
 
-        let actions = [
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "DELETE_ALERT_CANCEL_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "Back",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { _ in
-                    completion(false)
-                }
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DELETE_ALERT_CANCEL_ACTION",
+                tableName: "DeviceManagement",
+                value: "Back",
+                comment: ""
             ),
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "DELETE_ALERT_CONFIRM_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "Yes, log out device",
-                    comment: ""
-                ),
-                style: .destructive,
-                handler: { _ in
-                    completion(true)
-                }
-            ),
-        ]
+            style: .default,
+            handler: {
+                completion(false)
+            }
+        )
 
-        for action in actions {
-            alertController.addAction(action)
-        }
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DELETE_ALERT_CONFIRM_ACTION",
+                tableName: "DeviceManagement",
+                value: "Yes, log out device",
+                comment: ""
+            ),
+            style: .destructive,
+            handler: {
+                completion(true)
+            }
+        )
 
         alertPresenter.enqueue(alertController, presentingController: self)
     }

@@ -9,30 +9,61 @@
 import UIKit
 
 extension NSAttributedString {
+    enum MarkdownElement {
+        case bold
+    }
+
+    struct MarkdownStylingOptions {
+        var font: UIFont
+        var paragraphStyle: NSParagraphStyle = .default
+
+        var boldFont: UIFont {
+            let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font.fontDescriptor
+            return UIFont(descriptor: fontDescriptor, size: font.pointSize)
+        }
+    }
+
     convenience init(
         markdownString: String,
-        font: UIFont,
-        applyEffect: ((String) -> [NSAttributedString.Key: Any])? = nil
+        options: MarkdownStylingOptions,
+        applyEffect: ((MarkdownElement, String) -> [NSAttributedString.Key: Any])? = nil
     ) {
         let attributedString = NSMutableAttributedString()
-        let components = markdownString.components(separatedBy: "**")
+        let paragraphs = markdownString.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: "\n\n")
 
-        let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font
-            .fontDescriptor
-        let boldFont = UIFont(descriptor: fontDescriptor, size: font.pointSize)
+        for (paragraphIndex, paragraph) in paragraphs.enumerated() {
+            let attributedParagraph = NSMutableAttributedString()
 
-        for (index, string) in components.enumerated() {
-            var attributes = [NSAttributedString.Key: Any]()
+            // Replace \n with \u2028 to prevent attributed string from picking up single line breaks as paragraphs.
+            let components = paragraph.replacingOccurrences(of: "\n", with: "\u{2028}")
+                .components(separatedBy: "**")
 
-            if index % 2 == 0 {
-                attributes[.font] = font
-            } else {
-                attributes[.font] = boldFont
-                attributes.merge(applyEffect?(string) ?? [:], uniquingKeysWith: { $1 })
+            if paragraphIndex > 0 {
+                // Add single line break to add spacing between paragraphs.
+                attributedParagraph.append(NSAttributedString(string: "\n"))
             }
 
-            attributedString.append(NSAttributedString(string: string, attributes: attributes))
+            for (stringIndex, string) in components.enumerated() {
+                var attributes: [NSAttributedString.Key: Any] = [:]
+
+                if stringIndex % 2 == 0 {
+                    attributes[.font] = options.font
+                } else {
+                    attributes[.font] = options.boldFont
+                    attributes.merge(applyEffect?(.bold, string) ?? [:], uniquingKeysWith: { $1 })
+                }
+
+                attributedParagraph.append(NSAttributedString(string: string, attributes: attributes))
+            }
+
+            attributedString.append(attributedParagraph)
         }
+
+        attributedString.addAttribute(
+            .paragraphStyle,
+            value: options.paragraphStyle,
+            range: NSRange(location: 0, length: attributedString.length)
+        )
 
         self.init(attributedString: attributedString)
     }
