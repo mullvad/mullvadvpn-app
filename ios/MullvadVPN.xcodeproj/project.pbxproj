@@ -369,13 +369,14 @@
 		7A7AD28F29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7AD2DA1529DC4EB900250737 /* UISearchBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */; };
+		7AE47E522A17972A000418DA /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE47E512A17972A000418DA /* CustomAlertViewController.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
-		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
-		A9CF11FD2A0518E7001D9565 /* AddressCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */; };
 		A917351F29FAA9C400D5DCFD /* RESTTransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */; };
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A92CAAC629F7D33C008ED922 /* TunnelTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */; };
 		A97FF54B2A0B7AD000900996 /* SimulatorTunnelTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54A2A0B7AD000900996 /* SimulatorTunnelTransportProvider.swift */; };
+		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
+		A9CF11FD2A0518E7001D9565 /* AddressCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -978,13 +979,14 @@
 		7A7AD28E29DEDB1C00480EF1 /* SettingsContentBlockersHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsContentBlockersHeaderView.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7AD2DA1429DC4EB900250737 /* UISearchBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar+Appearance.swift"; sourceTree = "<group>"; };
+		7AE47E512A17972A000418DA /* CustomAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertViewController.swift; sourceTree = "<group>"; };
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
-		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
-		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStrategy.swift; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
 		A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelTransportProvider.swift; sourceTree = "<group>"; };
 		A97FF54A2A0B7AD000900996 /* SimulatorTunnelTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelTransportProvider.swift; sourceTree = "<group>"; };
+		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
+		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
@@ -1512,16 +1514,17 @@
 		583FE02829C1B079006E85F9 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				58CC40EE24A601900019D96E /* ObserverList.swift */,
-				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
-				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
-				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
-				5872D6E7286304DE00DB5F4E /* TermsOfService.swift */,
-				5859A55229CD9B1300F66591 /* ChangeLog.swift */,
 				587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */,
+				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
+				5859A55229CD9B1300F66591 /* ChangeLog.swift */,
+				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
+				7AE47E512A17972A000418DA /* CustomAlertViewController.swift */,
+				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				58138E60294871C600684F0C /* DeviceDataThrottling.swift */,
-				589A454B28DDF5E100565204 /* Swizzle.swift */,
 				7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */,
+				58CC40EE24A601900019D96E /* ObserverList.swift */,
+				589A454B28DDF5E100565204 /* Swizzle.swift */,
+				5872D6E7286304DE00DB5F4E /* TermsOfService.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -2057,7 +2060,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 06799AD328F98E1D00ACD94E /* Build configuration list for PBXNativeTarget "MullvadREST" */;
 			buildPhases = (
-				588E4EB028FEF1CA008046E3 /* Run prebuild script */,
 				01F1FF1F29F07D63007083C3 /* ShellScript */,
 				06799AB728F98E1D00ACD94E /* Headers */,
 				06799AB828F98E1D00ACD94E /* Sources */,
@@ -2762,6 +2764,7 @@
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
+				7AE47E522A17972A000418DA /* CustomAlertViewController.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,

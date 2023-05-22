@@ -10,12 +10,12 @@ import Operations
 import UIKit
 
 public final class PresentAlertOperation: AsyncOperation {
-    private let alertController: UIAlertController
+    private let alertController: CustomAlertViewController
     private let presentingController: UIViewController
     private let presentCompletion: (() -> Void)?
 
     public init(
-        alertController: UIAlertController,
+        alertController: CustomAlertViewController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
     ) {
