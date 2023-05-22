@@ -9,7 +9,7 @@
 import Operations
 import StoreKit
 
-public final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
+final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
     SKProductsRequestDelegate
 {
     private let productIdentifiers: Set<String>
@@ -31,22 +31,22 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse>
         )
     }
 
-    override public func main() {
+    override func main() {
         startRequest()
     }
 
-    override public func operationDidCancel() {
+    override func operationDidCancel() {
         request?.cancel()
         retryTimer?.cancel()
     }
 
     // - MARK: SKProductsRequestDelegate
 
-    public func requestDidFinish(_ request: SKRequest) {
+    func requestDidFinish(_ request: SKRequest) {
         // no-op
     }
 
-    public func request(_ request: SKRequest, didFailWithError error: Error) {
+    func request(_ request: SKRequest, didFailWithError error: Error) {
         dispatchQueue.async {
             if self.retryCount < self.maxRetryCount, !self.isCancelled {
                 self.retryCount += 1
@@ -57,7 +57,7 @@ public final class ProductsRequestOperation: ResultOperation<SKProductsResponse>
         }
     }
 
-    public func productsRequest(
+    func productsRequest(
         _ request: SKProductsRequest,
         didReceive response: SKProductsResponse
     ) {
