@@ -66,19 +66,21 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     private func showContentBlockerInfo(with message: String) {
-        let alertController = UIAlertController(
-            title: nil,
+        let alertController = CustomAlertController(
             message: message,
-            preferredStyle: .alert
+            icon: .info
         )
+
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString(
+            title: NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
                 tableName: "ContentBlockers",
                 value: "Got it!",
                 comment: ""
-            ), style: .cancel)
+            ),
+            style: .default
         )
+
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 

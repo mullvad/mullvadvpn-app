@@ -11,19 +11,19 @@ import UIKit
 
 public final class AlertPresenter {
     static let alertControllerDidDismissNotification = Notification
-        .Name("UIAlertControllerDidDismiss")
+        .Name("CustomAlertControllerDidDismiss")
 
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
     private static let initClass: Void = {
-        /// Swizzle `viewDidDisappear` on `UIAlertController` in order to be able to
+        /// Swizzle `viewDidDisappear` on `CustimAlertController` in order to be able to
         /// detect when the controller disappears.
         /// The event is broadcasted via
         /// `AlertPresenter.alertControllerDidDismissNotification` notification.
         swizzleMethod(
-            aClass: UIAlertController.self,
-            originalSelector: #selector(UIAlertController.viewDidDisappear(_:)),
-            newSelector: #selector(UIAlertController.alertPresenter_viewDidDisappear(_:))
+            aClass: CustomAlertController.self,
+            originalSelector: #selector(CustomAlertController.viewDidDisappear(_:)),
+            newSelector: #selector(CustomAlertController.alertPresenter_viewDidDisappear(_:))
         )
     }()
 
@@ -32,7 +32,7 @@ public final class AlertPresenter {
     }
 
     public func enqueue(
-        _ alertController: UIAlertController,
+        _ alertController: CustomAlertController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
     ) {
@@ -50,7 +50,7 @@ public final class AlertPresenter {
     }
 }
 
-private extension UIAlertController {
+private extension CustomAlertController {
     @objc dynamic func alertPresenter_viewDidDisappear(_ animated: Bool) {
         // Call super implementation
         alertPresenter_viewDidDisappear(animated)
