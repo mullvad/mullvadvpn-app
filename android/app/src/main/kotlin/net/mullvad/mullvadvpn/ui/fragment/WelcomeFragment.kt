@@ -78,8 +78,10 @@ class WelcomeFragment : BaseFragment() {
 
         view.findViewById<TextView>(R.id.pay_to_start_using).text = buildString {
             append(requireActivity().getString(R.string.pay_to_start_using))
-            append(" ")
-            append(requireActivity().getString(R.string.add_time_to_account))
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                append(" ")
+                append(requireActivity().getString(R.string.add_time_to_account))
+            }
         }
 
         sitePaymentButton =
