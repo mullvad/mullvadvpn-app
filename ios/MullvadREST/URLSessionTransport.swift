@@ -26,8 +26,52 @@ extension REST {
         public func sendRequest(
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
-        ) throws -> Cancellable {
+        ) -> Cancellable {
             let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
+            dataTask.resume()
+            return dataTask
+        }
+    }
+
+    public final class URLSessionShadowSocksTransport: RESTTransport {
+        public var name: String {
+            return "shadow-socks-url-session"
+        }
+
+        public let urlSession: URLSession
+        private let shadowSocksProxy: ShadowSocksProxy
+
+        public init(
+            urlSession: URLSession,
+            shadowSocksConfiguration: ServerShadowsocks,
+            shadowSocksBridgeRelay: BridgeRelay
+        ) {
+            self.urlSession = urlSession
+            shadowSocksProxy = ShadowSocksProxy(
+                remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
+                remotePort: shadowSocksConfiguration.port,
+                password: shadowSocksConfiguration.password,
+                cipher: shadowSocksConfiguration.cipher
+            )
+        }
+
+        public func sendRequest(
+            _ request: URLRequest,
+            completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
+        ) -> Cancellable {
+            // Start the shadow socks proxy in order to get a local port
+            shadowSocksProxy.start()
+
+            // Copy the URL request and rewrite the host and port to point to the shadow socks proxy instance
+            var urlRequestCopy = request
+            urlRequestCopy.url = request.url.flatMap { url in
+                var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                components?.host = "127.0.0.1"
+                components?.port = Int(shadowSocksProxy.localPort())
+                return components?.url
+            }
+
+            let dataTask = urlSession.dataTask(with: urlRequestCopy, completionHandler: completion)
             dataTask.resume()
             return dataTask
         }

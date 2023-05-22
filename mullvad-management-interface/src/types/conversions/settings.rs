@@ -161,7 +161,8 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             )?,
             // NOTE: This field is meaningless when obtained from gRPC
             wg_migration_rand_num: std::f32::NAN,
-            // NOTE: This field is set based on mullvad-types. It's not based on the actual settings version.
+            // NOTE: This field is set based on mullvad-types. It's not based on the actual settings
+            // version.
             settings_version: CURRENT_SETTINGS_VERSION,
         })
     }

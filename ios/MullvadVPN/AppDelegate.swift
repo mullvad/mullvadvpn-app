@@ -59,9 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { [weak self] in
-                return self?.transportMonitor.transport
-            },
+            transportProvider: { [weak self] in self?.transportMonitor },
             addressCache: addressCache
         )
 
@@ -70,6 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         devicesProxy = proxyFactory.createDevicesProxy()
 
         relayCacheTracker = RelayCacheTracker(application: application, apiProxy: apiProxy)
+
         addressCacheTracker = AddressCacheTracker(
             application: application,
             apiProxy: apiProxy,
@@ -93,7 +92,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
-        transportMonitor = TransportMonitor(tunnelManager: tunnelManager, tunnelStore: tunnelStore)
+        transportMonitor = TransportMonitor(
+            tunnelManager: tunnelManager,
+            tunnelStore: tunnelStore,
+            relayCacheTracker: relayCacheTracker
+        )
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
