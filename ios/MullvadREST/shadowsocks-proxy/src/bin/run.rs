@@ -5,8 +5,11 @@ fn main() {
     let password = "mullvad";
     let cipher = "aes-256-gcm";
 
-    let (port, handle) = shadowsocks_proxy::run_forwarding_proxy(socketaddr, password, cipher)
-        .expect("failed to start SOCKS proxy");
+    let forward_address = SocketAddr::from_str("45.83.223.196:443").unwrap();
+
+    let (port, handle) =
+        shadowsocks_proxy::run_forwarding_proxy(forward_address, socketaddr, password, cipher)
+            .expect("failed to start SOCKS proxy");
 
     println!("Running proxy on port {port}");
 
