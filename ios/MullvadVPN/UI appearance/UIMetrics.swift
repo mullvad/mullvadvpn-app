@@ -68,4 +68,15 @@ extension UIMetrics {
 
     /// Maximum sidebar width in percentage points (0...1)
     static let maximumSplitViewSidebarWidthFraction: CGFloat = 0.3
+
+    /// Layout margins for container (main view) in `CustomAlertViewController`
+    static let customAlertContainerMargins = NSDirectionalEdgeInsets(
+        top: 24,
+        leading: 16,
+        bottom: 16,
+        trailing: 16
+    )
+
+    /// Spacing between views in container (main view) in `CustomAlertViewController`
+    static let customAlertContainerSpacing: CGFloat = 18
 }

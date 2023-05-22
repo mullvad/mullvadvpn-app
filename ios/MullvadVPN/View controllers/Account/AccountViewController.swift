@@ -207,50 +207,50 @@ class AccountViewController: UIViewController {
     }
 
     private func showPaymentErrorAlert(error: StorePaymentManagerError) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
                 tableName: "Account",
                 value: "Cannot complete the purchase",
                 comment: ""
             ),
-            message: error.displayErrorDescription,
-            preferredStyle: .alert
+            message: error.displayErrorDescription
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                    tableName: "Account",
-                    value: "OK",
-                    comment: ""
-                ), style: .cancel
-            )
+            title: NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
     private func showRestorePurchasesErrorAlert(error: StorePaymentManagerError) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
                 tableName: "Account",
                 value: "Cannot restore purchases",
                 comment: ""
             ),
-            message: error.displayErrorDescription,
-            preferredStyle: .alert
+            message: error.displayErrorDescription
         )
+
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString(
+            title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
                 tableName: "Account",
-                value: "OK",
+                value: "Got it!",
                 comment: ""
-            ), style: .cancel)
+            ),
+            style: .default
         )
+
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
@@ -258,21 +258,19 @@ class AccountViewController: UIViewController {
         with response: REST.CreateApplePaymentResponse,
         context: REST.CreateApplePaymentResponse.Context
     ) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context),
-            preferredStyle: .alert
+            message: response.alertMessage(context: context)
         )
+
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "TIME_ADDED_ALERT_OK_ACTION",
-                    tableName: "Account",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel
-            )
+            title: NSLocalizedString(
+                "TIME_ADDED_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -281,17 +279,8 @@ class AccountViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func doLogout() {
-        let message = NSLocalizedString(
-            "LOGGING_OUT_ALERT_TITLE",
-            tableName: "Account",
-            value: "Logging out. Please wait...",
-            comment: ""
-        )
-
-        let alertController = UIAlertController(
-            title: nil,
-            message: message,
-            preferredStyle: .alert
+        let alertController = CustomAlertViewController(
+            icon: .spinner
         )
 
         alertPresenter.enqueue(alertController, presentingController: self) {

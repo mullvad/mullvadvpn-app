@@ -211,28 +211,27 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         error: StorePaymentManagerError,
         completion: @escaping () -> Void
     ) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
                 tableName: "OutOfTime",
                 value: "Cannot complete the purchase",
                 comment: ""
             ),
-            message: error.displayErrorDescription,
-            preferredStyle: .alert
+            message: error.displayErrorDescription
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                    tableName: "OutOfTime",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { _ in completion() }
-            )
+            title: NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
+                tableName: "OutOfTime",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default,
+            handler: {
+                completion()
+            }
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -242,28 +241,27 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         error: StorePaymentManagerError,
         completion: @escaping () -> Void
     ) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
                 tableName: "OutOfTime",
                 value: "Cannot restore purchases",
                 comment: ""
             ),
-            message: error.displayErrorDescription,
-            preferredStyle: .alert
+            message: error.displayErrorDescription
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
-                    tableName: "OutOfTime",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { _ in completion() }
-            )
+            title: NSLocalizedString(
+                "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
+                tableName: "OutOfTime",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default,
+            handler: {
+                completion()
+            }
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -279,23 +277,22 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             return
         }
 
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context),
-            preferredStyle: .alert
+            message: response.alertMessage(context: context)
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "TIME_ADDED_ALERT_OK_ACTION",
-                    tableName: "OutOfTime",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { _ in completion() }
-            )
+            title: NSLocalizedString(
+                "TIME_ADDED_ALERT_OK_ACTION",
+                tableName: "OutOfTime",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default,
+            handler: {
+                completion()
+            }
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)

@@ -20,6 +20,7 @@ XCASSETS_APPICON_SIZE = 1024
 # graphical assets to import
 GRAPHICAL_ASSETS = [
   "icon-account.svg",
+  "icon-alert.svg",
   "icon-arrow.svg",
   "icon-back.svg",
   "icon-chevron-down.svg",
