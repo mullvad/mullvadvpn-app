@@ -10,19 +10,31 @@ import Foundation
 import Network
 import Shadowsocks
 
+/// A Swift wrapper around a Rust implementation of Shadowsock
 public class ShadowSocksProxy {
     private var proxyConfig: ProxyHandle
-    private let remoteAddress: IPAddress
-    private let remotePort: UInt16
+    private let forwardAddress: IPAddress
+    private let forwardPort: UInt16
+    private let bridgeIPAddress: IPAddress
+    private let bridgeIPPort: UInt16
     private let password: String
     private let cipher: String
     private var didStart = false
     private let stateLock = NSLock()
 
-    public init(remoteAddress: IPAddress, remotePort: UInt16, password: String, cipher: String) {
-        proxyConfig = ProxyHandle(context: nil, port: 0)
-        self.remoteAddress = remoteAddress
-        self.remotePort = remotePort
+    public init(
+        forwardAddress: IPAddress,
+        forwardPort: UInt16,
+        bridgeIPAddress: IPAddress,
+        bridgePort: UInt16,
+        password: String,
+        cipher: String
+    ) {
+        self.proxyConfig = ProxyHandle(context: nil, port: 0)
+        self.forwardAddress = forwardAddress
+        self.forwardPort = forwardPort
+        self.bridgeIPAddress = bridgeIPAddress
+        self.bridgeIPPort = bridgePort
         self.password = password
         self.cipher = cipher
     }
@@ -47,25 +59,21 @@ public class ShadowSocksProxy {
         guard didStart == false else { return }
         didStart = true
 
-        // Get the raw bytes of `addr.rawValue`
-        remoteAddress.rawValue.withUnsafeBytes { unsafeAddressPointer in
-
-            // Rebind the raw bytes to an array of bytes, and get a pointer to its beginning
-            let rawAddr = unsafeAddressPointer.bindMemory(to: UInt8.self).baseAddress
-
-            // Get the raw bytes access to `proxyConfig`
-            _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
-                start_shadowsocks_proxy(
-                    rawAddr,
-                    UInt(remoteAddress.rawValue.count),
-                    remotePort,
-                    password,
-                    UInt(password.count),
-                    cipher,
-                    UInt(cipher.count),
-                    config
-                )
-            }
+        // Get the raw bytes access to `proxyConfig`
+        _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
+            start_shadowsocks_proxy(
+                (forwardAddress.rawValue as NSData).bytes,
+                UInt(forwardAddress.rawValue.count),
+                forwardPort,
+                (bridgeIPAddress.rawValue as NSData).bytes,
+                UInt(bridgeIPAddress.rawValue.count),
+                bridgeIPPort,
+                password,
+                UInt(password.count),
+                cipher,
+                UInt(cipher.count),
+                config
+            )
         }
     }
 

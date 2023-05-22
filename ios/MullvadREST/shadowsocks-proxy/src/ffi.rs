@@ -21,6 +21,9 @@ pub struct ProxyHandle {
 /// instance.
 #[no_mangle]
 pub unsafe extern "C" fn start_shadowsocks_proxy(
+    forward_address: *const u8,
+    forward_address_len: usize,
+    forward_port: u16,
     addr: *const u8,
     addr_len: usize,
     port: u16,
@@ -37,13 +40,21 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
             .init();
     });
 
+    let forward_ip = if let Some(forward_address) = unsafe { parse_ip_addr(forward_address, forward_address_len) } {
+        forward_address
+    } else {
+        return -1;
+    };
+
+    let forward_socket = SocketAddr::new(forward_ip, forward_port);
+
     let bridge_ip = if let Some(addr) = unsafe { parse_ip_addr(addr, addr_len) } {
         addr
     } else {
         return -1;
     };
 
-    let bridge_addr = SocketAddr::new(bridge_ip, port);
+    let bridge_socket = SocketAddr::new(bridge_ip, port);
 
     let password = if let Some(password) = unsafe { parse_str(password, password_len) } {
         password
@@ -57,7 +68,7 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
         return -1;
     };
 
-    let (port, handle) = match run_forwarding_proxy(bridge_addr, &password, &cipher) {
+    let (port, handle) = match run_forwarding_proxy(forward_socket, bridge_socket, &password, &cipher) {
         Ok((port, handle)) => (port, handle),
         Err(err) => {
             log::error!("Failed to run HTTP proxy {}", err);
