@@ -166,7 +166,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     // MARK: - SettingsMigrationUIHandler
 
     func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: NSLocalizedString(
                 "ALERT_TITLE",
                 tableName: "SettingsMigrationUI",
@@ -174,16 +174,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
                 comment: ""
             ),
             message: Self.migrationErrorReason(error),
-            preferredStyle: .alert
+            icon: .info
         )
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString("OK", tableName: "SettingsMigrationUI", comment: ""),
-                style: .default,
-                handler: { _ in
-                    completionHandler()
-                }
-            )
+            title: NSLocalizedString("OK", tableName: "SettingsMigrationUI", comment: ""),
+            style: .default,
+            handler: {
+                completionHandler()
+            }
         )
 
         if let rootViewController = window?.rootViewController {

@@ -207,7 +207,7 @@ class AccountViewController: UIViewController {
     }
 
     private func showPaymentErrorAlert(error: StorePaymentManagerError) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
                 tableName: "Account",
@@ -215,25 +215,24 @@ class AccountViewController: UIViewController {
                 comment: ""
             ),
             message: error.displayErrorDescription,
-            preferredStyle: .alert
+            icon: .info
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                    tableName: "Account",
-                    value: "OK",
-                    comment: ""
-                ), style: .cancel
-            )
+            title: NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "OK",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
     private func showRestorePurchasesErrorAlert(error: StorePaymentManagerError) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
                 tableName: "Account",
@@ -241,16 +240,19 @@ class AccountViewController: UIViewController {
                 comment: ""
             ),
             message: error.displayErrorDescription,
-            preferredStyle: .alert
+            icon: .info
         )
+
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString(
+            title: NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
                 tableName: "Account",
                 value: "OK",
                 comment: ""
-            ), style: .cancel)
+            ),
+            style: .default
         )
+
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
@@ -258,21 +260,20 @@ class AccountViewController: UIViewController {
         with response: REST.CreateApplePaymentResponse,
         context: REST.CreateApplePaymentResponse.Context
     ) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: response.alertTitle(context: context),
             message: response.alertMessage(context: context),
-            preferredStyle: .alert
+            icon: .info
         )
+
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "TIME_ADDED_ALERT_OK_ACTION",
-                    tableName: "Account",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel
-            )
+            title: NSLocalizedString(
+                "TIME_ADDED_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "OK",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -288,10 +289,10 @@ class AccountViewController: UIViewController {
             comment: ""
         )
 
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: nil,
             message: message,
-            preferredStyle: .alert
+            icon: .info
         )
 
         alertPresenter.enqueue(alertController, presentingController: self) {
