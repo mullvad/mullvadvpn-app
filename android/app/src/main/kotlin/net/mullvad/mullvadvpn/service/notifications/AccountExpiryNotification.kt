@@ -9,10 +9,13 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
+import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SdkUtils
@@ -97,7 +100,14 @@ class AccountExpiryNotification(
             jobTracker.runOnBackground {
                 Uri.parse("$buyMoreTimeUrl?token=${daemon.await().getWwwAuthToken()}")
             }
-        val intent = Intent(Intent.ACTION_VIEW, url)
+        val intent =
+            if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+                Intent(context, MainActivity::class.java)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .setAction(Intent.ACTION_MAIN)
+            } else {
+                Intent(Intent.ACTION_VIEW, url)
+            }
         val pendingIntent =
             PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
 
