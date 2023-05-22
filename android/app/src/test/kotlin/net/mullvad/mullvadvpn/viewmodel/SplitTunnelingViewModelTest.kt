@@ -139,7 +139,7 @@ class SplitTunnelingViewModelTest {
 
             testSubject.uiState.test {
                 assertEquals(expectedStateBeforeAction, awaitItem())
-                testSubject.removeFromExcluded(app.packageName)
+                testSubject.onIncludeAppClick(app.packageName)
                 excludedAppsCallback.invoke(emptySet())
                 assertEquals(expectedStateAfterAction, awaitItem())
 
@@ -181,7 +181,7 @@ class SplitTunnelingViewModelTest {
 
             testSubject.uiState.test {
                 assertEquals(expectedStateBeforeAction, awaitItem())
-                testSubject.addToExcluded(app.packageName)
+                testSubject.onExcludeAppClick(app.packageName)
                 excludedAppsCallback.invoke(setOf(app.packageName))
                 assertEquals(expectedStateAfterAction, awaitItem())
 

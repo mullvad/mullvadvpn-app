@@ -32,6 +32,8 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.compose.util.ContentKey
+import net.mullvad.mullvadvpn.compose.util.ContentType
 
 @Preview
 @Composable
@@ -107,7 +109,7 @@ fun SplitTunnelingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
-            item(key = KEY_DESCRIPTION, contentType = TYPE_DESCRIPTION) {
+            item(key = ContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
                 Text(
                     style = MaterialTheme.typography.labelMedium,
                     text = stringResource(id = R.string.split_tunneling_description),
@@ -121,7 +123,7 @@ fun SplitTunnelingScreen(
             }
             when (uiState) {
                 SplitTunnelingUiState.Loading -> {
-                    item(key = KEY_PROGRESS, contentType = TYPE_PROGRESS) {
+                    item(key = ContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier =
@@ -134,7 +136,10 @@ fun SplitTunnelingScreen(
                 }
                 is SplitTunnelingUiState.ShowAppList -> {
                     if (uiState.excludedApps.isNotEmpty()) {
-                        itemWithDivider(key = KEY_EXCLUDED_APPLICATIONS, contentType = TYPE_TITLE) {
+                        itemWithDivider(
+                            key = ContentKey.EXCLUDED_APPLICATIONS,
+                            contentType = ContentType.HEADER
+                        ) {
                             BaseCell(
                                 title = {
                                     Text(
@@ -149,7 +154,7 @@ fun SplitTunnelingScreen(
                         items(
                             items = uiState.excludedApps,
                             key = { listItem -> listItem.packageName },
-                            contentType = { TYPE_APPLICATION }
+                            contentType = { ContentType.ITEM }
                         ) { listItem ->
                             SplitTunnelingCell(
                                 title = listItem.name,
@@ -160,14 +165,14 @@ fun SplitTunnelingScreen(
                                 onIncludeAppClick(listItem.packageName)
                             }
                         }
-                        item(key = KEY_SPACER, contentType = TYPE_SPACER) {
+                        item(key = ContentKey.SPACER, contentType = ContentType.SPACER) {
                             Spacer(modifier = Modifier.height(Dimens.mediumPadding))
                         }
                     }
 
                     itemWithDivider(
-                        key = KEY_SHOW_SYSTEM_APPLICATIONS,
-                        contentType = TYPE_SWITCH_CELL
+                        key = ContentKey.SHOW_SYSTEM_APPLICATIONS,
+                        contentType = ContentType.OTHER_ITEM
                     ) {
                         SwitchComposeCell(
                             title = stringResource(id = R.string.show_system_apps),
@@ -175,7 +180,10 @@ fun SplitTunnelingScreen(
                             onCellClicked = { newValue -> onShowSystemAppsClicked(newValue) }
                         )
                     }
-                    itemWithDivider(key = KEY_INCLUDED_APPLICATIONS, contentType = TYPE_TITLE) {
+                    itemWithDivider(
+                        key = ContentKey.INCLUDED_APPLICATIONS,
+                        contentType = ContentType.HEADER
+                    ) {
                         BaseCell(
                             title = {
                                 Text(
@@ -190,7 +198,7 @@ fun SplitTunnelingScreen(
                     items(
                         items = uiState.includedApps,
                         key = { listItem -> listItem.packageName },
-                        contentType = { TYPE_APPLICATION }
+                        contentType = { ContentType.ITEM }
                     ) { listItem ->
                         SplitTunnelingCell(
                             title = listItem.name,
@@ -206,19 +214,3 @@ fun SplitTunnelingScreen(
         }
     }
 }
-
-// Content types, to improve the ability to reuse views
-const val TYPE_DESCRIPTION = 1
-const val TYPE_TITLE = 2
-const val TYPE_SWITCH_CELL = 3
-const val TYPE_APPLICATION = 4
-const val TYPE_SPACER = 5
-const val TYPE_PROGRESS = 6
-
-// Keys, also to improve re-usability of views
-const val KEY_DESCRIPTION = "description"
-const val KEY_EXCLUDED_APPLICATIONS = "excluded"
-const val KEY_SHOW_SYSTEM_APPLICATIONS = "show_system"
-const val KEY_INCLUDED_APPLICATIONS = "included"
-const val KEY_SPACER = "spacer"
-const val KEY_PROGRESS = "progress"
