@@ -131,7 +131,7 @@ class SplitTunnelingScreenTest {
                         includedApps = listOf(includedApp),
                         showSystemApps = false
                     ),
-                addToExcluded = mockedClickHandler
+                onExcludeAppClick = mockedClickHandler
             )
         }
 
@@ -158,7 +158,7 @@ class SplitTunnelingScreenTest {
                         includedApps = listOf(includedApp),
                         showSystemApps = false
                     ),
-                removeFromExcluded = mockedClickHandler
+                onIncludeAppClick = mockedClickHandler
             )
         }
 
