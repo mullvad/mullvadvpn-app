@@ -45,12 +45,19 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Rename "Advanced settings" to "VPN Settings".
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
-- Remove purchasing information from release builds. This does not affect F-Droid builds.
 - Migrate split tunneling view to compose.
 
 ### Fixed
 #### Android
 - Fix connection header flickering.
+
+
+## [android/2023.2] - 2023-05-22
+### Changed
+#### Android
+- Change so that all links and texts leading to the account web page (which also includes a payment
+  flow) are either hidden or leads to the app itself (notification actions) in order to comply with
+  the Google Play payment policies. This doesn't apply to F-Droid builds.
 
 
 ## [android/2023.1] - 2023-05-16
