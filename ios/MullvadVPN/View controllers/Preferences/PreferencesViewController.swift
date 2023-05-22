@@ -75,19 +75,21 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     private func showContentBlockerInfo(with message: String) {
-        let alertController = UIAlertController(
-            title: nil,
+        let alertController = CustomAlertViewController(
             message: message,
-            preferredStyle: .alert
+            icon: .info
         )
+
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString(
+            title: NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
                 tableName: "ContentBlockers",
                 value: "Got it!",
                 comment: ""
-            ), style: .cancel)
+            ),
+            style: .default
         )
+
         alertPresenter.enqueue(alertController, presentingController: self)
     }
 
@@ -146,7 +148,13 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_PORTS_GENERAL",
                 tableName: "WireGuardPorts",
-                value: "The automatic setting will randomly choose from the valid port ranges shown below.\n\nThe custom port can be any value inside the valid ranges:\n\n\(portsString)",
+                value: """
+                The automatic setting will randomly choose from the valid port ranges shown below.
+
+                The custom port can be any value inside the valid ranges:
+
+                \(portsString)
+                """,
                 comment: ""
             )
 
