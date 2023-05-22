@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
   `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
 
+#### Android
+- Remove purchasing information from release builds. This does not affect F-Droid builds.
+
 ### Deprecated
 #### Linux
 - Deprecated support for Debian 10. This also means dropping support for glibc older
