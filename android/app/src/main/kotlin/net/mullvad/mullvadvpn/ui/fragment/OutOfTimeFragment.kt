@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
+import org.koin.android.BuildConfig
 import org.koin.android.ext.android.inject
 
 class OutOfTimeFragment : BaseFragment() {
@@ -77,8 +78,10 @@ class OutOfTimeFragment : BaseFragment() {
 
         view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
             append(requireActivity().getString(R.string.account_credit_has_expired))
-            append(" ")
-            append(requireActivity().getString(R.string.add_time_to_account))
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                append(" ")
+                append(requireActivity().getString(R.string.add_time_to_account))
+            }
         }
 
         disconnectButton =

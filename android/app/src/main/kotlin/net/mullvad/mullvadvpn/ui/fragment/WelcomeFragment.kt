@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import org.joda.time.DateTime
+import org.koin.android.BuildConfig
 import org.koin.android.ext.android.inject
 
 val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
@@ -78,8 +79,10 @@ class WelcomeFragment : BaseFragment() {
 
         view.findViewById<TextView>(R.id.pay_to_start_using).text = buildString {
             append(requireActivity().getString(R.string.pay_to_start_using))
-            append(" ")
-            append(requireActivity().getString(R.string.add_time_to_account))
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                append(" ")
+                append(requireActivity().getString(R.string.add_time_to_account))
+            }
         }
 
         sitePaymentButton =
