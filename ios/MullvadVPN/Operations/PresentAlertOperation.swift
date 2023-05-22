@@ -9,13 +9,13 @@
 import Operations
 import UIKit
 
-public final class PresentAlertOperation: AsyncOperation {
-    private let alertController: UIAlertController
+final class PresentAlertOperation: AsyncOperation {
+    private let alertController: CustomAlertViewController
     private let presentingController: UIViewController
     private let presentCompletion: (() -> Void)?
 
-    public init(
-        alertController: UIAlertController,
+    init(
+        alertController: CustomAlertViewController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
     ) {
@@ -26,7 +26,7 @@ public final class PresentAlertOperation: AsyncOperation {
         super.init(dispatchQueue: .main)
     }
 
-    override public func operationDidCancel() {
+    override func operationDidCancel() {
         // Guard against trying to dismiss the alert when operation hasn't started yet.
         guard isExecuting else { return }
 
@@ -36,13 +36,10 @@ public final class PresentAlertOperation: AsyncOperation {
         }
     }
 
-    override public func main() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(alertControllerDidDismiss(_:)),
-            name: AlertPresenter.alertControllerDidDismissNotification,
-            object: alertController
-        )
+    override func main() {
+        alertController.didDismiss = {
+            self.finish()
+        }
 
         presentingController.present(alertController, animated: true) {
             self.presentCompletion?()
@@ -55,18 +52,8 @@ public final class PresentAlertOperation: AsyncOperation {
     }
 
     private func dismissAndFinish() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: AlertPresenter.alertControllerDidDismissNotification,
-            object: alertController
-        )
-
         alertController.dismiss(animated: false) {
             self.finish()
         }
-    }
-
-    @objc private func alertControllerDidDismiss(_ note: Notification) {
-        finish()
     }
 }
