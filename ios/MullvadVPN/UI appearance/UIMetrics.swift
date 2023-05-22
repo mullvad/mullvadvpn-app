@@ -8,7 +8,20 @@
 
 import UIKit
 
-enum UIMetrics {}
+enum UIMetrics {
+    enum CustomAlert {
+        /// Layout margins for container (main view) in `CustomAlertViewController`
+        static let containerMargins = NSDirectionalEdgeInsets(
+            top: 28,
+            leading: 16,
+            bottom: 16,
+            trailing: 16
+        )
+
+        /// Spacing between views in container (main view) in `CustomAlertViewController`
+        static let containerSpacing: CGFloat = 16
+    }
+}
 
 extension UIMetrics {
     /// Common layout margins for content presentation

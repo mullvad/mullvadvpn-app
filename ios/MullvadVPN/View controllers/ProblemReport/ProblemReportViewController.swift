@@ -508,37 +508,36 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             comment: ""
         )
 
-        let alertController = UIAlertController(
-            title: nil,
+        let alertController = CustomAlertViewController(
             message: message,
-            preferredStyle: .alert
+            icon: .alert
         )
 
-        let cancelAction = UIAlertAction(
-            title: NSLocalizedString(
-                "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
-                tableName: "ProblemReport",
-                value: "Cancel",
-                comment: ""
-            ),
-            style: .cancel
-        ) { _ in
-            completion(false)
-        }
-        let sendAction = UIAlertAction(
+        alertController.addAction(
             title: NSLocalizedString(
                 "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
                 tableName: "ProblemReport",
                 value: "Send anyway",
                 comment: ""
             ),
-            style: .destructive
-        ) { _ in
-            completion(true)
-        }
+            style: .destructive,
+            handler: {
+                completion(true)
+            }
+        )
 
-        alertController.addAction(cancelAction)
-        alertController.addAction(sendAction)
+        alertController.addAction(
+            title: NSLocalizedString(
+                "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
+                tableName: "ProblemReport",
+                value: "Cancel",
+                comment: ""
+            ),
+            style: .default,
+            handler: {
+                completion(false)
+            }
+        )
 
         present(alertController, animated: true)
     }
