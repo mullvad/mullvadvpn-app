@@ -12,7 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.ConnectActionButton
@@ -72,11 +74,15 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 tunnelState = connectViewModel.uiState.value.tunnelUiState
             }
 
-        accountExpiryNotification.onClick = {
-            serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                val url = getString(R.string.account_url)
-                val ready = Uri.parse("$url?token=$token")
-                requireContext().startActivity(Intent(Intent.ACTION_VIEW, ready))
+        if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+            accountExpiryNotification.onClick = null
+        } else {
+            accountExpiryNotification.onClick = {
+                serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
+                    val url = getString(R.string.account_url)
+                    val ready = Uri.parse("$url?token=$token")
+                    requireContext().startActivity(Intent(Intent.ACTION_VIEW, ready))
+                }
             }
         }
 
