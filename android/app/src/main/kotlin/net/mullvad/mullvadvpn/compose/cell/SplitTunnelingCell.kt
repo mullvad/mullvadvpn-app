@@ -36,7 +36,6 @@ fun PreviewTunnelingCell() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SplitTunnelingCell(
     title: String,
@@ -60,7 +59,6 @@ fun SplitTunnelingCell(
             update = { applicationImageView ->
                 applicationImageView.packageName = packageName ?: ""
             },
-            onReset = {},
             modifier =
                 Modifier.padding(start = Dimens.cellLeftPadding)
                     .align(Alignment.CenterVertically)

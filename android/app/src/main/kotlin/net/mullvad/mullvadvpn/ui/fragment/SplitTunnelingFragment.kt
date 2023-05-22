@@ -26,7 +26,7 @@ class SplitTunnelingFragment : BaseFragment() {
                     val state = viewModel.uiState.collectAsState().value
                     SplitTunnelingScreen(
                         uiState = state,
-                        onShowSystemAppsClicked = viewModel::onShowSystemAppsClicked,
+                        onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
                         onExcludeAppClick = viewModel::onExcludeAppClick,
                         onIncludeAppClick = viewModel::onIncludeAppClick,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }
