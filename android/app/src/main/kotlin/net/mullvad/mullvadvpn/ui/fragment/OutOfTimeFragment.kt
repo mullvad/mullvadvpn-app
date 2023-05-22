@@ -77,8 +77,10 @@ class OutOfTimeFragment : BaseFragment() {
 
         view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
             append(requireActivity().getString(R.string.account_credit_has_expired))
-            append(" ")
-            append(requireActivity().getString(R.string.add_time_to_account))
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                append(" ")
+                append(requireActivity().getString(R.string.add_time_to_account))
+            }
         }
 
         disconnectButton =
