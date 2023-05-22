@@ -2,7 +2,24 @@ use anyhow::{Context, Result};
 use mullvad_management_interface::MullvadProxyClient;
 
 pub async fn print() -> Result<()> {
-    let mut rpc = MullvadProxyClient::new().await?;
+    let rpc = MullvadProxyClient::new()
+        .await
+        .context("Failed to connect to mullvad daemon");
+
+    let mut rpc = match rpc {
+        Ok(rpc) => rpc,
+        Err(e) => {
+            // Could not establish connection to the mullvad proxy client. The
+            // [`mullvad-daemon`] is probably down.
+            //
+            // Display the current build version of [`mullvad-cli`]. This may or
+            // may not be in sync with the version of [`mullvad-daemon`], so be
+            // on your guard.
+            println!("{:21}: {}", "Current version", mullvad_version::VERSION);
+            return Err(e);
+        }
+    };
+
     let current_version = rpc
         .get_current_version()
         .await
