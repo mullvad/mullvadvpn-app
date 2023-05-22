@@ -21,7 +21,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     weak var delegate: OutOfTimeViewControllerDelegate?
 
     private let interactor: OutOfTimeInteractor
-    private let alertPresenter = AlertPresenter()
+    private let errorPresenter: PaymentAlertPresenter
 
     private var productState: ProductState = .none {
         didSet {
@@ -55,8 +55,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         return false
     }
 
-    init(interactor: OutOfTimeInteractor) {
+    init(interactor: OutOfTimeInteractor, errorPresenter: PaymentAlertPresenter) {
         self.interactor = interactor
+        self.errorPresenter = errorPresenter
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -198,104 +199,13 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                 break
 
             default:
-                showPaymentErrorAlert(error: paymentFailure.error) {
+                errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
                     self.paymentState = .none
                 }
             }
         }
 
         paymentState = .none
-    }
-
-    private func showPaymentErrorAlert(
-        error: StorePaymentManagerError,
-        completion: @escaping () -> Void
-    ) {
-        let alertController = CustomAlertViewController(
-            title: NSLocalizedString(
-                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
-                tableName: "OutOfTime",
-                value: "Cannot complete the purchase",
-                comment: ""
-            ),
-            message: error.displayErrorDescription
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                tableName: "OutOfTime",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default,
-            handler: {
-                completion()
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
-    private func showRestorePurchasesErrorAlert(
-        error: StorePaymentManagerError,
-        completion: @escaping () -> Void
-    ) {
-        let alertController = CustomAlertViewController(
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                tableName: "OutOfTime",
-                value: "Cannot restore purchases",
-                comment: ""
-            ),
-            message: error.displayErrorDescription
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
-                tableName: "OutOfTime",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default,
-            handler: {
-                completion()
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
-    private func showAlertIfNoTimeAdded(
-        with response: REST.CreateApplePaymentResponse,
-        context: REST.CreateApplePaymentResponse.Context,
-        completion: @escaping () -> Void
-    ) {
-        guard case .noTimeAdded = response else {
-            completion()
-            return
-        }
-
-        let alertController = CustomAlertViewController(
-            title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context)
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "TIME_ADDED_ALERT_OK_ACTION",
-                tableName: "OutOfTime",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default,
-            handler: {
-                completion()
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
     }
 
     // MARK: - Actions
@@ -325,12 +235,12 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
             switch result {
             case let .success(response):
-                showAlertIfNoTimeAdded(with: response, context: .restoration) {
+                errorPresenter.showAlertForResponse(response, context: .restoration) {
                     self.paymentState = .none
                 }
 
             case let .failure(error as StorePaymentManagerError):
-                showRestorePurchasesErrorAlert(error: error) {
+                errorPresenter.showAlertForError(error, context: .restoration) {
                     self.paymentState = .none
                 }
 

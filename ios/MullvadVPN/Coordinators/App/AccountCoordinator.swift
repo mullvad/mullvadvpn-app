@@ -16,6 +16,7 @@ enum AccountDismissReason: Equatable {
 final class AccountCoordinator: Coordinator, Presentable, Presenting {
     private let interactor: AccountInteractor
     private var accountController: AccountViewController?
+    private let alertPresenter = AlertPresenter()
 
     let navigationController: UINavigationController
     var presentedViewController: UIViewController {
@@ -39,20 +40,80 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     func start(animated: Bool) {
         navigationController.navigationBar.prefersLargeTitles = true
 
-        let accountController = AccountViewController(interactor: interactor)
-        accountController.delegate = self
+        let accountController = AccountViewController(
+            interactor: interactor,
+            errorPresenter: PaymentAlertPresenter(
+                presentationController: presentationContext,
+                alertPresenter: alertPresenter
+            )
+        )
+
+        accountController.actionHandler = handleViewControllerAction
 
         navigationController.pushViewController(accountController, animated: animated)
         self.accountController = accountController
     }
-}
 
-extension AccountCoordinator: AccountViewControllerDelegate {
-    func accountViewControllerDidFinish(_ controller: AccountViewController) {
-        didFinish?(self, .none)
+    private func handleViewControllerAction(_ action: AccountViewControllerAction) {
+        switch action {
+        case .deviceInfo:
+            showAccountDeviceInfo()
+        case .finish:
+            didFinish?(self, .none)
+        case .logOut:
+            logOut()
+        }
     }
 
-    func accountViewControllerDidLogout(_ controller: AccountViewController) {
-        didFinish?(self, .userLoggedOut)
+    // MARK: - Alerts
+
+    private func logOut() {
+        let alertController = CustomAlertViewController(
+            icon: .spinner
+        )
+
+        alertPresenter.enqueue(alertController, presentingController: presentationContext) {
+            self.interactor.logout {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                    guard let self else { return }
+
+                    alertController.dismiss(animated: true) {
+                        self.didFinish?(self, .userLoggedOut)
+                    }
+                }
+            }
+        }
+    }
+
+    private func showAccountDeviceInfo() {
+        let message = NSLocalizedString(
+            "DEVICE_INFO_DIALOG_MESSAGE_PART_1",
+            tableName: "Account",
+            value: """
+            This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.
+
+            You can have up to 5 devices logged in on one Mullvad account.
+
+            If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.
+            """,
+            comment: ""
+        )
+
+        let alertController = CustomAlertViewController(
+            message: message,
+            icon: .info
+        )
+
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DEVICE_INFO_DIALOG_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
+        )
+
+        alertPresenter.enqueue(alertController, presentingController: presentationContext)
     }
 }
