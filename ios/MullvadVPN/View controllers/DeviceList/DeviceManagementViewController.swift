@@ -156,22 +156,20 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 
     private func showErrorAlert(title: String, error: Error) {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: title,
             message: getErrorDescription(error),
-            preferredStyle: .alert
+            icon: .info
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "ERROR_ALERT_OK_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "OK",
-                    comment: ""
-                ),
-                style: .cancel
-            )
+            title: NSLocalizedString(
+                "ERROR_ALERT_OK_ACTION",
+                tableName: "DeviceManagement",
+                value: "OK",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: self)
@@ -190,42 +188,37 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             ), deviceName
         )
 
-        let alertController = UIAlertController(
+        let alertController = CustomAlertController(
             title: localizedTitle,
             message: nil,
-            preferredStyle: .alert
+            icon: .alert
         )
 
-        let actions = [
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "DELETE_ALERT_CANCEL_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "Back",
-                    comment: ""
-                ),
-                style: .cancel,
-                handler: { _ in
-                    completion(false)
-                }
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DELETE_ALERT_CANCEL_ACTION",
+                tableName: "DeviceManagement",
+                value: "Back",
+                comment: ""
             ),
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "DELETE_ALERT_CONFIRM_ACTION",
-                    tableName: "DeviceManagement",
-                    value: "Yes, log out device",
-                    comment: ""
-                ),
-                style: .destructive,
-                handler: { _ in
-                    completion(true)
-                }
-            ),
-        ]
+            style: .default,
+            handler: {
+                completion(false)
+            }
+        )
 
-        for action in actions {
-            alertController.addAction(action)
-        }
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DELETE_ALERT_CONFIRM_ACTION",
+                tableName: "DeviceManagement",
+                value: "Yes, log out device",
+                comment: ""
+            ),
+            style: .destructive,
+            handler: {
+                completion(true)
+            }
+        )
 
         alertPresenter.enqueue(alertController, presentingController: self)
     }
