@@ -101,7 +101,7 @@ class SplitTunnelingViewModel(
         }
     }
 
-    fun onShowSystemAppsClicked(show: Boolean) {
+    fun onShowSystemAppsClick(show: Boolean) {
         viewModelScope.launch(dispatcher) { showSystemApps.emit(show) }
     }
 
