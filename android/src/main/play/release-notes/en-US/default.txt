@@ -1,5 +1,1 @@
-Add themed icon.
-Add DNS content blockers.
-Increase WireGuard key rotation interval to 14 days.
-Change the DNS/MTU input to rely on dialogs in order to improve the UX on some devices.
-Hide the payment buttons (except for F-Droid builds).
+Update wording and messages to align with app distribution policies.
