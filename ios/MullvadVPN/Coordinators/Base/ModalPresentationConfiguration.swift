@@ -21,15 +21,15 @@ struct ModalPresentationConfiguration {
     func apply(to vc: UIViewController) {
         vc.transitioningDelegate = transitioningDelegate
 
-        if let modalPresentationStyle = modalPresentationStyle {
+        if let modalPresentationStyle {
             vc.modalPresentationStyle = modalPresentationStyle
         }
 
-        if let preferredContentSize = preferredContentSize {
+        if let preferredContentSize {
             vc.preferredContentSize = preferredContentSize
         }
 
-        if let isModalInPresentation = isModalInPresentation {
+        if let isModalInPresentation {
             vc.isModalInPresentation = isModalInPresentation
         }
 

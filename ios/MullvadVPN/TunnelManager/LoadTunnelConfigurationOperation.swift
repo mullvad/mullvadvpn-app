@@ -33,11 +33,11 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
         interactor.setSettings(settings ?? TunnelSettingsV2(), persist: false)
         interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
-        if let tunnel = tunnel, deviceState == nil {
+        if let tunnel, deviceState == nil {
             logger.debug("Remove orphaned VPN configuration.")
 
             tunnel.removeFromPreferences { error in
-                if let error = error {
+                if let error {
                     self.logger.error(
                         error: error,
                         message: "Failed to remove VPN configuration."

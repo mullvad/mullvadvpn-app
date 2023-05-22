@@ -96,7 +96,7 @@ final class NotificationManager: NotificationProviderDelegate {
 
             for newRequest in newSystemNotificationRequests {
                 notificationCenter.add(newRequest) { error in
-                    guard let error = error else { return }
+                    guard let error else { return }
 
                     self.logger.error(
                         error: error,
@@ -147,7 +147,7 @@ final class NotificationManager: NotificationProviderDelegate {
             switch notificationSettings.authorizationStatus {
             case .notDetermined:
                 userNotificationCenter.requestAuthorization(options: authorizationOptions) { granted, error in
-                    if let error = error {
+                    if let error {
                         self.logger.error(
                             error: error,
                             message: "Failed to obtain user notifications authorization"
@@ -194,7 +194,7 @@ final class NotificationManager: NotificationProviderDelegate {
                     guard granted else { return }
 
                     notificationCenter.add(request) { error in
-                        if let error = error {
+                        if let error {
                             self.logger.error(
                                 """
                                 Failed to add notification request with identifier \

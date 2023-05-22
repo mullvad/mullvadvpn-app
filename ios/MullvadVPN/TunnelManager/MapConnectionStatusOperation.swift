@@ -146,9 +146,9 @@ class MapConnectionStatusOperation: AsyncOperation {
         mapToState: @escaping (PacketTunnelStatus) -> TunnelState?
     ) {
         request = tunnel.getTunnelStatus { [weak self] completion in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.dispatchQueue.async {
+            dispatchQueue.async {
                 if case let .success(packetTunnelStatus) = completion, !self.isCancelled {
                     self.interactor.updateTunnelStatus { tunnelStatus in
                         tunnelStatus.packetTunnelStatus = packetTunnelStatus

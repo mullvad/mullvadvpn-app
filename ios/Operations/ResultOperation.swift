@@ -131,7 +131,7 @@ open class ResultOperation<Success>: AsyncOperation, OutputOperation {
             super.finish(error: error)
         }
 
-        if let completionQueue = completionQueue {
+        if let completionQueue {
             completionQueue.async(execute: block)
         } else {
             block()

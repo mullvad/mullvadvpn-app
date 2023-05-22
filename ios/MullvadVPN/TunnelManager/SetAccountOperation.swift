@@ -48,9 +48,9 @@ private struct SetAccountContext: OperationInputContext {
     var device: REST.Device?
 
     func reduce() -> SetAccountResult? {
-        guard let accountData = accountData,
-              let privateKey = privateKey,
-              let device = device
+        guard let accountData,
+              let privateKey,
+              let device
         else {
             return nil
         }
@@ -294,7 +294,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
             tunnel.removeFromPreferences { error in
                 self.dispatchQueue.async {
                     // Ignore error but log it.
-                    if let error = error {
+                    if let error {
                         self.logger.error(
                             error: error,
                             message: "Failed to remove VPN configuration."

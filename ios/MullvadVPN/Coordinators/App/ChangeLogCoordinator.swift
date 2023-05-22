@@ -34,11 +34,11 @@ final class ChangeLogCoordinator: Coordinator {
         }
 
         controller.onFinish = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             ChangeLog.markAsSeen()
 
-            self.didFinish?(self)
+            didFinish?(self)
         }
 
         navigationController.pushViewController(controller, animated: animated)

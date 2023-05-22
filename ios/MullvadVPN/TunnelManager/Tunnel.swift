@@ -119,7 +119,7 @@ final class Tunnel: Equatable {
 
     func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
         tunnelProvider.saveToPreferences { error in
-            if let error = error {
+            if let error {
                 completion(error)
             } else {
                 // Refresh connection status after saving the tunnel preferences.
@@ -220,7 +220,7 @@ final class TunnelStatusBlockObserver: TunnelStatusObserver {
             self.handler(tunnel, status)
         }
 
-        if let queue = queue {
+        if let queue {
             queue.async(execute: block)
         } else {
             block()

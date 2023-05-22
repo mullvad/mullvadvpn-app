@@ -88,10 +88,10 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         completionHandler: ((Result<Void, Error>) -> Void)? = nil
     ) {
         interactor.getDevices { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if let devices = result.value {
-                self.setDevices(devices, animated: animateUpdates)
+                setDevices(devices, animated: animateUpdates)
             }
 
             completionHandler?(result.map { _ in () })
@@ -122,15 +122,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         completionHandler: @escaping () -> Void
     ) {
         showDeleteConfirmation(deviceName: device.name) { [weak self] shouldDelete in
-            guard let self = self else { return }
+            guard let self else { return }
 
             guard shouldDelete else {
                 completionHandler()
                 return
             }
 
-            self.deleteDevice(identifier: device.id) { error in
-                if let error = error {
+            deleteDevice(identifier: device.id) { error in
+                if let error {
                     self.showErrorAlert(
                         title: NSLocalizedString(
                             "LOGOUT_DEVICE_ERROR_ALERT_TITLE",
@@ -232,11 +232,11 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     private func deleteDevice(identifier: String, completionHandler: @escaping (Error?) -> Void) {
         interactor.deleteDevice(identifier) { [weak self] completion in
-            guard let self = self else { return }
+            guard let self else { return }
 
             switch completion {
             case .success:
-                self.fetchDevices(animateUpdates: true) { completion in
+                fetchDevices(animateUpdates: true) { completion in
                     completionHandler(completion.error)
                 }
 
@@ -244,7 +244,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 if error.isOperationCancellationError {
                     completionHandler(nil)
                 } else {
-                    self.logger.error(
+                    logger.error(
                         error: error,
                         message: "Failed to delete device."
                     )

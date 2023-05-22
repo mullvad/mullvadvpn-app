@@ -58,7 +58,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
     // MARK: - Private
 
     private func didFinishLogin(action: LoginAction, error: Error?) -> EndLoginAction {
-        guard let error = error else {
+        guard let error else {
             callDidFinishAfterDelay()
             return .nothing
         }
@@ -82,13 +82,13 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
 
     private func callDidFinishAfterDelay() {
         DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(1)) { [weak self] in
-            guard let self = self else { return }
-            self.didFinish?(self)
+            guard let self else { return }
+            didFinish?(self)
         }
     }
 
     private func returnToLogin(repeatLogin: Bool) {
-        guard let loginController = loginController else { return }
+        guard let loginController else { return }
 
         navigationController.popToViewController(loginController, animated: true) {
             if let lastLoginAction = self.lastLoginAction, repeatLogin {
@@ -105,11 +105,11 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         let controller = DeviceManagementViewController(interactor: interactor)
         controller.delegate = self
         controller.fetchDevices(animateUpdates: false) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             switch result {
             case .success:
-                self.navigationController.pushViewController(controller, animated: true) {
+                navigationController.pushViewController(controller, animated: true) {
                     completion(nil)
                 }
 

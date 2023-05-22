@@ -2,7 +2,7 @@
 --exclude Build, .spm, MullvadVPNScreenshots/SnapshotHelper.swift
 
 # general options
---swiftversion 5.5
+--swiftversion 5.8
 
 # format options
 --indent 4

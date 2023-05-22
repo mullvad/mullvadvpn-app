@@ -36,7 +36,7 @@ struct PacketTunnelTransport: RESTTransport {
         )
 
         // If the URL provided to the proxy request was invalid, indicate failure via `.badURL` and return a no-op.
-        guard let proxyRequest = proxyRequest else {
+        guard let proxyRequest else {
             completion(nil, nil, URLError(.badURL))
             return AnyCancellable {}
         }

@@ -33,7 +33,7 @@ struct WgStats {
             }
         }
 
-        guard let _bytesReceived = _bytesReceived, let _bytesSent = _bytesSent else {
+        guard let _bytesReceived, let _bytesSent else {
             return nil
         }
 

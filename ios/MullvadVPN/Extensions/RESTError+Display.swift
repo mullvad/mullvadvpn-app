@@ -25,7 +25,7 @@ extension REST.Error: DisplayError {
             )
 
         case let .unhandledResponse(statusCode, serverResponse):
-            guard let serverResponse = serverResponse else {
+            guard let serverResponse else {
                 return String(format: NSLocalizedString(
                     "UNEXPECTED_RESPONSE",
                     tableName: "REST",

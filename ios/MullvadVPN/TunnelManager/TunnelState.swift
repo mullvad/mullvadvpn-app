@@ -70,7 +70,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
         case .pendingReconnect:
             return "pending reconnect after disconnect"
         case let .connecting(tunnelRelay):
-            if let tunnelRelay = tunnelRelay {
+            if let tunnelRelay {
                 return "connecting to \(tunnelRelay.hostname)"
             } else {
                 return "connecting, fetching relay"

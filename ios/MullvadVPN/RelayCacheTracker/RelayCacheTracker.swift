@@ -130,7 +130,7 @@ final class RelayCacheTracker {
         nslock.lock()
         defer { nslock.unlock() }
 
-        if let cachedRelays = cachedRelays {
+        if let cachedRelays {
             return cachedRelays
         } else {
             throw NoCachedRelaysError()
@@ -159,7 +159,7 @@ final class RelayCacheTracker {
     private func _getNextUpdateDate() -> Date {
         let now = Date()
 
-        guard let cachedRelays = cachedRelays else {
+        guard let cachedRelays else {
             return now
         }
 

@@ -344,8 +344,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             return indexPath(for: item)
         }
 
-        guard let indexPathForFirstRow = indexPathForFirstRow,
-              let indexPathForLastRow = indexPathForLastRow else { return sourceIndexPath }
+        guard let indexPathForFirstRow,
+              let indexPathForLastRow else { return sourceIndexPath }
 
         if proposedDestinationIndexPath.section == sourceIndexPath.section {
             return min(max(proposedDestinationIndexPath, indexPathForFirstRow), indexPathForLastRow)
@@ -524,7 +524,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                     }
                 }
 
-            if let lastDNSEntry = lastDNSEntry,
+            if let lastDNSEntry,
                let indexPath = self?.indexPath(for: lastDNSEntry)
             {
                 let cell = self?.tableView?.cellForRow(at: indexPath) as? SettingsDNSTextCell
@@ -542,7 +542,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             return entry.identifier == entryIdentifier
         }
 
-        guard let entryIndex = entryIndex else { return }
+        guard let entryIndex else { return }
 
         viewModel.customDNSDomains.remove(at: entryIndex)
 
@@ -574,13 +574,13 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         )
 
         reusableView.infoButtonHandler = { [weak self] in
-            if let self = self {
+            if let self {
                 self.delegate?.preferencesDataSource(self, didPressInfoButton: nil)
             }
         }
 
         reusableView.didCollapseHandler = { [weak self] headerView in
-            guard let self = self else { return }
+            guard let self else { return }
 
             var snapshot = self.snapshot()
 
