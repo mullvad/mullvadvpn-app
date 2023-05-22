@@ -68,3 +68,24 @@ extension REST.CreateApplePaymentResponse {
         }
     }
 }
+
+extension REST.CreateApplePaymentResponse.Context {
+    var errorTitle: String {
+        switch self {
+        case .purchase:
+            return NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
+                tableName: "Payment",
+                value: "Cannot complete the purchase",
+                comment: ""
+            )
+        case .restoration:
+            return NSLocalizedString(
+                "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
+                tableName: "Payment",
+                value: "Cannot restore purchases",
+                comment: ""
+            )
+        }
+    }
+}
