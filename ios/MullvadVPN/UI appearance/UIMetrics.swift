@@ -81,4 +81,15 @@ extension UIMetrics {
 
     /// Height of brand name. Width is automatically produced based on aspect ratio.
     static let headerBarBrandNameHeight: CGFloat = 18
+
+    /// Layout margins for container (main view) in `CustomAlertViewController`
+    static let customAlertContainerMargins = NSDirectionalEdgeInsets(
+        top: 24,
+        leading: 16,
+        bottom: 16,
+        trailing: 16
+    )
+
+    /// Spacing between views in container (main view) in `CustomAlertViewController`
+    static let customAlertContainerSpacing: CGFloat = 18
 }
