@@ -16,11 +16,12 @@ mod ffi;
 pub use ffi::{start_shadowsocks_proxy, stop_shadowsocks_proxy, ProxyHandle};
 
 pub fn run_forwarding_proxy(
-    bridge_addr: SocketAddr,
+    forward_socket: SocketAddr,
+    bridge_socket: SocketAddr,
     password: &str,
     cipher: &str,
 ) -> io::Result<(u16, ShadowsocksHandle)> {
-    let runtime = ShadowsocksRuntime::new(bridge_addr, password, cipher)?;
+    let runtime = ShadowsocksRuntime::new(forward_socket, bridge_socket, password, cipher)?;
     let port = runtime.port();
     let handle = runtime.run()?;
 
@@ -46,12 +47,12 @@ impl ShadowsocksHandle {
 }
 
 impl ShadowsocksRuntime {
-    pub fn new(bridge_addr: SocketAddr, password: &str, cipher: &str) -> io::Result<Self> {
+    pub fn new(forward_socket: SocketAddr, bridge_socket: SocketAddr, password: &str, cipher: &str) -> io::Result<Self> {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()?;
 
-        let (config, local_port) = Self::create_config(bridge_addr, password, cipher)?;
+        let (config, local_port) = Self::create_config(forward_socket, bridge_socket, password, cipher)?;
         Ok(Self {
             runtime,
             config,
@@ -118,7 +119,8 @@ impl ShadowsocksRuntime {
     }
 
     pub fn create_config(
-        bridge_addr: SocketAddr,
+        forward_socket: SocketAddr,
+        bridge_socket: SocketAddr,
         password: &str,
         cipher: &str,
     ) -> io::Result<(Config, u16)> {
@@ -127,9 +129,7 @@ impl ShadowsocksRuntime {
         let bind_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), free_port);
 
         let mut local_config = LocalConfig::new_with_addr(bind_addr.into(), ProtocolType::Tunnel);
-        local_config.forward_addr =
-            // TODO: Remove hardcoded API address
-            Some(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196)), 443).into());
+        local_config.forward_addr = Some(forward_socket.into());
         cfg.local = vec![LocalInstanceConfig::with_local_config(local_config)];
 
         let cipher = match CipherKind::from_str(cipher) {
@@ -142,7 +142,7 @@ impl ShadowsocksRuntime {
             }
         };
         let server_config = ServerInstanceConfig::with_server_config(ServerConfig::new(
-            bridge_addr,
+            bridge_socket,
             password,
             cipher,
         ));

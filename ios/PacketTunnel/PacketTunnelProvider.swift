@@ -154,7 +154,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
         let transportProvider = TunnelTransportProvider(
             urlSessionTransport: urlSessionTransport,
-            relayCache: relayCache
+            relayCache: relayCache,
+            addressCache: addressCache
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(

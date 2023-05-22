@@ -95,7 +95,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         transportMonitor = TransportMonitor(
             tunnelManager: tunnelManager,
             tunnelStore: tunnelStore,
-            relayCacheTracker: relayCacheTracker
+            relayCacheTracker: relayCacheTracker,
+            addressCache: addressCache
         )
 
         #if targetEnvironment(simulator)
