@@ -39,9 +39,6 @@ Line wrap the file at 100 chars.                                              Th
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
   `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
 
-#### Android
-- Remove purchasing information from release builds. This does not affect F-Droid builds.
-
 ### Deprecated
 #### Linux
 - Deprecated support for Debian 10. This also means dropping support for glibc older
@@ -67,6 +64,14 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix RPM package containing unecessary files causing conflicts with other electron-builder based
   packages.
+
+
+## [android/2023.2] - 2023-05-22
+### Changed
+#### Android
+- Change so that all links and texts leading to the account web page (which also includes a payment
+  flow) are either hidden or leads to the app itself (notification actions) in order to comply with
+  the Google Play payment policies. This doesn't apply to F-Droid builds.
 
 
 ## [android/2023.1] - 2023-05-16
