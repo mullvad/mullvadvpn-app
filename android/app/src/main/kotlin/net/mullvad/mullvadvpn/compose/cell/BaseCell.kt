@@ -17,16 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Preview
 @Composable
@@ -57,19 +54,20 @@ fun PreviewBaseCell() {
 @Composable
 internal fun BaseCell(
     modifier: Modifier = Modifier,
+    iconView: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
     bodyView: @Composable () -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
     subtitle: @Composable (() -> Unit)? = null,
     subtitleModifier: Modifier = Modifier,
-    background: Color = MullvadBlue,
-    startPadding: Dp = dimensionResource(id = R.dimen.cell_left_padding),
-    endPadding: Dp = dimensionResource(id = R.dimen.cell_right_padding)
+    background: Color = MaterialTheme.colorScheme.primary,
+    startPadding: Dp = Dimens.cellStartPadding,
+    endPadding: Dp = Dimens.cellEndPadding
 ) {
-    val cellHeight = dimensionResource(id = R.dimen.cell_height)
-    val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
-    val subtitleVerticalSpacing = dimensionResource(id = R.dimen.cell_footer_top_padding)
+    val cellHeight = Dimens.cellHeight
+    val cellVerticalSpacing = Dimens.cellLabelVerticalPadding
+    val subtitleVerticalSpacing = Dimens.cellFooterTopPadding
 
     Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
         val rowModifier =
@@ -87,6 +85,8 @@ internal fun BaseCell(
                     .fillMaxWidth()
                     .padding(start = startPadding, end = endPadding)
         ) {
+            iconView()
+
             title()
 
             Spacer(modifier = Modifier.weight(1.0f))
@@ -98,7 +98,7 @@ internal fun BaseCell(
             Row(
                 modifier =
                     subtitleModifier
-                        .background(MullvadDarkBlue)
+                        .background(MaterialTheme.colorScheme.secondary)
                         .padding(
                             start = startPadding,
                             top = subtitleVerticalSpacing,
