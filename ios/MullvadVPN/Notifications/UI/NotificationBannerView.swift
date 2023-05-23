@@ -95,7 +95,7 @@ final class NotificationBannerView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        actionButton.addTarget(self, action: #selector(didPress), for: .touchUpInside)
+        actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
 
         actionButton.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
         actionButton.setContentCompressionResistancePriority(.defaultHigh + 1, for: .vertical)
@@ -136,7 +136,7 @@ final class NotificationBannerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc private func didPress() {
+    @objc private func handleActionTap() {
         action?.handler?()
     }
 }
