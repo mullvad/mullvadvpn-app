@@ -29,16 +29,16 @@ public struct DeviceCheck: Codable, Equatable {
 
     public init(
         accountExpiry: Date? = nil,
-        isInvalidAccount: Bool? = nil,
-        isRevokedDevice: Bool? = nil,
+        isAccountInvalid: Bool? = nil,
+        isDeviceRevoked: Bool? = nil,
         isKeyMismatch: Bool? = nil,
-        lastKeyRotationDate: Date? = nil
+        lastKeyRotationAttemptDate: Date? = nil
     ) {
         self.accountExpiry = accountExpiry
-        isAccountInvalid = isInvalidAccount
-        isDeviceRevoked = isRevokedDevice
+        self.isAccountInvalid = isAccountInvalid
+        self.isDeviceRevoked = isDeviceRevoked
         self.isKeyMismatch = isKeyMismatch
-        lastKeyRotationAttemptDate = lastKeyRotationDate
+        self.lastKeyRotationAttemptDate = lastKeyRotationAttemptDate
     }
 
     public func merged(with other: DeviceCheck) -> DeviceCheck {
