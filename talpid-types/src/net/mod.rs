@@ -34,6 +34,7 @@ impl TunnelParameters {
                 proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
                 obfuscation: None,
                 entry_endpoint: None,
+                tunnel_interface: None,
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
@@ -48,6 +49,7 @@ impl TunnelParameters {
                     .connection
                     .get_exit_endpoint()
                     .map(|_| params.connection.get_endpoint()),
+                tunnel_interface: None,
             },
         }
     }
@@ -145,7 +147,7 @@ pub struct TunnelTypeParseError;
 
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct TunnelEndpoint {
@@ -159,6 +161,8 @@ pub struct TunnelEndpoint {
     pub obfuscation: Option<ObfuscationEndpoint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_endpoint: Option<Endpoint>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub tunnel_interface: Option<String>,
 }
 
 impl fmt::Display for TunnelEndpoint {
