@@ -19,11 +19,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
@@ -31,47 +33,49 @@ import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
 @Preview
 @Composable
 fun PreviewListItem() {
-    Column {
-        ListItem(text = "No subtext No icon not loading", isLoading = false, onClick = {})
-        ListItem(text = "No subtext No icon is loading", isLoading = true, onClick = {})
-        ListItem(
-            text = "No subtext With icon is loading",
-            isLoading = true,
-            iconResourceId = R.drawable.icon_close,
-            onClick = {}
-        )
-        ListItem(
-            text = "No subtext With icon not loading",
-            isLoading = false,
-            iconResourceId = R.drawable.icon_close,
-            onClick = {}
-        )
-        ListItem(
-            text = "With subtext with icon is loading",
-            subText = "Subtext",
-            isLoading = true,
-            iconResourceId = R.drawable.icon_close,
-            onClick = {}
-        )
-        ListItem(
-            text = "With subtext no icon is loading",
-            subText = "Subtext",
-            isLoading = true,
-            onClick = {}
-        )
-        ListItem(
-            text = "With subtext with icon not loading",
-            subText = "Subtext",
-            isLoading = false,
-            iconResourceId = R.drawable.icon_close,
-            onClick = {}
-        )
-        ListItem(
-            text = "With subtext no icon not loading",
-            subText = "Subtext",
-            isLoading = false,
-            onClick = {}
-        )
+    AppTheme {
+        Column {
+            ListItem(text = "No subtext No icon not loading", isLoading = false, onClick = {})
+            ListItem(text = "No subtext No icon is loading", isLoading = true, onClick = {})
+            ListItem(
+                text = "No subtext With icon is loading",
+                isLoading = true,
+                iconResourceId = R.drawable.icon_close,
+                onClick = {}
+            )
+            ListItem(
+                text = "No subtext With icon not loading",
+                isLoading = false,
+                iconResourceId = R.drawable.icon_close,
+                onClick = {}
+            )
+            ListItem(
+                text = "With subtext with icon is loading",
+                subText = "Subtext",
+                isLoading = true,
+                iconResourceId = R.drawable.icon_close,
+                onClick = {}
+            )
+            ListItem(
+                text = "With subtext no icon is loading",
+                subText = "Subtext",
+                isLoading = true,
+                onClick = {}
+            )
+            ListItem(
+                text = "With subtext with icon not loading",
+                subText = "Subtext",
+                isLoading = false,
+                iconResourceId = R.drawable.icon_close,
+                onClick = {}
+            )
+            ListItem(
+                text = "With subtext no icon not loading",
+                subText = "Subtext",
+                isLoading = false,
+                onClick = {}
+            )
+        }
     }
 }
 
@@ -88,7 +92,8 @@ fun ListItem(
     height: Dp = Dimens.listItemHeight,
     isLoading: Boolean,
     @DrawableRes iconResourceId: Int? = null,
-    onClick: () -> Unit
+    background: Color = MaterialTheme.colorScheme.primary,
+    onClick: (() -> Unit)?
 ) {
     Box(
         modifier =
@@ -96,7 +101,7 @@ fun ListItem(
                 .padding(vertical = Dimens.listItemDivider)
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = height)
-                .background(MaterialTheme.colorScheme.primary),
+                .background(background)
     ) {
         Column(
             modifier =
@@ -133,7 +138,9 @@ fun ListItem(
                 Image(
                     painter = painterResource(id = iconResourceId),
                     contentDescription = "Remove",
-                    modifier = Modifier.align(Alignment.CenterEnd).clickable { onClick() }
+                    modifier =
+                        onClick?.let { Modifier.align(Alignment.CenterEnd).clickable { onClick() } }
+                            ?: Modifier.align(Alignment.CenterEnd)
                 )
             }
         }

@@ -1,26 +1,28 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
-import io.mockk.Runs
+import app.cash.turbine.test
 import io.mockk.every
+import io.mockk.invoke
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
 import io.mockk.verifyAll
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runBlockingTest
-import net.mullvad.mullvadvpn.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.applist.ViewIntent
-import net.mullvad.mullvadvpn.assertLists
-import net.mullvad.mullvadvpn.model.ListItemData
-import net.mullvad.mullvadvpn.model.WidgetState
+import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import org.junit.After
 import org.junit.Before
@@ -34,6 +36,8 @@ class SplitTunnelingViewModelTest {
     @get:Rule val timeout = Timeout(3000L, TimeUnit.MILLISECONDS)
     private val mockedApplicationsProvider = mockk<ApplicationsProvider>()
     private val mockedSplitTunneling = mockk<SplitTunneling>()
+    private val mockedServiceConnectionManager = mockk<ServiceConnectionManager>()
+    private val mockedServiceConnectionContainer = mockk<ServiceConnectionContainer>()
     private lateinit var testSubject: SplitTunnelingViewModel
 
     @Before
@@ -49,195 +53,158 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun test_has_progress_on_start() =
-        runBlockingTest(testCoroutineRule.testDispatcher) {
+        runTest(testCoroutineRule.testDispatcher) {
             initTestSubject(emptyList())
-            val actualList: List<ListItemData> = testSubject.listItems.first()
+            val actualState: SplitTunnelingUiState = testSubject.uiState.value
 
-            val initialExpectedList =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(0),
-                    createProgressItem()
-                )
+            val initialExpectedState = SplitTunnelingUiState.Loading
 
-            assertLists(initialExpectedList, actualList)
+            assertEquals(initialExpectedState, actualState)
 
             verify(exactly = 1) { mockedApplicationsProvider.getAppsList() }
         }
 
     @Test
     fun test_empty_app_list() =
-        runBlockingTest(testCoroutineRule.testDispatcher) {
+        runTest(testCoroutineRule.testDispatcher) {
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    lambda<(Set<String>) -> Unit>().invoke(emptySet())
+                }
             initTestSubject(emptyList())
-            testSubject.processIntent(ViewIntent.ViewIsReady)
-            val actualList = testSubject.listItems.first()
-            val expectedList = listOf(createTextItem(R.string.split_tunneling_description))
-            assertLists(expectedList, actualList)
+            val expectedState =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = emptyList(),
+                    includedApps = emptyList(),
+                    showSystemApps = false
+                )
+            testSubject.uiState.test { assertEquals(expectedState, awaitItem()) }
         }
 
     @Test
     fun test_apps_list_delivered() =
-        runBlockingTest(testCoroutineRule.testDispatcher) {
+        runTest(testCoroutineRule.testDispatcher) {
             val appExcluded = AppData("test.excluded", 0, "testName1")
             val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
-            every { mockedSplitTunneling.isAppExcluded(appExcluded.packageName) } returns true
-            every { mockedSplitTunneling.isAppExcluded(appNotExcluded.packageName) } returns false
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    lambda<(Set<String>) -> Unit>().invoke(setOf(appExcluded.packageName))
+                }
 
             initTestSubject(listOf(appExcluded, appNotExcluded))
-            testSubject.processIntent(ViewIntent.ViewIsReady)
 
-            val actualList = testSubject.listItems.first()
-            val expectedList =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(0),
-                    createMainItem(R.string.exclude_applications),
-                    createApplicationItem(appExcluded, true),
-                    createDivider(1),
-                    createSwitchItem(R.string.show_system_apps, false),
-                    createMainItem(R.string.all_applications),
-                    createApplicationItem(appNotExcluded, false),
+            val expectedState =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = listOf(appExcluded),
+                    includedApps = listOf(appNotExcluded),
+                    showSystemApps = false
                 )
 
-            assertLists(expectedList, actualList)
-            verifyAll {
-                mockedSplitTunneling.enabled
-                mockedSplitTunneling.isAppExcluded(appExcluded.packageName)
-                mockedSplitTunneling.isAppExcluded(appNotExcluded.packageName)
+            testSubject.uiState.test {
+                val actualState = awaitItem()
+                assertEquals(expectedState, actualState)
+                verifyAll {
+                    mockedSplitTunneling.enabled
+                    mockedSplitTunneling.excludedAppsChange = any()
+                }
             }
         }
 
     @Test
-    fun test_remove_app_from_excluded() =
-        runBlockingTest(testCoroutineRule.testDispatcher) {
+    fun test_include_app() =
+        runTest(testCoroutineRule.testDispatcher) {
+            var excludedAppsCallback = slot<(Set<String>) -> Unit>()
             val app = AppData("test", 0, "testName")
-            every { mockedSplitTunneling.isAppExcluded(app.packageName) } returns true
-            every { mockedSplitTunneling.includeApp(app.packageName) } just Runs
+            every { mockedSplitTunneling.includeApp(app.packageName) } just runs
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    excludedAppsCallback = lambda()
+                    excludedAppsCallback.invoke(setOf(app.packageName))
+                }
 
             initTestSubject(listOf(app))
-            testSubject.processIntent(ViewIntent.ViewIsReady)
 
-            val listBeforeAction = testSubject.listItems.first()
-            val expectedListBeforeAction =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(0),
-                    createMainItem(R.string.exclude_applications),
-                    createApplicationItem(app, true),
+            val expectedStateBeforeAction =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = listOf(app),
+                    includedApps = emptyList(),
+                    showSystemApps = false
+                )
+            val expectedStateAfterAction =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = emptyList(),
+                    includedApps = listOf(app),
+                    showSystemApps = false
                 )
 
-            assertLists(expectedListBeforeAction, listBeforeAction)
+            testSubject.uiState.test {
+                assertEquals(expectedStateBeforeAction, awaitItem())
+                testSubject.onIncludeAppClick(app.packageName)
+                excludedAppsCallback.invoke(emptySet())
+                assertEquals(expectedStateAfterAction, awaitItem())
 
-            val item = listBeforeAction.first { it.identifier == app.packageName }
-            testSubject.processIntent(ViewIntent.ChangeApplicationGroup(item))
-
-            val itemsAfterAction = testSubject.listItems.first()
-            val expectedList =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(1),
-                    createSwitchItem(R.string.show_system_apps, false),
-                    createMainItem(R.string.all_applications),
-                    createApplicationItem(app, false),
-                )
-
-            assertLists(expectedList, itemsAfterAction)
-
-            verifyAll {
-                mockedSplitTunneling.enabled
-                mockedSplitTunneling.isAppExcluded(app.packageName)
-                mockedSplitTunneling.includeApp(app.packageName)
+                verifyAll {
+                    mockedSplitTunneling.enabled
+                    mockedSplitTunneling.excludedAppsChange = any()
+                    mockedSplitTunneling.includeApp(app.packageName)
+                }
             }
         }
 
     @Test
     fun test_add_app_to_excluded() =
-        runBlockingTest(testCoroutineRule.testDispatcher) {
+        runTest(testCoroutineRule.testDispatcher) {
+            var excludedAppsCallback = slot<(Set<String>) -> Unit>()
             val app = AppData("test", 0, "testName")
-            every { mockedSplitTunneling.isAppExcluded(app.packageName) } returns false
-            every { mockedSplitTunneling.excludeApp(app.packageName) } just Runs
+            every { mockedSplitTunneling.excludeApp(app.packageName) } just runs
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    excludedAppsCallback = lambda()
+                    excludedAppsCallback.invoke(emptySet())
+                }
+
             initTestSubject(listOf(app))
-            testSubject.processIntent(ViewIntent.ViewIsReady)
 
-            val listBeforeAction = testSubject.listItems.first()
-            val expectedListBeforeAction =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(1),
-                    createSwitchItem(R.string.show_system_apps, false),
-                    createMainItem(R.string.all_applications),
-                    createApplicationItem(app, false),
+            val expectedStateBeforeAction =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = emptyList(),
+                    includedApps = listOf(app),
+                    showSystemApps = false
                 )
 
-            assertLists(expectedListBeforeAction, listBeforeAction)
-
-            val item = listBeforeAction.first { it.identifier == app.packageName }
-            testSubject.processIntent(ViewIntent.ChangeApplicationGroup(item))
-
-            val itemsAfterAction = testSubject.listItems.first()
-            val expectedList =
-                listOf(
-                    createTextItem(R.string.split_tunneling_description),
-                    createDivider(0),
-                    createMainItem(R.string.exclude_applications),
-                    createApplicationItem(app, true),
+            val expectedStateAfterAction =
+                SplitTunnelingUiState.ShowAppList(
+                    excludedApps = listOf(app),
+                    includedApps = emptyList(),
+                    showSystemApps = false
                 )
 
-            assertLists(expectedList, itemsAfterAction)
+            testSubject.uiState.test {
+                assertEquals(expectedStateBeforeAction, awaitItem())
+                testSubject.onExcludeAppClick(app.packageName)
+                excludedAppsCallback.invoke(setOf(app.packageName))
+                assertEquals(expectedStateAfterAction, awaitItem())
 
-            verifyAll {
-                mockedSplitTunneling.enabled
-                mockedSplitTunneling.isAppExcluded(app.packageName)
-                mockedSplitTunneling.excludeApp(app.packageName)
+                verifyAll {
+                    mockedSplitTunneling.enabled
+                    mockedSplitTunneling.excludedAppsChange = any()
+                    mockedSplitTunneling.excludeApp(app.packageName)
+                }
             }
         }
 
     private fun initTestSubject(appList: List<AppData>) {
         every { mockedApplicationsProvider.getAppsList() } returns appList
+        every { mockedServiceConnectionManager.connectionState } returns
+            MutableStateFlow(
+                ServiceConnectionState.ConnectedReady(mockedServiceConnectionContainer)
+            )
+        every { mockedServiceConnectionContainer.splitTunneling } returns mockedSplitTunneling
         testSubject =
             SplitTunnelingViewModel(
                 mockedApplicationsProvider,
-                mockedSplitTunneling,
+                mockedServiceConnectionManager,
                 testCoroutineRule.testDispatcher
             )
     }
-
-    private fun createApplicationItem(appData: AppData, checked: Boolean): ListItemData =
-        ListItemData.build(appData.packageName) {
-            type = ListItemData.APPLICATION
-            text = appData.name
-            iconRes = appData.iconRes
-            action = ListItemData.ItemAction(appData.packageName)
-            widget =
-                WidgetState.ImageState(
-                    if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
-                )
-        }
-
-    private fun createDivider(id: Int): ListItemData =
-        ListItemData.build("space_$id") { type = ListItemData.DIVIDER }
-
-    private fun createMainItem(@StringRes text: Int): ListItemData =
-        ListItemData.build("header_$text") {
-            type = ListItemData.ACTION
-            textRes = text
-        }
-
-    private fun createTextItem(@StringRes text: Int): ListItemData =
-        ListItemData.build("text_$text") {
-            type = ListItemData.PLAIN
-            textRes = text
-            action = ListItemData.ItemAction(text.toString())
-        }
-
-    private fun createProgressItem(): ListItemData =
-        ListItemData.build(identifier = "progress") { type = ListItemData.PROGRESS }
-
-    private fun createSwitchItem(@StringRes text: Int, checked: Boolean): ListItemData =
-        ListItemData.build(identifier = "switch_$text") {
-            type = ListItemData.ACTION
-            textRes = text
-            action = ListItemData.ItemAction(text.toString())
-            widget = WidgetState.SwitchState(checked)
-        }
 }

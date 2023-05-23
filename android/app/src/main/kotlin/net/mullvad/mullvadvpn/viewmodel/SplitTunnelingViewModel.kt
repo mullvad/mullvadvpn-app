@@ -1,176 +1,116 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.applist.ViewIntent
-import net.mullvad.mullvadvpn.model.ListItemData
-import net.mullvad.mullvadvpn.model.WidgetState
+import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.splitTunneling
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
-    private val splitTunneling: SplitTunneling,
-    dispatcher: CoroutineDispatcher
+    private val serviceConnectionManager: ServiceConnectionManager,
+    private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val listItemsSink = MutableSharedFlow<List<ListItemData>>(replay = 1)
 
-    // read-only public view
-    val listItems: SharedFlow<List<ListItemData>> = listItemsSink.asSharedFlow()
+    private val allApps = MutableStateFlow<List<AppData>?>(null)
+    private val showSystemApps = MutableStateFlow(false)
 
-    private val intentFlow = MutableSharedFlow<ViewIntent>()
-    private val isUIReady = CompletableDeferred<Unit>()
-    private val excludedApps: MutableMap<String, AppData> = mutableMapOf()
-    private val notExcludedApps: MutableMap<String, AppData> = mutableMapOf()
+    private val _shared: SharedFlow<ServiceConnectionContainer> =
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    flowOf(state.container)
+                } else {
+                    emptyFlow()
+                }
+            }
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
-    private val defaultListItems: List<ListItemData> =
-        listOf(
-            createTextItem(R.string.split_tunneling_description)
-            // We will have search item in future
+    private val vmState =
+        _shared
+            .flatMapLatest { serviceConnection ->
+                combine(
+                    serviceConnection.splitTunneling.excludedAppsCallbackFlow(),
+                    allApps,
+                    showSystemApps
+                ) { excludedApps, allApps, showSystemApps ->
+                    SplitTunnelingViewModelState(
+                        excludedApps = excludedApps,
+                        allApps = allApps,
+                        showSystemApps = showSystemApps
+                    )
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                SplitTunnelingViewModelState()
             )
-    private var isSystemAppsVisible = false
+
+    val uiState =
+        vmState
+            .map(SplitTunnelingViewModelState::toUiState)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                SplitTunnelingUiState.Loading
+            )
 
     init {
         viewModelScope.launch(dispatcher) {
-            listItemsSink.emit(defaultListItems + createDivider(0) + createProgressItem())
-            // this will be removed after changes on native to ignore enable parameter
-            if (!splitTunneling.enabled) splitTunneling.enabled = true
-            fetchData()
-        }
-        viewModelScope.launch(dispatcher) {
-            intentFlow
-                .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
-                .collect(::handleIntents)
+            if (serviceConnectionManager.splitTunneling()?.enabled == false) {
+                serviceConnectionManager.splitTunneling()?.enabled = true
+            }
+            fetchApps()
         }
     }
 
-    suspend fun processIntent(intent: ViewIntent) = intentFlow.emit(intent)
-
     override fun onCleared() {
-        splitTunneling.persist()
+        serviceConnectionManager.splitTunneling()?.persist()
         super.onCleared()
     }
 
-    private suspend fun handleIntents(viewIntent: ViewIntent) {
-        when (viewIntent) {
-            is ViewIntent.ChangeApplicationGroup -> {
-                viewIntent.item.action?.let {
-                    if (excludedApps.containsKey(it.identifier)) {
-                        removeFromExcluded(it.identifier)
-                    } else {
-                        addToExcluded(it.identifier)
-                    }
-                    publishList()
-                }
-            }
-            is ViewIntent.ViewIsReady -> isUIReady.complete(Unit)
-            is ViewIntent.ShowSystemApps -> {
-                isSystemAppsVisible = viewIntent.show
-                publishList()
-            }
+    fun onIncludeAppClick(packageName: String) {
+        viewModelScope.launch(dispatcher) {
+            serviceConnectionManager.splitTunneling()?.includeApp(packageName)
         }
     }
 
-    private fun removeFromExcluded(packageName: String) {
-        excludedApps.remove(packageName)?.let { appInfo ->
-            notExcludedApps[packageName] = appInfo
-            splitTunneling.includeApp(packageName)
+    fun onExcludeAppClick(packageName: String) {
+        viewModelScope.launch(dispatcher) {
+            serviceConnectionManager.splitTunneling()?.excludeApp(packageName)
         }
     }
 
-    private fun addToExcluded(packageName: String) {
-        notExcludedApps.remove(packageName)?.let { appInfo ->
-            excludedApps[packageName] = appInfo
-            splitTunneling.excludeApp(packageName)
-        }
+    fun onShowSystemAppsClick(show: Boolean) {
+        viewModelScope.launch(dispatcher) { showSystemApps.emit(show) }
     }
 
-    private suspend fun fetchData() {
-        appsProvider
-            .getAppsList()
-            .partition { app -> splitTunneling.isAppExcluded(app.packageName) }
-            .let { (excludedAppsList, notExcludedAppsList) ->
-                // TODO: remove potential package names from splitTunneling list
-                //       if they already uninstalled or filtered; but not in ViewModel
-                excludedAppsList.map { it.packageName to it }.toMap(excludedApps)
-                notExcludedAppsList.map { it.packageName to it }.toMap(notExcludedApps)
-            }
-        isUIReady.await()
-        publishList()
+    private suspend fun fetchApps() {
+        appsProvider.getAppsList().let { appsList -> allApps.emit(appsList) }
     }
 
-    private suspend fun publishList() {
-        val listItems = ArrayList(defaultListItems)
-        if (excludedApps.isNotEmpty()) {
-            listItems += createDivider(0)
-            listItems += createMainItem(R.string.exclude_applications)
-            listItems +=
-                excludedApps.values
-                    .sortedBy { it.name }
-                    .map { info -> createApplicationItem(info, true) }
-        }
-        val shownNotExcludedApps =
-            notExcludedApps.filter { app -> !app.value.isSystemApp || isSystemAppsVisible }
-        if (shownNotExcludedApps.isNotEmpty()) {
-            listItems += createDivider(1)
-            listItems += createSwitchItem(R.string.show_system_apps, isSystemAppsVisible)
-            listItems += createMainItem(R.string.all_applications)
-            listItems +=
-                shownNotExcludedApps.values
-                    .sortedBy { it.name }
-                    .map { info -> createApplicationItem(info, false) }
-        }
-        listItemsSink.emit(listItems)
+    private fun SplitTunneling.excludedAppsCallbackFlow() = callbackFlow {
+        excludedAppsChange = { apps -> trySend(apps) }
+        awaitClose { emptySet<String>() }
     }
-
-    private fun createApplicationItem(appData: AppData, checked: Boolean): ListItemData =
-        ListItemData.build(appData.packageName) {
-            type = ListItemData.APPLICATION
-            text = appData.name
-            iconRes = appData.iconRes
-            action = ListItemData.ItemAction(appData.packageName)
-            widget =
-                WidgetState.ImageState(
-                    if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
-                )
-        }
-
-    private fun createDivider(id: Int): ListItemData =
-        ListItemData.build("space_$id") { type = ListItemData.DIVIDER }
-
-    private fun createMainItem(@StringRes text: Int): ListItemData =
-        ListItemData.build("header_$text") {
-            type = ListItemData.ACTION
-            textRes = text
-        }
-
-    private fun createTextItem(@StringRes text: Int): ListItemData =
-        ListItemData.build("text_$text") {
-            type = ListItemData.PLAIN
-            textRes = text
-            action = ListItemData.ItemAction(text.toString())
-        }
-
-    private fun createProgressItem(): ListItemData =
-        ListItemData.build(identifier = "progress") { type = ListItemData.PROGRESS }
-
-    private fun createSwitchItem(@StringRes text: Int, checked: Boolean): ListItemData =
-        ListItemData.build(identifier = "switch_$text") {
-            type = ListItemData.ACTION
-            textRes = text
-            action = ListItemData.ItemAction(text.toString())
-            widget = WidgetState.SwitchState(checked)
-        }
 }
