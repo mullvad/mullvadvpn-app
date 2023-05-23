@@ -257,6 +257,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Private
 
+    private var isPresentingRegisteredDeviceBanner = false
+
     /**
      Continues application flow by evaluating what route to present next.
      */
@@ -705,12 +707,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
         splitViewController.preferredDisplayMode = deviceState.splitViewMode
+        updateView(
+            deviceState: deviceState,
+            showDeviceInfo: shouldShowDeviceInfo(deviceState, previousDeviceState: previousDeviceState)
+        )
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-            let shouldHideDeviceInfo = previousDeviceState == .loggedOut
             updateOutOfTimeTimer(accountData: accountData)
-            updateView(deviceState: deviceState, showDeviceInfo: !shouldHideDeviceInfo)
 
             // Handle transition to and from expired state.
             let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
@@ -729,11 +733,20 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
-            updateView(deviceState: deviceState, showDeviceInfo: false)
-
         case .loggedOut:
             cancelOutOfTimeTimer()
-            updateView(deviceState: deviceState, showDeviceInfo: false)
+        }
+    }
+
+    private func shouldShowDeviceInfo(_ deviceState: DeviceState, previousDeviceState: DeviceState) -> Bool {
+        switch (previousDeviceState, deviceState) {
+        case (.loggedOut, .loggedIn):
+            isPresentingRegisteredDeviceBanner = true
+            return false
+        case (.loggedIn, .loggedIn):
+            return !isPresentingRegisteredDeviceBanner
+        default:
+            return false
         }
     }
 
@@ -870,6 +883,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .accountExpirySystemNotification:
             router.present(.account)
         case .registeredDeviceInAppNotification:
+            isPresentingRegisteredDeviceBanner = false
             updateView(deviceState: tunnelManager.deviceState)
         default: return
         }
