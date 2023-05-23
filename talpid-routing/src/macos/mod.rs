@@ -252,7 +252,6 @@ impl RouteManagerImpl {
                     }
                 }
 
-                // TODO: may need to add back tunnel route if it does not exist
                 if let Err(error) = self.handle_route_change(route).await {
                     log::error!("Failed to process route change: {error}");
                 }
