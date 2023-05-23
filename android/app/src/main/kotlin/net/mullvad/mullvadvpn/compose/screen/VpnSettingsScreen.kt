@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -66,9 +67,8 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
-import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
@@ -76,43 +76,45 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 @Preview
 @Composable
 private fun PreviewVpnSettings() {
-    VpnSettingsScreen(
-        uiState =
-            VpnSettingsUiState.DefaultUiState(
-                isAutoConnectEnabled = true,
-                mtu = "1337",
-                isCustomDnsEnabled = true,
-                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
-            ),
-        onMtuCellClick = {},
-        onMtuInputChange = {},
-        onSaveMtuClick = {},
-        onRestoreMtuClick = {},
-        onCancelMtuDialogClicked = {},
-        onToggleAutoConnect = {},
-        onToggleLocalNetworkSharing = {},
-        onToggleDnsClick = {},
-        onToggleBlockAds = {},
-        onToggleBlockTrackers = {},
-        onToggleBlockMalware = {},
-        onToggleBlockAdultContent = {},
-        onToggleBlockGambling = {},
-        onDnsClick = {},
-        onDnsInputChange = {},
-        onSaveDnsClick = {},
-        onRemoveDnsClick = {},
-        onCancelDnsDialogClick = {},
-        onLocalNetworkSharingInfoClick = {},
-        onContentsBlockersInfoClicked = {},
-        onMalwareInfoClicked = {},
-        onCustomDnsInfoClicked = {},
-        onDismissInfoClicked = {},
-        onBackClick = {},
-        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
-        onStopEvent = {},
-        onSelectObfuscationSetting = {},
-        onObfuscationInfoClicked = {}
-    )
+    AppTheme {
+        VpnSettingsScreen(
+            uiState =
+                VpnSettingsUiState.DefaultUiState(
+                    isAutoConnectEnabled = true,
+                    mtu = "1337",
+                    isCustomDnsEnabled = true,
+                    customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
+                ),
+            onMtuCellClick = {},
+            onMtuInputChange = {},
+            onSaveMtuClick = {},
+            onRestoreMtuClick = {},
+            onCancelMtuDialogClicked = {},
+            onToggleAutoConnect = {},
+            onToggleLocalNetworkSharing = {},
+            onToggleDnsClick = {},
+            onToggleBlockAds = {},
+            onToggleBlockTrackers = {},
+            onToggleBlockMalware = {},
+            onToggleBlockAdultContent = {},
+            onToggleBlockGambling = {},
+            onDnsClick = {},
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onCancelDnsDialogClick = {},
+            onLocalNetworkSharingInfoClick = {},
+            onContentsBlockersInfoClicked = {},
+            onMalwareInfoClicked = {},
+            onCustomDnsInfoClicked = {},
+            onDismissInfoClicked = {},
+            onBackClick = {},
+            toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
+            onStopEvent = {},
+            onSelectObfuscationSetting = {},
+            onObfuscationInfoClicked = {}
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -201,7 +203,7 @@ fun VpnSettingsScreen(
     val progress = state.toolbarState.progress
 
     CollapsableAwareToolbarScaffold(
-        backgroundColor = MullvadDarkBlue,
+        backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
         scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
@@ -213,7 +215,7 @@ fun VpnSettingsScreen(
                     whenExpanded = Alignment.BottomStart
                 )
             CollapsingTopBar(
-                backgroundColor = MullvadDarkBlue,
+                backgroundColor = MaterialTheme.colorScheme.background,
                 onBackClicked = { onBackClick() },
                 title = stringResource(id = R.string.settings_vpn),
                 progress = progress,
@@ -288,7 +290,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockAds,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAds(it) },
-                        background = MullvadBlue20
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -297,7 +301,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockTrackers,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MullvadBlue20
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -307,7 +313,9 @@ fun VpnSettingsScreen(
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockMalware(it) },
                         onInfoClicked = { onMalwareInfoClicked() },
-                        background = MullvadBlue20
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -316,7 +324,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockGambling,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockGambling(it) },
-                        background = MullvadBlue20
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -325,14 +335,16 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockAdultContent,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MullvadBlue20
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
 
                 if (uiState.isCustomDnsEnabled) {
                     item {
                         ContentBlockersDisableModeCellSubtitle(
-                            Modifier.background(MullvadDarkBlue)
+                            Modifier.background(MaterialTheme.colorScheme.secondary)
                                 .padding(
                                     start = cellHorizontalSpacing,
                                     top = topPadding,
@@ -357,14 +369,16 @@ fun VpnSettingsScreen(
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.automatic),
+                            isHeader = false
                         )
                     },
                     background =
                         if (uiState.selectedObfuscation == SelectedObfuscation.Auto) {
-                            MullvadGreen
+                            MaterialTheme.colorScheme.surface
                         } else {
-                            MullvadBlue20
-                        }
+                            MaterialTheme.colorScheme.secondaryContainer
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
             itemWithDivider {
@@ -373,30 +387,31 @@ fun VpnSettingsScreen(
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
+                            isHeader = false
                         )
                     },
                     background =
                         if (uiState.selectedObfuscation == SelectedObfuscation.Udp2Tcp) {
-                            MullvadGreen
+                            MaterialTheme.colorScheme.surface
                         } else {
-                            MullvadBlue20
-                        }
+                            MaterialTheme.colorScheme.secondaryContainer
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
             itemWithDivider {
                 BaseCell(
                     onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
                     title = {
-                        SwitchCellTitle(
-                            title = stringResource(id = R.string.off),
-                        )
+                        SwitchCellTitle(title = stringResource(id = R.string.off), isHeader = false)
                     },
                     background =
                         if (uiState.selectedObfuscation == SelectedObfuscation.Off) {
-                            MullvadGreen
+                            MaterialTheme.colorScheme.surface
                         } else {
-                            MullvadBlue20
-                        }
+                            MaterialTheme.colorScheme.secondaryContainer
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
 
@@ -434,7 +449,7 @@ fun VpnSettingsScreen(
                         },
                         bodyView = {},
                         subtitle = null,
-                        background = MullvadBlue20,
+                        background = MaterialTheme.colorScheme.secondaryContainer,
                         startPadding = biggerPadding,
                     )
                 }
@@ -444,7 +459,7 @@ fun VpnSettingsScreen(
                 CustomDnsCellSubtitle(
                     isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
                     modifier =
-                        Modifier.background(MullvadDarkBlue)
+                        Modifier.background(MaterialTheme.colorScheme.secondary)
                             .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)
                             .padding(
                                 start = cellHorizontalSpacing,
