@@ -1849,11 +1849,8 @@
 				58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */,
 				58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
-<<<<<<< HEAD
 				A92CAAC529F7D33C008ED922 /* TunnelTransportProvider.swift */,
-=======
 				58FDF2D82A0BA11900C2B061 /* CheckDeviceOperation.swift */,
->>>>>>> 78367ee12 (PacketTunnel: rotate private key on mismatch with server)
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
