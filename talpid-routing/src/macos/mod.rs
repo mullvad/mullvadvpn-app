@@ -444,16 +444,16 @@ impl RouteManagerImpl {
         // FIXME: remove logging
         log::debug!("Setting non-ifscope: {default_route:?}");
 
-        let ifscope_index = if should_be_ifscoped {
-            let n = default_route.interface_index();
-            if n == 0 {
+        let interface_index = if should_be_ifscoped {
+            let interface_index = default_route.interface_index();
+            if interface_index == 0 {
                 log::error!("Cannot find interface index of default interface");
             }
-            n
+            interface_index
         } else {
             0
         };
-        let new_route = default_route.clone().set_ifscope(ifscope_index);
+        let new_route = default_route.clone().set_ifscope(interface_index);
         let old_route = std::mem::replace(default_route, new_route);
 
         self.routing_table
