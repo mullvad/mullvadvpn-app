@@ -14,6 +14,9 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
+            if verbose {
+                println!("Tunnel interface: {}", endpoint.tunnel_interface)
+            };
         }
         Connecting { endpoint, location } => {
             let ellipsis = if !verbose { "..." } else { "" };

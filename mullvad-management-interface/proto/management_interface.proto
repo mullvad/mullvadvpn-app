@@ -194,6 +194,7 @@ message TunnelEndpoint {
   ProxyEndpoint proxy = 5;
   ObfuscationEndpoint obfuscation = 6;
   Endpoint entry_endpoint = 7;
+  string tunnel_interface = 8;
 }
 
 enum ObfuscationType {

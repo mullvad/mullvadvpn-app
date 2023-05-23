@@ -323,7 +323,10 @@ impl TunnelState for ConnectedState {
         bootstrap: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let connected_state = ConnectedState::from(bootstrap);
-        let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
+        let tunnel_endpoint = talpid_types::net::TunnelEndpoint {
+            tunnel_interface: connected_state.metadata.interface.clone(),
+            ..connected_state.tunnel_parameters.get_tunnel_endpoint()
+        };
 
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
             DisconnectingState::enter(
