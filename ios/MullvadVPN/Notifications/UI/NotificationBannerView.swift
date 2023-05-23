@@ -40,14 +40,14 @@ final class NotificationBannerView: UIView {
     private let indicatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .dangerColor
-        view.layer.cornerRadius = UIMetrics.inAppBannerSeverityIndicatorSize.width * 0.5
+        view.layer.cornerRadius = UIMetrics.InAppBannerNotification.indicatorSize.width * 0.5
         view.layer.cornerCurve = .circular
         return view
     }()
 
     private let wrapperView: UIView = {
         let view = UIView()
-        view.directionalLayoutMargins = UIMetrics.inAppBannerNotificationLayoutMargins
+        view.directionalLayoutMargins = UIMetrics.InAppBannerNotification.layoutMargins
         return view
     }()
 
@@ -116,8 +116,10 @@ final class NotificationBannerView: UIView {
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
             indicatorView.leadingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
-            indicatorView.widthAnchor.constraint(equalToConstant: UIMetrics.inAppBannerSeverityIndicatorSize.width),
-            indicatorView.heightAnchor.constraint(equalToConstant: UIMetrics.inAppBannerSeverityIndicatorSize.height),
+            indicatorView.widthAnchor
+                .constraint(equalToConstant: UIMetrics.InAppBannerNotification.indicatorSize.width),
+            indicatorView.heightAnchor
+                .constraint(equalToConstant: UIMetrics.InAppBannerNotification.indicatorSize.height),
 
             titleLabel.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
