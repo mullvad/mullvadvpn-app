@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.compose.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.compose.theme.dimensions.defaultDimensions
@@ -25,7 +26,25 @@ private val MullvadTypography =
                 fontSize = TypeScale.TextBig,
                 fontWeight = FontWeight.Bold
             ),
-        bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall)
+        bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall),
+        titleMedium =
+            TextStyle(fontSize = TypeScale.TextMediumPlus, fontWeight = FontWeight.SemiBold),
+        labelLarge =
+            TextStyle(
+                fontWeight = FontWeight.Normal,
+                letterSpacing = TextUnit.Unspecified,
+                fontSize = TypeScale.TextHostname
+            ),
+        labelMedium =
+            TextStyle(
+                fontWeight =
+                    FontWeight
+                        .Normal, // TODO This should be semi-bold, but it's not possible to use at
+                                 // the moment, since some other subtitles uses HmtlText which does
+                                 // not support semi-bold font weight
+                letterSpacing = TextUnit.Unspecified,
+                fontSize = TypeScale.TextSmall
+            )
     )
 
 private val MullvadColorPalette =

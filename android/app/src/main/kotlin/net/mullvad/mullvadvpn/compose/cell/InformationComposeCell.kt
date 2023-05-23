@@ -44,7 +44,7 @@ fun InformationComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        title = { SwitchCellTitle(title = title, isHeader = true, modifier = titleModifier) },
         background = background,
         bodyView = {
             InformationComposeCellBody(modifier = bodyViewModifier, onInfoClicked = onInfoClicked)

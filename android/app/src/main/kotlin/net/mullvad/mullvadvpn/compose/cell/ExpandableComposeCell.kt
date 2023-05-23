@@ -49,7 +49,7 @@ fun ExpandableComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        title = { SwitchCellTitle(title = title, isHeader = true, modifier = titleModifier) },
         bodyView = {
             ExpandableComposeCellBody(
                 isExpanded = isExpanded,

@@ -13,5 +13,6 @@ import androidx.compose.ui.unit.sp
 internal object TypeScale {
     val TextBig = 24.sp
     val TextMediumPlus = 18.sp
+    val TextHostname = 15.sp
     val TextSmall = 13.sp
 }
