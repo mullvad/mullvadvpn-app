@@ -10,7 +10,7 @@ import Foundation
 import Network
 import Shadowsocks
 
-/// A Swift wrapper around a Rust implementation of Shadowsock
+/// A Swift wrapper around a Rust implementation of Shadowsocks proxy instance
 public class ShadowSocksProxy {
     private var proxyConfig: ProxyHandle
     private let forwardAddress: IPAddress
