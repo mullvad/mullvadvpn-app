@@ -41,3 +41,4 @@
 **/.vs/
 *.bak
 android/.idea
+.vscode/
