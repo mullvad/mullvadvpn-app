@@ -71,7 +71,7 @@ final class CheckDeviceOperation: AsyncOperation {
         do {
             let deviceState = try SettingsManager.readDeviceState()
             guard case let .loggedIn(accountData, deviceData) = deviceState else {
-                throw InvalidDeviceState()
+                throw InvalidDeviceStateError()
             }
 
             fetchData(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { result in
@@ -139,7 +139,7 @@ final class CheckDeviceOperation: AsyncOperation {
     private func maybeRotateKey(completion: @escaping (Bool, Error?) -> Void) {
         do {
             var deviceState = try SettingsManager.readDeviceState()
-            guard case .loggedIn(let accountData, var deviceData) = deviceState else { throw InvalidDeviceState() }
+            guard case .loggedIn(let accountData, var deviceData) = deviceState else { throw InvalidDeviceStateError() }
 
             guard deviceData.wgKeyData.shouldPacketTunnelRotateTheKey(
                 shouldRotateImmediately: shouldImmediatelyRotateKeyOnMismatch
@@ -209,7 +209,7 @@ final class CheckDeviceOperation: AsyncOperation {
         deviceResult: Result<REST.Device, Error>
     ) throws -> DeviceCheck {
         let deviceState = try SettingsManager.readDeviceState()
-        guard let deviceData = deviceState.deviceData else { throw InvalidDeviceState() }
+        guard let deviceData = deviceState.deviceData else { throw InvalidDeviceStateError() }
 
         var deviceCheck = DeviceCheck()
 
@@ -249,7 +249,7 @@ final class CheckDeviceOperation: AsyncOperation {
     private func saveNewPrivateKey(_ newPrivateKey: PrivateKey, device: REST.Device) throws {
         var deviceState = try SettingsManager.readDeviceState()
 
-        guard var deviceData = deviceState.deviceData else { throw InvalidDeviceState() }
+        guard var deviceData = deviceState.deviceData else { throw InvalidDeviceStateError() }
 
         deviceData.wgKeyData = StoredWgKeyData(creationDate: Date(), privateKey: newPrivateKey)
         deviceData.update(from: device)
@@ -262,7 +262,7 @@ final class CheckDeviceOperation: AsyncOperation {
     }
 }
 
-private struct InvalidDeviceState: LocalizedError {
+private struct InvalidDeviceStateError: LocalizedError {
     var errorDescription: String? {
         return "Cannot complete device check because device is no longer logged in."
     }
