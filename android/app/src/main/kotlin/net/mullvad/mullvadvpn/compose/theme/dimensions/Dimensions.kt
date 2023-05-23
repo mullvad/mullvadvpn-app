@@ -16,7 +16,11 @@ data class Dimensions(
     val cellEndPadding: Dp = 16.dp,
     val listIconSize: Dp = 24.dp,
     val progressIndicatorSize: Dp = 60.dp,
-    val indentedCellStartPadding: Dp = 38.dp
+    val indentedCellStartPadding: Dp = 38.dp,
+    val cellHeight: Dp = 52.dp,
+    val cellLabelVerticalPadding: Dp = 14.dp,
+    val cellFooterTopPadding: Dp = 6.dp,
+    val selectableCellTextMargin: Dp = 12.dp
 )
 
 val defaultDimensions = Dimensions()
