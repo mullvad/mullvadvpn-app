@@ -9,21 +9,25 @@
 import UIKit
 
 class TranslucentButtonBlurView: UIVisualEffectView {
-    init(button: AppButton) {
-        let effect = UIBlurEffect(style: button.style.blurEffectStyle)
+    let appButton: AppButton
 
+    var isEnabled: Bool {
+        didSet {
+            appButton.isEnabled = isEnabled
+            effect = appButton.blurEffect(isEnabled: isEnabled)
+        }
+    }
+
+    init(button: AppButton) {
+        appButton = button
+        isEnabled = button.isEnabled
+
+        let effect = appButton.blurEffect(isEnabled: isEnabled)
         super.init(effect: effect)
 
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        contentView.addSubview(button)
-
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: contentView.topAnchor),
-            button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-        ])
+        contentView.addConstrainedSubviews([button]) {
+            button.pinEdgesToSuperview()
+        }
 
         layer.cornerRadius = UIMetrics.controlCornerRadius
         layer.maskedCorners = button.style.cornerMask(effectiveUserInterfaceLayoutDirection)
@@ -32,6 +36,13 @@ class TranslucentButtonBlurView: UIVisualEffectView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private extension AppButton {
+    func blurEffect(isEnabled: Bool) -> UIBlurEffect {
+        let style = isEnabled ? style.blurEffectStyle : style.disabledStateBlurEffectStyle
+        return UIBlurEffect(style: style)
     }
 }
 
@@ -60,6 +71,15 @@ private extension AppButton.Style {
             return .systemUltraThinMaterialDark
         default:
             return .light
+        }
+    }
+
+    var disabledStateBlurEffectStyle: UIBlurEffect.Style {
+        switch self {
+        case .success, .translucentNeutral:
+            return .systemThinMaterialDark
+        default:
+            return blurEffectStyle
         }
     }
 }
