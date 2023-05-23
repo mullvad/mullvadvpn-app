@@ -59,7 +59,7 @@ fun SplitTunnelingCell(
                 applicationImageView.packageName = packageName ?: ""
             },
             modifier =
-                Modifier.padding(start = Dimens.cellLeftPadding)
+                Modifier.padding(start = Dimens.cellStartPadding)
                     .align(Alignment.CenterVertically)
                     .size(width = Dimens.listIconSize, height = Dimens.listIconSize)
         )
@@ -84,7 +84,7 @@ fun SplitTunnelingCell(
                 ),
             contentDescription = null,
             modifier =
-                Modifier.padding(end = Dimens.cellRightPadding)
+                Modifier.padding(end = Dimens.cellStartPadding)
                     .align(Alignment.CenterVertically)
                     .padding(horizontal = Dimens.loadingSpinnerPadding)
         )

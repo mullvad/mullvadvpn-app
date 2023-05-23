@@ -66,6 +66,8 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
@@ -76,43 +78,45 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 @Preview
 @Composable
 private fun PreviewVpnSettings() {
-    VpnSettingsScreen(
-        uiState =
-            VpnSettingsUiState.DefaultUiState(
-                isAutoConnectEnabled = true,
-                mtu = "1337",
-                isCustomDnsEnabled = true,
-                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
-            ),
-        onMtuCellClick = {},
-        onMtuInputChange = {},
-        onSaveMtuClick = {},
-        onRestoreMtuClick = {},
-        onCancelMtuDialogClicked = {},
-        onToggleAutoConnect = {},
-        onToggleLocalNetworkSharing = {},
-        onToggleDnsClick = {},
-        onToggleBlockAds = {},
-        onToggleBlockTrackers = {},
-        onToggleBlockMalware = {},
-        onToggleBlockAdultContent = {},
-        onToggleBlockGambling = {},
-        onDnsClick = {},
-        onDnsInputChange = {},
-        onSaveDnsClick = {},
-        onRemoveDnsClick = {},
-        onCancelDnsDialogClick = {},
-        onLocalNetworkSharingInfoClick = {},
-        onContentsBlockersInfoClicked = {},
-        onMalwareInfoClicked = {},
-        onCustomDnsInfoClicked = {},
-        onDismissInfoClicked = {},
-        onBackClick = {},
-        toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
-        onStopEvent = {},
-        onSelectObfuscationSetting = {},
-        onObfuscationInfoClicked = {}
-    )
+    AppTheme {
+        VpnSettingsScreen(
+            uiState =
+                VpnSettingsUiState.DefaultUiState(
+                    isAutoConnectEnabled = true,
+                    mtu = "1337",
+                    isCustomDnsEnabled = true,
+                    customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
+                ),
+            onMtuCellClick = {},
+            onMtuInputChange = {},
+            onSaveMtuClick = {},
+            onRestoreMtuClick = {},
+            onCancelMtuDialogClicked = {},
+            onToggleAutoConnect = {},
+            onToggleLocalNetworkSharing = {},
+            onToggleDnsClick = {},
+            onToggleBlockAds = {},
+            onToggleBlockTrackers = {},
+            onToggleBlockMalware = {},
+            onToggleBlockAdultContent = {},
+            onToggleBlockGambling = {},
+            onDnsClick = {},
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onCancelDnsDialogClick = {},
+            onLocalNetworkSharingInfoClick = {},
+            onContentsBlockersInfoClicked = {},
+            onMalwareInfoClicked = {},
+            onCustomDnsInfoClicked = {},
+            onDismissInfoClicked = {},
+            onBackClick = {},
+            toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
+            onStopEvent = {},
+            onSelectObfuscationSetting = {},
+            onObfuscationInfoClicked = {}
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -288,7 +292,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockAds,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAds(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -297,7 +303,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockTrackers,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -307,7 +315,9 @@ fun VpnSettingsScreen(
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockMalware(it) },
                         onInfoClicked = { onMalwareInfoClicked() },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -316,7 +326,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockGambling,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockGambling(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
                 itemWithDivider {
@@ -325,7 +337,9 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockAdultContent,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MullvadBlue20
+                        background = MullvadBlue20,
+                        startPadding = Dimens.contentBlockersStartPadding,
+                        isHeader = false
                     )
                 }
 
@@ -357,6 +371,7 @@ fun VpnSettingsScreen(
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.automatic),
+                            isHeader = false
                         )
                     },
                     background =
@@ -364,7 +379,8 @@ fun VpnSettingsScreen(
                             MullvadGreen
                         } else {
                             MullvadBlue20
-                        }
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
             itemWithDivider {
@@ -373,6 +389,7 @@ fun VpnSettingsScreen(
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
+                            isHeader = false
                         )
                     },
                     background =
@@ -380,23 +397,23 @@ fun VpnSettingsScreen(
                             MullvadGreen
                         } else {
                             MullvadBlue20
-                        }
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
             itemWithDivider {
                 BaseCell(
                     onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
                     title = {
-                        SwitchCellTitle(
-                            title = stringResource(id = R.string.off),
-                        )
+                        SwitchCellTitle(title = stringResource(id = R.string.off), isHeader = false)
                     },
                     background =
                         if (uiState.selectedObfuscation == SelectedObfuscation.Off) {
                             MullvadGreen
                         } else {
                             MullvadBlue20
-                        }
+                        },
+                    startPadding = Dimens.contentBlockersStartPadding
                 )
             }
 

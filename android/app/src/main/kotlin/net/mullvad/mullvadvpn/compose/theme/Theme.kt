@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.compose.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.compose.theme.dimensions.defaultDimensions
@@ -37,6 +38,12 @@ private val MullvadTypography =
                 color = MullvadWhite60,
                 fontSize = TypeScale.TextSmall,
                 fontWeight = FontWeight.SemiBold
+            ),
+        labelLarge =
+            TextStyle(
+                fontWeight = FontWeight.Normal,
+                letterSpacing = TextUnit.Unspecified,
+                fontSize = TypeScale.TextHostname
             )
     )
 

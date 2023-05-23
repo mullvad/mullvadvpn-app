@@ -1,69 +1,101 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.text.HtmlCompat
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.CellSwitch
-import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.theme.AlphaActive
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 
 @Preview
 @Composable
 private fun PreviewSwitchComposeCell() {
-    SwitchComposeCell(
-        title = "Checkbox Title",
-        isEnabled = true,
-        isToggled = true,
-        onCellClicked = {},
-        onInfoClicked = {}
-    )
+    AppTheme {
+        Column {
+            SwitchComposeCell(
+                title = "Checkbox Title",
+                isEnabled = true,
+                isToggled = true,
+                onCellClicked = {},
+                onInfoClicked = {}
+            )
+            Spacer(modifier = Modifier.height(1.dp))
+            SwitchComposeCell(
+                title = "Checkbox Title",
+                isEnabled = true,
+                isToggled = true,
+                onCellClicked = {},
+                onInfoClicked = {},
+                subtitle = "Subtitle"
+            )
+            Spacer(modifier = Modifier.height(1.dp))
+            SwitchComposeCell(
+                title = "Checkbox Item",
+                isEnabled = true,
+                isToggled = true,
+                isHeader = false,
+                onCellClicked = {},
+                onInfoClicked = {}
+            )
+        }
+    }
 }
 
 @Composable
 fun SwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    startPadding: Dp = Dimens.cellStartPadding,
+    isHeader: Boolean = true,
     subtitle: String? = null,
     isEnabled: Boolean = true,
-    background: Color = MullvadBlue,
+    background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-
-    val textSize = dimensionResource(id = R.dimen.text_small).value.sp
     BaseCell(
         title = {
             SwitchCellTitle(
                 title = title,
+                isHeader = isHeader,
                 modifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
             )
         },
         subtitle =
             subtitle?.let {
-                @Composable { Text(text = it, fontSize = textSize, color = MullvadWhite60) }
+                @Composable {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MullvadWhite60
+                    )
+                }
             },
         isRowEnabled = isEnabled,
         bodyView = {
@@ -75,19 +107,23 @@ fun SwitchComposeCell(
             )
         },
         background = background,
-        onCellClicked = { onCellClicked(!isToggled) }
+        onCellClicked = { onCellClicked(!isToggled) },
+        startPadding = startPadding
     )
 }
 
 @Composable
-fun SwitchCellTitle(title: String, modifier: Modifier = Modifier) {
-    val textSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
+fun SwitchCellTitle(title: String, isHeader: Boolean, modifier: Modifier = Modifier) {
     Text(
         text = title,
         textAlign = TextAlign.Center,
-        fontWeight = FontWeight.Bold,
-        fontSize = textSize,
-        color = MullvadWhite,
+        style =
+            if (isHeader) {
+                MaterialTheme.typography.titleMedium
+            } else {
+                MaterialTheme.typography.labelLarge
+            },
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
     )
 }
@@ -100,7 +136,7 @@ fun SwitchCellView(
     onSwitchClicked: ((Boolean) -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val horizontalPadding = dimensionResource(id = R.dimen.medium_padding)
+    val horizontalPadding = Dimens.mediumPadding
     val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
@@ -119,7 +155,7 @@ fun SwitchCellView(
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
-                tint = MullvadWhite
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -129,10 +165,8 @@ fun SwitchCellView(
 
 @Composable
 fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
-    val textSize = dimensionResource(id = R.dimen.text_small).value
-
-    HtmlText(
-        htmlFormattedString =
+    val spanned =
+        HtmlCompat.fromHtml(
             textResource(
                 if (isCellClickable) {
                     R.string.custom_dns_footer
@@ -140,8 +174,12 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
                     R.string.custom_dns_disable_mode_subtitle
                 }
             ),
-        textSize = textSize,
-        textColor = MullvadWhite60.toArgb(),
+            FROM_HTML_MODE_COMPACT
+        )
+    Text(
+        text = spanned.toAnnotatedString(),
+        style = MaterialTheme.typography.labelMedium,
+        color = MullvadWhite60,
         modifier = modifier
     )
 }
