@@ -33,7 +33,8 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
-/// Wraps a PF_ROUTE socket and returns
+/// Wraps a `PF_ROUTE` socket, keeps track of sent message IDs, and facilitates sending and
+/// receiving [route socket messages](#RouteMessage)
 pub struct RoutingSocket {
     socket: RoutingSocketInner,
     seq: i32,
