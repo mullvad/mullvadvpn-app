@@ -1,6 +1,6 @@
 use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
 use talpid_types::{
-    net::{Endpoint, TunnelEndpoint},
+    net::{Endpoint, TunnelEndpoint, TunnelMetadata},
     tunnel::ErrorState,
 };
 
@@ -14,6 +14,11 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
+            if verbose {
+                if let Some(TunnelMetadata { tunnel_interface }) = &endpoint.tunnel_metadata {
+                    println!("Tunnel interface: {tunnel_interface}")
+                }
+            }
         }
         Connecting { endpoint, location } => {
             let ellipsis = if !verbose { "..." } else { "" };
