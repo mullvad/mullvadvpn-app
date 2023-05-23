@@ -203,7 +203,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContent {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
-                onCancelMtuDialogClicked = mockedClickHandler,
+                onCancelMtuDialogClick = mockedClickHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }

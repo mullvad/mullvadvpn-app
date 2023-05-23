@@ -32,7 +32,7 @@ class VpnSettingsFragment : BaseFragment() {
                         onMtuInputChange = vm::onMtuInputChange,
                         onSaveMtuClick = vm::onSaveMtuClick,
                         onRestoreMtuClick = vm::onRestoreMtuClick,
-                        onCancelMtuDialogClicked = vm::onCancelDialogClick,
+                        onCancelMtuDialogClick = vm::onCancelDialogClick,
                         onToggleAutoConnect = vm::onToggleAutoConnect,
                         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
                         onToggleDnsClick = vm::onToggleDnsClick,
@@ -47,15 +47,15 @@ class VpnSettingsFragment : BaseFragment() {
                         onRemoveDnsClick = vm::onRemoveDnsClick,
                         onCancelDnsDialogClick = vm::onCancelDialogClick,
                         onLocalNetworkSharingInfoClick = vm::onLocalNetworkSharingInfoClick,
-                        onContentsBlockersInfoClicked = vm::onContentsBlockerInfoClick,
-                        onCustomDnsInfoClicked = vm::onCustomDnsInfoClick,
-                        onMalwareInfoClicked = vm::onMalwareInfoClick,
-                        onDismissInfoClicked = vm::onDismissInfoClick,
-                        onBackClick = { activity?.onBackPressed() },
+                        onContentsBlockersInfoClick = vm::onContentsBlockerInfoClick,
+                        onCustomDnsInfoClick = vm::onCustomDnsInfoClick,
+                        onMalwareInfoClick = vm::onMalwareInfoClick,
+                        onDismissInfoClick = vm::onDismissInfoClick,
+                        onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
                         onStopEvent = vm::onStopEvent,
                         toastMessagesSharedFlow = vm.toastMessages,
                         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
-                        onObfuscationInfoClicked = vm::onObfuscationInfoClicked
+                        onObfuscationInfoClick = vm::onObfuscationInfoClick
                     )
                 }
             }
