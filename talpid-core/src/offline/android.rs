@@ -100,6 +100,7 @@ impl MonitorHandle {
         })
     }
 
+    #[allow(clippy::unused_async)]
     pub async fn host_is_offline(&self) -> bool {
         match self.get_is_connected() {
             Ok(is_connected) => !is_connected,
@@ -209,6 +210,7 @@ unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<bo
     Box::from_raw(address as *mut Weak<UnboundedSender<bool>>)
 }
 
+#[allow(clippy::unused_async)]
 pub async fn spawn_monitor(
     sender: UnboundedSender<bool>,
     android_context: AndroidContext,
