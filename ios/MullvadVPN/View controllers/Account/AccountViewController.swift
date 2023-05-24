@@ -90,6 +90,12 @@ class AccountViewController: UIViewController {
             self?.copyAccountToken()
         }
 
+        contentView.accountDeviceRow.infoButton.addTarget(
+            self,
+            action: #selector(showAccountDeviceInfo),
+            for: .touchUpInside
+        )
+
         contentView.restorePurchasesButton.addTarget(
             self,
             action: #selector(restorePurchases),
@@ -266,6 +272,46 @@ class AccountViewController: UIViewController {
         alertController.addAction(
             title: NSLocalizedString(
                 "TIME_ADDED_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
+        )
+
+        alertPresenter.enqueue(alertController, presentingController: self)
+    }
+
+    @objc private func showAccountDeviceInfo() {
+        let messages = [
+            NSLocalizedString(
+                "DEVICE_INFO_DIALOG_MESSAGE_PART_1",
+                tableName: "Account",
+                value: "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "DEVICE_INFO_DIALOG_MESSAGE_PART_2",
+                tableName: "Account",
+                value: "You can have up to 5 devices logged in on one Mullvad account.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "DEVICE_INFO_DIALOG_MESSAGE_PART_3",
+                tableName: "Account",
+                value: "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.",
+                comment: ""
+            ),
+        ]
+
+        let alertController = CustomAlertViewController(
+            messages: messages,
+            icon: .info
+        )
+
+        alertController.addAction(
+            title: NSLocalizedString(
+                "DEVICE_INFO_DIALOG_OK_ACTION",
                 tableName: "Account",
                 value: "Got it!",
                 comment: ""
