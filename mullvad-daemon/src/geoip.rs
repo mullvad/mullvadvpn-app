@@ -15,17 +15,35 @@ pub async fn send_location_request(
 ) -> Result<GeoIpLocation, Error> {
     let v4_sender = request_sender.clone();
     let v4_future = async move {
+        #[cfg(not(feature = "api-override"))]
         let location = send_location_request_internal(URI_V4, v4_sender).await?;
+        #[cfg(feature = "api-override")]
+        let location = {
+            let uri_v4 = std::env::var("MULLVAD_LOCATION_HOST").map(|location_api_override| {
+                format!("https://ipv4.{}/json", location_api_override)
+            });
+            let uri_v4 = uri_v4.as_deref().unwrap_or(URI_V4);
+            log::debug!("Using IPv4 location api endpoint: {uri_v4}");
+            send_location_request_internal(&uri_v4, v4_sender).await?
+        };
+
         Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
         if use_ipv6 {
-            Some(
-                send_location_request_internal(URI_V6, v6_sender)
-                    .await
-                    .map(GeoIpLocation::from),
-            )
+            #[cfg(not(feature = "api-override"))]
+            let location = send_location_request_internal(URI_V6, v6_sender).await;
+            #[cfg(feature = "api-override")]
+            let location = {
+                let uri_v6 = std::env::var("MULLVAD_LOCATION_HOST").map(|location_api_override| {
+                    format!("https://ipv6.{}/json", location_api_override)
+                });
+                let uri_v6 = uri_v6.as_deref().unwrap_or(URI_V6);
+                log::debug!("Using IPv6 location api endpoint: {uri_v6}");
+                send_location_request_internal(&uri_v6, v6_sender).await
+            };
+            Some(location.map(GeoIpLocation::from))
         } else {
             None
         }
@@ -53,7 +71,7 @@ pub async fn send_location_request(
 }
 
 async fn send_location_request_internal(
-    uri: &'static str,
+    uri: &str,
     service: RequestServiceHandle,
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
