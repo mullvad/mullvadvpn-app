@@ -9,63 +9,31 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTransport
 import RelayCache
 import RelaySelector
 
 final class TransportMonitor: RESTTransportProvider {
     private let tunnelManager: TunnelManager
     private let tunnelStore: TunnelStore
-    private let urlSessionTransport: REST.URLSessionTransport
-    private let relayCacheTracker: RelayCacheTracker
-    private let logger = Logger(label: "TransportMonitor")
+    private let transportProvider: TransportProvider
 
     // MARK: -
 
     // MARK: Public API
 
-    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, relayCacheTracker: RelayCacheTracker) {
+    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, transportProvider: TransportProvider) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
-        self.relayCacheTracker = relayCacheTracker
-
-        urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
+        self.transportProvider = transportProvider
     }
 
-    public func transport() -> MullvadREST.RESTTransport? {
-        return selectTransport(urlSessionTransport, useShadowsocksTransport: false)
+    public func transport() -> RESTTransport? {
+        return selectTransport(transportProvider.transport(), useShadowsocksTransport: false)
     }
 
     public func shadowSocksTransport() -> RESTTransport? {
-        let shadowSocksTransport: RESTTransport
-        do {
-            let cachedRelays = try relayCacheTracker.getCachedRelays()
-
-            let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
-            let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
-
-            guard let shadowSocksConfiguration,
-                  let shadowSocksBridgeRelay
-            else {
-                logger.error("Could not get shadow socks bridge information.")
-                return nil
-            }
-
-            let shadowSocksURLSession = urlSessionTransport.urlSession
-            let transport = REST.URLSessionShadowSocksTransport(
-                urlSession: shadowSocksURLSession,
-                shadowSocksConfiguration: shadowSocksConfiguration,
-                shadowSocksBridgeRelay: shadowSocksBridgeRelay
-            )
-
-            shadowSocksTransport = transport
-        } catch {
-            logger.error(
-                error: error,
-                message: "Could not create shadow socks transport."
-            )
-            return nil
-        }
-        return selectTransport(shadowSocksTransport, useShadowsocksTransport: true)
+        return selectTransport(transportProvider.shadowSocksTransport(), useShadowsocksTransport: true)
     }
 
     // MARK: -
@@ -83,7 +51,7 @@ final class TransportMonitor: RESTTransportProvider {
     ///   - useShadowsocksTransport: A hint for enforcing a Shadowsocks transport when proxying a request via an
     /// available `Tunnel`
     /// - Returns: A transport to use for sending an `URLRequest`
-    private func selectTransport(_ transport: RESTTransport, useShadowsocksTransport: Bool) -> RESTTransport {
+    private func selectTransport(_ transport: RESTTransport?, useShadowsocksTransport: Bool) -> RESTTransport? {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
             return tunnel.status == .connecting ||
                 tunnel.status == .reasserting ||

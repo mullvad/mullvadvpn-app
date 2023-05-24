@@ -11,10 +11,10 @@ import XCTest
 
 final class TransportStrategyTests: XCTestCase {
     func testEveryThirdConnectionAttemptsIsDirect() {
-        var strategy = REST.TransportStrategy()
+        var strategy = TransportStrategy()
 
         for index in 0 ... 12 {
-            let expectedResult: REST.TransportStrategy.Transport
+            let expectedResult: TransportStrategy.Transport
             expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
             XCTAssertEqual(strategy.connectionTransport(), expectedResult)
             strategy.didFail()
@@ -22,7 +22,7 @@ final class TransportStrategyTests: XCTestCase {
     }
 
     func testLoadingFromCacheDoesNotImpactStrategy() throws {
-        var strategy = REST.TransportStrategy()
+        var strategy = TransportStrategy()
 
         // Fail twice, the next suggested transport mode should be via Shadowsocks proxy
         strategy.didFail()
@@ -31,7 +31,7 @@ final class TransportStrategyTests: XCTestCase {
 
         // Serialize the strategy and reload it from memory to simulate an application restart
         let encodedRawStrategy = try JSONEncoder().encode(strategy)
-        var reloadedStrategy = try JSONDecoder().decode(REST.TransportStrategy.self, from: encodedRawStrategy)
+        var reloadedStrategy = try JSONDecoder().decode(TransportStrategy.self, from: encodedRawStrategy)
 
         // This should be the third failure, the next suggested transport will be a direct one
         reloadedStrategy.didFail()

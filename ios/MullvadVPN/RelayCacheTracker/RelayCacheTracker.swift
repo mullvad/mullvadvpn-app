@@ -22,9 +22,7 @@ final class RelayCacheTracker {
     private let logger = Logger(label: "RelayCacheTracker")
 
     /// Relay cache.
-    private let cache = RelayCache(
-        securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
-    )!
+    private let cache: RelayCache
 
     private let application: UIApplication
 
@@ -49,9 +47,10 @@ final class RelayCacheTracker {
     /// Memory cache.
     private var cachedRelays: CachedRelays?
 
-    init(application: UIApplication, apiProxy: REST.APIProxy) {
+    init(relayCache: RelayCache, application: UIApplication, apiProxy: REST.APIProxy) {
         self.application = application
         self.apiProxy = apiProxy
+        cache = relayCache
 
         do {
             cachedRelays = try cache.read()

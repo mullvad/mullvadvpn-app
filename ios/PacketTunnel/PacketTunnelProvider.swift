@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTransport
 import MullvadTypes
 import Network
 import NetworkExtension
@@ -151,8 +152,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         let urlSession = REST.makeURLSession()
-        let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
-        let transportProvider = TunnelTransportProvider(
+        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
+        let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache
         )

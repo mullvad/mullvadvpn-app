@@ -8,40 +8,38 @@
 
 import Foundation
 
-extension REST {
-    public struct TransportStrategy: Codable {
-        /// The different transports suggested by the strategy
-        public enum Transport {
-            /// Suggests using a direct connection
-            case useURLSession
-            /// Suggests connecting via Shadowsocks proxy
-            case useShadowSocks
-        }
+public struct TransportStrategy: Codable {
+    /// The different transports suggested by the strategy
+    public enum Transport {
+        /// Suggests using a direct connection
+        case useURLSession
+        /// Suggests connecting via Shadowsocks proxy
+        case useShadowSocks
+    }
 
-        /// The internal counter for suggested transports.
-        ///
-        /// A value of `0` means  a direct transport suggestion, a value of `1` or `2` means a Shadowsocks transport
-        /// suggestion.
-        private var connectionAttempts: UInt
+    /// The internal counter for suggested transports.
+    ///
+    /// A value of `0` means  a direct transport suggestion, a value of `1` or `2` means a Shadowsocks transport
+    /// suggestion.
+    private var connectionAttempts: UInt
 
-        public init() {
-            connectionAttempts = 0
-        }
+    public init() {
+        connectionAttempts = 0
+    }
 
-        /// Instructs the strategy that a network connection failed
-        ///
-        /// Every third failure results in a direct transport suggestion.
-        public mutating func didFail() {
-            connectionAttempts += 1
-            // Avoid overflowing by resetting back to 0 every 3rd failure
-            connectionAttempts = connectionAttempts.isMultiple(of: 3) ? 0 : connectionAttempts
-        }
+    /// Instructs the strategy that a network connection failed
+    ///
+    /// Every third failure results in a direct transport suggestion.
+    public mutating func didFail() {
+        connectionAttempts += 1
+        // Avoid overflowing by resetting back to 0 every 3rd failure
+        connectionAttempts = connectionAttempts.isMultiple(of: 3) ? 0 : connectionAttempts
+    }
 
-        /// The suggested connection transport
-        ///
-        /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise
-        public func connectionTransport() -> Transport {
-            connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
-        }
+    /// The suggested connection transport
+    ///
+    /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise
+    public func connectionTransport() -> Transport {
+        connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
     }
 }
