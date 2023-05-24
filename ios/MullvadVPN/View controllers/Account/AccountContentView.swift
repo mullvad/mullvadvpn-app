@@ -41,7 +41,7 @@ class AccountContentView: UIView {
         return button
     }()
 
-    let accountDeviceRow: AccountDeviceRow = {
+    lazy var accountDeviceRow: AccountDeviceRow = {
         let view = AccountDeviceRow()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -118,9 +118,16 @@ class AccountDeviceRow: UIView {
         }
     }
 
+    let infoButton: UIButton = {
+        let button = IncreasedHitButton(type: .custom)
+        button.accessibilityIdentifier = "InfoButton"
+        button.tintColor = .white
+        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        return button
+    }()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = NSLocalizedString(
             "DEVICE_NAME",
             tableName: "Account",
@@ -134,7 +141,6 @@ class AccountDeviceRow: UIView {
 
     private let deviceLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .white
         return label
@@ -143,19 +149,16 @@ class AccountDeviceRow: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        addSubview(titleLabel)
-        addSubview(deviceLabel)
+        let contentContainerView = UIStackView(arrangedSubviews: [titleLabel, deviceLabel])
+        contentContainerView.axis = .vertical
+        contentContainerView.alignment = .leading
+        contentContainerView.spacing = 8
 
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-
-            deviceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            deviceLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            deviceLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            deviceLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
+        addConstrainedSubviews([contentContainerView, infoButton]) {
+            contentContainerView.pinEdgesToSuperview()
+            infoButton.leadingAnchor.constraint(equalToSystemSpacingAfter: deviceLabel.trailingAnchor, multiplier: 1)
+            infoButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
+        }
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
