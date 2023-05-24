@@ -8,36 +8,33 @@
 
 import Foundation
 
+public enum AccountStateVerdict: Equatable, Codable {
+    case failed
+    case invalidAccount
+    case succeeded(_ accountExpiry: Date)
+}
+
+public enum DeviceStateVerdict: Equatable, Codable {
+    case failed
+    case revoked
+    case keyMismatch
+    case succeeded
+}
+
 public struct DeviceCheck: Codable, Equatable {
-    /// Last known account expiry.
-    /// Set to `nil` when account expiry is unknown yet.
-    public var accountExpiry: Date?
-
-    /// Invalid account. Often happens when account is removed on our backend.
-    public var isAccountInvalid: Bool?
-
-    /// Whteher device is revoked. Usually happens when device is removed on our backend.
-    public var isDeviceRevoked: Bool?
-
-    /// Whether the key stored on device does not match the key stored on backend.
-    /// May happen during key rotation when the new key is passed to our backend but no acknowledgment received back
-    /// to confirm that rotation has succeeded.
-    public var isKeyMismatch: Bool?
+    public var accountVerdict: AccountStateVerdict
+    public var deviceVerdict: DeviceStateVerdict
 
     /// Last time packet tunnel had an attempt to rotate the key whether successfully or not.
     public var lastKeyRotationAttemptDate: Date?
 
     public init(
-        accountExpiry: Date? = nil,
-        isAccountInvalid: Bool? = nil,
-        isDeviceRevoked: Bool? = nil,
-        isKeyMismatch: Bool? = nil,
-        lastKeyRotationAttemptDate: Date? = nil
+        accountVerdict: AccountStateVerdict,
+        deviceVerdict: DeviceStateVerdict,
+        lastKeyRotationAttemptDate: Date?
     ) {
-        self.accountExpiry = accountExpiry
-        self.isAccountInvalid = isAccountInvalid
-        self.isDeviceRevoked = isDeviceRevoked
-        self.isKeyMismatch = isKeyMismatch
+        self.accountVerdict = accountVerdict
+        self.deviceVerdict = deviceVerdict
         self.lastKeyRotationAttemptDate = lastKeyRotationAttemptDate
     }
 
@@ -48,11 +45,17 @@ public struct DeviceCheck: Codable, Equatable {
     }
 
     public mutating func merge(with other: DeviceCheck) {
-        other.accountExpiry.flatMap { accountExpiry = $0 }
-        other.isAccountInvalid.flatMap { isAccountInvalid = $0 }
-        other.isDeviceRevoked.flatMap { isDeviceRevoked = $0 }
-        other.isKeyMismatch.flatMap { isKeyMismatch = $0 }
-        other.lastKeyRotationAttemptDate.flatMap { lastKeyRotationAttemptDate = $0 }
+        if other.accountVerdict != .failed {
+            accountVerdict = other.accountVerdict
+        }
+
+        if other.deviceVerdict != .failed {
+            deviceVerdict = other.deviceVerdict
+        }
+
+        if let lastKeyRotationAttemptDate = other.lastKeyRotationAttemptDate {
+            self.lastKeyRotationAttemptDate = lastKeyRotationAttemptDate
+        }
     }
 }
 

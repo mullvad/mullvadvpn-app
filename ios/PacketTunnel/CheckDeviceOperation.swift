@@ -30,9 +30,7 @@ final class CheckDeviceOperation: AsyncOperation {
     private let shouldImmediatelyRotateKeyOnMismatch: Bool
     private let completionHandler: CompletionHandler
 
-    private var accountTask: Cancellable?
-    private var deviceTask: Cancellable?
-    private var rotationTask: Cancellable?
+    private var tasks: [Cancellable] = []
 
     init(
         dispatchQueue: DispatchQueue,
@@ -110,13 +108,13 @@ final class CheckDeviceOperation: AsyncOperation {
         let dispatchGroup = DispatchGroup()
 
         dispatchGroup.enter()
-        accountTask = accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
+        let accountTask = accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
             accountResult = result
             dispatchGroup.leave()
         }
 
         dispatchGroup.enter()
-        deviceTask = devicesProxy.getDevice(
+        let deviceTask = devicesProxy.getDevice(
             accountNumber: accountNumber,
             identifier: deviceIdentifier,
             retryStrategy: .noRetry
@@ -124,6 +122,8 @@ final class CheckDeviceOperation: AsyncOperation {
             deviceResult = result
             dispatchGroup.leave()
         }
+
+        tasks.append(contentsOf: [accountTask, deviceTask])
 
         dispatchGroup.notify(queue: dispatchQueue) {
             guard let accountResult = accountResult, let deviceResult = deviceResult else { return }
