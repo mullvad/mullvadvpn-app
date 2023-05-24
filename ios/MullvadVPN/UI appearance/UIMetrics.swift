@@ -80,12 +80,12 @@ extension UIMetrics {
 
     /// Layout margins for container (main view) in `CustomAlertViewController`
     static let customAlertContainerMargins = NSDirectionalEdgeInsets(
-        top: 24,
+        top: 28,
         leading: 16,
         bottom: 16,
         trailing: 16
     )
 
     /// Spacing between views in container (main view) in `CustomAlertViewController`
-    static let customAlertContainerSpacing: CGFloat = 18
+    static let customAlertContainerSpacing: CGFloat = 16
 }

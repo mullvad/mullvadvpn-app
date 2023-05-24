@@ -16,11 +16,14 @@ import UIKit
 protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidFinish(_ controller: AccountViewController)
     func accountViewControllerDidLogout(_ controller: AccountViewController)
+    func showAccountDeviceInfo()
+    func showPaymentErrorAlert(error: StorePaymentManagerError)
+    func showRestorePurchasesErrorAlert(error: StorePaymentManagerError)
+    func showTimeAddedConfirmationAlert(with response: REST.CreateApplePaymentResponse, context: REST.CreateApplePaymentResponse.Context)
 }
 
 class AccountViewController: UIViewController {
     private let interactor: AccountInteractor
-    private let alertPresenter = AlertPresenter()
 
     private let contentView: AccountContentView = {
         let contentView = AccountContentView()
@@ -90,6 +93,10 @@ class AccountViewController: UIViewController {
             self?.copyAccountToken()
         }
 
+        contentView.accountDeviceRow.infoButtonAction = { [weak self] in
+            self?.delegate?.showAccountDeviceInfo()
+        }
+
         contentView.restorePurchasesButton.addTarget(
             self,
             action: #selector(restorePurchases),
@@ -121,6 +128,10 @@ class AccountViewController: UIViewController {
     }
 
     // MARK: - Private
+
+    @objc private func doLogout() {
+        delegate?.accountViewControllerDidLogout(self)
+    }
 
     @objc private func handleDismiss() {
         delegate?.accountViewControllerDidFinish(self)
@@ -191,7 +202,7 @@ class AccountViewController: UIViewController {
 
         switch event {
         case let .finished(completion):
-            showTimeAddedConfirmationAlert(with: completion.serverResponse, context: .purchase)
+            delegate?.showTimeAddedConfirmationAlert(with: completion.serverResponse, context: .purchase)
 
         case let .failure(paymentFailure):
             switch paymentFailure.error {
@@ -199,100 +210,14 @@ class AccountViewController: UIViewController {
                 break
 
             default:
-                showPaymentErrorAlert(error: paymentFailure.error)
+                delegate?.showPaymentErrorAlert(error: paymentFailure.error)
             }
         }
 
         setPaymentState(.none, animated: true)
     }
 
-    private func showPaymentErrorAlert(error: StorePaymentManagerError) {
-        let alertController = CustomAlertViewController(
-            title: NSLocalizedString(
-                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
-                tableName: "Account",
-                value: "Cannot complete the purchase",
-                comment: ""
-            ),
-            message: error.displayErrorDescription
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
-    private func showRestorePurchasesErrorAlert(error: StorePaymentManagerError) {
-        let alertController = CustomAlertViewController(
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                tableName: "Account",
-                value: "Cannot restore purchases",
-                comment: ""
-            ),
-            message: error.displayErrorDescription
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
-    private func showTimeAddedConfirmationAlert(
-        with response: REST.CreateApplePaymentResponse,
-        context: REST.CreateApplePaymentResponse.Context
-    ) {
-        let alertController = CustomAlertViewController(
-            title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context)
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "TIME_ADDED_ALERT_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
-    }
-
     // MARK: - Actions
-
-    @objc private func doLogout() {
-        let alertController = CustomAlertViewController(
-            icon: .spinner
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self) {
-            self.interactor.logout {
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                    alertController.dismiss(animated: true) {
-                        self.delegate?.accountViewControllerDidLogout(self)
-                    }
-                }
-            }
-        }
-    }
 
     private func copyAccountToken() {
         guard let accountData = interactor.deviceState.accountData else {
@@ -327,10 +252,10 @@ class AccountViewController: UIViewController {
 
             switch completion {
             case let .success(response):
-                showTimeAddedConfirmationAlert(with: response, context: .restoration)
+                self.delegate?.showTimeAddedConfirmationAlert(with: response, context: .restoration)
 
             case let .failure(error as StorePaymentManagerError):
-                showRestorePurchasesErrorAlert(error: error)
+                self.delegate?.showRestorePurchasesErrorAlert(error: error)
 
             default:
                 break
