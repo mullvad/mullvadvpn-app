@@ -40,7 +40,9 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
             .init();
     });
 
-    let forward_ip = if let Some(forward_address) = unsafe { parse_ip_addr(forward_address, forward_address_len) } {
+    let forward_ip = if let Some(forward_address) =
+        unsafe { parse_ip_addr(forward_address, forward_address_len) }
+    {
         forward_address
     } else {
         return -1;
@@ -68,13 +70,14 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
         return -1;
     };
 
-    let (port, handle) = match run_forwarding_proxy(forward_socket_addr, bridge_socket_addr, &password, &cipher) {
-        Ok((port, handle)) => (port, handle),
-        Err(err) => {
-            log::error!("Failed to run HTTP proxy {}", err);
-            return err.raw_os_error().unwrap_or(-1);
-        }
-    };
+    let (port, handle) =
+        match run_forwarding_proxy(forward_socket_addr, bridge_socket_addr, &password, &cipher) {
+            Ok((port, handle)) => (port, handle),
+            Err(err) => {
+                log::error!("Failed to run HTTP proxy {}", err);
+                return err.raw_os_error().unwrap_or(-1);
+            }
+        };
     let handle = Box::new(handle);
 
     unsafe {

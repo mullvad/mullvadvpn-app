@@ -21,7 +21,8 @@ pub fn run_forwarding_proxy(
     password: &str,
     cipher: &str,
 ) -> io::Result<(u16, ShadowsocksHandle)> {
-    let runtime = ShadowsocksRuntime::new(forward_socket_addr, bridge_socket_addr, password, cipher)?;
+    let runtime =
+        ShadowsocksRuntime::new(forward_socket_addr, bridge_socket_addr, password, cipher)?;
     let port = runtime.port();
     let handle = runtime.run()?;
 
@@ -47,12 +48,18 @@ impl ShadowsocksHandle {
 }
 
 impl ShadowsocksRuntime {
-    pub fn new(forward_socket_addr: SocketAddr, bridge_socket_addr: SocketAddr, password: &str, cipher: &str) -> io::Result<Self> {
+    pub fn new(
+        forward_socket_addr: SocketAddr,
+        bridge_socket_addr: SocketAddr,
+        password: &str,
+        cipher: &str,
+    ) -> io::Result<Self> {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()?;
 
-        let (config, local_port) = Self::create_config(forward_socket_addr, bridge_socket_addr, password, cipher)?;
+        let (config, local_port) =
+            Self::create_config(forward_socket_addr, bridge_socket_addr, password, cipher)?;
         Ok(Self {
             runtime,
             config,
