@@ -38,6 +38,9 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                 address: entry.address.to_string(),
                 protocol: i32::from(proto::TransportProtocol::from(entry.protocol)),
             }),
+            tunnel_metadata: endpoint
+                .tunnel_interface
+                .map(|tunnel_interface| proto::TunnelMetadata { tunnel_interface }),
         }
     }
 }
@@ -118,6 +121,9 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                     })
                 })
                 .transpose()?,
+            tunnel_interface: endpoint
+                .tunnel_metadata
+                .map(|tunnel_metadata| tunnel_metadata.tunnel_interface),
         })
     }
 }
