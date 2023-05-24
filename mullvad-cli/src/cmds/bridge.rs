@@ -3,8 +3,8 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
-        Provider, Providers,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint,
+        LocationConstraint, Ownership, Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
@@ -52,6 +52,10 @@ pub enum SetCommands {
 \tmullvad bridge set location se-got-br-001"
     )]
     Location(LocationArgs),
+
+    /// Set custom list to select relays from. Use the 'custom-lists list'
+    /// command to show available alternatives.
+    CustomList { custom_list_name: String },
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -150,27 +154,30 @@ impl Bridge {
     }
 
     async fn set(subcmd: SetCommands) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
         match subcmd {
             SetCommands::State { policy } => {
-                let mut rpc = MullvadProxyClient::new().await?;
                 rpc.set_bridge_state(policy).await?;
                 println!("Updated bridge state");
                 Ok(())
             }
             SetCommands::Location(location) => {
-                let mut rpc = MullvadProxyClient::new().await?;
                 let countries = rpc.get_relay_locations().await?.countries;
-                let location_constraint =
-                    if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
-                        Constraint::Only(relay)
-                    } else {
-                        Constraint::from(location)
-                    };
-
-                Self::update_bridge_settings(Some(location_constraint), None, None).await
+                let location = if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
+                    Constraint::Only(relay)
+                } else {
+                    Constraint::from(location)
+                };
+                let location = location.map(|location| LocationConstraint::Location { location });
+                Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
+            }
+            SetCommands::CustomList { custom_list_name } => {
+                let list = rpc.get_custom_list(custom_list_name).await?;
+                let location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+                Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {
-                Self::update_bridge_settings(None, None, Some(ownership)).await
+                Self::update_bridge_settings(&mut rpc, None, None, Some(ownership)).await
             }
             SetCommands::Provider { providers } => {
                 let providers = if providers[0].eq_ignore_ascii_case("any") {
@@ -178,7 +185,7 @@ impl Bridge {
                 } else {
                     Constraint::Only(Providers::new(providers.into_iter()).unwrap())
                 };
-                Self::update_bridge_settings(None, Some(providers), None).await
+                Self::update_bridge_settings(&mut rpc, None, Some(providers), None).await
             }
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
         }
@@ -272,7 +279,9 @@ impl Bridge {
                 }
             },
             BridgeSettings::Normal(constraints) => {
-                println!("Bridge constraints: {constraints}")
+                let mut buf = String::new();
+                let _ = constraints.format(&mut buf, &settings.custom_lists);
+                println!("Bridge constraints: {buf}")
             }
         };
         Ok(())
@@ -360,12 +369,11 @@ impl Bridge {
     }
 
     async fn update_bridge_settings(
+        rpc: &mut MullvadProxyClient,
         location: Option<Constraint<LocationConstraint>>,
         providers: Option<Constraint<Providers>>,
         ownership: Option<Constraint<Ownership>>,
     ) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-
         let constraints = match rpc.get_settings().await?.bridge_settings {
             BridgeSettings::Normal(mut constraints) => {
                 if let Some(new_location) = location {
@@ -380,7 +388,9 @@ impl Bridge {
                 constraints
             }
             _ => BridgeConstraints {
-                location: location.unwrap_or(Constraint::Any),
+                location: location
+                    .unwrap_or(Constraint::Any)
+                    .map(LocationConstraint::from),
                 providers: providers.unwrap_or(Constraint::Any),
                 ownership: ownership.unwrap_or(Constraint::Any),
             },

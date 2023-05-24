@@ -27,6 +27,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 mod version_check;
+mod custom_lists;
 
 use crate::target_state::PersistentTargetState;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -42,6 +43,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
+    custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -163,6 +165,9 @@ pub enum Error {
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
 
+    #[error(display = "Custom list error")]
+    CustomListError(#[error(source)] custom_lists::Error),
+
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
@@ -242,6 +247,18 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
+    /// List custom lists
+    ListCustomLists(ResponseTx<Vec<CustomList>, Error>),
+    /// Get custom list
+    GetCustomList(ResponseTx<CustomList, Error>, String),
+    /// Create custom list
+    CreateCustomList(ResponseTx<(), Error>, String),
+    /// Delete custom list
+    DeleteCustomList(ResponseTx<(), Error>, String),
+    /// Update a custom list by adding or removing a location
+    UpdateCustomListLocation(ResponseTx<(), Error>, CustomListLocationUpdate),
+    /// Rename a custom list from the old name to a new name
+    RenameCustomList(ResponseTx<(), Error>, String, String),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1016,6 +1033,12 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
+            ListCustomLists(tx) => self.on_list_custom_lists(tx).await,
+            GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
+            CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
+            DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
+            UpdateCustomListLocation(tx, update) => self.on_update_custom_list_location(tx, update).await,
+            RenameCustomList(tx, name, new_name) => self.on_rename_custom_list(tx, name, new_name).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2213,6 +2236,45 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
+    async fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
+        let result = self.settings.custom_lists.custom_lists.values().cloned().collect();
+        Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
+    }
+
+    async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
+        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
+        Self::oneshot_send(tx, result, "create_custom_list response");
+    }
+
+    async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        let result = self.create_custom_list(name).await.map_err(Error::CustomListError);
+        Self::oneshot_send(tx, result, "create_custom_list response");
+    }
+
+    async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        let result = self.delete_custom_list(name).await.map_err(Error::CustomListError);
+        Self::oneshot_send(tx, result, "delete_custom_list response");
+    }
+
+    async fn on_update_custom_list_location(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        update: CustomListLocationUpdate,
+    ) {
+        let result = self.update_custom_list_location(update).await.map_err(Error::CustomListError);
+        Self::oneshot_send(tx, result, "update_custom_list_location response");
+    }
+
+    async fn on_rename_custom_list(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        name: String,
+        new_name: String,
+    ) {
+        let result = self.rename_custom_list(name, new_name).await.map_err(Error::CustomListError);
+        Self::oneshot_send(tx, result, "rename_custom_list response");
+    }
+
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
         Self::oneshot_send(tx, self.settings.to_settings(), "get_settings response");
     }
@@ -2372,10 +2434,13 @@ fn new_selector_config(
     };
 
     SelectorConfig {
-        relay_settings: settings.get_relay_settings(),
+        relay_settings: settings.relay_settings.clone(),
         bridge_state: settings.bridge_state,
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
+        custom_lists: settings.custom_lists.clone(),
     }
 }
+
+

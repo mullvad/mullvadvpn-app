@@ -581,6 +581,91 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    // Custom lists
+    //
+
+    async fn list_custom_lists(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<mullvad_management_interface::types::CustomLists> {
+        log::debug!("list_custom_lists");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ListCustomLists(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_lists| {
+                Response::new(mullvad_management_interface::types::CustomLists::from(
+                    custom_lists,
+                ))
+            })
+            .map_err(map_daemon_error)
+    }
+
+    async fn get_custom_list(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<mullvad_management_interface::types::CustomList> {
+        log::debug!("get_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_list| {
+                Response::new(mullvad_management_interface::types::CustomList::from(
+                    custom_list,
+                ))
+            })
+            .map_err(map_daemon_error)
+    }
+
+    async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("create_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn delete_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("delete_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::DeleteCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn update_custom_list_location(
+        &self,
+        request: Request<types::CustomListLocationUpdate>,
+    ) -> ServiceResult<()> {
+        log::debug!("update_custom_list_location");
+        let custom_list =
+            mullvad_types::custom_list::CustomListLocationUpdate::try_from(request.into_inner())?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UpdateCustomListLocation(tx, custom_list))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+    async fn rename_custom_list(
+        &self,
+        request: Request<types::CustomListRename>,
+    ) -> ServiceResult<()> {
+        log::debug!("rename_custom_list");
+        let names: (String, String) = From::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RenameCustomList(tx, names.0, names.1))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     // Split tunneling
     //
 

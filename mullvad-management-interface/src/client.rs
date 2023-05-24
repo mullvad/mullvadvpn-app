@@ -4,6 +4,7 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -173,6 +174,14 @@ impl MullvadProxyClient {
         let update = types::RelaySettingsUpdate::from(update);
         self.0
             .update_relay_settings(update)
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<()> {
+        self.0
+            .rename_custom_list(types::CustomListRename::from((name, new_name)))
             .await
             .map_err(Error::Rpc)?;
         Ok(())
@@ -427,6 +436,51 @@ impl MullvadProxyClient {
             .map_err(Error::Rpc)?
             .into_inner();
         PublicKey::try_from(key).map_err(Error::InvalidResponse)
+    }
+
+    pub async fn list_custom_lists(&mut self) -> Result<Vec<CustomList>> {
+        let result = self
+            .0
+            .list_custom_lists(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner()
+            .try_into()
+            .map_err(Error::InvalidResponse)?;
+        Ok(result)
+    }
+
+    pub async fn get_custom_list(&mut self, name: String) -> Result<CustomList> {
+        let result = self
+            .0
+            .get_custom_list(name)
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner()
+            .try_into()
+            .map_err(Error::InvalidResponse)?;
+        Ok(result)
+    }
+
+    pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
+        self.0.create_custom_list(name).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn delete_custom_list(&mut self, name: String) -> Result<()> {
+        self.0.delete_custom_list(name).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn update_custom_list_location(
+        &mut self,
+        custom_list_update: CustomListLocationUpdate,
+    ) -> Result<()> {
+        self.0
+            .update_custom_list_location(types::CustomListLocationUpdate::from(custom_list_update))
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
     }
 
     #[cfg(target_os = "linux")]
