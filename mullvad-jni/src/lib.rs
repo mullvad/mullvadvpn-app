@@ -30,7 +30,6 @@ use mullvad_types::{
 use std::{
     io,
     path::{Path, PathBuf},
-    ptr,
     sync::{
         atomic::{AtomicUsize, Ordering},
         mpsc, Arc, Once,
@@ -82,12 +81,12 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
         match result {
             Ok(account_data) => GetAccountDataResult::Ok(account_data),
             Err(error) => match error {
-                daemon_interface::Error::RpcError(RestError::ApiError(status, _code))
+                daemon_interface::Error::Api(RestError::ApiError(status, _code))
                     if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
                 {
                     GetAccountDataResult::InvalidAccount
                 }
-                daemon_interface::Error::RpcError(_) => GetAccountDataResult::RpcError,
+                daemon_interface::Error::Api(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
         }
@@ -117,7 +116,7 @@ impl From<Result<(), daemon_interface::Error>> for LoginResult {
                         _ => LoginResult::OtherError,
                     }
                 }
-                daemon_interface::Error::RpcError(_) => LoginResult::RpcError,
+                daemon_interface::Error::Api(_) => LoginResult::RpcError,
                 _ => LoginResult::OtherError,
             },
         }
@@ -146,7 +145,7 @@ impl From<Result<(), daemon_interface::Error>> for RemoveDeviceResult {
                         _ => RemoveDeviceResult::OtherError,
                     }
                 }
-                daemon_interface::Error::RpcError(_) => RemoveDeviceResult::RpcError,
+                daemon_interface::Error::Api(_) => RemoveDeviceResult::RpcError,
                 _ => RemoveDeviceResult::OtherError,
             },
         }
@@ -181,14 +180,12 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
 impl From<daemon_interface::Error> for VoucherSubmissionError {
     fn from(error: daemon_interface::Error) -> Self {
         match error {
-            daemon_interface::Error::RpcError(RestError::ApiError(_, code)) => {
-                match code.as_str() {
-                    mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
-                    mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
-                    _ => VoucherSubmissionError::RpcError,
-                }
-            }
-            daemon_interface::Error::RpcError(_) => VoucherSubmissionError::RpcError,
+            daemon_interface::Error::Api(RestError::ApiError(_, code)) => match code.as_str() {
+                mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
+                mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
+                _ => VoucherSubmissionError::RpcError,
+            },
+            daemon_interface::Error::Api(_) => VoucherSubmissionError::RpcError,
             _ => VoucherSubmissionError::OtherError,
         }
     }
@@ -559,16 +556,22 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deiniti
 
     set_daemon_interface_address(&env, &this, 0);
 
-    if daemon_interface_address != ptr::null_mut() {
+    if !daemon_interface_address.is_null() {
         let _ = unsafe { Box::from_raw(daemon_interface_address) };
     }
 }
 
-fn get_daemon_interface<'a>(address: jlong) -> Option<&'a mut DaemonInterface> {
+/// # Safety
+///
+/// `address` must either be zero or a valid pointer to a `DaemonInterface` instance.
+/// This function has no concept of lifetimes, so the caller must ensure that the
+/// pointed to `DaemonInterface` is valid for at least as long as the return value
+/// of this function is still alive.
+unsafe fn get_daemon_interface(address: jlong) -> Option<&'static mut DaemonInterface> {
     let pointer = address as *mut DaemonInterface;
 
-    if pointer != ptr::null_mut() {
-        Some(Box::leak(unsafe { Box::from_raw(pointer) }))
+    if !pointer.is_null() {
+        Some(&mut *pointer)
     } else {
         log::error!("Attempt to get daemon interface while it is null");
         None
@@ -582,7 +585,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_connect
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.connect() {
             log::error!(
                 "{}",
@@ -601,7 +605,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createN
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.create_new_account() {
             Ok(account) => account.into_java(&env).forget(),
             Err(error) => {
@@ -621,7 +626,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_disconn
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.disconnect() {
             log::error!(
                 "{}",
@@ -640,7 +646,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    match get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    match unsafe { get_daemon_interface(daemon_interface_address) } {
         Some(daemon_interface) => daemon_interface
             .get_account_history()
             .map(|history| history.into_java(&env).forget())
@@ -659,7 +666,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let account = String::from_java(&env, accountToken);
         let result = daemon_interface.get_account_data(account);
 
@@ -682,7 +690,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWwwA
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_www_auth_token() {
             Ok(token) => token.into_java(&env).forget(),
             Err(error) => {
@@ -706,7 +715,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurr
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_current_location() {
             Ok(location) => location.into_java(&env).forget(),
             Err(error) => {
@@ -731,7 +741,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurr
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_current_version() {
             Ok(version) => version.into_java(&env).forget(),
             Err(error) => {
@@ -756,7 +767,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getRela
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_relay_locations() {
             Ok(relay_list) => relay_list.into_java(&env).forget(),
             Err(error) => {
@@ -781,7 +793,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getSett
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_settings() {
             Ok(settings) => settings.into_java(&env).forget(),
             Err(error) => {
@@ -803,7 +816,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getStat
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_state() {
             Ok(state) => state.into_java(&env).forget(),
             Err(error) => {
@@ -825,7 +839,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getVers
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_version_info() {
             Ok(version_info) => version_info.into_java(&env).forget(),
             Err(error) => {
@@ -850,7 +865,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWire
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_wireguard_key() {
             Ok(key) => key.into_java(&env).forget(),
             Err(error) => {
@@ -873,7 +889,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_reconne
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.reconnect() {
             log::error!(
                 "{}",
@@ -890,7 +907,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_clearAc
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.clear_account_history() {
             log::error!(
                 "{}",
@@ -910,7 +928,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_loginAc
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let account = String::from_java(&env, accountToken);
         let result = daemon_interface.login_account(account);
 
@@ -931,7 +950,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_logoutA
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.logout_account() {
             log::error!("{}", error.display_chain_with_msg("Failed to log out"));
         }
@@ -947,7 +967,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getDevi
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         match daemon_interface.get_device() {
             Ok(key) => key.into_java(&env).forget(),
             Err(error) => {
@@ -967,7 +988,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateD
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.update_device() {
             log::error!(
                 "{}",
@@ -987,7 +1009,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_listDev
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let token = String::from_java(&env, account_token);
         match daemon_interface.list_devices(token) {
             Ok(key) => key.into_java(&env).forget(),
@@ -1012,19 +1035,21 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_removeD
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        let token = String::from_java(&env, account_token);
-        let device_id = String::from_java(&env, device_id);
-        let raw_result = daemon_interface.remove_device(token, device_id);
+    let result =
+        // SAFETY: The address points to an instance valid for the duration of this function call
+        if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+            let token = String::from_java(&env, account_token);
+            let device_id = String::from_java(&env, device_id);
+            let raw_result = daemon_interface.remove_device(token, device_id);
 
-        if let Err(ref error) = &raw_result {
-            log_request_error("remove device", error);
-        }
+            if let Err(ref error) = &raw_result {
+                log_request_error("remove device", error);
+            }
 
-        RemoveDeviceResult::from(raw_result)
-    } else {
-        RemoveDeviceResult::OtherError
-    };
+            RemoveDeviceResult::from(raw_result)
+        } else {
+            RemoveDeviceResult::OtherError
+        };
 
     result.into_java(&env).forget()
 }
@@ -1039,7 +1064,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAllo
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let allow_lan = bool::from_java(&env, allow_lan);
 
         if let Err(error) = daemon_interface.set_allow_lan(allow_lan) {
@@ -1061,7 +1087,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAuto
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let auto_connect = bool::from_java(&env, auto_connect);
 
         if let Err(error) = daemon_interface.set_auto_connect(auto_connect) {
@@ -1083,7 +1110,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setDnsO
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let dns_options = DnsOptions::from_java(&env, dnsOptions);
 
         if let Err(error) = daemon_interface.set_dns_options(dns_options) {
@@ -1105,7 +1133,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setWire
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let wireguard_mtu = Option::<i32>::from_java(&env, wireguard_mtu).map(|value| value as u16);
 
         if let Err(error) = daemon_interface.set_wireguard_mtu(wireguard_mtu) {
@@ -1124,7 +1153,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
     _: JObject<'_>,
     daemon_interface_address: jlong,
 ) {
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         if let Err(error) = daemon_interface.shutdown() {
             log::error!(
                 "{}",
@@ -1144,18 +1174,20 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
 ) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
-    let result = if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        let voucher = String::from_java(&env, voucher);
-        let raw_result = daemon_interface.submit_voucher(voucher);
+    let result =
+        // SAFETY: The address points to an instance valid for the duration of this function call
+        if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+            let voucher = String::from_java(&env, voucher);
+            let raw_result = daemon_interface.submit_voucher(voucher);
 
-        if let Err(ref error) = &raw_result {
-            log_request_error("submit voucher code", error);
-        }
+            if let Err(ref error) = &raw_result {
+                log_request_error("submit voucher code", error);
+            }
 
-        VoucherSubmissionResult::from(raw_result)
-    } else {
-        VoucherSubmissionResult::Error(VoucherSubmissionError::OtherError)
-    };
+            VoucherSubmissionResult::from(raw_result)
+        } else {
+            VoucherSubmissionResult::Error(VoucherSubmissionError::OtherError)
+        };
 
     result.into_java(&env).forget()
 }
@@ -1170,7 +1202,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateR
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let update = FromJava::from_java(&env, relaySettingsUpdate);
 
         if let Err(error) = daemon_interface.update_relay_settings(update) {
@@ -1192,7 +1225,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setObfu
 ) {
     let env = JnixEnv::from(env);
 
-    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let settings = FromJava::from_java(&env, obfuscationSettings);
 
         if let Err(error) = daemon_interface.set_obfuscation_settings(settings) {
@@ -1206,7 +1240,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setObfu
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
-        daemon_interface::Error::RpcError(RestError::Aborted) => {
+        daemon_interface::Error::Api(RestError::Aborted) => {
             log::debug!("Request to {} cancelled", request);
         }
         error => {

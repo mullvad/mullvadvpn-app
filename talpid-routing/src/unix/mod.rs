@@ -1,6 +1,6 @@
-#![cfg_attr(target_os = "android", allow(dead_code))]
-#![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
+#![cfg_attr(target_os = "android", allow(dead_code))]
+
 use super::RequiredRoute;
 #[cfg(target_os = "linux")]
 use super::Route;
@@ -10,8 +10,6 @@ use futures::channel::{
     oneshot,
 };
 use std::{collections::HashSet, io};
-#[cfg(target_os = "macos")]
-use talpid_types::net::IpVersion;
 
 #[cfg(target_os = "linux")]
 use futures::stream::Stream;
@@ -23,8 +21,9 @@ use std::net::IpAddr;
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
+
 #[cfg(target_os = "macos")]
-pub use imp::listen_for_default_route_changes;
+pub use imp::{get_default_routes, listen_for_default_route_changes};
 
 #[allow(clippy::module_inception)]
 #[cfg(target_os = "linux")]
@@ -300,14 +299,4 @@ impl Drop for RouteManager {
     fn drop(&mut self) {
         self.runtime.clone().block_on(self.stop());
     }
-}
-
-/// Returns a tuple containing a IPv4 and IPv6 default route nodes.
-#[cfg(target_os = "macos")]
-pub async fn get_default_routes() -> Result<(Option<super::Node>, Option<super::Node>), Error> {
-    use futures::TryFutureExt;
-    futures::try_join!(
-        imp::RouteManagerImpl::get_default_node(IpVersion::V4).map_err(Into::into),
-        imp::RouteManagerImpl::get_default_node(IpVersion::V6).map_err(Into::into)
-    )
 }

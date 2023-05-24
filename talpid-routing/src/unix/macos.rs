@@ -1,4 +1,5 @@
-use crate::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
+use super::RouteManagerCommand;
+use crate::{NetNode, Node, RequiredRoute, Route};
 
 use futures::{
     channel::mpsc,
@@ -296,6 +297,14 @@ fn ip_vers(prefix: IpNetwork) -> &'static str {
     } else {
         "-inet6"
     }
+}
+
+/// Returns a tuple containing a IPv4 and IPv6 default route nodes.
+pub async fn get_default_routes() -> Result<(Option<Node>, Option<Node>)> {
+    futures::try_join!(
+        RouteManagerImpl::get_default_node(IpVersion::V4),
+        RouteManagerImpl::get_default_node(IpVersion::V6)
+    )
 }
 
 /// Returns a stream that produces an item whenever a default route is either added or deleted from
