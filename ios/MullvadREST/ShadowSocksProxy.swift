@@ -11,7 +11,7 @@ import Network
 import Shadowsocks
 
 /// A Swift wrapper around a Rust implementation of Shadowsocks proxy instance
-public class ShadowSocksProxy {
+public class ShadowsocksProxy {
     private var proxyConfig: ProxyHandle
     private let forwardAddress: IPAddress
     private let forwardPort: UInt16
@@ -62,10 +62,10 @@ public class ShadowSocksProxy {
         // Get the raw bytes access to `proxyConfig`
         _ = withUnsafeMutablePointer(to: &proxyConfig) { config in
             start_shadowsocks_proxy(
-                (forwardAddress.rawValue as NSData).bytes,
+                forwardAddress.rawValue.map { $0 },
                 UInt(forwardAddress.rawValue.count),
                 forwardPort,
-                (bridgeAddress.rawValue as NSData).bytes,
+                bridgeAddress.rawValue.map { $0 },
                 UInt(bridgeAddress.rawValue.count),
                 bridgePort,
                 password,

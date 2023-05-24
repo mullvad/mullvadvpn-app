@@ -35,7 +35,7 @@ extension REST {
 
     public final class URLSessionShadowSocksTransport: RESTTransport {
         /// The Shadowsocks proxy instance that proxies all the traffic it receives
-        private let shadowSocksProxy: ShadowSocksProxy
+        private let shadowSocksProxy: ShadowsocksProxy
         /// The IPv4 representation of the loopback address used by `shadowSocksProxy`
         private let localhost = "127.0.0.1"
 
@@ -55,7 +55,7 @@ extension REST {
             self.urlSession = urlSession
             let apiAddress = addressCache.getCurrentEndpoint()
 
-            shadowSocksProxy = ShadowSocksProxy(
+            shadowSocksProxy = ShadowsocksProxy(
                 forwardAddress: apiAddress.ip,
                 forwardPort: apiAddress.port,
                 bridgeAddress: shadowSocksBridgeRelay.ipv4AddrIn,
