@@ -9,23 +9,44 @@ use talpid_types::ErrorExt;
 const URI_V4: &str = "https://ipv4.am.i.mullvad.net/json";
 const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
 
+#[cfg(feature = "api-override")]
+lazy_static::lazy_static! {
+    static ref MULLVAD_LOCATION_HOST: Option<String> = std::env::var("MULLVAD_LOCATION_HOST")
+        .ok();
+}
+
 pub async fn send_location_request(
     request_sender: RequestServiceHandle,
     use_ipv6: bool,
 ) -> Result<GeoIpLocation, Error> {
     let v4_sender = request_sender.clone();
     let v4_future = async move {
-        let location = send_location_request_internal(URI_V4, v4_sender).await?;
+        #[cfg(not(feature = "api-override"))]
+        let uri_v4: &str = URI_V4;
+        #[cfg(feature = "api-override")]
+        let uri_v4 = MULLVAD_LOCATION_HOST
+            .as_ref()
+            .map(|location_api_override| format!("https://ipv4.{}/json", location_api_override));
+        #[cfg(feature = "api-override")]
+        let uri_v4 = uri_v4.as_deref().unwrap_or(URI_V4);
+
+        let location = send_location_request_internal(uri_v4, v4_sender).await?;
         Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
         if use_ipv6 {
-            Some(
-                send_location_request_internal(URI_V6, v6_sender)
-                    .await
-                    .map(GeoIpLocation::from),
-            )
+            #[cfg(not(feature = "api-override"))]
+            let uri_v6: &str = URI_V6;
+            #[cfg(feature = "api-override")]
+            let uri_v6 = MULLVAD_LOCATION_HOST.as_ref().map(|location_api_override| {
+                format!("https://ipv6.{}/json", location_api_override)
+            });
+            #[cfg(feature = "api-override")]
+            let uri_v6 = uri_v6.as_deref().unwrap_or(URI_V6);
+
+            let location = send_location_request_internal(uri_v6, v6_sender).await;
+            Some(location.map(GeoIpLocation::from))
         } else {
             None
         }
@@ -53,7 +74,7 @@ pub async fn send_location_request(
 }
 
 async fn send_location_request_internal(
-    uri: &'static str,
+    uri: &str,
     service: RequestServiceHandle,
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
