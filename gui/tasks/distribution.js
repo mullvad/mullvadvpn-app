@@ -57,6 +57,7 @@ const config = {
     'node_modules/',
     '!node_modules/grpc-tools',
     '!node_modules/@types',
+    '!node_modules/nseventmonitor/build/Release',
   ],
 
   // Make sure that all files declared in "extraResources" exists and abort if they don't.
@@ -283,6 +284,16 @@ function packMac() {
         }
 
         return true;
+      },
+      beforePack: async (context) => {
+        try {
+          // `@electron/universal` tries to lipo together libraries built for the same architecture
+          // if they're present for both targets. So make sure we remove libraries for other archs.
+          // Remove the workaround once the issue has been fixed:
+          // https://github.com/electron/universal/issues/41#issuecomment-1496288834
+          await fs.promises.rm('node_modules/nseventmonitor/lib/binding/Release', { recursive: true });
+        } catch {}
+        config.beforePack?.(context);
       },
       afterPack: (context) => {
         config.afterPack?.(context);
