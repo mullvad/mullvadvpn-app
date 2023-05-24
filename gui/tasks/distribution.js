@@ -284,6 +284,15 @@ function packMac() {
 
         return true;
       },
+      beforePack: async (context) => {
+        try {
+          // When building a universal app, the libraries are duplicated.
+          // Delete them or @electron/universal will try to mend them together despite being built
+          // for the same architecture.
+          await fs.promises.rm('node_modules/nseventmonitor/lib/binding/Release', { recursive: true });
+        } catch {}
+        config.beforePack?.(context);
+      },
       afterPack: (context) => {
         config.afterPack?.(context);
 
