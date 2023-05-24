@@ -39,6 +39,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 &settings.obfuscation_settings,
             )),
             split_tunnel,
+            custom_lists: Some(proto::CustomListSettings::from(&settings.custom_lists)),
         }
     }
 }
@@ -134,6 +135,12 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing obfuscation settings",
                 ))?;
+        let custom_lists_settings =
+            settings
+                .custom_lists
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing custom lists settings",
+                ))?;
         #[cfg(windows)]
         let split_tunnel = settings
             .split_tunnel
@@ -163,6 +170,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             wg_migration_rand_num: std::f32::NAN,
             // NOTE: This field is set based on mullvad-types. It's not based on the actual settings version.
             settings_version: CURRENT_SETTINGS_VERSION,
+            custom_lists: mullvad_types::custom_list::CustomListsSettings::try_from(custom_lists_settings)?,
         })
     }
 }

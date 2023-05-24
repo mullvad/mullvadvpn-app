@@ -1,4 +1,5 @@
 use crate::{
+    custom_list::CustomListsSettings,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
         ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
@@ -99,6 +100,8 @@ pub struct Settings {
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
+    /// All of the custom relay lists
+    pub custom_lists: CustomListsSettings,
 }
 
 fn out_of_range_wg_migration_rand_num() -> f32 {
@@ -140,6 +143,7 @@ impl Default for Settings {
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
+            custom_lists: CustomListsSettings::default(),
         }
     }
 }
