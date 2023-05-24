@@ -74,6 +74,11 @@ jobs:
       image: ${{ needs.prepare-android.outputs.container_image_android }}
 
     steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -83,4 +88,4 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh x86_64-linux-android
-          cargo clippy +stable --locked --target x86_64-linux-android -- -W clippy::unused_async
+          cargo clippy --locked --target x86_64-linux-android -- -W clippy::unused_async
