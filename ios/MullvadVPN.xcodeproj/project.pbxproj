@@ -75,6 +75,8 @@
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */; };
+		581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
+		581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
 		5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerErrors.swift */; };
 		5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDA8288FE064006BF4E4 /* DeviceManagementInteractor.swift */; };
 		5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDAA288FF0D2006BF4E4 /* DeviceRowView.swift */; };
@@ -714,6 +716,7 @@
 		581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFormatLogHandler.swift; sourceTree = "<group>"; };
 		581943E428F8010400B0CB5E /* OSLogHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
 		5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAddDNSEntryCell.swift; sourceTree = "<group>"; };
+		581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgKeyRotation.swift; sourceTree = "<group>"; };
 		5820675A26E6576800655B05 /* RelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCache.swift; sourceTree = "<group>"; };
 		5820675D26E6839900655B05 /* PresentAlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentAlertOperation.swift; sourceTree = "<group>"; };
 		5820676326E771DB00655B05 /* TunnelManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerErrors.swift; sourceTree = "<group>"; };
@@ -1266,6 +1269,7 @@
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
+				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -2801,6 +2805,7 @@
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */,
 				06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
@@ -2847,6 +2852,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
+				581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */,
 				587AD7C723421D8600E93A53 /* TunnelSettingsV1.swift in Sources */,
 				5893C6FA29C1B481009090D1 /* DNSSettings.swift in Sources */,
 				58CE38C828992C9200A6D6E5 /* TunnelMonitorDelegate.swift in Sources */,
