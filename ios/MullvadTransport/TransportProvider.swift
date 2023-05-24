@@ -1,34 +1,36 @@
 //
-//  TunnelTransportProvider.swift
-//  PacketTunnel
+//  TransportProvider.swift
+//  MullvadTransport
 //
-//  Created by Marco Nikic on 2023-04-25.
+//  Created by Marco Nikic on 2023-05-25.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import Logging
 import MullvadREST
+import MullvadTypes
 import RelayCache
 import RelaySelector
 
-final class TunnelTransportProvider: RESTTransportProvider {
-    private let urlSessionTransport: REST.URLSessionTransport
+public final class TransportProvider: RESTTransportProvider {
+    private let urlSessionTransport: URLSessionTransport
     private let relayCache: RelayCache
-    private let logger = Logger(label: "TunnelTransportProvider")
+    private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
+    private let transportStrategy = TransportStrategy()
 
-    init(urlSessionTransport: REST.URLSessionTransport, relayCache: RelayCache, addressCache: REST.AddressCache) {
+    public init(urlSessionTransport: URLSessionTransport, relayCache: RelayCache, addressCache: REST.AddressCache) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
         self.addressCache = addressCache
     }
 
-    func transport() -> MullvadREST.RESTTransport? {
+    public func transport() -> RESTTransport? {
         urlSessionTransport
     }
 
-    func shadowSocksTransport() -> MullvadREST.RESTTransport? {
+    public func shadowSocksTransport() -> RESTTransport? {
         do {
             let cachedRelays = try relayCache.read()
             let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
@@ -42,7 +44,7 @@ final class TunnelTransportProvider: RESTTransportProvider {
             }
 
             let shadowSocksURLSession = urlSessionTransport.urlSession
-            let shadowSocksTransport = REST.URLSessionShadowSocksTransport(
+            let shadowSocksTransport = URLSessionShadowSocksTransport(
                 urlSession: shadowSocksURLSession,
                 shadowSocksConfiguration: shadowSocksConfiguration,
                 shadowSocksBridgeRelay: shadowSocksBridgeRelay,

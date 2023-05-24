@@ -11,7 +11,6 @@ import MullvadTypes
 
 public protocol RESTTransport {
     var name: String { get }
-
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void

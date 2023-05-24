@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadTransport
 import MullvadTypes
 
 public final class URLRequestProxy {

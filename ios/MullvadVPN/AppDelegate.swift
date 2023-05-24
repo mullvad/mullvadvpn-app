@@ -9,6 +9,7 @@
 import BackgroundTasks
 import MullvadLogging
 import MullvadREST
+import MullvadTransport
 import Operations
 import RelayCache
 import StoreKit
@@ -67,7 +68,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
-        relayCacheTracker = RelayCacheTracker(application: application, apiProxy: apiProxy)
+        let relayCache = RelayCache(
+            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
+        )!
+
+        relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
         addressCacheTracker = AddressCacheTracker(
             application: application,
@@ -92,11 +97,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy
         )
 
+        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
+        let transportProvider = TransportProvider(urlSessionTransport: urlSessionTransport, relayCache: relayCache, addressCache: addressCache)
+
         transportMonitor = TransportMonitor(
             tunnelManager: tunnelManager,
             tunnelStore: tunnelStore,
-            relayCacheTracker: relayCacheTracker,
-            addressCache: addressCache
+            transportProvider: transportProvider
         )
 
         #if targetEnvironment(simulator)

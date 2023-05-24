@@ -11,6 +11,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadTransport
 import MullvadTypes
 import enum NetworkExtension.NEProviderStopReason
 import RelayCache
@@ -30,7 +31,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         self.relayCacheTracker = relayCacheTracker
 
         let urlSession = REST.makeURLSession()
-        let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
+        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let simulatorTransportProvider = SimulatorTunnelTransportProvider(urlSessionTransport: urlSessionTransport)
         self.simulatorTransportProvider = simulatorTransportProvider
 
