@@ -23,7 +23,7 @@ public enum RelaySelector {
     /// Return a random Shadowsocks bridge relay, or `nil` if no relay were found.
     /// - Parameter relays: The list of relays to randomly select from
     /// - Returns: A Shadowsocks relay or `nil` if no relay were found.
-    public static func getShadowSocksRelay(relays: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
+    public static func getShadowsocksRelay(relays: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
         relays.bridge.relays.randomElement()
     }
 
