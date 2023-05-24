@@ -23,10 +23,6 @@ final class AlertPresenter {
             presentCompletion: presentCompletion
         )
 
-        alertController.didDismiss = { [weak self] in
-            self?.onAlertControllerDismiss(alertController)
-        }
-
         operationQueue.addOperation(operation)
     }
 
