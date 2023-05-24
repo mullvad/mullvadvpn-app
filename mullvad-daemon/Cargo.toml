@@ -7,6 +7,11 @@ license = "GPL-3.0"
 edition = "2021"
 publish = false
 
+[features]
+# Allow the location server to use to be configured via the
+# MULLVAD_LOCATION_HOST environment variable.
+api-override = ["mullvad-api/api-override"]
+
 [dependencies]
 cfg-if = "1.0"
 chrono = { version = "0.4.19", features = ["serde"] }
