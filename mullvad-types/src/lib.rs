@@ -11,6 +11,7 @@ pub mod settings;
 pub mod states;
 pub mod version;
 pub mod wireguard;
+pub mod custom_list;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;

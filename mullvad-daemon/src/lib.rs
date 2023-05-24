@@ -42,6 +42,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
+    custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -163,6 +164,10 @@ pub enum Error {
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
 
+    #[error(display = "Custom list error")]
+    // TODO: Create different custom list errors types
+    CustomListError(&'static str),
+
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
@@ -242,6 +247,14 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
+    /// Create custom list
+    CreateCustomList(ResponseTx<(), Error>, String),
+    /// Delete custom list
+    DeleteCustomList(ResponseTx<(), Error>, String),
+    /// Delete custom list
+    SelectCustomList(ResponseTx<(), Error>, String),
+    /// Update a custom list by adding or removing a location
+    UpdateCustomListLocation(ResponseTx<(), Error>, CustomListLocationUpdate),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1016,6 +1029,12 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
+            CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
+            DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
+            SelectCustomList(tx, name) => self.on_select_custom_list(tx, name).await,
+            UpdateCustomListLocation(tx, update) => {
+                self.on_update_custom_list_location(tx, update).await
+            }
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2213,6 +2232,128 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
+    async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        let result = if self.settings.custom_lists.custom_lists.get(&name).is_some() {
+            Err(Error::CustomListError(
+                "a list with that name already exists",
+            ))
+        } else {
+            self.settings
+                .update(|settings| {
+                    assert!(settings
+                        .custom_lists
+                        .custom_lists
+                        .insert(name.clone(), CustomList::new(name))
+                        .is_none());
+                })
+                .await
+                .map(|_| ())
+                .map_err(Error::SettingsError)
+        };
+        Self::oneshot_send(tx, result, "create_custom_list response");
+    }
+
+    async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
+            Err(Error::CustomListError(
+                "a list with that name does not exist",
+            ))
+        } else {
+            self.settings
+                .update(|settings| {
+                    let list = settings.custom_lists.custom_lists.remove(&name);
+                    if let (Some(selected_id), Some(list)) = (&mut settings.custom_lists.selected_list, list) {
+                        if *selected_id == list.id {
+                            settings.custom_lists.selected_list = None;
+                        }
+                    }
+                })
+                .await
+                .map(|_| ())
+                .map_err(Error::SettingsError)
+        };
+        Self::oneshot_send(tx, result, "delete_custom_list response");
+    }
+
+    async fn on_select_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
+            Err(Error::CustomListError(
+                "a list with that name does not exist",
+            ))
+        } else {
+            self.settings
+                .update(|settings| {
+                    let list = settings.custom_lists.custom_lists.get(&name).unwrap();
+                    settings.custom_lists.selected_list = Some(list.id.clone());
+                })
+                .await
+                .map(|_| ())
+                .map_err(Error::SettingsError)
+        };
+        Self::oneshot_send(tx, result, "select_custom_list response");
+    }
+
+    async fn on_update_custom_list_location(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        update: CustomListLocationUpdate,
+    ) {
+        let result = match update {
+            CustomListLocationUpdate::Add {
+                name,
+                location: new_location,
+            } => {
+                if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                    self.settings
+                        .update(|settings| {
+                            let locations = &mut settings
+                                .custom_lists
+                                .custom_lists
+                                .get_mut(&name)
+                                .unwrap()
+                                .locations;
+                            if !locations.iter().any(|location| location == &new_location) {
+                                locations.push(new_location);
+                            }
+                        })
+                        .await
+                        .map(|_| ())
+                        .map_err(Error::SettingsError)
+                } else {
+                    Err(Error::CustomListError("no list with that name exists"))
+                }
+            }
+            CustomListLocationUpdate::Remove {
+                name,
+                location: location_to_remove,
+            } => {
+                if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                    self.settings
+                        .update(|settings| {
+                            let locations = &mut settings
+                                .custom_lists
+                                .custom_lists
+                                .get_mut(&name)
+                                .unwrap()
+                                .locations;
+                            if let Some(index) = locations
+                                .iter()
+                                .position(|location| location == &location_to_remove)
+                            {
+                                locations.remove(index);
+                            }
+                        })
+                        .await
+                        .map(|_| ())
+                        .map_err(Error::SettingsError)
+                } else {
+                    Err(Error::CustomListError("no list with that name exists"))
+                }
+            }
+        };
+        Self::oneshot_send(tx, result, "update_custom_list_location response");
+    }
+
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
         Self::oneshot_send(tx, self.settings.to_settings(), "get_settings response");
     }
@@ -2377,5 +2518,7 @@ fn new_selector_config(
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
+        // TODO: Select if there should be one selected
+        selected_custom_list: None,
     }
 }
