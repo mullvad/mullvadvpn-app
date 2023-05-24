@@ -35,7 +35,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
 
         let stylingOptions = NSAttributedString.MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
 
-        return NSMutableAttributedString(markdownString: string, options: stylingOptions) { markdownType, string in
+        return NSAttributedString(markdownString: string, options: stylingOptions) { markdownType, string in
             switch markdownType {
             case .bold:
                 return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
