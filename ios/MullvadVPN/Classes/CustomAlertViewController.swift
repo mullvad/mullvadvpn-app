@@ -74,6 +74,7 @@ class CustomAlertViewController: UIViewController {
         messages.forEach { addMessage($0) }
 
         containerView.arrangedSubviews.last.flatMap {
+            print(($0 as! UILabel).font.lineHeight)
             containerView.setCustomSpacing(UIMetrics.customAlertContainerMargins.top, after: $0)
         }
     }
