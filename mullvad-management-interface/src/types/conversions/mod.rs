@@ -13,6 +13,7 @@ mod split_tunnel;
 mod states;
 mod version;
 mod wireguard;
+mod custom_list;
 
 #[derive(err_derive::Error, Debug)]
 pub enum FromProtobufTypeError {

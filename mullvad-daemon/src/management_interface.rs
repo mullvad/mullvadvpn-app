@@ -581,6 +581,54 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    // Custom lists
+    //
+
+    async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("create_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
+
+    async fn delete_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("delete_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::DeleteCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
+
+    async fn select_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("select_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SelectCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
+
+    async fn update_custom_list_location(&self, request: Request<types::CustomListLocationUpdate>) -> ServiceResult<()> {
+        log::debug!("update_custom_list_location");
+        let custom_list = mullvad_types::custom_list::CustomListLocationUpdate::try_from(request.into_inner())?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UpdateCustomListLocation(tx, custom_list))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
+
     // Split tunneling
     //
 

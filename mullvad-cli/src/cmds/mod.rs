@@ -17,6 +17,7 @@ pub mod status;
 pub mod tunnel;
 pub mod tunnel_state;
 pub mod version;
+pub mod custom_lists;
 
 /// A value parser that parses "on" or "off" into a boolean
 #[derive(Debug, Clone, Copy)]

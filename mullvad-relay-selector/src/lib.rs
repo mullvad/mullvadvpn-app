@@ -13,6 +13,7 @@ use mullvad_types::{
         WireguardConstraints,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
+    custom_list::CustomList,
     CustomTunnelEndpoint,
 };
 use parking_lot::{Mutex, MutexGuard};
@@ -171,6 +172,7 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     pub default_tunnel_type: TunnelType,
+    pub selected_custom_list: Option<CustomList>,
 }
 
 #[derive(Clone)]

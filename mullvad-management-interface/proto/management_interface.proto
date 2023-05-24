@@ -68,6 +68,12 @@ service ManagementService {
   rpc RotateWireguardKey(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
+  // Custom lists
+  rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc SelectCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc UpdateCustomListLocation(CustomListLocationUpdate) returns (google.protobuf.Empty) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -306,6 +312,27 @@ message ObfuscationSettings {
   Udp2TcpObfuscationSettings udp2tcp = 2;
 }
 
+message CustomListLocationUpdate {
+  enum State {
+    ADD = 0;
+    REMOVE= 1;
+  }
+  State state = 1;
+  string name = 2;
+  RelayLocation location = 3;
+}
+
+message CustomList {
+  string id = 1;
+  string name = 2;
+  repeated RelayLocation locations = 3;
+}
+
+message CustomListSettings {
+  map<string, CustomList> custom_lists = 1;
+  google.protobuf.StringValue selected_list = 2;
+}
+
 message Settings {
   RelaySettings relay_settings = 1;
   BridgeSettings bridge_settings = 2;
@@ -317,6 +344,7 @@ message Settings {
   bool show_beta_releases = 8;
   SplitTunnelSettings split_tunnel = 9;
   ObfuscationSettings obfuscation_settings = 10;
+  CustomListSettings custom_lists = 11;
 }
 
 message SplitTunnelSettings {
