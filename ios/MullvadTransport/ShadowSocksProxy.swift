@@ -1,5 +1,5 @@
 //
-//  ShadowSocksProxy.swift
+//  ShadowsocksProxy.swift
 //  MullvadREST
 //
 //  Created by Emils on 19/04/2023.

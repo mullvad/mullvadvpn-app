@@ -21,7 +21,7 @@ final class SimulatorTunnelTransportProvider: RESTTransportProvider {
         urlSessionTransport
     }
 
-    func shadowSocksTransport() -> RESTTransport? {
+    func shadowsocksTransport() -> RESTTransport? {
         urlSessionTransport
     }
 }

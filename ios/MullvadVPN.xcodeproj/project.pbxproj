@@ -369,7 +369,7 @@
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A93D13782A1F60A6001EB0B1 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 586F2BE129F6916F009E6924 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A95F86B72A1F53BA00245DAC /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */; };
-		A95F86B82A1F547000245DAC /* ShadowSocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F1FF1B29F06124007083C3 /* ShadowSocksProxy.swift */; };
+		A95F86B82A1F547000245DAC /* ShadowsocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F1FF1B29F06124007083C3 /* ShadowsocksProxy.swift */; };
 		A97F1F442A1F4E1A00ECEFDE /* MullvadTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = A97F1F432A1F4E1A00ECEFDE /* MullvadTransport.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A97F1F472A1F4E1A00ECEFDE /* MullvadTransport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A97F1F412A1F4E1A00ECEFDE /* MullvadTransport.framework */; };
 		A97F1F482A1F4E1A00ECEFDE /* MullvadTransport.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A97F1F412A1F4E1A00ECEFDE /* MullvadTransport.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -2042,7 +2042,7 @@
 			children = (
 				586F2BE129F6916F009E6924 /* shadowsocks.h */,
 				06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */,
-				01F1FF1B29F06124007083C3 /* ShadowSocksProxy.swift */,
+				01F1FF1B29F06124007083C3 /* ShadowsocksProxy.swift */,
 				A97F1F432A1F4E1A00ECEFDE /* MullvadTransport.h */,
 				A9D99B9F2A1F7F3A00DE27D3 /* TransportProvider.swift */,
 			);
@@ -3086,7 +3086,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A95F86B82A1F547000245DAC /* ShadowSocksProxy.swift in Sources */,
+				A95F86B82A1F547000245DAC /* ShadowsocksProxy.swift in Sources */,
 				A95F86B72A1F53BA00245DAC /* URLSessionTransport.swift in Sources */,
 				A9D99BA02A1F7F3A00DE27D3 /* TransportProvider.swift in Sources */,
 			);

@@ -14,7 +14,7 @@ public struct TransportStrategy: Codable {
         /// Suggests using a direct connection
         case useURLSession
         /// Suggests connecting via Shadowsocks proxy
-        case useShadowSocks
+        case useShadowsocks
     }
 
     /// The internal counter for suggested transports.
@@ -38,8 +38,8 @@ public struct TransportStrategy: Codable {
 
     /// The suggested connection transport
     ///
-    /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowSocks` otherwise
+    /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowsocks` otherwise
     public func connectionTransport() -> Transport {
-        connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
+        connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
     }
 }

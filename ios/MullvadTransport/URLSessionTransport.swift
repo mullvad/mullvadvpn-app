@@ -32,13 +32,13 @@ public final class URLSessionTransport: RESTTransport {
     }
 }
 
-public final class URLSessionShadowSocksTransport: RESTTransport {
+public final class URLSessionShadowsocksTransport: RESTTransport {
     /// The Shadowsocks proxy instance that proxies all the traffic it receives
-    private let shadowSocksProxy: ShadowsocksProxy
-    /// The IPv4 representation of the loopback address used by `shadowSocksProxy`
+    private let shadowsocksProxy: ShadowsocksProxy
+    /// The IPv4 representation of the loopback address used by `shadowsocksProxy`
     private let localhost = "127.0.0.1"
     
-    /// The `URLSession` used to send requests via `shadowSocksProxy`
+    /// The `URLSession` used to send requests via `shadowsocksProxy`
     public let urlSession: URLSession
     
     public var name: String {
@@ -47,20 +47,20 @@ public final class URLSessionShadowSocksTransport: RESTTransport {
     
     public init(
         urlSession: URLSession,
-        shadowSocksConfiguration: REST.ServerShadowsocks,
-        shadowSocksBridgeRelay: REST.BridgeRelay,
+        shadowsocksConfiguration: REST.ServerShadowsocks,
+        shadowsocksBridgeRelay: REST.BridgeRelay,
         addressCache: REST.AddressCache
     ) {
         self.urlSession = urlSession
         let apiAddress = addressCache.getCurrentEndpoint()
         
-        shadowSocksProxy = ShadowsocksProxy(
+        shadowsocksProxy = ShadowsocksProxy(
             forwardAddress: apiAddress.ip,
             forwardPort: apiAddress.port,
-            bridgeAddress: shadowSocksBridgeRelay.ipv4AddrIn,
-            bridgePort: shadowSocksConfiguration.port,
-            password: shadowSocksConfiguration.password,
-            cipher: shadowSocksConfiguration.cipher
+            bridgeAddress: shadowsocksBridgeRelay.ipv4AddrIn,
+            bridgePort: shadowsocksConfiguration.port,
+            password: shadowsocksConfiguration.password,
+            cipher: shadowsocksConfiguration.cipher
         )
     }
     
@@ -69,14 +69,14 @@ public final class URLSessionShadowSocksTransport: RESTTransport {
         completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
     ) -> Cancellable {
         // Start the Shadowsocks proxy in order to get a local port
-        shadowSocksProxy.start()
+        shadowsocksProxy.start()
         
         // Copy the URL request and rewrite the host and port to point to the Shadowsocks proxy instance
         var urlRequestCopy = request
         urlRequestCopy.url = request.url.flatMap { url in
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             components?.host = localhost
-            components?.port = Int(shadowSocksProxy.localPort())
+            components?.port = Int(shadowsocksProxy.localPort())
             return components?.url
         }
         
