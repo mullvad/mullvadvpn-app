@@ -55,6 +55,7 @@ final class NotificationBannerView: UIView {
         let stackView = UIStackView()
         stackView.alignment = .top
         stackView.distribution = .fill
+        stackView.spacing = UIStackView.spacingUseSystem
         return stackView
     }()
 
