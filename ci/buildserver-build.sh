@@ -214,9 +214,10 @@ while true; do
 
     git fetch --prune --tags 2> /dev/null || continue
 
+    # Exclude android/ and ios/ tags from being built.
     # Tags can't include spaces so SC2207 isn't a problem here
     # shellcheck disable=SC2207
-    tags=( $(git tag) )
+    tags=( $(git tag | grep -v -e "^android/.*\|^ios/.*") )
 
     for tag in "${tags[@]}"; do
         build_ref "refs/tags/$tag" "$tag" || echo "Failed to build tag $tag"
