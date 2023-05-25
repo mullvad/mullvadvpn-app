@@ -24,5 +24,5 @@ public protocol RESTTransportProvider {
 
     /// Requests a Shadowsocks transport
     /// - Returns: A transport layer that proxies the requests to a local Shadowsocks proxy instance
-    func shadowSocksTransport() -> RESTTransport?
+    func shadowsocksTransport() -> RESTTransport?
 }

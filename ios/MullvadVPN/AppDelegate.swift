@@ -98,7 +98,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
-        let transportProvider = TransportProvider(urlSessionTransport: urlSessionTransport, relayCache: relayCache, addressCache: addressCache)
+        let transportProvider = TransportProvider(
+            urlSessionTransport: urlSessionTransport,
+            relayCache: relayCache,
+            addressCache: addressCache
+        )
 
         transportMonitor = TransportMonitor(
             tunnelManager: tunnelManager,

@@ -22,7 +22,6 @@ final class TransportMonitor: RESTTransportProvider {
 
     // MARK: Public API
 
-
     init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, transportProvider: TransportProvider) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
@@ -33,8 +32,8 @@ final class TransportMonitor: RESTTransportProvider {
         return selectTransport(transportProvider.transport(), useShadowsocksTransport: false)
     }
 
-    public func shadowSocksTransport() -> RESTTransport? {
-        return selectTransport(transportProvider.shadowSocksTransport(), useShadowsocksTransport: true)
+    public func shadowsocksTransport() -> RESTTransport? {
+        return selectTransport(transportProvider.shadowsocksTransport(), useShadowsocksTransport: true)
     }
 
     // MARK: -

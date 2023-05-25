@@ -15,7 +15,7 @@ final class TransportStrategyTests: XCTestCase {
 
         for index in 0 ... 12 {
             let expectedResult: TransportStrategy.Transport
-            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowSocks
+            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
             XCTAssertEqual(strategy.connectionTransport(), expectedResult)
             strategy.didFail()
         }
@@ -27,7 +27,7 @@ final class TransportStrategyTests: XCTestCase {
         // Fail twice, the next suggested transport mode should be via Shadowsocks proxy
         strategy.didFail()
         strategy.didFail()
-        XCTAssertEqual(strategy.connectionTransport(), .useShadowSocks)
+        XCTAssertEqual(strategy.connectionTransport(), .useShadowsocks)
 
         // Serialize the strategy and reload it from memory to simulate an application restart
         let encodedRawStrategy = try JSONEncoder().encode(strategy)
