@@ -28,27 +28,27 @@ public final class TransportProvider: RESTTransportProvider {
         urlSessionTransport
     }
 
-    public func shadowSocksTransport() -> RESTTransport? {
+    public func shadowsocksTransport() -> RESTTransport? {
         do {
             let cachedRelays = try relayCache.read()
-            let shadowSocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
-            let shadowSocksBridgeRelay = RelaySelector.getShadowSocksRelay(relays: cachedRelays.relays)
+            let shadowsocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+            let shadowsocksBridgeRelay = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)
 
-            guard let shadowSocksConfiguration,
-                  let shadowSocksBridgeRelay
+            guard let shadowsocksConfiguration,
+                  let shadowsocksBridgeRelay
             else {
                 logger.error("Could not get shadow socks bridge information.")
                 return nil
             }
 
-            let shadowSocksURLSession = urlSessionTransport.urlSession
-            let shadowSocksTransport = URLSessionShadowSocksTransport(
-                urlSession: shadowSocksURLSession,
-                shadowSocksConfiguration: shadowSocksConfiguration,
-                shadowSocksBridgeRelay: shadowSocksBridgeRelay
+            let shadowsocksURLSession = urlSessionTransport.urlSession
+            let shadowsocksTransport = URLSessionShadowsocksTransport(
+                urlSession: shadowsocksURLSession,
+                shadowsocksConfiguration: shadowsocksConfiguration,
+                shadowsocksBridgeRelay: shadowsocksBridgeRelay
             )
 
-            return shadowSocksTransport
+            return shadowsocksTransport
         } catch {
             logger.error(error: error)
         }

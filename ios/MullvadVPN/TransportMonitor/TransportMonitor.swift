@@ -32,8 +32,8 @@ final class TransportMonitor: RESTTransportProvider {
         return selectTransport(transportProvider.transport(), useShadowsocksTransport: false)
     }
 
-    public func shadowSocksTransport() -> RESTTransport? {
-        return selectTransport(transportProvider.shadowSocksTransport(), useShadowsocksTransport: true)
+    public func shadowsocksTransport() -> RESTTransport? {
+        return selectTransport(transportProvider.shadowsocksTransport(), useShadowsocksTransport: true)
     }
 
     // MARK: -

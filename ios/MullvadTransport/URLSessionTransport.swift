@@ -32,25 +32,25 @@ public final class URLSessionTransport: RESTTransport {
     }
 }
 
-public final class URLSessionShadowSocksTransport: RESTTransport {
+public final class URLSessionShadowsocksTransport: RESTTransport {
     public var name: String {
         return "shadow-socks-url-session"
     }
 
     public let urlSession: URLSession
-    private let shadowSocksProxy: ShadowSocksProxy
+    private let shadowsocksProxy: ShadowsocksProxy
 
     public init(
         urlSession: URLSession,
-        shadowSocksConfiguration: REST.ServerShadowsocks,
-        shadowSocksBridgeRelay: REST.BridgeRelay
+        shadowsocksConfiguration: REST.ServerShadowsocks,
+        shadowsocksBridgeRelay: REST.BridgeRelay
     ) {
         self.urlSession = urlSession
-        shadowSocksProxy = ShadowSocksProxy(
-            remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
-            remotePort: shadowSocksConfiguration.port,
-            password: shadowSocksConfiguration.password,
-            cipher: shadowSocksConfiguration.cipher
+        shadowsocksProxy = ShadowsocksProxy(
+            remoteAddress: shadowsocksBridgeRelay.ipv4AddrIn,
+            remotePort: shadowsocksConfiguration.port,
+            password: shadowsocksConfiguration.password,
+            cipher: shadowsocksConfiguration.cipher
         )
     }
 
@@ -59,14 +59,14 @@ public final class URLSessionShadowSocksTransport: RESTTransport {
         completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
     ) -> Cancellable {
         // Start the shadow socks proxy in order to get a local port
-        shadowSocksProxy.start()
+        shadowsocksProxy.start()
 
         // Copy the URL request and rewrite the host and port to point to the shadow socks proxy instance
         var urlRequestCopy = request
         urlRequestCopy.url = request.url.flatMap { url in
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             components?.host = "127.0.0.1"
-            components?.port = Int(shadowSocksProxy.localPort())
+            components?.port = Int(shadowsocksProxy.localPort())
             return components?.url
         }
 

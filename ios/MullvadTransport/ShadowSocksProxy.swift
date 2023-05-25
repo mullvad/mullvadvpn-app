@@ -1,5 +1,5 @@
 //
-//  ShadowSocksProxy.swift
+//  ShadowsocksProxy.swift
 //  MullvadREST
 //
 //  Created by Emils on 19/04/2023.
@@ -10,7 +10,7 @@ import Foundation
 import Network
 import Shadowsocks
 
-public class ShadowSocksProxy {
+public class ShadowsocksProxy {
     private var proxyConfig: ProxyHandle
     private let remoteAddress: IPAddress
     private let remotePort: UInt16
