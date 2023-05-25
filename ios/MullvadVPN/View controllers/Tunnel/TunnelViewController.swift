@@ -19,6 +19,7 @@ class TunnelViewController: UIViewController, RootContainment {
     private var tunnelState: TunnelState = .disconnected
 
     var shouldShowSelectLocationPicker: (() -> Void)?
+    var shouldShowCancelTunnelAlert: (() -> Void)?
 
     private let mapViewController = MapViewController()
 
@@ -68,7 +69,14 @@ class TunnelViewController: UIViewController, RootContainment {
             case .connect:
                 self?.interactor.startTunnel()
 
-            case .disconnect, .cancel:
+            case .cancel:
+                if case .waitingForConnectivity(.noConnection) = self?.interactor.tunnelStatus.state {
+                    self?.shouldShowCancelTunnelAlert?()
+                } else {
+                    self?.interactor.stopTunnel()
+                }
+
+            case .disconnect:
                 self?.interactor.stopTunnel()
 
             case .reconnect:
