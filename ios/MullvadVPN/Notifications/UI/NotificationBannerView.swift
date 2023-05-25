@@ -51,8 +51,8 @@ final class NotificationBannerView: UIView {
         return view
     }()
 
-    private let bodyStackView: UIStackView = {
-        let stackView = UIStackView()
+    private lazy var bodyStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [bodyLabel, actionButton])
         stackView.alignment = .top
         stackView.distribution = .fill
         stackView.spacing = UIStackView.spacingUseSystem
@@ -96,13 +96,20 @@ final class NotificationBannerView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        addActionHandlers()
+        addSubviews()
+        addConstraints()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func addActionHandlers() {
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
+    }
 
-        actionButton.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
-        actionButton.setContentCompressionResistancePriority(.defaultHigh + 1, for: .vertical)
-        actionButton.setContentHuggingPriority(.defaultHigh + 1, for: .horizontal)
-        actionButton.setContentHuggingPriority(.defaultHigh + 1, for: .vertical)
-
+    private func addSubviews() {
         wrapperView.addConstrainedSubviews([titleLabel, indicatorView, bodyStackView])
         backgroundView.contentView.addConstrainedSubviews([wrapperView]) {
             wrapperView.pinEdgesToSuperview()
@@ -110,9 +117,14 @@ final class NotificationBannerView: UIView {
         addConstrainedSubviews([backgroundView]) {
             backgroundView.pinEdgesToSuperview()
         }
+    }
 
-        bodyStackView.addArrangedSubview(bodyLabel)
-        bodyStackView.addArrangedSubview(actionButton)
+    private func addConstraints() {
+        let actionButtonPriority: UILayoutPriority = .defaultHigh + 1
+        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .horizontal)
+        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .vertical)
+        actionButton.setContentHuggingPriority(actionButtonPriority, for: .horizontal)
+        actionButton.setContentHuggingPriority(actionButtonPriority, for: .vertical)
 
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
@@ -131,10 +143,6 @@ final class NotificationBannerView: UIView {
             bodyStackView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             bodyStackView.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
         ])
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     @objc private func handleActionTap() {
