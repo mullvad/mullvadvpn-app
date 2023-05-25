@@ -214,7 +214,17 @@ function build {
     if [[ -n $current_target ]]; then
         cargo_target_arg+=(--target="$current_target")
     fi
-    cargo build "${cargo_target_arg[@]}" "${CARGO_ARGS[@]}"
+    local cargo_crates_to_build=(
+        -p mullvad-daemon --bin mullvad-daemon
+        -p mullvad-cli --bin mullvad
+        -p mullvad-setup --bin mullvad-setup
+        -p mullvad-problem-report --bin mullvad-problem-report
+        -p talpid-openvpn-plugin --lib
+    )
+    if [[ ("$(uname -s)" == "Linux") ]]; then
+        cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
+    fi
+    cargo build "${cargo_target_arg[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
 
     ################################################################################
     # Move binaries to correct locations in dist-assets
