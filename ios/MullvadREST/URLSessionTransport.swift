@@ -34,22 +34,32 @@ extension REST {
     }
 
     public final class URLSessionShadowSocksTransport: RESTTransport {
+        /// The Shadowsocks proxy instance that proxies all the traffic it receives
+        private let shadowSocksProxy: ShadowsocksProxy
+        /// The IPv4 representation of the loopback address used by `shadowSocksProxy`
+        private let localhost = "127.0.0.1"
+
+        /// The `URLSession` used to send requests via `shadowSocksProxy`
+        public let urlSession: URLSession
+
         public var name: String {
             return "shadow-socks-url-session"
         }
 
-        public let urlSession: URLSession
-        private let shadowSocksProxy: ShadowSocksProxy
-
         public init(
             urlSession: URLSession,
             shadowSocksConfiguration: ServerShadowsocks,
-            shadowSocksBridgeRelay: BridgeRelay
+            shadowSocksBridgeRelay: BridgeRelay,
+            addressCache: REST.AddressCache
         ) {
             self.urlSession = urlSession
-            shadowSocksProxy = ShadowSocksProxy(
-                remoteAddress: shadowSocksBridgeRelay.ipv4AddrIn,
-                remotePort: shadowSocksConfiguration.port,
+            let apiAddress = addressCache.getCurrentEndpoint()
+
+            shadowSocksProxy = ShadowsocksProxy(
+                forwardAddress: apiAddress.ip,
+                forwardPort: apiAddress.port,
+                bridgeAddress: shadowSocksBridgeRelay.ipv4AddrIn,
+                bridgePort: shadowSocksConfiguration.port,
                 password: shadowSocksConfiguration.password,
                 cipher: shadowSocksConfiguration.cipher
             )
@@ -59,14 +69,14 @@ extension REST {
             _ request: URLRequest,
             completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
         ) -> Cancellable {
-            // Start the shadow socks proxy in order to get a local port
+            // Start the Shadowsocks proxy in order to get a local port
             shadowSocksProxy.start()
 
-            // Copy the URL request and rewrite the host and port to point to the shadow socks proxy instance
+            // Copy the URL request and rewrite the host and port to point to the Shadowsocks proxy instance
             var urlRequestCopy = request
             urlRequestCopy.url = request.url.flatMap { url in
                 var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-                components?.host = "127.0.0.1"
+                components?.host = localhost
                 components?.port = Int(shadowSocksProxy.localPort())
                 return components?.url
             }

@@ -16,7 +16,10 @@ typedef struct ProxyHandle {
  * `proxy_config` must be pointing to a valid memory region for the size of a `ProxyHandle`
  * instance.
  */
-int32_t start_shadowsocks_proxy(const uint8_t *addr,
+int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
+                                uintptr_t forward_address_len,
+                                uint16_t forward_port,
+                                const uint8_t *addr,
                                 uintptr_t addr_len,
                                 uint16_t port,
                                 const uint8_t *password,

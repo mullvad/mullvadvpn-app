@@ -14,6 +14,10 @@ fn main() {
     let password_ptr = password.as_ptr();
     let password_size = password.as_bytes().len();
 
+    let forward_address = Ipv4Addr::from_str("45.83.223.196").unwrap();
+    let forward_address_bytes = forward_address.octets();
+    let forward_address_ptr = forward_address_bytes.as_ptr();
+
     let addr = Ipv4Addr::from_str("185.65.135.117").unwrap();
     let addr_bytes = addr.octets();
     let addr_ptr = addr_bytes.as_ptr();
@@ -25,6 +29,9 @@ fn main() {
 
     let retval = unsafe {
         shadowsocks_proxy::start_shadowsocks_proxy(
+            forward_address_ptr,
+            forward_address_bytes.len(),
+            443,
             addr_ptr,
             addr_bytes.len(),
             socketaddr.port(),

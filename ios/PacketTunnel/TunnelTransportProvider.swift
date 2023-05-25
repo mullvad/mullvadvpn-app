@@ -16,10 +16,12 @@ final class TunnelTransportProvider: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCache: RelayCache
     private let logger = Logger(label: "TunnelTransportProvider")
+    private let addressCache: REST.AddressCache
 
-    init(urlSessionTransport: REST.URLSessionTransport, relayCache: RelayCache) {
+    init(urlSessionTransport: REST.URLSessionTransport, relayCache: RelayCache, addressCache: REST.AddressCache) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
+        self.addressCache = addressCache
     }
 
     func transport() -> MullvadREST.RESTTransport? {
@@ -43,7 +45,8 @@ final class TunnelTransportProvider: RESTTransportProvider {
             let shadowSocksTransport = REST.URLSessionShadowSocksTransport(
                 urlSession: shadowSocksURLSession,
                 shadowSocksConfiguration: shadowSocksConfiguration,
-                shadowSocksBridgeRelay: shadowSocksBridgeRelay
+                shadowSocksBridgeRelay: shadowSocksBridgeRelay,
+                addressCache: addressCache
             )
 
             return shadowSocksTransport

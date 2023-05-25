@@ -18,15 +18,22 @@ final class TransportMonitor: RESTTransportProvider {
     private let urlSessionTransport: REST.URLSessionTransport
     private let relayCacheTracker: RelayCacheTracker
     private let logger = Logger(label: "TransportMonitor")
+    private let addressCache: REST.AddressCache
 
     // MARK: -
 
     // MARK: Public API
 
-    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, relayCacheTracker: RelayCacheTracker) {
+    init(
+        tunnelManager: TunnelManager,
+        tunnelStore: TunnelStore,
+        relayCacheTracker: RelayCacheTracker,
+        addressCache: REST.AddressCache
+    ) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
+        self.addressCache = addressCache
 
         urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
     }
@@ -54,7 +61,8 @@ final class TransportMonitor: RESTTransportProvider {
             let transport = REST.URLSessionShadowSocksTransport(
                 urlSession: shadowSocksURLSession,
                 shadowSocksConfiguration: shadowSocksConfiguration,
-                shadowSocksBridgeRelay: shadowSocksBridgeRelay
+                shadowSocksBridgeRelay: shadowSocksBridgeRelay,
+                addressCache: addressCache
             )
 
             shadowSocksTransport = transport
