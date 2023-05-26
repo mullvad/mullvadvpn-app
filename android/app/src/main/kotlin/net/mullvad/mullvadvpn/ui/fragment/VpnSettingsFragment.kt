@@ -61,18 +61,4 @@ class VpnSettingsFragment : BaseFragment() {
             }
         }
     }
-
-    private fun openSplitTunnelingFragment() {
-        parentFragmentManager.beginTransaction().apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.fragment_exit_to_left,
-                R.anim.fragment_half_enter_from_left,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, SplitTunnelingFragment())
-            addToBackStack(null)
-            commitAllowingStateLoss()
-        }
-    }
 }
