@@ -4,182 +4,66 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.BuildConfig
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.BuildTypes
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
+import net.mullvad.mullvadvpn.compose.screen.SettingsScreen
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
-import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.paintNavigationBar
-import net.mullvad.mullvadvpn.ui.paintStatusBar
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
-import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
-import net.mullvad.mullvadvpn.ui.widget.NavigateCell
-import net.mullvad.mullvadvpn.ui.widget.UrlCell
-import net.mullvad.mullvadvpn.util.JobTracker
-import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
-import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
-import org.koin.android.ext.android.inject
+import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
+    private val vm by viewModel<SettingsViewModel>()
 
-    // Injected dependencies
-    private val deviceRepository: DeviceRepository by inject()
-    private val serviceConnectionManager: ServiceConnectionManager by inject()
-
-    private lateinit var appVersionMenu: AppVersionCell
-    private lateinit var vpnSettingsMenu: View
-    private lateinit var splitTunnelingMenu: View
-    private lateinit var titleController: CollapsibleTitleController
-
-    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launchUiSubscriptionsOnResume()
-    }
-
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.settings, container, false)
-
-        view.findViewById<ImageButton>(R.id.close).setOnClickListener { activity?.onBackPressed() }
-
-        vpnSettingsMenu =
-            view.findViewById<NavigateCell>(R.id.vpn_settings).apply {
-                targetFragment = VpnSettingsFragment::class
-            }
-
-        splitTunnelingMenu =
-            view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
-                targetFragment = SplitTunnelingFragment::class
-            }
-
-        view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
-            targetFragment = ProblemReportFragment::class
-        }
-
-        appVersionMenu = view.findViewById<AppVersionCell>(R.id.app_version)
-
-        titleController = CollapsibleTitleController(view)
-
-        view.findViewById<UrlCell>(R.id.faqs_and_guides).visibility =
-            if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initializeUiState()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
-    }
-
-    override fun onStop() {
-        jobTracker.cancelAllJobs()
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        titleController.onDestroy()
-        super.onDestroyView()
-    }
-
-    private fun initializeUiState() {
-        updateLoggedInStatus(deviceRepository.deviceState.value is DeviceState.LoggedIn)
-        appVersionMenu.version = BuildConfig.VERSION_NAME
-        serviceConnectionManager.appVersionInfoCache().let { cache ->
-            updateVersionInfo(
-                if (cache != null) {
-                    VersionInfo(
-                        currentVersion = cache.version,
-                        upgradeVersion = cache.upgradeVersion,
-                        isOutdated = cache.isOutdated,
-                        isSupported = cache.isSupported
-                    )
-                } else {
-                    VersionInfo(
-                        currentVersion = null,
-                        upgradeVersion = null,
-                        isOutdated = false,
-                        isSupported = true
+    ): View? {
+        return inflater.inflate(R.layout.fragment_compose, container, false).apply {
+            findViewById<ComposeView>(R.id.compose_view).setContent {
+                AppTheme {
+                    val state = vm.uiState.collectAsState().value
+                    SettingsScreen(
+                        uiState = state,
+                        onVpnSettingCellClick = { openVpnSettingsFragment() },
+                        onSplitTunnelingCellClick = { openSplitTunnelingFragment() },
+                        onReportProblemCellClick = { openReportProblemFragment() },
+                        onBackClick = { activity?.onBackPressed() }
                     )
                 }
+            }
+        }
+    }
+
+    private fun openFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
             )
+            replace(R.id.main_fragment, fragment)
+            addToBackStack(null)
+            commitAllowingStateLoss()
         }
     }
 
-    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
-        repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            launchPaintStatusBarAfterTransition()
-            luanchConfigureMenuOnDeviceChanges()
-            launchVersionInfoSubscription()
-        }
+    private fun openVpnSettingsFragment() {
+        openFragment(VpnSettingsFragment())
     }
 
-    private fun CoroutineScope.launchPaintStatusBarAfterTransition() = launch {
-        transitionFinishedFlow.collect {
-            paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
-        }
+    private fun openSplitTunnelingFragment() {
+        openFragment(SplitTunnelingFragment())
     }
 
-    private fun CoroutineScope.luanchConfigureMenuOnDeviceChanges() = launch {
-        deviceRepository.deviceState
-            .debounce { it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS) }
-            .collect { device -> updateLoggedInStatus(device is DeviceState.LoggedIn) }
-    }
-
-    private fun CoroutineScope.launchVersionInfoSubscription() = launch {
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    state.container.appVersionInfoCache.appVersionCallbackFlow()
-                } else {
-                    emptyFlow()
-                }
-            }
-            .collect { versionInfo -> updateVersionInfo(versionInfo) }
-    }
-
-    private fun updateLoggedInStatus(loggedIn: Boolean) {
-        val visibility =
-            if (loggedIn) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-        vpnSettingsMenu.visibility = visibility
-        splitTunnelingMenu.visibility = visibility
-    }
-
-    private fun updateVersionInfo(versionInfo: VersionInfo) {
-        appVersionMenu.updateAvailable = versionInfo.isOutdated || !versionInfo.isSupported
+    private fun openReportProblemFragment() {
+        openFragment(ProblemReportFragment())
     }
 }
