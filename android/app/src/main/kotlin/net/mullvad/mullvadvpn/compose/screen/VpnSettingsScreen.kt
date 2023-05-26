@@ -62,6 +62,7 @@ import net.mullvad.mullvadvpn.compose.dialog.LocalNetworkSharingInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.QuantumResistanceInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -111,7 +112,9 @@ private fun PreviewVpnSettings() {
         toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
         onStopEvent = {},
         onSelectObfuscationSetting = {},
-        onObfuscationInfoClicked = {}
+        onObfuscationInfoClicked = {},
+        onSelectQuantumResistanceSetting = {},
+        onQuantumResistanceInfoClicked = {}
     )
 }
 
@@ -148,7 +151,9 @@ fun VpnSettingsScreen(
     onStopEvent: () -> Unit = {},
     toastMessagesSharedFlow: SharedFlow<String>,
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
-    onObfuscationInfoClicked: () -> Unit = {}
+    onObfuscationInfoClicked: () -> Unit = {},
+    onSelectQuantumResistanceSetting: (quantumResistant: Boolean?) -> Unit = {},
+    onQuantumResistanceInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -187,6 +192,9 @@ fun VpnSettingsScreen(
         }
         is VpnSettingsUiState.ObfuscationInfoDialogUiState -> {
             ObfuscationInfoDialog(onDismissInfoClicked)
+        }
+        is VpnSettingsUiState.QuantumResistanceInfoDialogUiState -> {
+            QuantumResistanceInfoDialog(onDismissInfoClicked)
         }
         else -> {
             // NOOP
@@ -393,6 +401,62 @@ fun VpnSettingsScreen(
                     },
                     background =
                         if (uiState.selectedObfuscation == SelectedObfuscation.Off) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
+            }
+
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                InformationComposeCell(
+                    title = stringResource(R.string.quantum_resistant_title),
+                    onInfoClicked = { onQuantumResistanceInfoClicked() }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectQuantumResistanceSetting(null) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.automatic),
+                        )
+                    },
+                    background =
+                        if (uiState.quantumResistant == null) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectQuantumResistanceSetting(true) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.on),
+                        )
+                    },
+                    background =
+                        if (uiState.quantumResistant == true) {
+                            MullvadGreen
+                        } else {
+                            MullvadBlue20
+                        }
+                )
+            }
+            itemWithDivider {
+                BaseCell(
+                    onCellClicked = { onSelectQuantumResistanceSetting(false) },
+                    title = {
+                        SwitchCellTitle(
+                            title = stringResource(id = R.string.off),
+                        )
+                    },
+                    background =
+                        if (uiState.quantumResistant == false) {
                             MullvadGreen
                         } else {
                             MullvadBlue20

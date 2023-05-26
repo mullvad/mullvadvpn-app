@@ -35,6 +35,12 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
             connection.send(Request.SetWireGuardMtu(value).message)
         }
 
+    var wireguardQuantumResistant: Boolean?
+        get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.quantumResistant
+        set(value) {
+            connection.send(Request.SetWireGuardQuantumResistant(value).message)
+        }
+
     var obfuscationSettings: ObfuscationSettings?
         get() = settingsNotifier.latestEvent?.obfuscationSettings
         set(value) {
