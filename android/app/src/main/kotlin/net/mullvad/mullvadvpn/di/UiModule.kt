@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -93,6 +94,7 @@ val uiModule = module {
         )
     }
     viewModel { SelectLocationViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
