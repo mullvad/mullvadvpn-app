@@ -55,7 +55,8 @@ class VpnSettingsViewModel(
                     isAllowLanEnabled = settings?.allowLan ?: false,
                     selectedObfuscation = settings?.selectedObfuscationSettings()
                             ?: SelectedObfuscation.Off,
-                    dialogState = dialogState
+                    dialogState = dialogState,
+                    quantumResistant = settings?.quantumResistant()
                 )
             }
             .stateIn(
@@ -305,6 +306,16 @@ class VpnSettingsViewModel(
         dialogState.update { VpnSettingsDialogState.ObfuscationInfoDialog }
     }
 
+    fun onSelectQuantumResistanceSetting(quantumResistant: Boolean?) {
+        viewModelScope.launch(dispatcher) {
+            repository.setWireguardQuantumResistant(quantumResistant)
+        }
+    }
+
+    fun onQuantumResistanceInfoClicked() {
+        dialogState.update { VpnSettingsDialogState.QuantumResistanceInfoDialog }
+    }
+
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
@@ -340,6 +351,8 @@ class VpnSettingsViewModel(
     }
 
     private fun Settings.mtuString() = tunnelOptions.wireguard.mtu?.toString() ?: EMPTY_STRING
+
+    private fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
 
     private fun Settings.isCustomDnsEnabled() = tunnelOptions.dnsOptions.state == DnsState.Custom
 
