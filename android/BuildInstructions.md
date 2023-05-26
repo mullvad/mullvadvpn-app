@@ -82,8 +82,17 @@ Linux distro:
 #### 4. Install Android toolchain
 
 - Install the JDK
+
+##### Linux
+
   ```bash
   sudo apt install zip openjdk-11-jdk
+  ```
+
+##### macOS
+
+  ```bash
+  brew install openjdk@11
   ```
 
 - Install the SDK
@@ -124,8 +133,19 @@ Linux distro:
 
 - Configure Android cross-compilation targets. This can be done by setting the following
 environment variables:
+
+  ##### Linux
+
   ```
   export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  ```
+
+  ##### macOS
+
+  ```
+  export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+  ```
+  ```
   export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
@@ -147,6 +167,9 @@ environment variables:
   you want as long as the `ANDROID_HOME` variable is set accordingly.
 
   Add to `~/.cargo/config.toml`:
+
+  ##### Linux
+
   ```
   [target.aarch64-linux-android]
   ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
@@ -163,6 +186,26 @@ environment variables:
   [target.i686-linux-android]
   ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
   linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android26-clang"
+  ```
+  
+  ##### macOS
+  
+  ```
+  [target.aarch64-linux-android]
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android26-clang"
+
+  [target.armv7-linux-androideabi]
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi26-clang"
+
+  [target.x86_64-linux-android]
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android26-clang"
+
+  [target.i686-linux-android]
+  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android26-clang"
   ```
 
 ### Debug build
