@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 
 @Preview
 @Composable
@@ -112,6 +114,16 @@ internal fun BaseCell(
             }
         }
     }
+}
+
+@Composable
+fun CellSubtitle(content: String, modifier: Modifier = Modifier) {
+    Text(
+        text = content,
+        style = MaterialTheme.typography.labelMedium,
+        color = MullvadWhite60,
+        modifier = modifier.padding(start = Dimens.sideMargin, top = Dimens.smallPadding)
+    )
 }
 
 @Composable
