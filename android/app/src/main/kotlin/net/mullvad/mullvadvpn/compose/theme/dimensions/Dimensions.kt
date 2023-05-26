@@ -20,7 +20,9 @@ data class Dimensions(
     val mediumPadding: Dp = 16.dp,
     val progressIndicatorSize: Dp = 60.dp,
     val selectableCellTextMargin: Dp = 12.dp,
-    val smallPadding: Dp = 8.dp
+    val smallPadding: Dp = 8.dp,
+    val cellVerticalSpacing: Dp = 14.dp,
+    val sideMargin: Dp = 22.dp
 )
 
 val defaultDimensions = Dimensions()
