@@ -8,7 +8,6 @@ use talpid_types::ErrorExt;
 
 const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
 
-#[cfg(feature = "api-override")]
 lazy_static::lazy_static! {
     static ref DEVELOPMENT_CONNCHECK_HOST: Option<String> = std::env::var("MULLVAD_CONNCHECK_HOST")
         .ok();
@@ -24,6 +23,11 @@ pub async fn send_location_request(
     let host = DEVELOPMENT_CONNCHECK_HOST
         .as_deref()
         .unwrap_or(DEFAULT_CONNCHECK_HOST);
+
+    #[cfg(not(feature = "api-override"))]
+    if DEVELOPMENT_CONNCHECK_HOST.is_some() {
+        log::warn!("These variables are ignored in production builds: MULLVAD_CONNCHECK_HOST");
+    };
 
     let v4_sender = request_sender.clone();
     let v4_future = async move {
