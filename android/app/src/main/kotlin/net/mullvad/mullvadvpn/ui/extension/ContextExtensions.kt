@@ -48,3 +48,8 @@ fun Context.resolveAlwaysOnVpnPackageName(): String? {
         null
     }
 }
+
+fun Context.openLink(uri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    startActivity(intent)
+}
