@@ -55,24 +55,12 @@ class VpnSettingsFragment : BaseFragment() {
                         onStopEvent = vm::onStopEvent,
                         toastMessagesSharedFlow = vm.toastMessages,
                         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
-                        onObfuscationInfoClick = vm::onObfuscationInfoClick
+                        onObfuscationInfoClick = vm::onObfuscationInfoClick,
+                        onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
+                        onQuantumResistanceInfoClicked = vm::onQuantumResistanceInfoClicked
                     )
                 }
             }
-        }
-    }
-
-    private fun openSplitTunnelingFragment() {
-        parentFragmentManager.beginTransaction().apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.fragment_exit_to_left,
-                R.anim.fragment_half_enter_from_left,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, SplitTunnelingFragment())
-            addToBackStack(null)
-            commitAllowingStateLoss()
         }
     }
 }
