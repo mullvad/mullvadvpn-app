@@ -10,7 +10,7 @@
 #     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v /path/to/repository_root:/build:Z \
-#     mullvadvpn-app-build ./build.sh
+#     mullvad-app-build ./build.sh
 #
 # And add -e TARGETS="aarch64-unknown-linux-gnu" to build for ARM64
 
