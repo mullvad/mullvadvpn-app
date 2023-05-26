@@ -85,6 +85,8 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize data class SetObfuscationSettings(val settings: ObfuscationSettings?) : Request()
 
+    @Parcelize data class SetWireGuardQuantumResistant(val quantumResistant: Boolean?) : Request()
+
     companion object {
         private const val MESSAGE_KEY = "request"
 
