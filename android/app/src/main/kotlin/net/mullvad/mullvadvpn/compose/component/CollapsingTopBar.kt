@@ -15,6 +15,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -49,8 +50,9 @@ fun CollapsingTopBar(
     title: String,
     progress: Float,
     backTitle: String,
+    modifier: Modifier,
     backIcon: Int? = null,
-    modifier: Modifier
+    shouldRotateBackButtonDown: Boolean = false
 ) {
     val expandedToolbarHeight = dimensionResource(id = R.dimen.expanded_toolbar_height)
     val iconSize = dimensionResource(id = R.dimen.icon_size)
@@ -79,7 +81,10 @@ fun CollapsingTopBar(
         Image(
             painter = painterResource(id = backIcon ?: R.drawable.icon_back),
             contentDescription = stringResource(id = R.string.back),
-            modifier = Modifier.width(iconSize).height(iconSize)
+            modifier =
+                Modifier.rotate(if (shouldRotateBackButtonDown) 270f else 0f)
+                    .width(iconSize)
+                    .height(iconSize)
         )
         Spacer(modifier = Modifier.width(iconPadding).fillMaxHeight())
         Text(
