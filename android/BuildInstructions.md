@@ -82,8 +82,17 @@ Linux distro:
 #### 4. Install Android toolchain
 
 - Install the JDK
+
+##### Linux
+
   ```bash
   sudo apt install zip openjdk-11-jdk
+  ```
+
+##### macOS
+
+  ```bash
+  brew install openjdk@11
   ```
 
 - Install the SDK
@@ -122,10 +131,27 @@ Linux distro:
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-- Configure Android cross-compilation targets. This can be done by setting the following
+- Configure Android cross-compilation targets and set up linker and archiver. This can be done by setting the following
 environment variables:
+
+##### Linux
+
+- Add to `~/.bashrc` or equivalent:
   ```
   export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  ```
+
+##### macOS
+
+- Add to `~/.zshrc` or equivalent:
+  ```
+  export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+  ```
+
+##### Both platforms
+
+- Add the following to the same file as above:
+  ```
   export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
@@ -134,35 +160,15 @@ environment variables:
   export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi26-clang"
   export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
   export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android26-clang"
+  export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/aarch64-linux-android26-clang"
+  export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi26-clang"
+  export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-android26-clang"
+  export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
   ```
 
 - Install Android targets
   ```bash
   rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
-  ```
-
-- Set up cargo to use the correct linker and archiver
-
-  This block assumes you installed everything under `/opt/android`, but you can install it wherever
-  you want as long as the `ANDROID_HOME` variable is set accordingly.
-
-  Add to `~/.cargo/config.toml`:
-  ```
-  [target.aarch64-linux-android]
-  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
-
-  [target.armv7-linux-androideabi]
-  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi26-clang"
-
-  [target.x86_64-linux-android]
-  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
-
-  [target.i686-linux-android]
-  ar = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-  linker = "/opt/android/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android26-clang"
   ```
 
 ### Debug build
