@@ -6,12 +6,11 @@ use mullvad_api::{
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use talpid_types::ErrorExt;
 
-const URI_V4: &str = "https://ipv4.am.i.mullvad.net/json";
-const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
+const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
 
 #[cfg(feature = "api-override")]
 lazy_static::lazy_static! {
-    static ref MULLVAD_LOCATION_HOST: Option<String> = std::env::var("MULLVAD_LOCATION_HOST")
+    static ref DEVELOPMENT_CONNCHECK_HOST: Option<String> = std::env::var("MULLVAD_CONNCHECK_HOST")
         .ok();
 }
 
@@ -19,33 +18,24 @@ pub async fn send_location_request(
     request_sender: RequestServiceHandle,
     use_ipv6: bool,
 ) -> Result<GeoIpLocation, Error> {
+    #[cfg(not(feature = "api-override"))]
+    let host = DEFAULT_CONNCHECK_HOST;
+    #[cfg(feature = "api-override")]
+    let host = DEVELOPMENT_CONNCHECK_HOST
+        .as_deref()
+        .unwrap_or(DEFAULT_CONNCHECK_HOST);
+
     let v4_sender = request_sender.clone();
     let v4_future = async move {
-        #[cfg(not(feature = "api-override"))]
-        let uri_v4: &str = URI_V4;
-        #[cfg(feature = "api-override")]
-        let uri_v4 = MULLVAD_LOCATION_HOST
-            .as_ref()
-            .map(|location_api_override| format!("https://ipv4.{}/json", location_api_override));
-        #[cfg(feature = "api-override")]
-        let uri_v4 = uri_v4.as_deref().unwrap_or(URI_V4);
-
-        let location = send_location_request_internal(uri_v4, v4_sender).await?;
+        let uri_v4 = format!("https://ipv4.{}/json", host);
+        let location = send_location_request_internal(&uri_v4, v4_sender).await?;
         Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
         if use_ipv6 {
-            #[cfg(not(feature = "api-override"))]
-            let uri_v6: &str = URI_V6;
-            #[cfg(feature = "api-override")]
-            let uri_v6 = MULLVAD_LOCATION_HOST.as_ref().map(|location_api_override| {
-                format!("https://ipv6.{}/json", location_api_override)
-            });
-            #[cfg(feature = "api-override")]
-            let uri_v6 = uri_v6.as_deref().unwrap_or(URI_V6);
-
-            let location = send_location_request_internal(uri_v6, v6_sender).await;
+            let uri_v6 = format!("https://ipv6.{}/json", host);
+            let location = send_location_request_internal(&uri_v6, v6_sender).await;
             Some(location.map(GeoIpLocation::from))
         } else {
             None
