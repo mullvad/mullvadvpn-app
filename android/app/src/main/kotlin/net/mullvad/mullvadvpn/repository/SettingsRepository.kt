@@ -54,6 +54,10 @@ class SettingsRepository(
         serviceConnectionManager.settingsListener()?.wireguardMtu = value
     }
 
+    fun setWireguardQuantumResistant(value: Boolean?) {
+        serviceConnectionManager.settingsListener()?.wireguardQuantumResistant = value
+    }
+
     fun setObfuscationOptions(value: ObfuscationSettings) {
         serviceConnectionManager.settingsListener()?.obfuscationSettings = value
     }
