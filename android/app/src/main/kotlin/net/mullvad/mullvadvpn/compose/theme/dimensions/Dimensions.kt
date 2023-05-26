@@ -9,6 +9,8 @@ data class Dimensions(
     val cellHeight: Dp = 52.dp,
     val cellLabelVerticalPadding: Dp = 14.dp,
     val cellStartPadding: Dp = 22.dp,
+    val cellTopPadding: Dp = 6.dp,
+    val cellVerticalSpacing: Dp = 14.dp,
     val cityRowPadding: Dp = 34.dp,
     val countryRowPadding: Dp = 18.dp,
     val expandableCellChevronSize: Dp = 30.dp,
