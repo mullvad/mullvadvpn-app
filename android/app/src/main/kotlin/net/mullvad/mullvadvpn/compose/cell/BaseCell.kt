@@ -110,6 +110,16 @@ internal fun BaseCell(
 }
 
 @Composable
+fun CellSubtitle(content: String, modifier: Modifier = Modifier) {
+    Text(
+        text = content,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSecondary,
+        modifier = modifier.padding(start = Dimens.sideMargin, top = Dimens.smallPadding)
+    )
+}
+
+@Composable
 internal fun BaseCellTitle(title: String, style: TextStyle, modifier: Modifier = Modifier) {
     Text(
         text = title,
