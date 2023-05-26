@@ -11,15 +11,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.compose.theme.dimensions.defaultDimensions
+import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale
 
 @Composable
 fun BaseCell(
@@ -79,4 +83,20 @@ fun BaseCell(
             }
         }
     }
+}
+
+@Composable
+fun CellSubtitle(content: String, modifier: Modifier = Modifier) {
+    val textSize = TypeScale.TextSmall
+    Text(
+        text = content,
+        textAlign = TextAlign.Center,
+        fontSize = textSize,
+        color = Color.White,
+        modifier =
+            modifier
+                .padding(start = defaultDimensions.side_margin)
+                .wrapContentWidth(align = Alignment.End)
+                .wrapContentHeight()
+    )
 }

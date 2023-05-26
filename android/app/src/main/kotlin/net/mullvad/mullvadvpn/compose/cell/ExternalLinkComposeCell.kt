@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,32 +29,49 @@ import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale
 
 @Preview
 @Composable
-private fun PreviewNavigationCell() {
-    NavigationComposeCell(
+private fun PreviewNExternalLinkComposeCell() {
+    ExternalLinkComposeCell(
         title = "Navigation sample",
-        bodyView = { NavigationCellBody("", "right body") },
-        onClick = {}
+        uri = Uri.parse("www.mullvad.net"),
+        showWarning = true
     )
 }
 
 @Composable
-fun NavigationComposeCell(
+fun ExternalLinkComposeCell(
+    title: String,
+    uri: Uri,
+    modifier: Modifier = Modifier,
+    showWarning: Boolean = false,
+    bodyView: @Composable () -> Unit = {
+        DefaultExternalLinkView(chevronContentDescription = title)
+    }
+) {
+    val context = LocalContext.current
+    BaseCell(
+        onCellClicked = { openLink(context, uri) },
+        title = {
+            ExternalLinkTitleView(title = title, modifier = modifier, showWarning = showWarning)
+        },
+        bodyView = { bodyView() },
+        subtitle = null
+    )
+}
+
+@Composable
+private fun ExternalLinkTitleView(
     title: String,
     modifier: Modifier = Modifier,
-    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
-    onClick: () -> Unit
+    showWarning: Boolean = false
 ) {
-    BaseCell(
-        onCellClicked = onClick,
-        title = { NavigationTitleView(title = title, modifier = modifier) },
-        bodyView = { bodyView() },
-        subtitle = null,
-    )
-}
-
-@Composable
-private fun NavigationTitleView(title: String, modifier: Modifier = Modifier) {
     val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
+    if (showWarning) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_alert),
+            modifier = Modifier.padding(end = defaultDimensions.smallPadding),
+            contentDescription = stringResource(id = R.string.update_available)
+        )
+    }
     Text(
         text = title,
         textAlign = TextAlign.Center,
@@ -61,15 +83,15 @@ private fun NavigationTitleView(title: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DefaultNavigationView(chevronContentDescription: String) {
+private fun DefaultExternalLinkView(chevronContentDescription: String) {
     Image(
-        painter = painterResource(id = R.drawable.icon_chevron),
+        painter = painterResource(id = R.drawable.icon_extlink),
         contentDescription = chevronContentDescription
     )
 }
 
 @Composable
-fun NavigationCellBody(title: String, content: String, modifier: Modifier = Modifier) {
+fun ExternalLinkCellBody(title: String, content: String, modifier: Modifier = Modifier) {
     val textSize = TypeScale.TextSmall
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -87,6 +109,11 @@ fun NavigationCellBody(title: String, content: String, modifier: Modifier = Modi
                     .wrapContentHeight()
         )
         Spacer(modifier = Modifier.width(defaultDimensions.side_margin))
-        DefaultNavigationView(chevronContentDescription = title)
+        DefaultExternalLinkView(title)
     }
+}
+
+private fun openLink(context: Context, uri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    context.startActivity(intent)
 }
