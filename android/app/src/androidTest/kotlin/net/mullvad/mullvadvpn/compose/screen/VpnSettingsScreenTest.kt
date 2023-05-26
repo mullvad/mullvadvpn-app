@@ -44,6 +44,9 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Assert
         composeTestRule.apply {
@@ -348,6 +351,9 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Assert
         composeTestRule.apply {

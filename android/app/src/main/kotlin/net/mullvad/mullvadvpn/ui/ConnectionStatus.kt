@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
-class ConnectionStatus(val parentView: View, context: Context) {
+class ConnectionStatus(parentView: View, context: Context) {
     private val spinner: View = parentView.findViewById(R.id.connecting_spinner)
     private val text: TextView = parentView.findViewById(R.id.connection_status)
 
@@ -20,13 +20,13 @@ class ConnectionStatus(val parentView: View, context: Context) {
             is TunnelState.Disconnecting -> {
                 when (state.actionAfterDisconnect) {
                     ActionAfterDisconnect.Nothing -> disconnected()
-                    ActionAfterDisconnect.Block -> connected()
-                    ActionAfterDisconnect.Reconnect -> connecting()
+                    ActionAfterDisconnect.Block -> connected(false)
+                    ActionAfterDisconnect.Reconnect -> connecting(state.isSecured())
                 }
             }
             is TunnelState.Disconnected -> disconnected()
-            is TunnelState.Connecting -> connecting()
-            is TunnelState.Connected -> connected()
+            is TunnelState.Connecting -> connecting(state.endpoint?.quantumResistant == true)
+            is TunnelState.Connected -> connected(state.endpoint.quantumResistant)
             is TunnelState.Error -> errorState(state.errorState.isBlocking)
         }
     }
@@ -38,18 +38,30 @@ class ConnectionStatus(val parentView: View, context: Context) {
         text.setText(R.string.unsecured_connection)
     }
 
-    private fun connecting() {
+    private fun connecting(quantumResistant: Boolean) {
         spinner.visibility = View.VISIBLE
 
         text.setTextColor(connectingTextColor)
-        text.setText(R.string.creating_secure_connection)
+        text.setText(
+            if (quantumResistant) {
+                R.string.quantum_creating_secure_connection
+            } else {
+                R.string.creating_secure_connection
+            }
+        )
     }
 
-    private fun connected() {
+    private fun connected(quantumResistant: Boolean) {
         spinner.visibility = View.GONE
 
         text.setTextColor(securedTextColor)
-        text.setText(R.string.secure_connection)
+        text.setText(
+            if (quantumResistant) {
+                R.string.quantum_secure_connection
+            } else {
+                R.string.secure_connection
+            }
+        )
     }
 
     private fun errorState(isBlocking: Boolean) {

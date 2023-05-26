@@ -55,7 +55,9 @@ class VpnSettingsFragment : BaseFragment() {
                         onStopEvent = vm::onStopEvent,
                         toastMessagesSharedFlow = vm.toastMessages,
                         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
-                        onObfuscationInfoClicked = vm::onObfuscationInfoClicked
+                        onObfuscationInfoClicked = vm::onObfuscationInfoClicked,
+                        onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
+                        onQuantumResistanceInfoClicked = vm::onQuantumResistanceInfoClicked
                     )
                 }
             }

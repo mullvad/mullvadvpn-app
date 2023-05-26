@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -58,6 +59,11 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
             registerHandler(Request.SetObfuscationSettings::class) { request ->
                 commandChannel.trySendBlocking(Command.SetObfuscationSettings(request.settings))
+            }
+
+            registerHandler(Request.SetWireGuardQuantumResistant::class) { request ->
+                // TODO
+                Log.d("Remove this", "Set quantum resistant ${request.quantumResistant}")
             }
         }
     }
