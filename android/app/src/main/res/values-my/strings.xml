@@ -111,6 +111,7 @@
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_on_udp_over_tcp">ဖွင့် (UDP-over-TCP)</string>
     <string name="off">ပိတ်</string>
+    <string name="on">ဖွင့်</string>
     <string name="out_address">အထွက်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
@@ -118,6 +119,11 @@
     <string name="port_removal_notice">၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။</string>
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
+    <string name="quantum_creating_secure_connection">QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးခြင်း</string>
+    <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
+    <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
+    <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
+    <string name="quantum_secure_connection">QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>

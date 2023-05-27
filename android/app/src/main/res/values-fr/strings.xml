@@ -111,6 +111,7 @@
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
     <string name="obfuscation_on_udp_over_tcp">Activé (UDP sur TCP)</string>
     <string name="off">Désactivé</string>
+    <string name="on">Activé</string>
     <string name="out_address">Sortante</string>
     <string name="out_of_time">Plus de temps</string>
     <string name="paid_until">Payé jusqu\'au</string>
@@ -118,6 +119,11 @@
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
+    <string name="quantum_creating_secure_connection">CRÉATION D\'UNE CONNEXION QUANTIQUE SÉCURISÉE</string>
+    <string name="quantum_resistant_info_first_paragaph">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</string>
+    <string name="quantum_resistant_info_second_paragaph">Pour ce faire, il effectue un échange de clés supplémentaire à l\'aide d\'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu\'un nouveau tunnel est établi.</string>
+    <string name="quantum_resistant_title">Tunnel résistant aux attaques quantiques</string>
+    <string name="quantum_secure_connection">CONNEXION QUANTIQUE SÉCURISÉE</string>
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
