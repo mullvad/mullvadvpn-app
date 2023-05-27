@@ -111,6 +111,7 @@
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
     <string name="obfuscation_on_udp_over_tcp">På (UDP över TCP)</string>
     <string name="off">Av</string>
+    <string name="on">På</string>
     <string name="out_address">Ut</string>
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="paid_until">Betalat till</string>
@@ -118,6 +119,11 @@
     <string name="port_removal_notice">Detta tar bort alla vidarebefordrade portar. Lokala inställningar sparas.</string>
     <string name="privacy_policy_label">Sekretesspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
+    <string name="quantum_creating_secure_connection">SKAPAR KVANTSÄKER ANSLUTNING</string>
+    <string name="quantum_resistant_info_first_paragaph">Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.</string>
+    <string name="quantum_resistant_info_second_paragaph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
+    <string name="quantum_resistant_title">Kvantresistent tunnel</string>
+    <string name="quantum_secure_connection">KVANTSÄKER ANSLUTNING</string>
     <string name="reconnecting">Återansluter</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
