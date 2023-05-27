@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">Ligado (UDP sobre TCP)</string>
     <string name="obfuscation_title">Ofuscação</string>
     <string name="off">Desligado</string>
+    <string name="on">Ligado</string>
     <string name="out_address">Saída</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="paid_until">Pago até</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas.</string>
     <string name="privacy_policy_label">Política de privacidade</string>
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
+    <string name="quantum_creating_secure_connection">A CRIAR LIGAÇÃO COM SEGURANÇA QUÂNTICA</string>
+    <string name="quantum_resistant_info_first_paragaph">Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos.</string>
+    <string name="quantum_resistant_info_second_paragaph">Fá-lo ao realizar uma troca de chaves adicional utilizando um algoritmo de segurança quântica e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
+    <string name="quantum_resistant_title">Túnel com resistência quântica</string>
+    <string name="quantum_secure_connection">LIGAÇÃO COM SEGURANÇA QUÂNTICA</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>

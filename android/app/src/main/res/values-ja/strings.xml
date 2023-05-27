@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">オン (UDP-over-TCP)</string>
     <string name="obfuscation_title">難読化</string>
     <string name="off">オフ</string>
+    <string name="on">オン</string>
     <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
     <string name="paid_until">次の日時まで支払い済み</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
+    <string name="quantum_creating_secure_connection">量子セキュア保護接続を確立中</string>
+    <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
+    <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
+    <string name="quantum_resistant_title">耐量子トンネル</string>
+    <string name="quantum_secure_connection">量子セキュア保護接続</string>
     <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>

@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">Käytössä (UDP TCP:n kautta)</string>
     <string name="obfuscation_title">Hämäysteknologia</string>
     <string name="off">Pois</string>
+    <string name="on">Päällä</string>
     <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="paid_until">Maksu ennen</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan.</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
+    <string name="quantum_creating_secure_connection">LUODAAN KVANTTISUOJATTU YHTEYS</string>
+    <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
+    <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
+    <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
+    <string name="quantum_secure_connection">KVANTTISUOJATTU YHTEYS</string>
     <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>

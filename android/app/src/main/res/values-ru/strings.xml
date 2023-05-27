@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">Вкл. (UDP через TCP)</string>
     <string name="obfuscation_title">Обфускация</string>
     <string name="off">Выключен</string>
+    <string name="on">Включен</string>
     <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
     <string name="paid_until">Оплачено до</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Будут удалены все перенаправленные порты. Локальные настройки сохранятся.</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
+    <string name="quantum_creating_secure_connection">СОЗДАНИЕ ПОДКЛЮЧЕНИЯ С ЗАЩИТОЙ ОТ КВАНТОВЫХ АТАК</string>
+    <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
+    <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
+    <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
+    <string name="quantum_secure_connection">ПОДКЛЮЧЕНИЕ С ЗАЩИТОЙ ОТ КВАНТОВЫХ АТАК</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>

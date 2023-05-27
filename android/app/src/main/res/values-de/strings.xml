@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">An (UDP über TCP)</string>
     <string name="obfuscation_title">Verschleierung</string>
     <string name="off">Aus</string>
+    <string name="on">Ein</string>
     <string name="out_address">Ausgehend</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="paid_until">Bezahlt bis</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Dadurch werden alle weitergeleiteten Ports gelöscht. Die lokalen Einstellungen werden gespeichert.</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
+    <string name="quantum_creating_secure_connection">QUANTENSICHERE VERBINDUNG WIRD ERSTELLT</string>
+    <string name="quantum_resistant_info_first_paragaph">Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern.</string>
+    <string name="quantum_resistant_info_second_paragaph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
+    <string name="quantum_resistant_title">Quantenresistenter Tunnel</string>
+    <string name="quantum_secure_connection">QUANTENSICHERE VERBINDUNG</string>
     <string name="reconnecting">Wiederherstellen der Verbindung</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>

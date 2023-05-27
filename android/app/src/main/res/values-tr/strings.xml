@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">Açık (TCP üzerinden UDP)</string>
     <string name="obfuscation_title">Gizleme</string>
     <string name="off">Kapalı</string>
+    <string name="on">Açık</string>
     <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
+    <string name="quantum_creating_secure_connection">KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR</string>
+    <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
+    <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
+    <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
+    <string name="quantum_secure_connection">KUANTUM GÜVENLİ BAĞLANTISI</string>
     <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
