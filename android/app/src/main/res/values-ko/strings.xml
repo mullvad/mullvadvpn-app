@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">켜기(UDP-over-TCP)</string>
     <string name="obfuscation_title">난독 처리</string>
     <string name="off">끄기</string>
+    <string name="on">켜기</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
     <string name="paid_until">유효 기간</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
+    <string name="quantum_creating_secure_connection">양자 보안 연결 생성 중</string>
+    <string name="quantum_resistant_info_first_paragaph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
+    <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
+    <string name="quantum_resistant_title">양자 저항 터널</string>
+    <string name="quantum_secure_connection">양자 보안 연결</string>
     <string name="reconnecting">다시 연결 중</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>

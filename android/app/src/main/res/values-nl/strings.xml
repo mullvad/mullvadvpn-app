@@ -112,6 +112,7 @@
     <string name="obfuscation_on_udp_over_tcp">Aan (UDP-over-TCP)</string>
     <string name="obfuscation_title">Obfuscatie</string>
     <string name="off">Uit</string>
+    <string name="on">Aan</string>
     <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="paid_until">Betaald tot</string>
@@ -119,6 +120,11 @@
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
+    <string name="quantum_creating_secure_connection">BEVEILIGDE QUANTUMVERBINDING AANMAKEN</string>
+    <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
+    <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
+    <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
+    <string name="quantum_secure_connection">QUANTUMVEILIGE VERBINDING</string>
     <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
