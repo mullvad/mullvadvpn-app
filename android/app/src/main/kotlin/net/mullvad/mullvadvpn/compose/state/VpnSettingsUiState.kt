@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
@@ -14,7 +15,7 @@ sealed interface VpnSettingsUiState {
     val contentBlockersOptions: DefaultDnsOptions
     val isAllowLanEnabled: Boolean
     val selectedObfuscation: SelectedObfuscation
-    val quantumResistant: Boolean?
+    val quantumResistant: QuantumResistantState
 
     data class DefaultUiState(
         override val mtu: String = "",
@@ -25,7 +26,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class MtuDialogUiState(
@@ -38,7 +39,7 @@ sealed interface VpnSettingsUiState {
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         val mtuEditValue: String,
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class DnsDialogUiState(
@@ -51,7 +52,7 @@ sealed interface VpnSettingsUiState {
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         val stagedDns: StagedDns,
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class LocalNetworkSharingInfoDialogUiState(
@@ -63,7 +64,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class ContentBlockersInfoDialogUiState(
@@ -75,7 +76,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class CustomDnsInfoDialogUiState(
@@ -87,7 +88,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class MalwareInfoDialogUiState(
@@ -99,7 +100,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class ObfuscationInfoDialogUiState(
@@ -111,7 +112,7 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 
     data class QuantumResistanceInfoDialogUiState(
@@ -123,6 +124,6 @@ sealed interface VpnSettingsUiState {
         override val customDnsItems: List<CustomDnsItem> = listOf(),
         override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
         override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: Boolean? = null
+        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off
     ) : VpnSettingsUiState
 }

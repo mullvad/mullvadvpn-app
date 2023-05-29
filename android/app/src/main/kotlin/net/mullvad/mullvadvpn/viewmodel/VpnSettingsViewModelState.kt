@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
 data class VpnSettingsViewModelState(
@@ -14,7 +15,7 @@ data class VpnSettingsViewModelState(
     val contentBlockersOptions: DefaultDnsOptions,
     val selectedObfuscation: SelectedObfuscation,
     val dialogState: VpnSettingsDialogState,
-    val quantumResistant: Boolean?
+    val quantumResistant: QuantumResistantState
 ) {
     fun toUiState(): VpnSettingsUiState {
         return when (dialogState) {
@@ -140,7 +141,7 @@ data class VpnSettingsViewModelState(
                 isAllowLanEnabled = false,
                 dialogState = VpnSettingsDialogState.NoDialog,
                 selectedObfuscation = SelectedObfuscation.Auto,
-                quantumResistant = null
+                quantumResistant = QuantumResistantState.Off
             )
     }
 }
