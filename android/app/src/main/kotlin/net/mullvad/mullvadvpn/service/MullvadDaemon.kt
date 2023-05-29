@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
@@ -178,6 +179,10 @@ class MullvadDaemon(
         setObfuscationSettings(daemonInterfaceAddress, settings)
     }
 
+    fun setQuantumResistant(quantumResistant: QuantumResistantState) {
+        setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
+    }
+
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
         onTunnelStateChange.unsubscribeAll()
@@ -253,6 +258,11 @@ class MullvadDaemon(
     private external fun setObfuscationSettings(
         daemonInterfaceAddress: Long,
         settings: ObfuscationSettings?
+    )
+
+    private external fun setQuantumResistantTunnel(
+        daemonInterfaceAddress: Long,
+        quantumResistant: QuantumResistantState
     )
 
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
