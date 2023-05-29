@@ -12,25 +12,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.compose.theme.typeface.listItemText
-import net.mullvad.mullvadvpn.ui.widget.ApplicationImageView
+import org.koin.androidx.compose.get
 
 @Preview
 @Composable
-fun PreviewTunnelingCell() {
+private fun PreviewTunnelingCell() {
     AppTheme {
         Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            SplitTunnelingCell("Mullvad VPN", "", false)
-            SplitTunnelingCell("Mullvad VPN", "", true)
+            SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = false)
+            SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = true)
         }
     }
 }
@@ -41,8 +46,16 @@ fun SplitTunnelingCell(
     packageName: String?,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
+    iconManager: ApplicationsIconManager = get(),
     onCellClicked: () -> Unit = {}
 ) {
+    var icon by remember(packageName) { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(packageName) {
+        launch(Dispatchers.IO) {
+            val bitmap = iconManager.getAppIcon(packageName ?: "")
+            icon = bitmap.asImageBitmap()
+        }
+    }
     Row(
         modifier =
             modifier
@@ -53,11 +66,10 @@ fun SplitTunnelingCell(
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .clickable(onClick = onCellClicked)
     ) {
-        AndroidView(
-            factory = { context -> ApplicationImageView(context) },
-            update = { applicationImageView ->
-                applicationImageView.packageName = packageName ?: ""
-            },
+        Image(
+            painter = icon?.let { iconImage -> BitmapPainter(iconImage) }
+                    ?: painterResource(id = R.drawable.ic_icons_missing),
+            contentDescription = null,
             modifier =
                 Modifier.padding(start = Dimens.cellStartPadding)
                     .align(Alignment.CenterVertically)

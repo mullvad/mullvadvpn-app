@@ -22,6 +22,7 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
+import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
@@ -35,6 +36,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import org.koin.androidx.compose.get
 
 @Preview
 @Composable
@@ -77,7 +79,8 @@ fun SplitTunnelingScreen(
     onShowSystemAppsClick: (show: Boolean) -> Unit = {},
     onExcludeAppClick: (packageName: String) -> Unit = {},
     onIncludeAppClick: (packageName: String) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    iconManager: ApplicationsIconManager = get()
 ) {
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
@@ -161,7 +164,8 @@ fun SplitTunnelingScreen(
                                 title = listItem.name,
                                 packageName = listItem.packageName,
                                 isSelected = true,
-                                modifier = Modifier.animateItemPlacement().fillMaxWidth()
+                                modifier = Modifier.animateItemPlacement().fillMaxWidth(),
+                                iconManager = iconManager
                             ) {
                                 onIncludeAppClick(listItem.packageName)
                             }
@@ -205,7 +209,8 @@ fun SplitTunnelingScreen(
                             title = listItem.name,
                             packageName = listItem.packageName,
                             isSelected = false,
-                            modifier = Modifier.animateItemPlacement().fillMaxWidth()
+                            modifier = Modifier.animateItemPlacement().fillMaxWidth(),
+                            iconManager = iconManager
                         ) {
                             onExcludeAppClick(listItem.packageName)
                         }
