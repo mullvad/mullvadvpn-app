@@ -6,8 +6,36 @@ use mullvad_api::{
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use talpid_types::ErrorExt;
 
-const URI_V4: &str = "https://ipv4.am.i.mullvad.net/json";
-const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
+// Define the Mullvad connection checking api endpoint.
+//
+// In a development build the host name for the connection checking endpoint can
+// be overriden by defining the env variable `MULLVAD_CONNCHECK_HOST`.
+//
+// If `MULLVAD_CONNCHECK_HOST` is set when running `mullvad-daemon` in a
+// production build, a warning will be logged and the env variable *won´t* have
+// any effect on the api call. The default host name `am.i.mullvad.net` will
+// always be used in release mode.
+lazy_static::lazy_static! {
+    static ref MULLVAD_CONNCHECK_HOST: String = {
+        const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
+        let conncheck_host_var = std::env::var("MULLVAD_CONNCHECK_HOST").ok();
+        let host = if cfg!(feature = "api-override") {
+            match conncheck_host_var.as_deref() {
+                Some(host) => {
+                    log::debug!("Overriding conncheck endpoint. Using {}", &host);
+                    host
+                },
+                None => DEFAULT_CONNCHECK_HOST,
+            }
+        } else {
+            if conncheck_host_var.is_some() {
+                log::warn!("These variables are ignored in production builds: MULLVAD_CONNCHECK_HOST");
+            };
+            DEFAULT_CONNCHECK_HOST
+        };
+        host.to_string()
+    };
+}
 
 pub async fn send_location_request(
     request_sender: RequestServiceHandle,
@@ -15,17 +43,16 @@ pub async fn send_location_request(
 ) -> Result<GeoIpLocation, Error> {
     let v4_sender = request_sender.clone();
     let v4_future = async move {
-        let location = send_location_request_internal(URI_V4, v4_sender).await?;
+        let uri_v4 = format!("https://ipv4.{}/json", *MULLVAD_CONNCHECK_HOST);
+        let location = send_location_request_internal(&uri_v4, v4_sender).await?;
         Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
         if use_ipv6 {
-            Some(
-                send_location_request_internal(URI_V6, v6_sender)
-                    .await
-                    .map(GeoIpLocation::from),
-            )
+            let uri_v6 = format!("https://ipv6.{}/json", *MULLVAD_CONNCHECK_HOST);
+            let location = send_location_request_internal(&uri_v6, v6_sender).await;
+            Some(location.map(GeoIpLocation::from))
         } else {
             None
         }
@@ -53,7 +80,7 @@ pub async fn send_location_request(
 }
 
 async fn send_location_request_internal(
-    uri: &'static str,
+    uri: &str,
     service: RequestServiceHandle,
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();

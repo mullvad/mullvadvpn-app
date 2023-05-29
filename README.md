@@ -167,6 +167,8 @@ See [this](Release.md) for instructions on how to make a new release.
 
 * `MULLVAD_API_DISABLE_TLS` - Use plain HTTP for API requests.
 
+* `MULLVAD_CONNCHECK_HOST` - Set the hostname to use in connection check requests. E.g. `am.i.mullvad.net`.
+
 ### Setting environment variables
 
 #### Windows
