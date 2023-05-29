@@ -661,6 +661,28 @@ pub struct ObfuscationSettings {
     pub udp2tcp: Udp2TcpObfuscationSettings,
 }
 
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+pub enum QuantumResistantState {
+    #[default]
+    Auto,
+    On,
+    Off,
+}
+
+impl fmt::Display for QuantumResistantState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            QuantumResistantState::Auto => "auto".fmt(f),
+            QuantumResistantState::On => "on".fmt(f),
+            QuantumResistantState::Off => "off".fmt(f),
+        }
+    }
+}
+
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]

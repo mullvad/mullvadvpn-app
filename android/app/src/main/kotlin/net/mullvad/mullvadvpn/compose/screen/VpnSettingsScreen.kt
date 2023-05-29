@@ -70,6 +70,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
 import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
@@ -152,7 +153,7 @@ fun VpnSettingsScreen(
     toastMessagesSharedFlow: SharedFlow<String>,
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
     onObfuscationInfoClicked: () -> Unit = {},
-    onSelectQuantumResistanceSetting: (quantumResistant: Boolean?) -> Unit = {},
+    onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onQuantumResistanceInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
@@ -417,14 +418,16 @@ fun VpnSettingsScreen(
             }
             itemWithDivider {
                 BaseCell(
-                    onCellClicked = { onSelectQuantumResistanceSetting(null) },
+                    onCellClicked = {
+                        onSelectQuantumResistanceSetting(QuantumResistantState.Auto)
+                    },
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.automatic),
                         )
                     },
                     background =
-                        if (uiState.quantumResistant == null) {
+                        if (uiState.quantumResistant == QuantumResistantState.Auto) {
                             MullvadGreen
                         } else {
                             MullvadBlue20
@@ -433,14 +436,14 @@ fun VpnSettingsScreen(
             }
             itemWithDivider {
                 BaseCell(
-                    onCellClicked = { onSelectQuantumResistanceSetting(true) },
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) },
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.on),
                         )
                     },
                     background =
-                        if (uiState.quantumResistant == true) {
+                        if (uiState.quantumResistant == QuantumResistantState.On) {
                             MullvadGreen
                         } else {
                             MullvadBlue20
@@ -449,14 +452,14 @@ fun VpnSettingsScreen(
             }
             itemWithDivider {
                 BaseCell(
-                    onCellClicked = { onSelectQuantumResistanceSetting(false) },
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) },
                     title = {
                         SwitchCellTitle(
                             title = stringResource(id = R.string.off),
                         )
                     },
                     background =
-                        if (uiState.quantumResistant == false) {
+                        if (uiState.quantumResistant == QuantumResistantState.Off) {
                             MullvadGreen
                         } else {
                             MullvadBlue20
