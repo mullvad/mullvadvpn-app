@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
     <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
     <string name="obfuscation_on_udp_over_tcp">켜기(UDP-over-TCP)</string>
-    <string name="obfuscation_title">난독 처리</string>
     <string name="off">끄기</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
