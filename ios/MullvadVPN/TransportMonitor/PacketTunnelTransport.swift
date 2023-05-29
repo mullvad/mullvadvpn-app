@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import protocol MullvadREST.RESTTransport
+import MullvadREST
+import MullvadTransport
 import MullvadTypes
 import Operations
 import TunnelProviderMessaging

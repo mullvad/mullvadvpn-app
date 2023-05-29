@@ -8,19 +8,20 @@
 
 import Foundation
 import MullvadREST
+import MullvadTransport
 
 final class SimulatorTunnelTransportProvider: RESTTransportProvider {
-    private let urlSessionTransport: REST.URLSessionTransport
+    private let urlSessionTransport: URLSessionTransport
 
-    init(urlSessionTransport: REST.URLSessionTransport) {
+    init(urlSessionTransport: URLSessionTransport) {
         self.urlSessionTransport = urlSessionTransport
     }
 
-    func transport() -> MullvadREST.RESTTransport? {
+    func transport() -> RESTTransport? {
         urlSessionTransport
     }
 
-    func shadowSocksTransport() -> MullvadREST.RESTTransport? {
+    func shadowsocksTransport() -> RESTTransport? {
         urlSessionTransport
     }
 }

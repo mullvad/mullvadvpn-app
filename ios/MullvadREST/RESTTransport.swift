@@ -11,7 +11,6 @@ import MullvadTypes
 
 public protocol RESTTransport {
     var name: String { get }
-
     func sendRequest(
         _ request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
@@ -25,5 +24,5 @@ public protocol RESTTransportProvider {
 
     /// Requests a Shadowsocks transport
     /// - Returns: A transport layer that proxies the requests to a local Shadowsocks proxy instance
-    func shadowSocksTransport() -> RESTTransport?
+    func shadowsocksTransport() -> RESTTransport?
 }
