@@ -1,7 +1,7 @@
 #![allow(clippy::identity_op)]
 use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
-use jnix::IntoJava;
+use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{convert::TryFrom, fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
@@ -15,6 +15,8 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 const QUANTUM_RESISTANT_AUTO_STATE: bool = false;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
@@ -201,14 +203,6 @@ pub struct TunnelOptions {
     #[serde(rename = "wireguard_nt")]
     pub use_wireguard_nt: bool,
     /// Obtain a PSK using the relay config client.
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|state| match state {
-            QuantumResistantState::Auto => None,
-            QuantumResistantState::On => Some(true),
-            QuantumResistantState::Off => Some(false),
-        }")
-    )]
     pub quantum_resistant: QuantumResistantState,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]

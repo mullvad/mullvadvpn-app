@@ -30,6 +30,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/LocationConstraint$Hostname",
     "net/mullvad/mullvadvpn/model/ObfuscationSettings",
     "net/mullvad/mullvadvpn/model/PublicKey",
+    "net/mullvad/mullvadvpn/model/QuantumResistantState",
     "net/mullvad/mullvadvpn/model/Relay",
     "net/mullvad/mullvadvpn/model/RelayConstraints",
     "net/mullvad/mullvadvpn/model/RelayEndpointData$Bridge",

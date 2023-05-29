@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
@@ -35,7 +36,7 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
             connection.send(Request.SetWireGuardMtu(value).message)
         }
 
-    var wireguardQuantumResistant: Boolean?
+    var wireguardQuantumResistant: QuantumResistantState?
         get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.quantumResistant
         set(value) {
             connection.send(Request.SetWireGuardQuantumResistant(value).message)

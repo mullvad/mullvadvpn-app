@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
@@ -56,7 +57,7 @@ class VpnSettingsViewModel(
                     selectedObfuscation = settings?.selectedObfuscationSettings()
                             ?: SelectedObfuscation.Off,
                     dialogState = dialogState,
-                    quantumResistant = settings?.quantumResistant()
+                    quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off
                 )
             }
             .stateIn(
@@ -306,7 +307,7 @@ class VpnSettingsViewModel(
         dialogState.update { VpnSettingsDialogState.ObfuscationInfoDialog }
     }
 
-    fun onSelectQuantumResistanceSetting(quantumResistant: Boolean?) {
+    fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
         viewModelScope.launch(dispatcher) {
             repository.setWireguardQuantumResistant(quantumResistant)
         }
