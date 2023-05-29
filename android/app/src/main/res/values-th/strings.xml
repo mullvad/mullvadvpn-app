@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
     <string name="obfuscation_info">ข้อมูลที่คลุมเครือจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_on_udp_over_tcp">เปิด (UDP-ผ่าน-TCP)</string>
-    <string name="obfuscation_title">ข้อมูลที่คลุมเครือ</string>
     <string name="off">ปิด</string>
     <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>

@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано.</string>
     <string name="obfuscation_on_udp_over_tcp">Вкл. (UDP через TCP)</string>
-    <string name="obfuscation_title">Обфускация</string>
     <string name="off">Выключен</string>
     <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
