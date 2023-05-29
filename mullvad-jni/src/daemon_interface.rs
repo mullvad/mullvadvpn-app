@@ -10,6 +10,7 @@ use mullvad_types::{
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
     wireguard,
+    wireguard::QuantumResistantState,
 };
 
 #[derive(Debug, err_derive::Error)]
@@ -320,6 +321,22 @@ impl DaemonInterface {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::SetObfuscationSettings(tx, settings))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::UpdateSettings)
+    }
+
+    pub fn set_quantum_resistant_tunnel(
+        &self,
+        quantum_resistant: QuantumResistantState,
+    ) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetQuantumResistantTunnel(
+            tx,
+            quantum_resistant,
+        ))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
