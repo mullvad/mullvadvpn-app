@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import org.koin.androidx.compose.get
 
 @Preview
 @Composable
@@ -48,7 +50,7 @@ fun PreviewSplitTunnelingScreen() {
                             AppData(
                                 packageName = "my.package.a",
                                 name = "TitleA",
-                                iconRes = R.drawable.icon_alert
+                                iconRes = R.drawable.icon_alert,
                             ),
                             AppData(
                                 packageName = "my.package.b",
@@ -77,7 +79,8 @@ fun SplitTunnelingScreen(
     onShowSystemAppsClick: (show: Boolean) -> Unit = {},
     onExcludeAppClick: (packageName: String) -> Unit = {},
     onIncludeAppClick: (packageName: String) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onResolveIcon: (String) -> Bitmap? = { null },
 ) {
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
@@ -161,7 +164,8 @@ fun SplitTunnelingScreen(
                                 title = listItem.name,
                                 packageName = listItem.packageName,
                                 isSelected = true,
-                                modifier = Modifier.animateItemPlacement().fillMaxWidth()
+                                modifier = Modifier.animateItemPlacement().fillMaxWidth(),
+                                onResolveIcon = onResolveIcon
                             ) {
                                 onIncludeAppClick(listItem.packageName)
                             }
@@ -205,7 +209,8 @@ fun SplitTunnelingScreen(
                             title = listItem.name,
                             packageName = listItem.packageName,
                             isSelected = false,
-                            modifier = Modifier.animateItemPlacement().fillMaxWidth()
+                            modifier = Modifier.animateItemPlacement().fillMaxWidth(),
+                            onResolveIcon = onResolveIcon
                         ) {
                             onExcludeAppClick(listItem.packageName)
                         }

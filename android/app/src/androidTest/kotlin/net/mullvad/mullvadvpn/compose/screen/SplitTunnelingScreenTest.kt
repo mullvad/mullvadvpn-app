@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.graphics.Bitmap
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -22,10 +23,11 @@ import org.koin.dsl.module
 class SplitTunnelingScreenTest {
     @get:Rule val composeTestRule = createComposeRule()
 
+    private val mockBitmap: Bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
     private val testModule = module {
         single {
             mockk<ApplicationsIconManager>().apply {
-                every { getAppIcon(any()) } returns mockk(relaxed = true)
+                every { getAppIcon(any()) } returns mockBitmap
             }
         }
     }
