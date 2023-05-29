@@ -17,21 +17,21 @@ import class WireGuardKitTypes.PublicKey
 final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
     private let logger = Logger(label: "CheckDeviceOperation")
 
-    private let accountsProxy: REST.AccountsProxy
-    private let devicesProxy: REST.DevicesProxy
+    private let remoteService: DeviceCheckRemoteServiceProtocol
+    private let deviceStateAccessor: DeviceStateAccessorProtocol
     private let shouldImmediatelyRotateKeyOnMismatch: Bool
 
     private var tasks: [Cancellable] = []
 
     init(
         dispatchQueue: DispatchQueue,
-        accountsProxy: REST.AccountsProxy,
-        devicesProxy: REST.DevicesProxy,
+        remoteSevice: DeviceCheckRemoteServiceProtocol,
+        deviceStateAccessor: DeviceStateAccessorProtocol,
         shouldImmediatelyRotateKeyOnMismatch: Bool,
         completionHandler: @escaping CompletionHandler
     ) {
-        self.accountsProxy = accountsProxy
-        self.devicesProxy = devicesProxy
+        self.remoteService = remoteSevice
+        self.deviceStateAccessor = deviceStateAccessor
         self.shouldImmediatelyRotateKeyOnMismatch = shouldImmediatelyRotateKeyOnMismatch
 
         super.init(dispatchQueue: dispatchQueue, completionQueue: dispatchQueue, completionHandler: completionHandler)
@@ -51,7 +51,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
 
     private func startFlow(completion: @escaping (Result<DeviceCheck, Error>) -> Void) {
         do {
-            guard case let .loggedIn(accountData, deviceData) = try SettingsManager.readDeviceState() else {
+            guard case let .loggedIn(accountData, deviceData) = try deviceStateAccessor.read() else {
                 throw InvalidDeviceStateError()
             }
 
@@ -109,18 +109,13 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
         let dispatchGroup = DispatchGroup()
 
         dispatchGroup.enter()
-        let accountTask = accountsProxy
-            .getAccountData(accountNumber: accountNumber, retryStrategy: .noRetry) { result in
-                accountResult = result
-                dispatchGroup.leave()
-            }
+        let accountTask = remoteService.getAccountData(accountNumber: accountNumber) { result in
+            accountResult = result
+            dispatchGroup.leave()
+        }
 
         dispatchGroup.enter()
-        let deviceTask = devicesProxy.getDevice(
-            accountNumber: accountNumber,
-            identifier: deviceIdentifier,
-            retryStrategy: .noRetry
-        ) { result in
+        let deviceTask = remoteService.getDevice(accountNumber: accountNumber, identifier: deviceIdentifier) { result in
             deviceResult = result
             dispatchGroup.leave()
         }
@@ -137,7 +132,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
     private func rotateKeyIfNeeded(completion: @escaping (Result<KeyRotationStatus, Error>) -> Void) {
         let deviceState: DeviceState
         do {
-            deviceState = try SettingsManager.readDeviceState()
+            deviceState = try deviceStateAccessor.read()
         } catch {
             logger.error(error: error, message: "Failed to read device state before rotating the key.")
             completion(.failure(error))
@@ -160,7 +155,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
         let publicKey = keyRotation.beginAttempt()
 
         do {
-            try SettingsManager.writeDeviceState(.loggedIn(accountData, keyRotation.data))
+            try deviceStateAccessor.write(.loggedIn(accountData, keyRotation.data))
         } catch {
             logger.error(error: error, message: "Failed to persist updated device state before rotating the key.")
             completion(.failure(error))
@@ -169,11 +164,10 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
 
         logger.debug("Rotate private key from packet tunnel.")
 
-        let task = devicesProxy.rotateDeviceKey(
+        let task = remoteService.rotateDeviceKey(
             accountNumber: accountData.number,
             identifier: deviceData.identifier,
-            publicKey: publicKey,
-            retryStrategy: .default
+            publicKey: publicKey
         ) { result in
             self.dispatchQueue.async {
                 let returnResult = result.tryMap { device -> KeyRotationStatus in
@@ -200,7 +194,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
     private func completeKeyRotation(_ device: Device) throws {
         logger.debug("Successfully rotated device key. Persisting device state...")
 
-        let deviceState = try SettingsManager.readDeviceState()
+        let deviceState = try deviceStateAccessor.read()
         guard case let .loggedIn(accountData, deviceData) = deviceState else {
             logger.debug("Will not persist device state after rotating the key because device is no longer logged in.")
             throw InvalidDeviceStateError()
@@ -210,7 +204,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
         keyRotation.setCompleted(with: device)
 
         do {
-            try SettingsManager.writeDeviceState(.loggedIn(accountData, keyRotation.data))
+            try deviceStateAccessor.write(.loggedIn(accountData, keyRotation.data))
         } catch {
             logger.error(error: error, message: "Failed to persist device state after rotating the key.")
             throw error
@@ -239,7 +233,7 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
 
     private func deviceVerdict(from deviceResult: Result<Device, Error>) throws -> DeviceVerdict {
         do {
-            let deviceState = try SettingsManager.readDeviceState()
+            let deviceState = try deviceStateAccessor.read()
             guard let deviceData = deviceState.deviceData else { throw InvalidDeviceStateError() }
 
             let device = try deviceResult.get()
@@ -258,5 +252,82 @@ final class CheckDeviceOperation: ResultOperation<DeviceCheck> {
 private struct InvalidDeviceStateError: LocalizedError {
     var errorDescription: String? {
         return "Cannot complete device check because device is no longer logged in."
+    }
+}
+
+/// A protocol that formalizes remote service dependency used by `CheckDeviceOperation`.
+protocol DeviceCheckRemoteServiceProtocol {
+    func getAccountData(accountNumber: String, completion: @escaping (Result<AccountData, Error>) -> Void)
+        -> Cancellable
+    func getDevice(accountNumber: String, identifier: String, completion: @escaping (Result<Device, Error>) -> Void)
+        -> Cancellable
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: PublicKey,
+        completion: @escaping (Result<Device, Error>) -> Void
+    ) -> Cancellable
+}
+
+/// A protocol formalizes device state accessor dependency used by `CheckDeviceOperation`.
+protocol DeviceStateAccessorProtocol {
+    func read() throws -> DeviceState
+    func write(_ deviceState: DeviceState) throws
+}
+
+/// An object that implements remote service used by `CheckDeviceOperation`.
+struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
+    private let accountsProxy: REST.AccountsProxy
+    private let devicesProxy: REST.DevicesProxy
+
+    init(accountsProxy: REST.AccountsProxy, devicesProxy: REST.DevicesProxy) {
+        self.accountsProxy = accountsProxy
+        self.devicesProxy = devicesProxy
+    }
+
+    func getAccountData(
+        accountNumber: String,
+        completion: @escaping (Result<AccountData, Error>) -> Void
+    ) -> Cancellable {
+        accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .noRetry, completion: completion)
+    }
+
+    func getDevice(
+        accountNumber: String,
+        identifier: String,
+        completion: @escaping (Result<Device, Error>) -> Void
+    ) -> Cancellable {
+        devicesProxy.getDevice(
+            accountNumber: accountNumber,
+            identifier: identifier,
+            retryStrategy: .noRetry,
+            completion: completion
+        )
+    }
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: PublicKey,
+        completion: @escaping (Result<Device, Error>) -> Void
+    ) -> Cancellable {
+        devicesProxy.rotateDeviceKey(
+            accountNumber: accountNumber,
+            identifier: identifier,
+            publicKey: publicKey,
+            retryStrategy: .default,
+            completion: completion
+        )
+    }
+}
+
+/// An object that implements access to `DeviceState`.
+struct DeviceStateAccessor: DeviceStateAccessorProtocol {
+    func read() throws -> DeviceState {
+        return try SettingsManager.readDeviceState()
+    }
+
+    func write(_ deviceState: DeviceState) throws {
+        try SettingsManager.writeDeviceState(deviceState)
     }
 }

@@ -45,7 +45,7 @@ public enum KeyRotationStatus: Equatable, Codable {
 
     /// Returns `true` if the status is `.succeeded`.
     public var isSucceeded: Bool {
-        if case let .succeeded = self {
+        if case .succeeded = self {
             return true
         } else {
             return false

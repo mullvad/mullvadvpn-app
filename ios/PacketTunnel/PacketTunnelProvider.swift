@@ -703,8 +703,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private func startDeviceCheck(shouldImmediatelyRotateKeyOnMismatch: Bool = false) {
         let checkOperation = CheckDeviceOperation(
             dispatchQueue: dispatchQueue,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
+            remoteSevice: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
+            deviceStateAccessor: DeviceStateAccessor(),
             shouldImmediatelyRotateKeyOnMismatch: shouldImmediatelyRotateKeyOnMismatch
         ) { [self] result in
             guard let newDeviceCheck = result.value else { return }
