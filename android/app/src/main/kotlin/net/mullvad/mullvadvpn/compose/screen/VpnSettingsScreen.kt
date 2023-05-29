@@ -156,7 +156,7 @@ fun VpnSettingsScreen(
     toastMessagesSharedFlow: SharedFlow<String>,
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
     onObfuscationInfoClick: () -> Unit = {},
-    onSelectQuantumResistanceSetting: (quantumResistant: Boolean?) -> Unit = {},
+    onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onQuantumResistanceInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)

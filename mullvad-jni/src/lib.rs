@@ -1238,6 +1238,29 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setObfu
     }
 }
 
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setQuantumResistantTunnel(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    quantumResistantState: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let quantum_resistant = FromJava::from_java(&env, quantumResistantState);
+
+        if let Err(error) = daemon_interface.set_quantum_resistant_tunnel(quantum_resistant) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update quantum resistant tunnel state")
+            );
+        }
+    }
+}
+
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
         daemon_interface::Error::Api(RestError::Aborted) => {
