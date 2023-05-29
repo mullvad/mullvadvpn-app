@@ -97,16 +97,23 @@ function build_unix {
             export CC=aarch64-linux-gnu-gcc
         fi
 
-        # Apple silicon
-        if [[ "$1" == "aarch64-apple-darwin" ]]; then
+        # Environment flags for cross compiling on macOS
+        if [[ "$1" == *-apple-darwin ]]; then
             export CGO_ENABLED=1
             export GOOS=darwin
-            export GOARCH=arm64
-            export CC="$(xcrun -sdk $SDKROOT --find clang) -arch $GOARCH -isysroot $SDKROOT"
-            export CFLAGS="-isysroot $SDKROOT -arch $GOARCH -I$SDKROOT/usr/include"
+
+            local arch=x86_64
+            export GOARCH=amd64
+            if [[ "$1" == aarch64-* ]]; then
+                arch=arm64
+                export GOARCH=arm64
+            fi
+
+            export CC="$(xcrun -sdk $SDKROOT --find clang) -arch $arch -isysroot $SDKROOT"
+            export CFLAGS="-isysroot $SDKROOT -arch $arch -I$SDKROOT/usr/include"
             export LD_LIBRARY_PATH="$SDKROOT/usr/lib"
-            export CGO_CFLAGS="-isysroot $SDKROOT -arch $GOARCH"
-            export CGO_LDFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+            export CGO_CFLAGS="-isysroot $SDKROOT -arch $arch"
+            export CGO_LDFLAGS="-isysroot $SDKROOT -arch $arch"
         fi
     fi
 
