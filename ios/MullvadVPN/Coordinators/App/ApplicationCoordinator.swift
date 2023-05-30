@@ -644,8 +644,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 preferredContentSize: preferredFormSheetContentSize,
                 modalPresentationStyle: .formSheet
             )
-        ) {
+        ) { [weak self] in
             completion(coordinator)
+
+            self?.onShowAccount?()
         }
     }
 
@@ -785,10 +787,23 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Settings
 
+    /**
+     This closure is called each time when settings are presented or when navigating from any of sub-routes within
+     settings back to root.
+     */
     var onShowSettings: (() -> Void)?
 
+    /// This closure is called each time when account controller is being presented.
+    var onShowAccount: (() -> Void)?
+
+    /// Returns `true` if settings are being presented.
     var isPresentingSettings: Bool {
         return router.isPresenting(.settings)
+    }
+
+    /// Returns `true` if account controller is being presented.
+    var isPresentingAccount: Bool {
+        return router.isPresenting(.account)
     }
 
     // MARK: - UISplitViewControllerDelegate
