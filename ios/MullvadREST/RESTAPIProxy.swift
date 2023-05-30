@@ -208,6 +208,50 @@ extension REST {
                 completionHandler: completionHandler
             )
         }
+
+        public func submitVoucher(
+            voucherCode: String,
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping CompletionHandler<SubmitVoucherResponse>
+        ) -> Cancellable {
+            let requestHandler = AnyRequestHandler(
+                createURLRequest: { endpoint, authorization in
+                    var requestBuilder = try self.requestFactory.createRequestBuilder(
+                        endpoint: endpoint,
+                        method: .post,
+                        pathTemplate: "submit-voucher"
+                    )
+
+                    requestBuilder.setAuthorization(authorization)
+
+                    try requestBuilder.setHTTPBody(value: SubmitVoucherRequest(voucherCode: voucherCode))
+
+                    return requestBuilder.getRequest()
+                },
+                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
+            )
+
+            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<SubmitVoucherResponse> in
+                if HTTPStatus.isSuccess(response.statusCode) {
+                    return .decoding {
+                        try self.responseDecoder.decode(SubmitVoucherResponse.self, from: data)
+                    }
+                } else {
+                    return .unhandledResponse(
+                        try? self.responseDecoder.decode(ServerErrorResponse.self, from: data)
+                    )
+                }
+            }
+
+            return addOperation(
+                name: "send-submit-voucher",
+                retryStrategy: retryStrategy,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
     }
 
     // MARK: - Response types
@@ -267,6 +311,19 @@ extension REST {
             self.message = message
             self.log = log
             self.metadata = metadata
+        }
+    }
+
+    private struct SubmitVoucherRequest: Encodable {
+        let voucherCode: String
+    }
+
+    public struct SubmitVoucherResponse: Decodable {
+        public let timeAdded: Int
+        public let newExpiry: Date
+
+        public var dateComponents: DateComponents {
+            return DateComponents(second: timeAdded)
         }
     }
 }
