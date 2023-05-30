@@ -47,8 +47,7 @@ public final class URLSessionShadowsocksTransport: RESTTransport {
 
     public init(
         urlSession: URLSession,
-        shadowsocksConfiguration: REST.ServerShadowsocks,
-        shadowsocksBridgeRelay: REST.BridgeRelay,
+        shadowsocksConfiguration: ShadowsocksConfiguration,
         addressCache: REST.AddressCache
     ) {
         self.urlSession = urlSession
@@ -57,8 +56,8 @@ public final class URLSessionShadowsocksTransport: RESTTransport {
         shadowsocksProxy = ShadowsocksProxy(
             forwardAddress: apiAddress.ip,
             forwardPort: apiAddress.port,
-            bridgeAddress: shadowsocksBridgeRelay.ipv4AddrIn,
-            bridgePort: shadowsocksConfiguration.port,
+            bridgeAddress: shadowsocksConfiguration.bridgeAddress,
+            bridgePort: shadowsocksConfiguration.bridgePort,
             password: shadowsocksConfiguration.password,
             cipher: shadowsocksConfiguration.cipher
         )

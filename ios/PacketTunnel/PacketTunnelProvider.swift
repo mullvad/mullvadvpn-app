@@ -65,9 +65,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     private var tunnelStartupFailureRecoveryTimer: DispatchSourceTimer?
 
     /// Relay cache.
-    private let relayCache = RelayCache(
-        securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
-    )!
+    private let relayCache: RelayCache
 
     /// Current selector result.
     private var selectorResult: RelaySelectorResult?
@@ -151,12 +149,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             canWriteToCache: false, cacheFolder: containerURL
         )
 
+        addressCache.initCache()
+
+        relayCache = RelayCache(cacheFolder: containerURL)
+
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheFolder: containerURL)
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,
-            addressCache: addressCache
+            addressCache: addressCache,
+            shadowsocksCache: shadowsocksCache
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
