@@ -1945,6 +1945,7 @@ dependencies = [
  "env_logger 0.10.0",
  "futures",
  "itertools",
+ "log",
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-types",

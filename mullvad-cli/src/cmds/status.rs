@@ -85,6 +85,12 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     if args.debug {
         println!("Tunnel state: {state:#?}");
     } else {
+        use mullvad_types::device::DeviceState;
+        match rpc.get_device().await? {
+            DeviceState::LoggedOut => println!("Warning: User is not logged in to an account."),
+            DeviceState::Revoked => println!("Warning: Device has been revoked from account."),
+            DeviceState::LoggedIn(_) => (),
+        }
         format::print_state(&state, args.verbose);
     }
 
