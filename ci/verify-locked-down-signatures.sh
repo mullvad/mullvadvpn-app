@@ -57,6 +57,7 @@ locked_down_paths=$(\
     | awk '{print $2}')
 
 unsigned_commits_exist=0
+important_file_was_removed=0
 for locked_path in $locked_down_paths; do
     locked_path_commit_hashes=$(git rev-list --oneline "$whitelisted_commit"..HEAD \
         "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
@@ -67,10 +68,16 @@ for locked_path in $locked_down_paths; do
             unsigned_commits_exist=1
         fi
     done
+
+    # Check if important file has been removed.
+    if [[ ! -e "$SCRIPT_DIR/../$locked_path" ]]; then
+        echo "$locked_path was removed. If this was intentional, remove it from `verify-locked-down-signatures.yml`."
+        important_file_was_removed=1
+    fi
 done
 
-if [[ $unsigned_commits_exist == 0 ]]; then
-    echo "SUCCESS: Could not find any unsigned commits which modified a locked down path"
+if [[ "$unsigned_commits_exist" != 0 || "$important_file_was_removed" != 0 ]]; then
+    exit 1
 fi
 
-exit $unsigned_commits_exist
+echo "SUCCESS: Could not find any offenses to locked down paths"
