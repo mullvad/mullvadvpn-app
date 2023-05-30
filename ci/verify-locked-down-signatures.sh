@@ -2,8 +2,8 @@
 set -eu
 shopt -s nullglob
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly SCRIPT_DIR
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly REPO_DIR="$SCRIPT_DIR/.."
 
 # In the CI environment we would like to import trusted public keys from a file,
 # but not in our build environment
@@ -51,26 +51,38 @@ fi
 # correctly. This is done by replacing all new-lines with a `;`
 readonly SEPARATOR=';'
 locked_down_paths=$(\
-    < "$SCRIPT_DIR/../.github/workflows/verify-locked-down-signatures.yml" tr '\n' $SEPARATOR \
+    < "$REPO_DIR/.github/workflows/verify-locked-down-signatures.yml" tr '\n' $SEPARATOR \
     | sed "s/.*paths:$SEPARATOR\(\(\s*-\s[a-zA-Z\/\.-]*$SEPARATOR\)*\).*/\1/" \
     | tr $SEPARATOR '\n' \
     | awk '{print $2}')
 
+
+
 unsigned_commits_exist=0
+important_file_was_removed=0
 for locked_path in $locked_down_paths; do
+    echo "Checking $locked_path"
+
     locked_path_commit_hashes=$(git rev-list --oneline "$whitelisted_commit"..HEAD \
-        "$SCRIPT_DIR/../$locked_path" | awk '{print $1}')
+        "$REPO_DIR/$locked_path" | awk '{print $1}')
 
     for commit in $locked_path_commit_hashes; do
+        echo -e "\tin $commit.."
         if ! git verify-commit "$commit" 2> /dev/null; then
             echo "Commit $commit which changed $locked_path is not signed."
             unsigned_commits_exist=1
         fi
     done
+
+    # Check if important file has been removed.
+    if [[ ! -e "$REPO_DIR/$locked_path" ]]; then
+        echo "$locked_path was removed. If this was intentional, remove it from `verify-locked-down-signatures.yml`."
+        important_file_was_removed=1
+    fi
 done
 
-if [[ $unsigned_commits_exist == 0 ]]; then
-    echo "SUCCESS: Could not find any unsigned commits which modified a locked down path"
+if [[ "$unsigned_commits_exist" != 0 || "$important_file_was_removed" != 0 ]]; then
+    exit 1
 fi
 
-exit $unsigned_commits_exist
+echo "SUCCESS: Could not find any offenses to locked down paths"
