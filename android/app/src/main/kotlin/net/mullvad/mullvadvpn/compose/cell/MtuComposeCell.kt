@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 
 @Preview
 @Composable
-fun MtuComposeCellPreview() {
+private fun PreviewMtuComposeCell() {
     AppTheme { MtuComposeCell(mtuValue = "1300", onEditMtu = {}) }
 }
 
