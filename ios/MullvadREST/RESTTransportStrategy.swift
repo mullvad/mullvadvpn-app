@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TransportStrategy: Codable {
+public struct TransportStrategy: Codable, Equatable {
     /// The different transports suggested by the strategy
     public enum Transport {
         /// Suggests using a direct connection

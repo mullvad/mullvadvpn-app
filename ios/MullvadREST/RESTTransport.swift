@@ -16,13 +16,3 @@ public protocol RESTTransport {
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable
 }
-
-public protocol RESTTransportProvider {
-    /// Requests a new transport
-    /// - Returns: A transport layer
-    func transport() -> RESTTransport?
-
-    /// Requests a Shadowsocks transport
-    /// - Returns: A transport layer that proxies the requests to a local Shadowsocks proxy instance
-    func shadowsocksTransport() -> RESTTransport?
-}

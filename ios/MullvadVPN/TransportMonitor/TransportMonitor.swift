@@ -10,10 +10,11 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadTransport
+import MullvadTypes
 import RelayCache
 import RelaySelector
 
-final class TransportMonitor: RESTTransportProvider {
+final class TransportMonitor: RESTTransport {
     private let tunnelManager: TunnelManager
     private let tunnelStore: TunnelStore
     private let transportProvider: TransportProvider
@@ -28,12 +29,12 @@ final class TransportMonitor: RESTTransportProvider {
         self.transportProvider = transportProvider
     }
 
-    public func transport() -> RESTTransport? {
-        return selectTransport(transportProvider.transport(), useShadowsocksTransport: false)
-    }
+    var name: String { selectTransport(transportProvider).name }
 
-    public func shadowsocksTransport() -> RESTTransport? {
-        return selectTransport(transportProvider.shadowsocksTransport(), useShadowsocksTransport: true)
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> MullvadTypes
+        .Cancellable
+    {
+        selectTransport(transportProvider).sendRequest(request, completion: completion)
     }
 
     // MARK: -
@@ -48,10 +49,8 @@ final class TransportMonitor: RESTTransportProvider {
     ///
     /// - Parameters:
     ///   - transport: The transport to use if there is no tunnel, or if it shouldn't be bypassed
-    ///   - useShadowsocksTransport: A hint for enforcing a Shadowsocks transport when proxying a request via an
-    /// available `Tunnel`
     /// - Returns: A transport to use for sending an `URLRequest`
-    private func selectTransport(_ transport: RESTTransport?, useShadowsocksTransport: Bool) -> RESTTransport? {
+    private func selectTransport(_ transport: RESTTransport) -> RESTTransport {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
             return tunnel.status == .connecting ||
                 tunnel.status == .reasserting ||
@@ -60,8 +59,7 @@ final class TransportMonitor: RESTTransportProvider {
 
         if let tunnel, shouldByPassVPN(tunnel: tunnel) {
             return PacketTunnelTransport(
-                tunnel: tunnel,
-                useShadowsocksTransport: useShadowsocksTransport
+                tunnel: tunnel
             )
         }
         return transport

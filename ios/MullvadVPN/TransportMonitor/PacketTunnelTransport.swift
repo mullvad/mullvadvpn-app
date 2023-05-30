@@ -19,11 +19,9 @@ struct PacketTunnelTransport: RESTTransport {
     }
 
     let tunnel: Tunnel
-    let useShadowsocksTransport: Bool
 
-    init(tunnel: Tunnel, useShadowsocksTransport: Bool) {
+    init(tunnel: Tunnel) {
         self.tunnel = tunnel
-        self.useShadowsocksTransport = useShadowsocksTransport
     }
 
     func sendRequest(
@@ -32,8 +30,7 @@ struct PacketTunnelTransport: RESTTransport {
     ) -> Cancellable {
         let proxyRequest = ProxyURLRequest(
             id: UUID(),
-            urlRequest: request,
-            useShadowsocksTransport: useShadowsocksTransport
+            urlRequest: request
         )
 
         // If the URL provided to the proxy request was invalid, indicate failure via `.badURL` and return a no-op.
