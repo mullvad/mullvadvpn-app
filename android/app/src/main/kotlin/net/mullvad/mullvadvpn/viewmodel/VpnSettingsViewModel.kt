@@ -301,7 +301,7 @@ class VpnSettingsViewModel(
         }
     }
 
-    fun onObfuscationInfoClicked() {
+    fun onObfuscationInfoClick() {
         dialogState.update { VpnSettingsDialogState.ObfuscationInfoDialog }
     }
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,13 @@ fun InformationComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        title = { SwitchCellTitle(title = title, modifier = titleModifier) },
+        title = {
+            BaseCellTitle(
+                title = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = titleModifier
+            )
+        },
         background = background,
         bodyView = {
             InformationComposeCellBody(modifier = bodyViewModifier, onInfoClicked = onInfoClicked)

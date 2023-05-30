@@ -23,8 +23,8 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
-import net.mullvad.mullvadvpn.compose.cell.SwitchComposeCell
 import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -175,7 +175,7 @@ fun SplitTunnelingScreen(
                         key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
                         contentType = ContentType.OTHER_ITEM
                     ) {
-                        SwitchComposeCell(
+                        HeaderSwitchComposeCell(
                             title = stringResource(id = R.string.show_system_apps),
                             isToggled = uiState.showSystemApps,
                             onCellClicked = { newValue -> onShowSystemAppsClick(newValue) }
