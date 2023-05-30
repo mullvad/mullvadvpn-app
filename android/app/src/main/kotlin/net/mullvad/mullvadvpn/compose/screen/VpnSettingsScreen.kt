@@ -71,8 +71,6 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue20
-import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -400,53 +398,24 @@ fun VpnSettingsScreen(
                 )
             }
             itemWithDivider {
-                BaseCell(
-                    onCellClicked = {
-                        onSelectQuantumResistanceSetting(QuantumResistantState.Auto)
-                    },
-                    title = {
-                        SwitchCellTitle(
-                            title = stringResource(id = R.string.automatic),
-                        )
-                    },
-                    background =
-                        if (uiState.quantumResistant == QuantumResistantState.Auto) {
-                            MullvadGreen
-                        } else {
-                            MullvadBlue20
-                        }
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Auto,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Auto) }
                 )
             }
             itemWithDivider {
-                BaseCell(
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) },
-                    title = {
-                        SwitchCellTitle(
-                            title = stringResource(id = R.string.on),
-                        )
-                    },
-                    background =
-                        if (uiState.quantumResistant == QuantumResistantState.On) {
-                            MullvadGreen
-                        } else {
-                            MullvadBlue20
-                        }
+                SelectableCell(
+                    title = stringResource(id = R.string.on),
+                    isSelected = uiState.quantumResistant == QuantumResistantState.On,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
                 )
             }
             itemWithDivider {
-                BaseCell(
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) },
-                    title = {
-                        SwitchCellTitle(
-                            title = stringResource(id = R.string.off),
-                        )
-                    },
-                    background =
-                        if (uiState.quantumResistant == QuantumResistantState.Off) {
-                            MullvadGreen
-                        } else {
-                            MullvadBlue20
-                        }
+                SelectableCell(
+                    title = stringResource(id = R.string.off),
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Off,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
             }
 

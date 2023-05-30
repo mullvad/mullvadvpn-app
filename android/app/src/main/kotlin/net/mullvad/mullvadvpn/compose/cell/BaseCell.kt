@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewBaseCell() {
+private fun PreviewBaseCell() {
     AppTheme {
         SpacedColumn {
             BaseCell(
