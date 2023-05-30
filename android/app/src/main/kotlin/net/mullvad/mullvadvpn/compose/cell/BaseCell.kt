@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
 
 @Preview
 @Composable
-fun PreviewBaseCell() {
+private fun PreviewBaseCell() {
     AppTheme {
         Column {
             BaseCell(
