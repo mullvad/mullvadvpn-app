@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportProvider: () -> RESTTransportProvider?
+        private let transportProvider: () -> RESTTransport?
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -30,7 +30,6 @@ extension REST {
         private var retryDelayIterator: AnyIterator<Duration>
         private var retryTimer: DispatchSourceTimer?
         private var retryCount = 0
-        private var transportStrategy = TransportStrategy()
 
         init(
             name: String,
@@ -141,12 +140,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            let suggestedTransport = transportStrategy.connectionTransport()
-            let transportProvider = transportProvider()
-            let transport = suggestedTransport == .useShadowsocks
-                ? transportProvider?.shadowsocksTransport()
-                : transportProvider?.transport()
-
+            let transport = transportProvider()
             guard let transport else {
                 logger.error("Failed to obtain transport.")
                 finish(result: .failure(REST.Error.transport(NoTransportError())))
@@ -175,7 +169,6 @@ extension REST {
 
                         self.didReceiveURLResponse(
                             httpResponse,
-                            transport: transport,
                             data: data,
                             endpoint: endpoint
                         )
@@ -202,21 +195,9 @@ extension REST {
         ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            if let urlError = error as? URLError {
-                switch urlError.code {
-                case .cancelled:
-                    finish(result: .failure(OperationError.cancelled))
-                    return
-
-                case .notConnectedToInternet, .internationalRoamingOff, .callIsActive:
-                    break
-
-                default:
-                    if !REST.isStagingEnvironment {
-                        _ = addressCacheStore.selectNextEndpoint(endpoint)
-                        transportStrategy.didFail()
-                    }
-                }
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                finish(result: .failure(OperationError.cancelled))
+                return
             }
 
             logger.error(
@@ -229,7 +210,6 @@ extension REST {
 
         private func didReceiveURLResponse(
             _ response: HTTPURLResponse,
-            transport: RESTTransport,
             data: Data,
             endpoint: AnyIPEndpoint
         ) {

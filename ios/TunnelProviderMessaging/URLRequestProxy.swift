@@ -15,14 +15,14 @@ public final class URLRequestProxy {
     /// Serial queue used for synchronizing access to class members.
     private let dispatchQueue: DispatchQueue
 
-    private let transportProvider: () -> RESTTransportProvider?
+    private let transportProvider: () -> RESTTransport?
 
     /// List of all proxied network requests bypassing VPN.
     private var proxiedRequests: [UUID: Cancellable] = [:]
 
     public init(
         dispatchQueue: DispatchQueue,
-        transportProvider: @escaping () -> RESTTransportProvider?
+        transportProvider: @escaping () -> RESTTransport?
     ) {
         self.dispatchQueue = dispatchQueue
         self.transportProvider = transportProvider
@@ -33,14 +33,9 @@ public final class URLRequestProxy {
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
         dispatchQueue.async {
-            // Instruct the Packet Tunnel to try to reach the API via the local shadow socks proxy instance if needed
-            let transportProvider = self.transportProvider()
-            let transport = proxyRequest.useShadowsocksTransport
-                ? transportProvider?.shadowsocksTransport()
-                : transportProvider?.transport()
-            guard let transport else { return }
+            guard let transportProvider = self.transportProvider() else { return }
             // The task sent by `transport.sendRequest` comes in an already resumed state
-            let task = transport.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
+            let task = transportProvider.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
                 guard let self else { return }
                 // However there is no guarantee about which queue the execution resumes on
                 // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`

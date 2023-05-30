@@ -9,19 +9,22 @@
 import Foundation
 import MullvadREST
 import MullvadTransport
+import MullvadTypes
 
-final class SimulatorTunnelTransportProvider: RESTTransportProvider {
+final class SimulatorTunnelTransportProvider: RESTTransport {
     private let urlSessionTransport: URLSessionTransport
 
     init(urlSessionTransport: URLSessionTransport) {
         self.urlSessionTransport = urlSessionTransport
     }
 
-    func transport() -> RESTTransport? {
-        urlSessionTransport
+    var name: String {
+        "SimulatorTunnelTransportProvider"
     }
 
-    func shadowsocksTransport() -> RESTTransport? {
-        urlSessionTransport
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> MullvadTypes
+        .Cancellable
+    {
+        urlSessionTransport.sendRequest(request, completion: completion)
     }
 }
