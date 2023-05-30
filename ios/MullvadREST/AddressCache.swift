@@ -73,11 +73,6 @@ extension REST {
             return currentEndpoint
         }
 
-        public func selectNextEndpoint(_ failedEndpoint: AnyIPEndpoint) -> AnyIPEndpoint {
-            // This function currently acts as a convoluted no-op. It will be soon deleted.
-            return getCurrentEndpoint()
-        }
-
         /// Updates the available endpoints to use
         ///
         /// Only the first available endpoint is kept, the rest are discarded.
