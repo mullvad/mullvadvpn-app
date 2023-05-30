@@ -68,6 +68,8 @@ import net.mullvad.mullvadvpn.compose.dialog.QuantumResistanceInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
@@ -407,6 +409,7 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.on),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG,
                     isSelected = uiState.quantumResistant == QuantumResistantState.On,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
                 )
@@ -414,6 +417,7 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.off),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
                     isSelected = uiState.quantumResistant == QuantumResistantState.Off,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
