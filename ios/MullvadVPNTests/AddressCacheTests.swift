@@ -10,36 +10,19 @@
 import MullvadTypes
 import XCTest
 
-final class AddressCacheTests: XCTestCase {
-    static var testsCacheDirectory: URL!
+final class AddressCacheTests: CachedTests {
     var apiEndpoint: AnyIPEndpoint!
-    var cacheFilePresenter: AddressCacheFilePresenter!
-    let defaultExpectationTimeout = REST.Duration.milliseconds(200).timeInterval
 
     // MARK: Tests Setup
 
-    override class func setUp() {
-        super.setUp()
-        let temporaryDirectory = FileManager.default.temporaryDirectory
-        testsCacheDirectory = temporaryDirectory.appendingPathComponent("AddressCacheTests")
-    }
+    override class var cacheFileName: String { REST.AddressCache.cacheFileName }
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         apiEndpoint = try XCTUnwrap(AnyIPEndpoint(string: "127.0.0.1:80"))
-        let cacheFileURL = Self.testsCacheDirectory.appendingPathComponent(REST.AddressCache.cacheFileName)
-        cacheFilePresenter = AddressCacheFilePresenter(presentedItemURL: cacheFileURL)
-        NSFileCoordinator.addFilePresenter(cacheFilePresenter)
     }
 
-    override func tearDownWithError() throws {
-        NSFileCoordinator.removeFilePresenter(cacheFilePresenter)
-        try super.tearDownWithError()
-    }
-
-    // MARK: -
-
-    // MARK: Tests
+    // MARK: - Tests
 
     func testAddressCacheHasDefaultEndpoint() {
         let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: Self.testsCacheDirectory)
@@ -100,7 +83,7 @@ final class AddressCacheTests: XCTestCase {
         }
     }
 
-    func testCacheReadsFromCachedFileAtInit() throws {
+    func testCacheReadsFromCachedFileWithInitCache() throws {
         let didReadFromCache = expectation(description: "Cache was read")
         cacheFilePresenter.onReaderAction = {
             didReadFromCache.fulfill()
@@ -110,6 +93,7 @@ final class AddressCacheTests: XCTestCase {
             let fixedDate = Date()
             try prepopulateCache(at: cacheFileURL, fixedDate: fixedDate, with: [apiEndpoint])
             let cache = REST.AddressCache(canWriteToCache: true, cacheFolder: cacheDirectory)
+            cache.initCache()
 
             XCTAssertEqual(cache.getCurrentEndpoint(), apiEndpoint)
             XCTAssertEqual(cache.getLastUpdateDate(), fixedDate)
@@ -141,8 +125,6 @@ final class AddressCacheTests: XCTestCase {
 
     func testGetCurrentEndpointReadsFromCacheWhenReadOnly() throws {
         let didReadFromCache = expectation(description: "Cache was read")
-        // Cache will be read from twice. Once during init, once when getting current endpoint
-        didReadFromCache.expectedFulfillmentCount = 2
         cacheFilePresenter.onReaderAction = {
             didReadFromCache.fulfill()
         }
@@ -159,8 +141,6 @@ final class AddressCacheTests: XCTestCase {
 
     func testGetCurrentEndpointHasDefaultEndpointIfCacheIsEmpty() throws {
         let didReadFromCache = expectation(description: "Cache was read")
-        // Cache will be read from twice. Once during init, once when getting current endpoint
-        didReadFromCache.expectedFulfillmentCount = 2
         cacheFilePresenter.onReaderAction = {
             didReadFromCache.fulfill()
         }
@@ -179,20 +159,6 @@ final class AddressCacheTests: XCTestCase {
 // MARK: -
 
 extension AddressCacheTests {
-    /// Prepares a cache folder that is expected to be present during the `runTest` closure
-    /// - Parameter runTest: A closure that expects a `cacheDirectory` encapsulating `cacheFileURL` to be present when
-    /// it runs
-    func withCachefolders(_ runTest: (_ cacheDirectory: URL, _ cacheFileURL: URL) throws -> Void) throws {
-        let cacheFileURL = try XCTUnwrap(cacheFilePresenter.presentedItemURL)
-        let fileManager = FileManager.default
-        let cacheDirectory = try XCTUnwrap(Self.testsCacheDirectory)
-        try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
-
-        try runTest(cacheDirectory, cacheFileURL)
-
-        try fileManager.removeItem(at: cacheDirectory)
-    }
-
     /// Populates a JSON cache file containing a `Date` and `[AnyIPEndpoint]`
     ///
     /// - Parameters:
@@ -203,33 +169,5 @@ extension AddressCacheTests {
         let prepopulatedCache = REST.CachedAddresses(updatedAt: fixedDate, endpoints: endpoints)
         let encodedCache = try JSONEncoder().encode(prepopulatedCache)
         try encodedCache.write(to: cacheFileURL)
-    }
-}
-
-class AddressCacheFilePresenter: NSObject, NSFilePresenter {
-    var presentedItemURL: URL?
-    let operationQueue: OperationQueue
-    let dispatchQueue = DispatchQueue(label: "com.MullvadVPN.AddressCacheTests")
-    var presentedItemOperationQueue: OperationQueue { operationQueue }
-
-    var onReaderAction: (() -> Void)?
-    var onWriterAction: (() -> Void)?
-
-    init(presentedItemURL: URL) {
-        operationQueue = OperationQueue()
-        self.presentedItemURL = presentedItemURL
-        operationQueue.underlyingQueue = dispatchQueue
-    }
-
-    func relinquishPresentedItem(toReader reader: @escaping ((() -> Void)?) -> Void) {
-        print(#function)
-        onReaderAction?()
-        reader(nil)
-    }
-
-    func relinquishPresentedItem(toWriter writer: @escaping ((() -> Void)?) -> Void) {
-        print(#function)
-        onWriterAction?()
-        writer(nil)
     }
 }

@@ -18,11 +18,18 @@ public final class TransportProvider: RESTTransportProvider {
     private let relayCache: RelayCache
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
+    private let shadowsocksCache: ShadowsocksConfigurationCache
 
-    public init(urlSessionTransport: URLSessionTransport, relayCache: RelayCache, addressCache: REST.AddressCache) {
+    public init(
+        urlSessionTransport: URLSessionTransport,
+        relayCache: RelayCache,
+        addressCache: REST.AddressCache,
+        shadowsocksCache: ShadowsocksConfigurationCache
+    ) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
         self.addressCache = addressCache
+        self.shadowsocksCache = shadowsocksCache
     }
 
     public func transport() -> RESTTransport? {
@@ -31,22 +38,12 @@ public final class TransportProvider: RESTTransportProvider {
 
     public func shadowsocksTransport() -> RESTTransport? {
         do {
-            let cachedRelays = try relayCache.read()
-            let shadowsocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
-            let shadowsocksBridgeRelay = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)
-
-            guard let shadowsocksConfiguration,
-                  let shadowsocksBridgeRelay
-            else {
-                logger.error("Could not get shadow socks bridge information.")
-                return nil
-            }
+            let shadowsocksConfiguration = try shadowsocksConfiguration()
 
             let shadowsocksURLSession = urlSessionTransport.urlSession
             let shadowsocksTransport = URLSessionShadowsocksTransport(
                 urlSession: shadowsocksURLSession,
                 shadowsocksConfiguration: shadowsocksConfiguration,
-                shadowsocksBridgeRelay: shadowsocksBridgeRelay,
                 addressCache: addressCache
             )
 
@@ -55,5 +52,33 @@ public final class TransportProvider: RESTTransportProvider {
             logger.error(error: error)
         }
         return nil
+    }
+
+    /// The last used shadowsocks configuration
+    ///
+    /// The last used shadowsocks configuration if any, otherwise a random one selected by `RelaySelector`
+    /// - Returns: A shadowsocks configuration
+    private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
+        // If a previous shadowsocks configuration was in cache, return it directly
+        if let configuration = shadowsocksCache.configuration {
+            return configuration
+        }
+
+        // There is no previous configuration either if this is the first time this code ran
+        // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+        let cachedRelays = try relayCache.read()
+        let bridgeAddress = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)?.ipv4AddrIn
+        let bridgeConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+
+        guard let bridgeAddress, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+
+        let newConfiguration = ShadowsocksConfiguration(
+            bridgeAddress: bridgeAddress,
+            bridgePort: bridgeConfiguration.port,
+            password: bridgeConfiguration.password,
+            cipher: bridgeConfiguration.cipher
+        )
+        shadowsocksCache.configuration = newConfiguration
+        return newConfiguration
     }
 }
