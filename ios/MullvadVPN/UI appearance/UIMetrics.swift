@@ -22,31 +22,22 @@ extension UIMetrics {
     static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
 
     /// Common layout margins for settings cell presentation
-    static let settingsCellLayoutMargins = NSDirectionalEdgeInsets(
-        top: 16,
-        leading: 24,
-        bottom: 16,
-        trailing: 12
-    )
+    static let settingsCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
 
     /// Common layout margins for location cell presentation
-    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(
-        top: 16,
-        leading: 28,
-        bottom: 16,
-        trailing: 12
-    )
+    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
 
     /// Common cell indentation width
     static let cellIndentationWidth: CGFloat = 16
 
-    /// Layout margins for in-app notification banner presentation
-    static let inAppBannerNotificationLayoutMargins = NSDirectionalEdgeInsets(
-        top: 16,
-        leading: 24,
-        bottom: 16,
-        trailing: 24
-    )
+    /// Group of constants related to in-app notifications banner.
+    enum InAppBannerNotification {
+        /// Layout margins for contents presented within the banner.
+        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+
+        /// Size of little round severity indicator.
+        static let indicatorSize = CGSize(width: 12, height: 12)
+    }
 
     /// Spacing used in stack views of buttons
     static let interButtonSpacing: CGFloat = 16
