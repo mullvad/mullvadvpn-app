@@ -1,5 +1,9 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -9,9 +13,24 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+
+@Preview
+@Composable
+private fun PreviewSelectableCell() {
+    AppTheme {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
+            SelectableCell(title = "Selected", isSelected = true)
+            Spacer(modifier = Modifier.height(1.dp))
+            SelectableCell(title = "Not Selected", isSelected = false)
+        }
+    }
+}
 
 @Composable
 fun SelectableCell(
