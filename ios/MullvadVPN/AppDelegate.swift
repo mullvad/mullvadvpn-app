@@ -10,6 +10,7 @@ import BackgroundTasks
 import MullvadLogging
 import MullvadREST
 import MullvadTransport
+import MullvadTypes
 import Operations
 import RelayCache
 import StoreKit
@@ -50,7 +51,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         logger = Logger(label: "AppDelegate")
 
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheFolder: ApplicationConfiguration.containerURL)
+        let containerURL = ApplicationConfiguration.containerURL
+
+        addressCache = REST.AddressCache(canWriteToCache: true, cacheFolder: containerURL)
+        addressCache.initCache()
+
+        let relayCache = RelayCache(cacheFolder: containerURL)
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in self?.transportMonitor },
@@ -60,10 +66,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiProxy = proxyFactory.createAPIProxy()
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
-
-        let relayCache = RelayCache(
-            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier
-        )!
 
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
@@ -91,10 +93,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheFolder: containerURL)
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,
-            addressCache: addressCache
+            addressCache: addressCache,
+            shadowsocksCache: shadowsocksCache
         )
 
         transportMonitor = TransportMonitor(
