@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.compose.theme.AlphaActive
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
+import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.compose.theme.MullvadRed
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
@@ -81,7 +81,7 @@ fun CellSwitch(
         // Track
         drawRoundRect(
             color = thumbColor,
-            alpha = if (isEnabled) AlphaActive else AlphaInactive,
+            alpha = if (isEnabled) AlphaVisible else AlphaInactive,
             cornerRadius = CornerRadius(x = 15.dp.toPx(), y = 15.dp.toPx()),
             style =
                 Stroke(
@@ -94,7 +94,7 @@ fun CellSwitch(
         // Thumb
         drawCircle(
             color = if (isChecked) thumbCheckedTrackColor else thumbUncheckedTrackColor,
-            alpha = if (isEnabled) AlphaActive else AlphaInactive,
+            alpha = if (isEnabled) AlphaVisible else AlphaInactive,
             radius = thumbRadius.toPx(),
             center =
                 Offset(

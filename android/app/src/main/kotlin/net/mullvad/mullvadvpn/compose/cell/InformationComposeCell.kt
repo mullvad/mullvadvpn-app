@@ -17,8 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.theme.AlphaActive
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
+import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
 import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 
@@ -41,7 +41,7 @@ fun InformationComposeCell(
     onCellClicked: () -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val titleModifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
+    val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)
     val bodyViewModifier = Modifier
 
     BaseCell(

@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -23,6 +20,7 @@ import androidx.core.text.HtmlCompat
 import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.CellSwitch
+import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
@@ -32,7 +30,7 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 @Composable
 private fun PreviewSwitchComposeCell() {
     AppTheme {
-        Column {
+        SpacedColumn {
             HeaderSwitchComposeCell(
                 title = "Checkbox Title",
                 isEnabled = true,
@@ -40,7 +38,6 @@ private fun PreviewSwitchComposeCell() {
                 onCellClicked = {},
                 onInfoClicked = {}
             )
-            Spacer(modifier = Modifier.height(1.dp))
             HeaderSwitchComposeCell(
                 title = "Checkbox Title",
                 isEnabled = true,
@@ -49,7 +46,6 @@ private fun PreviewSwitchComposeCell() {
                 onInfoClicked = {},
                 subtitle = "Subtitle"
             )
-            Spacer(modifier = Modifier.height(1.dp))
             NormalSwitchComposeCell(
                 title = "Checkbox Item",
                 isEnabled = true,
