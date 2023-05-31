@@ -14,6 +14,12 @@ import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
+/**
+
+ TODO: Store last used account!
+
+ */
+
 enum SetAccountAction {
     /// Set new account.
     case new
@@ -34,32 +40,14 @@ enum SetAccountAction {
             return "Unset account"
         }
     }
-}
 
-private struct SetAccountResult {
-    let accountData: StoredAccountData
-    let privateKey: PrivateKey
-    let device: REST.Device
-}
-
-private struct SetAccountContext: OperationInputContext {
-    var accountData: StoredAccountData?
-    var privateKey: PrivateKey?
-    var device: REST.Device?
-
-    func reduce() -> SetAccountResult? {
-        guard let accountData,
-              let privateKey,
-              let device
-        else {
+    fileprivate var accountNumber: String? {
+        switch self {
+        case let .existing(accountNumber):
+            return accountNumber
+        case .new, .unset:
             return nil
         }
-
-        return SetAccountResult(
-            accountData: accountData,
-            privateKey: privateKey,
-            device: device
-        )
     }
 }
 
@@ -70,9 +58,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private let action: SetAccountAction
 
     private let logger = Logger(label: "SetAccountOperation")
-    private let operationQueue = AsyncOperationQueue()
-
-    private var children: [Operation] = []
+    private var tasks: [Cancellable] = []
 
     init(
         dispatchQueue: DispatchQueue,
@@ -89,114 +75,157 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         super.init(dispatchQueue: dispatchQueue)
     }
 
+    // MARK: -
+
     override func main() {
-        let deleteDeviceOperation = getDeleteDeviceOperation()
-        let unsetDeviceStateOperation = getUnsetDeviceStateOperation()
-
-        deleteDeviceOperation.flatMap { unsetDeviceStateOperation.addDependency($0) }
-
-        let setupAccountOperations = getAccountDataOperation()
-            .flatMap { accountOperation -> [Operation] in
-                accountOperation.addCondition(
-                    NoFailedDependenciesCondition(ignoreCancellations: false)
-                )
-                accountOperation.addDependency(unsetDeviceStateOperation)
-
-                let createDeviceOperation = getCreateDeviceOperation()
-                createDeviceOperation.addCondition(
-                    NoFailedDependenciesCondition(ignoreCancellations: false)
-                )
-                createDeviceOperation.inject(from: accountOperation)
-
-                let saveSettingsOperation = getSaveSettingsOperation()
-                saveSettingsOperation.addCondition(
-                    NoFailedDependenciesCondition(ignoreCancellations: false)
-                )
-
-                saveSettingsOperation.injectMany(context: SetAccountContext())
-                    .inject(from: accountOperation, assignOutputTo: \.accountData)
-                    .inject(from: createDeviceOperation, via: { context, output in
-                        let (privateKey, device) = output
-
-                        context.privateKey = privateKey
-                        context.device = device
-                    })
-                    .reduce()
-
-                saveSettingsOperation.onFinish { operation, error in
-                    self.completeOperation(accountData: operation.output)
+        startLogoutFlow { [self] in
+            switch action {
+            case .new, .existing:
+                startLoginFlow(accountNumber: action.accountNumber) { [self] result in
+                    finish(result: result.map { .some($0) })
                 }
 
-                return [accountOperation, createDeviceOperation, saveSettingsOperation]
-            } ?? []
-
-        var enqueueOperations: [Operation] = [deleteDeviceOperation, unsetDeviceStateOperation]
-            .compactMap { $0 }
-        enqueueOperations.append(contentsOf: setupAccountOperations)
-
-        if setupAccountOperations.isEmpty {
-            let finishingOperation = BlockOperation()
-            finishingOperation.completionBlock = { [weak self] in
-                self?.completeOperation(accountData: nil)
+            case .unset:
+                finish(result: .success(nil))
             }
-            finishingOperation.addDependencies(enqueueOperations)
-            enqueueOperations.append(finishingOperation)
         }
-
-        children = enqueueOperations
-        operationQueue.addOperations(enqueueOperations, waitUntilFinished: false)
     }
 
     override func operationDidCancel() {
-        operationQueue.cancelAllOperations()
+        tasks.forEach { $0.cancel() }
+        tasks.removeAll()
     }
 
     // MARK: - Private
 
-    private func completeOperation(accountData: StoredAccountData?) {
-        guard !isCancelled else {
-            finish(result: .failure(OperationError.cancelled))
-            return
+    /**
+     Begin logout flow by performing the following steps:
+
+     1. Delete currently logged in device from the API if device is logged in.
+     2. Transition device state to logged out state.
+     3. Remove system VPN configuration if exists.
+     4. Reset tunnel status to disconnected state.
+
+     Does nothing if device is already logged out.
+     */
+    private func startLogoutFlow(completion: @escaping () -> Void) {
+        switch interactor.deviceState {
+        case let .loggedIn(accountData, deviceData):
+            deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] error in
+                unsetDeviceState(completion: completion)
+            }
+
+        case .revoked:
+            unsetDeviceState(completion: completion)
+
+        case .loggedOut:
+            completion()
+        }
+    }
+
+    /**
+     Begin login flow with new or existing account by performing the following steps:
+
+     1. Create new or retrieve existing account from the API.
+     2. Call `didReceiveAccountData()` upon success to store last used account number and create new device, then
+        persist it to settings.
+     */
+    private func startLoginFlow(
+        accountNumber: String?,
+        completion: @escaping (Result<StoredAccountData, Error>) -> Void
+    ) {
+        let handleResponse = { [self] (_ result: Result<StoredAccountData, Error>) in
+            switch result {
+            case let .success(accountData):
+                continueLoginFlow(accountData, completion: completion)
+
+            case let .failure(error):
+                completion(.failure(error))
+            }
         }
 
-        let errors = children.compactMap { operation -> Error? in
-            return (operation as? AsyncOperation)?.error
-        }
-
-        if let error = errors.first {
-            finish(result: .failure(error))
+        if let accountNumber {
+            getAccount(accountNumber: accountNumber, completion: handleResponse)
         } else {
-            finish(result: .success(accountData))
+            createAccount(completion: handleResponse)
         }
     }
 
-    private func getAccountDataOperation() -> ResultOperation<StoredAccountData>? {
-        switch action {
-        case .new:
-            return getCreateAccountOperation()
+    /**
+     Continue login flow after receiving account data as a part of creating new or retrieving existing account from
+     the API by performing the following steps:
 
-        case let .existing(accountNumber):
-            return getExistingAccountOperation(accountNumber: accountNumber)
+     1. Store last used account number.
+     2. Create new device with the API.
+     3. Persists settings.
+     */
+    private func continueLoginFlow(
+        _ accountData: StoredAccountData,
+        completion: @escaping (Result<StoredAccountData, Error>) -> Void
+    ) {
+        storeLastUsedAccount(accountNumber: accountData.number)
 
-        case .unset:
-            return nil
+        createDevice(accountNumber: accountData.number) { [self] result in
+            if case let .success(newDevice) = result {
+                storeSettings(accountData: accountData, newDevice: newDevice)
+            }
+            completion(result.map { _ in accountData })
         }
     }
 
-    private func getCreateAccountOperation() -> ResultBlockOperation<StoredAccountData> {
-        return ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
-            self.logger.debug("Create new account...")
+    /// Store last used account number in settings.
+    /// Errors are ignored but logged.
+    private func storeLastUsedAccount(accountNumber: String) {
+        logger.debug("Store last used account.")
 
-            return self.accountsProxy.createAccount(retryStrategy: .default) { result in
+        do {
+            try SettingsManager.setLastUsedAccount(accountNumber)
+        } catch {
+            logger.error(error: error, message: "Failed to store last used account number.")
+        }
+    }
+
+    /// Store account data and newly created device in settings and transition device state to logged in state.
+    private func storeSettings(accountData: StoredAccountData, newDevice: NewDevice) {
+        logger.debug("Saving settings...")
+
+        // Create stored device data.
+        let restDevice = newDevice.device
+        let storedDeviceData = StoredDeviceData(
+            creationDate: restDevice.created,
+            identifier: restDevice.id,
+            name: restDevice.name,
+            hijackDNS: restDevice.hijackDNS,
+            ipv4Address: restDevice.ipv4Address,
+            ipv6Address: restDevice.ipv6Address,
+            wgKeyData: StoredWgKeyData(
+                creationDate: Date(),
+                privateKey: newDevice.privateKey
+            )
+        )
+
+        // Reset tunnel settings.
+        interactor.setSettings(TunnelSettingsV2(), persist: true)
+
+        // Transition device state to logged in.
+        interactor.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)
+    }
+
+    /// Create new account and produce `StoredAccountData` upon success.
+    private func createAccount(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+        logger.debug("Create new account...")
+
+        let task = accountsProxy.createAccount(retryStrategy: .default) { [self] result in
+            dispatchQueue.async { [self] in
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
-                    self.logger.error(
+                    logger.error(
                         error: error,
                         message: "Failed to create new account."
                     )
                 }.map { newAccountData -> StoredAccountData in
-                    self.logger.debug("Created new account.")
+                    logger.debug("Created new account.")
 
                     return StoredAccountData(
                         identifier: newAccountData.id,
@@ -205,26 +234,26 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     )
                 }
 
-                finish(result)
+                completion(result)
             }
         }
+
+        tasks.append(task)
     }
 
-    private func getExistingAccountOperation(accountNumber: String) -> ResultOperation<StoredAccountData> {
-        return ResultBlockOperation<StoredAccountData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in
-            self.logger.debug("Request account data...")
+    /// Get account data from the API and produce `StoredAccountData` upon success.
+    private func getAccount(accountNumber: String, completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+        logger.debug("Request account data...")
 
-            return self.accountsProxy
-                .getAccountData(accountNumber: accountNumber, retryStrategy: .default) { result in
+        let task = accountsProxy
+            .getAccountData(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
+                dispatchQueue.async { [self] in
                     let result = result.inspectError { error in
                         guard !error.isOperationCancellationError else { return }
 
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to receive account data."
-                        )
+                        logger.error(error: error, message: "Failed to receive account data.")
                     }.map { accountData -> StoredAccountData in
-                        self.logger.debug("Received account data.")
+                        logger.debug("Received account data.")
 
                         return StoredAccountData(
                             identifier: accountData.id,
@@ -233,151 +262,116 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                         )
                     }
 
-                    finish(result)
+                    completion(result)
                 }
-        }
+            }
+
+        tasks.append(task)
     }
 
-    private func getDeleteDeviceOperation() -> AsyncBlockOperation? {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-            return nil
-        }
+    /// Delete device from API.
+    private func deleteDevice(accountNumber: String, deviceIdentifier: String, completion: @escaping (Error?) -> Void) {
+        logger.debug("Delete current device...")
 
-        let operation = AsyncBlockOperation(dispatchQueue: dispatchQueue) { finish -> Cancellable in
-            self.logger.debug("Delete current device...")
-
-            return self.devicesProxy.deleteDevice(
-                accountNumber: accountData.number,
-                identifier: deviceData.identifier,
-                retryStrategy: .default
-            ) { result in
+        let task = devicesProxy.deleteDevice(
+            accountNumber: accountNumber,
+            identifier: deviceIdentifier,
+            retryStrategy: .default
+        ) { [self] result in
+            dispatchQueue.async { [self] in
                 switch result {
                 case let .success(isDeleted):
-                    self.logger.debug(isDeleted ? "Deleted device." : "Device is already deleted.")
+                    logger.debug(isDeleted ? "Deleted device." : "Device is already deleted.")
 
-                case let .failure(error) where !error.isOperationCancellationError:
-                    self.logger.error(
+                case let .failure(error):
+                    if !error.isOperationCancellationError {
+                        logger.error(error: error, message: "Failed to delete device.")
+                    }
+                }
+
+                completion(result.error)
+            }
+        }
+
+        tasks.append(task)
+    }
+
+    /**
+     Transitions device state into logged out state by performing the following tasks:
+
+     1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN status
+        notifications coming from VPN configuration.
+     2. Reset device staate to logged out and persist it.
+     3. Remove VPN configuration and release an instance of `Tunnel` object.
+     */
+    private func unsetDeviceState(completion: @escaping () -> Void) {
+        // Tell the caller to unsubscribe from VPN status notifications.
+        interactor.prepareForVPNConfigurationDeletion()
+
+        // Reset tunnel and device state.
+        interactor.updateTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state = .disconnected
+        }
+        interactor.setDeviceState(.loggedOut, persist: true)
+
+        // Finish immediately if tunnel provider is not set.
+        guard let tunnel = interactor.tunnel else {
+            completion()
+            return
+        }
+
+        // Remove VPN configuration.
+        tunnel.removeFromPreferences { [self] error in
+            dispatchQueue.async { [self] in
+                // Ignore error but log it.
+                if let error {
+                    logger.error(
                         error: error,
-                        message: "Failed to delete device."
+                        message: "Failed to remove VPN configuration."
                     )
-
-                default:
-                    break
                 }
 
-                finish(result.error)
+                interactor.setTunnel(nil, shouldRefreshTunnelState: false)
+
+                completion()
             }
         }
-
-        return operation
     }
 
-    private func getUnsetDeviceStateOperation() -> AsyncBlockOperation {
-        return AsyncBlockOperation(dispatchQueue: dispatchQueue) { finish in
-            // Tell the caller to unsubscribe from VPN status notifications.
-            self.interactor.prepareForVPNConfigurationDeletion()
+    /// Create new private key and create new device via API.
+    private func createDevice(accountNumber: String, completion: @escaping (Result<NewDevice, Error>) -> Void) {
+        let privateKey = PrivateKey()
 
-            // Reset tunnel and device state.
-            self.interactor.updateTunnelStatus { tunnelStatus in
-                tunnelStatus = TunnelStatus()
-                tunnelStatus.state = .disconnected
-            }
-            self.interactor.setDeviceState(.loggedOut, persist: true)
+        let request = REST.CreateDeviceRequest(
+            publicKey: privateKey.publicKey,
+            hijackDNS: false
+        )
 
-            // Finish immediately if tunnel provider is not set.
-            guard let tunnel = self.interactor.tunnel else {
-                finish(nil)
-                return
-            }
+        logger.debug("Create device...")
 
-            // Remove VPN configuration.
-            tunnel.removeFromPreferences { error in
-                self.dispatchQueue.async {
-                    // Ignore error but log it.
-                    if let error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to remove VPN configuration."
-                        )
-                    }
+        let task = devicesProxy
+            .createDevice(accountNumber: accountNumber, request: request, retryStrategy: .default) { [self] result in
+                dispatchQueue.async { [self] in
+                    let result = result
+                        .map { device in
+                            return NewDevice(privateKey: privateKey, device: device)
+                        }
+                        .inspectError { error in
+                            logger.error(error: error, message: "Failed to create device.")
+                        }
 
-                    self.interactor.setTunnel(nil, shouldRefreshTunnelState: false)
-
-                    finish(nil)
+                    completion(result)
                 }
             }
-        }
+
+        tasks.append(task)
     }
 
-    private func getCreateDeviceOperation() -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)> {
-        return TransformOperation<StoredAccountData, (
-            PrivateKey,
-            REST.Device
-        )>(dispatchQueue: dispatchQueue) { storedAccountData, finish -> Cancellable in
-            self.logger.debug("Store last used account.")
-
-            do {
-                try SettingsManager.setLastUsedAccount(storedAccountData.number)
-            } catch {
-                self.logger.error(
-                    error: error,
-                    message: "Failed to store last used account number."
-                )
-            }
-
-            self.logger.debug("Create device...")
-
-            let privateKey = PrivateKey()
-
-            let request = REST.CreateDeviceRequest(
-                publicKey: privateKey.publicKey,
-                hijackDNS: false
-            )
-
-            return self.devicesProxy.createDevice(
-                accountNumber: storedAccountData.number,
-                request: request,
-                retryStrategy: .default
-            ) { result in
-                let result = result
-                    .map { device in
-                        return (privateKey, device)
-                    }
-                    .inspectError { error in
-                        self.logger.error(error: error, message: "Failed to create device.")
-                    }
-
-                finish(result)
-            }
-        }
-    }
-
-    private func getSaveSettingsOperation() -> TransformOperation<SetAccountResult, StoredAccountData> {
-        return TransformOperation<SetAccountResult, StoredAccountData>(dispatchQueue: dispatchQueue) { input in
-            self.logger.debug("Saving settings...")
-
-            let device = input.device
-            let newDeviceState = DeviceState.loggedIn(
-                input.accountData,
-                StoredDeviceData(
-                    creationDate: device.created,
-                    identifier: device.id,
-                    name: device.name,
-                    hijackDNS: device.hijackDNS,
-                    ipv4Address: device.ipv4Address,
-                    ipv6Address: device.ipv6Address,
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: nil,
-                        privateKey: input.privateKey
-                    )
-                )
-            )
-
-            self.interactor.setSettings(TunnelSettingsV2(), persist: true)
-            self.interactor.setDeviceState(newDeviceState, persist: true)
-
-            return input.accountData
-        }
+    /// Struct that holds a private key that was used for creating a new device on the API along with the successful
+    /// response from the API.
+    private struct NewDevice {
+        var privateKey: PrivateKey
+        var device: REST.Device
     }
 }
