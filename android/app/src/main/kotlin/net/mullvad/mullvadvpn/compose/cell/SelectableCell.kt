@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 
@@ -24,9 +25,8 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 @Composable
 private fun PreviewSelectableCell() {
     AppTheme {
-        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
+        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.background)) {
             SelectableCell(title = "Selected", isSelected = true)
-            Spacer(modifier = Modifier.height(1.dp))
             SelectableCell(title = "Not Selected", isSelected = false)
         }
     }

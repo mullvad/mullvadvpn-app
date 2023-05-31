@@ -21,7 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 
@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 @Composable
 fun PreviewBaseCell() {
     AppTheme {
-        Column {
+        SpacedColumn {
             BaseCell(
                 title = {
                     BaseCellTitle(
@@ -38,7 +38,6 @@ fun PreviewBaseCell() {
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(1.dp))
             BaseCell(
                 title = {
                     BaseCellTitle(
@@ -65,10 +64,6 @@ internal fun BaseCell(
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding
 ) {
-    val cellHeight = Dimens.cellHeight
-    val cellVerticalSpacing = Dimens.cellLabelVerticalPadding
-    val subtitleVerticalSpacing = Dimens.cellFooterTopPadding
-
     Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().background(background)) {
         val rowModifier =
             Modifier.let {
@@ -81,7 +76,7 @@ internal fun BaseCell(
             horizontalArrangement = Arrangement.Start,
             modifier =
                 rowModifier
-                    .height(cellHeight)
+                    .height(Dimens.cellHeight)
                     .fillMaxWidth()
                     .padding(start = startPadding, end = endPadding)
         ) {
@@ -101,9 +96,9 @@ internal fun BaseCell(
                         .background(MaterialTheme.colorScheme.secondary)
                         .padding(
                             start = startPadding,
-                            top = subtitleVerticalSpacing,
+                            top = Dimens.cellFooterTopPadding,
                             end = endPadding,
-                            bottom = cellVerticalSpacing
+                            bottom = Dimens.cellLabelVerticalPadding
                         )
                         .fillMaxWidth()
                         .wrapContentHeight()
