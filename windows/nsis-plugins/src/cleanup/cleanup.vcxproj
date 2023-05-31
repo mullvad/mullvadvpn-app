@@ -62,7 +62,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;CLEANUP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../../../../mullvad-nsis/include;$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -91,7 +91,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../../../../mullvad-nsis/include;$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
