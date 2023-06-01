@@ -375,10 +375,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func startInitialization(application: UIApplication) {
         let wipeSettingsOperation = getWipeSettingsOperation()
 
-        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
-            self.tunnelStore.loadPersistentTunnels { error in
+        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
+            tunnelStore.loadPersistentTunnels { [self] error in
                 if let error {
-                    self.logger.error(
+                    logger.error(
                         error: error,
                         message: "Failed to load persistent tunnels."
                     )
@@ -387,22 +387,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        let migrateSettingsOperation = ResultBlockOperation<SettingsMigrationResult>(dispatchQueue: .main) { finish in
-            SettingsManager.migrateStore(with: self.proxyFactory) { migrationResult in
-                let finishHandler = {
-                    finish(.success(migrationResult))
+        let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
+            SettingsManager.migrateStore(with: proxyFactory) { [self] migrationResult in
+                // Tell the tunnel to re-read tunnel configuration after migration.
+                if case .success = migrationResult {
+                    logger.debug("Reconnect the tunnel after settings migration.")
+
+                    tunnelManager.reconnectTunnel(selectNewRelay: true)
                 }
 
-                guard case let .failure(error) = migrationResult,
-                      let migrationUIHandler = application.connectedScenes.compactMap({ scene in
-                          return scene.delegate as? SettingsMigrationUIHandler
-                      }).first
-                else {
-                    finishHandler()
-                    return
-                }
+                switch migrationResult {
+                case let .failure(error):
+                    let migrationUIHandler = application.connectedScenes.first { $0 is SettingsMigrationUIHandler }
+                        as? SettingsMigrationUIHandler
 
-                migrationUIHandler.showMigrationError(error, completionHandler: finishHandler)
+                    if let migrationUIHandler {
+                        migrationUIHandler.showMigrationError(error) {
+                            finish(error)
+                        }
+                    } else {
+                        finish(error)
+                    }
+
+                case .nothing, .success:
+                    finish(nil)
+                }
             }
         }
         migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
@@ -424,25 +433,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
-        let reconnectTunnelOperation = TransformOperation<SettingsMigrationResult, Void>(
-            dispatchQueue: .main
-        ) { migrationResult in
-            if case .success = migrationResult {
-                self.logger.debug("Reconnect the tunnel after settings migration.")
-
-                self.tunnelManager.reconnectTunnel(selectNewRelay: true)
-            }
-        }
-        reconnectTunnelOperation.inject(from: migrateSettingsOperation)
-        reconnectTunnelOperation.addDependency(initTunnelManagerOperation)
-
         operationQueue.addOperations(
             [
                 wipeSettingsOperation,
                 loadTunnelStoreOperation,
                 migrateSettingsOperation,
                 initTunnelManagerOperation,
-                reconnectTunnelOperation,
             ],
             waitUntilFinished: false
         )
