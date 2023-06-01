@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -60,7 +59,7 @@ class ConnectViewModelTest {
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
-    private val relaySlot = slot<(RelayList, RelayItem?) -> Unit>()
+    private val relaySlot = slot<(List<RelayCountry>, RelayItem?) -> Unit>()
 
     // Event notifiers
     private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
@@ -85,7 +84,7 @@ class ConnectViewModelTest {
         every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
         // Listeners
         every { mockLocationInfoCache.onNewLocation = capture(locationSlot) } answers {}
-        every { mockRelayListListener.onRelayListChange = capture(relaySlot) } answers {}
+        every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
         viewModel = ConnectViewModel(mockServiceConnectionManager)
