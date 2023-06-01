@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
@@ -43,7 +43,7 @@ class SelectLocationViewModelTest {
     private val mockRelayListListener: RelayListListener = mockk(relaxUnitFun = true)
 
     // Captures
-    private val relaySlot = slot<(RelayList, RelayItem?) -> Unit>()
+    private val relaySlot = slot<(List<RelayCountry>, RelayItem?) -> Unit>()
 
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
@@ -53,10 +53,11 @@ class SelectLocationViewModelTest {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
         every { mockServiceConnectionContainer.relayListListener } returns mockRelayListListener
 
-        every { mockRelayListListener.onRelayListChange = capture(relaySlot) } answers {}
-        every { mockRelayListListener.onRelayListChange = null } answers {}
+        every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
+        every { mockRelayListListener.onRelayCountriesChange = null } answers {}
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
+        mockkStatic(RELAY_LIST_EXTENSIONS)
 
         viewModel = SelectLocationViewModel(mockServiceConnectionManager)
     }
@@ -77,14 +78,13 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockCountries = listOf<RelayCountry>(mockk(), mockk())
         val selectedRelay: RelayItem = mockk()
-        val mockRelayList: RelayList = mockk()
-        every { mockRelayList.countries } returns mockCountries
+        every { mockCountries.filterOnSearchTerm(any(), selectedRelay) } returns mockCountries
 
         // Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+            relaySlot.captured.invoke(mockCountries, selectedRelay)
 
             assertEquals(SelectLocationUiState.Loading, awaitItem())
             val actualState = awaitItem()
@@ -99,14 +99,13 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockCountries = listOf<RelayCountry>(mockk(), mockk())
         val selectedRelay: RelayItem? = null
-        val mockRelayList: RelayList = mockk()
-        every { mockRelayList.countries } returns mockCountries
+        every { mockCountries.filterOnSearchTerm(any(), selectedRelay) } returns mockCountries
 
         // Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+            relaySlot.captured.invoke(mockCountries, selectedRelay)
 
             assertEquals(SelectLocationUiState.Loading, awaitItem())
             val actualState = awaitItem()
@@ -138,8 +137,73 @@ class SelectLocationViewModelTest {
         }
     }
 
+    @Test
+    fun testFilterRelay() = runTest {
+        // Arrange
+        val mockCountries = listOf<RelayCountry>(mockk(), mockk())
+        val selectedRelay: RelayItem? = null
+        val mockRelayList: List<RelayCountry> = mockk(relaxed = true)
+        val mockSearchString = "SEARCH"
+        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedRelay) } returns
+            mockCountries
+
+        // Act, Assert
+        viewModel.uiState.test {
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+
+            // Wait for loading
+            assertEquals(SelectLocationUiState.Loading, awaitItem())
+            // Wait for first data
+            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+
+            // Update search string
+            viewModel.onSearchTermInput(mockSearchString)
+
+            // Assert
+            val actualState = awaitItem()
+            assertIs<SelectLocationUiState.ShowData>(actualState)
+            assertLists(mockCountries, actualState.countries)
+            assertEquals(selectedRelay, actualState.selectedRelay)
+        }
+    }
+
+    @Test
+    fun testFilterNotFound() = runTest {
+        // Arrange
+        val mockCountries = emptyList<RelayCountry>()
+        val selectedRelay: RelayItem? = null
+        val mockRelayList: List<RelayCountry> = mockk(relaxed = true)
+        val mockSearchString = "SEARCH"
+        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedRelay) } returns
+            mockCountries
+
+        // Act, Assert
+        viewModel.uiState.test {
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+
+            // Wait for loading
+            assertEquals(SelectLocationUiState.Loading, awaitItem())
+            // Wait for first data
+            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+
+            // Update search string
+            viewModel.onSearchTermInput(mockSearchString)
+
+            // Assert
+            val actualState = awaitItem()
+            assertIs<SelectLocationUiState.NoSearchResultFound>(actualState)
+            assertEquals(mockSearchString, actualState.searchTerm)
+        }
+    }
+
     companion object {
         private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
             "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
+        private const val RELAY_LIST_EXTENSIONS =
+            "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
     }
 }
