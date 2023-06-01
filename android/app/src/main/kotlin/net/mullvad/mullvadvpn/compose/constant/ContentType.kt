@@ -8,4 +8,5 @@ object ContentType {
     const val DESCRIPTION = 4
     const val SPACER = 5
     const val PROGRESS = 6
+    const val TITLE = 7
 }
