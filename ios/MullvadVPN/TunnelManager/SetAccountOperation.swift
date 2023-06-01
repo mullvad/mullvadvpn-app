@@ -14,12 +14,6 @@ import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
-/**
-
- TODO: Store last used account!
-
- */
-
 enum SetAccountAction {
     /// Set new account.
     case new
@@ -157,7 +151,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
      1. Store last used account number.
      2. Create new device with the API.
-     3. Persists settings.
+     3. Persist settings.
      */
     private func continueLoginFlow(
         _ accountData: StoredAccountData,
