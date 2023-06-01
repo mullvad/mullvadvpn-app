@@ -2,7 +2,7 @@
 name: Android - Audit dependencies
 on:
   pull_request:
-    paths: [.github/workflows/android-audit.yml, android/**]
+    paths: [.github/workflows/android-audit.yml, android/gradle/verification-metadata.xml]
   workflow_dispatch:
 jobs:
   owasp-dependency-check:
