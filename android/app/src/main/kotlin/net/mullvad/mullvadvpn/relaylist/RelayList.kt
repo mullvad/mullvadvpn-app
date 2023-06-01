@@ -15,12 +15,32 @@ class RelayList {
 
                     for (city in country.cities) {
                         val relays = mutableListOf<Relay>()
-                        val relayCity = RelayCity(relayCountry, city.name, city.code, false, relays)
+                        val relayCity =
+                            RelayCity(
+                                name = city.name,
+                                code = city.code,
+                                location =
+                                    GeographicLocationConstraint.City(country.code, city.code),
+                                expanded = false,
+                                relays = relays
+                            )
 
                         val validCityRelays = city.relays.filter { relay -> relay.isWireguardRelay }
 
                         for (relay in validCityRelays) {
-                            relays.add(Relay(relayCity, relay.hostname, relay.active))
+                            relays.add(
+                                Relay(
+                                    name = relay.hostname,
+                                    location =
+                                        GeographicLocationConstraint.Hostname(
+                                            country.code,
+                                            city.code,
+                                            relay.hostname
+                                        ),
+                                    locationName = "${city.name} (${relay.hostname})",
+                                    active = relay.active
+                                )
+                            )
                         }
                         relays.sortWith(RelayNameComparator)
 
@@ -29,37 +49,32 @@ class RelayList {
                         }
                     }
 
-                    cities.sortBy({ it.name })
+                    cities.sortBy { it.name }
                     relayCountry
                 }
                 .filter { country -> country.cities.isNotEmpty() }
                 .toMutableList()
 
-        relayCountries.sortBy({ it.name })
+        relayCountries.sortBy { it.name }
 
         countries = relayCountries.toList()
     }
 
-    fun findItemForLocation(
-        constraint: Constraint<GeographicLocationConstraint>,
-        expand: Boolean = false
-    ): RelayItem? {
+    constructor(countries: List<RelayCountry>) {
+        this.countries = countries
+    }
+
+    fun findItemForLocation(constraint: Constraint<GeographicLocationConstraint>): RelayItem? {
         when (constraint) {
             is Constraint.Any -> return null
             is Constraint.Only -> {
-                val location = constraint.value
-
-                when (location) {
+                when (val location = constraint.value) {
                     is GeographicLocationConstraint.Country -> {
                         return countries.find { country -> country.code == location.countryCode }
                     }
                     is GeographicLocationConstraint.City -> {
                         val country =
                             countries.find { country -> country.code == location.countryCode }
-
-                        if (expand) {
-                            country?.expanded = true
-                        }
 
                         return country?.cities?.find { city -> city.code == location.cityCode }
                     }
@@ -69,15 +84,85 @@ class RelayList {
 
                         val city = country?.cities?.find { city -> city.code == location.cityCode }
 
-                        if (expand) {
-                            country?.expanded = true
-                            city?.expanded = true
-                        }
-
                         return city?.relays?.find { relay -> relay.name == location.hostname }
                     }
                 }
             }
         }
+    }
+
+    fun filter(filter: String, selectedItem: RelayItem?): RelayList {
+        return if (filter.length >= MIN_SEARCH_LENGTH) {
+            val filteredCountries = mutableMapOf<String, RelayCountry>()
+            countries.forEach { relayCountry ->
+                val cities = mutableListOf<RelayCity>()
+                if (relayCountry.name.contains(other = filter, ignoreCase = true)) {
+                    filteredCountries[relayCountry.code] = relayCountry.copy(expanded = false)
+                }
+
+                relayCountry.cities.forEach { relayCity ->
+                    val relays = mutableListOf<Relay>()
+                    if (relayCity.name.contains(other = filter, ignoreCase = true)) {
+                        if (filteredCountries.containsKey(relayCountry.code)) {
+                            filteredCountries[relayCountry.code]?.expanded = true
+                        } else {
+                            filteredCountries[relayCountry.code] =
+                                relayCountry.copy(expanded = true, cities = cities)
+                        }
+                        cities.add(relayCity.copy(expanded = false))
+                    }
+
+                    relayCity.relays.forEach { relay ->
+                        if (relay.name.contains(other = filter, ignoreCase = true)) {
+                            if (filteredCountries.containsKey(relayCountry.code)) {
+                                filteredCountries[relayCountry.code]?.expanded = true
+                            } else {
+                                filteredCountries[relayCountry.code] =
+                                    relayCountry.copy(expanded = true, cities = cities)
+                            }
+                            val city = cities.find { it.code == relayCity.code }
+                            city?.let { city.expanded = true }
+                                ?: run {
+                                    cities.add(relayCity.copy(expanded = true, relays = relays))
+                                }
+                            relays.add(relay.copy())
+                        }
+                    }
+                }
+            }
+            RelayList(filteredCountries.values.sortedBy { it.name })
+        } else {
+            this.expandItemForSelection(selectedItem)
+        }
+    }
+
+    private fun expandItemForSelection(selectedItem: RelayItem?): RelayList {
+        return selectedItem?.let {
+            when (val location = selectedItem.location) {
+                is GeographicLocationConstraint.Country -> {
+                    return this
+                }
+                is GeographicLocationConstraint.City -> {
+                    val country = countries.find { country -> country.code == location.countryCode }
+                    country?.expanded = true
+
+                    return this
+                }
+                is GeographicLocationConstraint.Hostname -> {
+                    val country = countries.find { country -> country.code == location.countryCode }
+                    val city = country?.cities?.find { city -> city.code == location.cityCode }
+
+                    country?.expanded = true
+                    city?.expanded = true
+
+                    return this
+                }
+            }
+        }
+            ?: this
+    }
+
+    companion object {
+        private const val MIN_SEARCH_LENGTH = 2
     }
 }
