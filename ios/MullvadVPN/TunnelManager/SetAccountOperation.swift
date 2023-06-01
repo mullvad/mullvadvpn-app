@@ -14,12 +14,6 @@ import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
-/**
-
- TODO: Store last used account!
-
- */
-
 enum SetAccountAction {
     /// Set new account.
     case new
