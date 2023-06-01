@@ -31,6 +31,7 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
                         uiState = state,
                         uiCloseAction = vm.uiCloseAction,
                         onSelectRelay = vm::selectRelay,
+                        onSearchRelays = vm::onSearchRelays,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }
                     )
                 }

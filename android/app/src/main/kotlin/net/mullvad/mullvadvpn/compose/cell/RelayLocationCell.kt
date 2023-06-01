@@ -19,7 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.compose.theme.AlphaInvisible
 import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
@@ -56,14 +57,15 @@ private fun PreviewRelayLocationCell() {
                     name = "Relay only city",
                     code = "RCC",
                     expanded = false,
-                    country = relayCountry,
+                    location = LocationConstraint.City("ROC", "RCC"),
                     relays = emptyList()
                 )
             val relay =
                 Relay(
                     name = "Relay",
-                    city = relayCity,
                     active = false,
+                    location = LocationConstraint.Hostname("ROC", "RCC", "HNAME"),
+                    locationName = "Relay only city (Relay)"
                 )
             val relayCountryAndCity =
                 RelayCountry(
@@ -73,11 +75,11 @@ private fun PreviewRelayLocationCell() {
                     cities =
                         listOf(
                             RelayCity(
-                                country = relayCountry,
-                                "Relay City",
+                                name = "Relay City",
                                 code = "RCI",
                                 expanded = false,
-                                emptyList()
+                                location = LocationConstraint.City("RC", "RCI"),
+                                relays = emptyList()
                             )
                         )
                 )
@@ -89,13 +91,19 @@ private fun PreviewRelayLocationCell() {
                     cities =
                         listOf(
                             RelayCity(
-                                country = relayCountry,
-                                "Relay City",
+                                name = "Relay City",
                                 code = "RCI",
                                 expanded = true,
+                                location = LocationConstraint.City("RC", "RCI"),
                                 relays =
                                     listOf(
-                                        Relay(city = relayCity, name = "Relay Item", active = false)
+                                        Relay(
+                                            name = "Relay Item",
+                                            active = false,
+                                            location =
+                                                LocationConstraint.Hostname("RC", "RCI", "HNAME"),
+                                            locationName = "Relay city (Relay Item)"
+                                        )
                                     )
                             )
                         )
@@ -132,7 +140,7 @@ fun RelayLocationCell(
             RelayItemType.Relay -> Dimens.relayRowPadding
         }
     val selected = selectedItem == relay
-    val expanded = rememberSaveable { mutableStateOf(relay.expanded) }
+    val expanded = remember(key1 = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     val backgroundColor =
         when {
             selected -> MaterialTheme.colorScheme.inversePrimary

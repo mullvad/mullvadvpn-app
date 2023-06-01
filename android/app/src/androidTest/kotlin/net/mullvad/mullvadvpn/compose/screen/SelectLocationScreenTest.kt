@@ -3,7 +3,10 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -36,13 +39,7 @@ class SelectLocationScreenTest {
         }
 
         // Assert
-        composeTestRule.apply {
-            onNodeWithText(
-                    "While connected, your real location is masked with a private and secure location in the selected region."
-                )
-                .assertExists()
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
-        }
+        composeTestRule.apply { onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists() }
     }
 
     @Test
@@ -61,10 +58,6 @@ class SelectLocationScreenTest {
 
         // Assert
         composeTestRule.apply {
-            onNodeWithText(
-                    "While connected, your real location is masked with a private and secure location in the selected region."
-                )
-                .assertExists()
             onNodeWithText("Relay Country 1").assertExists()
             onNodeWithText("Relay City 1").assertDoesNotExist()
             onNodeWithText("Relay host 1").assertDoesNotExist()
@@ -96,10 +89,6 @@ class SelectLocationScreenTest {
 
         // Assert
         composeTestRule.apply {
-            onNodeWithText(
-                    "While connected, your real location is masked with a private and secure location in the selected region."
-                )
-                .assertExists()
             onNodeWithText("Relay Country 1").assertExists()
             onNodeWithText("Relay City 1").assertExists()
             onNodeWithText("Relay host 1").assertExists()
@@ -107,6 +96,32 @@ class SelectLocationScreenTest {
             onNodeWithText("Relay City 2").assertDoesNotExist()
             onNodeWithText("Relay host 2").assertDoesNotExist()
         }
+    }
+
+    @Test
+    fun testSearchInput() {
+        // Arrange
+        val mockedSearchRelays: (String) -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            AppTheme {
+                SelectLocationScreen(
+                    uiState =
+                        SelectLocationUiState.ShowData(
+                            countries = emptyList(),
+                            selectedRelay = null
+                        ),
+                    uiCloseAction = MutableSharedFlow(),
+                    onSearchRelays = mockedSearchRelays
+                )
+            }
+        }
+        val mockSearchString = "SEARCH"
+
+        // Act
+        composeTestRule.apply { onNodeWithText("Search for…").performTextInput(mockSearchString) }
+
+        // Assert
+        verify { mockedSearchRelays.invoke(mockSearchString) }
     }
 
     companion object {

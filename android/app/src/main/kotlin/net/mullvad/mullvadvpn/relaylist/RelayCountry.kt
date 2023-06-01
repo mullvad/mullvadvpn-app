@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.LocationConstraint
 
-class RelayCountry(
+data class RelayCountry(
     override val name: String,
     override val code: String,
     override var expanded: Boolean,
@@ -12,7 +12,7 @@ class RelayCountry(
     override val location = LocationConstraint.Country(code)
 
     override val active
-        get() = cities.any { city -> city.active }
+        get() = cities.any { city -> city.active } || cities.isEmpty()
 
     override val hasChildren
         get() = cities.isNotEmpty()

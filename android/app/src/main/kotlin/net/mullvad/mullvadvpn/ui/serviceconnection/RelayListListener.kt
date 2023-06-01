@@ -91,7 +91,7 @@ class RelayListListener(
             is RelaySettings.Normal -> {
                 val location = relaySettings.relayConstraints.location
 
-                return relayList?.findItemForLocation(location, true)
+                return relayList?.findItemForLocation(location)
             }
             else -> {
                 /* NOOP */

@@ -202,4 +202,5 @@
     <string name="on">On</string>
     <string name="quantum_creating_secure_connection">CREATING QUANTUM SECURE CONNECTION</string>
     <string name="quantum_secure_connection">QUANTUM SECURE CONNECTION</string>
+    <string name="search_placeholder">Search for...</string>
 </resources>
