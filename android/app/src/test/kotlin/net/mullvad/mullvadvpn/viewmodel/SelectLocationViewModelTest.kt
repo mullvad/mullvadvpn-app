@@ -79,6 +79,7 @@ class SelectLocationViewModelTest {
         val selectedRelay: RelayItem = mockk()
         val mockRelayList: RelayList = mockk()
         every { mockRelayList.countries } returns mockCountries
+        every { mockRelayList.filter(any(), selectedRelay) } returns mockRelayList
 
         // Act, Assert
         viewModel.uiState.test {
@@ -101,6 +102,7 @@ class SelectLocationViewModelTest {
         val selectedRelay: RelayItem? = null
         val mockRelayList: RelayList = mockk()
         every { mockRelayList.countries } returns mockCountries
+        every { mockRelayList.filter(any(), selectedRelay) } returns mockRelayList
 
         // Act, Assert
         viewModel.uiState.test {
@@ -135,6 +137,71 @@ class SelectLocationViewModelTest {
                 connectionProxyMock.connect()
                 mockRelayListListener.selectedRelayLocation = mockLocation
             }
+        }
+    }
+
+    @Test
+    fun testFilterRelay() = runTest {
+        // Arrange
+        val mockCountries = listOf<RelayCountry>(mockk(), mockk())
+        val selectedRelay: RelayItem? = null
+        val mockRelayList: RelayList = mockk(relaxed = true)
+        val filteredRelayList: RelayList = mockk()
+        val mockSearchString = "SEARCH"
+        every { mockRelayList.filter(mockSearchString, selectedRelay) } returns filteredRelayList
+        every { filteredRelayList.countries } returns mockCountries
+
+        // Act, Assert
+        viewModel.uiState.test {
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+
+            // Wait for loading
+            assertEquals(SelectLocationUiState.Loading, awaitItem())
+            // Wait for first data
+            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+
+            // Update search string
+            viewModel.onSearchRelays(mockSearchString)
+
+            // Assert
+            val actualState = awaitItem()
+            assertIs<SelectLocationUiState.ShowData>(actualState)
+            assertLists(mockCountries, actualState.countries)
+            assertEquals(selectedRelay, actualState.selectedRelay)
+        }
+    }
+
+    @Test
+    fun testFilterNotFound() = runTest {
+        // Arrange
+        val mockCountries = emptyList<RelayCountry>()
+        val selectedRelay: RelayItem? = null
+        val mockRelayList: RelayList = mockk(relaxed = true)
+        val filteredRelayList: RelayList = mockk()
+        val mockSearchString = "SEARCH"
+        every { mockRelayList.filter(mockSearchString, selectedRelay) } returns filteredRelayList
+        every { filteredRelayList.countries } returns mockCountries
+
+        // Act, Assert
+        viewModel.uiState.test {
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            relaySlot.captured.invoke(mockRelayList, selectedRelay)
+
+            // Wait for loading
+            assertEquals(SelectLocationUiState.Loading, awaitItem())
+            // Wait for first data
+            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+
+            // Update search string
+            viewModel.onSearchRelays(mockSearchString)
+
+            // Assert
+            val actualState = awaitItem()
+            assertIs<SelectLocationUiState.NoSearchResultFound>(actualState)
+            assertEquals(mockSearchString, actualState.searchTerm)
         }
     }
 

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
-class RelayCountry(
+data class RelayCountry(
     override val name: String,
     override val code: String,
     override var expanded: Boolean,

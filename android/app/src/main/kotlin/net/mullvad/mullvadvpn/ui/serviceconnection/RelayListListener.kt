@@ -129,11 +129,7 @@ class RelayListListener(
             is RelaySettings.CustomTunnelEndpoint -> return null
             is RelaySettings.Normal -> {
                 val location = relaySettings.relayConstraints.location
-
-                return relayList?.findItemForLocation(
-                    location.toGeographicLocationConstraint(),
-                    true
-                )
+                return relayList?.findItemForLocation(location.toGeographicLocationConstraint())
             }
             else -> {
                 /* NOOP */
