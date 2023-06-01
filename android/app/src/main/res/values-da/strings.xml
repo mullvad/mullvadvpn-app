@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret.</string>
     <string name="obfuscation_on_udp_over_tcp">Til (UDP-over-TCP)</string>
-    <string name="obfuscation_title">Tilsløring</string>
     <string name="off">Fra</string>
     <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>

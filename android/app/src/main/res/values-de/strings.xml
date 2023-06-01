@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">MÖGLICHERWEISE IST IHR NETZWERKVERKEHR UNSICHER</string>
     <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
     <string name="obfuscation_on_udp_over_tcp">An (UDP über TCP)</string>
-    <string name="obfuscation_title">Verschleierung</string>
     <string name="off">Aus</string>
     <string name="out_address">Ausgehend</string>
     <string name="out_of_time">Zeit abgelaufen</string>

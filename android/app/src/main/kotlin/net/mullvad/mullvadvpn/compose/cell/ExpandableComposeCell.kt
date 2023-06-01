@@ -21,8 +21,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.theme.AlphaActive
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
+import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
 
@@ -46,7 +46,7 @@ fun ExpandableComposeCell(
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val titleModifier = Modifier.alpha(if (isEnabled) AlphaActive else AlphaInactive)
+    val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)
     val bodyViewModifier = Modifier
 
     BaseCell(

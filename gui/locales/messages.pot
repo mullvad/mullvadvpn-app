@@ -1773,6 +1773,9 @@ msgstr ""
 msgid "WireGuard MTU"
 msgstr ""
 
+msgid "WireGuard obfuscation"
+msgstr ""
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr ""
 

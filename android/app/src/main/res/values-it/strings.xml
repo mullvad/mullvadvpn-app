@@ -110,7 +110,6 @@
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
     <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
     <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
-    <string name="obfuscation_title">Offuscamento</string>
     <string name="off">Off</string>
     <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
