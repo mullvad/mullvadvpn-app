@@ -7,4 +7,6 @@ sealed interface SelectLocationUiState {
     object Loading : SelectLocationUiState
     data class ShowData(val countries: List<RelayCountry>, val selectedRelay: RelayItem?) :
         SelectLocationUiState
+
+    data class NoSearchResultFound(val searchTerm: String) : SelectLocationUiState
 }
