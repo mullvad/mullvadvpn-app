@@ -37,7 +37,7 @@ fun ThreeDotCell(
             BaseCellTitle(
                 title = text,
                 style = textStyle,
-                color = textColor,
+                textColor = textColor,
                 modifier = Modifier.weight(1f, true)
             )
         },

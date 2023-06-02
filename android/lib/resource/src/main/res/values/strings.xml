@@ -385,4 +385,8 @@
     <string name="delete_method_question">Delete method?</string>
     <string name="failed_to_set_current_test_error">Failed to set to current - API not reachable</string>
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
+    <string name="split_tunneling_disabled_description">Split tunneling is disabled.</string>
+    <string name="use_material_you">Use material you theme</string>
+    <string name="use_dark_theme">Use dark theme</string>
+    <string name="use_system_setting">Use system setting</string>
 </resources>

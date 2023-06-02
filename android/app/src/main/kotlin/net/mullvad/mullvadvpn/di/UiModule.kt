@@ -3,6 +3,9 @@ package net.mullvad.mullvadvpn.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import androidx.datastore.dataStoreFile
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
@@ -15,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
+import net.mullvad.mullvadvpn.lib.theme.ThemeRepository
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -157,6 +161,16 @@ val uiModule = module {
     }
 
     single { ProblemReportRepository() }
+    single {
+        ThemeRepository(
+            PreferenceDataStoreFactory.create {
+                File(androidContext().filesDir, "settings.preferences_pb")
+            }
+        )
+    }
+    single {
+        PreferenceDataStoreFactory.create { androidContext().dataStoreFile(APP_PREFERENCES_NAME) }
+    }
 
     single { AppVersionInfoRepository(get(), get()) }
 
@@ -187,7 +201,7 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
+    viewModel { SettingsViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get()) }

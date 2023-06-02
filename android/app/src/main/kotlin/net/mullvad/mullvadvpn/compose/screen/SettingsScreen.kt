@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -38,6 +39,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.DarkThemeState
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
@@ -54,7 +56,9 @@ private fun PreviewSettings() {
                     appVersion = "2222.22",
                     isLoggedIn = true,
                     isUpdateAvailable = true,
-                    isPlayBuild = false
+                    isPlayBuild = false,
+                    isMaterialYouTheme = false,
+                    darkThemeState = DarkThemeState.SYSTEM
                 ),
         )
     }
@@ -74,6 +78,8 @@ fun Settings(navigator: DestinationsNavigator) {
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
+        onUseMaterialYouThemeClick = vm::setUseMaterialYouTheme,
+        onDarkThemeStateSelected = vm::onDarkThemeStateSelected,
         onBackClick = dropUnlessResumed { navigator.navigateUp() }
     )
 }
@@ -86,6 +92,8 @@ fun SettingsScreen(
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
+    onUseMaterialYouThemeClick: (Boolean) -> Unit = {},
+    onDarkThemeStateSelected: (DarkThemeState) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -205,7 +213,13 @@ private fun FaqAndGuides(context: Context) {
     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView = @Composable { DefaultExternalLinkView(faqGuideLabel) },
+        bodyView =
+            @Composable {
+                DefaultExternalLinkView(
+                    faqGuideLabel,
+                    ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+                )
+            },
         onClick = {
             context.openLink(Uri.parse(context.resources.getString(R.string.faqs_and_guides_url)))
         }
@@ -217,7 +231,13 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_label)
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView = @Composable { DefaultExternalLinkView(privacyPolicyLabel) },
+        bodyView =
+            @Composable {
+                DefaultExternalLinkView(
+                    privacyPolicyLabel,
+                    ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+                )
+            },
         onClick = {
             context.openLink(
                 Uri.parse(

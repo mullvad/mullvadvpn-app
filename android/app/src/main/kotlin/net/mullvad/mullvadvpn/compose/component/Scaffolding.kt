@@ -126,7 +126,8 @@ fun ScaffoldWithMediumTopBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+    toolbarColor: Color = MaterialTheme.colorScheme.surface,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
@@ -142,7 +143,8 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                containerColor = toolbarColor
             )
         },
         snackbarHost = {
@@ -169,7 +171,7 @@ fun ScaffoldWithMediumTopBar(
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier) -> Unit
 ) {

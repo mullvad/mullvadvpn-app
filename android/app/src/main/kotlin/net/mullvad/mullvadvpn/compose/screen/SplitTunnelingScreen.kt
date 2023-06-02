@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -124,7 +125,7 @@ fun SplitTunnelingScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(
-            modifier = modifier,
+            modifier = modifier.background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState,
         ) {

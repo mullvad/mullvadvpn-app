@@ -372,7 +372,7 @@ fun VpnSettingsScreen(
                         isToggled = state.contentBlockersOptions.blockAds,
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAds(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -382,7 +382,7 @@ fun VpnSettingsScreen(
                         isToggled = state.contentBlockersOptions.blockTrackers,
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -393,7 +393,7 @@ fun VpnSettingsScreen(
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockMalware(it) },
                         onInfoClicked = { navigateToMalwareInfo() },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -403,7 +403,7 @@ fun VpnSettingsScreen(
                         isToggled = state.contentBlockersOptions.blockGambling,
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockGambling(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -413,7 +413,7 @@ fun VpnSettingsScreen(
                         isToggled = state.contentBlockersOptions.blockAdultContent,
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -424,7 +424,7 @@ fun VpnSettingsScreen(
                         isToggled = state.contentBlockersOptions.blockSocialMedia,
                         isEnabled = !state.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockSocialMedia(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )
                 }
@@ -432,7 +432,7 @@ fun VpnSettingsScreen(
                 if (state.isCustomDnsEnabled) {
                     item {
                         ContentBlockersDisableModeCellSubtitle(
-                            Modifier.background(MaterialTheme.colorScheme.secondary)
+                            Modifier.background(MaterialTheme.colorScheme.surface)
                                 .padding(
                                     start = Dimens.cellStartPadding,
                                     top = topPadding,
@@ -475,7 +475,7 @@ fun VpnSettingsScreen(
                             )
                         },
                         bodyView = {},
-                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        background = MaterialTheme.colorScheme.primaryContainer,
                         startPadding = biggerPadding,
                     )
                 }
@@ -485,13 +485,12 @@ fun VpnSettingsScreen(
                 CustomDnsCellSubtitle(
                     isCellClickable = state.contentBlockersOptions.isAnyBlockerEnabled().not(),
                     modifier =
-                        Modifier.background(MaterialTheme.colorScheme.secondary)
-                            .padding(
-                                start = Dimens.cellStartPadding,
-                                top = topPadding,
-                                end = Dimens.cellEndPadding,
-                                bottom = Dimens.cellLabelVerticalPadding,
-                            )
+                        Modifier.padding(
+                            start = Dimens.cellStartPadding,
+                            top = topPadding,
+                            end = Dimens.cellEndPadding,
+                            bottom = Dimens.cellLabelVerticalPadding,
+                        )
                 )
             }
 

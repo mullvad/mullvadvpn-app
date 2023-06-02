@@ -100,7 +100,7 @@ fun FilterScreen(
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
 
-    val backgroundColor = MaterialTheme.colorScheme.background
+    val backgroundColor = MaterialTheme.colorScheme.surface
 
     Scaffold(
         modifier = Modifier.background(backgroundColor).systemBarsPadding().fillMaxSize(),
@@ -110,7 +110,7 @@ fun FilterScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.icon_back),
                         contentDescription = null,
-                        tint = Color.Unspecified,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 Text(
@@ -118,7 +118,7 @@ fun FilterScreen(
                     modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
