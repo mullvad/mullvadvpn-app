@@ -32,23 +32,12 @@ export default function Map() {
 
   const connectionState = useMemo<ConnectionState>(() => {
     switch (connection.status.state) {
-      case 'connecting':
       case 'connected':
-        return ConnectionState.secure;
-      case 'error':
-        return !connection.status.details.blockingError
-          ? ConnectionState.secure
-          : ConnectionState.unsecure;
+        return ConnectionState.connected;
       case 'disconnected':
-        return ConnectionState.unsecure;
-      case 'disconnecting':
-        switch (connection.status.details) {
-          case 'block':
-          case 'reconnect':
-            return ConnectionState.secure;
-          case 'nothing':
-            return ConnectionState.unsecure;
-        }
+        return ConnectionState.disconnected;
+      default:
+        return ConnectionState.noMarker;
     }
   }, [connection.status]);
 
@@ -148,7 +137,6 @@ function MapInner(props: MapInnerProps) {
     return () => removeEventListener('resize', resizeCallback);
   }, [updateCanvasSize]);
 
-  // TODO: Don't show location dot when spinner is showing
   return (
     <StyledCanvas ref={combinedCanvasRef} id="glcanvas" width={canvasWidth} height={canvasHeight} />
   );

@@ -29,8 +29,9 @@ interface ZoomAnimation {
 }
 
 export enum ConnectionState {
-  secure,
-  unsecure,
+  disconnected,
+  connected,
+  noMarker,
 }
 
 // Color values for various components of the map.
@@ -414,7 +415,7 @@ export default class Map {
     this.locationMarkerUnsecure = new LocationMarker(gl, locationMarkerUnsecureColor);
 
     this.coordinate = startCoordinate;
-    this.zoom = connectionState === ConnectionState.secure ? connectedZoom : disconnectedZoom;
+    this.zoom = connectionState === ConnectionState.connected ? connectedZoom : disconnectedZoom;
     this.connectionState = connectionState;
     // `targetCoordinate` is the same as `coordinate` when no animation is in progress.
     // This is where the location marker is drawn.
@@ -428,7 +429,7 @@ export default class Map {
   // Move the location marker to `newCoordinate` (with state `connectionState`) and queue
   // animation to move to that coordinate.
   public setLocation(newCoordinate: Coordinate, connectionState: ConnectionState, now: number) {
-    const endZoom = connectionState ? connectedZoom : disconnectedZoom;
+    const endZoom = connectionState == ConnectionState.connected ? connectedZoom : disconnectedZoom;
 
     // Only perform a coordinate animation if the new coordinate is
     // different from the current position/latest ongoing animation.
@@ -488,11 +489,24 @@ export default class Map {
     this.globe.draw(projectionMatrix, viewMatrix);
 
     // Draw the appropriate location marker depending on our connection state.
-    const locationMarker =
-      this.connectionState === ConnectionState.secure
-        ? this.locationMarkerSecure
-        : this.locationMarkerUnsecure;
-    locationMarker.draw(projectionMatrix, viewMatrix, this.targetCoordinate, 0.03 * this.zoom);
+    switch (this.connectionState) {
+      case ConnectionState.disconnected:
+        this.locationMarkerUnsecure.draw(
+          projectionMatrix,
+          viewMatrix,
+          this.targetCoordinate,
+          0.03 * this.zoom,
+        );
+        break;
+      case ConnectionState.connected:
+        this.locationMarkerSecure.draw(
+          projectionMatrix,
+          viewMatrix,
+          this.targetCoordinate,
+          0.03 * this.zoom,
+        );
+        break;
+    }
   }
 
   // Private function that just updates internal animation state to match with time `now`.
