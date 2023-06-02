@@ -47,15 +47,15 @@ const locationMarkerUnsecureColor: Color = [0.89, 0.251, 0.224];
 
 // Zoom is distance from earths center. 1.0 is at the surface.
 // These constants define the zoom levels for the connected and disconnected states.
-const disconnectedZoom = 1.45;
-const connectedZoom = 1.35;
+const disconnectedZoom = 1.35;
+const connectedZoom = 1.25;
 
 // Animations longer than this time will use the out-in zoom animation.
 // Shorter animations will use the direct animation.
 const zoomAnimationStyleTimeBreakpoint = 1.7;
 // When animating with the out-in zoom animation, set the middle
 // zoom point to this times the max start or end zoom levels.
-const animationZoomoutFactor = 1.15;
+const animationZoomoutFactor = 1.5;
 // Never zoom out further than this.
 const maxZoomout = Math.max(disconnectedZoom, connectedZoom) * animationZoomoutFactor;
 
@@ -476,7 +476,7 @@ export default class Map {
 
     // Offset Y for placing the marker at the same area as the spinner. The zoom calculation is
     // required for the unsecured and secured markers to be placed in the same spot.
-    const offsetY = 0.123 + (this.zoom - connectedZoom) * 0.3;
+    const offsetY = 0.088 + (this.zoom - connectedZoom) * 0.3;
 
     // Move the camera back `this.zoom` away from the center of the globe.
     mat4.translate(
