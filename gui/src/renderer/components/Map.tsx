@@ -23,11 +23,11 @@ interface MapParams {
 export default function Map() {
   const connection = useSelector((state) => state.connection);
 
-  const location = useMemo<Coordinate>(() => {
+  const location = useMemo<Coordinate | undefined>(() => {
     const { latitude, longitude } = connection;
     return typeof latitude === 'number' && typeof longitude === 'number'
       ? new Coordinate(latitude, longitude)
-      : new Coordinate(0, 0);
+      : undefined;
   }, [connection.latitude, connection.longitude]);
 
   const connectionState = useMemo<ConnectionState>(() => {
@@ -41,22 +41,14 @@ export default function Map() {
     }
   }, [connection.status]);
 
-  const mapParams = useMemo<MapParams>(
-    () => ({
-      location,
-      connectionState,
-    }),
-    [location, connectionState],
-  );
-
-  return <MapInner mapParams={mapParams} />;
+  if (location === undefined) {
+    return null;
+  } else {
+    return <MapInner location={location} connectionState={connectionState} />;
+  }
 }
 
-interface MapInnerProps {
-  mapParams: MapParams;
-}
-
-function MapInner(props: MapInnerProps) {
+function MapInner(props: MapParams) {
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
   // has been rendered.
   const frameCallback = useRef<(now: number) => void>();
@@ -88,8 +80,8 @@ function MapInner(props: MapInnerProps) {
 
       const innerFrameCallback = getAnimationFramCallback(
         canvas,
-        props.mapParams.location,
-        props.mapParams.connectionState,
+        props.location,
+        props.connectionState,
         () => (pause.current = true),
       );
 
@@ -114,8 +106,8 @@ function MapInner(props: MapInnerProps) {
   // Set new params when the location or connection state has changed, and unpause if paused
   useEffect(() => {
     newParams.current = {
-      location: props.mapParams.location,
-      connectionState: props.mapParams.connectionState,
+      location: props.location,
+      connectionState: props.connectionState,
     };
 
     if (pause.current) {
@@ -124,7 +116,7 @@ function MapInner(props: MapInnerProps) {
         requestAnimationFrame(frameCallback.current);
       }
     }
-  }, [props.mapParams.location, props.mapParams.connectionState]);
+  }, [props.location, props.connectionState]);
 
   useEffect(() => {
     const resizeCallback = () => {
