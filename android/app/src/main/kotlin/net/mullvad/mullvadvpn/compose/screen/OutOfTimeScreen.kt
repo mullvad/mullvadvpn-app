@@ -205,7 +205,7 @@ fun OutOfTimeScreen(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
                     )
-                    .background(color = MaterialTheme.colorScheme.background)
+                    .background(color = MaterialTheme.colorScheme.surface)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
@@ -218,7 +218,7 @@ fun OutOfTimeScreen(
             Text(
                 text = stringResource(id = R.string.out_of_time),
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
                         .testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG)
@@ -233,7 +233,7 @@ fun OutOfTimeScreen(
                         }
                     },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(
                         top = Dimens.mediumPadding,

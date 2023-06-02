@@ -31,4 +31,6 @@ dependencies {
     implementation(Dependencies.Compose.material3)
     implementation(Dependencies.Compose.ui)
     implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.AndroidX.dataStorePreferences)
+    implementation(Dependencies.Koin.core)
 }

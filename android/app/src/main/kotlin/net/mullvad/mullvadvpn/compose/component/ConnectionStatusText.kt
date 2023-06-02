@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 @Composable
 private fun PreviewConnectionStatusText() {
     AppTheme {
-        SpacedColumn {
+        SpacedColumn(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
             ConnectionStatusText(TunnelState.Disconnected())
             ConnectionStatusText(TunnelState.Connecting(null, null))
             ConnectionStatusText(
@@ -74,7 +75,7 @@ private fun ConnectingText(isQuantumResistant: Boolean, modifier: Modifier) {
                     if (isQuantumResistant) R.string.quantum_creating_secure_connection
                     else R.string.creating_secure_connection
             ),
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -91,7 +92,7 @@ private fun ConnectedText(isQuantumResistant: Boolean, modifier: Modifier) {
                     if (isQuantumResistant) R.string.quantum_secure_connection
                     else R.string.secure_connection
             ),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.secondary,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -107,7 +108,7 @@ private fun ErrorText(isBlocking: Boolean, modifier: Modifier) {
                 id = if (isBlocking) R.string.blocked_connection else R.string.error_state
             ),
         color =
-            if (isBlocking) MaterialTheme.colorScheme.onPrimary
+            if (isBlocking) MaterialTheme.colorScheme.secondary
             else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,

@@ -42,8 +42,8 @@ private fun PreviewLocationInfo() {
 @Composable
 fun LocationInfo(
     modifier: Modifier = Modifier,
-    colorExpanded: Color = MaterialTheme.colorScheme.onPrimary,
-    colorCollapsed: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
+    colorExpanded: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    colorCollapsed: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AlphaInactive),
     onToggleTunnelInfo: () -> Unit,
     isVisible: Boolean,
     isExpanded: Boolean,
