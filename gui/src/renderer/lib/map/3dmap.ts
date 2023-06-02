@@ -24,7 +24,8 @@ interface ProgramInfo {
 }
 
 interface ZoomAnimation {
-  compute(animationRatio: number): number;
+  endTime: number;
+  compute(now: number): [number, number];
 }
 
 export enum ConnectionState {
@@ -312,31 +313,20 @@ class LocationMarker {
 // starting at time `startTime` (usually now() at the time of creating an instance),
 // and animating for `duration` seconds
 class SmoothLerp {
-  private zoomAnimation: ZoomAnimation;
-
   public constructor(
     private startCoordinate: Coordinate,
     private path: Coordinate,
-    startZoom: number,
-    endZoom: number,
     private startTime: number,
     private duration: number,
-  ) {
-    if (duration > zoomAnimationStyleTimeBreakpoint) {
-      this.zoomAnimation = new SmoothZoomOutIn(startZoom, endZoom);
-    } else {
-      this.zoomAnimation = new SmoothZoomDirect(startZoom, endZoom);
-    }
-  }
+  ) {}
 
   // Computes and returns the coordinate as well as the zoom level and the smoothened transition
   // ratio of this lerp operation.
-  public compute(now: number): [Coordinate, number, number] {
+  public compute(now: number): [Coordinate, number] {
     const animationRatio = Math.min(Math.max((now - this.startTime) / this.duration, 0.0), 1.0);
     const smoothAnimationRatio = smoothTransition(animationRatio);
     const position = this.startCoordinate.add(this.path.scale(smoothAnimationRatio));
-    const zoom = this.zoomAnimation.compute(animationRatio);
-    return [position, zoom, smoothAnimationRatio];
+    return [position, smoothAnimationRatio];
   }
 }
 
@@ -345,29 +335,58 @@ class SmoothLerp {
 class SmoothZoomOutIn implements ZoomAnimation {
   private middleZoom: number;
 
-  public constructor(private startZoom: number, private endZoom: number) {
+  public constructor(
+    private startZoom: number,
+    private endZoom: number,
+    private startTime: number,
+    private duration: number,
+  ) {
     this.middleZoom = Math.min(Math.max(startZoom, endZoom) * animationZoomoutFactor, maxZoomout);
   }
 
-  public compute(animationRatio: number): number {
+  get endTime(): number {
+    return this.startTime + this.duration;
+  }
+
+  public compute(now: number): [number, number] {
+    const animationRatio = Math.min(Math.max((now - this.startTime) / this.duration, 0.0), 1.0);
     // Linear animation ratio 0-1. 0.0-0.5 means zooming out and 0.5-1.0 means zooming in
     if (animationRatio <= 0.5) {
       const smoothAnimationRatio = smoothTransition(animationRatio * 2);
-      return this.startZoom + smoothAnimationRatio * (this.middleZoom - this.startZoom);
+      return [
+        this.startZoom + smoothAnimationRatio * (this.middleZoom - this.startZoom),
+        animationRatio,
+      ];
     } else {
       const smoothAnimationRatio = smoothTransition((animationRatio - 0.5) * 2);
-      return this.middleZoom - smoothAnimationRatio * (this.middleZoom - this.endZoom);
+      return [
+        this.middleZoom - smoothAnimationRatio * (this.middleZoom - this.endZoom),
+        animationRatio,
+      ];
     }
   }
 }
 
 // Zooms from startZoom to endZoom directly in a smooth manner.
 class SmoothZoomDirect implements ZoomAnimation {
-  public constructor(private startZoom: number, private endZoom: number) {}
+  public constructor(
+    private startZoom: number,
+    private endZoom: number,
+    private startTime: number,
+    private duration: number,
+  ) {}
 
-  public compute(animationRatio: number): number {
+  get endTime(): number {
+    return this.startTime + this.duration;
+  }
+
+  public compute(now: number): [number, number] {
+    const animationRatio = Math.min(Math.max((now - this.startTime) / this.duration, 0.0), 1.0);
     const smoothAnimationRatio = smoothTransition(animationRatio);
-    return this.startZoom + smoothAnimationRatio * (this.endZoom - this.startZoom);
+    return [
+      this.startZoom + smoothAnimationRatio * (this.endZoom - this.startZoom),
+      animationRatio,
+    ];
   }
 }
 
@@ -382,6 +401,7 @@ export default class Map {
   private targetCoordinate: Coordinate;
 
   private animations: Array<SmoothLerp>;
+  private zoomAnimations: Array<ZoomAnimation>;
 
   public constructor(
     gl: WebGL2RenderingContext,
@@ -399,20 +419,44 @@ export default class Map {
     // `targetCoordinate` is the same as `coordinate` when no animation is in progress.
     // This is where the location marker is drawn.
     this.targetCoordinate = startCoordinate;
-    // An array of smooth lerps. Empty when no animation is in progress.
+    // An array of smooth lerps between coordinates. Empty when no animation is in progress.
     this.animations = [];
+    // An array of zoom animations. Empty when no animation is in progress.
+    this.zoomAnimations = [];
   }
 
   // Move the location marker to `newCoordinate` (with state `connectionState`) and queue
   // animation to move to that coordinate.
   public setLocation(newCoordinate: Coordinate, connectionState: ConnectionState, now: number) {
-    const path = shortestPath(this.coordinate, newCoordinate);
-    // Compute animation time as a function of movement distance. Clamp the
-    // duration range between animationMinTime and animationMaxTime
-    const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
+    const endZoom = connectionState ? connectedZoom : disconnectedZoom;
 
-    const endZoom = connectionState === ConnectionState.secure ? connectedZoom : disconnectedZoom;
-    this.animations.push(new SmoothLerp(this.coordinate, path, this.zoom, endZoom, now, duration));
+    // Only perform a coordinate animation if the new coordinate is
+    // different from the current position/latest ongoing animation.
+    // If the new coordinate is the same as the current target, we just
+    // queue a zoom animation.
+    if (newCoordinate !== this.targetCoordinate) {
+      const path = shortestPath(this.coordinate, newCoordinate);
+
+      // Compute animation time as a function of movement distance. Clamp the
+      // duration range between animationMinTime and animationMaxTime
+      const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
+
+      this.animations.push(new SmoothLerp(this.coordinate, path, now, duration));
+      if (duration > zoomAnimationStyleTimeBreakpoint) {
+        this.zoomAnimations.push(new SmoothZoomOutIn(this.zoom, endZoom, now, duration));
+      } else {
+        this.zoomAnimations.push(new SmoothZoomDirect(this.zoom, endZoom, now, duration));
+      }
+    } else {
+      let duration = animationMinTime;
+      // If an animation is in progress, make sure our zoom animation ends at the same time.
+      // Just makes a smooth transition from one zoom end state to the other.
+      if (this.zoomAnimations.length > 0) {
+        const lastZoomAnimation = this.zoomAnimations[this.zoomAnimations.length - 1];
+        duration = Math.max(lastZoomAnimation.endTime - now, animationMinTime);
+      }
+      this.zoomAnimations.push(new SmoothZoomDirect(this.zoom, endZoom, now, duration));
+    }
 
     this.connectionState = connectionState;
     this.targetCoordinate = newCoordinate;
@@ -421,6 +465,11 @@ export default class Map {
   // Render the map for the time `now`.
   public draw(projectionMatrix: mat4, now: number) {
     this.updatePosition(now);
+    this.updateZoom(now);
+
+    if (this.animations.length === 0 && this.zoomAnimations.length === 0) {
+      this.animationEndListener?.();
+    }
 
     const viewMatrix = mat4.create();
 
@@ -446,7 +495,7 @@ export default class Map {
     locationMarker.draw(projectionMatrix, viewMatrix, this.targetCoordinate, 0.03 * this.zoom);
   }
 
-  // Private funciton that just updates internal animation state to match with time `now`.
+  // Private function that just updates internal animation state to match with time `now`.
   public updatePosition(now: number) {
     if (this.animations.length === 0) {
       return;
@@ -454,7 +503,7 @@ export default class Map {
 
     // Compute lerp position and ratio of the newest animation
     const lastAnimation = this.animations[this.animations.length - 1];
-    let [coordinate, zoom, ratio] = lastAnimation.compute(now);
+    let [coordinate, ratio] = lastAnimation.compute(now);
     if (ratio >= 1.0) {
       // Animation is done. We can empty the animations array
       this.animations = [];
@@ -463,9 +512,8 @@ export default class Map {
     // Loop through all previous animations (that are still in progress) backwards and
     // lerp between them to compute our actual location.
     for (let i = this.animations.length - 2; i >= 0; i--) {
-      const [previousPoint, previousZoom, animationRatio] = this.animations[i].compute(now);
+      const [previousPoint, animationRatio] = this.animations[i].compute(now);
       coordinate = lerpCoordinate(previousPoint, coordinate, ratio);
-      zoom = lerp(previousZoom, zoom, ratio);
       // If this animation is finished, none of the animations [0, i) will have any effect,
       // so they can be pruned
       if (animationRatio >= 1.0 && i > 0) {
@@ -478,11 +526,38 @@ export default class Map {
 
     // Set our coordinate and zoom to the values interpolated from all ongoing animations.
     this.coordinate = coordinate;
-    this.zoom = zoom;
+  }
 
-    if (this.animations.length === 0) {
-      this.animationEndListener?.();
+  // Private function that updates the current zoom level according to ongoing animations.
+  updateZoom(now: number) {
+    if (this.zoomAnimations.length === 0) {
+      return;
     }
+
+    const lastZoomAnimation = this.zoomAnimations[this.zoomAnimations.length - 1];
+    let [zoom, ratio] = lastZoomAnimation.compute(now);
+
+    if (ratio >= 1.0) {
+      // Animation is done. We can empty the animations array
+      this.zoomAnimations = [];
+    }
+
+    // Loop through all previous animations (that are still in progress) backwards and
+    // lerp between them to compute our actual location.
+    for (let i = this.zoomAnimations.length - 2; i >= 0; i--) {
+      const [previousZoom, animationRatio] = this.zoomAnimations[i].compute(now);
+      zoom = lerp(previousZoom, zoom, ratio);
+      // If this animation is finished, none of the animations [0, i) will have any effect,
+      // so they can be pruned
+      if (animationRatio >= 1.0 && i > 0) {
+        this.zoomAnimations = this.zoomAnimations.slice(i, this.zoomAnimations.length);
+        break;
+      }
+      ratio = animationRatio;
+    }
+
+    // Set our coordinate and zoom to the values interpolated from all ongoing animations.
+    this.zoom = zoom;
   }
 }
 
