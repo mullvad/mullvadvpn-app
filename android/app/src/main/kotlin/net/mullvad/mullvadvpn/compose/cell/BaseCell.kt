@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewBaseCell() {
     AppTheme {
-        SpacedColumn {
+        SpacedColumn(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
             BaseCell(
                 headlineContent = {
                     BaseCellTitle(
@@ -102,14 +102,14 @@ internal fun BaseCellTitle(
     title: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onPrimary,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
     Text(
         text = title,
         textAlign = textAlign,
         style = style,
-        color = color,
+        color = textColor,
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
         modifier = modifier
@@ -117,16 +117,31 @@ internal fun BaseCellTitle(
 }
 
 @Composable
-fun BaseSubtitleCell(text: String, modifier: Modifier = Modifier) {
-    BaseSubtitleCell(text = AnnotatedString(text), modifier = modifier)
+fun BaseSubtitleCell(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.labelMedium,
+    color: Color = MaterialTheme.colorScheme.onSecondary
+) {
+    BaseSubtitleCell(
+        text = AnnotatedString(text),
+        modifier = modifier,
+        style = style,
+        color = color
+    )
 }
 
 @Composable
-fun BaseSubtitleCell(text: AnnotatedString, modifier: Modifier = Modifier) {
+fun BaseSubtitleCell(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.labelMedium,
+    color: Color = MaterialTheme.colorScheme.onSecondary
+) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSecondary,
+        style = style,
+        color = color,
         modifier =
             modifier
                 .padding(

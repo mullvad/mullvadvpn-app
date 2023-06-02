@@ -102,7 +102,7 @@ fun FilterScreen(
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
 
-    val backgroundColor = MaterialTheme.colorScheme.background
+    val backgroundColor = MaterialTheme.colorScheme.surface
     Scaffold(
         modifier = Modifier.background(backgroundColor).systemBarsPadding().fillMaxSize(),
         topBar = { TopBar(onBackClick = onBackClick) },

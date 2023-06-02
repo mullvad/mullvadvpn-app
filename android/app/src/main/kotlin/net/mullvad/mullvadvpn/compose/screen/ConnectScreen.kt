@@ -235,7 +235,7 @@ fun ConnectScreen(
         ) {
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             MullvadCircularProgressIndicatorLarge(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.animateContentSize()
                         .padding(

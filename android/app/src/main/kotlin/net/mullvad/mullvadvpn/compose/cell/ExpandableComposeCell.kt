@@ -105,6 +105,7 @@ private fun ExpandableComposeCellBody(
         ChevronButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -122,7 +123,7 @@ fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
     Text(
         text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSecondary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
     )
 }
