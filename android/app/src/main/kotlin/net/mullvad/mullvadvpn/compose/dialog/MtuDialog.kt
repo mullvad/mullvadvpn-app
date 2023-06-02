@@ -101,7 +101,7 @@ fun MtuDialog(
                             MTU_MAX_VALUE
                         ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDescription),
                     modifier = Modifier.padding(top = Dimens.smallPadding)
                 )
             }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,7 +65,13 @@ fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
-    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
+    textColor: Color = MaterialTheme.colorScheme.onSecondary,
+    bodyView: @Composable () -> Unit = {
+        DefaultNavigationView(
+            chevronContentDescription = title,
+            tint = textColor
+        )
+    },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String = ""
@@ -109,20 +116,20 @@ internal fun NavigationTitleView(
 }
 
 @Composable
-internal fun DefaultNavigationView(chevronContentDescription: String) {
+internal fun DefaultNavigationView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_chevron),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
 @Composable
-internal fun DefaultExternalLinkView(chevronContentDescription: String) {
+internal fun DefaultExternalLinkView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_extlink),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
@@ -141,9 +148,12 @@ internal fun NavigationCellBody(
         Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
-            DefaultExternalLinkView(content)
+            DefaultExternalLinkView(content, tint = contentColor)
         } else {
-            DefaultNavigationView(chevronContentDescription = contentBodyDescription)
+            DefaultNavigationView(
+                chevronContentDescription = contentBodyDescription,
+                tint = contentColor
+            )
         }
     }
 }

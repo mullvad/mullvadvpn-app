@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -186,7 +187,12 @@ private fun ApiAccessMethodItem(
             ),
         titleStyle = MaterialTheme.typography.titleMedium,
         subtitleColor = MaterialTheme.colorScheme.onSecondary,
-        bodyView = { DefaultNavigationView(apiAccessMethodSetting.name.value) },
+        bodyView = {
+            DefaultNavigationView(
+                apiAccessMethodSetting.name.value,
+                ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+            )
+        },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }
     )
 }

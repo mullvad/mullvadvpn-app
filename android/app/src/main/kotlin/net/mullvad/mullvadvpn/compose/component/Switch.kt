@@ -60,7 +60,7 @@ fun MullvadSwitch(
         thumbContent = thumbContent,
         enabled = enabled,
         colors = colors,
-        interactionSource
+        interactionSource = interactionSource
     )
 }
 

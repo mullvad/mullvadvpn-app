@@ -57,6 +57,8 @@ private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
 fun MtuSubtitle(modifier: Modifier = Modifier) {
     BaseSubtitleCell(
         text = stringResource(R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
-        modifier
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
     )
 }
