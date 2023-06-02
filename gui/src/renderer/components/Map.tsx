@@ -2,16 +2,12 @@ import { mat4 } from 'gl-matrix';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
-import GLMap, { Coordinate } from '../lib/map/3dmap';
+import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
+import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
 // The angle in degrees that the camera sees in
 const angleOfView = 70;
-
-export enum MarkerStyle {
-  secure,
-  unsecure,
-}
 
 const StyledCanvas = styled.canvas({
   position: 'absolute',
@@ -21,22 +17,57 @@ const StyledCanvas = styled.canvas({
 
 interface MapParams {
   location: Coordinate;
-  connectionState: boolean;
+  connectionState: ConnectionState;
 }
 
-interface MapProps {
-  markerStyle: MarkerStyle;
-}
-
-export default function Map(props: MapProps) {
+export default function Map() {
   const connection = useSelector((state) => state.connection);
-  const coordinate = useMemo<Coordinate>(() => {
+
+  const location = useMemo<Coordinate>(() => {
     const { latitude, longitude } = connection;
     return typeof latitude === 'number' && typeof longitude === 'number'
       ? new Coordinate(latitude, longitude)
       : new Coordinate(0, 0);
-  }, [connection]);
+  }, [connection.latitude, connection.longitude]);
 
+  const connectionState = useMemo<ConnectionState>(() => {
+    switch (connection.status.state) {
+      case 'connecting':
+      case 'connected':
+        return ConnectionState.secure;
+      case 'error':
+        return !connection.status.details.blockingError
+          ? ConnectionState.secure
+          : ConnectionState.unsecure;
+      case 'disconnected':
+        return ConnectionState.unsecure;
+      case 'disconnecting':
+        switch (connection.status.details) {
+          case 'block':
+          case 'reconnect':
+            return ConnectionState.secure;
+          case 'nothing':
+            return ConnectionState.unsecure;
+        }
+    }
+  }, [connection.status]);
+
+  const mapParams = useMemo<MapParams>(
+    () => ({
+      location,
+      connectionState,
+    }),
+    [location, connectionState],
+  );
+
+  return <MapInner mapParams={mapParams} />;
+}
+
+interface MapInnerProps {
+  mapParams: MapParams;
+}
+
+function MapInner(props: MapInnerProps) {
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
   // has been rendered.
   const frameCallback = useRef<(now: number) => void>();
@@ -53,8 +84,8 @@ export default function Map(props: MapProps) {
 
     const innerFrameCallback = getAnimationFramCallback(
       canvas,
-      coordinate,
-      props.markerStyle === MarkerStyle.secure,
+      props.mapParams.location,
+      props.mapParams.connectionState,
       () => (pause.current = true),
     );
 
@@ -72,11 +103,13 @@ export default function Map(props: MapProps) {
     requestAnimationFrame(frameCallback.current);
   }, []);
 
+  const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
+
   // Set new params when the location or connection state has changed, and unpause if paused
   useEffect(() => {
     newParams.current = {
-      location: coordinate,
-      connectionState: props.markerStyle === MarkerStyle.secure,
+      location: props.mapParams.location,
+      connectionState: props.mapParams.connectionState,
     };
 
     if (pause.current) {
@@ -85,7 +118,7 @@ export default function Map(props: MapProps) {
         requestAnimationFrame(frameCallback.current);
       }
     }
-  }, [coordinate, props.markerStyle]);
+  }, [props.mapParams.location, props.mapParams.connectionState]);
 
   // TODO: Don't show location dot when spinner is showing
   // TODO: Properly detect height
@@ -97,7 +130,7 @@ type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 function getAnimationFramCallback(
   canvas: HTMLCanvasElement,
   startingCoordinate: Coordinate,
-  connectionState: boolean,
+  connectionState: ConnectionState,
   animationEndListener: () => void,
 ): AnimationFrameCallback {
   const gl = canvas.getContext('webgl2', { antialias: true })!;
