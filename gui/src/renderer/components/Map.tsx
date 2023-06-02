@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
@@ -76,32 +76,49 @@ function MapInner(props: MapInnerProps) {
   // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
-  // Called when the canvas has been rendered
-  const canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
-    if (!canvas) {
-      return;
-    }
+  const canvasRef = useRef<HTMLCanvasElement>();
+  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
+  const [canvasHeight, setCanvasHeight] = useState(493);
 
-    const innerFrameCallback = getAnimationFramCallback(
-      canvas,
-      props.mapParams.location,
-      props.mapParams.connectionState,
-      () => (pause.current = true),
-    );
-
-    frameCallback.current = (now: number) => {
-      innerFrameCallback(now, newParams.current);
-      // Clear new params to avoid setting them multiple times
-      newParams.current = undefined;
-
-      // Stops recursively requesting to be called the next frame when it should be paused
-      if (!pause.current) {
-        requestAnimationFrame(frameCallback.current!);
-      }
-    };
-
-    requestAnimationFrame(frameCallback.current);
+  const updateCanvasSize = useCallback((canvas: HTMLCanvasElement) => {
+    const canvasRect = canvas.getBoundingClientRect();
+    canvas.width = canvasRect.width;
+    canvas.height = canvasRect.height;
+    setCanvasWidth(canvasRect.width);
+    setCanvasHeight(canvasRect.height);
   }, []);
+
+  // Called when the canvas has been rendered
+  const canvasCallback = useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      if (!canvas) {
+        return;
+      }
+
+      updateCanvasSize(canvas);
+
+      const innerFrameCallback = getAnimationFramCallback(
+        canvas,
+        props.mapParams.location,
+        props.mapParams.connectionState,
+        () => (pause.current = true),
+      );
+
+      frameCallback.current = (now: number) => {
+        innerFrameCallback(now, newParams.current);
+        // Clear new params to avoid setting them multiple times
+        newParams.current = undefined;
+
+        // Stops recursively requesting to be called the next frame when it should be paused
+        if (!pause.current) {
+          requestAnimationFrame(frameCallback.current!);
+        }
+      };
+
+      requestAnimationFrame(frameCallback.current);
+    },
+    [updateCanvasSize],
+  );
 
   const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
 
@@ -120,9 +137,21 @@ function MapInner(props: MapInnerProps) {
     }
   }, [props.mapParams.location, props.mapParams.connectionState]);
 
+  useEffect(() => {
+    const resizeCallback = () => {
+      if (canvasRef.current) {
+        updateCanvasSize(canvasRef.current);
+      }
+    };
+
+    addEventListener('resize', resizeCallback);
+    return () => removeEventListener('resize', resizeCallback);
+  }, [updateCanvasSize]);
+
   // TODO: Don't show location dot when spinner is showing
-  // TODO: Properly detect height
-  return <StyledCanvas ref={canvasRef} id="glcanvas" width={window.innerWidth} height="493" />;
+  return (
+    <StyledCanvas ref={combinedCanvasRef} id="glcanvas" width={canvasWidth} height={canvasHeight} />
+  );
 }
 
 type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
