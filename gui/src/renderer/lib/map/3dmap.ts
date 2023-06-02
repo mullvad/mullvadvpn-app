@@ -474,11 +474,15 @@ export default class Map {
 
     const viewMatrix = mat4.create();
 
+    // Offset Y for placing the marker at the same area as the spinner. The zoom calculation is
+    // required for the unsecured and secured markers to be placed in the same spot.
+    const offsetY = 0.123 + (this.zoom - connectedZoom) * 0.3;
+
     // Move the camera back `this.zoom` away from the center of the globe.
     mat4.translate(
       viewMatrix, // destination matrix
       viewMatrix, // matrix to translate
-      [0.0, 0.0, -this.zoom],
+      [0.0, offsetY, -this.zoom],
     );
 
     // Rotate the globe so the camera ends up looking down on `this.coordinate`.
