@@ -27,6 +27,11 @@ interface ZoomAnimation {
   compute(animationRatio: number): number;
 }
 
+export enum ConnectionState {
+  secure,
+  unsecure,
+}
+
 // Color values for various components of the map.
 const landColor: Color = [0.16, 0.302, 0.45, 1.0];
 const oceanColor: Color = [0.098, 0.18, 0.271, 1.0];
@@ -373,7 +378,7 @@ export default class Map {
 
   private coordinate: Coordinate;
   private zoom: number;
-  private connectionState: boolean;
+  private connectionState: ConnectionState;
   private targetCoordinate: Coordinate;
 
   private animations: Array<SmoothLerp>;
@@ -381,7 +386,7 @@ export default class Map {
   public constructor(
     gl: WebGL2RenderingContext,
     startCoordinate: Coordinate,
-    connectionState: boolean,
+    connectionState: ConnectionState,
     private animationEndListener?: () => void,
   ) {
     this.globe = new Globe(gl);
@@ -389,7 +394,7 @@ export default class Map {
     this.locationMarkerUnsecure = new LocationMarker(gl, locationMarkerUnsecureColor);
 
     this.coordinate = startCoordinate;
-    this.zoom = connectionState ? connectedZoom : disconnectedZoom;
+    this.zoom = connectionState === ConnectionState.secure ? connectedZoom : disconnectedZoom;
     this.connectionState = connectionState;
     // `targetCoordinate` is the same as `coordinate` when no animation is in progress.
     // This is where the location marker is drawn.
@@ -400,13 +405,13 @@ export default class Map {
 
   // Move the location marker to `newCoordinate` (with state `connectionState`) and queue
   // animation to move to that coordinate.
-  public setLocation(newCoordinate: Coordinate, connectionState: boolean, now: number) {
+  public setLocation(newCoordinate: Coordinate, connectionState: ConnectionState, now: number) {
     const path = shortestPath(this.coordinate, newCoordinate);
     // Compute animation time as a function of movement distance. Clamp the
     // duration range between animationMinTime and animationMaxTime
     const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
 
-    const endZoom = connectionState ? connectedZoom : disconnectedZoom;
+    const endZoom = connectionState === ConnectionState.secure ? connectedZoom : disconnectedZoom;
     this.animations.push(new SmoothLerp(this.coordinate, path, this.zoom, endZoom, now, duration));
 
     this.connectionState = connectionState;
@@ -434,9 +439,10 @@ export default class Map {
     this.globe.draw(projectionMatrix, viewMatrix);
 
     // Draw the appropriate location marker depending on our connection state.
-    const locationMarker = this.connectionState
-      ? this.locationMarkerSecure
-      : this.locationMarkerUnsecure;
+    const locationMarker =
+      this.connectionState === ConnectionState.secure
+        ? this.locationMarkerSecure
+        : this.locationMarkerUnsecure;
     locationMarker.draw(projectionMatrix, viewMatrix, this.targetCoordinate, 0.03 * this.zoom);
   }
 

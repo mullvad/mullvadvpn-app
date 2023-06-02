@@ -13,7 +13,7 @@ import { useSelector } from '../redux/store';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import Map, { MarkerStyle } from './Map';
+import Map from './Map';
 import NotificationArea from './NotificationArea';
 import TunnelControl from './TunnelControl';
 
@@ -21,15 +21,6 @@ type MarkerOrSpinner = 'marker' | 'spinner' | 'none';
 
 const StyledContainer = styled(Container)({
   position: 'relative',
-});
-
-const StyledMap = styled(Map)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 0,
 });
 
 const Content = styled.div({
@@ -86,26 +77,6 @@ export default function Connect() {
     }
   }, [connection.latitude, connection.status.state]);
 
-  const markerStyle = useMemo<MarkerStyle>(() => {
-    switch (connection.status.state) {
-      case 'connecting':
-      case 'connected':
-        return MarkerStyle.secure;
-      case 'error':
-        return !connection.status.details.blockingError ? MarkerStyle.secure : MarkerStyle.unsecure;
-      case 'disconnected':
-        return MarkerStyle.unsecure;
-      case 'disconnecting':
-        switch (connection.status.details) {
-          case 'block':
-          case 'reconnect':
-            return MarkerStyle.secure;
-          case 'nothing':
-            return MarkerStyle.unsecure;
-        }
-    }
-  }, [connection.status]);
-
   const onSelectLocation = useCallback(() => {
     history.push(RoutePath.selectLocation, { transition: transitions.show });
   }, [history.push]);
@@ -146,7 +117,7 @@ export default function Connect() {
     <Layout>
       <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
-        <StyledMap markerStyle={markerStyle} />
+        <Map />
         <Content>
           <StyledNotificationArea />
 
