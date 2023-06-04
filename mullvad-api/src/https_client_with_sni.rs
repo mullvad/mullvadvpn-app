@@ -26,7 +26,7 @@ use std::{
     fmt,
     future::Future,
     io,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4},
     pin::Pin,
     str::{self, FromStr},
     sync::{Arc, Mutex},
@@ -73,8 +73,10 @@ enum HttpsConnectorRequest {
 enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
-    /// Connect to the destination via a proxy.
-    Proxied(ParsedShadowsocksConfig),
+    /// Connect to the destination via a Shadowsocks bridge.
+    Shadowsocks(ParsedShadowsocksConfig),
+    /// Connect to the destination via a local SOCKS proxy on a given port.
+    LocalSocks5(u16),
 }
 
 #[derive(Clone)]
@@ -103,12 +105,15 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Proxied(ParsedShadowsocksConfig {
+                InnerConnectionMode::Shadowsocks(ParsedShadowsocksConfig {
                     peer: config.peer,
                     password: config.password,
                     cipher: CipherKind::from_str(&config.cipher)
                         .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
                 })
+            }
+            ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(port)) => {
+                InnerConnectionMode::LocalSocks5(port)
             }
         })
     }
@@ -319,7 +324,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
                             Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
                         }
-                        InnerConnectionMode::Proxied(proxy_config) => {
+                        InnerConnectionMode::Shadowsocks(proxy_config) => {
                             let socket = Self::open_socket(
                                 proxy_config.peer,
                                 #[cfg(target_os = "android")]
@@ -332,6 +337,33 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 &ServerConfig::from(proxy_config),
                                 addr,
                             );
+
+                            #[cfg(feature = "api-override")]
+                            if API.disable_tls {
+                                return Ok(ApiConnection::new(Box::new(ConnectionDecorator(
+                                    proxy,
+                                ))));
+                            }
+
+                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
+                            Ok(ApiConnection::new(Box::new(tls_stream)))
+                        }
+                        InnerConnectionMode::LocalSocks5(port) => {
+                            let socket = Self::open_socket(
+                                SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, port)),
+                                #[cfg(target_os = "android")]
+                                socket_bypass_tx.clone(),
+                            )
+                            .await?;
+                            let proxy =
+                                tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
+                                    .await
+                                    .map_err(|error| {
+                                        io::Error::new(
+                                            io::ErrorKind::Other,
+                                            format!("SOCKS error: {error}"),
+                                        )
+                                    })?;
 
                             #[cfg(feature = "api-override")]
                             if API.disable_tls {

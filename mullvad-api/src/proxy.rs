@@ -36,13 +36,14 @@ impl fmt::Display for ApiConnectionMode {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(ShadowsocksProxySettings),
+    LocalSocks(u16),
 }
 
 impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+            ProxyConfig::LocalSocks(port) => write!(f, "SOCKS localhost:{port}/TCP"),
         }
     }
 }
@@ -107,11 +108,14 @@ impl ApiConnectionMode {
         }
     }
 
-    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
+    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`. `None` is also
+    /// returned where the proxy is a local SOCKS proxy.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss)) => Some(ss.peer),
-            ApiConnectionMode::Direct => None,
+            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(_)) => {
+                None
+            }
         }
     }
 
