@@ -185,7 +185,7 @@ impl<
                 let tx = self.command_tx.upgrade();
                 let timeout = request.timeout();
 
-                let hyper_request = request.into_request();
+                let hyper_request = request.into_hyper_request();
 
                 let api_availability = self.api_availability.clone();
                 let suspend_fut = api_availability.wait_for_unsuspend();
@@ -355,7 +355,7 @@ impl RestRequest {
     }
 
     /// Converts into a `hyper::Request<hyper::Body>`
-    fn into_request(self) -> Request {
+    fn into_hyper_request(self) -> Request {
         let Self {
             mut request, auth, ..
         } = self;
