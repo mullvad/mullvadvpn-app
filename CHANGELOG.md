@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add `--help` and `--version` options to the desktop GUI application.
-- Add `mullvad account login --socks5` option to allow logging in via a local SOCKS5 proxy.
+- Add `mullvad account login --socks5` option to allow logging in via a SOCKS5 proxy.
 
 #### Android
 - Add UDP-over-TCP.
