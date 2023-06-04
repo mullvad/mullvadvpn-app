@@ -19,9 +19,10 @@ use hyper::{
 };
 use mullvad_types::account::AccountToken;
 use std::{
+    collections::BTreeMap,
     future::Future,
     str::FromStr,
-    sync::{Arc, Weak},
+    sync::{Arc, Mutex, Weak},
     time::Duration,
 };
 use talpid_types::ErrorExt;
@@ -120,11 +121,15 @@ pub(crate) struct RequestService<
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
+    oneshot_handles: Arc<Mutex<BTreeMap<usize, HttpsConnectorWithSniHandle>>>,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     proxy_config_provider: T,
     new_address_callback: F,
+    sni_hostname: Option<String>,
     address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
+    #[cfg(target_os = "android")]
+    socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
 
 impl<
@@ -142,7 +147,7 @@ impl<
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
-            sni_hostname,
+            sni_hostname.clone(),
             address_cache.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
@@ -168,11 +173,15 @@ impl<
             command_tx: Arc::downgrade(&command_tx),
             command_rx,
             connector_handle,
+            oneshot_handles: Arc::new(Mutex::new(BTreeMap::new())),
             client,
             proxy_config_provider,
             new_address_callback,
+            sni_hostname,
             address_cache,
             api_availability,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
         };
         let handle = RequestServiceHandle { tx: command_tx };
         tokio::spawn(service.into_future());
@@ -181,20 +190,53 @@ impl<
 
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
-            RequestCommand::NewRequest(request, completion_tx) => {
+            RequestCommand::NewRequest(mut request, completion_tx) => {
                 let tx = self.command_tx.upgrade();
                 let timeout = request.timeout();
 
+                let connection_mode = request.connection_mode.take();
+
                 let hyper_request = request.into_hyper_request();
+
+                // Check if we should use a oneshot proxy override for this connection
+                let oneshot_client;
+                let oneshot_client_key;
+                let https_client = if let Some(mode) = connection_mode {
+                    // TODO: Consider caching the client for some period of time to reuse the
+                    // socket.
+                    let (connector, connector_handle) = HttpsConnectorWithSni::new(
+                        self.sni_hostname.clone(),
+                        self.address_cache.clone(),
+                        #[cfg(target_os = "android")]
+                        self.socket_bypass_tx.clone(),
+                    );
+                    oneshot_client = Client::builder().build(connector);
+
+                    connector_handle.set_connection_mode(mode);
+
+                    let mut oneshot_handles = self.oneshot_handles.lock().unwrap();
+                    let connector_index = oneshot_handles.len();
+                    oneshot_handles.insert(connector_index, connector_handle.clone());
+
+                    oneshot_client_key = Some(connector_index);
+
+                    &oneshot_client
+                } else {
+                    oneshot_client_key = None;
+
+                    &self.client
+                };
 
                 let api_availability = self.api_availability.clone();
                 let suspend_fut = api_availability.wait_for_unsuspend();
-                let request_fut = self.client.request(hyper_request).map_err(Error::from);
+                let request_fut = https_client.request(hyper_request).map_err(Error::from);
 
                 let request_future = async move {
                     let _ = suspend_fut.await;
                     request_fut.await
                 };
+
+                let oneshot_handles = self.oneshot_handles.clone();
 
                 let future = async move {
                     let response = tokio::time::timeout(timeout, request_future)
@@ -206,10 +248,18 @@ impl<
                     if let Err(err) = &response {
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-                            if let Some(tx) = tx {
-                                let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
+
+                            if oneshot_client_key.is_none() {
+                                if let Some(tx) = tx {
+                                    let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
+                                }
                             }
                         }
+                    }
+
+                    // Destroy temporary HTTPS client
+                    if let Some(oneshot_key) = oneshot_client_key {
+                        oneshot_handles.lock().unwrap().remove(&oneshot_key);
                     }
 
                     if completion_tx.send(response).is_err() {
@@ -222,6 +272,11 @@ impl<
             }
             RequestCommand::Reset => {
                 self.connector_handle.reset();
+
+                let mut oneshot_handles = self.oneshot_handles.lock().unwrap();
+                for handle in std::mem::take(&mut *oneshot_handles).values() {
+                    handle.reset();
+                }
             }
             RequestCommand::NextApiConfig => {
                 #[cfg(feature = "api-override")]
@@ -297,6 +352,8 @@ pub struct RestRequest {
     request: Request,
     timeout: Duration,
     auth: Option<HeaderValue>,
+    // Override the default connection mode for this request.
+    connection_mode: Option<ApiConnectionMode>,
 }
 
 impl RestRequest {
@@ -321,6 +378,7 @@ impl RestRequest {
             timeout: DEFAULT_TIMEOUT,
             auth: None,
             request,
+            connection_mode: None,
         })
     }
 
@@ -346,6 +404,16 @@ impl RestRequest {
     /// Retrieves timeout
     pub fn timeout(&self) -> Duration {
         self.timeout
+    }
+
+    /// Sets connection mode for the request.
+    pub fn set_connection_mode(&mut self, connection_mode: Option<ApiConnectionMode>) {
+        self.connection_mode = connection_mode;
+    }
+
+    /// Returns the connection mode for this request, overriding the default mode if set.
+    pub fn connection_mode(&self) -> Option<&ApiConnectionMode> {
+        self.connection_mode.as_ref()
     }
 
     pub fn add_header<T: header::IntoHeaderName>(&mut self, key: T, value: &str) -> Result<()> {
@@ -377,6 +445,7 @@ impl From<Request> for RestRequest {
             request,
             timeout: DEFAULT_TIMEOUT,
             auth: None,
+            connection_mode: None,
         }
     }
 }
