@@ -1,4 +1,5 @@
 use crate::{
+    proxy::ApiConnectionMode,
     rest,
     rest::{RequestFactory, RequestServiceHandle},
 };
@@ -17,6 +18,7 @@ pub struct AccessTokenProxy {
     service: RequestServiceHandle,
     factory: RequestFactory,
     access_from_account: Arc<Mutex<HashMap<AccountToken, AccessTokenData>>>,
+    connection_mode: Option<ApiConnectionMode>,
 }
 
 impl AccessTokenProxy {
@@ -25,6 +27,7 @@ impl AccessTokenProxy {
             service,
             factory,
             access_from_account: Arc::new(Mutex::new(HashMap::new())),
+            connection_mode: None,
         }
     }
 
@@ -56,6 +59,10 @@ impl AccessTokenProxy {
                 self.remove_token(account);
             }
         }
+    }
+
+    pub fn set_connection_mode(&mut self, mode: Option<ApiConnectionMode>) {
+        self.connection_mode = mode;
     }
 
     /// Removes a stored access token.
@@ -100,9 +107,10 @@ impl AccessTokenProxy {
 
         let service = self.service.clone();
 
-        let rest_request = self
+        let mut rest_request = self
             .factory
             .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?;
+        rest_request.set_connection_mode(self.connection_mode.clone());
         let response = service.request(rest_request).await?;
         let response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
         rest::deserialize_body(response).await

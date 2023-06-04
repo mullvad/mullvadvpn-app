@@ -548,28 +548,12 @@ impl RequestFactory {
     }
 }
 
-pub fn get_request<T: serde::de::DeserializeOwned>(
-    factory: &RequestFactory,
-    service: RequestServiceHandle,
-    uri: &str,
-    auth: Option<String>,
-    expected_statuses: &'static [hyper::StatusCode],
-) -> impl Future<Output = Result<Response>> + 'static {
-    let request = factory.get(uri);
-    async move {
-        let mut request = request?;
-        request.set_auth(auth)?;
-        let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
-    }
-}
-
 pub fn send_request(
     factory: &RequestFactory,
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    mut auth: Option<(AccessTokenProxy, AccountToken)>,
     connection_mode_override: Option<ApiConnectionMode>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
@@ -577,7 +561,9 @@ pub fn send_request(
 
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
+        if let Some((store, account)) = &mut auth {
+            store.set_connection_mode(connection_mode_override.clone());
+
             let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
@@ -600,14 +586,17 @@ pub fn send_json_request<B: serde::Serialize>(
     uri: &str,
     method: Method,
     body: &B,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    mut auth: Option<(AccessTokenProxy, AccountToken)>,
     connection_mode_override: Option<ApiConnectionMode>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.json_request(method, uri, body);
+
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
+        if let Some((store, account)) = &mut auth {
+            store.set_connection_mode(connection_mode_override.clone());
+
             let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
