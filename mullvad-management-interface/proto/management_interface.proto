@@ -49,6 +49,7 @@ service ManagementService {
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc LoginAccountV2(LoginRequest) returns (google.protobuf.Empty) {}
   rpc LogoutAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
   rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
@@ -86,6 +87,21 @@ service ManagementService {
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message LoginRequest {
+  string account_token = 1;
+  RpcProxySettings proxy_settings = 2;
+}
+
+message RpcProxySettings {
+  oneof Type {
+    LocalSocks5Settings local_socks5 = 1;
+  }
+}
+
+message LocalSocks5Settings {
+  uint32 port = 1;
 }
 
 message RelaySettingsUpdate {

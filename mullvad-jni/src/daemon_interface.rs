@@ -195,7 +195,7 @@ impl DaemonInterface {
     pub fn login_account(&self, account_token: String) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(DaemonCommand::LoginAccount(tx, account_token))?;
+        self.send_command(DaemonCommand::LoginAccount(tx, account_token, None))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?

@@ -1,5 +1,6 @@
 use futures::Stream;
 use hyper::client::connect::Connected;
+use mullvad_types::api::RpcProxySettings;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -22,6 +23,16 @@ pub enum ApiConnectionMode {
     Direct,
     /// Connect to the destination via a proxy.
     Proxied(ProxyConfig),
+}
+
+impl From<RpcProxySettings> for ApiConnectionMode {
+    fn from(value: RpcProxySettings) -> Self {
+        match value {
+            RpcProxySettings::LocalSocks5Settings(settings) => {
+                ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(settings.port))
+            }
+        }
+    }
 }
 
 impl fmt::Display for ApiConnectionMode {

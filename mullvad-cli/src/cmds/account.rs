@@ -2,7 +2,11 @@ use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{account::AccountToken, device::DeviceState};
+use mullvad_types::{
+    account::AccountToken,
+    api::{LocalSocks5Settings, RpcProxySettings},
+    device::DeviceState,
+};
 use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
@@ -17,6 +21,9 @@ pub enum Account {
     Login {
         /// The Mullvad account token to configure the client with
         account: Option<String>,
+        /// Connect using a SOCKS5 proxy running on the specified port on localhost
+        #[arg(long)]
+        socks5: Option<u16>,
     },
 
     /// Log out of the current account
@@ -62,10 +69,11 @@ impl Account {
         let mut rpc = MullvadProxyClient::new().await?;
         match self {
             Account::Create => Self::create(&mut rpc).await,
-            Account::Login { account } => {
+            Account::Login { account, socks5 } => {
                 Self::login(
                     &mut rpc,
                     unwrap_or_from_stdin(account, "Enter an account number: ").await,
+                    socks5,
                 )
                 .await
             }
@@ -87,8 +95,19 @@ impl Account {
         Self::get(rpc, false).await
     }
 
-    async fn login(rpc: &mut MullvadProxyClient, token: AccountToken) -> Result<()> {
-        rpc.login_account(token.clone()).await?;
+    async fn login(
+        rpc: &mut MullvadProxyClient,
+        token: AccountToken,
+        socks5_port: Option<u16>,
+    ) -> Result<()> {
+        let proxy_settings = match socks5_port {
+            Some(port) => Some(RpcProxySettings::LocalSocks5Settings(LocalSocks5Settings {
+                port,
+            })),
+            None => None,
+        };
+
+        rpc.login_account(token.clone(), proxy_settings).await?;
         println!("Mullvad account \"{token}\" set");
         Ok(())
     }

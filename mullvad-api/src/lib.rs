@@ -396,6 +396,7 @@ impl AccountsProxy {
                 &format!("{ACCOUNTS_URL_PREFIX}/accounts/me"),
                 Method::GET,
                 Some((access_proxy, account)),
+                None,
                 &[StatusCode::OK],
             )
             .await;
@@ -417,6 +418,7 @@ impl AccountsProxy {
             service,
             &format!("{ACCOUNTS_URL_PREFIX}/accounts"),
             Method::POST,
+            None,
             None,
             &[StatusCode::CREATED],
         );
@@ -450,6 +452,7 @@ impl AccountsProxy {
                 Method::POST,
                 &submission,
                 Some((access_proxy, account_token)),
+                None,
                 &[StatusCode::OK],
             )
             .await;
@@ -477,6 +480,7 @@ impl AccountsProxy {
                 &format!("{APP_URL_PREFIX}/www-auth-token"),
                 Method::POST,
                 Some((access_proxy, account)),
+                None,
                 &[StatusCode::OK],
             )
             .await;
@@ -525,6 +529,7 @@ impl ProblemReportProxy {
             &format!("{APP_URL_PREFIX}/problem-report"),
             Method::POST,
             &report,
+            None,
             None,
             &[StatusCode::NO_CONTENT],
         );
@@ -604,6 +609,7 @@ impl ApiProxy {
             service,
             &format!("{APP_URL_PREFIX}/api-addrs"),
             Method::GET,
+            None,
             None,
             &[StatusCode::OK],
         )

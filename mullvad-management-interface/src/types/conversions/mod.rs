@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 mod account;
+mod api;
 mod custom_tunnel;
 mod device;
 mod location;

@@ -4,7 +4,7 @@ use futures::{
     stream::StreamExt,
 };
 
-use mullvad_api::rest;
+use mullvad_api::{proxy::ApiConnectionMode, rest};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     device::{
@@ -301,7 +301,7 @@ impl Error {
 type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 
 enum AccountManagerCommand {
-    Login(AccountToken, ResponseTx<()>),
+    Login(AccountToken, Option<ApiConnectionMode>, ResponseTx<()>),
     Logout(ResponseTx<()>),
     SetData(PrivateAccountAndDevice, ResponseTx<()>),
     GetData(ResponseTx<PrivateDeviceState>),
@@ -323,7 +323,16 @@ pub(crate) struct AccountManagerHandle {
 
 impl AccountManagerHandle {
     pub async fn login(&self, token: AccountToken) -> Result<(), Error> {
-        self.send_command(|tx| AccountManagerCommand::Login(token, tx))
+        self.send_command(|tx| AccountManagerCommand::Login(token, None, tx))
+            .await
+    }
+
+    pub async fn login_with_connection_mode(
+        &self,
+        token: AccountToken,
+        connection_mode: Option<ApiConnectionMode>,
+    ) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::Login(token, connection_mode, tx))
             .await
     }
 
@@ -465,9 +474,15 @@ impl AccountManager {
                             shutdown_tx = Some(tx);
                             break;
                         }
-                        Some(AccountManagerCommand::Login(token, tx)) => {
-                            let job = self.device_service
-                                .generate_for_account(token);
+                        Some(AccountManagerCommand::Login(token, mode, tx)) => {
+                            let job = if let Some(mode) = mode {
+                                // A oneshot request that overrides the default connection mode
+                                let mut service = self.device_service.clone();
+                                service.set_connection_mode(Some(mode));
+                                service.generate_for_account(token)
+                            } else {
+                                self.device_service.generate_for_account(token)
+                            };
                             current_api_call.set_login(Box::pin(job), tx);
                         }
                         Some(AccountManagerCommand::Logout(tx)) => {

@@ -35,12 +35,14 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
+use mullvad_api::proxy::ApiConnectionMode;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    api::RpcProxySettings,
     auth_failed::AuthFailed,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -197,8 +199,12 @@ pub enum DaemonCommand {
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
-    /// Log in with a given account and create a new device.
-    LoginAccount(ResponseTx<(), Error>, AccountToken),
+    /// Log in with a given account and create a new device. Optionally, specify a proxy to use.
+    LoginAccount(
+        ResponseTx<(), Error>,
+        AccountToken,
+        Option<RpcProxySettings>,
+    ),
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration.
@@ -980,7 +986,9 @@ where
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
+            LoginAccount(tx, account_token, connection_mode) => {
+                self.on_login_account(tx, account_token, connection_mode)
+            }
             LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx).await,
             UpdateDevice(tx) => self.on_update_device(tx).await,
@@ -1356,14 +1364,24 @@ where
         self.relay_list_updater.update().await;
     }
 
-    fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
+    fn on_login_account(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        account_token: String,
+        proxy_settings: Option<RpcProxySettings>,
+    ) {
         let account_manager = self.account_manager.clone();
+        let connection_mode = proxy_settings.map(ApiConnectionMode::from);
+
         tokio::spawn(async move {
             let result = async {
-                account_manager.login(account_token).await.map_err(|error| {
-                    log::error!("{}", error.display_chain_with_msg("Login failed"));
-                    Error::LoginError(error)
-                })
+                account_manager
+                    .login_with_connection_mode(account_token, connection_mode)
+                    .await
+                    .map_err(|error| {
+                        log::error!("{}", error.display_chain_with_msg("Login failed"));
+                        Error::LoginError(error)
+                    })
             };
             Self::oneshot_send(tx, result.await, "login_account response");
         });

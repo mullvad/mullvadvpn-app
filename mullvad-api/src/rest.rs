@@ -570,6 +570,7 @@ pub fn send_request(
     uri: &str,
     method: Method,
     auth: Option<(AccessTokenProxy, AccountToken)>,
+    connection_mode_override: Option<ApiConnectionMode>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
@@ -580,6 +581,8 @@ pub fn send_request(
             let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
+        request.set_connection_mode(connection_mode_override);
+
         let response = service.request(request).await?;
         let result = parse_rest_response(response, expected_statuses).await;
 
@@ -598,6 +601,7 @@ pub fn send_json_request<B: serde::Serialize>(
     method: Method,
     body: &B,
     auth: Option<(AccessTokenProxy, AccountToken)>,
+    connection_mode_override: Option<ApiConnectionMode>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.json_request(method, uri, body);
@@ -607,6 +611,8 @@ pub fn send_json_request<B: serde::Serialize>(
             let access_token = store.get_token(account).await?;
             request.set_auth(Some(access_token))?;
         }
+        request.set_connection_mode(connection_mode_override);
+
         let response = service.request(request).await?;
         let result = parse_rest_response(response, expected_statuses).await;
 

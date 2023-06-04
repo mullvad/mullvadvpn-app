@@ -4,6 +4,7 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    api::RpcProxySettings,
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -296,9 +297,17 @@ impl MullvadProxyClient {
             .into_inner())
     }
 
-    pub async fn login_account(&mut self, account: AccountToken) -> Result<()> {
+    pub async fn login_account(
+        &mut self,
+        account: AccountToken,
+        proxy_settings: Option<RpcProxySettings>,
+    ) -> Result<()> {
+        let login_request = types::LoginRequest {
+            account_token: account,
+            proxy_settings: proxy_settings.map(types::RpcProxySettings::from),
+        };
         self.0
-            .login_account(account)
+            .login_account_v2(login_request)
             .await
             .map_err(map_device_error)?;
         Ok(())

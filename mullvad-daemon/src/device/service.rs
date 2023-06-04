@@ -12,6 +12,7 @@ use talpid_types::net::wireguard::PrivateKey;
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
+    proxy::ApiConnectionMode,
     rest::{self, Error as RestError, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
 };
@@ -37,6 +38,10 @@ impl DeviceService {
             proxy: DevicesProxy::new(handle),
             api_availability,
         }
+    }
+
+    pub fn set_connection_mode(&mut self, mode: Option<ApiConnectionMode>) {
+        self.proxy.set_connection_mode(mode);
     }
 
     /// Generate a new device for a given token

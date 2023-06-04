@@ -7,13 +7,15 @@ use mullvad_types::{
 use std::future::Future;
 use talpid_types::net::wireguard;
 
-use crate::rest;
+use crate::{proxy::ApiConnectionMode, rest};
 
 use super::ACCOUNTS_URL_PREFIX;
 
 #[derive(Clone)]
 pub struct DevicesProxy {
     handle: rest::MullvadRestHandle,
+    // Override the default connection mode
+    connection_mode: Option<ApiConnectionMode>,
 }
 
 #[derive(serde::Deserialize)]
@@ -30,7 +32,10 @@ struct DeviceResponse {
 
 impl DevicesProxy {
     pub fn new(handle: rest::MullvadRestHandle) -> Self {
-        Self { handle }
+        Self {
+            handle,
+            connection_mode: None,
+        }
     }
 
     pub fn create(
@@ -53,6 +58,7 @@ impl DevicesProxy {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
+        let connection_mode = self.connection_mode.clone();
 
         async move {
             let response = rest::send_json_request(
@@ -62,6 +68,7 @@ impl DevicesProxy {
                 Method::POST,
                 &submission,
                 Some((access_proxy, account)),
+                connection_mode,
                 &[StatusCode::CREATED],
             )
             .await;
@@ -104,6 +111,7 @@ impl DevicesProxy {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
+        let connection_mode = self.connection_mode.clone();
         async move {
             let response = rest::send_request(
                 &factory,
@@ -111,6 +119,7 @@ impl DevicesProxy {
                 &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"),
                 Method::GET,
                 Some((access_proxy, account)),
+                connection_mode,
                 &[StatusCode::OK],
             )
             .await;
@@ -125,6 +134,7 @@ impl DevicesProxy {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
+        let connection_mode = self.connection_mode.clone();
         async move {
             let response = rest::send_request(
                 &factory,
@@ -132,6 +142,7 @@ impl DevicesProxy {
                 &format!("{ACCOUNTS_URL_PREFIX}/devices"),
                 Method::GET,
                 Some((access_proxy, account)),
+                connection_mode,
                 &[StatusCode::OK],
             )
             .await;
@@ -147,6 +158,7 @@ impl DevicesProxy {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
+        let connection_mode = self.connection_mode.clone();
         async move {
             let response = rest::send_request(
                 &factory,
@@ -154,6 +166,7 @@ impl DevicesProxy {
                 &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"),
                 Method::DELETE,
                 Some((access_proxy, account)),
+                connection_mode,
                 &[StatusCode::NO_CONTENT],
             )
             .await;
@@ -179,6 +192,7 @@ impl DevicesProxy {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
+        let connection_mode = self.connection_mode.clone();
 
         async move {
             let response = rest::send_json_request(
@@ -188,6 +202,7 @@ impl DevicesProxy {
                 Method::PUT,
                 &req_body,
                 Some((access_proxy, account)),
+                connection_mode,
                 &[StatusCode::OK],
             )
             .await;
@@ -203,5 +218,9 @@ impl DevicesProxy {
                 ipv6_address,
             })
         }
+    }
+
+    pub fn set_connection_mode(&mut self, connection_mode: Option<ApiConnectionMode>) {
+        self.connection_mode = connection_mode;
     }
 }

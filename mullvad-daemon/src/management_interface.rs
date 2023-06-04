@@ -13,6 +13,7 @@ use mullvad_paths;
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
+    api::RpcProxySettings,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::Settings,
@@ -396,7 +397,25 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("login_account");
         let account_token = request.into_inner();
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_token))?;
+        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_token, None))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn login_account_v2(&self, request: Request<types::LoginRequest>) -> ServiceResult<()> {
+        log::debug!("login_account_v2");
+        let login_request = request.into_inner();
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::LoginAccount(
+            tx,
+            login_request.account_token,
+            login_request
+                .proxy_settings
+                .map(RpcProxySettings::try_from)
+                .transpose()?,
+        ))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
