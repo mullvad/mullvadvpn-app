@@ -28,8 +28,8 @@ pub enum ApiConnectionMode {
 impl From<RpcProxySettings> for ApiConnectionMode {
     fn from(value: RpcProxySettings) -> Self {
         match value {
-            RpcProxySettings::LocalSocks5Settings(settings) => {
-                ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(settings.port))
+            RpcProxySettings::Socks5(settings) => {
+                ApiConnectionMode::Proxied(ProxyConfig::Socks5(settings.address))
             }
         }
     }
@@ -47,14 +47,14 @@ impl fmt::Display for ApiConnectionMode {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(ShadowsocksProxySettings),
-    LocalSocks(u16),
+    Socks5(SocketAddr),
 }
 
 impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
-            ProxyConfig::LocalSocks(port) => write!(f, "SOCKS localhost:{port}/TCP"),
+            ProxyConfig::Socks5(addr) => write!(f, "SOCKS {addr}/TCP"),
         }
     }
 }
@@ -124,9 +124,14 @@ impl ApiConnectionMode {
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss)) => Some(ss.peer),
-            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(_)) => {
-                None
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5(addr)) => {
+                if addr.ip().is_loopback() {
+                    None
+                } else {
+                    Some(*addr)
+                }
             }
+            ApiConnectionMode::Direct => None,
         }
     }
 

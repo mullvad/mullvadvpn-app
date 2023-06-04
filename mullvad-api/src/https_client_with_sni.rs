@@ -26,7 +26,7 @@ use std::{
     fmt,
     future::Future,
     io,
-    net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4},
+    net::{IpAddr, SocketAddr},
     pin::Pin,
     str::{self, FromStr},
     sync::{Arc, Mutex},
@@ -75,8 +75,8 @@ enum InnerConnectionMode {
     Direct,
     /// Connect to the destination via a Shadowsocks bridge.
     Shadowsocks(ParsedShadowsocksConfig),
-    /// Connect to the destination via a local SOCKS proxy on a given port.
-    LocalSocks5(u16),
+    /// Connect to the destination via a SOCKS proxy.
+    Socks5(SocketAddr),
 }
 
 #[derive(Clone)]
@@ -112,8 +112,8 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                         .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
                 })
             }
-            ApiConnectionMode::Proxied(ProxyConfig::LocalSocks(port)) => {
-                InnerConnectionMode::LocalSocks5(port)
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5(settings)) => {
+                InnerConnectionMode::Socks5(settings)
             }
         })
     }
@@ -348,9 +348,9 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
                             Ok(ApiConnection::new(Box::new(tls_stream)))
                         }
-                        InnerConnectionMode::LocalSocks5(port) => {
+                        InnerConnectionMode::Socks5(proxy_addr) => {
                             let socket = Self::open_socket(
-                                SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, port)),
+                                proxy_addr,
                                 #[cfg(target_os = "android")]
                                 socket_bypass_tx.clone(),
                             )

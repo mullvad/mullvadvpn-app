@@ -4,10 +4,13 @@ use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     account::AccountToken,
-    api::{LocalSocks5Settings, RpcProxySettings},
+    api::{RpcProxySettings, Socks5Settings},
     device::DeviceState,
 };
-use std::io::{self, Write};
+use std::{
+    io::{self, Write},
+    net::SocketAddr,
+};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
 const REVOKED_MESSAGE: &str = "The current device has been revoked";
@@ -21,9 +24,9 @@ pub enum Account {
     Login {
         /// The Mullvad account token to configure the client with
         account: Option<String>,
-        /// Connect using a SOCKS5 proxy running on the specified port on localhost
+        /// Connect using a SOCKS5 proxy on the specified address
         #[arg(long)]
-        socks5: Option<u16>,
+        socks5: Option<SocketAddr>,
     },
 
     /// Log out of the current account
@@ -98,12 +101,10 @@ impl Account {
     async fn login(
         rpc: &mut MullvadProxyClient,
         token: AccountToken,
-        socks5_port: Option<u16>,
+        socks5_addr: Option<SocketAddr>,
     ) -> Result<()> {
-        let proxy_settings = match socks5_port {
-            Some(port) => Some(RpcProxySettings::LocalSocks5Settings(LocalSocks5Settings {
-                port,
-            })),
+        let proxy_settings = match socks5_addr {
+            Some(address) => Some(RpcProxySettings::Socks5(Socks5Settings { address })),
             None => None,
         };
 

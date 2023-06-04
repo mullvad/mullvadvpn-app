@@ -1,9 +1,11 @@
+use std::net::SocketAddr;
+
 #[derive(Debug, Clone)]
 pub enum RpcProxySettings {
-    LocalSocks5Settings(LocalSocks5Settings),
+    Socks5(Socks5Settings),
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct LocalSocks5Settings {
-    pub port: u16,
+pub struct Socks5Settings {
+    pub address: SocketAddr,
 }

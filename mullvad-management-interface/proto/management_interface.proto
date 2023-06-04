@@ -96,12 +96,12 @@ message LoginRequest {
 
 message RpcProxySettings {
   oneof Type {
-    LocalSocks5Settings local_socks5 = 1;
+    Socks5Settings socks5 = 1;
   }
 }
 
-message LocalSocks5Settings {
-  uint32 port = 1;
+message Socks5Settings {
+  string proxy_endpoint = 1;
 }
 
 message RelaySettingsUpdate {
