@@ -294,7 +294,7 @@ impl RouteMessage {
 
         let payload_len: usize = payload_bytes.iter().map(Vec::len).sum();
 
-        let rtm_msglen = (payload_len + std::mem::size_of::<super::data::rt_msghdr>())
+        let rtm_msglen = (payload_len + ROUTE_MESSAGE_HEADER_SIZE)
             .try_into()
             .expect("route message buffer size cannot fit in 32 bits");
 
