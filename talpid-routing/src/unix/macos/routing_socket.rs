@@ -105,6 +105,7 @@ impl RoutingSocket {
         let (header, payload) = message.payload(msg_type, seq, self.own_pid);
         let mut msg_buffer = vec![0u8; header.rtm_msglen.into()];
 
+        // SAFETY: `msg_buffer` is guaranteed to be at least as large as `rt_msghdr`.
         unsafe {
             std::ptr::copy_nonoverlapping(
                 &header as *const _ as *const u8,
