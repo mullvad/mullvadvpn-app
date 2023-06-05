@@ -13,13 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.CustomDnsOptions
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions
-import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.DnsState
-import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelOptions
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
@@ -37,16 +31,15 @@ class VpnSettingsViewModelTest {
     private val mockInetAddressValidator: InetAddressValidator = mockk()
     private val mockResources: Resources = mockk()
 
-    // Flows
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
 
-    private lateinit var testSubject: VpnSettingsViewModel
+    private lateinit var viewModel: VpnSettingsViewModel
 
     @Before
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
 
-        testSubject =
+        viewModel =
             VpnSettingsViewModel(
                 repository = mockSettingsRepository,
                 inetAddressValidator = mockInetAddressValidator,
@@ -57,14 +50,17 @@ class VpnSettingsViewModelTest {
 
     @After
     fun tearDown() {
-        testSubject.viewModelScope.coroutineContext.cancel()
+        viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
 
     @Test
     fun test_select_quantum_resistant_state_select() = runTest {
         val quantumResistantState = QuantumResistantState.On
-        testSubject.onSelectQuantumResistanceSetting(quantumResistantState)
+        every {
+            mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
+        } returns Unit
+        viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
         verify(exactly = 1) {
             mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
         }
@@ -73,7 +69,7 @@ class VpnSettingsViewModelTest {
     @Test
     fun test_update_quantum_resistant_default_state() = runTest {
         val expectedResistantState = QuantumResistantState.Off
-        testSubject.uiState.test {
+        viewModel.uiState.test {
             assertEquals(expectedResistantState, awaitItem().quantumResistant)
         }
     }
@@ -82,27 +78,15 @@ class VpnSettingsViewModelTest {
     fun test_update_quantum_resistant_update_state() = runTest {
         val defaultResistantState = QuantumResistantState.Off
         val expectedResistantState = QuantumResistantState.On
-        val mockSettings: Settings = mockk()
-        val mockTunnelOptions: TunnelOptions = mockk()
-        val mockDnsOptions: DnsOptions = mockk()
-        val mockCustomDnsOptions: CustomDnsOptions = mockk()
-        val mockWireguardTunnelOptions: WireguardTunnelOptions = mockk()
-        val mockDefaultDnsOptions: DefaultDnsOptions = mockk()
-        val mockObfuscationSettings: ObfuscationSettings = mockk()
+        val mockSettings: Settings = mockk(relaxed = true)
+        val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
+        val mockWireguardTunnelOptions: WireguardTunnelOptions = mockk(relaxed = true)
+
         every { mockSettings.tunnelOptions } returns mockTunnelOptions
-        every { mockSettings.autoConnect } returns false
-        every { mockSettings.allowLan } returns false
-        every { mockSettings.obfuscationSettings } returns mockObfuscationSettings
-        every { mockObfuscationSettings.selectedObfuscation } returns SelectedObfuscation.Auto
-        every { mockTunnelOptions.dnsOptions } returns mockDnsOptions
-        every { mockDnsOptions.state } returns DnsState.Default
-        every { mockDnsOptions.customOptions } returns mockCustomDnsOptions
-        every { mockCustomDnsOptions.addresses } returns ArrayList()
-        every { mockDnsOptions.defaultOptions } returns mockDefaultDnsOptions
         every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
-        every { mockWireguardTunnelOptions.mtu } returns 100
         every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
-        testSubject.uiState.test {
+
+        viewModel.uiState.test {
             assertEquals(defaultResistantState, awaitItem().quantumResistant)
             mockSettingsUpdate.value = mockSettings
             assertEquals(expectedResistantState, awaitItem().quantumResistant)
