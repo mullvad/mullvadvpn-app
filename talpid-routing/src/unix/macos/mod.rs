@@ -58,7 +58,8 @@ pub enum Error {
 /// default nodes. Once the routes are reapplied, the route table changes are monitored again.
 pub struct RouteManagerImpl {
     routing_table: RoutingTable,
-    default_destinations: HashSet<IpNetwork>,
+    // Routes that use the default non-tunnel interface
+    non_tunnel_routes: HashSet<IpNetwork>,
     v4_tunnel_default_route: Option<data::RouteMessage>,
     v6_tunnel_default_route: Option<data::RouteMessage>,
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
@@ -73,7 +74,7 @@ impl RouteManagerImpl {
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
         Ok(Self {
             routing_table,
-            default_destinations: HashSet::new(),
+            non_tunnel_routes: HashSet::new(),
             v4_tunnel_default_route: None,
             v6_tunnel_default_route: None,
             applied_routes: BTreeMap::new(),
@@ -181,7 +182,7 @@ impl RouteManagerImpl {
         for route in required_routes {
             match route.node {
                 NetNode::DefaultNode => {
-                    self.default_destinations.insert(route.prefix);
+                    self.non_tunnel_routes.insert(route.prefix);
                 }
 
                 NetNode::RealNode(node) => routes_to_apply.push(Route::new(node, route.prefix)),
@@ -227,8 +228,8 @@ impl RouteManagerImpl {
         self.apply_tunnel_default_route().await?;
 
         // Add routes that use the default interface
-        if let Err(error) = self.apply_default_destinations().await {
-            self.default_destinations.clear();
+        if let Err(error) = self.apply_non_tunnel_routes().await {
+            self.non_tunnel_routes.clear();
             return Err(error);
         }
 
@@ -332,7 +333,7 @@ impl RouteManagerImpl {
         self.apply_tunnel_default_route().await?;
 
         // Update routes using default interface
-        self.apply_default_destinations().await?;
+        self.apply_non_tunnel_routes().await?;
 
         Ok(())
     }
@@ -345,7 +346,7 @@ impl RouteManagerImpl {
         // NOTE: This is incorrect. We're assuming that any "default destination" is used for
         // tunneling.
         let (v4_conn, v6_conn) = self
-            .default_destinations
+            .non_tunnel_routes
             .iter()
             .fold((false, false), |(v4, v6), route| {
                 (v4 || route.is_ipv4(), v6 || route.is_ipv6())
@@ -379,7 +380,7 @@ impl RouteManagerImpl {
 
     /// Update/add routes that use the default non-tunnel interface. If some applied destination is
     /// a default route, this function replaces the non-tunnel default route with an ifscope route.
-    async fn apply_default_destinations(&mut self) -> Result<()> {
+    async fn apply_non_tunnel_routes(&mut self) -> Result<()> {
         let v4_gateway = self
             .v4_default_route
             .as_ref()
@@ -392,7 +393,7 @@ impl RouteManagerImpl {
             .cloned();
 
         // Reapply routes that use the default (non-tunnel) node
-        for dest in self.default_destinations.clone() {
+        for dest in self.non_tunnel_routes.clone() {
             let gateway = if dest.is_ipv4() {
                 v4_gateway.clone()
             } else {
@@ -503,7 +504,7 @@ impl RouteManagerImpl {
         self.v4_tunnel_default_route = None;
         self.v6_tunnel_default_route = None;
 
-        self.default_destinations.clear();
+        self.non_tunnel_routes.clear();
 
         Ok(())
     }
