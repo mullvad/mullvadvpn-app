@@ -2,24 +2,9 @@
 //! that the app gets stuck in an offline state, blocking all internet access and preventing the
 //! user from connecting to a relay.
 //!
-//! Currently, this functionality is implemented by using `route monitor -n` to observe routing
-//! table changes and then use the CLI once more to query if there exists a default route.
-//! Generally, it is assumed that a machine is online if there exists a route to a public IP
-//! address that isn't using a tunnel adapter. On macOS, there were various ways of deducing this:
-//! - watching the `State:/Network/Global/IPv4`  key in SystemConfiguration via
-//!  `system-configuration-rs`, relying on a CoreFoundation runloop to drive callbacks.
-//!   The issue with this is that sometimes during early boot or after a re-install, the callbacks
-//!   won't be called, often leaving the daemon stuck in an offline state.
-//! - setting a callback via [`SCNetworkReachability`]. The callback should be called whenever the
-//!   reachability of a remote host changes, but sometimes the callbacks just don't get called.
-//! - [`NWPathMonitor`] is a macOS native interface to watch changes in the routing table. It works
-//!   great, but it seems to deliver updates before they actually get added to the routing table,
-//!   effectively calling our callbacks with routes that aren't yet usable, so starting tunnels
-//!   would fail anyway. This would be the API to use if we were able to bind the sockets our tunnel
-//!   implementations would use, but that is far too much complexity.
-//!
-//! [`SCNetworkReachability`]: https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
-//! [`NWPathMonitor`]: https://developer.apple.com/documentation/network/nwpathmonitor
+//! Currently, this functionality is implemented by watching for changes to the default route
+//! in [`RouteManager`] using a `PF_ROUTE` socket. If there is no default route for neither IPv4 nor
+//! IPv6, the host is considered to be offline.
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
 use std::{
     sync::{
@@ -73,6 +58,8 @@ pub async fn spawn_monitor(
         Ok((v4_route, v6_route)) => (v4_route.is_some(), v6_route.is_some()),
         Err(error) => {
             log::warn!("Failed to initialize offline monitor: {error}");
+            // Fail open: Assume that we have connectivity if we cannot determine the existence of
+            // a default route, since we don't want to block the user from connecting
             (true, true)
         }
     };
