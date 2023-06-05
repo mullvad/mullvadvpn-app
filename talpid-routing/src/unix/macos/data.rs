@@ -374,7 +374,6 @@ impl RouteMessage {
             self.interface_index = iface_index;
             self.route_flags.insert(RouteFlag::RTF_IFSCOPE);
         } else {
-            // self.interface_index = iface_index;
             self.route_flags.remove(RouteFlag::RTF_IFSCOPE);
         }
 
