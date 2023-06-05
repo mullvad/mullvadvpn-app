@@ -8,8 +8,6 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
-    #[error(display = "Failed to resolve interface name to index")]
-    ResolveInterfaceName(nix::Error),
     #[error(display = "Failed to open routing socket")]
     RoutingSocket(routing_socket::Error),
     #[error(display = "Invalid message")]
@@ -24,10 +22,6 @@ pub enum Error {
     Unreachable,
     #[error(display = "Failed to delete a route")]
     Deletion(RouteMessage),
-    #[error(display = "Failed to add a route")]
-    Add(RouteMessage),
-    #[error(display = "Faield to fetch a route")]
-    Get(RouteMessage),
 }
 
 /// Provides an interface for manipulating the routing table on macOS using a PF_ROUTE socket.
