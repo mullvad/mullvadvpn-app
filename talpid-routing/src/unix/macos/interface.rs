@@ -29,8 +29,8 @@ pub async fn get_best_default_route(
     family: Family,
 ) -> Option<RouteMessage> {
     let destination = match family {
-        Family::V4 => v4_default(),
-        Family::V6 => v6_default(),
+        Family::V4 => super::v4_default(),
+        Family::V6 => super::v6_default(),
     };
 
     let mut msg = RouteMessage::new_route(Destination::Network(destination));
@@ -80,12 +80,4 @@ fn network_service_order() -> Vec<String> {
                 .map(|cf_name| cf_name.to_string())
         })
         .collect::<Vec<_>>()
-}
-
-fn v4_default() -> IpNetwork {
-    IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap()
-}
-
-fn v6_default() -> IpNetwork {
-    IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap()
 }

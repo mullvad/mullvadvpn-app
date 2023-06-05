@@ -293,12 +293,12 @@ impl RouteManagerImpl {
             }
         }
 
-        self.update_best_default_route(if route.is_ipv4() {
+        let ip_version = if route.is_ipv4() {
             interface::Family::V4
         } else {
             interface::Family::V6
-        })
-        .await
+        };
+        self.update_best_default_route(ip_version).await
     }
 
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
