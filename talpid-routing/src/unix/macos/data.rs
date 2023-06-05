@@ -606,6 +606,20 @@ impl Interface {
     pub fn index(&self) -> u16 {
         self.header.ifm_index
     }
+
+    fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
+        const INTERFACE_MESSAGE_HEADER_SIZE: usize = std::mem::size_of::<libc::if_msghdr>();
+        if INTERFACE_MESSAGE_HEADER_SIZE > buffer.len() {
+            return Err(Error::BufferTooSmall(
+                "if_msghdr",
+                buffer.len(),
+                INTERFACE_MESSAGE_HEADER_SIZE,
+            ));
+        }
+        let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
+        let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
+        Ok(Self { header, payload })
+    }
 }
 
 impl std::fmt::Debug for Interface {
@@ -662,22 +676,6 @@ impl std::fmt::Debug for Interface {
             .field("header", &header)
             .field("payload", &self.payload)
             .finish()
-    }
-}
-
-impl Interface {
-    fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
-        const INTERFACE_MESSAGE_HEADER_SIZE: usize = std::mem::size_of::<libc::if_msghdr>();
-        if INTERFACE_MESSAGE_HEADER_SIZE > buffer.len() {
-            return Err(Error::BufferTooSmall(
-                "if_msghdr",
-                buffer.len(),
-                INTERFACE_MESSAGE_HEADER_SIZE,
-            ));
-        }
-        let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
-        let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
-        Ok(Self { header, payload })
     }
 }
 
