@@ -282,6 +282,9 @@ impl RouteMessage {
             flag | addr.address_flag()
         });
 
+        // The sockaddrs should be ordered by their address flag in the payload,
+        // because the payload does not contain their flags. Flags are only specified
+        // in the header.
         let mut sockaddrs = self.route_addrs().collect::<Vec<_>>();
         sockaddrs.sort_by_key(|saddr| saddr.address_flag());
         let payload_bytes = sockaddrs
