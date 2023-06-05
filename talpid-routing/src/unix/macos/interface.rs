@@ -1,10 +1,5 @@
-use std::{
-    ffi::CString,
-    net::{Ipv4Addr, Ipv6Addr},
-};
-
-use ipnetwork::IpNetwork;
 use nix::net::if_::if_nametoindex;
+use std::ffi::CString;
 use system_configuration::{
     core_foundation::string::CFString,
     network_configuration::{SCNetworkService, SCNetworkSet},
