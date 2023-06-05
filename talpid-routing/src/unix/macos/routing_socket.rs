@@ -98,7 +98,6 @@ impl RoutingSocket {
         }
     }
 
-    /// Will panic if the message length ends up overflowing an i32.
     fn next_route_msg(&mut self, message: &RouteMessage, msg_type: MessageType) -> (Vec<u8>, i32) {
         let seq = self.seq;
         self.seq = seq.wrapping_add(1);
