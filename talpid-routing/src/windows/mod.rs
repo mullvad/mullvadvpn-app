@@ -148,8 +148,7 @@ pub enum RouteManagerCommand {
 }
 
 impl RouteManager {
-    /// Creates a new route manager that will apply the provided routes and ensure they exist until
-    /// it's stopped.
+    /// Create a new route manager
     pub async fn new() -> Result<Self> {
         let internal = match RouteManagerInternal::new() {
             Ok(internal) => internal,

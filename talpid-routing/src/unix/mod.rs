@@ -232,9 +232,7 @@ pub struct RouteManager {
 }
 
 impl RouteManager {
-    /// Constructs a RouteManager and applies the required routes.
-    /// Takes a set of network destinations and network nodes as an argument, and applies said
-    /// routes.
+    /// Construct a RouteManager.
     pub async fn new(
         #[cfg(target_os = "linux")] fwmark: u32,
         #[cfg(target_os = "linux")] table_id: u32,

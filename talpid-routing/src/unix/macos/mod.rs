@@ -68,7 +68,7 @@ pub struct RouteManagerImpl {
 }
 
 impl RouteManagerImpl {
-    /// create new route manager
+    /// Create new route manager
     pub async fn new() -> Result<Self> {
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
         Ok(Self {
