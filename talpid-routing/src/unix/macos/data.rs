@@ -884,6 +884,8 @@ impl RouteSocketAddress {
             None => vec![0u8; 4],
             Some(addr) => {
                 let len = usize::try_from(addr.len()).unwrap();
+                assert!(len >= 4);
+
                 // The "serialized" socket addresses must be padded to be aligned to 4 bytes, with
                 // the smallest size being 4 bytes.
                 let buffer_size = len + len % 4;
