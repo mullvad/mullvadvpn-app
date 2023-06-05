@@ -167,7 +167,7 @@ impl RouteMessage {
     }
 
     pub fn set_interface_addr(mut self, link: &InterfaceAddress) -> Self {
-        self.insert_sockaddr(RouteSocketAddress::Gateway(link.address.clone()));
+        self.insert_sockaddr(RouteSocketAddress::Gateway(link.address));
         self.route_flags |= RouteFlag::RTF_GATEWAY;
         self
     }
