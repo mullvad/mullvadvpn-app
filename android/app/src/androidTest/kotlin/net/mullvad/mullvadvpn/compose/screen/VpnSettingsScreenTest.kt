@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -577,10 +579,10 @@ class VpnSettingsScreenTest {
         }
         composeTestRule
             .onNodeWithTag(LAZY_LIST_TEST_TAG)
-            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+            .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
 
         // Assert
-        composeTestRule.onNodeWithText("On").assertExists()
+        composeTestRule.onNodeWithTag(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG).assertExists()
     }
 
     @Test
@@ -601,10 +603,10 @@ class VpnSettingsScreenTest {
         }
         composeTestRule
             .onNodeWithTag(LAZY_LIST_TEST_TAG)
-            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+            .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
 
         // Assert
-        composeTestRule.onNodeWithText("On").performClick()
+        composeTestRule.onNodeWithTag(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG).performClick()
         verify(exactly = 1) {
             mockSelectQuantumResistantSettingListener.invoke(QuantumResistantState.On)
         }
