@@ -692,7 +692,6 @@ impl Interface {
 bitflags::bitflags! {
     /// All enum values of address flags can be iterated via `flag <<= 1`, starting from 1.
     /// See https://www.manpagez.com/man/4/route/.
-    // #[derive(Clone, Copy, PartialOrd)]
     pub struct AddressFlag: i32 {
         /// Destination socket address
         const RTA_DST       = 0x1;
@@ -716,7 +715,6 @@ bitflags::bitflags! {
 bitflags::bitflags! {
     /// Types of routing messages
     /// See https://www.manpagez.com/man/4/route/.
-    // #[derive(Clone, Copy, PartialOrd)]
     pub struct MessageType: u8 {
         /// Add Route
         const RTM_ADD         = 0x1;
@@ -752,11 +750,8 @@ bitflags::bitflags! {
         const RTM_DELMADDR    = 0x10;
     }
 
-
-
     /// Routing message flags
     /// See https://www.manpagez.com/man/4/route/.
-    // #[derive(Clone, Copy, PartialOrd)]
     pub struct RouteFlag: i32 {
         /// route usable
         const RTF_UP = 0x1;
