@@ -355,6 +355,7 @@ impl WireguardMonitor {
             let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
                 .chain(Self::get_endpoint_routes(&endpoint_addrs))
                 .collect();
+
             args.route_manager
                 .add_routes(routes)
                 .await
@@ -914,7 +915,7 @@ impl WireguardMonitor {
 
     /// Replace default (0-prefix) routes with more specific routes.
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
-        #[cfg(not(any(target_os = "linux", target_os = "android")))]
+        #[cfg(windows)]
         if network.prefix() == 0 {
             if network.is_ipv4() {
                 vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
@@ -925,7 +926,7 @@ impl WireguardMonitor {
             vec![network]
         }
 
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(not(windows))]
         vec![network]
     }
 
