@@ -331,6 +331,7 @@ message CustomList {
 message CustomListSettings {
   map<string, CustomList> custom_lists = 1;
   google.protobuf.StringValue selected_list = 2;
+  google.protobuf.StringValue selected_list_exit = 3;
 }
 
 message Settings {

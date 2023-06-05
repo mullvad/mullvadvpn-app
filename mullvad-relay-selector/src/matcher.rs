@@ -17,7 +17,9 @@ use talpid_types::net::{all_of_the_internet, wireguard, Endpoint, IpVersion, Tun
 
 #[derive(Clone)]
 pub struct RelayMatcher<T: EndpointMatcher> {
-    pub location: Constraint<LocationConstraint>,
+    /// Locations allowed to be picked from. In the case of custom lists this may be multiple
+    /// locations. In normal circumstances this contains only 1 location.
+    pub locations: Constraint<Vec<LocationConstraint>>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub endpoint_matcher: T,
@@ -30,7 +32,26 @@ impl RelayMatcher<AnyTunnelMatcher> {
         wireguard_data: WireguardEndpointData,
     ) -> Self {
         Self {
-            location: constraints.location,
+            locations: constraints.location.map(|loc| vec![loc]),
+            providers: constraints.providers,
+            ownership: constraints.ownership,
+            endpoint_matcher: AnyTunnelMatcher {
+                wireguard: WireguardMatcher::new(constraints.wireguard_constraints, wireguard_data),
+                openvpn: OpenVpnMatcher::new(constraints.openvpn_constraints, openvpn_data),
+                tunnel_type: constraints.tunnel_protocol,
+            },
+        }
+    }
+
+    /// Will replace location from `constraints` with `custom_list_locations`
+    pub fn new_with_custom_list_locations(
+        constraints: RelayConstraints,
+        openvpn_data: OpenVpnEndpointData,
+        wireguard_data: WireguardEndpointData,
+        custom_list_locations: Vec<LocationConstraint>,
+    ) -> Self {
+        Self {
+            locations: Constraint::Only(custom_list_locations),
             providers: constraints.providers,
             ownership: constraints.ownership,
             endpoint_matcher: AnyTunnelMatcher {
@@ -44,7 +65,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
     pub fn into_wireguard_matcher(self) -> RelayMatcher<WireguardMatcher> {
         RelayMatcher {
             endpoint_matcher: self.endpoint_matcher.wireguard,
-            location: self.location,
+            locations: self.locations,
             providers: self.providers,
             ownership: self.ownership,
         }
@@ -78,13 +99,13 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
         relay.active
             && self.providers.matches(relay)
             && self.ownership.matches(relay)
-            && self.location.matches_with_opts(relay, true)
+            && self.locations.matches_with_opts(relay, true)
             && self.endpoint_matcher.is_matching_relay(relay)
     }
 
     /// Filter a relay based on constraints and endpoint type, 2nd pass.
     fn post_filter_matching_relay(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
-        self.location
+        self.locations
             .matches_with_opts(relay, ignore_include_in_country)
     }
 

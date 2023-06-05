@@ -6,6 +6,37 @@ use std::collections::HashMap;
 pub struct CustomListsSettings {
     pub custom_lists: HashMap<String, CustomList>,
     pub selected_list: Option<String>,
+    pub selected_list_exit: Option<String>,
+}
+
+impl CustomListsSettings {
+    pub fn get_selected_list(&self) -> Option<&CustomList> {
+        match &self.selected_list {
+            None => None,
+            Some(selected_list) => {
+                for list in self.custom_lists.values() {
+                    if &list.id == selected_list {
+                        return Some(list);
+                    }
+                }
+                None
+            }
+        }
+    }
+
+    pub fn get_selected_list_exit(&self) -> Option<&CustomList> {
+        match &self.selected_list_exit {
+            None => None,
+            Some(selected_list) => {
+                for list in self.custom_lists.values() {
+                    if &list.id == selected_list {
+                        return Some(list);
+                    }
+                }
+                None
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -24,7 +55,7 @@ pub enum CustomListLocationUpdate {
 pub struct CustomList {
     pub id: String,
     pub name: String,
-    pub locations: Vec<Constraint<LocationConstraint>>,
+    pub locations: Vec<LocationConstraint>,
 }
 
 impl CustomList {

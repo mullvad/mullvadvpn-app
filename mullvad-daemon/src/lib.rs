@@ -2262,7 +2262,9 @@ where
             self.settings
                 .update(|settings| {
                     let list = settings.custom_lists.custom_lists.remove(&name);
-                    if let (Some(selected_id), Some(list)) = (&mut settings.custom_lists.selected_list, list) {
+                    if let (Some(selected_id), Some(list)) =
+                        (&mut settings.custom_lists.selected_list, list)
+                    {
                         if *selected_id == list.id {
                             settings.custom_lists.selected_list = None;
                         }
@@ -2289,6 +2291,7 @@ where
                 .await
                 .map(|_| ())
                 .map_err(Error::SettingsError)
+            // TODO: Reconnect
         };
         Self::oneshot_send(tx, result, "select_custom_list response");
     }
@@ -2303,7 +2306,10 @@ where
                 name,
                 location: new_location,
             } => {
-                if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                if new_location.is_any() {
+                    Err(Error::CustomListError("cannot add 'any' to custom list"))
+                } else if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                    let new_location = new_location.unwrap();
                     self.settings
                         .update(|settings| {
                             let locations = &mut settings
@@ -2312,7 +2318,7 @@ where
                                 .get_mut(&name)
                                 .unwrap()
                                 .locations;
-                            if !locations.iter().any(|location| location == &new_location) {
+                            if !locations.iter().any(|location| new_location == *location) {
                                 locations.push(new_location);
                             }
                         })
@@ -2327,7 +2333,12 @@ where
                 name,
                 location: location_to_remove,
             } => {
-                if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                if location_to_remove.is_any() {
+                    Err(Error::CustomListError(
+                        "cannot remove 'any' from custom list",
+                    ))
+                } else if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                    let location_to_remove = location_to_remove.unwrap();
                     self.settings
                         .update(|settings| {
                             let locations = &mut settings
@@ -2518,7 +2529,7 @@ fn new_selector_config(
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
-        // TODO: Select if there should be one selected
-        selected_custom_list: None,
+        selected_custom_list: settings.custom_lists.get_selected_list().cloned(),
+        selected_custom_list_exit: settings.custom_lists.get_selected_list_exit().cloned(),
     }
 }
