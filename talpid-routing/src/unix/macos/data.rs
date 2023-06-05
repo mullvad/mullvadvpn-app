@@ -883,18 +883,18 @@ impl RouteSocketAddress {
         match self.inner() {
             None => vec![0u8; 4],
             Some(addr) => {
-                let len = addr.len();
+                let len = usize::try_from(addr.len()).unwrap();
                 // The "serialized" socket addresses must be padded to be aligned to 4 bytes, with
                 // the smallest size being 4 bytes.
                 let buffer_size = len + len % 4;
-                let mut buffer = vec![0u8; buffer_size as usize];
+                let mut buffer = vec![0u8; buffer_size];
                 unsafe {
                     // SAFETY: copying conents of addr into buffer is safe, as long as addr.len()
                     // returns a correct size for the socket address pointer.
                     std::ptr::copy_nonoverlapping(
                         addr.as_ptr() as *const _,
                         buffer.as_mut_ptr(),
-                        addr.len() as usize,
+                        len,
                     );
                 }
                 buffer
