@@ -243,7 +243,7 @@ impl RouteMessage {
 
             return Err(Error::MismatchedSocketAddress(
                 AddressFlag::RTA_DST,
-                *saddr,
+                Box::new(*saddr),
             ));
         }
         Err(Error::NoDestination)
@@ -531,7 +531,7 @@ pub enum Error {
     /// Unrecognized address flag
     UnknownAddressFlag(libc::c_int),
     /// Mismatched socket address type
-    MismatchedSocketAddress(AddressFlag, SockaddrStorage),
+    MismatchedSocketAddress(AddressFlag, Box<SockaddrStorage>),
     /// Link socket address contains no identifier
     NoLinkIdentifier(nix::libc::sockaddr_dl),
     /// Failed to resolve an interface name to an index
