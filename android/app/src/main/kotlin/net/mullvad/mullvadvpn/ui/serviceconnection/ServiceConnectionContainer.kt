@@ -7,7 +7,6 @@ import android.util.Log
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -15,7 +14,6 @@ import org.koin.core.component.get
 //
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
-@OptIn(KoinApiExtension::class)
 class ServiceConnectionContainer(
     val connection: Messenger,
     onServiceReady: (ServiceConnectionContainer) -> Unit,
