@@ -230,7 +230,7 @@ impl RouteMessage {
                 let netmask = self.netmask().unwrap_or(Ipv4Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
                     .map_err(Error::InvalidNetmask)?;
-                return Ok(destination.into());
+                return Ok(destination);
             }
 
             if let Some(v6) = saddr.as_sockaddr_in6() {
@@ -238,12 +238,12 @@ impl RouteMessage {
                 let netmask = self.netmask().unwrap_or(Ipv6Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
                     .map_err(Error::InvalidNetmask)?;
-                return Ok(destination.into());
+                return Ok(destination);
             }
 
             return Err(Error::MismatchedSocketAddress(
                 AddressFlag::RTA_DST,
-                saddr.clone(),
+                *saddr,
             ));
         }
         Err(Error::NoDestination)
@@ -325,7 +325,7 @@ impl RouteMessage {
     }
 
     fn get_address(&self, address_flag: &AddressFlag) -> Option<IpAddr> {
-        let addr = self.sockaddrs.get(&address_flag)?;
+        let addr = self.sockaddrs.get(address_flag)?;
         saddr_to_ipv4(addr.inner()?)
             .map(IpAddr::from)
             .or_else(|| saddr_to_ipv6(addr.inner()?).map(IpAddr::from))
@@ -412,7 +412,7 @@ impl AddressMessage {
     }
 
     fn get_address(&self, address_flag: &AddressFlag) -> Option<IpAddr> {
-        let addr = self.sockaddrs.get(&address_flag)?;
+        let addr = self.sockaddrs.get(address_flag)?;
         saddr_to_ipv4(addr.inner()?)
             .map(IpAddr::from)
             .or_else(|| saddr_to_ipv6(addr.inner()?).map(IpAddr::from))
@@ -876,7 +876,7 @@ impl RouteSocketAddress {
             )
         };
 
-        return Ok((Self::with_sockaddr(flag, saddr)?, saddr_len));
+        Ok((Self::with_sockaddr(flag, saddr)?, saddr_len))
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -1006,12 +1006,12 @@ impl<'a> RouteSockAddrIterator<'a> {
         }
 
         let padded_saddr_len = if saddr_len % 4 != 0 {
-            usize::from(saddr_len + (4 - saddr_len % 4))
+            saddr_len + (4 - saddr_len % 4)
         } else {
-            usize::from(saddr_len)
+            saddr_len
         };
 
-        // if offest is larger than current buffer, ensure slice gets truncated
+        // if offset is larger than current buffer, ensure slice gets truncated
         // since the socket address should've already be read from the buffer at this point, this
         // probably should be an invariant?
         self.buffer = &self.buffer[padded_saddr_len..];
@@ -1127,7 +1127,7 @@ impl rt_msghdr_short {
             .unwrap_or(false)
     }
 
-    pub fn from_bytes<'a>(buf: &'a [u8]) -> Option<Self> {
+    pub fn from_bytes(buf: &[u8]) -> Option<Self> {
         if buf.len() >= ROUTE_MESSAGE_HEADER_SHORT_SIZE {
             let ptr = buf.as_ptr();
             // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr_short value and
