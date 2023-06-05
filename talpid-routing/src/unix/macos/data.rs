@@ -438,7 +438,7 @@ impl AddressMessage {
         let msg_len = usize::from(header.ifam_msglen);
         if msg_len > buffer.len() {
             return Err(Error::BufferTooSmall(
-                "Mesage is shorter than it's msg_len indicates",
+                "Message is shorter than it's msg_len indicates",
                 msg_len,
                 buffer.len(),
             ));
