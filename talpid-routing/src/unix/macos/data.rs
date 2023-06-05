@@ -245,8 +245,8 @@ impl RouteMessage {
                 AddressFlag::RTA_DST,
                 saddr.clone(),
             ));
-        };
-        return Err(Error::NoDestination);
+        }
+        Err(Error::NoDestination)
     }
 
     pub fn destination(&self) -> Result<Option<&SockaddrStorage>> {
