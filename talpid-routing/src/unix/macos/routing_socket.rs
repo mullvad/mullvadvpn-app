@@ -24,9 +24,9 @@ pub enum Error {
     #[error(display = "Failed to open routing socket")]
     OpenSocket(io::Error),
     #[error(display = "Failed to write to routing socket")]
-    WriteError(io::Error),
+    Write(io::Error),
     #[error(display = "Failed to read from routing socket")]
-    ReadError(io::Error),
+    Read(io::Error),
     #[error(display = "Received a message that's too small")]
     MessageTooSmall(usize),
 }
@@ -56,14 +56,14 @@ impl RoutingSocket {
 
     pub async fn recv_msg(&mut self, mut buf: &mut [u8]) -> Result<usize> {
         if let Some(buffered_msg) = self.buf.pop_front() {
-            let bytes_written = buf.write(&buffered_msg).map_err(Error::WriteError)?;
+            let bytes_written = buf.write(&buffered_msg).map_err(Error::Write)?;
             return Ok(bytes_written);
         }
         self.read_next_msg(buf).await
     }
 
     async fn read_next_msg(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.socket.read(buf).await.map_err(Error::ReadError)
+        self.socket.read(buf).await.map_err(Error::Read)
     }
 
     pub async fn send_route_message(
@@ -74,7 +74,7 @@ impl RoutingSocket {
         let (msg, seq) = self.next_route_msg(message, message_type);
         match self.socket.write(&msg).await {
             Ok(_) => self.wait_for_response(seq).await,
-            Err(err) => Err(Error::WriteError(err)),
+            Err(err) => Err(Error::Write(err)),
         }
     }
 
@@ -116,7 +116,7 @@ impl RoutingSocket {
         let mut sockaddr_buf = &mut msg_buffer[std::mem::size_of::<super::data::rt_msghdr>()..];
         for socket_addr in payload {
             sockaddr_buf
-                .write(socket_addr.as_slice())
+                .write_all(socket_addr.as_slice())
                 .expect("faled to write socket address into message buffer");
         }
         (msg_buffer, header.rtm_seq)

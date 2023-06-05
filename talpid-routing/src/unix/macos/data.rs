@@ -536,8 +536,6 @@ pub enum Error {
     NoLinkIdentifier(nix::libc::sockaddr_dl),
     /// Failed to resolve an interface name to an index
     InterfaceIndex(nix::Error),
-    /// An error message as received from the routing socket
-    RouteError(rt_msghdr, Vec<u8>),
     /// Invalid netmask
     InvalidNetmask(ipnetwork::IpNetworkError),
     /// Route contains no netmask socket address
@@ -593,9 +591,9 @@ impl RouteSocketMessage {
     }
 }
 
+#[derive(Debug)]
 pub struct Interface {
     header: libc::if_msghdr,
-    payload: Vec<u8>,
 }
 
 impl Interface {
@@ -617,65 +615,8 @@ impl Interface {
             ));
         }
         let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
-        let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
-        Ok(Self { header, payload })
-    }
-}
-
-impl std::fmt::Debug for Interface {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let if_data = f
-            .debug_struct("if_data")
-            .field("ifi_type", &self.header.ifm_data.ifi_type)
-            .field("ifi_typelen", &self.header.ifm_data.ifi_typelen)
-            .field("ifi_physical", &self.header.ifm_data.ifi_physical)
-            .field("ifi_addrlen", &self.header.ifm_data.ifi_addrlen)
-            .field("ifi_hdrlen", &self.header.ifm_data.ifi_hdrlen)
-            .field("ifi_recvquota", &self.header.ifm_data.ifi_recvquota)
-            .field("ifi_xmitquota", &self.header.ifm_data.ifi_xmitquota)
-            .field("ifi_unused1", &self.header.ifm_data.ifi_unused1)
-            .field("ifi_mtu", &self.header.ifm_data.ifi_mtu)
-            .field("ifi_metric", &self.header.ifm_data.ifi_metric)
-            .field("ifi_baudrate", &self.header.ifm_data.ifi_baudrate)
-            .field("ifi_ipackets", &self.header.ifm_data.ifi_ipackets)
-            .field("ifi_ierrors", &self.header.ifm_data.ifi_ierrors)
-            .field("ifi_opackets", &self.header.ifm_data.ifi_opackets)
-            .field("ifi_oerrors", &self.header.ifm_data.ifi_oerrors)
-            .field("ifi_collisions", &self.header.ifm_data.ifi_collisions)
-            .field("ifi_ibytes", &self.header.ifm_data.ifi_ibytes)
-            .field("ifi_obytes", &self.header.ifm_data.ifi_obytes)
-            .field("ifi_imcasts", &self.header.ifm_data.ifi_imcasts)
-            .field("ifi_omcasts", &self.header.ifm_data.ifi_omcasts)
-            .field("ifi_iqdrops", &self.header.ifm_data.ifi_iqdrops)
-            .field("ifi_noproto", &self.header.ifm_data.ifi_noproto)
-            .field("ifi_recvtiming", &self.header.ifm_data.ifi_recvtiming)
-            .field("ifi_xmittiming", &self.header.ifm_data.ifi_xmittiming)
-            .field(
-                "ifi_lastchange",
-                &(
-                    self.header.ifm_data.ifi_lastchange.tv_sec,
-                    self.header.ifm_data.ifi_lastchange.tv_usec,
-                ),
-            )
-            .field("ifi_unused2", &self.header.ifm_data.ifi_unused2)
-            .field("ifi_hwassist", &self.header.ifm_data.ifi_hwassist)
-            .field("ifi_reserved1", &self.header.ifm_data.ifi_reserved1)
-            .field("ifi_reserved2", &self.header.ifm_data.ifi_reserved2)
-            .finish();
-        let header = f
-            .debug_struct("if_msghdr")
-            .field("ifm_msglen", &self.header.ifm_msglen)
-            .field("ifm_version", &self.header.ifm_version)
-            .field("ifm_type", &self.header.ifm_type)
-            .field("ifm_addrs", &self.header.ifm_addrs)
-            .field("ifm_flags", &self.header.ifm_flags)
-            .field("ifm_index", &self.header.ifm_index)
-            .field("ifm_data", &if_data)
-            .finish()?;
-        f.debug_struct("Interface")
-            .field("header", &header)
-            .field("payload", &self.payload)
-            .finish()
+        // let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
+        Ok(Self { header })
     }
 }
 

@@ -15,7 +15,7 @@ pub enum Error {
     #[error(display = "Invalid message")]
     InvalidMessage(data::Error),
     #[error(display = "Failed to send routing message")]
-    SendError(routing_socket::Error),
+    Send(routing_socket::Error),
     #[error(display = "Unexpected message type")]
     UnexpectedMessageType(RouteSocketMessage, MessageType),
     #[error(display = "Route not found")]
@@ -50,17 +50,17 @@ impl RoutingTable {
             .await
             .map_err(Error::RoutingSocket)?;
         let msg_buf = &buf[0..bytes_read];
-        data::RouteSocketMessage::parse_message(&msg_buf).map_err(Error::InvalidMessage)
+        data::RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
     }
 
     pub async fn add_route(&mut self, message: &RouteMessage) -> Result<()> {
         let msg = self
-            .alter_routing_table(&message, MessageType::RTM_ADD)
+            .alter_routing_table(message, MessageType::RTM_ADD)
             .await;
 
         match msg {
             Ok(RouteSocketMessage::AddRoute(_route)) => Ok(()),
-            Err(Error::SendError(routing_socket::Error::WriteError(err)))
+            Err(Error::Send(routing_socket::Error::Write(err)))
                 if err.kind() == io::ErrorKind::AlreadyExists =>
             {
                 Ok(())
@@ -82,24 +82,22 @@ impl RoutingTable {
         message: &RouteMessage,
         message_type: MessageType,
     ) -> Result<RouteSocketMessage> {
-        let result = self.socket.send_route_message(&message, message_type).await;
+        let result = self.socket.send_route_message(message, message_type).await;
 
         match result {
             Ok(response) => {
                 data::RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)
             }
 
-            Err(routing_socket::Error::WriteError(err))
-                if err.kind() == io::ErrorKind::NotFound =>
-            {
+            Err(routing_socket::Error::Write(err)) if err.kind() == io::ErrorKind::NotFound => {
                 Err(Error::RouteNotFound)
             }
-            Err(routing_socket::Error::WriteError(err))
+            Err(routing_socket::Error::Write(err))
                 if [Some(libc::ENETUNREACH), Some(libc::ESRCH)].contains(&err.raw_os_error()) =>
             {
                 Err(Error::Unreachable)
             }
-            Err(err) => Err(Error::SendError(err)),
+            Err(err) => Err(Error::Send(err)),
         }
     }
 
@@ -131,13 +129,13 @@ impl RoutingTable {
 
         let response = match response {
             Ok(response) => response,
-            Err(routing_socket::Error::WriteError(err)) => {
+            Err(routing_socket::Error::Write(err)) => {
                 if let Some(err) = err.raw_os_error() {
                     if [libc::ENETUNREACH, libc::ESRCH].contains(&err) {
                         return Ok(None);
                     }
                 }
-                return Err(Error::RoutingSocket(routing_socket::Error::WriteError(err)));
+                return Err(Error::RoutingSocket(routing_socket::Error::Write(err)));
             }
             Err(other_err) => {
                 return Err(Error::RoutingSocket(other_err));

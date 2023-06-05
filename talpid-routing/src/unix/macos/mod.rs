@@ -199,7 +199,7 @@ impl RouteManagerImpl {
                 // interface
                 match interface_link_addrs.get(device) {
                     Some(link_addr) => RouteMessage::new_route(Destination::from(route.prefix))
-                        .set_gateway_sockaddr(link_addr.clone()),
+                        .set_gateway_sockaddr(*link_addr),
                     None => {
                         log::error!("Route with unknown device: {route:?}, {device}");
                         continue;
@@ -395,9 +395,9 @@ impl RouteManagerImpl {
         // Reapply routes that use the default (non-tunnel) node
         for dest in self.non_tunnel_routes.clone() {
             let gateway = if dest.is_ipv4() {
-                v4_gateway.clone()
+                v4_gateway
             } else {
-                v6_gateway.clone()
+                v6_gateway
             };
             let gateway = match gateway {
                 Some(gateway) => gateway,
