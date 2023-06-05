@@ -85,12 +85,10 @@ impl RouteMessage {
             // empty socket address implies that it is a 'default' netmask
             Some(None) => true,
             Some(Some(addr)) => {
-                if let Some(netmask_addr) = addr.as_sockaddr_in() {
-                    let std_addr = SocketAddrV4::from(netmask_addr.clone());
-                    *std_addr.ip() == Ipv4Addr::UNSPECIFIED
-                } else if let Some(netmask_addr) = addr.as_sockaddr_in6() {
-                    let std_addr = SocketAddrV6::from(netmask_addr.clone());
-                    *std_addr.ip() == Ipv6Addr::UNSPECIFIED
+                if let Some(netmask_addr) = saddr_to_ipv4(addr) {
+                    netmask_addr.is_unspecified()
+                } else if let Some(netmask_addr) = saddr_to_ipv6(addr) {
+                    netmask_addr.is_unspecified()
                 } else {
                     // if the route socket address describing the netmask isn't a sockaddr_in or a
                     // sockaddr_in6, it can't possibly be a default route for IP
