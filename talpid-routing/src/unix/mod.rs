@@ -1,4 +1,4 @@
-#![cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::Route;
 
 use super::RequiredRoute;
