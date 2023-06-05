@@ -361,12 +361,21 @@ impl LocationConstraint {
     }
 }
 
+impl Constraint<Vec<LocationConstraint>> {
+    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+        match self {
+            Constraint::Only(constraint) => constraint
+                .iter()
+                .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country)),
+            Constraint::Any => true,
+        }
+    }
+}
+
 impl Constraint<LocationConstraint> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
-            Constraint::Only(constraint) => {
-                constraint.matches_with_opts(relay, ignore_include_in_country)
-            }
+            Constraint::Only(constraint) => constraint.matches_with_opts(relay, ignore_include_in_country),
             Constraint::Any => true,
         }
     }
@@ -394,6 +403,22 @@ impl Set<LocationConstraint> for LocationConstraint {
                     country == other_country && city == other_city
                 }
                 LocationConstraint::Hostname(..) => self == other,
+            },
+        }
+    }
+}
+
+impl Set<Constraint<Vec<LocationConstraint>>> for Constraint<Vec<LocationConstraint>> {
+    fn is_subset(&self, other: &Self) -> bool {
+        match self {
+            Constraint::Any => other.is_any(),
+            Constraint::Only(locations) => match other {
+                Constraint::Any => true,
+                Constraint::Only(other_locations) => locations.iter().all(|location| {
+                    other_locations
+                        .iter()
+                        .any(|other_location| location.is_subset(other_location))
+                }),
             },
         }
     }

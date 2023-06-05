@@ -73,6 +73,9 @@ pub struct Settings {
     pub obfuscation_settings: ObfuscationSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
+    /// All of the custom relay lists
+    #[serde(default)]
+    pub custom_lists: CustomListsSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -100,8 +103,6 @@ pub struct Settings {
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
-    /// All of the custom relay lists
-    pub custom_lists: CustomListsSettings,
 }
 
 fn out_of_range_wg_migration_rand_num() -> f32 {
