@@ -1,4 +1,4 @@
-#![cfg_attr(target_os = "android", allow(dead_code))]
+#![cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::Route;
 
 use super::RequiredRoute;
