@@ -149,6 +149,7 @@ pub enum RouteManagerCommand {
 
 impl RouteManager {
     /// Create a new route manager
+    #[allow(clippy::unused_async)]
     pub async fn new() -> Result<Self> {
         let internal = match RouteManagerInternal::new() {
             Ok(internal) => internal,
