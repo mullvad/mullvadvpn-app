@@ -584,7 +584,7 @@ impl RouteSocketMessage {
             None => Err(Error::BufferTooSmall(
                 "rt_msghdr_short",
                 buffer.len(),
-                std::mem::size_of::<rt_msghdr_short>(),
+                ROUTE_MESSAGE_HEADER_SHORT_SIZE,
             )),
         }
     }
@@ -1091,7 +1091,7 @@ fn saddr_to_ipv6(saddr: &SockaddrStorage) -> Option<Ipv6Addr> {
 
 impl rt_msghdr {
     pub fn from_bytes(buf: &[u8]) -> Result<Self> {
-        if buf.len() >= std::mem::size_of::<rt_msghdr>() {
+        if buf.len() >= ROUTE_MESSAGE_HEADER_SIZE {
             let ptr = buf.as_ptr();
             // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr value and it's
             // readable. rt_msghdr doesn't contain any pointers so any values are valid.
@@ -1120,6 +1120,7 @@ pub struct rt_msghdr_short {
     pub rtm_seq: libc::c_int,
     pub rtm_errno: libc::c_int,
 }
+const ROUTE_MESSAGE_HEADER_SHORT_SIZE: usize = std::mem::size_of::<rt_msghdr_short>();
 
 impl rt_msghdr_short {
     fn is_type(&self, expected_type: i32) -> bool {
@@ -1129,10 +1130,10 @@ impl rt_msghdr_short {
     }
 
     pub fn from_bytes<'a>(buf: &'a [u8]) -> Option<Self> {
-        if buf.len() >= std::mem::size_of::<rt_msghdr_short>() {
+        if buf.len() >= ROUTE_MESSAGE_HEADER_SHORT_SIZE {
             let ptr = buf.as_ptr();
             // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr_short value and
-            // it's readable. rt_msghdr_short doesn't contain any pointers so any values are valid.
+            // is readable. `rt_msghdr_short` doesn't contain any pointers so any values are valid.
             Some(unsafe { std::ptr::read(ptr as *const rt_msghdr_short) })
         } else {
             None
