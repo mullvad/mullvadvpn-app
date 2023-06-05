@@ -1,4 +1,5 @@
 use crate::types::{proto, FromProtobufTypeError};
+use mullvad_types::relay_constraints::LocationConstraint;
 use proto::RelayLocation;
 
 impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomListSettings {
@@ -12,6 +13,7 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
                 })
             .collect(),
             selected_list: settings.selected_list.clone(),
+            selected_list_exit: settings.selected_list_exit.clone(),
         }
     }
 }
@@ -32,6 +34,7 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
                 })
             .collect::<Result<std::collections::HashMap<_, _>, _>>()?,
             selected_list: settings.selected_list,
+            selected_list_exit: settings.selected_list_exit,
         })
     }
 }
@@ -65,7 +68,7 @@ impl TryFrom<proto::CustomListLocationUpdate> for mullvad_types::custom_list::Cu
     type Error = FromProtobufTypeError;
 
     fn try_from(custom_list: proto::CustomListLocationUpdate) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
+        use mullvad_types::relay_constraints::Constraint;
         let location: Constraint<LocationConstraint> =
             Constraint::<LocationConstraint>::from(
                 custom_list
@@ -108,15 +111,39 @@ impl From<&mullvad_types::custom_list::CustomList> for proto::CustomList {
     }
 }
 
+impl TryFrom<proto::RelayLocation> for LocationConstraint {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(relay_location: proto::RelayLocation) -> Result<Self, Self::Error> {
+        match (relay_location.country.as_ref(), relay_location.city.as_ref(), relay_location.hostname.as_ref()) {
+            ("", _, _) => {
+                Err(FromProtobufTypeError::InvalidArgument("Relay location formatted incorrectly"))
+            }
+            (_country, "", "") => {
+                Ok(LocationConstraint::Country(relay_location.country))
+            }
+            (_country, _city, "") => {
+                Ok(LocationConstraint::City(relay_location.country, relay_location.city))
+            }
+            (_country, city, _hostname) => {
+                if city.is_empty() {
+                    Err(FromProtobufTypeError::InvalidArgument("Relay location must contain a city if hostname is included"))
+                } else {
+                    Ok(LocationConstraint::Hostname(relay_location.country, relay_location.city, relay_location.hostname))
+                }
+            }
+        }
+    }
+}
+
 impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
     type Error = FromProtobufTypeError;
 
     fn try_from(custom_list: proto::CustomList) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
-        let locations: Result<Vec<Constraint<LocationConstraint>>, _> = custom_list
+        let locations: Result<Vec<LocationConstraint>, _> = custom_list
             .locations
             .into_iter()
-            .map(Constraint::<LocationConstraint>::try_from)
+            .map(LocationConstraint::try_from)
             .collect();
         let locations = locations.map_err(|_| {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
