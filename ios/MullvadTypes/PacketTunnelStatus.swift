@@ -29,7 +29,7 @@ public enum DeviceVerdict: Equatable, Codable {
     case keyMismatch
 
     /// Device is in good standing and should work as normal.
-    case good
+    case active
 }
 
 /// Type describing the key rotation status.

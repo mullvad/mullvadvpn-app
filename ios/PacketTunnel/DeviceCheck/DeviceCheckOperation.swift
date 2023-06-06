@@ -100,7 +100,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
                     completion(rotationResult.map { rotationStatus in
                         return DeviceCheck(
                             accountVerdict: accountVerdict,
-                            deviceVerdict: rotationStatus.isSucceeded ? .good : .keyMismatch,
+                            deviceVerdict: rotationStatus.isSucceeded ? .active : .keyMismatch,
                             keyRotationStatus: rotationStatus
                         )
                     })
@@ -271,7 +271,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
             let device = try deviceResult.get()
 
-            return deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .good : .keyMismatch
+            return deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .active : .keyMismatch
         } catch {
             if let error = error as? REST.Error, error.compareErrorCode(.deviceNotFound) {
                 return .revoked
