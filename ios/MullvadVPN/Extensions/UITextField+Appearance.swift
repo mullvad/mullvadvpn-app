@@ -1,5 +1,5 @@
 //
-//  UISearchBar+Appearance.swift
+//  UITextField+Appearance.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-04-04.
@@ -8,15 +8,15 @@
 
 import UIKit
 
-extension UISearchBar {
-    struct SearchBarAppearance {
+extension UITextField {
+    struct SearchTextFieldAppearance {
         let placeholderTextColor: UIColor
         let textColor: UIColor
         let backgroundColor: UIColor
         let leftViewTintColor: UIColor
 
-        static var active: SearchBarAppearance {
-            return SearchBarAppearance(
+        static var active: SearchTextFieldAppearance {
+            return SearchTextFieldAppearance(
                 placeholderTextColor: .SearchTextField.placeholderTextColor,
                 textColor: .SearchTextField.textColor,
                 backgroundColor: .SearchTextField.backgroundColor,
@@ -24,8 +24,8 @@ extension UISearchBar {
             )
         }
 
-        static var inactive: SearchBarAppearance {
-            return SearchBarAppearance(
+        static var inactive: SearchTextFieldAppearance {
+            return SearchTextFieldAppearance(
                 placeholderTextColor: .SearchTextField.inactivePlaceholderTextColor,
                 textColor: .SearchTextField.inactiveTextColor,
                 backgroundColor: .SearchTextField.inactiveBackgroundColor,
@@ -34,23 +34,29 @@ extension UISearchBar {
         }
 
         func apply(to searchBar: UISearchBar) {
-            let textField = searchBar.searchTextField
-
             searchBar.setImage(
                 UIImage(named: "IconCloseSml")?.withTintColor(leftViewTintColor),
                 for: .clear,
                 state: .normal
             )
+
+            apply(to: searchBar.searchTextField)
+        }
+
+        func apply(to textField: UITextField) {
             textField.leftView?.tintColor = leftViewTintColor
             textField.tintColor = textColor
             textField.textColor = textColor
             textField.backgroundColor = backgroundColor
-            textField.attributedPlaceholder = NSAttributedString(
-                string: searchBar.placeholder ?? "",
-                attributes: [
-                    .foregroundColor: placeholderTextColor,
-                ]
-            )
+
+            if let customTextField = textField as? CustomTextField {
+                customTextField.placeholderTextColor = placeholderTextColor
+            } else {
+                textField.attributedPlaceholder = NSAttributedString(
+                    string: textField.placeholder ?? "",
+                    attributes: [.foregroundColor: placeholderTextColor]
+                )
+            }
         }
     }
 }

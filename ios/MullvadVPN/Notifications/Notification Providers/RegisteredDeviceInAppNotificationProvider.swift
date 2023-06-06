@@ -32,7 +32,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
         )
         let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
-        return NSMutableAttributedString(markdownString: string, font: .systemFont(ofSize: 14.0)) { deviceName in
+        return NSAttributedString(markdownString: string, font: .systemFont(ofSize: 14.0)) { deviceName in
             return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
         }
     }
