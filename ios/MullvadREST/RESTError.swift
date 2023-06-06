@@ -96,6 +96,11 @@ extension REST {
             detail = try container.decodeIfPresent(String.self, forKey: .detail)
                 ?? container.decodeIfPresent(String.self, forKey: .error)
         }
+
+        public init(code: REST.ServerResponseCode, detail: String? = nil) {
+            self.code = code
+            self.detail = detail
+        }
     }
 
     public struct ServerResponseCode: RawRepresentable, Equatable {

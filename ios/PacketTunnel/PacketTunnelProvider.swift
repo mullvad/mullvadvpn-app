@@ -706,7 +706,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             dispatchQueue: dispatchQueue,
             remoteSevice: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
             deviceStateAccessor: DeviceStateAccessor(),
-            shouldImmediatelyRotateKeyOnMismatch: shouldImmediatelyRotateKeyOnMismatch
+            rotateImmediatelyOnKeyMismatch: shouldImmediatelyRotateKeyOnMismatch
         ) { [self] result in
             guard var newDeviceCheck = result.value else { return }
 
