@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadTypes
 import Operations
 import WireGuardKitTypes
@@ -15,18 +16,125 @@ class DeviceCheckOperationTests: XCTestCase {
     let operationQueue = AsyncOperationQueue()
     let dispatchQueue = DispatchQueue(label: "TestQueue")
 
-    func testShouldRotateKeyOnMismatchImmediately() {
+    func testShouldReportExpiredAccount() {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let nextKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: PrivateKey())
+        let currentKey = PrivateKey()
+        let remoteService = MockRemoteService(
+            initialKey: currentKey,
+            getAccount: { accountNumber in
+                return Account.mock(expiry: .distantPast)
+            }
+        )
+        let deviceStateAccessor = MockDeviceStateAccessor(
+            initialState: .loggedIn(
+                StoredAccountData.mock(),
+                StoredDeviceData.mock(wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: currentKey))
+            )
+        )
+
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
+            let deviceCheck = result.value
+
+            XCTAssertNotNil(deviceCheck)
+            XCTAssertTrue(deviceCheck?.accountVerdict.isExpired ?? false)
+            XCTAssert(deviceCheck?.keyRotationStatus == .noAction)
+            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, currentKey)
+
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShouldNotRotateKeyForInvalidAccount() {
+        let expect = expectation(description: "Wait for operation to complete")
+
+        let currentKey = PrivateKey()
+        let remoteService = MockRemoteService(
+            initialKey: currentKey,
+            getAccount: { accountNumber in
+                throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .invalidAccount))
+            }
+        )
         let deviceStateAccessor = MockDeviceStateAccessor(
             initialState: .loggedIn(
                 StoredAccountData.mock(),
                 StoredDeviceData.mock(
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-15),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
+                        privateKey: currentKey,
+                        nextPrivateKey: PrivateKey()
+                    )
+                )
+            )
+        )
+
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
+            let deviceCheck = result.value
+
+            XCTAssertNotNil(deviceCheck)
+            XCTAssert(deviceCheck?.accountVerdict == .invalid)
+            XCTAssert(deviceCheck?.keyRotationStatus == .noAction)
+            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, currentKey)
+
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShouldNotRotateKeyForRevokedDevice() {
+        let expect = expectation(description: "Wait for operation to complete")
+
+        let currentKey = PrivateKey()
+        let remoteService = MockRemoteService(
+            initialKey: currentKey,
+            getDevice: { accountNumber, deviceIdentifier in
+                throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .deviceNotFound))
+            }
+        )
+        let deviceStateAccessor = MockDeviceStateAccessor(
+            initialState: .loggedIn(
+                StoredAccountData.mock(),
+                StoredDeviceData.mock(
+                    wgKeyData: StoredWgKeyData(
+                        creationDate: Date(),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
+                        privateKey: currentKey,
+                        nextPrivateKey: PrivateKey()
+                    )
+                )
+            )
+        )
+
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
+            let deviceCheck = result.value
+
+            XCTAssertNotNil(deviceCheck)
+            XCTAssert(deviceCheck?.deviceVerdict == .revoked)
+            XCTAssert(deviceCheck?.keyRotationStatus == .noAction)
+            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, currentKey)
+
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShouldRotateKeyOnMismatchImmediately() {
+        let expect = expectation(description: "Wait for operation to complete")
+
+        let nextKey = PrivateKey()
+        let remoteService = MockRemoteService()
+        let deviceStateAccessor = MockDeviceStateAccessor(
+            initialState: .loggedIn(
+                StoredAccountData.mock(),
+                StoredDeviceData.mock(
+                    wgKeyData: StoredWgKeyData(
+                        creationDate: Date(),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.packetTunnelCooldownInterval),
                         privateKey: PrivateKey(),
                         nextPrivateKey: nextKey
                     )
@@ -37,7 +145,7 @@ class DeviceCheckOperationTests: XCTestCase {
         startDeviceCheck(
             remoteService: remoteService,
             deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: true
+            rotateImmediatelyOnKeyMismatch: true
         ) { result in
             let deviceCheck = result.value
 
@@ -55,7 +163,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: PrivateKey())
+        let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor(
             initialState: .loggedIn(
                 StoredAccountData.mock(),
@@ -73,7 +181,7 @@ class DeviceCheckOperationTests: XCTestCase {
         startDeviceCheck(
             remoteService: remoteService,
             deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: true
+            rotateImmediatelyOnKeyMismatch: true
         ) { result in
             let deviceCheck = result.value
 
@@ -106,11 +214,7 @@ class DeviceCheckOperationTests: XCTestCase {
             )
         )
 
-        startDeviceCheck(
-            remoteService: remoteService,
-            deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: false
-        ) { result in
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
             let deviceCheck = result.value
 
             XCTAssertNotNil(deviceCheck)
@@ -127,14 +231,14 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: PrivateKey())
+        let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor(
             initialState: .loggedIn(
                 StoredAccountData.mock(),
                 StoredDeviceData.mock(
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-86399),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval + 1),
                         privateKey: currentKey,
                         nextPrivateKey: PrivateKey()
                     )
@@ -142,11 +246,7 @@ class DeviceCheckOperationTests: XCTestCase {
             )
         )
 
-        startDeviceCheck(
-            remoteService: remoteService,
-            deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: false
-        ) { result in
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
             let deviceCheck = result.value
 
             XCTAssertNotNil(deviceCheck)
@@ -163,14 +263,14 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let nextKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: PrivateKey())
+        let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor(
             initialState: .loggedIn(
                 StoredAccountData.mock(),
                 StoredDeviceData.mock(
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-86400),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
                         privateKey: PrivateKey(),
                         nextPrivateKey: nextKey
                     )
@@ -178,11 +278,7 @@ class DeviceCheckOperationTests: XCTestCase {
             )
         )
 
-        startDeviceCheck(
-            remoteService: remoteService,
-            deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: false
-        ) { result in
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
             let deviceCheck = result.value
 
             XCTAssertNotNil(deviceCheck)
@@ -200,7 +296,6 @@ class DeviceCheckOperationTests: XCTestCase {
 
         let currentKey = PrivateKey()
         let remoteService = MockRemoteService(
-            initialKey: PrivateKey(),
             rotateDeviceKey: { accountNumber, identifier, publicKey in
                 throw URLError(.badURL)
             }
@@ -212,7 +307,7 @@ class DeviceCheckOperationTests: XCTestCase {
                 StoredDeviceData.mock(
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-86400),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
                         privateKey: currentKey,
                         nextPrivateKey: PrivateKey()
                     )
@@ -220,11 +315,7 @@ class DeviceCheckOperationTests: XCTestCase {
             )
         )
 
-        startDeviceCheck(
-            remoteService: remoteService,
-            deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: false
-        ) { result in
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
             let deviceCheck = result.value
 
             XCTAssertNotNil(deviceCheck)
@@ -247,7 +338,7 @@ class DeviceCheckOperationTests: XCTestCase {
                 StoredDeviceData.mock(
                     wgKeyData: StoredWgKeyData(
                         creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-86400),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
                         privateKey: currentKey,
                         nextPrivateKey: PrivateKey()
                     )
@@ -256,7 +347,6 @@ class DeviceCheckOperationTests: XCTestCase {
         )
 
         let remoteService = MockRemoteService(
-            initialKey: PrivateKey(),
             rotateDeviceKey: { accountNumber, identifier, publicKey in
                 // Overwrite device state before returning the result from key rotation to simulate the race condition
                 // in the underlying storage.
@@ -271,11 +361,7 @@ class DeviceCheckOperationTests: XCTestCase {
             }
         )
 
-        startDeviceCheck(
-            remoteService: remoteService,
-            deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: false
-        ) { result in
+        startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
             let deviceCheck = result.value
 
             XCTAssertNotNil(deviceCheck)
@@ -291,14 +377,14 @@ class DeviceCheckOperationTests: XCTestCase {
     private func startDeviceCheck(
         remoteService: DeviceCheckRemoteServiceProtocol,
         deviceStateAccessor: DeviceStateAccessorProtocol,
-        shouldImmediatelyRotateKeyOnMismatch: Bool,
+        rotateImmediatelyOnKeyMismatch: Bool = false,
         completion: @escaping (Result<DeviceCheck, Error>) -> Void
     ) {
         let operation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,
             remoteSevice: remoteService,
             deviceStateAccessor: deviceStateAccessor,
-            shouldImmediatelyRotateKeyOnMismatch: shouldImmediatelyRotateKeyOnMismatch,
+            rotateImmediatelyOnKeyMismatch: rotateImmediatelyOnKeyMismatch,
             completionHandler: completion
         )
 
@@ -308,18 +394,26 @@ class DeviceCheckOperationTests: XCTestCase {
 
 /// Mock implemntation of a remote service used by `DeviceCheckOperation` to reach the API.
 private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
+    typealias AccountDataHandler = (_ accountNumber: String) throws -> Account
+    typealias DeviceDataHandler = (_ accountNumber: String, _ deviceIdentifier: String) throws -> Device
     typealias RotateDeviceKeyHandler = (_ accountNumber: String, _ identifier: String, _ publicKey: PublicKey)
         throws -> PrivateKey
 
+    private let getAccountDataHandler: AccountDataHandler?
+    private let getDeviceDataHandler: DeviceDataHandler?
     private let rotateDeviceKeyHandler: RotateDeviceKeyHandler?
 
     private var currentKey: PrivateKey
 
     init(
-        initialKey: PrivateKey,
+        initialKey: PrivateKey = PrivateKey(),
+        getAccount: AccountDataHandler? = nil,
+        getDevice: DeviceDataHandler? = nil,
         rotateDeviceKey: RotateDeviceKeyHandler? = nil
     ) {
         currentKey = initialKey
+        getAccountDataHandler = getAccount
+        getDeviceDataHandler = getDevice
         rotateDeviceKeyHandler = rotateDeviceKey
     }
 
@@ -327,8 +421,15 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
         accountNumber: String,
         completion: @escaping (Result<Account, Error>) -> Void
     ) -> Cancellable {
-        DispatchQueue.main.async {
-            completion(.success(Account.mock()))
+        DispatchQueue.main.async { [self] in
+            let result: Result<Account, Error> = Result {
+                if let getAccountDataHandler {
+                    return try getAccountDataHandler(accountNumber)
+                } else {
+                    return Account.mock()
+                }
+            }
+            completion(result)
         }
         return AnyCancellable()
     }
@@ -339,7 +440,15 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
         completion: @escaping (Result<Device, Error>) -> Void
     ) -> Cancellable {
         DispatchQueue.main.async { [self] in
-            completion(.success(Device.mock(privateKey: currentKey)))
+            let result: Result<Device, Error> = Result {
+                if let getDeviceDataHandler {
+                    return try getDeviceDataHandler(accountNumber, identifier)
+                } else {
+                    return Device.mock(privateKey: currentKey)
+                }
+            }
+
+            completion(result)
         }
 
         return AnyCancellable()
@@ -396,7 +505,7 @@ private extension StoredAccountData {
         return StoredAccountData(
             identifier: "account-id",
             number: "account-number",
-            expiry: Date().addingTimeInterval(86400)
+            expiry: .distantFuture
         )
     }
 }
@@ -431,10 +540,10 @@ private extension Device {
 }
 
 private extension Account {
-    static func mock() -> Account {
+    static func mock(expiry: Date = .distantFuture) -> Account {
         return Account(
             id: "account-id",
-            expiry: Date().addingTimeInterval(86400),
+            expiry: expiry,
             maxPorts: 5,
             canAddPorts: true,
             maxDevices: 5,
@@ -446,6 +555,15 @@ private extension Account {
 private extension KeyRotationStatus {
     var isAttempted: Bool {
         if case .attempted = self {
+            return true
+        }
+        return false
+    }
+}
+
+private extension AccountVerdict {
+    var isExpired: Bool {
+        if case .expired = self {
             return true
         }
         return false

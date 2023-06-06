@@ -18,12 +18,12 @@ import class WireGuardKitTypes.PublicKey
  An operation that is responsible for performing account and device diagnostics and key rotation from within packet
  tunnel process.
 
- Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnMismatch` flag set to
+ Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnKeyMismatch` flag set to
  `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
  stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key rotation
  is not performed.
 
- Other times, packet tunnel runs this operation with `rotateImmediatelyOnMismatch` set to `false`, in which
+ Other times, packet tunnel runs this operation with `rotateImmediatelyOnKeyMismatch` set to `false`, in which
  case it respects the 24 hour interval between key rotation retry attempts.
  */
 final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
@@ -31,7 +31,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
     private let remoteService: DeviceCheckRemoteServiceProtocol
     private let deviceStateAccessor: DeviceStateAccessorProtocol
-    private let rotateImmediatelyOnMismatch: Bool
+    private let rotateImmediatelyOnKeyMismatch: Bool
 
     private var tasks: [Cancellable] = []
 
@@ -39,12 +39,12 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         dispatchQueue: DispatchQueue,
         remoteSevice: DeviceCheckRemoteServiceProtocol,
         deviceStateAccessor: DeviceStateAccessorProtocol,
-        shouldImmediatelyRotateKeyOnMismatch: Bool,
+        rotateImmediatelyOnKeyMismatch: Bool,
         completionHandler: @escaping CompletionHandler
     ) {
         self.remoteService = remoteSevice
         self.deviceStateAccessor = deviceStateAccessor
-        self.rotateImmediatelyOnMismatch = shouldImmediatelyRotateKeyOnMismatch
+        self.rotateImmediatelyOnKeyMismatch = rotateImmediatelyOnKeyMismatch
 
         super.init(dispatchQueue: dispatchQueue, completionQueue: dispatchQueue, completionHandler: completionHandler)
     }
@@ -95,7 +95,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
             let accountVerdict = try accountVerdict(from: accountResult)
             let deviceVerdict = try deviceVerdict(from: deviceResult)
 
-            if deviceVerdict == .keyMismatch {
+            // Do not rotate the key if account is invalid even if the API successfully returns a device.
+            if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
                 rotateKeyIfNeeded { rotationResult in
                     completion(rotationResult.map { rotationStatus in
                         return DeviceCheck(
@@ -173,7 +174,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         }
 
         var keyRotation = WgKeyRotation(data: deviceData)
-        guard keyRotation.shouldRotateFromPacketTunnel(rotateImmediately: rotateImmediatelyOnMismatch) else {
+        guard keyRotation.shouldRotateFromPacketTunnel(rotateImmediately: rotateImmediatelyOnKeyMismatch) else {
             completion(.success(.noAction))
             return
         }
