@@ -19,7 +19,7 @@ class RotateKeyOperation: ResultOperation<Bool> {
     private let devicesProxy: REST.DevicesProxy
     private var task: Cancellable?
 
-    private let logger = Logger(label: "ReplaceKeyOperation")
+    private let logger = Logger(label: "RotateKeyOperation")
 
     init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: REST.DevicesProxy) {
         self.interactor = interactor
