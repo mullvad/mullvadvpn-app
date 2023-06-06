@@ -508,7 +508,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     /**
-     Method that's called once the tunnel was able to read configuration and start WireGuard adapter.
+     Called once the tunnel was able to read configuration and start WireGuard adapter.
      */
     private func tunnelAdapterDidStart() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
