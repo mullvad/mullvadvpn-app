@@ -68,7 +68,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     private func startFlow(completion: @escaping (Result<DeviceCheck, Error>) -> Void) {
         do {
             guard case let .loggedIn(accountData, deviceData) = try deviceStateAccessor.read() else {
-                throw InvalidDeviceStateError()
+                throw DeviceCheckError.invalidDeviceState
             }
 
             fetchData(
@@ -168,7 +168,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
         guard case let .loggedIn(accountData, deviceData) = deviceState else {
             logger.debug("Will not attempt to rotate the key as device is no longer logged in.")
-            completion(.failure(InvalidDeviceStateError()))
+            completion(.failure(DeviceCheckError.invalidDeviceState))
             return
         }
 
@@ -228,17 +228,23 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         let deviceState = try deviceStateAccessor.read()
         guard case let .loggedIn(accountData, deviceData) = deviceState else {
             logger.debug("Will not persist device state after rotating the key because device is no longer logged in.")
-            throw InvalidDeviceStateError()
+            throw DeviceCheckError.invalidDeviceState
         }
 
         var keyRotation = WgKeyRotation(data: deviceData)
-        keyRotation.setCompleted(with: device)
+        let isCompleted = keyRotation.setCompleted(with: device)
 
-        do {
-            try deviceStateAccessor.write(.loggedIn(accountData, keyRotation.data))
-        } catch {
-            logger.error(error: error, message: "Failed to persist device state after rotating the key.")
-            throw error
+        if isCompleted {
+            do {
+                try deviceStateAccessor.write(.loggedIn(accountData, keyRotation.data))
+            } catch {
+                logger.error(error: error, message: "Failed to persist device state after rotating the key.")
+                throw error
+            }
+        } else {
+            logger.debug("Cannot complete key rotation due to rotation race.")
+
+            throw DeviceCheckError.keyRotationRace
         }
     }
 
@@ -267,7 +273,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     private func deviceVerdict(from deviceResult: Result<Device, Error>) throws -> DeviceVerdict {
         do {
             let deviceState = try deviceStateAccessor.read()
-            guard let deviceData = deviceState.deviceData else { throw InvalidDeviceStateError() }
+            guard let deviceData = deviceState.deviceData else { throw DeviceCheckError.invalidDeviceState }
 
             let device = try deviceResult.get()
 
@@ -282,10 +288,21 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     }
 }
 
-/// An error returned by `DeviceCheckOperation` in the event when device is no longer logged in.
-private struct InvalidDeviceStateError: LocalizedError {
+/// An error used internally by `DeviceCheckOperation`.
+private enum DeviceCheckError: LocalizedError, Equatable {
+    /// Device is no longer logged in.
+    case invalidDeviceState
+
+    /// Main process has likely performed key rotation at the same time when packet tunnel was doing so.
+    case keyRotationRace
+
     var errorDescription: String? {
-        return "Cannot complete device check because device is no longer logged in."
+        switch self {
+        case .invalidDeviceState:
+            return "Cannot complete device check because device is no longer logged in."
+        case .keyRotationRace:
+            return "Detected key rotation race condition."
+        }
     }
 }
 
