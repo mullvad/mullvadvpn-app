@@ -14,12 +14,10 @@ import Operations
 import class WireGuardKitTypes.PrivateKey
 
 class RotateKeyOperation: ResultOperation<Void> {
+    private let logger = Logger(label: "RotateKeyOperation")
     private let interactor: TunnelInteractor
-
     private let devicesProxy: REST.DevicesProxy
     private var task: Cancellable?
-
-    private let logger = Logger(label: "RotateKeyOperation")
 
     init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: REST.DevicesProxy) {
         self.interactor = interactor
@@ -29,7 +27,7 @@ class RotateKeyOperation: ResultOperation<Void> {
     }
 
     override func main() {
-        // Extract login metadata
+        // Extract login metadata.
         guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
@@ -65,7 +63,7 @@ class RotateKeyOperation: ResultOperation<Void> {
             dispatchQueue.async { [self] in
                 switch result {
                 case let .success(device):
-                    handleSuccess(with: device)
+                    handleSuccess(accountData: accountData, fetchedDevice: device, keyRotation: keyRotation)
                 case let .failure(error):
                     handleError(error)
                 }
@@ -78,22 +76,15 @@ class RotateKeyOperation: ResultOperation<Void> {
         task = nil
     }
 
-    private func handleSuccess(with device: Device) {
+    private func handleSuccess(accountData: StoredAccountData, fetchedDevice: Device, keyRotation: WgKeyRotation) {
         logger.debug("Successfully rotated device key. Persisting device state...")
 
-        // Fetch login metadata once again.
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-            finish(result: .failure(InvalidDeviceStateError()))
-            return
-        }
-
-        // Re-create key rotation with re-fetched data.
-        var keyRotation = WgKeyRotation(data: deviceData)
+        var keyRotation = keyRotation
 
         // Mark key rotation completed.
-        keyRotation.setCompleted(with: device)
+        _ = keyRotation.setCompleted(with: fetchedDevice)
 
-        // Persist changes
+        // Persist changes.
         interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
 
         // Notify the tunnel that key rotation took place and that it should reload VPN configuration.
