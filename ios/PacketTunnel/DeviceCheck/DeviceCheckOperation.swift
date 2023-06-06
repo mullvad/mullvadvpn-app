@@ -18,12 +18,12 @@ import class WireGuardKitTypes.PublicKey
  An operation that is responsible for performing account and device diagnostics and key rotation from within packet
  tunnel process.
 
- Packet tunnel runs this operation immediately as it starts, with `shouldImmediatelyRotateKeyOnMismatch` flag set to
+ Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnMismatch` flag set to
  `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
  stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key rotation
  is not performed.
 
- Other times, packet tunnel runs this operation with `shouldImmediatelyRotateKeyOnMismatch` set to `false`, in which
+ Other times, packet tunnel runs this operation with `rotateImmediatelyOnMismatch` set to `false`, in which
  case it respects the 24 hour interval between key rotation retry attempts.
  */
 final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
@@ -31,7 +31,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
     private let remoteService: DeviceCheckRemoteServiceProtocol
     private let deviceStateAccessor: DeviceStateAccessorProtocol
-    private let shouldImmediatelyRotateKeyOnMismatch: Bool
+    private let rotateImmediatelyOnMismatch: Bool
 
     private var tasks: [Cancellable] = []
 
@@ -44,7 +44,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     ) {
         self.remoteService = remoteSevice
         self.deviceStateAccessor = deviceStateAccessor
-        self.shouldImmediatelyRotateKeyOnMismatch = shouldImmediatelyRotateKeyOnMismatch
+        self.rotateImmediatelyOnMismatch = shouldImmediatelyRotateKeyOnMismatch
 
         super.init(dispatchQueue: dispatchQueue, completionQueue: dispatchQueue, completionHandler: completionHandler)
     }
@@ -173,8 +173,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         }
 
         var keyRotation = WgKeyRotation(data: deviceData)
-        guard keyRotation.shouldPacketTunnelRotateTheKey(shouldRotateImmediately: shouldImmediatelyRotateKeyOnMismatch)
-        else {
+        guard keyRotation.shouldRotateFromPacketTunnel(rotateImmediately: rotateImmediatelyOnMismatch) else {
             completion(.success(.noAction))
             return
         }

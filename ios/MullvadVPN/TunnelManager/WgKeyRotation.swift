@@ -93,7 +93,7 @@ struct WgKeyRotation {
     }
 
     /// Returns `true` if the app should rotate the private key.
-    var shouldRotateTheKey: Bool {
+    var shouldRotate: Bool {
         return nextRotationDate <= Date()
     }
 
@@ -101,7 +101,7 @@ struct WgKeyRotation {
      Returns `true` if packet tunnel should perform key rotation.
 
      During the startup packet tunnel rotates the key immediately if it detected that the key stored on server does not
-     match the key stored on device. In that case it passes `shouldRotateImmediately = true`.
+     match the key stored on device. In that case it passes `rotateImmediately = true`.
 
      To dampen the effect of packet tunnel entering into a restart cycle and going on a key rotation rampage,
      this function adds a 15 seconds cooldown interval to prevent it from pushing keys too often.
@@ -109,7 +109,7 @@ struct WgKeyRotation {
      After performing the initial key rotation on startup, packet tunnel will keep a 24 hour interval between the
      subsequent key rotation attempts.
      */
-    func shouldPacketTunnelRotateTheKey(shouldRotateImmediately: Bool) -> Bool {
+    func shouldRotateFromPacketTunnel(rotateImmediately: Bool) -> Bool {
         guard let lastRotationAttemptDate = data.wgKeyData.lastRotationAttemptDate else { return true }
 
         let now = Date()
@@ -118,7 +118,7 @@ struct WgKeyRotation {
         let cooldownInterval: TimeInterval = 15
 
         // Add cooldown interval when requested to rotate the key immediately.
-        if shouldRotateImmediately, lastRotationAttemptDate.distance(to: now) > cooldownInterval {
+        if rotateImmediately, lastRotationAttemptDate.distance(to: now) > cooldownInterval {
             return true
         }
 
