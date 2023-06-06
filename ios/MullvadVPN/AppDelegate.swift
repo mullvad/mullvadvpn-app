@@ -389,14 +389,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
             SettingsManager.migrateStore(with: proxyFactory) { [self] migrationResult in
-                // Tell the tunnel to re-read tunnel configuration after migration.
-                if case .success = migrationResult {
-                    logger.debug("Reconnect the tunnel after settings migration.")
-
-                    tunnelManager.reconnectTunnel(selectNewRelay: true)
-                }
-
                 switch migrationResult {
+                case .success:
+                    // Tell the tunnel to re-read tunnel configuration after migration.
+                    logger.debug("Reconnect the tunnel after settings migration.")
+                    tunnelManager.reconnectTunnel(selectNewRelay: true)
+                    fallthrough
+
+                case .nothing:
+                    finish(nil)
+
                 case let .failure(error):
                     let migrationUIHandler = application.connectedScenes.first { $0 is SettingsMigrationUIHandler }
                         as? SettingsMigrationUIHandler
@@ -408,9 +410,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     } else {
                         finish(error)
                     }
-
-                case .nothing, .success:
-                    finish(nil)
                 }
             }
         }
