@@ -6,7 +6,6 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import RelayCache
 import UIKit
 
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
