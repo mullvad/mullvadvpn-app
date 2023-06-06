@@ -50,7 +50,8 @@ struct WgKeyRotation {
      removing the date of last rotation attempt which indicates that the last rotation had succedeed and no new
      rotation attempts were made.
 
-     Device related properties are refreshed from `Device` struct that the caller should have received from the API.
+     Device related properties are refreshed from `Device` struct that the caller should have received from the API. This function does nothing if the next private
+     key is unset.
      */
     mutating func setCompleted(with updatedDevice: Device) {
         guard let nextKey = data.wgKeyData.nextPrivateKey else { return }
