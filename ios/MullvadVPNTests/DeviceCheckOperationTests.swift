@@ -202,7 +202,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let remoteService = MockRemoteService(
             initialKey: PrivateKey(),
             rotateDeviceKey: { accountNumber, identifier, publicKey in
-                return .failure(URLError(.badURL))
+                throw URLError(.badURL)
             }
         )
 
@@ -218,6 +218,58 @@ class DeviceCheckOperationTests: XCTestCase {
                     )
                 )
             )
+        )
+
+        startDeviceCheck(
+            remoteService: remoteService,
+            deviceStateAccessor: deviceStateAccessor,
+            shouldImmediatelyRotateKeyOnMismatch: false
+        ) { result in
+            let deviceCheck = result.value
+
+            XCTAssertNotNil(deviceCheck)
+            XCTAssertTrue(deviceCheck?.keyRotationStatus.isAttempted ?? false)
+            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, currentKey)
+
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShouldFailOnKeyRotationRace() {
+        let expect = expectation(description: "Wait for operation to complete")
+
+        let currentKey = PrivateKey()
+        let deviceStateAccessor = MockDeviceStateAccessor(
+            initialState: .loggedIn(
+                StoredAccountData.mock(),
+                StoredDeviceData.mock(
+                    wgKeyData: StoredWgKeyData(
+                        creationDate: Date(),
+                        lastRotationAttemptDate: Date().addingTimeInterval(-86400),
+                        privateKey: currentKey,
+                        nextPrivateKey: PrivateKey()
+                    )
+                )
+            )
+        )
+
+        let remoteService = MockRemoteService(
+            initialKey: PrivateKey(),
+            rotateDeviceKey: { accountNumber, identifier, publicKey in
+                // Overwrite device state before returning the result from key rotation to simulate the race condition
+                // in the underlying storage.
+                try deviceStateAccessor.write(
+                    .loggedIn(
+                        StoredAccountData.mock(),
+                        StoredDeviceData.mock(wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: currentKey))
+                    )
+                )
+
+                let newKey = PrivateKey()
+                return .init(newPrivateKey: newKey, device: Device.mock(privateKey: newKey))
+            }
         )
 
         startDeviceCheck(
@@ -255,9 +307,10 @@ class DeviceCheckOperationTests: XCTestCase {
     }
 }
 
+/// Mock implemntation of a remote service used by `DeviceCheckOperation` to reach the API.
 private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
     typealias RotateDeviceKeyHandler = (_ accountNumber: String, _ identifier: String, _ publicKey: PublicKey)
-        -> Result<Device, Error>
+        throws -> PrivateKey
 
     private let rotateDeviceKeyHandler: RotateDeviceKeyHandler?
 
@@ -300,13 +353,14 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
         completion: @escaping (Result<Device, Error>) -> Void
     ) -> Cancellable {
         DispatchQueue.main.async { [self] in
-            let result: Result<Device, Error>
+            let result: Result<Device, Error> = Result {
+                if let rotateDeviceKeyHandler {
+                    currentKey = try rotateDeviceKeyHandler(accountNumber, identifier, publicKey)
+                } else {
+                    currentKey = PrivateKey()
+                }
 
-            if let rotateDeviceKeyHandler {
-                result = rotateDeviceKeyHandler(accountNumber, identifier, publicKey)
-            } else {
-                currentKey = PrivateKey()
-                result = .success(Device.mock(privateKey: currentKey))
+                return Device.mock(privateKey: currentKey)
             }
 
             completion(result)
@@ -315,6 +369,8 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
     }
 }
 
+/// Mock implementation of device state accessor used by `CheckDeviceOperation` to access the storage holding device
+/// state.
 private class MockDeviceStateAccessor: DeviceStateAccessorProtocol {
     private var state: DeviceState
     private let stateLock = NSLock()
