@@ -93,8 +93,8 @@ class RotateKeyOperation: ResultOperation<Void> {
         // Mark key rotation completed.
         keyRotation.setCompleted(with: device)
 
-        // Persist changes.
-        interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+        // Persist changes
+        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
 
         // Notify the tunnel that key rotation took place and that it should reload VPN configuration.
         if let tunnel = interactor.tunnel {
