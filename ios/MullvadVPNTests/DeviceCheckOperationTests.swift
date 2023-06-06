@@ -267,8 +267,7 @@ class DeviceCheckOperationTests: XCTestCase {
                     )
                 )
 
-                let newKey = PrivateKey()
-                return .init(newPrivateKey: newKey, device: Device.mock(privateKey: newKey))
+                return PrivateKey()
             }
         )
 
