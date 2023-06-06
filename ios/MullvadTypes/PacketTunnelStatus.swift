@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Type describing the result of account status check.
+/// The verdict of an account status check.
 public enum AccountVerdict: Equatable, Codable {
     /// Account is no longer valid.
     case invalid
@@ -20,7 +20,7 @@ public enum AccountVerdict: Equatable, Codable {
     case active(Account)
 }
 
-/// Type describing the result of device status check.
+/// The verdict of a device status check.
 public enum DeviceVerdict: Equatable, Codable {
     /// Device is revoked.
     case revoked
@@ -32,7 +32,7 @@ public enum DeviceVerdict: Equatable, Codable {
     case active
 }
 
-/// Type describing the key rotation status.
+/// Type describing whether key rotation took place and the outcome of it.
 public enum KeyRotationStatus: Equatable, Codable {
     /// No rotation took place yet.
     case noAction
