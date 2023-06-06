@@ -30,7 +30,7 @@ final class WgKeyRotationTests: XCTestCase {
         XCTAssertNotNil(lastRotationDate)
         XCTAssertEqual(nextPubKey, nextKey?.publicKey)
 
-        keyRotation.setCompleted(with: Device.mock(privateKey: nextKey!))
+        XCTAssertTrue(keyRotation.setCompleted(with: Device.mock(privateKey: nextKey!)))
 
         XCTAssertNil(keyRotation.data.wgKeyData.lastRotationAttemptDate)
         XCTAssertNil(keyRotation.data.wgKeyData.nextPrivateKey)
@@ -77,9 +77,9 @@ final class WgKeyRotationTests: XCTestCase {
         )
 
         var keyRotation = WgKeyRotation(data: data)
-        for _ in 0 ... 1 {
-            keyRotation.setCompleted(with: Device.mock(privateKey: nextKey))
-        }
+
+        XCTAssertTrue(keyRotation.setCompleted(with: Device.mock(privateKey: nextKey)))
+        XCTAssertFalse(keyRotation.setCompleted(with: Device.mock(privateKey: nextKey)))
 
         XCTAssertEqual(keyRotation.data.wgKeyData.privateKey, nextKey)
         XCTAssertNil(keyRotation.data.wgKeyData.nextPrivateKey)
