@@ -427,7 +427,7 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping (Result<Bool, Error>) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @escaping (Error?) -> Void) -> Cancellable {
         let operation = RotateKeyOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -438,19 +438,14 @@ final class TunnelManager: StorePaymentObserver {
         operation.completionHandler = { [weak self] result in
             guard let self else { return }
 
-            self.updatePrivateKeyRotationTimer()
+            updatePrivateKeyRotationTimer()
 
-            switch result {
-            case .success:
-                completionHandler(result)
-
-            case let .failure(error):
-                if !error.isOperationCancellationError {
-                    self.handleRestError(error)
-                }
-
-                completionHandler(result)
+            let error = result.error
+            if let error {
+                handleRestError(error)
             }
+
+            completionHandler(error)
         }
 
         operation.addObserver(
