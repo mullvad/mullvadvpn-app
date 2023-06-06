@@ -160,10 +160,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         storeLastUsedAccount(accountNumber: accountData.number)
 
         createDevice(accountNumber: accountData.number) { [self] result in
-            if case let .success(newDevice) = result {
+            completion(result.map { newDevice in
                 storeSettings(accountData: accountData, newDevice: newDevice)
-            }
-            completion(result.map { _ in accountData })
+
+                return accountData
+            })
         }
     }
 
