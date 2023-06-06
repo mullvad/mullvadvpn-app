@@ -14,10 +14,10 @@ public enum AccountVerdict: Equatable, Codable {
     case invalid
 
     /// Account is expired.
-    case expired(AccountData)
+    case expired(Account)
 
     /// Account exists and has enough time left.
-    case active(AccountData)
+    case active(Account)
 }
 
 /// Type describing the result of device status check.
