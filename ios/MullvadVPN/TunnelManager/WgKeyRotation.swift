@@ -16,6 +16,18 @@ import class WireGuardKitTypes.PublicKey
  key rotation.
  */
 struct WgKeyRotation {
+    /// Private key rotation interval measured in seconds and counted from the time of when the key was successfully
+    /// pushed to the backend.
+    public static let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
+
+    /// Private key rotation retry interval measured in seconds and counted ffrom the time when the last rotation
+    /// attempt took place.
+    public static let retryInterval: TimeInterval = 60 * 60 * 24
+
+    /// Cooldown interval measured in seconds used to prevent packet tunnel from forcefully pushing the key to our
+    /// backend in the event of restart loop.
+    public static let packetTunnelCooldownInterval: TimeInterval = 15
+
     /// Mutated device data value.
     private(set) var data: StoredDeviceData
 
@@ -83,11 +95,8 @@ struct WgKeyRotation {
      If the date produced is in the past then `Date()` is returned instead.
      */
     var nextRotationDate: Date {
-        let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
-        let retryInterval: TimeInterval = 60 * 60 * 24
-
-        let nextRotationDate = data.wgKeyData.lastRotationAttemptDate?.addingTimeInterval(retryInterval)
-            ?? data.wgKeyData.creationDate.addingTimeInterval(rotationInterval)
+        let nextRotationDate = data.wgKeyData.lastRotationAttemptDate?.addingTimeInterval(Self.retryInterval)
+            ?? data.wgKeyData.creationDate.addingTimeInterval(Self.rotationInterval)
 
         return max(nextRotationDate, Date())
     }
@@ -114,15 +123,12 @@ struct WgKeyRotation {
 
         let now = Date()
 
-        let retryInterval: TimeInterval = 60 * 60 * 24
-        let cooldownInterval: TimeInterval = 15
-
         // Add cooldown interval when requested to rotate the key immediately.
-        if rotateImmediately, lastRotationAttemptDate.distance(to: now) > cooldownInterval {
+        if rotateImmediately, lastRotationAttemptDate.distance(to: now) > Self.packetTunnelCooldownInterval {
             return true
         }
 
-        let nextRotationAttempt = max(now, lastRotationAttemptDate.addingTimeInterval(retryInterval))
+        let nextRotationAttempt = max(now, lastRotationAttemptDate.addingTimeInterval(Self.retryInterval))
         if nextRotationAttempt <= now {
             return true
         }
