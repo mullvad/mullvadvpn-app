@@ -273,10 +273,10 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
 
     func getAccountData(
         accountNumber: String,
-        completion: @escaping (Result<AccountData, Error>) -> Void
+        completion: @escaping (Result<Account, Error>) -> Void
     ) -> Cancellable {
         DispatchQueue.main.async {
-            completion(.success(AccountData.mock()))
+            completion(.success(Account.mock()))
         }
         return AnyCancellable()
     }
@@ -375,9 +375,9 @@ private extension Device {
     }
 }
 
-private extension AccountData {
-    static func mock() -> AccountData {
-        return AccountData(
+private extension Account {
+    static func mock() -> Account {
+        return Account(
             id: "account-id",
             expiry: Date().addingTimeInterval(86400),
             maxPorts: 5,

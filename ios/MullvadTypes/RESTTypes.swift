@@ -10,7 +10,7 @@ import Foundation
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
-public struct AccountData: Codable, Equatable {
+public struct Account: Codable, Equatable {
     public let id: String
     public let expiry: Date
     public let maxPorts: Int

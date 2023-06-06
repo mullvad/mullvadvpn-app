@@ -87,7 +87,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
      stored on device.
      */
     private func didReceiveData(
-        accountResult: Result<AccountData, Error>,
+        accountResult: Result<Account, Error>,
         deviceResult: Result<Device, Error>,
         completion: @escaping (Result<DeviceCheck, Error>) -> Void
     ) {
@@ -123,9 +123,9 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     /// it.
     private func fetchData(
         accountNumber: String, deviceIdentifier: String,
-        completion: @escaping (Result<AccountData, Error>, Result<Device, Error>) -> Void
+        completion: @escaping (Result<Account, Error>, Result<Device, Error>) -> Void
     ) {
-        var accountResult: Result<AccountData, Error> = .failure(OperationError.cancelled)
+        var accountResult: Result<Account, Error> = .failure(OperationError.cancelled)
         var deviceResult: Result<Device, Error> = .failure(OperationError.cancelled)
 
         let dispatchGroup = DispatchGroup()
@@ -245,7 +245,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     // MARK: - Private helpers
 
     /// Converts account data result type into `AccountVerdict`.
-    private func accountVerdict(from accountResult: Result<AccountData, Error>) throws -> AccountVerdict {
+    private func accountVerdict(from accountResult: Result<Account, Error>) throws -> AccountVerdict {
         do {
             let accountData = try accountResult.get()
 
@@ -291,7 +291,7 @@ private struct InvalidDeviceStateError: LocalizedError {
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
 protocol DeviceCheckRemoteServiceProtocol {
-    func getAccountData(accountNumber: String, completion: @escaping (Result<AccountData, Error>) -> Void)
+    func getAccountData(accountNumber: String, completion: @escaping (Result<Account, Error>) -> Void)
         -> Cancellable
     func getDevice(accountNumber: String, identifier: String, completion: @escaping (Result<Device, Error>) -> Void)
         -> Cancellable

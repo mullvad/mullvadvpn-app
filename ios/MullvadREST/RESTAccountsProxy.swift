@@ -52,7 +52,7 @@ extension REST {
         public func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<AccountData>
+            completion: @escaping CompletionHandler<Account>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -70,7 +70,7 @@ extension REST {
             )
 
             let responseHandler = REST.defaultResponseHandler(
-                decoding: AccountData.self,
+                decoding: Account.self,
                 with: responseDecoder
             )
 
