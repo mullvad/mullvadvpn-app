@@ -37,7 +37,7 @@ class RotateKeyOperation: ResultOperation<Void> {
         var keyRotation = WgKeyRotation(data: deviceData)
 
         // Check if key rotation can take place.
-        guard keyRotation.shouldRotateTheKey else {
+        guard keyRotation.shouldRotate else {
             logger.debug("Throttle private key rotation.")
             finish(result: .success(()))
             return
