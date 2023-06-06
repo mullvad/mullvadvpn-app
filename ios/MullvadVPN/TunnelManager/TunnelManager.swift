@@ -867,6 +867,8 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
+    /// Refresh device state from settings and update the in-memory value.
+    /// Used to refresh device state when it's modified by packet tunnel during key rotation.
     private func refreshDeviceState() {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             do {
