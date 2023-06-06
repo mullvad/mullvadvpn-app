@@ -12,8 +12,8 @@ import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
 /**
- A simple manager that implements manipulations related to marking the beginning and the completion of key rotation,
- private key creation and other tasks relevant to handling the state of key rotation.
+ Implements manipulations related to marking the beginning and the completion of key rotation, private key creation and other tasks relevant to handling the state of
+ key rotation.
  */
 struct WgKeyRotation {
     /// Mutated device data value.
