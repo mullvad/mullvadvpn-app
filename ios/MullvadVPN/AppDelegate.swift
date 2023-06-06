@@ -202,11 +202,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
             using: nil
-        ) { task in
-            let handle = self.tunnelManager.rotatePrivateKey { completion in
-                self.scheduleKeyRotationTask()
+        ) { [self] task in
+            let handle = tunnelManager.rotatePrivateKey { [self] error in
+                scheduleKeyRotationTask()
 
-                task.setTaskCompleted(success: completion.isSuccess)
+                task.setTaskCompleted(success: error == nil)
             }
 
             task.expirationHandler = {

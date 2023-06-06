@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 import class WireGuardKitTypes.PrivateKey
 
-class RotateKeyOperation: ResultOperation<Bool> {
+class RotateKeyOperation: ResultOperation<Void> {
     private let interactor: TunnelInteractor
 
     private let devicesProxy: REST.DevicesProxy
@@ -41,11 +41,10 @@ class RotateKeyOperation: ResultOperation<Bool> {
         // Check if key rotation can take place.
         guard keyRotation.shouldRotateTheKey else {
             logger.debug("Throttle private key rotation.")
-            finish(result: .success(false))
+            finish(result: .success(()))
             return
         }
 
-        // Mark rotation attempt and persist it.
         logger.debug("Private key is old enough, rotate right away.")
 
         // Mark the beginning of key rotation and receive the public key to push to backend.
@@ -63,12 +62,12 @@ class RotateKeyOperation: ResultOperation<Bool> {
             publicKey: publicKey,
             retryStrategy: .default
         ) { [self] result in
-            self.dispatchQueue.async {
+            dispatchQueue.async { [self] in
                 switch result {
                 case let .success(device):
-                    self.handleSuccess(with: device)
+                    handleSuccess(with: device)
                 case let .failure(error):
-                    self.handleError(error)
+                    handleError(error)
                 }
             }
         }
@@ -100,10 +99,10 @@ class RotateKeyOperation: ResultOperation<Bool> {
         // Notify the tunnel that key rotation took place and that it should reload VPN configuration.
         if let tunnel = interactor.tunnel {
             _ = tunnel.notifyKeyRotation { [weak self] _ in
-                self?.finish(result: .success(true))
+                self?.finish(result: .success(()))
             }
         } else {
-            finish(result: .success(true))
+            finish(result: .success(()))
         }
     }
 
