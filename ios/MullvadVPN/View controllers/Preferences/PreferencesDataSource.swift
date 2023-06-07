@@ -426,11 +426,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .contentBlockers:
             configureContentBlockersHeader(view)
             return view
-
         case .wireGuardPorts:
             configureWireguardPortsHeader(view)
             return view
-
         case .wireGuardObfuscation:
             configureObfuscationHeader(view)
             return view
