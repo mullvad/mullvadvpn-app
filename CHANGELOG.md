@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
 - Add creation date below device name in the device list screen.
+- Add quantum resistant tunneling.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
