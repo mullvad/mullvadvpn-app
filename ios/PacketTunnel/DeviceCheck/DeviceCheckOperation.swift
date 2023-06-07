@@ -253,19 +253,11 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     /// Converts account data result type into `AccountVerdict`.
     private func accountVerdict(from accountResult: Result<Account, Error>) throws -> AccountVerdict {
         do {
-            let accountData = try accountResult.get()
+            let account = try accountResult.get()
 
-            if accountData.expiry > Date() {
-                return .active(accountData)
-            } else {
-                return .expired(accountData)
-            }
-        } catch {
-            if let error = error as? REST.Error, error.compareErrorCode(.invalidAccount) {
-                return .invalid
-            } else {
-                throw error
-            }
+            return account.expiry > Date() ? .active(account) : .expired(account)
+        } catch let error as REST.Error where error.compareErrorCode(.invalidAccount) {
+            return .invalid
         }
     }
 
@@ -278,12 +270,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
             let device = try deviceResult.get()
 
             return deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .active : .keyMismatch
-        } catch {
-            if let error = error as? REST.Error, error.compareErrorCode(.deviceNotFound) {
-                return .revoked
-            } else {
-                throw error
-            }
+        } catch let error as REST.Error where error.compareErrorCode(.deviceNotFound) {
+            return .revoked
         }
     }
 }
