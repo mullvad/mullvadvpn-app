@@ -1,5 +1,5 @@
 //
-//  AccountTokenInput.swift
+//  InputTextFormatter.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 08/04/2020.
@@ -11,15 +11,33 @@ import UIKit
 
 /// A class describing the account token input and caret management.
 /// Suitable to be used with `UITextField`.
-class AccountTokenInput: NSObject {
-    /// The group separator character
-    static let groupSeparator: Character = " "
+class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
+    enum AllowedInput {
+        case numeric, alphanumeric(isUpperCase: Bool)
+    }
 
-    /// The character size of each group of digits
-    static let groupSize = 4
+    struct Configuration {
+        /// Allowed characters.
+        var allowedInput: AllowedInput
 
-    /// Parsed account token string
-    private(set) var parsedString = ""
+        /// Separator between groups of characters.
+        var groupSeparator: Character
+
+        /// The size of each group of characters .
+        var groupSize: UInt8
+
+        /// Maximum number of groups of characters allowed.
+        var maxGroups: UInt
+    }
+
+    var configuration: Configuration {
+        didSet {
+            replace(with: string)
+        }
+    }
+
+    /// Parsed string
+    private(set) var string = ""
 
     /// Formatted string
     private(set) var formattedString = ""
@@ -27,7 +45,8 @@ class AccountTokenInput: NSObject {
     // Computed caret position
     private(set) var caretPosition = 0
 
-    init(string: String = "") {
+    init(string: String = "", configuration: Configuration) {
+        self.configuration = configuration
         super.init()
 
         replace(with: string)
@@ -45,13 +64,8 @@ class AccountTokenInput: NSObject {
     }
 
     /// Replace characters in range maintaining the caret position
-    ///
-    /// - Parameter range: a range within a string to replace
-    /// - Parameter replacementString: a string to replace the characters in the given range
-    /// - Parameter emptySelection: a hint to indicate if the text field selection is empty.
-    ///                             This is normally the default state unless a text range is
-    ///                             selected.
-    ///
+    /// Note: `emptySelection` hints that text field selection is empty. This is normally
+    /// the default state unless a text range is selected.
     func replaceCharacters(
         in range: Range<String.Index>,
         replacementString: String,
@@ -61,10 +75,12 @@ class AccountTokenInput: NSObject {
 
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
-        if replacementString.isEmpty, emptySelection, !formattedString.isEmpty {
+        if replacementString.isEmpty, emptySelection,
+           !formattedString.isEmpty
+        {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
-                .lastIndex { Self.isDigit($0) } ?? formattedString.startIndex
+                .lastIndex { isAllowed($0) } ?? formattedString.startIndex
 
             stringRange = precedingDigitIndex ..< stringRange.upperBound
         }
@@ -96,7 +112,7 @@ class AccountTokenInput: NSObject {
 
         for (index, element) in newString.enumerated() {
             // Skip disallowed characters
-            if !Self.isDigit(element) {
+            if !isAllowed(element) {
                 // Adjust the caret position for characters removed before the insertion location
                 if originalCaretPosition > index {
                     newCaretPosition -= 1
@@ -104,9 +120,24 @@ class AccountTokenInput: NSObject {
                 continue
             }
 
+            // Apply cap on number of groups of characters that can be entered.
+            if configuration.maxGroups > 0 {
+                let numGroups = reparsedString.count / Int(configuration.groupSize)
+
+                if numGroups >= configuration.maxGroups {
+                    if originalCaretPosition > index {
+                        newCaretPosition = reformattedString.count
+                    }
+                    break
+                }
+            }
+
             // Add separator between the groups of digits
-            if numDigits > 0, numDigits % Self.groupSize == 0 {
-                reformattedString.append(Self.groupSeparator)
+            if numDigits > 0,
+               configuration.groupSize > 0,
+               numDigits % Int(configuration.groupSize) == 0
+            {
+                reformattedString.append(configuration.groupSeparator)
 
                 if originalCaretPosition > index {
                     // Adjust the caret position to account for separators added before the
@@ -120,22 +151,15 @@ class AccountTokenInput: NSObject {
             numDigits += 1
         }
 
+        if case AllowedInput.alphanumeric(true) = configuration.allowedInput {
+            reformattedString = reformattedString.uppercased()
+        }
+
         caretPosition = newCaretPosition
         formattedString = reformattedString
-        parsedString = reparsedString
+        string = reparsedString
     }
 
-    private class func isDigit(_ character: Character) -> Bool {
-        switch character {
-        case "0" ... "9":
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
     /// Update the text and caret position in the given text field
     func updateTextField(_ textField: UITextField) {
         updateTextField(textField, notifyDelegate: false)
@@ -197,7 +221,7 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
 
     // MARK: - Private
 
-    /// A caret position as utf-16 offset compatible for use with `NSString` and `UITextField`
+    /// A caret position as utf-16 offset compatible for use with `NSString` and `UITextField`.
     private var caretPositionUtf16: Int {
         let startIndex = formattedString.startIndex
         let endIndex = formattedString.index(startIndex, offsetBy: caretPosition)
@@ -205,7 +229,7 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
         return formattedString.utf16.distance(from: startIndex, to: endIndex)
     }
 
-    /// Convert the computed caret position to an empty `UITextRange` within the given text field
+    /// Convert the computed caret position to an empty `UITextRange` within the given text field.
     private func caretTextRange(in textField: UITextField) -> UITextRange? {
         guard let position = textField.position(
             from: textField.beginningOfDocument,
@@ -216,7 +240,7 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
     }
 
     /// A helper to update the text and caret in the given text field, and optionally post
-    /// `UITextField.textDidChange` notification
+    /// `UITextField.textDidChange` notification.
     private func updateTextField(_ textField: UITextField, notifyDelegate: Bool) {
         textField.text = formattedString
         textField.selectedTextRange = caretTextRange(in: textField)
@@ -226,11 +250,20 @@ extension AccountTokenInput: UITextFieldDelegate, UITextPasteDelegate {
         }
     }
 
-    /// Post `UITextField.textDidChange` notification
+    /// Posts `UITextField.textDidChange` notification.
     private class func notifyTextDidChange(in textField: UITextField) {
         NotificationCenter.default.post(
             name: UITextField.textDidChangeNotification,
             object: textField
         )
+    }
+
+    private func isAllowed(_ character: Character) -> Bool {
+        switch configuration.allowedInput {
+        case .numeric:
+            return character.isASCII && character.isNumber
+        case .alphanumeric:
+            return character.isASCII && character.isLetter
+        }
     }
 }

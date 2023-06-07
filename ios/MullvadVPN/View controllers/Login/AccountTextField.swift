@@ -9,7 +9,12 @@
 import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate {
-    private let input = AccountTokenInput()
+    private let inputFormatter = InputTextFormatter(configuration: InputTextFormatter.Configuration(
+        allowedInput: .numeric,
+        groupSeparator: " ",
+        groupSize: 4,
+        maxGroups: 4
+    ))
 
     var onReturnKey: ((AccountTextField) -> Bool)?
 
@@ -20,7 +25,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         cornerRadius = 0
 
         delegate = self
-        pasteDelegate = input
+        pasteDelegate = inputFormatter
 
         NotificationCenter.default.addObserver(
             self,
@@ -36,16 +41,16 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
 
     var autoformattingText: String {
         set {
-            input.replace(with: newValue)
-            input.updateTextField(self)
+            inputFormatter.replace(with: newValue)
+            inputFormatter.updateTextField(self)
         }
         get {
-            input.formattedString
+            inputFormatter.formattedString
         }
     }
 
     var parsedToken: String {
-        return input.parsedString
+        return inputFormatter.string
     }
 
     var enableReturnKey = true {
@@ -70,7 +75,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        return input.textField(
+        return inputFormatter.textField(
             textField,
             shouldChangeCharactersIn: range,
             replacementString: string
