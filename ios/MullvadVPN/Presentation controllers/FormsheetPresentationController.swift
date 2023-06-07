@@ -164,7 +164,7 @@ class FormSheetPresentationController: UIPresentationController {
                       let containerView,
                       !isInFullScreenPresentation else { return }
                 let frame = view.frame
-                let bottomMarginFromKeyboard = adjustment > 0 ? UIMetrics.sectionSpacing : 0
+                let bottomMarginFromKeyboard = adjustment > 0 ? UIMetrics.TableView.sectionSpacing : 0
                 view.frame = CGRect(
                     origin: CGPoint(
                         x: frame.origin.x,

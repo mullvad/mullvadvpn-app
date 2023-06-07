@@ -87,7 +87,6 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityHint = nil
             cell.applySubCellStyling()
-            cell.setInfoButtonIsVisible(true)
             cell.setOn(viewModel.blockMalware, animated: false)
             cell.infoButtonHandler = { [weak self] in
                 self?.delegate?.showInfo(for: .blockMalware)

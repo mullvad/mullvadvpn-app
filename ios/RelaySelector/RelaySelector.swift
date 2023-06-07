@@ -120,12 +120,39 @@ public enum RelaySelector {
         )
     }
 
+    /// Determines whether a `REST.ServerRelay` satisfies the given relay filter.
+    public static func relayMatchesFilter(_ relay: REST.ServerRelay, filter: RelayFilter) -> Bool {
+        if case let .only(providers) = filter.providers {
+            if !providers.contains(relay.provider) {
+                return false
+            }
+        }
+
+        switch filter.ownership {
+        case .any:
+            return true
+        case .owned:
+            return relay.owned
+        case .rented:
+            return !relay.owned
+        }
+    }
+
     /// Produce a list of `RelayWithLocation` items satisfying the given constraints
     private static func applyConstraints<T: AnyRelay>(
         _ constraints: RelayConstraints,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {
-        relays.filter { relayWithLocation -> Bool in
+        return relays.filter { relayWithLocation -> Bool in
+            switch constraints.filter {
+            case .any:
+                break
+            case let .only(filter):
+                if !relayMatchesFilter(relayWithLocation.relay, filter: filter) {
+                    return false
+                }
+            }
+
             switch constraints.location {
             case .any:
                 return true

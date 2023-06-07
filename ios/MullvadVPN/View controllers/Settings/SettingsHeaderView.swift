@@ -45,7 +45,9 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     }
 
     var didCollapseHandler: CollapseHandler?
-    var infoButtonHandler: InfoButtonHandler?
+    var infoButtonHandler: InfoButtonHandler? { didSet {
+        infoButton.isHidden = infoButtonHandler == nil
+    }}
 
     private let chevronDown = UIImage(named: "IconChevronDown")
     private let chevronUp = UIImage(named: "IconChevronUp")
@@ -54,6 +56,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
+        infoButton.isHidden = true
         infoButton.addTarget(
             self,
             action: #selector(handleInfoButton(_:)),
@@ -66,7 +69,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
             for: .touchUpInside
         )
 
-        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
         contentView.backgroundColor = UIColor.Cell.backgroundColor
 
         let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics

@@ -37,6 +37,15 @@ extension UIBarButtonItem {
         self.actionHandler = actionHandler
     }
 
+    /**
+     Initialize bar button item with title and block handler.
+     */
+    convenience init(title: String, actionHandler: @escaping ActionHandler) {
+        self.init(title: title, style: .plain, target: nil, action: nil)
+
+        self.actionHandler = actionHandler
+    }
+
     @objc private func handleAction() {
         actionHandler?()
     }

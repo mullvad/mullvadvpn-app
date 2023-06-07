@@ -105,6 +105,75 @@ class RelaySelectorTests: XCTestCase {
 
         XCTAssertTrue(sampleRelays.bridge.relays.contains(selectedRelay))
     }
+
+    func testRelayFilterConstraintWithOwnedOwnership() throws {
+        let filter = RelayFilter(ownership: .owned, providers: .any)
+        let constraints = RelayConstraints(
+            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            filter: .only(filter)
+        )
+
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertTrue(result.relay.owned)
+    }
+
+    func testRelayFilterConstraintWithRentedOwnership() throws {
+        let filter = RelayFilter(ownership: .rented, providers: .any)
+        let constraints = RelayConstraints(
+            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            filter: .only(filter)
+        )
+
+        let result = try? RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertNil(result)
+    }
+
+    func testRelayFilterConstraintWithCorrectProvider() throws {
+        let provider = "31173"
+
+        let filter = RelayFilter(ownership: .any, providers: .only([provider]))
+        let constraints = RelayConstraints(
+            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            filter: .only(filter)
+        )
+
+        let result = try RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertEqual(result.relay.provider, provider)
+    }
+
+    func testRelayFilterConstraintWithIncorrectProvider() throws {
+        let provider = "DataPacket"
+
+        let filter = RelayFilter(ownership: .any, providers: .only([provider]))
+        let constraints = RelayConstraints(
+            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            filter: .only(filter)
+        )
+
+        let result = try? RelaySelector.evaluate(
+            relays: sampleRelays,
+            constraints: constraints,
+            numberOfFailedAttempts: 0
+        )
+
+        XCTAssertNil(result)
+>>>>>>> a61a0cd20 (Add filtering to location selection)
+    }
 }
 
 private let sampleRelays = REST.ServerRelaysResponse(
@@ -168,7 +237,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 active: true,
                 owned: true,
                 location: "es-mad",
-                provider: "",
+                provider: "DataPacket",
                 weight: 500,
                 ipv4AddrIn: .loopback,
                 ipv6AddrIn: .loopback,
@@ -180,7 +249,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 active: true,
                 owned: true,
                 location: "se-got",
-                provider: "",
+                provider: "31173",
                 weight: 1000,
                 ipv4AddrIn: .loopback,
                 ipv6AddrIn: .loopback,
@@ -192,7 +261,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 active: true,
                 owned: true,
                 location: "se-sto",
-                provider: "",
+                provider: "31173",
                 weight: 50,
                 ipv4AddrIn: .loopback,
                 ipv6AddrIn: .loopback,
@@ -204,7 +273,7 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 active: true,
                 owned: true,
                 location: "se-sto",
-                provider: "",
+                provider: "31173",
                 weight: 100,
                 ipv4AddrIn: .loopback,
                 ipv6AddrIn: .loopback,

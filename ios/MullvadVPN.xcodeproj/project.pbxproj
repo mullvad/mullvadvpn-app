@@ -388,17 +388,29 @@
 		58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF2C02281BDE02009EF542 /* SettingsManager.swift */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
 		7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */; };
+		7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26442A29CEF700B978AA /* RelayFilterViewController.swift */; };
+		7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */; };
+		7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */; };
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
-		7A42DECD2A09064C00B209BE /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */; };
+		7A42DECD2A09064C00B209BE /* (null) in Sources */ = {isa = PBXBuildFile; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
-		7A7AD28F29DEDB1C00480EF1 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsHeaderView.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */; };
 		7A83C4022A57FAA800DFB83A /* SettingsDNSInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A83C4012A57FAA800DFB83A /* SettingsDNSInfoCell.swift */; };
+		7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1412A2E3306000B728D /* CheckboxView.swift */; };
+		7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */; };
 		7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7AE47E522A17972A000418DA /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE47E512A17972A000418DA /* CustomAlertViewController.swift */; };
 		7AF0419E29E957EB00D492DD /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */; };
+		7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */; };
+		7AF9BE892A30C62A00DBFEDB /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A264C2A29E00E00B978AA /* SettingsHeaderView.swift */; };
+		7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */; };
+		7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */; };
+		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
+		7AF9BE932A39F49E00DBFEDB /* RelayFilterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE922A39F49E00DBFEDB /* RelayFilterCoordinator.swift */; };
+		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
+		7AF9BE972A41C71F00DBFEDB /* RelayFilterChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */; };
 		A917351F29FAA9C400D5DCFD /* RESTTransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */; };
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A93D13782A1F60A6001EB0B1 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 586F2BE129F6916F009E6924 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1172,18 +1184,29 @@
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
 		7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentAlertPresenter.swift; sourceTree = "<group>"; };
+		7A1A26442A29CEF700B978AA /* RelayFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewController.swift; sourceTree = "<group>"; };
+		7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterDataSource.swift; sourceTree = "<group>"; };
+		7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterCellFactory.swift; sourceTree = "<group>"; };
+		7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
+		7A1A264C2A29E00E00B978AA /* SettingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
-		7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
-		7A7AD28E29DEDB1C00480EF1 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNApp.xctestplan; sourceTree = "<group>"; };
 		7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNCI.xctestplan; sourceTree = "<group>"; };
 		7A83C4012A57FAA800DFB83A /* SettingsDNSInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSInfoCell.swift; sourceTree = "<group>"; };
+		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
+		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7AE47E512A17972A000418DA /* CustomAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertViewController.swift; sourceTree = "<group>"; };
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
+		7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilter.swift; sourceTree = "<group>"; };
+		7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModel.swift; sourceTree = "<group>"; };
+		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
+		7AF9BE922A39F49E00DBFEDB /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
+		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
+		7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterChipView.swift; sourceTree = "<group>"; };
 		A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStrategy.swift; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
@@ -1492,6 +1515,7 @@
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
+				7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */,
 				5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */,
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
@@ -1559,6 +1583,7 @@
 				583FE01A29C19777006E85F9 /* Preferences */,
 				583FE01929C19760006E85F9 /* ProblemReport */,
 				F028A5472A336E1900C0CAA3 /* RedeemVoucher */,
+				7AF9BE912A39F47D00DBFEDB /* RelayFilter */,
 				583FE01C29C19793006E85F9 /* RevokedDevice */,
 				583FE01729C196F3006E85F9 /* SelectLocation */,
 				583FE01829C19709006E85F9 /* Settings */,
@@ -1582,7 +1607,8 @@
 		583FE01829C19709006E85F9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */,
+				7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */,
+				7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */,
@@ -1590,7 +1616,7 @@
 				58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */,
 				7A83C4012A57FAA800DFB83A /* SettingsDNSInfoCell.swift */,
 				584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */,
-				7A7AD28E29DEDB1C00480EF1 /* SettingsHeaderView.swift */,
+				7A1A264C2A29E00E00B978AA /* SettingsHeaderView.swift */,
 				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
 				58677711290976FB006F721F /* SettingsInteractor.swift */,
 				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
@@ -1617,8 +1643,8 @@
 				5864AF0229C7879B005B0CD9 /* PreferencesCellFactory.swift */,
 				584D26C3270C855A004EA533 /* PreferencesDataSource.swift */,
 				587EB6732714520600123C75 /* PreferencesDataSourceDelegate.swift */,
-				58ACF6482655365700ACE4B7 /* PreferencesViewController.swift */,
 				5871167E2910035700D41AAC /* PreferencesInteractor.swift */,
+				58ACF6482655365700ACE4B7 /* PreferencesViewController.swift */,
 				587EB671271451E300123C75 /* PreferencesViewModel.swift */,
 			);
 			path = Preferences;
@@ -1673,6 +1699,7 @@
 			isa = PBXGroup;
 			children = (
 				5868585424054096000B8131 /* AppButton.swift */,
+				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
 				58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */,
 				58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */,
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
@@ -1727,6 +1754,7 @@
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
 				58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */,
+				7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				584EBDBC2747C98F00A0C9FD /* NSAttributedString+Markdown.swift */,
 				587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */,
@@ -1941,6 +1969,7 @@
 				F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */,
 				58CAF9F92983E0C600BE19F7 /* LoginCoordinator.swift */,
 				583FE00D29C0D586006E85F9 /* OutOfTimeCoordinator.swift */,
+				7AF9BE922A39F49E00DBFEDB /* RelayFilterCoordinator.swift */,
 				5847D58C29B7740F008C3808 /* RevokedCoordinator.swift */,
 				586891CC29D452E4002A8278 /* SafariCoordinator.swift */,
 				587C92FD2986E28100FB9664 /* SelectLocationCoordinator.swift */,
@@ -2290,6 +2319,19 @@
 				7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */,
 			);
 			path = TestPlans;
+			sourceTree = "<group>";
+		};
+		7AF9BE912A39F47D00DBFEDB /* RelayFilter */ = {
+			isa = PBXGroup;
+			children = (
+				7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */,
+				7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */,
+				7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */,
+				7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */,
+				7A1A26442A29CEF700B978AA /* RelayFilterViewController.swift */,
+				7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */,
+			);
+			path = RelayFilter;
 			sourceTree = "<group>";
 		};
 		A97F1F422A1F4E1A00ECEFDE /* MullvadTransport */ = {
@@ -3207,6 +3249,7 @@
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
+				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
 				58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
 				58F2E148276A307400A79513 /* MapConnectionStatusOperation.swift in Sources */,
@@ -3228,6 +3271,7 @@
 				F028A56E2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				5878F4FC29CDA2E4003D4BE2 /* ChangeLogViewController.swift in Sources */,
+				7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */,
 				068CE5742927B7A400A068BB /* Migration.swift in Sources */,
 				58CCA010224249A1004F3011 /* TunnelViewController.swift in Sources */,
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
@@ -3236,17 +3280,20 @@
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
+				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
+				7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */,
 				587C93002986E2B600FB9664 /* TermsOfServiceCoordinator.swift in Sources */,
 				5864AF0929C78850005B0CD9 /* PreferencesCellFactory.swift in Sources */,
 				587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */,
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
+				7AF9BE892A30C62A00DBFEDB /* SettingsHeaderView.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
@@ -3276,6 +3323,7 @@
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				5893C6F929C1B480009090D1 /* DNSSettings.swift in Sources */,
+				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				5864859929A0D028006C5743 /* FormsheetPresentationController.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
@@ -3294,23 +3342,27 @@
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				5893C6FC29C311E9009090D1 /* ApplicationRouter.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
+				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,
 				58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */,
 				585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */,
 				5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */,
 				585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */,
+				7AF9BE972A41C71F00DBFEDB /* RelayFilterChipView.swift in Sources */,
 				063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
 				587EB6742714520600123C75 /* PreferencesDataSourceDelegate.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
+				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				58CAF9F82983D36800BE19F7 /* Coordinator.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
+				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
@@ -3329,7 +3381,7 @@
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
-				7A42DECD2A09064C00B209BE /* SelectableSettingsCell.swift in Sources */,
+				7A42DECD2A09064C00B209BE /* (null) in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
@@ -3337,7 +3389,6 @@
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				06410E07292D108E00AFC18C /* SettingsStore.swift in Sources */,
 				586A950D290125F0007BAF2B /* PresentAlertOperation.swift in Sources */,
-				7A7AD28F29DEDB1C00480EF1 /* SettingsHeaderView.swift in Sources */,
 				5878F50229CDB989003D4BE2 /* ChangeLogCoordinator.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
@@ -3376,6 +3427,7 @@
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
+				7AF9BE932A39F49E00DBFEDB /* RelayFilterCoordinator.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
@@ -3389,6 +3441,7 @@
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				583FE00E29C0D586006E85F9 /* OutOfTimeCoordinator.swift in Sources */,
+				7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */,
 				7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */,
 				58A8EE5E2976DB00009C0F8D /* StorePaymentManagerError+Display.swift in Sources */,
 				580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */,
@@ -3493,6 +3546,7 @@
 				58D22411294C90210029F5F8 /* MullvadEndpoint.swift in Sources */,
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
+				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				58D22414294C90210029F5F8 /* RelayLocation.swift in Sources */,
 				581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */,
 				58D22415294C90210029F5F8 /* PacketTunnelStatus.swift in Sources */,

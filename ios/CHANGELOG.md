@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Rotate public key from within packet tunnel when it detects that the key stored on backend does
   not match the one stored on device.
 - Add WireGuard port selection to settings.
+- Add redeeming voucher code on account view.
+- Add filtering on ownership and provider to location selection view.
 
 ## [2023.2 - 2023-04-03]
 ### Changed
