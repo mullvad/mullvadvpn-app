@@ -718,7 +718,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
                 reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
             }
 
-            // Retain the last key rotation status that isn't .notRotated so that UI could keep track of when rotation
+            // Retain the last key rotation status that isn't `.noAction` so that UI could keep track of when rotation
             // attempts take place which should give it a hint when to refresh device state from settings.
             if let deviceCheck, newDeviceCheck.keyRotationStatus == .noAction {
                 newDeviceCheck.keyRotationStatus = deviceCheck.keyRotationStatus
