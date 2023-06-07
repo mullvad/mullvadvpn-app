@@ -18,6 +18,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         class SetAutoConnect(val autoConnect: Boolean) : Command()
         class SetWireGuardMtu(val mtu: Int?) : Command()
         class SetObfuscationSettings(val settings: ObfuscationSettings?) : Command()
+        class SetQuantumResistant(val quantumResistant: QuantumResistantState) : Command()
     }
 
     private val commandChannel = spawnActor()
@@ -58,6 +59,12 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
             registerHandler(Request.SetObfuscationSettings::class) { request ->
                 commandChannel.trySendBlocking(Command.SetObfuscationSettings(request.settings))
+            }
+
+            registerHandler(Request.SetWireGuardQuantumResistant::class) { request ->
+                commandChannel.trySendBlocking(
+                    Command.SetQuantumResistant(request.quantumResistant)
+                )
             }
         }
     }
@@ -121,6 +128,8 @@ class SettingsListener(endpoint: ServiceEndpoint) {
                         is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
                         is Command.SetObfuscationSettings ->
                             daemon.await().setObfuscationSettings(command.settings)
+                        is Command.SetQuantumResistant ->
+                            daemon.await().setQuantumResistant(command.quantumResistant)
                     }
                 }
             } catch (exception: ClosedReceiveChannelException) {

@@ -49,7 +49,8 @@ fun SelectableCell(
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.surface,
     backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
-    onCellClicked: () -> Unit = {}
+    onCellClicked: () -> Unit = {},
+    testTag: String = ""
 ) {
     BaseCell(
         onCellClicked = onCellClicked,
@@ -61,6 +62,7 @@ fun SelectableCell(
                 backgroundColor
             },
         startPadding = startPadding,
-        iconView = selectedIcon
+        iconView = selectedIcon,
+        testTag = testTag
     )
 }

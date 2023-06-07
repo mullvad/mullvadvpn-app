@@ -64,12 +64,16 @@ import net.mullvad.mullvadvpn.compose.dialog.LocalNetworkSharingInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.QuantumResistanceInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
@@ -113,7 +117,9 @@ private fun PreviewVpnSettings() {
             toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow(),
             onStopEvent = {},
             onSelectObfuscationSetting = {},
-            onObfuscationInfoClick = {}
+            onObfuscationInfoClick = {},
+            onSelectQuantumResistanceSetting = {},
+            onQuantumResistanceInfoClicked = {}
         )
     }
 }
@@ -151,7 +157,9 @@ fun VpnSettingsScreen(
     onStopEvent: () -> Unit = {},
     toastMessagesSharedFlow: SharedFlow<String>,
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
-    onObfuscationInfoClick: () -> Unit = {}
+    onObfuscationInfoClick: () -> Unit = {},
+    onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
+    onQuantumResistanceInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -190,6 +198,9 @@ fun VpnSettingsScreen(
         }
         is VpnSettingsUiState.ObfuscationInfoDialogUiState -> {
             ObfuscationInfoDialog(onDismissInfoClick)
+        }
+        is VpnSettingsUiState.QuantumResistanceInfoDialogUiState -> {
+            QuantumResistanceInfoDialog(onDismissInfoClick)
         }
         else -> {
             // NOOP
@@ -378,6 +389,37 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.off),
                     isSelected = uiState.selectedObfuscation == SelectedObfuscation.Off,
                     onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) }
+                )
+            }
+
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                InformationComposeCell(
+                    title = stringResource(R.string.quantum_resistant_title),
+                    onInfoClicked = { onQuantumResistanceInfoClicked() }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Auto,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Auto) }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.on),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG,
+                    isSelected = uiState.quantumResistant == QuantumResistantState.On,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.off),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Off,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
             }
 

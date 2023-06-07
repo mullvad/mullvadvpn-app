@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
 data class VpnSettingsViewModelState(
@@ -13,7 +14,8 @@ data class VpnSettingsViewModelState(
     val customDnsList: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
     val selectedObfuscation: SelectedObfuscation,
-    val dialogState: VpnSettingsDialogState
+    val dialogState: VpnSettingsDialogState,
+    val quantumResistant: QuantumResistantState
 ) {
     fun toUiState(): VpnSettingsUiState {
         return when (dialogState) {
@@ -27,7 +29,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     mtuEditValue = dialogState.mtuEditValue,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.DnsDialog ->
                 VpnSettingsUiState.DnsDialogUiState(
@@ -39,7 +42,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     stagedDns = dialogState.stagedDns,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.LocalNetworkSharingInfoDialog ->
                 VpnSettingsUiState.LocalNetworkSharingInfoDialogUiState(
@@ -49,7 +53,8 @@ data class VpnSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
-                    contentBlockersOptions = contentBlockersOptions
+                    contentBlockersOptions = contentBlockersOptions,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.ContentBlockersInfoDialog ->
                 VpnSettingsUiState.ContentBlockersInfoDialogUiState(
@@ -60,7 +65,8 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.CustomDnsInfoDialog ->
                 VpnSettingsUiState.CustomDnsInfoDialogUiState(
@@ -70,7 +76,8 @@ data class VpnSettingsViewModelState(
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
-                    contentBlockersOptions = contentBlockersOptions
+                    contentBlockersOptions = contentBlockersOptions,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.MalwareInfoDialog ->
                 VpnSettingsUiState.MalwareInfoDialogUiState(
@@ -81,7 +88,8 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.ObfuscationInfoDialog ->
                 VpnSettingsUiState.ObfuscationInfoDialogUiState(
@@ -90,8 +98,20 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
+            is VpnSettingsDialogState.QuantumResistanceInfoDialog -> {
+                VpnSettingsUiState.QuantumResistanceInfoDialogUiState(
+                    mtu = mtuValue,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
+                )
+            }
             else ->
                 VpnSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
@@ -101,7 +121,8 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
-                    selectedObfuscation = selectedObfuscation
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant
                 )
         }
     }
@@ -119,7 +140,8 @@ data class VpnSettingsViewModelState(
                 contentBlockersOptions = DefaultDnsOptions(),
                 isAllowLanEnabled = false,
                 dialogState = VpnSettingsDialogState.NoDialog,
-                selectedObfuscation = SelectedObfuscation.Auto
+                selectedObfuscation = SelectedObfuscation.Auto,
+                quantumResistant = QuantumResistantState.Off
             )
     }
 }
@@ -140,6 +162,8 @@ sealed class VpnSettingsDialogState {
     object MalwareInfoDialog : VpnSettingsDialogState()
 
     object ObfuscationInfoDialog : VpnSettingsDialogState()
+
+    object QuantumResistanceInfoDialog : VpnSettingsDialogState()
 }
 
 sealed interface StagedDns {
