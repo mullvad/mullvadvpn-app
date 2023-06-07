@@ -21,7 +21,7 @@ class DeviceCheckOperationTests: XCTestCase {
 
         let currentKey = PrivateKey()
         let remoteService = MockRemoteService(
-            initialKey: currentKey,
+            initialKey: currentKey.publicKey,
             getAccount: { accountNumber in
                 return Account.mock(expiry: .distantPast)
             }
@@ -52,7 +52,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let nextKey = PrivateKey()
 
         let remoteService = MockRemoteService(
-            initialKey: currentKey,
+            initialKey: currentKey.publicKey,
             getAccount: { accountNumber in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .invalidAccount))
             }
@@ -83,7 +83,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let nextKey = PrivateKey()
 
         let remoteService = MockRemoteService(
-            initialKey: currentKey,
+            initialKey: currentKey.publicKey,
             getDevice: { accountNumber, deviceIdentifier in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .deviceNotFound))
             }
@@ -169,7 +169,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: currentKey)
+        let remoteService = MockRemoteService(initialKey: currentKey.publicKey)
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
             currentKey: currentKey,
             rotationState: .succeeded
@@ -188,13 +188,13 @@ class DeviceCheckOperationTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testShouldNotRotateKeyBeforeTwentyFourHoursHavePassed() {
+    func testShouldNotRotateKeyBeforeRetryIntervalPassed() {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
         let nextKey = PrivateKey()
 
-        let remoteService = MockRemoteService(initialKey: currentKey)
+        let remoteService = MockRemoteService(initialKey: currentKey.publicKey)
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
             currentKey: currentKey,
             rotationState: .failed(when: .closeToRetryInterval, nextKey: nextKey)
@@ -289,8 +289,6 @@ class DeviceCheckOperationTests: XCTestCase {
                         StoredDeviceData.mock(wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: currentKey))
                     )
                 )
-
-                return PrivateKey()
             }
         )
 
@@ -325,21 +323,24 @@ class DeviceCheckOperationTests: XCTestCase {
     }
 }
 
-/// Mock implemntation of a remote service used by `DeviceCheckOperation` to reach the API.
+/// Mock implementation of a remote service used by `DeviceCheckOperation` to reach the API.
 private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
     typealias AccountDataHandler = (_ accountNumber: String) throws -> Account
     typealias DeviceDataHandler = (_ accountNumber: String, _ deviceIdentifier: String) throws -> Device
-    typealias RotateDeviceKeyHandler = (_ accountNumber: String, _ identifier: String, _ publicKey: PublicKey)
-        throws -> PrivateKey
+    typealias RotateDeviceKeyHandler = (
+        _ accountNumber: String,
+        _ deviceIdentifier: String,
+        _ publicKey: PublicKey
+    ) throws -> Void
 
     private let getAccountDataHandler: AccountDataHandler?
     private let getDeviceDataHandler: DeviceDataHandler?
     private let rotateDeviceKeyHandler: RotateDeviceKeyHandler?
 
-    private var currentKey: PrivateKey
+    private var currentKey: PublicKey
 
     init(
-        initialKey: PrivateKey = PrivateKey(),
+        initialKey: PublicKey = PrivateKey().publicKey,
         getAccount: AccountDataHandler? = nil,
         getDevice: DeviceDataHandler? = nil,
         rotateDeviceKey: RotateDeviceKeyHandler? = nil
@@ -377,7 +378,7 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
                 if let getDeviceDataHandler {
                     return try getDeviceDataHandler(accountNumber, identifier)
                 } else {
-                    return Device.mock(privateKey: currentKey)
+                    return Device.mock(publicKey: currentKey)
                 }
             }
 
@@ -395,13 +396,11 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol {
     ) -> Cancellable {
         DispatchQueue.main.async { [self] in
             let result: Result<Device, Error> = Result {
-                if let rotateDeviceKeyHandler {
-                    currentKey = try rotateDeviceKeyHandler(accountNumber, identifier, publicKey)
-                } else {
-                    currentKey = PrivateKey()
-                }
+                try rotateDeviceKeyHandler?(accountNumber, identifier, publicKey)
 
-                return Device.mock(privateKey: currentKey)
+                currentKey = publicKey
+
+                return Device.mock(publicKey: currentKey)
             }
 
             completion(result)
@@ -526,11 +525,11 @@ private extension StoredDeviceData {
 }
 
 private extension Device {
-    static func mock(privateKey: PrivateKey) -> Device {
+    static func mock(publicKey: PublicKey) -> Device {
         return Device(
             id: "device-id",
             name: "device-name",
-            pubkey: privateKey.publicKey,
+            pubkey: publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
