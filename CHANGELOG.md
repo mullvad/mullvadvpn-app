@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix connection header flickering.
 
+#### macOS
+- Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
+
 
 ## [android/2023.2] - 2023-05-22
 ### Changed
@@ -94,9 +97,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
-
-#### macOS
-- Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
 
 
 ## [2023.4-beta1] - 2023-05-02
