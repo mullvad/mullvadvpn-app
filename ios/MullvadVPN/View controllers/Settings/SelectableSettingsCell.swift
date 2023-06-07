@@ -19,7 +19,7 @@ class SelectableSettingsCell: SettingsCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        setLeftView(tickImageView)
+        setLeftView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedBackgroundColor
     }
 
@@ -30,7 +30,7 @@ class SelectableSettingsCell: SettingsCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        setLeftView(tickImageView)
+        setLeftView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

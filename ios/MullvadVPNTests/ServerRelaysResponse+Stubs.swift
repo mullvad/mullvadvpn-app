@@ -110,7 +110,7 @@ enum ServerRelaysResponseStubs {
                     active: true,
                     owned: true,
                     location: "se-sto",
-                    provider: "",
+                    provider: "31173",
                     weight: 100,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
