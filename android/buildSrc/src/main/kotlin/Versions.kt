@@ -54,7 +54,7 @@ object Versions {
         const val androidAapt = "$android-8841542"
         const val playPublisher = "3.7.0"
         const val dependencyCheck = "8.2.1"
-        const val gradleVersions = "0.44.0"
+        const val gradleVersions = "0.46.0"
         const val ktfmt = "0.11.0"
     }
 }
