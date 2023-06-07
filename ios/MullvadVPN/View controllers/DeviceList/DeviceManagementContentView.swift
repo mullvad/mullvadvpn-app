@@ -173,7 +173,7 @@ class DeviceManagementContentView: UIView {
 
             deviceStackView.topAnchor.constraint(
                 equalTo: messageLabel.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
+                constant: UIMetrics.TableView.sectionSpacing
             ),
             deviceStackView.leadingAnchor.constraint(equalTo: scrollContentView.leadingAnchor),
             deviceStackView.trailingAnchor.constraint(equalTo: scrollContentView.trailingAnchor),

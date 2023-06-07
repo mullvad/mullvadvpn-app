@@ -92,7 +92,7 @@ class SelectLocationCell: UITableViewCell {
     }
 
     private func setupCell() {
-        indentationWidth = UIMetrics.cellIndentationWidth
+        indentationWidth = UIMetrics.TableView.cellIndentationWidth
 
         backgroundColor = .clear
         contentView.backgroundColor = .clear

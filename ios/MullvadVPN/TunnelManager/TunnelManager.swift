@@ -71,6 +71,7 @@ final class TunnelManager: StorePaymentObserver {
     private var _tunnelSettings = TunnelSettingsV2()
 
     private var _tunnel: Tunnel?
+
     private var _tunnelStatus = TunnelStatus()
 
     /// Last processed device check.

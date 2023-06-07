@@ -13,6 +13,7 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
 
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
+    public var filter: RelayConstraint<RelayFilter>
 
     public var debugDescription: String {
         return "RelayConstraints { location: \(location), port: \(port) }"
@@ -20,10 +21,12 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
 
     public init(
         location: RelayConstraint<RelayLocation> = .only(.country("se")),
-        port: RelayConstraint<UInt16> = .any
+        port: RelayConstraint<UInt16> = .any,
+        filter: RelayConstraint<RelayFilter> = .any
     ) {
         self.location = location
         self.port = port
+        self.filter = filter
     }
 
     public init(from decoder: Decoder) throws {
@@ -32,5 +35,6 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
 
         // Added in 2023.3
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
+        filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
     }
 }

@@ -100,7 +100,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        return UIMetrics.TableView.sectionSpacing
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
