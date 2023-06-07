@@ -32,6 +32,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add creation date below device name in the device list screen.
 - Add quantum resistant tunneling.
 
+#### Linux
+- Add wayland support on KDE and GNOME.
+
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
   unified `mullvad tunnel get` command and removing individual `get` subcommands like
