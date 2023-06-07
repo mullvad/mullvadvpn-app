@@ -1,41 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
-        checks and tracking externally.
-
-        File name: protobuf-lite-3.0.1.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-lite@.*$</packageUrl>
-        <cve>CVE-2021-22569</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
-        checks and tracking externally.
-
-        File name: protobuf-lite-3.0.1.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-lite@.*$</packageUrl>
-        <cve>CVE-2022-3171</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE affects the Apache Commons Net's FTP client that this app doesn't use.
-        https://www.openwall.com/lists/oss-security/2022/12/03/1
-
-        File names:
-        - commons-beanutils-1.9.4.jar
-        - commons-collections-3.2.2.jar
-        - commons-digester-2.1.jar
-        - commons-logging-1.2.jar
-        - commons-validator-1.7.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/commons\-.*/commons\-.*@.*$</packageUrl>
-        <cve>CVE-2021-37533</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
+    <suppress until="2023-11-01Z">
         <notes><![CDATA[
         This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
         checks and tracking externally.
@@ -45,27 +10,19 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
         <cve>CVE-2020-8908</cve>
     </suppress>
-    <suppress until="2023-06-01Z">
+    <suppress until="2023-09-01Z">
         <notes><![CDATA[
         This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
         checks and tracking externally.
+
+        Fix released in: https://github.com/google/guava/releases/tag/v32.0.0
 
         File name: guava-28.2-android.jar
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-        <cve>CVE-2020-8908</cve>
+        <cve>CVE-2023-2976</cve>
     </suppress>
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
-        checks and tracking externally.
-
-        File name: jsoup-1.12.2.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
-        <cve>CVE-2021-37714</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
+    <suppress until="2023-11-01Z">
         <notes><![CDATA[
         This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
         checks and tracking externally.
@@ -74,26 +31,7 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.jsoup/jsoup@.*$</packageUrl>
         <cve>CVE-2022-36033</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE is limited to processing of screenshots, which this app doesn't use.
-        https://nvd.nist.gov/vuln/detail/CVE-2021-4277
-
-        File name: legacy-support-core-utils-1.0.0.aar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/androidx\.legacy/legacy\-support\-core\-utils@.*$</packageUrl>
-        <cve>CVE-2021-4277</cve>
-    </suppress>
-    <suppress until="2023-06-01Z">
-        <notes><![CDATA[
-        This CVE is limited to processing of screenshots, which this app doesn't use.
-        https://nvd.nist.gov/vuln/detail/CVE-2021-4277
-
-        File name: leakcanary-android-utils-2.10.aar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.squareup\.leakcanary/leakcanary\-android\-utils@.*$</packageUrl>
-        <cve>CVE-2021-4277</cve>
+        <cve>CVE-2021-37714</cve>
     </suppress>
     <suppress until="2023-11-01Z">
         <notes><![CDATA[

@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.sp
  *
  * NOTE:
  * * Do not use these font sizes directly. Instead use the styles defined in Typeface and/or the
- * standard styles in the material theme
+ *   standard styles in the material theme
  * * Order entries within each type by descending size.
  */
 internal object TypeScale {
