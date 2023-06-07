@@ -57,11 +57,11 @@ the current state of the latest code in git, not necessarily any existing releas
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
-| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |         |  ✓  |
+| Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
 | [Externally audited](./audits)|    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
