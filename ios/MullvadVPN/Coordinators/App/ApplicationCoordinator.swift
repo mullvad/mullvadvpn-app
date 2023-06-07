@@ -119,6 +119,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         setNotificationControllerParent(isPrimary: true)
 
         continueFlow(animated: false)
+
+//        let vc = RelayFilterViewController()
+//
+//        if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
+//            vc.setCachedRelays(cachedRelays)
+//        }
+//
+//        rootViewController.present(vc, animated: false)
     }
 
     // MARK: - ApplicationRouterDelegate

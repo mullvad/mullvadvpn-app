@@ -36,7 +36,9 @@ class SettingsCell: UITableViewCell {
     let detailTitleLabel = UILabel()
     let disclosureImageView = UIImageView(image: nil)
     let contentContainer = UIStackView()
-    var infoButtonHandler: InfoButtonHandler?
+    var infoButtonHandler: InfoButtonHandler? { didSet {
+        infoButton.isHidden = infoButtonHandler == nil
+    }}
 
     var disclosureType: SettingsDisclosureType = .none {
         didSet {
@@ -63,6 +65,7 @@ class SettingsCell: UITableViewCell {
         button.accessibilityIdentifier = "InfoButton"
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.isHidden = true
         return button
     }()
 
@@ -79,7 +82,6 @@ class SettingsCell: UITableViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
 
-        infoButton.isHidden = true
         infoButton.addTarget(
             self,
             action: #selector(handleInfoButton(_:)),
@@ -131,7 +133,6 @@ class SettingsCell: UITableViewCell {
         }
 
         contentContainer.addArrangedSubview(content)
-        contentContainer.spacing = 12
 
         contentView.addConstrainedSubviews([contentContainer]) {
             contentContainer.pinEdgesToSuperviewMargins()
@@ -145,26 +146,24 @@ class SettingsCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
+        infoButton.isHidden = true
         removeLeftView()
-        setInfoButtonIsVisible(false)
         setLayoutMargins()
     }
 
     func applySubCellStyling() {
-        contentView.layoutMargins.left += UIMetrics.cellIndentationWidth
+        contentView.layoutMargins.left += UIMetrics.TableView.cellIndentationWidth
         backgroundView?.backgroundColor = UIColor.SubCell.backgroundColor
     }
 
-    func setInfoButtonIsVisible(_ visible: Bool) {
-        infoButton.isHidden = !visible
-    }
-
-    func setLeftView(_ view: UIView) {
+    func setLeftView(_ view: UIView, spacing: CGFloat) {
         removeLeftView()
 
         if contentContainer.arrangedSubviews.count <= 1 {
             contentContainer.insertArrangedSubview(view, at: 0)
         }
+
+        contentContainer.spacing = spacing
     }
 
     func removeLeftView() {
@@ -179,9 +178,9 @@ class SettingsCell: UITableViewCell {
 
     private func setLayoutMargins() {
         // Set layout margins for standard acceessories added into the cell (reorder control, etc..)
-        directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
+        directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
 
         // Set layout margins for cell content
-        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
     }
 }

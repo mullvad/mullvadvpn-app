@@ -81,7 +81,7 @@ class AccountContentView: UIView {
             ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.TableView.sectionSpacing
         return stackView
     }()
 
@@ -110,7 +110,7 @@ class AccountContentView: UIView {
 
             buttonStackView.topAnchor.constraint(
                 greaterThanOrEqualTo: contentStackView.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
+                constant: UIMetrics.TableView.sectionSpacing
             ),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),

@@ -373,7 +373,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .wireGuardPorts:
             guard let view = tableView
                 .dequeueReusableHeaderFooterView(
-                    withIdentifier: HeaderFooterReuseIdentifiers.contentBlockerHeader.rawValue
+                    withIdentifier: HeaderFooterReuseIdentifiers.wireGuardPortHeader.rawValue
                 ) as? SettingsHeaderView else { return nil }
             configureWireguardPortsHeader(view)
             return view
@@ -433,7 +433,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             }
 
         case .wireGuardPorts:
-            return UIMetrics.sectionSpacing
+            return UIMetrics.TableView.sectionSpacing
         }
     }
 
