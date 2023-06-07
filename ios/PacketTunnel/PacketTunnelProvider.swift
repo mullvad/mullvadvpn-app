@@ -697,9 +697,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
      1. Fetch account and device data.
      2. Check account validity and whether it has enough time left.
-     2. Verify that current device is registered with backend and that both device and backend point to the same public
+     3. Verify that current device is registered with backend and that both device and backend point to the same public
         key.
-     3. Rotate WireGuard key on key mismatch.
+     4. Rotate WireGuard key on key mismatch.
      */
     private func startDeviceCheck(shouldImmediatelyRotateKeyOnMismatch: Bool = false) {
         let checkOperation = DeviceCheckOperation(
