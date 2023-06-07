@@ -450,7 +450,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .contentBlockers:
             configureContentBlockersHeader(view)
             return view
-
         case .wireGuardPorts:
             configureWireguardPortsHeader(view)
             return view
@@ -499,10 +498,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         switch sectionIdentifier {
         #if DEBUG
         case .wireGuardObfuscationPort:
-            return UIMetrics.sectionSpacing
+            return UIMetrics.TableView.sectionSpacing
         #else
         case .wireGuardPorts:
-            return UIMetrics.sectionSpacing
+            return UIMetrics.TableView.sectionSpacing
         #endif
 
         default:
