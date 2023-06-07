@@ -57,9 +57,8 @@ class VpnSettingsViewModelTest {
     @Test
     fun test_select_quantum_resistant_state_select() = runTest {
         val quantumResistantState = QuantumResistantState.On
-        every {
-            mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
-        } returns Unit
+        every { mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState) } returns
+            Unit
         viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
         verify(exactly = 1) {
             mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
