@@ -265,7 +265,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 1)
     }
 
     func testShouldFailOnKeyRotationRace() {
