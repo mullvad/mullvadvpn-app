@@ -79,7 +79,7 @@ class OutOfTimeContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [statusActivityView, titleLabel, bodyLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.TableView.sectionSpacing
         return stackView
     }()
 
@@ -89,7 +89,7 @@ class OutOfTimeContentView: UIView {
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.TableView.sectionSpacing
         return stackView
     }()
 

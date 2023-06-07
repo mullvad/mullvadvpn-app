@@ -11,15 +11,31 @@ import RelayCache
 import Routing
 import UIKit
 
-class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObserver {
+class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrackerObserver {
+    private let tunnelManager: TunnelManager
+    private let relayCacheTracker: RelayCacheTracker
+    private var cachedRelays: CachedRelays?
+
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
         navigationController
     }
 
-    private let tunnelManager: TunnelManager
-    private let relayCacheTracker: RelayCacheTracker
+    var selectLocationViewController: SelectLocationViewController? {
+        return navigationController.viewControllers.first {
+            $0 is SelectLocationViewController
+        } as? SelectLocationViewController
+    }
+
+    var relayFilter: RelayFilter {
+        switch tunnelManager.settings.relayConstraints.filter {
+        case .any:
+            return RelayFilter()
+        case let .only(filter):
+            return filter
+        }
+    }
 
     var didFinish: ((SelectLocationCoordinator, RelayLocation?) -> Void)?
 
@@ -34,9 +50,9 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
     }
 
     func start() {
-        let controller = SelectLocationViewController()
+        let selectLocationViewController = SelectLocationViewController()
 
-        controller.didSelectRelay = { [weak self] relay in
+        selectLocationViewController.didSelectRelay = { [weak self] relay in
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
@@ -49,7 +65,25 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
             didFinish?(self, relay)
         }
 
-        controller.didFinish = { [weak self] in
+        selectLocationViewController.navigateToFilter = { [weak self] in
+            guard let self else { return }
+
+            let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+            coordinator.start()
+
+            presentChild(coordinator, animated: true)
+        }
+
+        selectLocationViewController.didUpdateFilter = { [weak self] filter in
+            guard let self else { return }
+
+            var relayConstraints = tunnelManager.settings.relayConstraints
+            relayConstraints.filter = .only(filter)
+
+            tunnelManager.setRelayConstraints(relayConstraints)
+        }
+
+        selectLocationViewController.didFinish = { [weak self] in
             guard let self else { return }
 
             didFinish?(self, nil)
@@ -58,21 +92,42 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
         relayCacheTracker.addObserver(self)
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
-            controller.setCachedRelays(cachedRelays)
+            self.cachedRelays = cachedRelays
+            selectLocationViewController.setCachedRelays(cachedRelays, filter: relayFilter)
         }
 
-        controller.relayLocation = tunnelManager.settings.relayConstraints.location.value
+        selectLocationViewController.relayLocation = tunnelManager.settings.relayConstraints.location.value
 
-        navigationController.pushViewController(controller, animated: false)
+        navigationController.pushViewController(selectLocationViewController, animated: false)
+    }
+
+    private func makeRelayFilterCoordinator(forModalPresentation isModalPresentation: Bool)
+        -> RelayFilterCoordinator {
+        let navigationController = CustomNavigationController()
+
+        let relayFilterCoordinator = RelayFilterCoordinator(
+            navigationController: navigationController,
+            tunnelManager: tunnelManager,
+            relayCacheTracker: relayCacheTracker
+        )
+
+        relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
+            if let cachedRelays = self?.cachedRelays, let filter {
+                self?.selectLocationViewController?.setCachedRelays(cachedRelays, filter: filter)
+            }
+
+            coordinator.dismiss(animated: true)
+        }
+
+        return relayFilterCoordinator
     }
 
     func relayCacheTracker(
         _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
-        guard let controller = navigationController.viewControllers
-            .first as? SelectLocationViewController else { return }
+        self.cachedRelays = cachedRelays
 
-        controller.setCachedRelays(cachedRelays)
+        selectLocationViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
     }
 }

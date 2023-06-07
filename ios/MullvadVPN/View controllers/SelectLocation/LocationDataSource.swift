@@ -8,6 +8,7 @@
 
 import MullvadREST
 import MullvadTypes
+import RelaySelector
 import UIKit
 
 protocol LocationDataSourceItemProtocol {
@@ -73,11 +74,15 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         registerClasses()
     }
 
-    func setRelays(_ response: REST.ServerRelaysResponse) {
+    func setRelays(_ response: REST.ServerRelaysResponse, filter: RelayFilter) {
+        let relays = response.wireguard.relays.filter { relay in
+            return RelaySelector.relayMatchesFilter(relay, filter: filter)
+        }
+
         let rootNode = Self.makeRootNode()
         nodeByLocation.removeAll()
 
-        for relay in response.wireguard.relays {
+        for relay in relays {
             guard case let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),
                   let serverLocation = response.locations[relay.location] else { continue }
 

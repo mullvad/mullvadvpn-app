@@ -103,7 +103,6 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 title: localizedString,
                 for: .blockMalware
             )
-            cell.setInfoButtonIsVisible(true)
             cell.infoButtonHandler = { [weak self] in
                 self?.delegate?.showInfo(for: .blockMalware)
             }
