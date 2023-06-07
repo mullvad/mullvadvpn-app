@@ -293,23 +293,3 @@ private enum DeviceCheckError: LocalizedError, Equatable {
         }
     }
 }
-
-/// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
-protocol DeviceCheckRemoteServiceProtocol {
-    func getAccountData(accountNumber: String, completion: @escaping (Result<Account, Error>) -> Void)
-        -> Cancellable
-    func getDevice(accountNumber: String, identifier: String, completion: @escaping (Result<Device, Error>) -> Void)
-        -> Cancellable
-    func rotateDeviceKey(
-        accountNumber: String,
-        identifier: String,
-        publicKey: PublicKey,
-        completion: @escaping (Result<Device, Error>) -> Void
-    ) -> Cancellable
-}
-
-/// A protocol that formalizes device state accessor dependency used by `DeviceCheckOperation`.
-protocol DeviceStateAccessorProtocol {
-    func read() throws -> DeviceState
-    func write(_ deviceState: DeviceState) throws
-}
