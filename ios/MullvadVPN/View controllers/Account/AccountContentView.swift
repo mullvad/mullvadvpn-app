@@ -129,7 +129,7 @@ class AccountContentView: UIView {
 
             buttonStackView.topAnchor.constraint(
                 greaterThanOrEqualTo: contentStackView.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
+                constant: UIMetrics.TableView.sectionSpacing
             ),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),

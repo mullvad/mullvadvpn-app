@@ -59,7 +59,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         }
 
         tableView.tableHeaderView =
-            UIView(frame: .init(origin: .zero, size: .init(width: 0, height: UIMetrics.sectionSpacing)))
+            UIView(frame: .init(origin: .zero, size: .init(width: 0, height: UIMetrics.TableView.sectionSpacing)))
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {

@@ -105,7 +105,7 @@ class RedeemVoucherSucceededViewController: UIViewController {
             titleLabel.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0)]))
             titleLabel.topAnchor.constraint(
                 equalTo: statusImageView.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
+                constant: UIMetrics.TableView.sectionSpacing
             )
 
             messageLabel.topAnchor.constraint(
