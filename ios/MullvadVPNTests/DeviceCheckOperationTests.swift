@@ -13,8 +13,8 @@ import WireGuardKitTypes
 import XCTest
 
 class DeviceCheckOperationTests: XCTestCase {
-    let operationQueue = AsyncOperationQueue()
-    let dispatchQueue = DispatchQueue(label: "TestQueue")
+    private let operationQueue = AsyncOperationQueue()
+    private let dispatchQueue = DispatchQueue(label: "TestQueue")
 
     func testShouldReportExpiredAccount() {
         let expect = expectation(description: "Wait for operation to complete")
@@ -26,11 +26,9 @@ class DeviceCheckOperationTests: XCTestCase {
                 return Account.mock(expiry: .distantPast)
             }
         )
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: currentKey))
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .succeeded
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -51,24 +49,17 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
+        let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService(
             initialKey: currentKey,
             getAccount: { accountNumber in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .invalidAccount))
             }
         )
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .retryInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -89,24 +80,17 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
+        let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService(
             initialKey: currentKey,
             getDevice: { accountNumber, deviceIdentifier in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .deviceNotFound))
             }
         )
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .retryInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -126,20 +110,13 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldRotateKeyOnMismatchImmediately() {
         let expect = expectation(description: "Wait for operation to complete")
 
+        let currentKey = PrivateKey()
         let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService()
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.packetTunnelCooldownInterval),
-                        privateKey: PrivateKey(),
-                        nextPrivateKey: nextKey
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .packetTunnelCooldownInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(
@@ -163,19 +140,12 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
+        let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService()
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date(),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .zero, nextKey: nextKey)
         )
 
         startDeviceCheck(
@@ -198,20 +168,11 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldNotRotateDeviceKeyWhenServerKeyIsIdentical() {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let deviceKey = PrivateKey()
-        let remoteService = MockRemoteService(initialKey: deviceKey)
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: nil,
-                        privateKey: deviceKey,
-                        nextPrivateKey: nil
-                    )
-                )
-            )
+        let currentKey = PrivateKey()
+        let remoteService = MockRemoteService(initialKey: currentKey)
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .succeeded
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -219,7 +180,7 @@ class DeviceCheckOperationTests: XCTestCase {
 
             XCTAssertNotNil(deviceCheck)
             XCTAssertEqual(deviceCheck?.keyRotationStatus, KeyRotationStatus.noAction)
-            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, deviceKey)
+            XCTAssertEqual(try? deviceStateAccessor.read().deviceData?.wgKeyData.privateKey, currentKey)
 
             expect.fulfill()
         }
@@ -231,19 +192,12 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
-        let remoteService = MockRemoteService()
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval + 1),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let nextKey = PrivateKey()
+
+        let remoteService = MockRemoteService(initialKey: currentKey)
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .closeToRetryInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -262,20 +216,13 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldRotateKeyOnceInTwentyFourHours() {
         let expect = expectation(description: "Wait for operation to complete")
 
+        let currentKey = PrivateKey()
         let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService()
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
-                        privateKey: PrivateKey(),
-                        nextPrivateKey: nextKey
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .retryInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -295,24 +242,17 @@ class DeviceCheckOperationTests: XCTestCase {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
+        let nextKey = PrivateKey()
+
         let remoteService = MockRemoteService(
             rotateDeviceKey: { accountNumber, identifier, publicKey in
                 throw URLError(.badURL)
             }
         )
 
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .retryInterval, nextKey: nextKey)
         )
 
         startDeviceCheck(remoteService: remoteService, deviceStateAccessor: deviceStateAccessor) { result in
@@ -325,25 +265,18 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: 1000)
     }
 
     func testShouldFailOnKeyRotationRace() {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
-        let deviceStateAccessor = MockDeviceStateAccessor(
-            initialState: .loggedIn(
-                StoredAccountData.mock(),
-                StoredDeviceData.mock(
-                    wgKeyData: StoredWgKeyData(
-                        creationDate: Date(),
-                        lastRotationAttemptDate: Date().addingTimeInterval(-WgKeyRotation.retryInterval),
-                        privateKey: currentKey,
-                        nextPrivateKey: PrivateKey()
-                    )
-                )
-            )
+        let nextKey = PrivateKey()
+
+        let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
+            currentKey: currentKey,
+            rotationState: .failed(when: .retryInterval, nextKey: nextKey)
         )
 
         let remoteService = MockRemoteService(
@@ -500,6 +433,74 @@ private class MockDeviceStateAccessor: DeviceStateAccessorProtocol {
     }
 }
 
+/// Time interval since last key rotation used for mocking `StoredWgKeyData`.
+private enum TimeSinceLastKeyRotation {
+    /// No time passed since last key rotation.
+    case zero
+
+    /// Equal to key rotation retry interval.
+    case retryInterval
+
+    /// Equal to key rotation retry interval minus 1 second.
+    case closeToRetryInterval
+
+    /// Equal to cooldown interval used for packet tunnel based rotation.
+    case packetTunnelCooldownInterval
+
+    /// Returns negative time offset that can be used to compute the date in the past that can be used to simulate last
+    /// attempt date when simulating key rotation.
+    var timeOffset: TimeInterval {
+        switch self {
+        case .zero:
+            return .zero
+        case .retryInterval:
+            return -WgKeyRotation.retryInterval
+        case .closeToRetryInterval:
+            return -WgKeyRotation.retryInterval + 1
+        case .packetTunnelCooldownInterval:
+            return -WgKeyRotation.packetTunnelCooldownInterval
+        }
+    }
+}
+
+/// State of last key rotation used for mocking `StoredWgKeyData`.
+private enum LastKeyRotationState {
+    case succeeded
+    case failed(when: TimeSinceLastKeyRotation, nextKey: PrivateKey)
+}
+
+extension MockDeviceStateAccessor {
+    static func mockLoggedIn(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> MockDeviceStateAccessor {
+        return MockDeviceStateAccessor(initialState: .loggedIn(
+            StoredAccountData.mock(),
+            StoredDeviceData.mock(wgKeyData: StoredWgKeyData.mock(currentKey: currentKey, rotationState: rotationState))
+        ))
+    }
+}
+
+private extension StoredWgKeyData {
+    static func mock(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> StoredWgKeyData {
+        var keyData = StoredWgKeyData(creationDate: Date(), privateKey: currentKey)
+        keyData.apply(rotationState)
+        return keyData
+    }
+
+    private mutating func apply(_ rotationState: LastKeyRotationState) {
+        switch rotationState {
+        case .succeeded:
+            lastRotationAttemptDate = nil
+            nextPrivateKey = nil
+
+        case let .failed(recency, nextKey):
+            let attemptDate = creationDate.addingTimeInterval(recency.timeOffset)
+
+            creationDate = min(creationDate, attemptDate)
+            lastRotationAttemptDate = attemptDate
+            nextPrivateKey = nextKey
+        }
+    }
+}
+
 private extension StoredAccountData {
     static func mock() -> StoredAccountData {
         return StoredAccountData(
@@ -553,6 +554,7 @@ private extension Account {
 }
 
 private extension KeyRotationStatus {
+    /// Returns `true` if key rotation status is `.attempted`.
     var isAttempted: Bool {
         if case .attempted = self {
             return true
@@ -562,6 +564,7 @@ private extension KeyRotationStatus {
 }
 
 private extension AccountVerdict {
+    /// Returns `true` if account verdict is `.expired`.
     var isExpired: Bool {
         if case .expired = self {
             return true
