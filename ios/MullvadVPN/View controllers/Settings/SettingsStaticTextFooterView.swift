@@ -21,7 +21,7 @@ class SettingsStaticTextFooterView: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
         contentView.addSubview(titleLabel)
 
         contentView.addConstraints([

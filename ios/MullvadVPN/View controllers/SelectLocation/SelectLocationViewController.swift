@@ -14,15 +14,24 @@ import UIKit
 final class SelectLocationViewController: UIViewController {
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
+    private let topContentView = UIStackView()
+    private let filterView = RelayFilterView()
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
+    private var filter = RelayFilter()
     var relayLocation: RelayLocation?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
+    var filterViewShouldBeHidden: Bool {
+        return (filter.ownership == .any) && (filter.providers == .any)
+    }
+
+    var navigateToFilter: (() -> Void)?
     var didSelectRelay: ((RelayLocation) -> Void)?
+    var didUpdateFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
 
     // MARK: - View lifecycle
@@ -38,19 +47,32 @@ final class SelectLocationViewController: UIViewController {
             value: "Select location",
             comment: ""
         )
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: NSLocalizedString(
+                "NAVIGATION_TITLE",
+                tableName: "SelectLocation",
+                value: "Filter",
+                comment: ""
+            ),
+            actionHandler: { [weak self] in
+                self?.navigateToFilter?()
+            }
+        )
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
             self?.didFinish?()
         })
 
-        setupDataSource()
-        setupTableView()
-        setupSearchBar()
+        setUpDataSource()
+        setUpTableView()
+        setUpTopContent()
 
-        view.addConstrainedSubviews([searchBar, tableView]) {
-            searchBar.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+        view.addConstrainedSubviews([topContentView, tableView]) {
+            topContentView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
 
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
+            tableView.topAnchor.constraint(equalTo: topContentView.bottomAnchor)
         }
     }
 
@@ -72,15 +94,23 @@ final class SelectLocationViewController: UIViewController {
 
     // MARK: - Public
 
-    func setCachedRelays(_ cachedRelays: CachedRelays) {
+    func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
         self.cachedRelays = cachedRelays
+        self.filter = filter
 
-        dataSource?.setRelays(cachedRelays.relays)
+        if filterViewShouldBeHidden {
+            filterView.isHidden = true
+        } else {
+            filterView.isHidden = false
+            filterView.setFilter(filter)
+        }
+
+        dataSource?.setRelays(cachedRelays.relays, filter: filter)
     }
 
     // MARK: - Private
 
-    private func setupDataSource() {
+    private func setUpDataSource() {
         dataSource = LocationDataSource(tableView: tableView)
         dataSource?.didSelectRelayLocation = { [weak self] location in
             self?.didSelectRelay?(location)
@@ -89,11 +119,11 @@ final class SelectLocationViewController: UIViewController {
         dataSource?.selectedRelayLocation = relayLocation
 
         if let cachedRelays {
-            dataSource?.setRelays(cachedRelays.relays)
+            dataSource?.setRelays(cachedRelays.relays, filter: filter)
         }
     }
 
-    private func setupTableView() {
+    private func setUpTableView() {
         tableView.backgroundColor = view.backgroundColor
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
@@ -102,7 +132,28 @@ final class SelectLocationViewController: UIViewController {
         tableView.keyboardDismissMode = .onDrag
     }
 
-    private func setupSearchBar() {
+    private func setUpTopContent() {
+        topContentView.axis = .vertical
+        topContentView.addArrangedSubview(filterView)
+        topContentView.addArrangedSubview(searchBar)
+
+        filterView.isHidden = filterViewShouldBeHidden
+
+        filterView.didUpdateFilter = { [weak self] in
+            guard let self else { return }
+
+            filter = $0
+            didUpdateFilter?($0)
+
+            if let cachedRelays {
+                setCachedRelays(cachedRelays, filter: filter)
+            }
+        }
+
+        setUpSearchBar()
+    }
+
+    private func setUpSearchBar() {
         searchBar.delegate = self
         searchBar.searchBarStyle = .minimal
         searchBar.layer.cornerRadius = 8

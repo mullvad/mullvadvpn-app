@@ -83,7 +83,7 @@ class SettingsInputCell: SelectableSettingsCell {
         textField.delegate = self
         textField.keyboardType = .numberPad
         textField.returnKeyType = .done
-        textField.textMargins = UIMetrics.settingsInputCellTextFieldLayoutMargins
+        textField.textMargins = UIMetrics.SettingsCell.inputCellTextFieldLayoutMargins
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
 
         UITextField.SearchTextFieldAppearance.inactive.apply(to: textField)
