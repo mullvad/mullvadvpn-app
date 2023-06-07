@@ -15,11 +15,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
-import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-@OptIn(KoinApiExtension::class)
 class ApplicationImageView
 @JvmOverloads
 constructor(
