@@ -121,7 +121,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
             }
 
             // Apply cap on number of groups of characters that can be entered.
-            if configuration.maxGroups > 0 {
+            if configuration.maxGroups > 0, configuration.groupSize > 0 {
                 let numGroups = reparsedString.count / Int(configuration.groupSize)
 
                 if numGroups >= configuration.maxGroups {
