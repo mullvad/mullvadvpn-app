@@ -16,11 +16,11 @@ import class WireGuardKitTypes.PublicKey
  key rotation.
  */
 struct WgKeyRotation {
-    /// Private key rotation interval measured in seconds and counted from the time of when the key was successfully
-    /// pushed to the backend.
+    /// Private key rotation interval measured in seconds and counted from the time when the key was successfully pushed
+    /// to the backend.
     public static let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
 
-    /// Private key rotation retry interval measured in seconds and counted ffrom the time when the last rotation
+    /// Private key rotation retry interval measured in seconds and counted from the time when the last rotation
     /// attempt took place.
     public static let retryInterval: TimeInterval = 60 * 60 * 24
 
