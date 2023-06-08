@@ -233,13 +233,14 @@ extension REST {
             )
 
             let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<SubmitVoucherResponse> in
-                guard HTTPStatus.isSuccess(response.statusCode) else {
+                if HTTPStatus.isSuccess(response.statusCode) {
+                    return .decoding {
+                        try self.responseDecoder.decode(SubmitVoucherResponse.self, from: data)
+                    }
+                } else {
                     return .unhandledResponse(
                         try? self.responseDecoder.decode(ServerErrorResponse.self, from: data)
                     )
-                }
-                return .decoding {
-                    try self.responseDecoder.decode(SubmitVoucherResponse.self, from: data)
                 }
             }
 
