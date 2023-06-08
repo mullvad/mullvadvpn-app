@@ -46,7 +46,6 @@
     <string name="creating_new_account">Создание учетной записи...</string>
     <string name="creating_secure_connection">СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
-    <string name="custom_dns_disable_mode_subtitle">Чтобы активировать эту опцию, отключите все &lt;b&gt;DNS-блокировщики контента&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>

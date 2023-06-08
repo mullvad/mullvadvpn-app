@@ -46,7 +46,6 @@
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
-    <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki tüm &lt;b&gt;DNS içerik engelleyicileri&lt;/b&gt; devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>

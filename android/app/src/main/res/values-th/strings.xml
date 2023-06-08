@@ -46,7 +46,6 @@
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
     <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
-    <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน&lt;b&gt;ตัวบล็อกเนื้อหา DNS&lt;/b&gt; ทั้งหมดด้านบน เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>

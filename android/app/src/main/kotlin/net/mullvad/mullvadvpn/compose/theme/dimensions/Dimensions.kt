@@ -10,6 +10,7 @@ data class Dimensions(
     val cellLabelVerticalPadding: Dp = 14.dp,
     val cellStartPadding: Dp = 22.dp,
     val indentedCellStartPadding: Dp = 38.dp,
+    val infoButtonVerticalPadding: Dp = 13.dp,
     val listIconSize: Dp = 24.dp,
     val listItemDivider: Dp = 1.dp,
     val listItemHeight: Dp = 50.dp,

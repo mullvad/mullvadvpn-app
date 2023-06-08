@@ -7,35 +7,37 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
-import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
 import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Preview
 @Composable
 private fun PreviewExpandedEnabledExpandableComposeCell() {
-    ExpandableComposeCell(
-        title = "Expandable row title",
-        isExpanded = true,
-        isEnabled = true,
-        onCellClicked = {},
-        onInfoClicked = {}
-    )
+    AppTheme {
+        ExpandableComposeCell(
+            title = "Expandable row title",
+            isExpanded = true,
+            isEnabled = true,
+            onCellClicked = {},
+            onInfoClicked = {}
+        )
+    }
 }
 
 @Composable
@@ -74,8 +76,6 @@ private fun ExpandableComposeCellBody(
     modifier: Modifier,
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val horizontalPadding = dimensionResource(id = R.dimen.medium_padding)
-    val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
@@ -85,15 +85,15 @@ private fun ExpandableComposeCellBody(
                 modifier =
                     Modifier.clickable { onInfoClicked() }
                         .padding(
-                            start = horizontalPadding,
-                            end = horizontalPadding,
-                            top = verticalPadding,
-                            bottom = verticalPadding
+                            start = Dimens.mediumPadding,
+                            end = Dimens.mediumPadding,
+                            top = Dimens.infoButtonVerticalPadding,
+                            bottom = Dimens.infoButtonVerticalPadding
                         )
                         .align(Alignment.CenterVertically),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
-                tint = MullvadWhite
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -103,16 +103,17 @@ private fun ExpandableComposeCellBody(
 
 @Composable
 fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
-    val textSize = dimensionResource(id = R.dimen.text_small).value
-
-    HtmlText(
-        htmlFormattedString =
+    val spanned =
+        HtmlCompat.fromHtml(
             textResource(
                 id = R.string.dns_content_blockers_subtitle,
                 stringResource(id = R.string.enable_custom_dns)
             ),
-        textSize = textSize,
-        textColor = MullvadWhite60.toArgb(),
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
+    Text(
+        text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
+        style = MaterialTheme.typography.labelMedium,
         modifier = modifier
     )
 }

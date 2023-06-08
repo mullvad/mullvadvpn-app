@@ -46,7 +46,6 @@
     <string name="creating_new_account">Opretter konto...</string>
     <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
-    <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;DNS-indholdsblokkere&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
