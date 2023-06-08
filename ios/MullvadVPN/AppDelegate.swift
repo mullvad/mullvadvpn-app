@@ -120,7 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         registerBackgroundTasks()
         setupPaymentHandler()
-        setupNotificationHandler()
+        setupNotifications()
         addApplicationNotifications(application: application)
 
         startInitialization(application: application)
@@ -362,7 +362,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         storePaymentManager.addPaymentObserver(tunnelManager)
     }
 
-    private func setupNotificationHandler() {
+    private func setupNotifications() {
         NotificationManager.shared.notificationProviders = [
             RegisteredDeviceInAppNotificationProvider(tunnelManager: tunnelManager),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
