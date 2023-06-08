@@ -9,13 +9,12 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
-#[cfg(target_os = "android")]
-use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
+    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
@@ -259,25 +258,21 @@ impl WireguardMonitor {
         // and should be a hacky fix for the problem. In the longer term this should be fixed by
         // allowing the handshake to work even if there is fragmentation and/or setting the MTU
         // properly so fragmentation does not happen.
-        #[cfg(not(target_os = "android"))]
         let init_tunnel_config = if cfg!(target_os = "macos") {
             let mut init_tunnel_config = config.clone();
             if psk_negotiation && config.peers.len() > 1 {
                 const MH_PQ_HANDSHAKE_MTU: u16 = 1280;
                 init_tunnel_config.mtu = MH_PQ_HANDSHAKE_MTU;
             }
-            init_tunnel_config
+            Cow::Owned(init_tunnel_config)
         } else {
-            config.clone()
+            Cow::Borrowed(&config)
         };
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
-            #[cfg(target_os = "android")]
-            &Self::patch_allowed_ips(&config, psk_negotiation),
-            #[cfg(not(target_os = "android"))]
             &init_tunnel_config,
             log_path,
             args.resource_dir,
@@ -705,6 +700,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] psk_negotiation: bool,
         #[cfg(windows)] route_manager_handle: crate::routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
@@ -758,16 +754,23 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError);
         }
 
+        #[cfg(not(windows))]
+        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+
+        #[cfg(target_os = "android")]
+        let config = Self::patch_allowed_ips(config, psk_negotiation);
+
         #[cfg(any(target_os = "linux", windows))]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
             WgGoTunnel::start_tunnel(
-                config,
+                #[allow(clippy::needless_borrow)]
+                &config,
                 log_path,
                 #[cfg(not(windows))]
                 tun_provider,
                 #[cfg(not(windows))]
-                Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes),
+                routes,
                 #[cfg(windows)]
                 route_manager_handle,
                 #[cfg(windows)]
