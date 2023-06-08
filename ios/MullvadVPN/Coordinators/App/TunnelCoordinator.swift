@@ -58,7 +58,7 @@ class TunnelCoordinator: Coordinator {
     }
 
     private func showCancelTunnelAlert() {
-        let alertController = UIAlertController(
+        let alertController = CustomAlertViewController(
             title: nil,
             message: NSLocalizedString(
                 "CANCEL_TUNNEL_ALERT_MESSAGE",
@@ -66,33 +66,30 @@ class TunnelCoordinator: Coordinator {
                 value: "If you disconnect now, you won’t be able to secure your connection until the device is online.",
                 comment: ""
             ),
-            preferredStyle: .alert
+            icon: .alert
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
-                    tableName: "Main",
-                    value: "Disconnect",
-                    comment: ""
-                ),
-                style: .destructive,
-                handler: { [weak self] _ in
-                    self?.tunnelManager.stopTunnel()
-                }
-            )
+            title: NSLocalizedString(
+                "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
+                tableName: "Main",
+                value: "Disconnect",
+                comment: ""
+            ),
+            style: .destructive,
+            handler: { [weak self] in
+                self?.tunnelManager.stopTunnel()
+            }
         )
 
         alertController.addAction(
-            UIAlertAction(
-                title: NSLocalizedString(
-                    "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
-                    tableName: "Main",
-                    value: "Cancel",
-                    comment: ""
-                ), style: .cancel
-            )
+            title: NSLocalizedString(
+                "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
+                tableName: "Main",
+                value: "Cancel",
+                comment: ""
+            ),
+            style: .default
         )
 
         alertPresenter.enqueue(alertController, presentingController: rootViewController)
