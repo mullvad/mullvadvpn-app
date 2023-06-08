@@ -9,9 +9,10 @@
 import UIKit
 
 private let animationDuration: TimeInterval = 0.25
-private let minimumAccountTokenLength = 10
 
 final class AccountInputGroupView: UIView {
+    private let minimumAccountTokenLength = 10
+
     enum Style {
         case normal, error, authenticating
     }
