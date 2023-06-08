@@ -85,19 +85,6 @@ enum DeviceState: Codable, Equatable {
             return nil
         }
     }
-
-    /**
-     Mutates account and device data when in logged in state, otherwise does nothing.
-     */
-    mutating func updateData(_ body: (inout StoredAccountData, inout StoredDeviceData) -> Void) {
-        switch self {
-        case var .loggedIn(accountData, deviceData):
-            body(&accountData, &deviceData)
-            self = .loggedIn(accountData, deviceData)
-        case .revoked, .loggedOut:
-            break
-        }
-    }
 }
 
 struct StoredDeviceData: Codable, Equatable {
@@ -113,17 +100,28 @@ struct StoredDeviceData: Codable, Equatable {
     /// Whether relay hijacks DNS from this device.
     var hijackDNS: Bool
 
-    /// IPv4 address assigned to device.
+    /// IPv4 address + mask assigned to device.
     var ipv4Address: IPAddressRange
 
-    /// IPv6 address assignged to device.
+    /// IPv6 address + mask assigned to device.
     var ipv6Address: IPAddressRange
 
     /// WireGuard key data.
     var wgKeyData: StoredWgKeyData
 
+    /// Returns capitalized device name.
     var capitalizedName: String {
-        name.capitalized
+        return name.capitalized
+    }
+
+    /// Fill in part of the structure that contains device related properties from `Device` struct.
+    mutating func update(from device: Device) {
+        identifier = device.id
+        name = device.name
+        creationDate = device.created
+        hijackDNS = device.hijackDNS
+        ipv4Address = device.ipv4Address
+        ipv6Address = device.ipv6Address
     }
 }
 
@@ -140,19 +138,4 @@ struct StoredWgKeyData: Codable, Equatable {
     /// Next private key we're trying to rotate to.
     /// Added in 2023.3
     var nextPrivateKey: PrivateKey?
-}
-
-extension StoredWgKeyData {
-    struct KeyRotationConfiguration {
-        let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
-        let retryInterval: TimeInterval = 60 * 60 * 24
-    }
-
-    func getNextRotationDate(for configuration: KeyRotationConfiguration) -> Date {
-        return max(
-            Date(),
-            lastRotationAttemptDate?.addingTimeInterval(configuration.retryInterval) ?? creationDate
-                .addingTimeInterval(configuration.rotationInterval)
-        )
-    }
 }

@@ -39,13 +39,13 @@ enum SetAccountAction {
 private struct SetAccountResult {
     let accountData: StoredAccountData
     let privateKey: PrivateKey
-    let device: REST.Device
+    let device: Device
 }
 
 private struct SetAccountContext: OperationInputContext {
     var accountData: StoredAccountData?
     var privateKey: PrivateKey?
-    var device: REST.Device?
+    var device: Device?
 
     func reduce() -> SetAccountResult? {
         guard let accountData,
@@ -309,11 +309,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         }
     }
 
-    private func getCreateDeviceOperation() -> TransformOperation<StoredAccountData, (PrivateKey, REST.Device)> {
-        return TransformOperation<StoredAccountData, (
-            PrivateKey,
-            REST.Device
-        )>(dispatchQueue: dispatchQueue) { storedAccountData, finish -> Cancellable in
+    private func getCreateDeviceOperation() -> TransformOperation<StoredAccountData, (PrivateKey, Device)> {
+        return TransformOperation<
+            StoredAccountData,
+            (PrivateKey, Device)
+        >(dispatchQueue: dispatchQueue) { storedAccountData, finish -> Cancellable in
             self.logger.debug("Store last used account.")
 
             do {

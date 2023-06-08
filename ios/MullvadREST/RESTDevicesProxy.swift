@@ -309,24 +309,4 @@ extension REST {
             try container.encode(publicKey.base64Key, forKey: .publicKey)
         }
     }
-
-    public struct Device: Decodable {
-        public let id: String
-        public let name: String
-        public let pubkey: PublicKey
-        public let hijackDNS: Bool
-        public let created: Date
-        public let ipv4Address: IPAddressRange
-        public let ipv6Address: IPAddressRange
-        public let ports: [Port]
-
-        private enum CodingKeys: String, CodingKey {
-            case hijackDNS = "hijackDns"
-            case id, name, pubkey, created, ipv4Address, ipv6Address, ports
-        }
-    }
-
-    public struct Port: Decodable {
-        public let id: String
-    }
 }
