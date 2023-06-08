@@ -9,8 +9,11 @@ use mullvad_types::{
 
 #[derive(Subcommand, Debug)]
 pub enum CustomList {
-    /// Retrieve a custom list
-    Get,
+    /// Get names of custom lists
+    List,
+
+    /// Retrieve a custom list by its name
+    Get { name: String },
 
     /// Create a new custom list
     Create { name: String },
@@ -39,7 +42,8 @@ pub enum CustomList {
 impl CustomList {
     pub async fn handle(self) -> Result<()> {
         match self {
-            CustomList::Get => Self::get().await,
+            CustomList::List => Self::list().await,
+            CustomList::Get { name } => Self::get(name).await,
             CustomList::Create { name } => Self::create_list(name).await,
             CustomList::Add { name, location } => Self::add_location(name, location).await,
             CustomList::Remove { name, location } => Self::remove_location(name, location).await,
@@ -48,7 +52,11 @@ impl CustomList {
         }
     }
 
-    async fn get() -> Result<()> {
+    async fn list() -> Result<()> {
+        Ok(())
+    }
+
+    async fn get(name: String) -> Result<()> {
         Ok(())
     }
 

@@ -38,6 +38,7 @@ use futures::{
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
+    SelectedCustomLists
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -2529,7 +2530,9 @@ fn new_selector_config(
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
-        selected_custom_list: settings.custom_lists.get_selected_list().cloned(),
-        selected_custom_list_exit: settings.custom_lists.get_selected_list_exit().cloned(),
+        selected_custom_lists: SelectedCustomLists {
+            selected_custom_list_entry: settings.custom_lists.get_selected_list().cloned(),
+            selected_custom_list_exit: settings.custom_lists.get_selected_list_exit().cloned(),
+        },
     }
 }
