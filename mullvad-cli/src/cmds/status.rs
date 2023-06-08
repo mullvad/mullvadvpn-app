@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
-use mullvad_types::states::TunnelState;
+use mullvad_types::{device::DeviceState, states::TunnelState};
 
 use crate::format;
 
@@ -81,6 +81,9 @@ impl Status {
 pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
     let state = rpc.get_tunnel_state().await?;
+    let device = rpc.get_device().await?;
+
+    print_account_loggedout(&state, &device);
 
     if args.debug {
         println!("Tunnel state: {state:#?}");
@@ -121,4 +124,19 @@ async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
         location.latitude, location.longitude
     );
     Ok(())
+}
+
+fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
+    match state {
+        TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(_) => {
+            match device {
+                DeviceState::LoggedOut => {
+                    println!("Warning: You are not logged in to an account.")
+                }
+                DeviceState::Revoked => println!("Warning: This device has been revoked."),
+                DeviceState::LoggedIn(_) => (),
+            }
+        }
+        TunnelState::Disconnected | TunnelState::Disconnecting(_) => (),
+    }
 }
