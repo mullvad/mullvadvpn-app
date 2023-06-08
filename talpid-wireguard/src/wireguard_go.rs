@@ -62,6 +62,8 @@ pub struct WgGoTunnel {
     _route_callback_handle: Option<talpid_routing::CallbackHandle>,
     #[cfg(target_os = "windows")]
     setup_handle: tokio::task::JoinHandle<()>,
+    #[cfg(target_os = "android")]
+    tun_provider: Arc<Mutex<TunProvider>>,
 }
 
 impl WgGoTunnel {
@@ -73,7 +75,8 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (mut tunnel_device, tunnel_fd) =
+            Self::get_tunnel(tun_provider.clone(), config, routes)?;
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
         let logging_context = initialize_logging(log_path)
@@ -103,6 +106,8 @@ impl WgGoTunnel {
             handle: Some(handle),
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
+            #[cfg(target_os = "android")]
+            tun_provider,
         })
     }
 
@@ -373,11 +378,29 @@ impl Tunnel for WgGoTunnel {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let wg_config_str = config.to_userspace_format();
         let handle = self.handle.unwrap();
+        #[cfg(target_os = "android")]
+        let tun_provider = self.tun_provider.clone();
         Box::pin(async move {
             let status = unsafe { wgSetConfig(handle, wg_config_str.as_ptr() as *const i8) };
             if status != 0 {
                 return Err(TunnelError::SetConfigError);
             }
+
+            // When reapplying the config, the endpoint socket may be discarded
+            // and needs to be excluded again
+            #[cfg(target_os = "android")]
+            {
+                let socket_v4 = unsafe { wgGetSocketV4(handle) };
+                let socket_v6 = unsafe { wgGetSocketV6(handle) };
+                let mut provider = tun_provider.lock().unwrap();
+                provider
+                    .bypass(socket_v4)
+                    .map_err(super::TunnelError::BypassError)?;
+                provider
+                    .bypass(socket_v6)
+                    .map_err(super::TunnelError::BypassError)?;
+            }
+
             Ok(())
         })
     }

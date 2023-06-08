@@ -281,6 +281,8 @@ impl WireguardMonitor {
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
+            #[cfg(target_os = "android")]
+            psk_negotiation,
         )?;
         let iface_name = tunnel.get_interface_name();
 
@@ -367,6 +369,8 @@ impl WireguardMonitor {
                     &iface_name,
                     obfuscator.clone(),
                     psk_obfs_sender,
+                    #[cfg(target_os = "android")]
+                    args.tun_provider,
                 )
                 .await?;
             }
@@ -439,6 +443,7 @@ impl WireguardMonitor {
         iface_name: &str,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+        #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
     ) -> std::result::Result<(), CloseMsg>
     where
         F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -497,6 +502,8 @@ impl WireguardMonitor {
                 entry_tun_config,
                 obfuscator.clone(),
                 close_obfs_sender,
+                #[cfg(target_os = "android")]
+                &tun_provider,
             )
             .await?;
             entry_psk = Some(
@@ -522,8 +529,15 @@ impl WireguardMonitor {
             config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
         }
 
-        *config =
-            Self::reconfigure_tunnel(tunnel, config.clone(), obfuscator, close_obfs_sender).await?;
+        *config = Self::reconfigure_tunnel(
+            tunnel,
+            config.clone(),
+            obfuscator,
+            close_obfs_sender,
+            #[cfg(target_os = "android")]
+            &tun_provider,
+        )
+        .await?;
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(
             metadata,
@@ -541,6 +555,7 @@ impl WireguardMonitor {
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+        #[cfg(target_os = "android")] tun_provider: &Arc<Mutex<TunProvider>>,
     ) -> std::result::Result<Config, CloseMsg> {
         let mut obfs_guard = obfuscator.lock().await;
         if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -548,6 +563,16 @@ impl WireguardMonitor {
             *obfs_guard = maybe_create_obfuscator(&mut config, close_obfs_sender)
                 .await
                 .map_err(CloseMsg::ObfuscatorFailed)?;
+
+            // Exclude new remote obfuscation socket or bridge
+            #[cfg(target_os = "android")]
+            if let Some(obfuscator_handle) = &*obfs_guard {
+                let remote_socket_fd = obfuscator_handle.remote_socket_fd();
+                log::debug!("Excluding remote socket fd from the tunnel");
+                if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+                    log::error!("Failed to exclude remote socket fd: {error}");
+                }
+            }
         }
 
         let set_config_future = tunnel
