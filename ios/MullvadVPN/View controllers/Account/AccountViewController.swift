@@ -100,7 +100,7 @@ class AccountViewController: UIViewController {
             action: #selector(doPurchase),
             for: .touchUpInside
         )
-        contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
+        contentView.logoutButton.addTarget(self, action: #selector(logout), for: .touchUpInside)
 
         interactor.didReceiveDeviceState = { [weak self] deviceState in
             self?.updateView(from: deviceState)
@@ -121,10 +121,6 @@ class AccountViewController: UIViewController {
     }
 
     // MARK: - Private
-
-    @objc private func logOut() {
-        delegate?.accountViewControllerDidLogout(self)
-    }
 
     @objc private func handleDismiss() {
         delegate?.accountViewControllerDidFinish(self)
@@ -282,7 +278,7 @@ class AccountViewController: UIViewController {
 
     // MARK: - Actions
 
-    @objc private func doLogout() {
+    @objc private func logout() {
         let alertController = CustomAlertViewController(
             icon: .spinner
         )
