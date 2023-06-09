@@ -404,6 +404,8 @@
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
+		F028A5492A336E8500C0CAA3 /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5482A336E8500C0CAA3 /* VoucherTextField.swift */; };
+		F028A54B2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A54A2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F07BF2582A26112D00042943 /* InputTextFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
@@ -1119,6 +1121,8 @@
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
+		F028A5482A336E8500C0CAA3 /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
+		F028A54A2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
@@ -1442,6 +1446,7 @@
 				583FE01B29C19786006E85F9 /* OutOfTime */,
 				583FE01A29C19777006E85F9 /* Preferences */,
 				583FE01929C19760006E85F9 /* ProblemReport */,
+				F028A5472A336E1900C0CAA3 /* RedeemVoucher */,
 				583FE01C29C19793006E85F9 /* RevokedDevice */,
 				583FE01729C196F3006E85F9 /* SelectLocation */,
 				583FE01829C19709006E85F9 /* Settings */,
@@ -2138,6 +2143,15 @@
 				A9D99B9F2A1F7F3A00DE27D3 /* TransportProvider.swift */,
 			);
 			path = MullvadTransport;
+			sourceTree = "<group>";
+		};
+		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
+			isa = PBXGroup;
+			children = (
+				F028A54A2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift */,
+				F028A5482A336E8500C0CAA3 /* VoucherTextField.swift */,
+			);
+			path = RedeemVoucher;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2936,6 +2950,7 @@
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				068CE57029278F5300A068BB /* MigrationFromV1ToV2.swift in Sources */,
+				F028A54B2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
@@ -3039,6 +3054,7 @@
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				5878F50429CDC547003D4BE2 /* ChangeLogContentView.swift in Sources */,
+				F028A5492A336E8500C0CAA3 /* VoucherTextField.swift in Sources */,
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
