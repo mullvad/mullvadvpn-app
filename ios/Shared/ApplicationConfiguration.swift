@@ -9,46 +9,20 @@
 import Foundation
 import struct Network.IPv4Address
 
-class ApplicationConfiguration {
+enum ApplicationConfiguration {
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
-        let securityGroupIdentifier = Bundle(for: Self.self)
-            .object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as? String
-        return securityGroupIdentifier!
+        return Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
     }
 
-    /// The application identifier for packet tunnel extension.
-    static var packetTunnelExtensionIdentifier: String {
-        let mainBundleIdentifier = Bundle.main.bundleIdentifier!
-
-        return "\(mainBundleIdentifier).PacketTunnel"
+    /// Container URL for security group.
+    static var containerURL: URL {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
     }
 
-    /// Container URL for security group
-    static var containerURL: URL? {
-        return FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
-    }
-
-    /// The main application log file located in a shared container
-    static var mainApplicationLogFileURL: URL? {
-        return Self.containerURL?.appendingPathComponent(
-            "Logs/net.mullvad.MullvadVPN.log",
-            isDirectory: false
-        )
-    }
-
-    /// The packet tunnel log file located in a shared container
-    static var packetTunnelLogFileURL: URL? {
-        return Self.containerURL?.appendingPathComponent(
-            "Logs/net.mullvad.MullvadVPN.PacketTunnel.log",
-            isDirectory: false
-        )
-    }
-
-    /// All log files located in a shared container
-    static var logFileURLs: [URL] {
-        return [mainApplicationLogFileURL, packetTunnelLogFileURL].compactMap { $0 }
+    /// Returns URL for log file associated with application target and located within shared container.
+    static func logFileURL(for target: ApplicationTarget) -> URL {
+        return containerURL.appendingPathComponent("\(target.bundleIdentifier).log", isDirectory: false)
     }
 
     /// Privacy policy URL.
@@ -68,6 +42,4 @@ class ApplicationConfiguration {
 
     /// API address background task identifier
     static let addressCacheUpdateTaskIdentifier = "net.mullvad.MullvadVPN.AddressCacheUpdate"
-
-    private init() {}
 }

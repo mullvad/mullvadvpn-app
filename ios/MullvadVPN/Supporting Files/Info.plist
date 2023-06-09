@@ -4,6 +4,8 @@
 <dict>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
+	<key>MainApplicationIdentifier</key>
+	<string>$(APPLICATION_IDENTIFIER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>net.mullvad.MullvadVPN.AppRefresh</string>

@@ -27,7 +27,9 @@ final class ProblemReportInteractor {
             redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
         )
 
-        report.addLogFiles(fileURLs: ApplicationConfiguration.logFileURLs, includeLogBackups: true)
+        let logFileURLs = ApplicationTarget.allCases.map { ApplicationConfiguration.logFileURL(for: $0) }
+
+        report.addLogFiles(fileURLs: logFileURLs, includeLogBackups: true)
 
         return report
     }()

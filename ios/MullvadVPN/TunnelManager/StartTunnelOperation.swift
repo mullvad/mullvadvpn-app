@@ -121,8 +121,7 @@ class StartTunnelOperation: ResultOperation<Void> {
 
     private class func makeTunnelConfiguration() -> TunnelConfiguration {
         let protocolConfig = NETunnelProviderProtocol()
-        protocolConfig.providerBundleIdentifier = ApplicationConfiguration
-            .packetTunnelExtensionIdentifier
+        protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
 
         let alwaysOnRule = NEOnDemandRuleConnect()
