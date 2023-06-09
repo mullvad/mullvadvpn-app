@@ -74,9 +74,12 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
+        #[cfg(target_os = "android")]
+        let tun_provider_clone = tun_provider.clone();
+
         #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
-        let (mut tunnel_device, tunnel_fd) =
-            Self::get_tunnel(tun_provider.clone(), config, routes)?;
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
         let logging_context = initialize_logging(log_path)
@@ -107,7 +110,7 @@ impl WgGoTunnel {
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
-            tun_provider,
+            tun_provider: tun_provider_clone,
         })
     }
 
