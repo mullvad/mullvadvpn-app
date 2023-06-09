@@ -435,6 +435,7 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn psk_negotiation<F>(
         tunnel: &mut Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
