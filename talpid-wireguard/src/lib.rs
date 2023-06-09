@@ -790,6 +790,7 @@ impl WireguardMonitor {
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
             WgGoTunnel::start_tunnel(
+                #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
                 #[cfg(not(windows))]
