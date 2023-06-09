@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -180,17 +181,18 @@ fun SwitchCellView(
 fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
     val spanned =
         HtmlCompat.fromHtml(
-            textResource(
-                if (isCellClickable) {
-                    R.string.custom_dns_footer
-                } else {
-                    R.string.custom_dns_disable_mode_subtitle
-                }
-            ),
+            if (isCellClickable) {
+                textResource(id = R.string.custom_dns_footer)
+            } else {
+                textResource(
+                    id = R.string.custom_dns_disable_mode_subtitle,
+                    textResource(id = R.string.dns_content_blockers_title)
+                )
+            },
             FROM_HTML_MODE_COMPACT
         )
     Text(
-        text = spanned.toAnnotatedString(),
+        text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSecondary,
         modifier = modifier

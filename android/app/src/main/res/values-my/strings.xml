@@ -46,7 +46,6 @@
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
     <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
-    <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ပါ &lt;b&gt;DNS content blockers&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>

@@ -46,7 +46,6 @@
     <string name="creating_new_account">Tworzenie konta...</string>
     <string name="creating_secure_connection">TWORZENIE BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
-    <string name="custom_dns_disable_mode_subtitle">Aby to aktywować to ustawienie, wyłącz wszystkie &lt;b&gt;funkcje blokowania treści DNS&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>

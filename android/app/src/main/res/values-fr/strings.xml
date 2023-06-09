@@ -46,7 +46,6 @@
     <string name="creating_new_account">Création du compte…</string>
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
-    <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;bloqueurs de contenu DNS&lt;/b&gt; pour activer ce paramètre.</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>

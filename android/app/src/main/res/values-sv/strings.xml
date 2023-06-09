@@ -46,7 +46,6 @@
     <string name="creating_new_account">Skapar konto...</string>
     <string name="creating_secure_connection">SKAPAR SÄKER ANSLUTNING</string>
     <string name="critical_error">Kritiskt fel (kräver din uppmärksamhet)</string>
-    <string name="custom_dns_disable_mode_subtitle">Inaktivera alla &lt;b&gt;DNS-innehållsblockerare&lt;/b&gt; ovan för att aktivera den här inställningen.</string>
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>

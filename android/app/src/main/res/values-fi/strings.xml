@@ -46,7 +46,6 @@
     <string name="creating_new_account">Luodaan tiliä...</string>
     <string name="creating_secure_connection">LUODAAN SUOJATTU YHTEYS</string>
     <string name="critical_error">Vakava virhe (vaatii huomiotasi)</string>
-    <string name="custom_dns_disable_mode_subtitle">Voit ottaa asetuksen käyttöön poistamalla ensin kaikki &lt;b&gt;DNS-sisällönestotoiminnot&lt;/b&gt; käytöstä yltä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>

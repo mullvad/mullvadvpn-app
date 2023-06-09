@@ -46,7 +46,6 @@
     <string name="creating_new_account">Account aanmaken...</string>
     <string name="creating_secure_connection">BEVEILIGDE VERBINDING AANMAKEN</string>
     <string name="critical_error">Kritieke fout (uw aandacht is vereist)</string>
-    <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;DNS-contentblokkeringen&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>

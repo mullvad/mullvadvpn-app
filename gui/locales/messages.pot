@@ -1665,6 +1665,9 @@ msgstr ""
 msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr ""
+
 msgid "Enable"
 msgstr ""
 

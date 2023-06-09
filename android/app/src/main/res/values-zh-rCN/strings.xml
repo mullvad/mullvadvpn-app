@@ -46,7 +46,6 @@
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="creating_secure_connection">正在创建安全连接</string>
     <string name="critical_error">严重错误（需要注意）</string>
-    <string name="custom_dns_disable_mode_subtitle">禁用上方的所有 &lt;b&gt;DNS 内容阻止程序&lt;/b&gt;以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>

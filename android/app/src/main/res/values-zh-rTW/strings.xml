@@ -46,7 +46,6 @@
     <string name="creating_new_account">正在建立帳戶…</string>
     <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
-    <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;DNS 內容封鎖程式&lt;/b&gt;，以便啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>

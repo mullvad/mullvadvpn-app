@@ -46,7 +46,6 @@
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
-    <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、すべての&lt;b&gt;DNSコンテンツブロッカー&lt;/b&gt;を無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>

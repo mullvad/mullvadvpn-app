@@ -46,7 +46,6 @@
     <string name="creating_new_account">Oppretter konto ...</string>
     <string name="creating_secure_connection">OPPRETTER SIKKER TILKOBLING</string>
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
-    <string name="custom_dns_disable_mode_subtitle">Deaktiver all &lt;b&gt;DNS-innholdsblokkering&lt;/b&gt; over for å aktivere innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Angi IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>

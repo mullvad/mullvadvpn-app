@@ -46,7 +46,6 @@
     <string name="creating_new_account">Creando cuenta…</string>
     <string name="creating_secure_connection">CREANDO CONEXIÓN SEGURA</string>
     <string name="critical_error">Error crítico (precisa su atención)</string>
-    <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los &lt;b&gt;bloqueadores de contenido DNS&lt;/b&gt; de arriba para activar este ajuste.</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
     <string name="custom_dns_hint">Escriba la IP</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el host del túnel personalizado. Pruebe a cambiar la configuración.</string>

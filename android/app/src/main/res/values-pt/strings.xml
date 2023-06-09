@@ -46,7 +46,6 @@
     <string name="creating_new_account">A criar conta...</string>
     <string name="creating_secure_connection">A CRIAR LIGAÇÃO SEGURA</string>
     <string name="critical_error">Erro crítico (é necessária a sua atenção)</string>
-    <string name="custom_dns_disable_mode_subtitle">Desative todos os &lt;b&gt;bloqueadores de conteúdo de DNS&lt;/b&gt; acima para ativar esta definição.</string>
     <string name="custom_dns_footer">Ativar para adicionar pelo menos um servidor DNS.</string>
     <string name="custom_dns_hint">Introduzir IP</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>

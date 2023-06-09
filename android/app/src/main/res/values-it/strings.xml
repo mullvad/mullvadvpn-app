@@ -46,7 +46,6 @@
     <string name="creating_new_account">Creazione account...</string>
     <string name="creating_secure_connection">CREAZIONE CONNESSIONE PROTETTA</string>
     <string name="critical_error">Errore critico (è necessario intervenire)</string>
-    <string name="custom_dns_disable_mode_subtitle">Disabilita tutti i &lt;b&gt;blocchi dei contenuti DNS&lt;/b&gt; per attivare questa impostazione.</string>
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
     <string name="custom_dns_hint">Inserisci IP</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
