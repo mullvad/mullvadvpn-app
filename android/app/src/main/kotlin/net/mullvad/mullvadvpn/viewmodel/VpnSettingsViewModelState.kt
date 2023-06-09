@@ -54,6 +54,7 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation,
                     quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.ContentBlockersInfoDialog ->
@@ -77,6 +78,7 @@ data class VpnSettingsViewModelState(
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation,
                     quantumResistant = quantumResistant
                 )
             is VpnSettingsDialogState.MalwareInfoDialog ->
@@ -94,6 +96,8 @@ data class VpnSettingsViewModelState(
             is VpnSettingsDialogState.ObfuscationInfoDialog ->
                 VpnSettingsUiState.ObfuscationInfoDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
@@ -104,6 +108,8 @@ data class VpnSettingsViewModelState(
             is VpnSettingsDialogState.QuantumResistanceInfoDialog -> {
                 VpnSettingsUiState.QuantumResistanceInfoDialogUiState(
                     mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
                     isCustomDnsEnabled = isCustomDnsEnabled,
                     isAllowLanEnabled = isAllowLanEnabled,
                     customDnsItems = customDnsList,
