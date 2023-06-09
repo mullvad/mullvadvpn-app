@@ -253,6 +253,7 @@
 		58C3F4FB296C3AD500D72515 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */; };
 		58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
+		58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
 		58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */; };
 		58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */; };
 		58CAF9F82983D36800BE19F7 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
@@ -1020,6 +1021,7 @@
 		58C3F4F82964B08300D72515 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		58C76A072A33850E00100D75 /* ApplicationTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationTarget.swift; sourceTree = "<group>"; };
+		58C76A0A2A338E4300100D75 /* BackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTask.swift; sourceTree = "<group>"; };
 		58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
 		58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationConfiguration.swift; sourceTree = "<group>"; };
 		58CAF9F72983D36800BE19F7 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
@@ -1971,6 +1973,7 @@
 			isa = PBXGroup;
 			children = (
 				58CE5E63224146200008646E /* AppDelegate.swift */,
+				58C76A0A2A338E4300100D75 /* BackgroundTask.swift */,
 				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
 				583FE02829C1B079006E85F9 /* Classes */,
 				5864AF0629C78816005B0CD9 /* Protocols */,
@@ -2871,6 +2874,7 @@
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
+				58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */,
 				5864859B29A0EAF2006C5743 /* SecondaryContextPresentationController.swift in Sources */,
 				5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */,
 				587B75412668FD7800DEF7E9 /* AccountExpirySystemNotificationProvider.swift in Sources */,

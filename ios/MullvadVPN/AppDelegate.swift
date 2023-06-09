@@ -168,7 +168,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func registerAppRefreshTask() {
         let isRegistered = BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: ApplicationConfiguration.appRefreshTaskIdentifier,
+            forTaskWithIdentifier: BackgroundTask.appRefresh.identifier,
             using: nil
         ) { [self] task in
             let handle = relayCacheTracker.updateRelays { result in
@@ -191,7 +191,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func registerKeyRotationTask() {
         let isRegistered = BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier,
+            forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
             using: nil
         ) { [self] task in
             let handle = tunnelManager.rotatePrivateKey { [self] error in
@@ -214,7 +214,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func registerAddressCacheUpdateTask() {
         let isRegistered = BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier,
+            forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: nil
         ) { [self] task in
             let handle = addressCacheTracker.updateEndpoints { [self] result in
@@ -245,19 +245,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         do {
             let date = relayCacheTracker.getNextUpdateDate()
 
-            let request = BGAppRefreshTaskRequest(
-                identifier: ApplicationConfiguration.appRefreshTaskIdentifier
-            )
+            let request = BGAppRefreshTaskRequest(identifier: BackgroundTask.appRefresh.identifier)
             request.earliestBeginDate = date
 
             logger.debug("Schedule app refresh task at \(date.logFormatDate()).")
 
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            logger.error(
-                error: error,
-                message: "Could not schedule app refresh task."
-            )
+            logger.error(error: error, message: "Could not schedule app refresh task.")
         }
     }
 
@@ -267,9 +262,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 return
             }
 
-            let request = BGProcessingTaskRequest(
-                identifier: ApplicationConfiguration.privateKeyRotationTaskIdentifier
-            )
+            let request = BGProcessingTaskRequest(identifier: BackgroundTask.privateKeyRotation.identifier)
             request.requiresNetworkConnectivity = true
             request.earliestBeginDate = date
 
@@ -277,10 +270,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            logger.error(
-                error: error,
-                message: "Could not schedule private key rotation task."
-            )
+            logger.error(error: error, message: "Could not schedule private key rotation task.")
         }
     }
 
@@ -288,9 +278,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         do {
             let date = addressCacheTracker.nextScheduleDate()
 
-            let request = BGProcessingTaskRequest(
-                identifier: ApplicationConfiguration.addressCacheUpdateTaskIdentifier
-            )
+            let request = BGProcessingTaskRequest(identifier: BackgroundTask.addressCacheUpdate.identifier)
             request.requiresNetworkConnectivity = true
             request.earliestBeginDate = date
 
@@ -298,10 +286,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            logger.error(
-                error: error,
-                message: "Could not schedule address cache update task."
-            )
+            logger.error(error: error, message: "Could not schedule address cache update task.")
         }
     }
 
