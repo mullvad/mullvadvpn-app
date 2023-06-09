@@ -779,6 +779,7 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError);
         }
 
+        #[cfg(not(windows))]
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
         #[cfg(target_os = "android")]
@@ -792,6 +793,7 @@ impl WireguardMonitor {
                 log_path,
                 #[cfg(not(windows))]
                 tun_provider,
+                #[cfg(not(windows))]
                 routes,
                 #[cfg(windows)]
                 route_manager_handle,
