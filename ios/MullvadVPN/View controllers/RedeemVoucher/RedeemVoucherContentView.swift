@@ -204,6 +204,12 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
+    var isEditing = false {
+        didSet {
+            _ = isEditing ? textField.becomeFirstResponder() : textField.resignFirstResponder()
+        }
+    }
+
     init() {
         super.init(frame: .zero)
         setup()

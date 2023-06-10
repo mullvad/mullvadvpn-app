@@ -321,6 +321,10 @@ extension REST {
     public struct SubmitVoucherResponse: Decodable {
         public let timeAdded: Int
         public let newExpiry: Date
+        public init(timeAdded: Int, newExpiry: Date) {
+            self.timeAdded = timeAdded
+            self.newExpiry = newExpiry
+        }
 
         public var dateComponents: DateComponents {
             return DateComponents(second: timeAdded)
