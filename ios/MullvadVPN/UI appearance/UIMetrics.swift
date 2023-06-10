@@ -21,6 +21,18 @@ enum UIMetrics {
         /// Spacing between views in container (main view) in `CustomAlertViewController`
         static let containerSpacing: CGFloat = 16
     }
+
+    enum DimmingView {
+        static let opacity: CGFloat = 0.5
+        static let cornerRadius: CGFloat = 8
+        static let backgroundColor: UIColor = .black
+    }
+
+    enum Transition {
+        static let duration: TimeInterval = 0.5
+        static let delay: TimeInterval = .zero
+        static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
+    }
 }
 
 extension UIMetrics {
