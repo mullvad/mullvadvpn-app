@@ -14,10 +14,12 @@
                   android:orientation="vertical">
         <FrameLayout android:layout_width="match_parent"
                      android:layout_height="wrap_content">
-            <net.mullvad.mullvadvpn.ui.widget.BackButton android:id="@+id/back"
-                                                         android:layout_width="wrap_content"
-                                                         android:layout_height="wrap_content"
-                                                         mullvad:text="@string/settings" />
+            <ImageButton android:id="@+id/close"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:padding="12dp"
+                         android:background="?android:attr/selectableItemBackground"
+                         android:src="@drawable/icon_close" />
             <TextView android:id="@+id/collapsed_title"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"

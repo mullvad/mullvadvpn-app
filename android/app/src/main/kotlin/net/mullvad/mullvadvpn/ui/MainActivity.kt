@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
+import net.mullvad.mullvadvpn.ui.fragment.AccountFragment
 import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
@@ -180,6 +181,20 @@ open class MainActivity : FragmentActivity() {
             if (!BuildConfig.DEBUG && visibleSecureScreens.isEmpty()) {
                 window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
+        }
+    }
+
+    fun openAccount() {
+        supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom
+            )
+            replace(R.id.main_fragment, AccountFragment())
+            addToBackStack(null)
+            commitAllowingStateLoss()
         }
     }
 
