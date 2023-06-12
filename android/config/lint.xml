@@ -7,4 +7,6 @@
     <issue id="UnusedResources">
         <ignore path="res/values/strings.xml" />
     </issue>
+    <!-- We are currently not using the ellipsis character -->
+    <issue id="TypographyEllipsis" severity="ignore" />
 </lint>
