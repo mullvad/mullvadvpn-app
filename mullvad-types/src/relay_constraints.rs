@@ -230,6 +230,84 @@ impl RelaySettings {
     }
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub enum Foo {
+    Normal { location: LocationConstraint },
+    Custom { locations: Vec<LocationConstraint> },
+}
+
+impl From<LocationConstraint> for Foo {
+    fn from(location: LocationConstraint) -> Self {
+        Self::Normal { location }
+    }
+}
+
+impl Set<Constraint<Foo>> for Constraint<Foo> {
+    fn is_subset(&self, other: &Self) -> bool {
+        match self {
+            Constraint::Any => other.is_any(),
+            Constraint::Only(Foo::Normal { location }) => {
+                match other {
+                    Constraint::Any => true,
+                    Constraint::Only(Foo::Normal { location: other_location }) => {
+                        location.is_subset(other_location)
+                    }
+                    Constraint::Only(Foo::Custom { locations: other_locations }) => {
+                        other_locations.iter().any(|other_location| location.is_subset(other_location))
+                    }
+                }
+            }
+            Constraint::Only(Foo::Custom { locations }) => {
+                match other {
+                    Constraint::Any => true,
+                    Constraint::Only(Foo::Normal { location: other_location }) => {
+                        locations.iter().all(|location| location.is_subset(other_location))
+                    }
+                    Constraint::Only(Foo::Custom { locations: other_locations }) => {
+                        for location in locations {
+                            if !other_locations.iter().any(|other_location| location.is_subset(other_location)) {
+                                return false;
+                            }
+                        }
+                        true
+                    }
+                }
+            }
+        }
+    }
+}
+
+impl Constraint<Foo> {
+    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+        match self {
+            Constraint::Any => true,
+            Constraint::Only(Foo::Normal { location }) => {
+                location.matches_with_opts(relay, ignore_include_in_country)
+            }
+            Constraint::Only(Foo::Custom { locations }) => {
+                locations
+                    .iter()
+                    .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country))
+            }
+        }
+    }
+}
+
+impl fmt::Display for Foo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Self::Normal { location } => write!(f, "normal {location}"),
+            Self::Custom { locations } => {
+                write!(f, "custom [")?;
+                for location in locations {
+                    write!(f, "{location},")?;
+                }
+                write!(f, "]")
+            },
+        }
+    }
+}
+
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
@@ -237,7 +315,7 @@ impl RelaySettings {
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
-    pub location: Constraint<LocationConstraint>,
+    pub location: Constraint<Foo>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub providers: Constraint<Providers>,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -735,7 +813,7 @@ pub struct ObfuscationSettings {
 #[serde(default)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
-    pub location: Constraint<LocationConstraint>,
+    pub location: Constraint<Foo>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
 }
@@ -786,7 +864,7 @@ impl fmt::Display for BridgeState {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct InternalBridgeConstraints {
-    pub location: Constraint<LocationConstraint>,
+    pub location: Constraint<Foo>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
@@ -830,7 +908,7 @@ impl RelaySettingsUpdate {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
-    pub location: Option<Constraint<LocationConstraint>>,
+    pub location: Option<Constraint<Foo>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub providers: Option<Constraint<Providers>>,
     #[cfg_attr(target_os = "android", jnix(default))]
