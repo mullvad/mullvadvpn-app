@@ -1,7 +1,7 @@
 use clap::Args;
 use mullvad_types::{
     location::{CityCode, CountryCode, Hostname},
-    relay_constraints::{Constraint, LocationConstraint},
+    relay_constraints::{Constraint, LocationConstraint, Foo},
 };
 
 #[derive(Args, Debug, Clone)]
@@ -30,5 +30,25 @@ impl From<LocationArgs> for Constraint<LocationConstraint> {
             }
             _ => unreachable!("invalid location arguments"),
         }
+    }
+}
+
+impl From<LocationArgs> for Constraint<Foo> {
+    fn from(value: LocationArgs) -> Self {
+        if value.country.eq_ignore_ascii_case("any") {
+            return Constraint::Any;
+        }
+
+        let location = match (value.country, value.city, value.hostname) {
+            (country, None, None) => LocationConstraint::Country(country),
+            (country, Some(city), None) => {
+                LocationConstraint::City(country, city)
+            }
+            (country, Some(city), Some(hostname)) => {
+                LocationConstraint::Hostname(country, city, hostname)
+            }
+            _ => unreachable!("invalid location arguments"),
+        };
+        Constraint::Only(Foo::Normal { location })
     }
 }

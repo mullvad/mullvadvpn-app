@@ -2,7 +2,7 @@ use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, WireguardConstraints,
+        RelayConstraints, WireguardConstraints, Foo,
     },
     relay_list::{
         OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
@@ -19,7 +19,7 @@ use talpid_types::net::{all_of_the_internet, wireguard, Endpoint, IpVersion, Tun
 pub struct RelayMatcher<T: EndpointMatcher> {
     /// Locations allowed to be picked from. In the case of custom lists this may be multiple
     /// locations. In normal circumstances this contains only 1 location.
-    pub locations: Constraint<Vec<LocationConstraint>>,
+    pub locations: Constraint<Foo>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub endpoint_matcher: T,
@@ -32,7 +32,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
         wireguard_data: WireguardEndpointData,
     ) -> Self {
         Self {
-            locations: constraints.location.map(|loc| vec![loc]),
+            locations: constraints.location,
             providers: constraints.providers,
             ownership: constraints.ownership,
             endpoint_matcher: AnyTunnelMatcher {
@@ -43,24 +43,24 @@ impl RelayMatcher<AnyTunnelMatcher> {
         }
     }
 
-    /// Will replace location from `constraints` with `custom_list_locations`
-    pub fn new_with_custom_list_locations(
-        constraints: RelayConstraints,
-        openvpn_data: OpenVpnEndpointData,
-        wireguard_data: WireguardEndpointData,
-        custom_list_locations: Vec<LocationConstraint>,
-    ) -> Self {
-        Self {
-            locations: Constraint::Only(custom_list_locations),
-            providers: constraints.providers,
-            ownership: constraints.ownership,
-            endpoint_matcher: AnyTunnelMatcher {
-                wireguard: WireguardMatcher::new(constraints.wireguard_constraints, wireguard_data),
-                openvpn: OpenVpnMatcher::new(constraints.openvpn_constraints, openvpn_data),
-                tunnel_type: constraints.tunnel_protocol,
-            },
-        }
-    }
+    ///// Will replace location from `constraints` with `custom_list_locations`
+    //pub fn new_with_custom_list_locations(
+    //    constraints: RelayConstraints,
+    //    openvpn_data: OpenVpnEndpointData,
+    //    wireguard_data: WireguardEndpointData,
+    //    custom_list_locations: Vec<LocationConstraint>,
+    //) -> Self {
+    //    Self {
+    //        locations: Constraint::Only(custom_list_locations),
+    //        providers: constraints.providers,
+    //        ownership: constraints.ownership,
+    //        endpoint_matcher: AnyTunnelMatcher {
+    //            wireguard: WireguardMatcher::new(constraints.wireguard_constraints, wireguard_data),
+    //            openvpn: OpenVpnMatcher::new(constraints.openvpn_constraints, openvpn_data),
+    //            tunnel_type: constraints.tunnel_protocol,
+    //        },
+    //    }
+    //}
 
     pub fn into_wireguard_matcher(self) -> RelayMatcher<WireguardMatcher> {
         RelayMatcher {

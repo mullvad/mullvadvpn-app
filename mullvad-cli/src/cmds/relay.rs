@@ -7,7 +7,7 @@ use mullvad_types::{
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints,
+        WireguardConstraints, Foo,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -456,7 +456,7 @@ impl Relay {
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(constraint),
+            location: Some(constraint.map(|location| Foo::Normal { location })),
             ..Default::default()
         }))
         .await

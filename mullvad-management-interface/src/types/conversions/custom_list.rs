@@ -41,23 +41,32 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
 
 impl From<mullvad_types::custom_list::CustomListLocationUpdate> for proto::CustomListLocationUpdate {
     fn from(custom_list: mullvad_types::custom_list::CustomListLocationUpdate) -> Self {
+        use mullvad_types::relay_constraints::Constraint;
         match custom_list {
             mullvad_types::custom_list::CustomListLocationUpdate::Add {
                 name, location
             } => {
+                let location = match location {
+                    Constraint::Any => None,
+                    Constraint::Only(location) => Some(RelayLocation::from(location)),
+                };
                 Self {
                     state: 0,
                     name,
-                    location: Some(RelayLocation::from(location)),
+                    location,
                 }
             },
             mullvad_types::custom_list::CustomListLocationUpdate::Remove {
                 name, location
             } => {
+                let location = match location {
+                    Constraint::Any => None,
+                    Constraint::Only(location) => Some(RelayLocation::from(location)),
+                };
                 Self {
                     state: 1,
                     name,
-                    location: Some(RelayLocation::from(location)),
+                    location,
                 }
             },
         }
