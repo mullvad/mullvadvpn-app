@@ -50,3 +50,8 @@ export const StyledSpinnerContainer = styled.div({
   justifyContent: 'center',
   padding: '8px 0',
 });
+
+export const StyledDeviceNameRow = styled.div({
+  display: 'flex',
+  flexDirection: 'row',
+});
