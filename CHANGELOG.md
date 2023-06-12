@@ -49,6 +49,9 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate split tunneling view to compose.
 
 ### Fixed
+- Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
+  started, the relay list would only be updated after attempting to connect to the VPN.
+
 #### Android
 - Fix connection header flickering.
 
