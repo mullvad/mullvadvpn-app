@@ -87,10 +87,6 @@ test('App should log in', async () => {
   await expect(subtitle).toHaveText('Valid account number');
 
   expect(await util.waitForNavigation()).toEqual(RoutePath.main);
-
-  // Prevent the connect-button from being hovered, and therefore not have the correct color.
-  await page.hover('div');
-
   await assertDisconnected(page);
 });
 

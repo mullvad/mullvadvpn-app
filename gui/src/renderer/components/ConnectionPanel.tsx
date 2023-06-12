@@ -95,7 +95,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
         {this.props.hostname && (
           <Header>
             <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
-              <Marquee>{this.hostnameLine()}</Marquee>
+              <Marquee data-testid="hostname-line">{this.hostnameLine()}</Marquee>
             </ConnectionPanelDisclosure>
           </Header>
         )}
@@ -104,7 +104,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
           <React.Fragment>
             {this.props.inAddress && (
               <Row>
-                <Text>{this.transportLine()}</Text>
+                <Text data-testid="tunnel-protocol">{this.transportLine()}</Text>
               </Row>
             )}
 
