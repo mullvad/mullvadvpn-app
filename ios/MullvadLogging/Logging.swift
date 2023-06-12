@@ -14,12 +14,6 @@ private enum LoggerOutput {
     case osLogOutput(_ subsystem: String)
 }
 
-public struct MissingSharedContainerError: LocalizedError {
-    public var errorDescription: String? {
-        return "Cannot obtain shared container URL."
-    }
-}
-
 public struct LoggerBuilder {
     private(set) var logRotationErrors: [Error] = []
     private var outputs: [LoggerOutput] = []
@@ -29,16 +23,9 @@ public struct LoggerBuilder {
 
     public init() {}
 
-    public mutating func addFileOutput(securityGroupIdentifier: String, basename: String) throws {
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: securityGroupIdentifier
-        ) else {
-            throw MissingSharedContainerError()
-        }
-
-        let logsDirectoryURL = containerURL.appendingPathComponent("Logs", isDirectory: true)
-        let logFileName = "\(basename).log"
-        let logFileURL = logsDirectoryURL.appendingPathComponent(logFileName, isDirectory: false)
+    public mutating func addFileOutput(fileURL: URL) {
+        let logFileName = fileURL.lastPathComponent
+        let logsDirectoryURL = fileURL.deletingLastPathComponent()
 
         try? FileManager.default.createDirectory(
             at: logsDirectoryURL,
@@ -52,7 +39,7 @@ public struct LoggerBuilder {
             logRotationErrors.append(error)
         }
 
-        outputs.append(.fileOutput(LogFileOutputStream(fileURL: logFileURL)))
+        outputs.append(.fileOutput(LogFileOutputStream(fileURL: fileURL)))
     }
 
     public mutating func addOSLogOutput(subsystem: String) {

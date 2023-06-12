@@ -17,9 +17,7 @@ import UIKit
 import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,
-    StorePaymentManagerDelegate
-{
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate {
     private var logger: Logger!
 
     #if targetEnvironment(simulator)
@@ -52,12 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         logger = Logger(label: "AppDelegate")
 
-        let containerURL = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
-
-        addressCache = REST.AddressCache(
-            canWriteToCache: true, cacheFolder: containerURL
-        )
+        addressCache = REST.AddressCache(canWriteToCache: true, cacheFolder: ApplicationConfiguration.containerURL)
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in self?.transportMonitor },
@@ -112,9 +105,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
-        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
-            relayCacheTracker: relayCacheTracker
-        )
+        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(relayCacheTracker: relayCacheTracker)
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
 
@@ -318,19 +309,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func configureLogging() {
         var loggerBuilder = LoggerBuilder()
-        let bundleIdentifier = Bundle.main.bundleIdentifier!
-
-        try? loggerBuilder.addFileOutput(
-            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
-            basename: bundleIdentifier
-        )
-
+        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .mainApp))
         #if DEBUG
-        loggerBuilder.addOSLogOutput(subsystem: bundleIdentifier)
+        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-
-        loggerBuilder.logLevel = .debug
-
         loggerBuilder.install()
     }
 
@@ -475,10 +457,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - StorePaymentManagerDelegate
 
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didRequestAccountTokenFor payment: SKPayment
-    ) -> String? {
+    func storePaymentManager(_ manager: StorePaymentManager, didRequestAccountTokenFor payment: SKPayment) -> String? {
         // Since we do not persist the relation between payment and account number between the
         // app launches, we assume that all successful purchases belong to the active account
         // number.

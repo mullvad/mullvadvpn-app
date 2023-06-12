@@ -125,31 +125,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     override init() {
         var loggerBuilder = LoggerBuilder()
-
         let pid = ProcessInfo.processInfo.processIdentifier
         loggerBuilder.metadata["pid"] = .string("\(pid)")
-
-        let bundleIdentifier = Bundle.main.bundleIdentifier!
-
-        try? loggerBuilder.addFileOutput(
-            securityGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier,
-            basename: bundleIdentifier
-        )
-
+        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .packetTunnel))
         #if DEBUG
-        loggerBuilder.addOSLogOutput(subsystem: bundleIdentifier)
+        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
-
         loggerBuilder.install()
 
         providerLogger = Logger(label: "PacketTunnelProvider")
         tunnelLogger = Logger(label: "WireGuard")
 
-        let containerURL = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: ApplicationConfiguration.securityGroupIdentifier)!
-        let addressCache = REST.AddressCache(
-            canWriteToCache: false, cacheFolder: containerURL
-        )
+        let addressCache = REST.AddressCache(canWriteToCache: false, cacheFolder: ApplicationConfiguration.containerURL)
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
