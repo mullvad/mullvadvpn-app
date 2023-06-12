@@ -1,80 +1,106 @@
 import { expect } from '@playwright/test';
 import { Page } from 'playwright';
 import { colors } from '../../../src/config.json';
-import { getBackgroundColor, getColor } from '../utils';
+import { anyOf } from '../utils';
 
 const UNSECURED_COLOR = colors.red;
 const SECURE_COLOR = colors.green;
 const WHITE_COLOR = colors.white;
 
+const UNSECURE_BUTTON_COLOR = anyOf(colors.red60, colors.red80);
+const SECURE_BUTTON_COLOR = anyOf(colors.green, colors.green90);
+
 const getLabel = (page: Page) => page.locator('span[role="status"]');
 const getHeader = (page: Page) => page.locator('header');
 
 export async function assertDisconnected(page: Page) {
-  const statusLabel = getLabel(page);
-  await expect(statusLabel).toContainText(/unsecured connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(UNSECURED_COLOR);
-
-  const header = getHeader(page);
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(UNSECURED_COLOR);
-
-  const button = page.locator('button', { hasText: /secure my connection/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe(SECURE_COLOR);
+  await assertTunnelState(page, {
+    labelText: 'unsecured connection',
+    labelColor: UNSECURED_COLOR,
+    headerColor: UNSECURED_COLOR,
+    buttonText: 'secure my connection',
+    buttonColor: SECURE_BUTTON_COLOR,
+  });
 }
 
 export async function assertConnecting(page: Page) {
-  const statusLabel = getLabel(page);
-  await expect(statusLabel).toContainText(/creating secure connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(WHITE_COLOR);
-
-  const header = getHeader(page);
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
-
-  const button = page.locator('button', { hasText: /cancel/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe('rgba(227, 64, 57, 0.6)');
+  await assertTunnelState(page, {
+    labelText: 'creating secure connection',
+    labelColor: WHITE_COLOR,
+    headerColor: SECURE_COLOR,
+    buttonText: 'cancel',
+    buttonColor: UNSECURE_BUTTON_COLOR,
+  });
 }
 
 export async function assertConnected(page: Page) {
-  const statusLabel = getLabel(page);
-  await expect(statusLabel).toContainText(/secure connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(SECURE_COLOR);
-
-  const header = getHeader(page);
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
-
-  const button = page.locator('button', { hasText: /switch location/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe('rgba(255, 255, 255, 0.2)');
+  await assertTunnelState(page, {
+    labelText: 'secure connection',
+    labelColor: SECURE_COLOR,
+    headerColor: SECURE_COLOR,
+    buttonText: 'disconnect',
+    buttonColor: UNSECURE_BUTTON_COLOR,
+  });
 }
 
 export async function assertDisconnecting(page: Page) {
-  const statusLabel = getLabel(page);
-  await expect(statusLabel).toBeEmpty();
-
-  const header = getHeader(page);
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(UNSECURED_COLOR);
-
-  const button = page.locator('button', { hasText: /secure my connection/i });
-  const buttonColor = await getBackgroundColor(button);
-  expect(buttonColor).toBe(SECURE_COLOR);
+  await assertTunnelState(page, {
+    headerColor: UNSECURED_COLOR,
+    buttonText: 'secure my connection',
+    buttonColor: SECURE_BUTTON_COLOR,
+  });
 }
 
 export async function assertError(page: Page) {
+  await assertTunnelState(page, {
+    labelText: 'blocked connection',
+    labelColor: WHITE_COLOR,
+    headerColor: SECURE_COLOR,
+  });
+}
+
+export async function assertConnectingPq(page: Page) {
+  await assertTunnelState(page, {
+    labelText: 'creating quantum secure connection',
+    labelColor: WHITE_COLOR,
+    headerColor: SECURE_COLOR,
+    buttonText: 'cancel',
+    buttonColor: UNSECURE_BUTTON_COLOR,
+  });
+}
+
+export async function assertConnectedPq(page: Page) {
+  await assertTunnelState(page, {
+    labelText: 'quantum secure connection',
+    labelColor: SECURE_COLOR,
+    headerColor: SECURE_COLOR,
+    buttonText: 'disconnect',
+    buttonColor: UNSECURE_BUTTON_COLOR,
+  });
+}
+
+interface TunnelStateContent {
+  labelText?: string | RegExp;
+  labelColor?: string;
+  headerColor: string;
+  buttonText?: string;
+  buttonColor?: string | RegExp;
+}
+
+export async function assertTunnelState(page: Page, content: TunnelStateContent) {
   const statusLabel = getLabel(page);
-  await expect(statusLabel).toContainText(/blocked connection/i);
-  const labelColor = await getColor(statusLabel);
-  expect(labelColor).toBe(WHITE_COLOR);
+  if (content.labelText && content.labelColor) {
+    await expect(statusLabel).toContainText(new RegExp(content.labelText, 'i'));
+    await expect(statusLabel).toHaveCSS('color', content.labelColor);
+  } else {
+    await expect(statusLabel).toBeEmpty();
+  }
 
   const header = getHeader(page);
-  const headerColor = await getBackgroundColor(header);
-  expect(headerColor).toBe(SECURE_COLOR);
+  await expect(header).toHaveCSS('background-color', content.headerColor);
+
+  if (content.buttonText && content.buttonColor) {
+    const button = page.locator('button', { hasText: new RegExp(content.buttonText, 'i') });
+    await expect(button).toHaveCSS('background-color', content.buttonColor);
+  }
 }
