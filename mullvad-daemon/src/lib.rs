@@ -1358,12 +1358,20 @@ where
 
     fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
         let account_manager = self.account_manager.clone();
+        let availability = self.api_runtime.availability_handle();
         tokio::spawn(async move {
             let result = async {
-                account_manager.login(account_token).await.map_err(|error| {
-                    log::error!("{}", error.display_chain_with_msg("Login failed"));
-                    Error::LoginError(error)
-                })
+                account_manager
+                    .login(account_token)
+                    .await
+                    .map_err(|error| {
+                        log::error!("{}", error.display_chain_with_msg("Login failed"));
+                        Error::LoginError(error)
+                    })?;
+
+                availability.resume_background();
+
+                Ok(())
             };
             Self::oneshot_send(tx, result.await, "login_account response");
         });
