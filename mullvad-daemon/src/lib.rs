@@ -46,7 +46,7 @@ use mullvad_types::{
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate, Foo, RelaySettings, Constraint},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
@@ -2271,20 +2271,31 @@ where
     }
 
     async fn on_select_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
+        // TODO: Notify update settings listeners and steal inspiration from on_update_relay_settings
         let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
             Err(Error::CustomListError(
                 "a list with that name does not exist",
             ))
         } else {
-            self.settings
+            let result = self.settings
                 .update(|settings| {
                     let list = settings.custom_lists.custom_lists.get(&name).unwrap();
                     settings.custom_lists.selected_list = Some(list.id.clone());
+                    match &mut settings.relay_settings {
+                        RelaySettings::Normal(relay_constraints) => {
+                            relay_constraints.location = Constraint::Only(Foo::Custom { locations: list.locations.clone() });
+                        },
+                        RelaySettings::CustomTunnelEndpoint(_) => {
+                            // TODO: What should this behavior be? Silent failure? Logging?
+                            // Checking before updating settings and returning an error?
+                        }
+                    }
                 })
                 .await
                 .map(|_| ())
-                .map_err(Error::SettingsError)
-            // TODO: Reconnect
+                .map_err(Error::SettingsError);
+            self.reconnect_tunnel();
+            result
         };
         Self::oneshot_send(tx, result, "select_custom_list response");
     }
@@ -2522,9 +2533,5 @@ fn new_selector_config(
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
-        selected_custom_lists: SelectedCustomLists {
-            selected_custom_list_entry: settings.custom_lists.get_selected_list().cloned(),
-            selected_custom_list_exit: settings.custom_lists.get_selected_list_exit().cloned(),
-        },
     }
 }

@@ -251,7 +251,7 @@ enum Ownership {
 
 message BridgeSettings {
   message BridgeConstraints {
-    RelayLocation location = 1;
+    Foo location = 1;
     repeated string providers = 2;
     Ownership ownership = 3;
   }
@@ -280,6 +280,17 @@ message BridgeSettings {
     RemoteProxySettings remote = 3;
     ShadowsocksProxySettings shadowsocks = 4;
   }
+}
+
+message Foo {
+  oneof type {
+    CustomLocationConstraints custom = 1;
+    RelayLocation normal = 2;
+  }
+}
+
+message CustomLocationConstraints {
+    repeated RelayLocation locations = 1;
 }
 
 message RelayLocation {
@@ -360,7 +371,7 @@ message RelaySettings {
 message TunnelTypeConstraint { TunnelType tunnel_type = 1; }
 
 message NormalRelaySettings {
-  RelayLocation location = 1;
+  Foo location = 1;
   repeated string providers = 2;
   TunnelTypeConstraint tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
@@ -370,7 +381,7 @@ message NormalRelaySettings {
 
 // Constraints are only updated for fields that are provided
 message NormalRelaySettingsUpdate {
-  RelayLocation location = 1;
+  Foo location = 1;
   ProviderUpdate providers = 2;
   TunnelTypeUpdate tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
@@ -402,7 +413,7 @@ message WireguardConstraints {
   uint32 port = 1;
   IpVersionConstraint ip_version = 2;
   bool use_multihop = 3;
-  RelayLocation entry_location = 4;
+  Foo entry_location = 4;
 }
 
 message CustomRelaySettings {

@@ -1,7 +1,7 @@
 use crate::{
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, Foo, LocationConstraint,
         ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
         SelectedObfuscation, WireguardConstraints,
     },
@@ -122,9 +122,11 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                location: Constraint::Only(Foo::Normal {
+                    location: LocationConstraint::Country("se".to_owned()),
+                }),
                 wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                    entry_location: Constraint::Only(Foo::Normal { location: LocationConstraint::Country("se".to_owned()) } ),
                     ..Default::default()
                 },
                 ..Default::default()

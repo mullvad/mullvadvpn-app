@@ -7,7 +7,7 @@ use mullvad_types::{
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints,
+        WireguardConstraints, Foo,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -418,14 +418,14 @@ impl Relay {
 
         println!("Setting location constraint to {location}");
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(location)),
+            location: Some(Constraint::Only(Foo::Normal { location })),
             ..Default::default()
         }))
         .await
     }
 
     async fn set_location(location_constraint: LocationArgs) -> Result<()> {
-        let location_constraint = Constraint::from(location_constraint);
+        let location_constraint: Constraint<LocationConstraint> = Constraint::from(location_constraint);
         match &location_constraint {
             Constraint::Any => (),
             Constraint::Only(constraint) => {
@@ -443,7 +443,7 @@ impl Relay {
             }
         }
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(location_constraint),
+            location: Some(location_constraint.map(|location| Foo::Normal { location })),
             ..Default::default()
         }))
         .await
