@@ -8,6 +8,8 @@ import {
 import { promisify } from 'util';
 
 import {
+  AccountDataError,
+  AccountDataResponse,
   AccountToken,
   AfterDisconnect,
   AuthFailedError,
@@ -23,7 +25,6 @@ import {
   ErrorStateCause,
   FirewallPolicyError,
   FirewallPolicyErrorType,
-  IAccountData,
   IAppVersionInfo,
   IBridgeConstraints,
   IDevice,
@@ -61,12 +62,6 @@ import {
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
-import {
-  CommunicationError,
-  InvalidAccountError,
-  ListDevicesError,
-  TooManyDevicesError,
-} from './errors';
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
@@ -200,22 +195,22 @@ export class DaemonRpc {
     }
   }
 
-  public async getAccountData(accountToken: AccountToken): Promise<IAccountData> {
+  public async getAccountData(accountToken: AccountToken): Promise<AccountDataResponse> {
     try {
       const response = await this.callString<grpcTypes.AccountData>(
         this.client.getAccountData,
         accountToken,
       );
       const expiry = response.getExpiry()!.toDate().toISOString();
-      return { expiry };
+      return { type: 'success', expiry };
     } catch (e) {
       const error = e as grpc.ServiceError;
       if (error.code) {
         switch (error.code) {
           case grpc.status.UNAUTHENTICATED:
-            throw new InvalidAccountError();
+            return { type: 'error', error: 'invalid-account' };
           default:
-            throw new CommunicationError();
+            return { type: 'error', error: 'communication' };
         }
       }
       throw error;
@@ -277,18 +272,18 @@ export class DaemonRpc {
     return response.getValue();
   }
 
-  public async loginAccount(accountToken: AccountToken): Promise<void> {
+  public async loginAccount(accountToken: AccountToken): Promise<AccountDataError | void> {
     try {
       await this.callString(this.client.loginAccount, accountToken);
     } catch (e) {
       const error = e as grpc.ServiceError;
       switch (error.code) {
         case grpc.status.RESOURCE_EXHAUSTED:
-          throw new TooManyDevicesError();
+          return { type: 'error', error: 'too-many-devices' };
         case grpc.status.UNAUTHENTICATED:
-          throw new InvalidAccountError();
+          return { type: 'error', error: 'invalid-account' };
         default:
-          throw new CommunicationError();
+          return { type: 'error', error: 'communication' };
       }
     }
   }
@@ -603,7 +598,7 @@ export class DaemonRpc {
 
       return response.getDevicesList().map(convertFromDevice);
     } catch {
-      throw new ListDevicesError();
+      throw new Error('Failed to list devices');
     }
   }
 

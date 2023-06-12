@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../config.json';
-import { AccountToken } from '../../shared/daemon-rpc-types';
+import { AccountDataError, AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountToken } from '../lib/account';
@@ -180,7 +180,7 @@ export default class Login extends React.Component<IProps, IState> {
     switch (this.props.loginState.type) {
       case 'failed':
         return this.props.loginState.method === 'existing_account'
-          ? this.props.loginState.error.message || messages.pgettext('login-view', 'Unknown error')
+          ? this.errorString(this.props.loginState.error)
           : messages.pgettext('login-view', 'Failed to create account');
       case 'too many devices':
         return messages.pgettext('login-view', 'Too many devices');
@@ -194,6 +194,27 @@ export default class Login extends React.Component<IProps, IState> {
           : messages.pgettext('login-view', 'Logged in');
       default:
         return messages.pgettext('login-view', 'Enter your account number');
+    }
+  }
+
+  private errorString(error: AccountDataError['error']): string {
+    switch (error) {
+      case 'invalid-account':
+        // TRANSLATORS: Error message shown above login input when trying to login with a
+        // TRANSLATORS: non-existent account number.
+        return messages.pgettext('login-view', 'Invalid account number');
+      case 'too-many-devices':
+        // TRANSLATORS: Error message shown above login input when trying to login to an account
+        // TRANSLATORS: with too many registered devices.
+        return messages.pgettext('login-view', 'Too many devices');
+      case 'list-devices':
+        // TRANSLATORS: Error message shown above login input when trying to login but the app fails
+        // TRANSLATORS: to fetch the list of registered devices.
+        return messages.pgettext('login-view', 'Failed to fetch list of devices');
+      case 'communication':
+        return 'api.mullvad.net is blocked, please check your firewall';
+      default:
+        return messages.pgettext('login-view', 'Unknown error');
     }
   }
 
