@@ -25,11 +25,13 @@ import {
   AccountRows,
   AccountRowValue,
   DeviceRowValue,
+  StyledDeviceNameRow,
   StyledSpinnerContainer,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
+import DeviceInfoButton from './DeviceInfoButton';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
@@ -185,7 +187,12 @@ function LogoutDialog() {
 
 function DeviceNameRow() {
   const deviceName = useSelector((state) => state.account.deviceName);
-  return <DeviceRowValue>{deviceName}</DeviceRowValue>;
+  return (
+    <StyledDeviceNameRow>
+      <DeviceRowValue>{deviceName}</DeviceRowValue>
+      <DeviceInfoButton />
+    </StyledDeviceNameRow>
+  );
 }
 
 function AccountNumberRow() {
