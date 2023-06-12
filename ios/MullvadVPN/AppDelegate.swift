@@ -53,8 +53,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let containerURL = ApplicationConfiguration.containerURL
 
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheFolder: containerURL)
-        addressCache.initCache()
+        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
+        addressCache.loadFromFile()
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: { [weak self] in self?.transportMonitor },
@@ -65,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
-        let relayCache = RelayCache(cacheFolder: containerURL)
+        let relayCache = RelayCache(cacheDirectory: containerURL)
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
         addressCacheTracker = AddressCacheTracker(
@@ -92,7 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
-        let shadowsocksCache = ShadowsocksConfigurationCache(cacheFolder: containerURL)
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,

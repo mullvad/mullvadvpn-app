@@ -10,26 +10,24 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-public final class RelayCache: Caching {
-    public typealias CacheType = CachedRelays
+public final class RelayCache {
+    private let fileCache: any FileCacheProtocol<CachedRelays>
 
-    /// Cache file location.
-    public let cacheFileURL: URL
-    public static let cacheFileName = "relays.json"
+    /// Designated initializer
+    public init(cacheDirectory: URL) {
+        fileCache = FileCache(fileURL: cacheDirectory.appendingPathComponent("relays.json", isDirectory: false))
+    }
 
-    public init(cacheFolder: URL) {
-        let cacheFileURL = cacheFolder.appendingPathComponent(
-            Self.cacheFileName,
-            isDirectory: false
-        )
-        self.cacheFileURL = cacheFileURL
+    /// Initializer that accepts a custom FileCache implementation. Used in tests.
+    init(fileCache: some FileCacheProtocol<CachedRelays>) {
+        self.fileCache = fileCache
     }
 
     /// Safely read the cache file from disk using file coordinator and fallback to prebundled
     /// relays in case if the relay cache file is missing.
     public func read() throws -> CachedRelays {
         do {
-            return try readFromDisk()
+            return try fileCache.read()
         } catch {
             if error is DecodingError || (error as? CocoaError)?.code == .fileReadNoSuchFile {
                 return try readPrebundledRelays()
@@ -41,16 +39,16 @@ public final class RelayCache: Caching {
 
     /// Safely write the cache file on disk using file coordinator.
     public func write(record: CachedRelays) throws {
-        try writeToDisk(record)
+        try fileCache.write(record)
     }
 
     /// Read pre-bundled relays file from disk.
     private func readPrebundledRelays() throws -> CachedRelays {
-        guard let prebundledRelaysFileURL = Bundle(for: Self.self)
-            .url(forResource: "relays", withExtension: "json") else { throw POSIXError(.ENOENT) }
+        guard let prebundledRelaysFileURL = Bundle(for: Self.self).url(forResource: "relays", withExtension: "json")
+        else { throw CocoaError(.fileNoSuchFile) }
+
         let data = try Data(contentsOf: prebundledRelaysFileURL)
-        let relays = try REST.Coding.makeJSONDecoder()
-            .decode(REST.ServerRelaysResponse.self, from: data)
+        let relays = try REST.Coding.makeJSONDecoder().decode(REST.ServerRelaysResponse.self, from: data)
 
         return CachedRelays(
             relays: relays,

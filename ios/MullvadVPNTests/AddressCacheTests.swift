@@ -8,60 +8,57 @@
 
 @testable import MullvadREST
 import MullvadTypes
+import struct Network.IPv4Address
 import XCTest
 
-final class AddressCacheTests: CachedTests {
-    var apiEndpoint: AnyIPEndpoint!
-
-    // MARK: Tests Setup
-
-    override class var cacheFileName: String { REST.AddressCache.cacheFileName }
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        apiEndpoint = try XCTUnwrap(AnyIPEndpoint(string: "127.0.0.1:80"))
-    }
+final class AddressCacheTests: XCTestCase {
+    let apiEndpoint: AnyIPEndpoint = .ipv4(IPv4Endpoint(ip: IPv4Address.loopback, port: 80))
 
     // MARK: - Tests
 
     func testAddressCacheHasDefaultEndpoint() {
-        let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: Self.testsCacheDirectory)
-        XCTAssertEqual(cache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .fileNotFound)
+        )
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
     }
 
     func testSetEndpoints() throws {
-        let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: Self.testsCacheDirectory)
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .fileNotFound)
+        )
 
-        cache.setEndpoints([apiEndpoint])
-        XCTAssertEqual(cache.getCurrentEndpoint(), apiEndpoint)
+        addressCache.setEndpoints([apiEndpoint])
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
     }
 
     func testSetEndpointsUpdatesDateWhenSettingSameAddress() throws {
-        let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: Self.testsCacheDirectory)
-        cache.setEndpoints([apiEndpoint])
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .fileNotFound)
+        )
+        addressCache.setEndpoints([apiEndpoint])
 
-        let dateBeforeSettingEndpoint = Date()
-        cache.setEndpoints([apiEndpoint])
-        let dateAfterSettingEndpoint = Date()
+        let dateBeforeUpdate = addressCache.getLastUpdateDate()
+        addressCache.setEndpoints([apiEndpoint])
+        let dateAfterUpdate = addressCache.getLastUpdateDate()
 
-        let dateIntervalRange = dateBeforeSettingEndpoint ... dateAfterSettingEndpoint
-        XCTAssertTrue(dateIntervalRange.contains(cache.getLastUpdateDate()))
+        XCTAssertNotEqual(dateBeforeUpdate, dateAfterUpdate)
     }
 
     func testSetEndpointsDoesNotDoAnythingIfSettingEmptyEndpoints() throws {
-        let didNotWriteToCache = expectation(description: "Did not write to cache")
-        didNotWriteToCache.isInverted = true
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .fileNotFound)
+        )
+        addressCache.loadFromFile()
 
-        cacheFilePresenter.onWriterAction = {
-            didNotWriteToCache.fulfill()
-        }
+        let currentEndpoint = addressCache.getCurrentEndpoint()
+        addressCache.setEndpoints([])
 
-        try withCachefolders { cacheDirectory, _ in
-            let cache = REST.AddressCache(canWriteToCache: true, cacheFolder: cacheDirectory)
-            cache.setEndpoints([])
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), currentEndpoint)
     }
 
     func testSetEndpointsOnlyAcceptsTheFirstEndpoint() throws {
@@ -71,103 +68,71 @@ final class AddressCacheTests: CachedTests {
 
         let firstIPEndpoint = try XCTUnwrap(ipAddresses.first)
 
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            let cache = REST.AddressCache(canWriteToCache: true, cacheFolder: cacheDirectory)
-            cache.setEndpoints(ipAddresses)
+        let fileCache = MockFileCache<REST.CachedAddresses>()
+        let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
+        addressCache.setEndpoints(ipAddresses)
 
-            let cachedContent = try Data(contentsOf: cacheFileURL)
-            let cachedAddresses = try JSONDecoder().decode(REST.CachedAddresses.self, from: cachedContent)
-
-            XCTAssertEqual(cachedAddresses.endpoints.count, 1)
-            XCTAssertEqual(cache.getCurrentEndpoint(), firstIPEndpoint)
+        let fileState = fileCache.getState()
+        XCTAssertTrue(fileState.isExists)
+        guard case let .exists(cachedAddresses) = fileState else {
+            XCTFail("State is expected to contain cached addresses.")
+            return
         }
+
+        XCTAssertEqual(cachedAddresses.endpoints.count, 1)
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), firstIPEndpoint)
     }
 
-    func testCacheReadsFromCachedFileWithInitCache() throws {
-        let didReadFromCache = expectation(description: "Cache was read")
-        cacheFilePresenter.onReaderAction = {
-            didReadFromCache.fulfill()
-        }
+    func testCacheReadsFromFile() throws {
+        let fixedDate = Date()
+        let addressCache = REST.AddressCache(
+            canWriteToCache: true,
+            fileCache: MockFileCache(initialState: .exists(
+                REST.CachedAddresses(updatedAt: fixedDate, endpoints: [apiEndpoint])
+            ))
+        )
+        addressCache.loadFromFile()
 
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            let fixedDate = Date()
-            try prepopulateCache(at: cacheFileURL, fixedDate: fixedDate, with: [apiEndpoint])
-            let cache = REST.AddressCache(canWriteToCache: true, cacheFolder: cacheDirectory)
-            cache.initCache()
-
-            XCTAssertEqual(cache.getCurrentEndpoint(), apiEndpoint)
-            XCTAssertEqual(cache.getLastUpdateDate(), fixedDate)
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
+        XCTAssertEqual(addressCache.getLastUpdateDate(), fixedDate)
     }
 
     func testCacheWritesToDiskWhenSettingNewEndpoints() throws {
-        let didWriteToCache = expectation(description: "Cache was written to")
-        cacheFilePresenter.onWriterAction = {
-            didWriteToCache.fulfill()
+        let fileCache = MockFileCache<REST.CachedAddresses>()
+        let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
+
+        XCTAssertEqual(fileCache.getState(), .fileNotFound)
+        addressCache.setEndpoints([apiEndpoint])
+
+        let fileState = fileCache.getState()
+        XCTAssertTrue(fileState.isExists)
+
+        guard case let .exists(cachedAddresses) = fileState else {
+            XCTFail("State is expected to contain cached addresses.")
+            return
         }
 
-        try withCachefolders { cacheDirectory, cacheFileURL in
-
-            let cache = REST.AddressCache(canWriteToCache: true, cacheFolder: cacheDirectory)
-            cache.setEndpoints([apiEndpoint])
-            let cachedContent = try Data(contentsOf: cacheFileURL)
-            let cachedAddresses = try JSONDecoder().decode(REST.CachedAddresses.self, from: cachedContent)
-            let cachedAddress = try XCTUnwrap(cachedAddresses.endpoints.first)
-
-            XCTAssertEqual(cachedAddress, cache.getCurrentEndpoint())
-            XCTAssertEqual(cachedAddresses.updatedAt, cache.getLastUpdateDate())
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        XCTAssertEqual(cachedAddresses.endpoints, [addressCache.getCurrentEndpoint()])
+        XCTAssertEqual(cachedAddresses.updatedAt, addressCache.getLastUpdateDate())
     }
 
     func testGetCurrentEndpointReadsFromCacheWhenReadOnly() throws {
-        let didReadFromCache = expectation(description: "Cache was read")
-        cacheFilePresenter.onReaderAction = {
-            didReadFromCache.fulfill()
-        }
-
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: cacheDirectory)
-            try prepopulateCache(at: cacheFileURL, with: [apiEndpoint])
-
-            XCTAssertEqual(cache.getCurrentEndpoint(), apiEndpoint)
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .exists(
+                REST.CachedAddresses(updatedAt: Date(), endpoints: [apiEndpoint])
+            ))
+        )
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
     }
 
     func testGetCurrentEndpointHasDefaultEndpointIfCacheIsEmpty() throws {
-        let didReadFromCache = expectation(description: "Cache was read")
-        cacheFilePresenter.onReaderAction = {
-            didReadFromCache.fulfill()
-        }
+        let addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .exists(REST.CachedAddresses(updatedAt: Date(), endpoints: [])))
+        )
+        addressCache.loadFromFile()
 
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            try prepopulateCache(at: cacheFileURL, with: [])
-
-            let cache = REST.AddressCache(canWriteToCache: false, cacheFolder: cacheDirectory)
-            XCTAssertEqual(cache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
-    }
-}
-
-// MARK: -
-
-extension AddressCacheTests {
-    /// Populates a JSON cache file containing a `Date` and `[AnyIPEndpoint]`
-    ///
-    /// - Parameters:
-    ///   - cacheFileURL: The cache file destination
-    ///   - fixedDate: The `Date` the cache file was written to
-    ///   - endpoints: A list of `AnyIPEndpoint` to write in the cache
-    func prepopulateCache(at cacheFileURL: URL, fixedDate: Date = Date(), with endpoints: [AnyIPEndpoint]) throws {
-        let prepopulatedCache = REST.CachedAddresses(updatedAt: fixedDate, endpoints: endpoints)
-        let encodedCache = try JSONEncoder().encode(prepopulatedCache)
-        try encodedCache.write(to: cacheFileURL)
+        XCTAssertEqual(addressCache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
     }
 }
