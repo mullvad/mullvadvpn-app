@@ -135,14 +135,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelLogger = Logger(label: "WireGuard")
 
         let containerURL = ApplicationConfiguration.containerURL
-        let addressCache = REST.AddressCache(canWriteToCache: false, cacheFolder: containerURL)
-        addressCache.initCache()
+        let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
+        addressCache.loadFromFile()
 
-        relayCache = RelayCache(cacheFolder: containerURL)
+        relayCache = RelayCache(cacheDirectory: containerURL)
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
-        let shadowsocksCache = ShadowsocksConfigurationCache(cacheFolder: containerURL)
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,

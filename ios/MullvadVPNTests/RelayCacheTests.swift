@@ -11,51 +11,47 @@ import MullvadTransport
 @testable import RelayCache
 import XCTest
 
-final class RelayCacheTests: CachedTests {
-    override class var cacheFileName: String { RelayCache.cacheFileName }
+final class RelayCacheTests: XCTestCase {
+    func testCanReadCache() throws {
+        let fileCache = MockFileCache(
+            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
+        )
+        let cache = RelayCache(fileCache: fileCache)
+        let relays = try XCTUnwrap(cache.read())
 
-    func testReadReadsFromCache() throws {
-        let didReadFromCache = expectation(description: "Cache was read")
-        cacheFilePresenter.onReaderAction = {
-            didReadFromCache.fulfill()
-        }
-
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            try prepopulateCache(at: cacheFileURL, fixedDate: .distantPast)
-
-            let cache = RelayCache(cacheFolder: cacheDirectory)
-            let relays = try cache.read()
-
-            XCTAssertEqual(relays.updatedAt, .distantPast)
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        XCTAssertEqual(fileCache.getState(), .exists(relays))
     }
 
-    func testWriteWritesToCache() throws {
-        let didWriteToCache = expectation(description: "Cache was written to")
-        cacheFilePresenter.onWriterAction = {
-            didWriteToCache.fulfill()
-        }
+    func testCanWriteCache() throws {
+        let fileCache = MockFileCache(
+            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
+        )
+        let cache = RelayCache(fileCache: fileCache)
+        let newCachedRelays = CachedRelays(relays: .mock(), updatedAt: Date())
 
-        try withCachefolders { cacheDirectory, cacheFileURL in
-            let cache = RelayCache(cacheFolder: cacheDirectory)
-            try cache.write(record: CachedRelays(relays: .empty, updatedAt: .distantPast))
+        try cache.write(record: newCachedRelays)
+        XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
+    }
 
-            let cachedContent = try Data(contentsOf: cacheFileURL)
-            let cachedRelays = try JSONDecoder().decode(CachedRelays.self, from: cachedContent)
+    func testCanReadPrebundledRelaysWhenNoCacheIsStored() throws {
+        let fileCache = MockFileCache<CachedRelays>(initialState: .fileNotFound)
+        let cache = RelayCache(fileCache: fileCache)
 
-            XCTAssertEqual(cachedRelays.updatedAt, .distantPast)
-        }
-
-        waitForExpectations(timeout: defaultExpectationTimeout)
+        XCTAssertNoThrow(try cache.read())
     }
 }
 
-extension RelayCacheTests {
-    func prepopulateCache(at cacheFileURL: URL, fixedDate: Date = .init()) throws {
-        let prepopulatedCache = CachedRelays(relays: .empty, updatedAt: fixedDate)
-        let encodedCache = try JSONEncoder().encode(prepopulatedCache)
-        try encodedCache.write(to: cacheFileURL)
+private extension REST.ServerRelaysResponse {
+    static func mock() -> Self {
+        return REST.ServerRelaysResponse(
+            locations: [:],
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                portRanges: [],
+                relays: []
+            ),
+            bridge: REST.ServerBridges(shadowsocks: [], relays: [])
+        )
     }
 }

@@ -11,24 +11,15 @@ import MullvadLogging
 import MullvadTypes
 
 extension REST {
-    public struct CachedAddresses: Codable {
-        /// Date when the cached addresses were last updated.
-        var updatedAt: Date
-
-        /// API endpoints.
-        var endpoints: [AnyIPEndpoint]
-    }
-
-    public final class AddressCache: Caching {
-        public typealias CacheType = CachedAddresses
+    public final class AddressCache {
         /// Logger.
         private let logger = Logger(label: "AddressCache")
 
-        /// Memory cache.
-        var cache: CachedAddresses = defaultCachedAddresses
+        /// Disk cache.
+        private let fileCache: any FileCacheProtocol<CachedAddresses>
 
-        /// Cache file location.
-        public let cacheFileURL: URL
+        /// Memory cache.
+        private var cache: CachedAddresses = defaultCachedAddresses
 
         /// Lock used for synchronizing access to instance members.
         private let cacheLock = NSLock()
@@ -36,27 +27,25 @@ extension REST {
         /// Whether address cache can be written to.
         private let canWriteToCache: Bool
 
-        /// The name of the cache file on disk
-        public static let cacheFileName = "api-ip-address.json"
-
         /// The default set of endpoints to use as a fallback mechanism
         private static let defaultCachedAddresses = CachedAddresses(
             updatedAt: Date(timeIntervalSince1970: 0),
             endpoints: [REST.defaultAPIEndpoint]
         )
 
-        // MARK: -
-
-        // MARK: Public API
+        // MARK: - Public API
 
         /// Designated initializer.
-        public init(canWriteToCache: Bool, cacheFolder: URL) {
-            let cacheFileURL = cacheFolder.appendingPathComponent(
-                Self.cacheFileName,
-                isDirectory: false
+        public init(canWriteToCache: Bool, cacheDirectory: URL) {
+            fileCache = FileCache(
+                fileURL: cacheDirectory.appendingPathComponent("api-ip-address.json", isDirectory: false)
             )
+            self.canWriteToCache = canWriteToCache
+        }
 
-            self.cacheFileURL = cacheFileURL
+        /// Initializer that accepts a file cache implementation and can be used in tests.
+        init(canWriteToCache: Bool, fileCache: some FileCacheProtocol<CachedAddresses>) {
+            self.fileCache = fileCache
             self.canWriteToCache = canWriteToCache
         }
 
@@ -73,12 +62,12 @@ extension REST {
             // there
             if canWriteToCache == false {
                 do {
-                    cache = try readFromDisk()
+                    cache = try fileCache.read()
                     if let firstEndpoint = cache.endpoints.first {
                         currentEndpoint = firstEndpoint
                     }
                 } catch {
-                    logger.error(error: error)
+                    logger.error(error: error, message: "Failed to read address cache from disk.")
                 }
             }
             return currentEndpoint
@@ -108,15 +97,14 @@ extension REST {
                 )
             }
 
-            if canWriteToCache {
-                do {
-                    try writeToDisk(cache)
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to write address cache after setting new endpoints."
-                    )
-                }
+            guard canWriteToCache else { return }
+            do {
+                try fileCache.write(cache)
+            } catch {
+                logger.error(
+                    error: error,
+                    message: "Failed to write address cache after setting new endpoints."
+                )
             }
         }
 
@@ -130,18 +118,26 @@ extension REST {
             return cache.updatedAt
         }
 
-        /// Initializes the cache by reading the a cached file from disk
+        /// Initializes the cache by reading the a cached file on disk.
         ///
-        /// If no cache file is present, a default API endpoint will be selected instead
-        public func initCache() {
+        /// If no cache file is present, a default API endpoint will be selected instead.
+        public func loadFromFile() {
             // The first time the application is ran, this statement will fail as there is no cache. This is fine.
             // The cache will be filled when either `getCurrentEndpoint` or `setEndpoints()` are called.
             do {
-                cache = try readFromDisk()
+                cache = try fileCache.read()
             } catch {
                 logger.debug("Initialized cache with default API endpoint.")
                 cache = Self.defaultCachedAddresses
             }
         }
+    }
+
+    public struct CachedAddresses: Codable, Equatable {
+        /// Date when the cached addresses were last updated.
+        var updatedAt: Date
+
+        /// API endpoints.
+        var endpoints: [AnyIPEndpoint]
     }
 }

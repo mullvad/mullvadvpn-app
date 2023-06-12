@@ -49,23 +49,27 @@ public final class TransportProvider: RESTTransportProvider {
 
             return shadowsocksTransport
         } catch {
-            logger.error(error: error)
+            logger.error(error: error, message: "Failed to produce shadowsocks configuration.")
+            return nil
         }
-        return nil
     }
 
-    /// The last used shadowsocks configuration
-    ///
-    /// The last used shadowsocks configuration if any, otherwise a random one selected by `RelaySelector`
-    /// - Returns: A shadowsocks configuration
+    /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
     private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
-        // If a previous shadowsocks configuration was in cache, return it directly
-        if let configuration = shadowsocksCache.configuration {
-            return configuration
-        }
-
+        // If a previous shadowsocks configuration was in cache, return it directly.
         // There is no previous configuration either if this is the first time this code ran
         // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+        do {
+            return try shadowsocksCache.read()
+        } catch {
+            // There is no previous configuration either if this is the first time this code ran
+            // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+            return try makeNewShadowsocksConfiguration()
+        }
+    }
+
+    /// Returns a randomly selected shadowsocks configuration.
+    private func makeNewShadowsocksConfiguration() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
         let bridgeAddress = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)?.ipv4AddrIn
         let bridgeConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
@@ -78,7 +82,13 @@ public final class TransportProvider: RESTTransportProvider {
             password: bridgeConfiguration.password,
             cipher: bridgeConfiguration.cipher
         )
-        shadowsocksCache.configuration = newConfiguration
+
+        do {
+            try shadowsocksCache.write(newConfiguration)
+        } catch {
+            logger.error(error: error, message: "Failed to persist shadowsocks cache.")
+        }
+
         return newConfiguration
     }
 }
