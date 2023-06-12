@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.1" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.1)" variant="all" version="7.3.1">
+<issues format="6" by="lint 7.4.2" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.2)" variant="all" version="7.4.2">
 
     <issue
         id="MissingSuperCall"
@@ -8,7 +8,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="136"
+            line="139"
             column="18"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="340"
+            line="359"
             column="58"/>
     </issue>
 
@@ -189,39 +189,6 @@
     </issue>
 
     <issue
-        id="SwitchIntDef"
-        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
-        errorLine1="                ListItemData.PROGRESS -> ProgressListItemView(parent.context)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="36"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
-        errorLine1="                ListItemData.APPLICATION -> ApplicationListItemView(parent.context)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="39"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Unexpected constant; expected one of: `ListItemData.ACTION`, `ListItemData.DIVIDER`, `ListItemData.PLAIN`"
-        errorLine1="                ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ListItemsAdapter.kt"
-            line="40"
-            column="17"/>
-    </issue>
-
-    <issue
         id="Deprecated"
         message="`android:editable` is deprecated: Use `inputType` instead"
         errorLine1="                  android:editable=&quot;false&quot;"
@@ -230,17 +197,6 @@
             file="src/main/res/layout/view_logs.xml"
             line="31"
             column="19"/>
-    </issue>
-
-    <issue
-        id="DiscouragedApi"
-        message="Use of this function is discouraged because resource reflection makes it harder to perform build optimizations and compile-time verification of code. It is much more efficient to retrieve resources by identifier (e.g. `R.foo.bar`) than by name (e.g. `getIdentifier(&quot;bar&quot;, &quot;foo&quot;, null)`)."
-        errorLine1="        val id = resources.getIdentifier(&quot;config_showNavigationBar&quot;, &quot;bool&quot;, &quot;android&quot;)"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/SplitTunnelingFragment.kt"
-            line="123"
-            column="28"/>
     </issue>
 
     <issue
@@ -1011,17 +967,6 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="                                                     android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/collapsed_title_layout.xml"
-            line="8"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
         message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
         errorLine1="                android:background=&quot;?android:attr/selectableItemBackground&quot;>"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1029,17 +974,6 @@
             file="src/main/res/layout/notification_banner.xml"
             line="8"
             column="17"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/preferences.xml"
-            line="5"
-            column="14"/>
     </issue>
 
     <issue
@@ -1104,7 +1038,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="22"
+            line="21"
             column="12"/>
     </issue>
 
@@ -1115,7 +1049,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="23"
+            line="22"
             column="12"/>
     </issue>
 
@@ -1126,7 +1060,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="25"
+            line="24"
             column="12"/>
     </issue>
 
@@ -1176,56 +1110,12 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.account_created` appears to be unused"
-        errorLine1="    &lt;string name=&quot;account_created&quot;>Account created&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="28"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.not_blocking_internet` appears to be unused"
-        errorLine1="    &lt;string name=&quot;not_blocking_internet&quot;>YOU MIGHT BE LEAKING NETWORK TRAFFIC&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="112"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.virtual_adapter_problem` appears to be unused"
-        errorLine1="    &lt;string name=&quot;virtual_adapter_problem&quot;>Virtual adapter error&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="133"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.enable` appears to be unused"
-        errorLine1="    &lt;string name=&quot;enable&quot;>Enable&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="148"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.wg_key_url` appears to be unused"
-        errorLine1="    &lt;string name=&quot;wg_key_url&quot;"
+        errorLine1="    &lt;string name=&quot;wg_key_url&quot; translatable=&quot;false&quot;>https://mullvad.net/account/ports&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings_non_translatable.xml"
-            line="10"
+            line="6"
             column="13"/>
     </issue>
 
@@ -1269,7 +1159,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="15"
+            line="12"
             column="41"/>
     </issue>
 
@@ -1280,7 +1170,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="18"
+            line="15"
             column="37"/>
     </issue>
 
@@ -1291,7 +1181,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="26"
+            line="23"
             column="41"/>
     </issue>
 
@@ -1302,7 +1192,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1313,7 +1203,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1324,7 +1214,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1335,7 +1225,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1346,7 +1236,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1357,7 +1247,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1368,7 +1258,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1379,7 +1269,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1390,7 +1280,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1401,7 +1291,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1412,7 +1302,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1423,7 +1313,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1434,7 +1324,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1445,7 +1335,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1456,7 +1346,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1467,7 +1357,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1478,7 +1368,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="35"
+            line="40"
             column="41"/>
     </issue>
 
@@ -1489,7 +1379,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1500,7 +1390,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1511,7 +1401,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1522,7 +1412,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1533,7 +1423,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1544,7 +1434,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1555,7 +1445,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1566,7 +1456,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1577,7 +1467,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1588,7 +1478,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1599,7 +1489,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1610,7 +1500,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1621,7 +1511,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1632,7 +1522,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1643,7 +1533,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="41"
+            line="46"
             column="41"/>
     </issue>
 
@@ -1654,7 +1544,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="82"
+            line="70"
             column="28"/>
     </issue>
 
@@ -1665,7 +1555,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1676,7 +1566,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1687,7 +1577,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1698,7 +1588,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1709,7 +1599,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1720,7 +1610,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1731,7 +1621,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1742,7 +1632,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1753,7 +1643,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1764,7 +1654,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1775,7 +1665,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1786,7 +1676,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1797,7 +1687,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1808,7 +1698,7 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1819,7 +1709,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1830,7 +1720,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1841,7 +1731,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="87"
+            line="95"
             column="37"/>
     </issue>
 
@@ -1852,7 +1742,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1863,7 +1753,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-de/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1874,7 +1764,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fi/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1885,7 +1775,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1896,7 +1786,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1907,7 +1797,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1918,7 +1808,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/res/values-ko/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1929,7 +1819,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-my/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1940,7 +1830,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/res/values-nb/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1951,7 +1841,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1962,7 +1852,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pl/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1973,7 +1863,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1984,7 +1874,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -1995,7 +1885,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/res/values-sv/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -2006,7 +1896,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/res/values-th/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -2017,7 +1907,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-tr/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -2028,7 +1918,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="119"
+            line="136"
             column="28"/>
     </issue>
 
@@ -2265,17 +2155,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/app_list_item.xml"
-            line="20"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="    &lt;ImageView android:id=&quot;@+id/image&quot;"
         errorLine2="     ~~~~~~~~~">
         <location
@@ -2336,17 +2215,6 @@
         <location
             file="src/main/res/layout/header_bar.xml"
             line="14"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageButton android:id=&quot;@+id/settings&quot;"
-        errorLine2="         ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/header_bar.xml"
-            line="25"
             column="10"/>
     </issue>
 
@@ -2576,28 +2444,6 @@
         errorLine1="            gravity = Gravity.RIGHT"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
-            line="24"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="            gravity = Gravity.RIGHT"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AccountCell.kt"
-            line="24"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="            gravity = Gravity.RIGHT"
-        errorLine2="                              ~~~~~">
-        <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
             line="31"
             column="31"/>
@@ -2770,28 +2616,6 @@
 
     <issue
         id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;4dp&quot;` to better support right-to-left layouts"
-        errorLine1="                 android:layout_marginRight=&quot;4dp&quot;"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/app_list_item.xml"
-            line="14"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;4dp&quot;` to better support right-to-left layouts"
-        errorLine1="               android:layout_marginRight=&quot;4dp&quot;"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/app_list_item.xml"
-            line="24"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
         message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
         errorLine1="                 android:layout_gravity=&quot;right|center_vertical&quot;"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
@@ -2931,28 +2755,6 @@
             file="src/main/res/layout/notification_banner.xml"
             line="46"
             column="16"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="             android:gravity=&quot;left&quot;>"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/res/layout/preferences.xml"
-            line="6"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
-        errorLine1="                          android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/preferences.xml"
-            line="41"
-            column="27"/>
     </issue>
 
     <issue
