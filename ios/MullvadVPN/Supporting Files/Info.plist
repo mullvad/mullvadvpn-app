@@ -8,9 +8,9 @@
 	<string>$(APPLICATION_IDENTIFIER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>net.mullvad.MullvadVPN.AppRefresh</string>
-		<string>net.mullvad.MullvadVPN.PrivateKeyRotation</string>
-		<string>net.mullvad.MullvadVPN.AddressCacheUpdate</string>
+		<string>$(APPLICATION_IDENTIFIER).AppRefresh</string>
+		<string>$(APPLICATION_IDENTIFIER).PrivateKeyRotation</string>
+		<string>$(APPLICATION_IDENTIFIER).AddressCacheUpdate</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

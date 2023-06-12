@@ -33,13 +33,4 @@ enum ApplicationConfiguration {
 
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
-
-    /// App refresh background task identifier
-    static let appRefreshTaskIdentifier = "net.mullvad.MullvadVPN.AppRefresh"
-
-    /// Key rotation background task identifier
-    static let privateKeyRotationTaskIdentifier = "net.mullvad.MullvadVPN.PrivateKeyRotation"
-
-    /// API address background task identifier
-    static let addressCacheUpdateTaskIdentifier = "net.mullvad.MullvadVPN.AddressCacheUpdate"
 }
