@@ -19,7 +19,8 @@
                          android:layout_height="wrap_content"
                          android:padding="12dp"
                          android:background="?android:attr/selectableItemBackground"
-                         android:src="@drawable/icon_close" />
+                         android:src="@drawable/icon_close"
+                         android:contentDescription="@string/back" />
             <TextView android:id="@+id/collapsed_title"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
