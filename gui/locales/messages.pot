@@ -463,6 +463,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr ""
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr ""
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr ""
@@ -1648,9 +1655,6 @@ msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
 msgid "Copied to clipboard"
-msgstr ""
-
-msgid "Created: %s"
 msgstr ""
 
 msgid "Critical error (your attention is required)"
