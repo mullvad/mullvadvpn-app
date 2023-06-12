@@ -43,15 +43,10 @@
                           android:lines="1"
                           android:text="@string/settings"
                           style="@style/SettingsExpandedHeader" />
-                <net.mullvad.mullvadvpn.ui.widget.AccountCell android:id="@+id/account"
-                                                              android:layout_width="match_parent"
-                                                              android:layout_height="wrap_content"
-                                                              android:layout_marginTop="@dimen/vertical_space"
-                                                              mullvad:text="@string/settings_account" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/vpn_settings"
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
-                                                               android:layout_marginTop="1dp"
+                                                               android:layout_marginTop="@dimen/vertical_space"
                                                                mullvad:text="@string/settings_vpn" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/split_tunneling"
                                                                android:layout_width="match_parent"

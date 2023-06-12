@@ -22,6 +22,16 @@
                    app:layout_constraintStart_toEndOf="@id/appIcon"
                    app:layout_constraintTop_toTopOf="parent"
                    app:layout_constraintBottom_toBottomOf="parent" />
+        <ImageButton android:id="@+id/account"
+                     android:layout_width="wrap_content"
+                     android:layout_height="match_parent"
+                     android:background="?android:attr/selectableItemBackground"
+                     android:paddingHorizontal="16dp"
+                     android:src="@drawable/icon_account"
+                     app:layout_constraintEnd_toStartOf="@id/settings"
+                     app:layout_constraintTop_toTopOf="parent"
+                     app:layout_constraintBottom_toBottomOf="parent"
+                     android:contentDescription="@string/settings_account" />
         <ImageButton android:id="@+id/settings"
                      android:layout_width="wrap_content"
                      android:layout_height="match_parent"
@@ -30,6 +40,7 @@
                      android:src="@drawable/icon_settings"
                      app:layout_constraintEnd_toEndOf="parent"
                      app:layout_constraintTop_toTopOf="parent"
-                     app:layout_constraintBottom_toBottomOf="parent" />
+                     app:layout_constraintBottom_toBottomOf="parent"
+                     android:contentDescription="@string/settings" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </merge>

@@ -13,12 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
@@ -29,7 +27,6 @@ import net.mullvad.mullvadvpn.ui.paintStatusBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
-import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 import net.mullvad.mullvadvpn.util.JobTracker
@@ -41,11 +38,9 @@ import org.koin.android.ext.android.inject
 class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
 
     // Injected dependencies
-    private val accountRepository: AccountRepository by inject()
     private val deviceRepository: DeviceRepository by inject()
     private val serviceConnectionManager: ServiceConnectionManager by inject()
 
-    private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
     private lateinit var vpnSettingsMenu: View
     private lateinit var splitTunnelingMenu: View
@@ -66,11 +61,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         val view = inflater.inflate(R.layout.settings, container, false)
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener { activity?.onBackPressed() }
-
-        accountMenu =
-            view.findViewById<AccountCell>(R.id.account).apply {
-                targetFragment = AccountFragment::class
-            }
 
         vpnSettingsMenu =
             view.findViewById<NavigateCell>(R.id.vpn_settings).apply {
@@ -114,7 +104,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
 
     private fun initializeUiState() {
         updateLoggedInStatus(deviceRepository.deviceState.value is DeviceState.LoggedIn)
-        accountMenu.accountExpiry = accountRepository.accountExpiryState.value.date()
         appVersionMenu.version = BuildConfig.VERSION_NAME
         serviceConnectionManager.appVersionInfoCache().let { cache ->
             updateVersionInfo(
@@ -141,7 +130,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launchPaintStatusBarAfterTransition()
             luanchConfigureMenuOnDeviceChanges()
-            launchUpdateExpiryTextOnExpiryChanges()
             launchVersionInfoSubscription()
         }
     }
@@ -156,12 +144,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         deviceRepository.deviceState
             .debounce { it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS) }
             .collect { device -> updateLoggedInStatus(device is DeviceState.LoggedIn) }
-    }
-
-    private fun CoroutineScope.launchUpdateExpiryTextOnExpiryChanges() = launch {
-        accountRepository.accountExpiryState
-            .map { state -> state.date() }
-            .collect { expiryDate -> accountMenu.accountExpiry = expiryDate }
     }
 
     private fun CoroutineScope.launchVersionInfoSubscription() = launch {
@@ -184,7 +166,6 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
                 View.GONE
             }
 
-        accountMenu.visibility = visibility
         vpnSettingsMenu.visibility = visibility
         splitTunnelingMenu.visibility = visibility
     }

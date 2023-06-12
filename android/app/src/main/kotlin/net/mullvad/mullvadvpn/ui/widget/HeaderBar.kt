@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -24,6 +25,7 @@ constructor(
 ) : LinearLayout(context, attributes, defStyleAttr, defStyleRes), StatusBarPainter {
     private val container = LayoutInflater.from(context).inflate(R.layout.header_bar, this)
     private val settingsButton = findViewById<View>(R.id.settings)
+    private val accountButton = findViewById<View>(R.id.account)
 
     private val disabledColor = ContextCompat.getColor(context, android.R.color.transparent)
     private val securedColor = ContextCompat.getColor(context, R.color.green)
@@ -48,12 +50,21 @@ constructor(
         gravity = Gravity.CENTER_VERTICAL
         orientation = HORIZONTAL
 
+        accountButton.apply {
+            isEnabled = true
+            setOnClickListener { (context as? MainActivity)?.openAccount() }
+        }
+
         settingsButton.apply {
             isEnabled = true
             setOnClickListener { (context as? MainActivity)?.openSettings() }
         }
 
         tunnelState = null
+    }
+
+    fun setAccountButtonVisibility(isVisible: Boolean) {
+        accountButton.isVisible = isVisible
     }
 
     fun setSettingsButtonEnabled(isEnabled: Boolean) {

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -26,8 +27,12 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
 import net.mullvad.mullvadvpn.ui.GroupedPasswordTransformationMethod
 import net.mullvad.mullvadvpn.ui.GroupedTransformationMethod
+import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
+import net.mullvad.mullvadvpn.ui.paintNavigationBar
+import net.mullvad.mullvadvpn.ui.paintStatusBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
@@ -45,7 +50,7 @@ import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject
 
-class AccountFragment : BaseFragment() {
+class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
 
     // Injected dependencies
     private val accountRepository: AccountRepository by inject()
@@ -117,7 +122,7 @@ class AccountFragment : BaseFragment() {
     ): View {
         val view = inflater.inflate(R.layout.account, container, false)
 
-        view.findViewById<View>(R.id.back).setOnClickListener {
+        view.findViewById<View>(R.id.close).setOnClickListener {
             requireMainActivity().onBackPressed()
         }
 
@@ -157,6 +162,11 @@ class AccountFragment : BaseFragment() {
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+    }
+
     override fun onStop() {
         jobTracker.cancelAllJobs()
         super.onStop()
@@ -178,6 +188,7 @@ class AccountFragment : BaseFragment() {
             launchUpdateTextOnExpiryChanges()
             launchTunnelStateSubscription()
             launchRefreshDeviceStateAfterAnimation()
+            launchPaintStatusBarAfterTransition()
         }
     }
 
@@ -224,6 +235,12 @@ class AccountFragment : BaseFragment() {
                         uiState is TunnelState.Error &&
                             uiState.errorState.cause is ErrorStateCause.IsOffline
                 }
+        }
+    }
+
+    private fun CoroutineScope.launchPaintStatusBarAfterTransition() = launch {
+        transitionFinishedFlow.collect {
+            paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
         }
     }
 

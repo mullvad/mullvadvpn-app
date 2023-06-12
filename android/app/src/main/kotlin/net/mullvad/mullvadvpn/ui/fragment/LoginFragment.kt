@@ -58,7 +58,11 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
     ): View? {
         val view = inflater.inflate(R.layout.login, container, false)
 
-        headerBar = view.findViewById(R.id.header_bar)
+        headerBar =
+            view.findViewById<HeaderBar?>(R.id.header_bar).apply {
+                setAccountButtonVisibility(false)
+            }
+
         title = view.findViewById(R.id.title)
         subtitle = view.findViewById(R.id.subtitle)
         loggingInStatus = view.findViewById(R.id.logging_in_status)
