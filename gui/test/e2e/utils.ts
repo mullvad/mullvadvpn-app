@@ -112,3 +112,11 @@ export const getColor = (locator: Locator) => {
 export const getBackgroundColor = (locator: Locator) => {
   return getStyleProperty(locator, 'background-color');
 };
+
+export function anyOf(...values: string[]): RegExp {
+  return new RegExp(values.map(escapeRegExp).join('|'));
+}
+
+export function escapeRegExp(regexp: string): string {
+    return regexp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
