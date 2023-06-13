@@ -3,7 +3,6 @@ import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { closeToExpiry, formatRemainingTime } from '../account-expiry';
-import { formatRelativeDate } from '../date-helper';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -34,7 +33,7 @@ export class CloseToAccountExpiryNotificationProvider
         'Account credit expires in %(duration)s. Buy more credit.',
       ),
       {
-        duration: formatRelativeDate(new Date(), this.context.accountExpiry),
+        duration: formatRemainingTime(this.context.accountExpiry),
       },
     );
 
@@ -54,7 +53,12 @@ export class CloseToAccountExpiryNotificationProvider
   public getInAppNotification(): InAppNotification {
     const subtitle = sprintf(
       messages.pgettext('in-app-notifications', '%(duration)s. Buy more credit.'),
-      { duration: formatRemainingTime(this.context.accountExpiry, true) },
+      {
+        duration: formatRemainingTime(this.context.accountExpiry, {
+          capitalize: true,
+          suffix: true,
+        }),
+      },
     );
 
     return {

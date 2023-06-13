@@ -1,6 +1,7 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from './gettext';
+import { capitalize } from './string-helpers';
 
 export type DateType = Date | string | number;
 
@@ -72,74 +73,53 @@ export class DateDiff {
   }
 }
 
+export interface FormatDateOptions {
+  suffix?: boolean;
+  displayMonths?: boolean;
+  capitalize?: boolean;
+}
+
+// If withSuffix is true then "left" will be added at the end of the remaining time.
+// If noMonths is true then the following applies:
+//  If a user has more than 2 years (730 days) left of time it should be displayed in whole years
+//  rounded down If a user has less than 2 years left (e.g. 729 days) then this should be displayed
+//  in days.
 export function formatRelativeDate(
   fromDate: DateType,
   toDate: DateType,
-  withSuffix = false,
+  options?: FormatDateOptions,
 ): string {
   const diff = new DateDiff(fromDate, toDate);
   const years = Math.abs(diff.years);
   const months = Math.abs(diff.months);
   const days = Math.abs(diff.days);
-  const hours = Math.abs(diff.hours);
-  const minutes = Math.abs(diff.minutes);
 
-  if (!withSuffix) {
-    if (years > 0) {
-      return sprintf(messages.ngettext('1 year', '%d years', years), years);
-    } else if (months >= 3) {
-      return sprintf(messages.ngettext('1 month', '%d months', months), months);
+  if (isNaN(years) || isNaN(months) || isNaN(days)) {
+    return '';
+  }
+
+  let result = '';
+  if (!options?.suffix) {
+    if (options?.displayMonths ? years > 0 : days >= 730) {
+      result = sprintf(messages.ngettext('1 year', '%d years', years), years);
+    } else if (options?.displayMonths && months >= 3) {
+      result = sprintf(messages.ngettext('1 month', '%d months', months), months);
     } else if (days > 0) {
-      return sprintf(messages.ngettext('1 day', '%d days', days), days);
+      result = sprintf(messages.ngettext('1 day', '%d days', days), days);
     } else {
-      return messages.gettext('less than a day');
+      result = messages.gettext('less than a day');
     }
   } else if (diff.milliseconds > 0) {
-    if (years > 0) {
-      return sprintf(messages.ngettext('1 year left', '%d years left', years), years);
-    } else if (months >= 3) {
-      return sprintf(messages.ngettext('1 month left', '%d months left', months), months);
+    if (options?.displayMonths ? years > 0 : days >= 730) {
+      result = sprintf(messages.ngettext('1 year left', '%d years left', years), years);
+    } else if (options?.displayMonths && months >= 3) {
+      result = sprintf(messages.ngettext('1 month left', '%d months left', months), months);
     } else if (days > 0) {
-      return sprintf(messages.ngettext('1 day left', '%d days left', days), days);
+      result = sprintf(messages.ngettext('1 day left', '%d days left', days), days);
     } else {
-      return messages.gettext('less than a day left');
-    }
-  } else {
-    if (years > 0) {
-      return sprintf(messages.ngettext('a year ago', '%d years ago', years), years);
-    } else if (months > 0) {
-      return sprintf(messages.ngettext('a month ago', '%d months ago', months), months);
-    } else if (days > 0) {
-      return sprintf(messages.ngettext('a day ago', '%d days ago', days), days);
-    } else if (hours > 0) {
-      return sprintf(messages.ngettext('an hour ago', '%d hours ago', hours), hours);
-    } else if (minutes > 0) {
-      return sprintf(messages.ngettext('a minute ago', '%d minutes ago', minutes), minutes);
-    } else {
-      return messages.gettext('less than a minute ago');
+      result = messages.gettext('less than a day left');
     }
   }
+
+  return options?.capitalize ? capitalize(result) : result;
 }
-
-/**
- * If a user has more than 2 years (730 days) left of time it should be displayed in whole years rounded down
- * If a user has less than 2 years left (e.g. 729 days) then this should be displayed in days.
- *
- * @param fromDate
- * @param toDate
- */
-export const formatTimeLeft = (fromDate: DateType, toDate: DateType): string => {
-  const diff = new DateDiff(fromDate, toDate);
-  const years = Math.abs(diff.years);
-  const days = Math.abs(diff.days);
-
-  if (days < 1) {
-    return messages.gettext('less than a day left');
-  }
-
-  if (days < 730) {
-    return sprintf(messages.ngettext('1 day left', '%d days left', days), days);
-  }
-
-  return sprintf(messages.ngettext('1 year left', '%d years left', years), years);
-};
