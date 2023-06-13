@@ -70,9 +70,9 @@ export default function AppRouter() {
             <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
             <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
             <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
+            <Route exact path={RoutePath.account} component={Account} />
             <Route exact path={RoutePath.settings} component={Settings} />
             <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
-            <Route exact path={RoutePath.accountSettings} component={Account} />
             <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
             <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
             <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
