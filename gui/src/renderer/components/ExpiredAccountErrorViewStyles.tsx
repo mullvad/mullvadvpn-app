@@ -69,3 +69,11 @@ export const StyledAccountTokenContainer = styled.div({
   height: '50px',
   alignItems: 'center',
 });
+
+export const StyledDeviceLabel = styled.span(tinyText, {
+  display: 'flex',
+  alignItems: 'middle',
+  lineHeight: '20px',
+  marginBottom: '18px',
+  color: colors.white,
+});

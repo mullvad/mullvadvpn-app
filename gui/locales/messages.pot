@@ -478,6 +478,14 @@ msgctxt "device-management"
 msgid "Device name"
 msgstr ""
 
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr ""
+
 msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr ""
