@@ -12,7 +12,7 @@ import struct Network.IPv4Address
 import struct Network.IPv6Address
 
 extension REST {
-    public struct ServerLocation: Codable {
+    public struct ServerLocation: Codable, Equatable {
         public let country: String
         public let city: String
         public let latitude: Double
@@ -26,7 +26,7 @@ extension REST {
         }
     }
 
-    public struct BridgeRelay: Codable {
+    public struct BridgeRelay: Codable, Equatable {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -37,7 +37,7 @@ extension REST {
         public let includeInCountry: Bool
     }
 
-    public struct ServerRelay: Codable {
+    public struct ServerRelay: Codable, Equatable {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -74,7 +74,7 @@ extension REST {
         }
     }
 
-    public struct ServerWireguardTunnels: Codable {
+    public struct ServerWireguardTunnels: Codable, Equatable {
         public let ipv4Gateway: IPv4Address
         public let ipv6Gateway: IPv6Address
         public let portRanges: [[UInt16]]
@@ -93,7 +93,7 @@ extension REST {
         }
     }
 
-    public struct ServerShadowsocks: Codable {
+    public struct ServerShadowsocks: Codable, Equatable {
         public let `protocol`: String
         public let port: UInt16
         public let cipher: String
@@ -107,7 +107,7 @@ extension REST {
         }
     }
 
-    public struct ServerBridges: Codable {
+    public struct ServerBridges: Codable, Equatable {
         public let shadowsocks: [ServerShadowsocks]
         public let relays: [BridgeRelay]
 
@@ -117,7 +117,7 @@ extension REST {
         }
     }
 
-    public struct ServerRelaysResponse: Codable {
+    public struct ServerRelaysResponse: Codable, Equatable {
         public let locations: [String: ServerLocation]
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges

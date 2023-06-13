@@ -18,11 +18,18 @@ public final class TransportProvider: RESTTransportProvider {
     private let relayCache: RelayCache
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
+    private let shadowsocksCache: ShadowsocksConfigurationCache
 
-    public init(urlSessionTransport: URLSessionTransport, relayCache: RelayCache, addressCache: REST.AddressCache) {
+    public init(
+        urlSessionTransport: URLSessionTransport,
+        relayCache: RelayCache,
+        addressCache: REST.AddressCache,
+        shadowsocksCache: ShadowsocksConfigurationCache
+    ) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
         self.addressCache = addressCache
+        self.shadowsocksCache = shadowsocksCache
     }
 
     public func transport() -> RESTTransport? {
@@ -31,29 +38,57 @@ public final class TransportProvider: RESTTransportProvider {
 
     public func shadowsocksTransport() -> RESTTransport? {
         do {
-            let cachedRelays = try relayCache.read()
-            let shadowsocksConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
-            let shadowsocksBridgeRelay = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)
-
-            guard let shadowsocksConfiguration,
-                  let shadowsocksBridgeRelay
-            else {
-                logger.error("Could not get shadow socks bridge information.")
-                return nil
-            }
+            let shadowsocksConfiguration = try shadowsocksConfiguration()
 
             let shadowsocksURLSession = urlSessionTransport.urlSession
             let shadowsocksTransport = URLSessionShadowsocksTransport(
                 urlSession: shadowsocksURLSession,
                 shadowsocksConfiguration: shadowsocksConfiguration,
-                shadowsocksBridgeRelay: shadowsocksBridgeRelay,
                 addressCache: addressCache
             )
 
             return shadowsocksTransport
         } catch {
-            logger.error(error: error)
+            logger.error(error: error, message: "Failed to produce shadowsocks configuration.")
+            return nil
         }
-        return nil
+    }
+
+    /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
+    private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
+        // If a previous shadowsocks configuration was in cache, return it directly.
+        // There is no previous configuration either if this is the first time this code ran
+        // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+        do {
+            return try shadowsocksCache.read()
+        } catch {
+            // There is no previous configuration either if this is the first time this code ran
+            // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+            return try makeNewShadowsocksConfiguration()
+        }
+    }
+
+    /// Returns a randomly selected shadowsocks configuration.
+    private func makeNewShadowsocksConfiguration() throws -> ShadowsocksConfiguration {
+        let cachedRelays = try relayCache.read()
+        let bridgeAddress = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)?.ipv4AddrIn
+        let bridgeConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+
+        guard let bridgeAddress, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+
+        let newConfiguration = ShadowsocksConfiguration(
+            bridgeAddress: bridgeAddress,
+            bridgePort: bridgeConfiguration.port,
+            password: bridgeConfiguration.password,
+            cipher: bridgeConfiguration.cipher
+        )
+
+        do {
+            try shadowsocksCache.write(newConfiguration)
+        } catch {
+            logger.error(error: error, message: "Failed to persist shadowsocks cache.")
+        }
+
+        return newConfiguration
     }
 }
