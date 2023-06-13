@@ -4,6 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
@@ -11,6 +12,7 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
+import DeviceInfoButton from './DeviceInfoButton';
 import {
   StyledAccountTokenContainer,
   StyledAccountTokenLabel,
@@ -18,6 +20,7 @@ import {
   StyledBody,
   StyledContainer,
   StyledCustomScrollbars,
+  StyledDeviceLabel,
   StyledHeader,
   StyledMessage,
   StyledModalCellContainer,
@@ -116,6 +119,22 @@ function WelcomeView() {
           <StyledAccountTokenLabel accountToken={account.accountToken || ''} obscureValue={false} />
         </StyledAccountTokenContainer>
       </StyledAccountTokenMessage>
+
+      <StyledDeviceLabel>
+        <span>
+          {sprintf(
+            // TRANSLATORS: A label that will display the newly created device name to inform the user
+            // TRANSLATORS: about it.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(deviceName)s - The name of the current device
+            messages.pgettext('device-management', 'Device name: %(deviceName)s'),
+            {
+              deviceName: capitalizeEveryWord(account.deviceName ?? ''),
+            },
+          )}
+        </span>
+        <DeviceInfoButton />
+      </StyledDeviceLabel>
 
       <StyledMessage>
         {sprintf('%(introduction)s %(recoveryMessage)s', {
