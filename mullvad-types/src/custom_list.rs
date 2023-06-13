@@ -5,13 +5,13 @@ use std::collections::HashMap;
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomListsSettings {
     pub custom_lists: HashMap<String, CustomList>,
-    pub selected_list: Option<String>,
+    pub selected_list_entry: Option<String>,
     pub selected_list_exit: Option<String>,
 }
 
 impl CustomListsSettings {
-    pub fn get_selected_list(&self) -> Option<&CustomList> {
-        match &self.selected_list {
+    pub fn get_selected_list_entry(&self) -> Option<&CustomList> {
+        match &self.selected_list_entry {
             None => None,
             Some(selected_list) => {
                 for list in self.custom_lists.values() {
@@ -67,3 +67,5 @@ impl CustomList {
         }
     }
 }
+
+
