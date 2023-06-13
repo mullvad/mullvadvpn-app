@@ -12,7 +12,7 @@ use mullvad_types::{
     states::TunnelState,
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
-    custom_list::CustomListLocationUpdate,
+    custom_list::{CustomListLocationUpdate, CustomList},
 };
 #[cfg(target_os = "windows")]
 use std::path::Path;
@@ -430,6 +430,26 @@ impl MullvadProxyClient {
         PublicKey::try_from(key).map_err(Error::InvalidResponse)
     }
 
+    pub async fn list_custom_lists(&mut self) -> Result<Vec<CustomList>> {
+        let result = self
+            .0
+            .list_custom_lists(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner().try_into().map_err(Error::InvalidResponse)?;
+        Ok(result)
+    }
+
+    pub async fn get_custom_list(&mut self, name: String) -> Result<CustomList> {
+        let result = self
+            .0
+            .get_custom_list(name)
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner().try_into().map_err(Error::InvalidResponse)?;
+        Ok(result)
+    }
+
     pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
         self
             .0
@@ -587,3 +607,5 @@ fn map_location_error(status: Status) -> Error {
         _other => Error::Rpc(status),
     }
 }
+
+

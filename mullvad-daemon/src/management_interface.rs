@@ -1,4 +1,4 @@
-use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener, CustomList};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -583,6 +583,32 @@ impl ManagementService for ManagementServiceImpl {
 
     // Custom lists
     //
+
+    async fn list_custom_lists(&self, _: Request<()>) -> ServiceResult<mullvad_management_interface::types::CustomLists> {
+        log::debug!("list_custom_lists");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ListCustomLists(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_lists| {
+                Response::new(mullvad_management_interface::types::CustomLists::from(custom_lists))
+            })
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
+
+    async fn get_custom_list(&self, request: Request<String>) -> ServiceResult<mullvad_management_interface::types::CustomList> {
+        log::debug!("get_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_list| {
+                Response::new(mullvad_management_interface::types::CustomList::from(custom_list))
+            })
+            // TODO: Should this be settings error? Evaluate later
+            .map_err(map_daemon_error)
+    }
 
     async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("create_custom_list");

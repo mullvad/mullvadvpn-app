@@ -172,7 +172,6 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     pub default_tunnel_type: TunnelType,
-    //pub selected_custom_lists: SelectedCustomLists,
 }
 
 #[derive(Clone)]
