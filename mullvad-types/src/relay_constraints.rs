@@ -215,7 +215,7 @@ impl fmt::Display for RelaySettings {
 }
 
 impl RelaySettings {
-    pub fn merge(&mut self, update: RelaySettingsUpdate) -> Self {
+    pub fn merge(&self, update: RelaySettingsUpdate) -> Self {
         match update {
             RelaySettingsUpdate::CustomTunnelEndpoint(relay) => {
                 RelaySettings::CustomTunnelEndpoint(relay)
@@ -919,3 +919,5 @@ pub struct RelayConstraintsUpdate {
     #[cfg_attr(target_os = "android", jnix(default))]
     pub openvpn_constraints: Option<OpenVpnConstraints>,
 }
+
+

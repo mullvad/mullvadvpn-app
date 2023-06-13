@@ -9,10 +9,10 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
                 .custom_lists
                 .iter()
                 .map(|(name, custom_list)| {
-                    (name.clone(), proto::CustomList::from(&custom_list.clone()))
+                    (name.clone(), proto::CustomList::from(custom_list.clone()))
                 })
             .collect(),
-            selected_list: settings.selected_list.clone(),
+            selected_list_entry: settings.selected_list_entry.clone(),
             selected_list_exit: settings.selected_list_exit.clone(),
         }
     }
@@ -33,7 +33,7 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
                     ))
                 })
             .collect::<Result<std::collections::HashMap<_, _>, _>>()?,
-            selected_list: settings.selected_list,
+            selected_list_entry: settings.selected_list_entry,
             selected_list_exit: settings.selected_list_exit,
         })
     }
@@ -104,19 +104,38 @@ impl TryFrom<proto::CustomListLocationUpdate> for mullvad_types::custom_list::Cu
     }
 }
 
-impl From<&mullvad_types::custom_list::CustomList> for proto::CustomList {
-    fn from(custom_list: &mullvad_types::custom_list::CustomList) -> Self {
+impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
+    fn from(custom_list: mullvad_types::custom_list::CustomList) -> Self {
         let locations = custom_list
             .locations
-            .iter()
-            .cloned()
+            .into_iter()
             .map(proto::RelayLocation::from)
             .collect();
         Self {
-            id: custom_list.id.clone(),
-            name: custom_list.name.clone(),
+            id: custom_list.id,
+            name: custom_list.name,
             locations,
         }
+    }
+}
+
+impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(custom_list: proto::CustomList) -> Result<Self, Self::Error> {
+        let locations: Result<Vec<LocationConstraint>, _> = custom_list
+            .locations
+            .into_iter()
+            .map(LocationConstraint::try_from)
+            .collect();
+        let locations = locations.map_err(|_| {
+            FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
+        })?;
+        Ok(Self {
+            id: custom_list.id,
+            name: custom_list.name,
+            locations,
+        })
     }
 }
 
@@ -145,22 +164,22 @@ impl TryFrom<proto::RelayLocation> for LocationConstraint {
     }
 }
 
-impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(custom_list: proto::CustomList) -> Result<Self, Self::Error> {
-        let locations: Result<Vec<LocationConstraint>, _> = custom_list
-            .locations
-            .into_iter()
-            .map(LocationConstraint::try_from)
-            .collect();
-        let locations = locations.map_err(|_| {
-            FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
-        })?;
-        Ok(Self {
-            id: custom_list.id,
-            name: custom_list.name,
-            locations,
-        })
+impl From<Vec<mullvad_types::custom_list::CustomList>> for proto::CustomLists {
+    fn from(custom_lists: Vec<mullvad_types::custom_list::CustomList>) -> Self {
+        let custom_lists = custom_lists.into_iter().map(proto::CustomList::from).collect();
+        proto::CustomLists { custom_lists }
     }
 }
+
+impl TryFrom<proto::CustomLists> for Vec<mullvad_types::custom_list::CustomList> {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(custom_lists: proto::CustomLists) -> Result<Self, Self::Error> {
+        let mut new_custom_lists = Vec::with_capacity(custom_lists.custom_lists.len());
+        for custom_list in custom_lists.custom_lists {
+            new_custom_lists.push(mullvad_types::custom_list::CustomList::try_from(custom_list)?);
+        }
+        Ok(new_custom_lists)
+    }
+}
+

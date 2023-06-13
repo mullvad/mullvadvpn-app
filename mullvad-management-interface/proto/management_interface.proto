@@ -69,6 +69,8 @@ service ManagementService {
   rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
   // Custom lists
+  rpc ListCustomLists(google.protobuf.Empty) returns (CustomLists) {}
+  rpc GetCustomList(google.protobuf.StringValue) returns (CustomList) {}
   rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc SelectCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
@@ -339,9 +341,13 @@ message CustomList {
   repeated RelayLocation locations = 3;
 }
 
+message CustomLists {
+  repeated CustomList custom_lists = 1;
+}
+
 message CustomListSettings {
   map<string, CustomList> custom_lists = 1;
-  google.protobuf.StringValue selected_list = 2;
+  google.protobuf.StringValue selected_list_entry = 2;
   google.protobuf.StringValue selected_list_exit = 3;
 }
 

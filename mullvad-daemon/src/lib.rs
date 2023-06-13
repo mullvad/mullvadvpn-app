@@ -248,6 +248,10 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
+    /// List custom lists
+    ListCustomLists(ResponseTx<Vec<CustomList>, Error>),
+    /// Get custom list
+    GetCustomList(ResponseTx<CustomList, Error>, String),
     /// Create custom list
     CreateCustomList(ResponseTx<(), Error>, String),
     /// Delete custom list
@@ -1030,6 +1034,8 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
+            ListCustomLists(tx) => self.on_list_custom_lists(tx).await,
+            GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
             SelectCustomList(tx, name) => self.on_select_custom_list(tx, name).await,
@@ -2233,6 +2239,16 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
+    async fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
+        let result = self.settings.custom_lists.custom_lists.values().cloned().collect();
+        Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
+    }
+
+    async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
+        let result = self.settings.custom_lists.custom_lists.get(&name).cloned().ok_or(Error::CustomListError("a list with that name does not exist"));
+        Self::oneshot_send(tx, result, "create_custom_list response");
+    }
+
     async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
         let result = if self.settings.custom_lists.custom_lists.get(&name).is_some() {
             Err(Error::CustomListError(
@@ -2263,11 +2279,14 @@ where
             self.settings
                 .update(|settings| {
                     let list = settings.custom_lists.custom_lists.remove(&name);
-                    if let (Some(selected_id), Some(list)) =
-                        (&mut settings.custom_lists.selected_list, list)
+                    if let (Some(selected_entry_id), Some(selected_exit_id), Some(list)) =
+                        (&mut settings.custom_lists.selected_list_entry, &mut settings.custom_lists.selected_list_exit, list)
                     {
-                        if *selected_id == list.id {
-                            settings.custom_lists.selected_list = None;
+                        if *selected_entry_id == list.id {
+                            settings.custom_lists.selected_list_entry = None;
+                        }
+                        if *selected_exit_id == list.id {
+                            settings.custom_lists.selected_list_exit = None;
                         }
                     }
                 })
@@ -2288,7 +2307,8 @@ where
             let result = self.settings
                 .update(|settings| {
                     let list = settings.custom_lists.custom_lists.get(&name).unwrap();
-                    settings.custom_lists.selected_list = Some(list.id.clone());
+                    // TODO: This needs to be select both exit and entry
+                    settings.custom_lists.selected_list_exit = Some(list.id.clone());
                     match &mut settings.relay_settings {
                         RelaySettings::Normal(relay_constraints) => {
                             relay_constraints.location = Constraint::Only(Foo::Custom { locations: list.locations.clone() });
@@ -2535,10 +2555,40 @@ fn new_selector_config(
         TunnelType::Wireguard
     };
 
+    let mut relay_settings = settings.get_relay_settings();
+
+    if let Some(selected_list_exit_id) = &settings.custom_lists.selected_list_exit {
+        if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
+            // TODO: Log if custom list no longer exists, should be made impossible
+            if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_exit_id) {
+                relay_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+            }
+        }
+    }
+
+    let mut bridge_settings = settings.bridge_settings.clone();
+
+    if let Some(selected_list_entry_id) = &settings.custom_lists.selected_list_entry {
+        if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
+            // TODO: Log if custom list no longer exists, should be made impossible
+            if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_entry_id) {
+                if relay_settings.wireguard_constraints.use_multihop {
+                    relay_settings.wireguard_constraints.entry_location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+                }
+
+                if let BridgeSettings::Normal(bridge_settings) = &mut bridge_settings {
+                    bridge_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+                }
+            }
+        }
+    }
+
+    log::error!("============{:?}, {:?}", relay_settings, bridge_settings);
+
     SelectorConfig {
-        relay_settings: settings.get_relay_settings(),
+        relay_settings,
         bridge_state: settings.bridge_state,
-        bridge_settings: settings.bridge_settings.clone(),
+        bridge_settings,
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
     }
