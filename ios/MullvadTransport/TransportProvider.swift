@@ -56,12 +56,12 @@ public final class TransportProvider: RESTTransportProvider {
 
     /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
     private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
-        // If a previous shadowsocks configuration was in cache, return it directly
+        // If a previous shadowsocks configuration was in cache, return it directly.
+        // There is no previous configuration either if this is the first time this code ran
+        // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
         do {
             return try shadowsocksCache.read()
         } catch {
-            logger.error(error: error, message: "Failed to read shadowsocks cache.")
-
             // There is no previous configuration either if this is the first time this code ran
             // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
             return try makeNewShadowsocksConfiguration()
