@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
@@ -7,7 +6,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IReduxState } from '../redux/store';
+import { useSelector } from '../redux/store';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
@@ -50,9 +49,7 @@ interface IHeaderBarProps {
 }
 
 export default function HeaderBar(props: IHeaderBarProps) {
-  const unpinnedWindow = useSelector(
-    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
-  );
+  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   return (
     <HeaderBarContainer
@@ -78,8 +75,8 @@ const Title = styled(ImageView)({
 export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <BrandContainer {...props}>
-      <ImageView width={44} height={44} source="logo-icon" />
-      <Title height={18} source="logo-text" />
+      <ImageView width={38} height={38} source="logo-icon" />
+      <Title height={15.4} source="logo-text" />
     </BrandContainer>
   );
 }
@@ -90,6 +87,10 @@ const HeaderBarSettingsButtonContainer = styled.button({
   marginLeft: 8,
   backgroundColor: 'transparent',
   border: 'none',
+});
+
+const HeaderBarAccountButtonContainer = styled(HeaderBarSettingsButtonContainer)({
+  marginRight: '16px',
 });
 
 interface IHeaderBarSettingsButtonProps {
@@ -120,12 +121,37 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
   );
 }
 
+export function HeaderBarAccountButton() {
+  const history = useHistory();
+  const openAccount = useCallback(
+    () => history.push(RoutePath.account, { transition: transitions.show }),
+    [history],
+  );
+
+  return (
+    <HeaderBarAccountButtonContainer
+      onClick={openAccount}
+      aria-label={messages.gettext('Account settings')}>
+      <ImageView
+        height={24}
+        width={24}
+        source="icon-account"
+        tintColor={colors.white60}
+        tintHoverColor={colors.white80}
+      />
+    </HeaderBarAccountButtonContainer>
+  );
+}
+
 export function DefaultHeaderBar(props: IHeaderBarProps) {
+  const loggedIn = useSelector((state) => state.account.status.type === 'ok');
+
   return (
     <HeaderBar {...props}>
       <FocusFallback>
         <Brand />
       </FocusFallback>
+      {loggedIn && <HeaderBarAccountButton />}
       <HeaderBarSettingsButton />
     </HeaderBar>
   );
