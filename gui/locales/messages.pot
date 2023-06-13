@@ -234,6 +234,10 @@ msgid "%(title)s, View loaded"
 msgstr ""
 
 msgctxt "accessibility"
+msgid "Close notification"
+msgstr ""
+
+msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr ""
 
@@ -628,6 +632,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr ""
 
@@ -649,6 +657,10 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr ""
 
 msgctxt "launch-view"

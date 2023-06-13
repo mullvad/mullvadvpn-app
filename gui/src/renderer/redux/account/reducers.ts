@@ -4,7 +4,8 @@ import { ReduxAction } from '../store';
 type LoginMethod = 'existing_account' | 'new_account';
 export type LoginState =
   | { type: 'none'; deviceRevoked: boolean }
-  | { type: 'logging in' | 'ok'; method: LoginMethod }
+  | { type: 'logging in'; method: LoginMethod }
+  | { type: 'ok'; method: LoginMethod; newDeviceBanner: boolean }
   | { type: 'too many devices'; method: LoginMethod }
   | { type: 'failed'; method: 'existing_account'; error: AccountDataError['error'] }
   | { type: 'failed'; method: 'new_account'; error: Error };
@@ -42,7 +43,7 @@ export default function (
     case 'LOGGED_IN':
       return {
         ...state,
-        status: { type: 'ok', method: 'existing_account' },
+        status: { type: 'ok', method: 'existing_account', newDeviceBanner: false },
         accountToken: action.accountToken,
         deviceName: action.deviceName,
       };
@@ -97,7 +98,7 @@ export default function (
     case 'ACCOUNT_CREATED':
       return {
         ...state,
-        status: { type: 'ok', method: 'new_account' },
+        status: { type: 'ok', method: 'new_account', newDeviceBanner: true },
         accountToken: action.accountToken,
         deviceName: action.deviceName,
         expiry: action.expiry,
@@ -105,7 +106,16 @@ export default function (
     case 'ACCOUNT_SETUP_FINISHED':
       return {
         ...state,
-        status: { type: 'ok', method: 'existing_account' },
+        status: { type: 'ok', method: 'existing_account', newDeviceBanner: true },
+      };
+    case 'HIDE_NEW_DEVICE_BANNER':
+      if (state.status.type !== 'ok') {
+        return state;
+      }
+
+      return {
+        ...state,
+        status: { ...state.status, newDeviceBanner: false },
       };
     case 'UPDATE_ACCOUNT_TOKEN':
       return {

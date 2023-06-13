@@ -35,29 +35,23 @@ export const NotificationActionButton = styled(AppButton.SimpleButton)({
   border: 'none',
 });
 
-export const NotificationOpenLinkActionIcon = styled(ImageView)({
-  [NotificationActionButton + ':hover &']: {
+export const NotificationActionButtonInner = styled(ImageView)({
+  [NotificationActionButton + ':hover &&']: {
     backgroundColor: colors.white80,
   },
 });
 
-export const NotificationTroubleshootDialogActionIcon = styled(ImageView)({
-  [NotificationActionButton + ':hover &']: {
-    backgroundColor: colors.white80,
-  },
-});
-
-interface INotifcationOpenLinkActionProps {
+interface NotificationActionProps {
   onClick: () => Promise<void>;
 }
 
-export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProps) {
+export function NotificationOpenLinkAction(props: NotificationActionProps) {
   return (
     <AppButton.BlockingButton onClick={props.onClick}>
       <NotificationActionButton
         aria-describedby={NOTIFICATION_AREA_ID}
         aria-label={messages.gettext('Open URL')}>
-        <NotificationOpenLinkActionIcon
+        <NotificationActionButtonInner
           height={12}
           width={12}
           tintColor={colors.white60}
@@ -68,24 +62,29 @@ export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProp
   );
 }
 
-interface INotifcationTroubleshootDialogActionProps {
-  onClick: () => Promise<void>;
-}
-
-export function NotificationTroubleshootDialogAction(
-  props: INotifcationTroubleshootDialogActionProps,
-) {
+export function NotificationTroubleshootDialogAction(props: NotificationActionProps) {
   return (
     <NotificationActionButton
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.gettext('Troubleshoot')}
       onClick={props.onClick}>
-      <NotificationOpenLinkActionIcon
+      <NotificationActionButtonInner
         height={12}
         width={12}
         tintColor={colors.white60}
         source="icon-info"
       />
+    </NotificationActionButton>
+  );
+}
+
+export function NotificationCloseAction(props: NotificationActionProps) {
+  return (
+    <NotificationActionButton
+      aria-describedby={NOTIFICATION_AREA_ID}
+      aria-label={messages.pgettext('accessibility', 'Close notification')}
+      onClick={props.onClick}>
+      <NotificationActionButtonInner source="icon-close" width={16} tintColor={colors.white60} />
     </NotificationActionButton>
   );
 }

@@ -60,6 +60,10 @@ interface IAccountSetupFinished {
   type: 'ACCOUNT_SETUP_FINISHED';
 }
 
+interface IHideNewDeviceBanner {
+  type: 'HIDE_NEW_DEVICE_BANNER';
+}
+
 interface IUpdateAccountTokenAction {
   type: 'UPDATE_ACCOUNT_TOKEN';
   accountToken: AccountToken;
@@ -94,6 +98,7 @@ export type AccountAction =
   | ICreateAccountFailed
   | IAccountCreated
   | IAccountSetupFinished
+  | IHideNewDeviceBanner
   | IUpdateAccountTokenAction
   | IUpdateAccountHistoryAction
   | IUpdateAccountExpiryAction
@@ -187,6 +192,10 @@ function accountSetupFinished(): IAccountSetupFinished {
   return { type: 'ACCOUNT_SETUP_FINISHED' };
 }
 
+function hideNewDeviceBanner(): IHideNewDeviceBanner {
+  return { type: 'HIDE_NEW_DEVICE_BANNER' };
+}
+
 function updateAccountToken(accountToken: AccountToken): IUpdateAccountTokenAction {
   return {
     type: 'UPDATE_ACCOUNT_TOKEN',
@@ -229,6 +238,7 @@ export default {
   createAccountFailed,
   accountCreated,
   accountSetupFinished,
+  hideNewDeviceBanner,
   updateAccountToken,
   updateAccountHistory,
   updateAccountExpiry,
