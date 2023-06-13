@@ -32,6 +32,13 @@ final class RelayCacheTests: XCTestCase {
         try cache.write(record: newCachedRelays)
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
     }
+
+    func testCanReadPrebundledRelaysWhenNoCacheIsStored() throws {
+        let fileCache = MockFileCache<CachedRelays>(initialState: .fileNotFound)
+        let cache = RelayCache(fileCache: fileCache)
+
+        XCTAssertNoThrow(try cache.read())
+    }
 }
 
 private extension REST.ServerRelaysResponse {
