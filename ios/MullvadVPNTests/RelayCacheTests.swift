@@ -12,9 +12,9 @@ import MullvadTransport
 import XCTest
 
 final class RelayCacheTests: XCTestCase {
-    func testReadReadsFromCache() throws {
+    func testCanReadCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(CachedRelays(relays: .empty, updatedAt: .distantPast))
+            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
@@ -22,14 +22,29 @@ final class RelayCacheTests: XCTestCase {
         XCTAssertEqual(fileCache.getState(), .exists(relays))
     }
 
-    func testWriteWritesToCache() throws {
+    func testCanWriteCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(CachedRelays(relays: .empty, updatedAt: .distantPast))
+            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
-        let newCachedRelays = CachedRelays(relays: .empty, updatedAt: Date())
+        let newCachedRelays = CachedRelays(relays: .mock(), updatedAt: Date())
 
         try cache.write(record: newCachedRelays)
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
+    }
+}
+
+private extension REST.ServerRelaysResponse {
+    static func mock() -> Self {
+        return REST.ServerRelaysResponse(
+            locations: [:],
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                portRanges: [],
+                relays: []
+            ),
+            bridge: REST.ServerBridges(shadowsocks: [], relays: [])
+        )
     }
 }
