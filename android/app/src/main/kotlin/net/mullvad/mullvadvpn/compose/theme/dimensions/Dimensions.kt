@@ -9,6 +9,9 @@ data class Dimensions(
     val cellHeight: Dp = 52.dp,
     val cellLabelVerticalPadding: Dp = 14.dp,
     val cellStartPadding: Dp = 22.dp,
+    val cityRowPadding: Dp = 34.dp,
+    val countryRowPadding: Dp = 18.dp,
+    val expandableCellChevronSize: Dp = 30.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
     val listIconSize: Dp = 24.dp,
@@ -20,8 +23,12 @@ data class Dimensions(
     val loadingSpinnerStrokeWidth: Dp = 3.dp,
     val mediumPadding: Dp = 16.dp,
     val progressIndicatorSize: Dp = 60.dp,
+    val relayCircleSize: Dp = 16.dp,
+    val relayRowPadding: Dp = 50.dp,
     val selectableCellTextMargin: Dp = 12.dp,
-    val smallPadding: Dp = 8.dp
+    val sideMargin: Dp = 22.dp,
+    val smallPadding: Dp = 8.dp,
+    val verticalSpace: Dp = 20.dp
 )
 
 val defaultDimensions = Dimensions()
