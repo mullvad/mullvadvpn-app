@@ -7,7 +7,7 @@ import { InfoIcon } from './InfoButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 const StyledInfoButton = styled.button({
-  margin: '0 0 0 12px',
+  margin: '0 0 0 10px',
   borderWidth: 0,
   padding: 0,
   cursor: 'default',
