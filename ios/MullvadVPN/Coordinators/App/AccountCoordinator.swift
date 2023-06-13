@@ -54,7 +54,11 @@ extension AccountCoordinator: AccountViewControllerDelegate {
     ) {
         switch route {
         case .redeemVoucher:
-            let controller = AccountRedeemVoucherController()
+            let controller =
+                AccountRedeemVoucherController(interactor: RedeemVoucherInteractor(
+                    tunnelManager: interactor
+                        .tunnelManager
+                ))
             navigationController.present(controller, animated: true)
         }
     }

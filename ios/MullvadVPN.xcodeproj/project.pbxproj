@@ -409,6 +409,7 @@
 		F028A5672A34D45300C0CAA3 /* AccountRedeemVoucherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5662A34D45300C0CAA3 /* AccountRedeemVoucherController.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */; };
+		F028A56E2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F07BF2582A26112D00042943 /* InputTextFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
@@ -1129,6 +1130,7 @@
 		F028A5662A34D45300C0CAA3 /* AccountRedeemVoucherController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountRedeemVoucherController.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherSucceededViewController.swift; sourceTree = "<group>"; };
+		F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInteractor.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
@@ -2154,6 +2156,7 @@
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
 			isa = PBXGroup;
 			children = (
+				F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */,
 				F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */,
 				F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */,
 				F028A5662A34D45300C0CAA3 /* AccountRedeemVoucherController.swift */,
@@ -2932,6 +2935,7 @@
 				58F185AA298A3E3E00075977 /* TunnelCoordinator.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
+				F028A56E2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift in Sources */,
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				5878F4FC29CDA2E4003D4BE2 /* ChangeLogViewController.swift in Sources */,
 				068CE5742927B7A400A068BB /* Migration.swift in Sources */,

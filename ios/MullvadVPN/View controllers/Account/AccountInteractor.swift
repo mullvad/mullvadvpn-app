@@ -13,8 +13,8 @@ import Operations
 import StoreKit
 
 final class AccountInteractor {
-    private let storePaymentManager: StorePaymentManager
-    private let tunnelManager: TunnelManager
+    let storePaymentManager: StorePaymentManager
+    let tunnelManager: TunnelManager
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveDeviceState: ((DeviceState) -> Void)?

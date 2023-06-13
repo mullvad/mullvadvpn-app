@@ -20,12 +20,14 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
 
 class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate {
     private let contentView = RedeemVoucherContentView()
-    private var isBecameFirstResponder = false
+    private var voucherTask: Cancellable?
+    private var interactor: RedeemVoucherInteractor?
 
     weak var delegate: RedeemVoucherViewControllerDelegate?
 
-    init() {
+    init(interactor: RedeemVoucherInteractor) {
         super.init(nibName: nil, bundle: nil)
+        self.interactor = interactor
     }
 
     required init?(coder: NSCoder) {
@@ -52,8 +54,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     // MARK: - private functions
 
     private func becameFirstResponder() {
-        guard !isBecameFirstResponder else { return }
-        isBecameFirstResponder = true
+        guard !contentView.isEditing else { return }
         contentView.isEditing = true
     }
 
@@ -78,15 +79,24 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     }
 
     private func submit(code: String) {
-        let day  = 24 * 3600
-        delegate?.redeemVoucherDidSuccess(self, with: REST.SubmitVoucherResponse(
-            timeAdded: day,
-            newExpiry: Date()
-                .addingTimeInterval(TimeInterval(day))
-        ))
+        contentView.state = .verifying
+        voucherTask = interactor?.redeemVoucher(code: code, completion: { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case let .success(value):
+                contentView.state = .success
+                delegate?.redeemVoucherDidSuccess(self, with: value)
+            case let .failure(error):
+                contentView.state = .failure(error)
+            }
+        })
     }
 
     private func cancel() {
+        contentView.isEditing = false
+
+        voucherTask?.cancel()
+
         delegate?.redeemVoucherDidCancel(self)
     }
 }

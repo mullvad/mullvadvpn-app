@@ -10,7 +10,7 @@ import MullvadREST
 import UIKit
 
 private extension UIMetrics {
-    static let preferredContentSize = CGSize(width: 320, height: 290)
+    static let preferredContentSize = CGSize(width: 320, height: 310)
 }
 
 protocol AccountRedeemVoucherControllerDelegate: AnyObject {
@@ -22,11 +22,11 @@ class AccountRedeemVoucherController: UINavigationController, UINavigationContro
     weak var redeemVoucherDelegate: AccountRedeemVoucherControllerDelegate?
     private var customTransitioningDelegate = FormSheetTransitioningDelegate()
 
-    init() {
+    init(interactor: RedeemVoucherInteractor) {
         super.init(nibName: nil, bundle: nil)
         delegate = self
-        setupContentView()
         configureUI()
+        setupContentView(interactor: interactor)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -35,8 +35,8 @@ class AccountRedeemVoucherController: UINavigationController, UINavigationContro
 
     // MARK: - Setup
 
-    private func setupContentView() {
-        let redeemVoucherViewController = RedeemVoucherViewController()
+    private func setupContentView(interactor: RedeemVoucherInteractor) {
+        let redeemVoucherViewController = RedeemVoucherViewController(interactor: interactor)
         redeemVoucherViewController.delegate = self
         pushViewController(redeemVoucherViewController, animated: false)
     }
