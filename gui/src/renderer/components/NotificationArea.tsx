@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { NewDeviceNotificationProvider } from '../../shared/notifications/new-device';
 import {
   BlockWhenDisconnectedNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -19,14 +20,18 @@ import {
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications/notification';
 import { useAppContext } from '../context';
+import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
+import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
+import accountActions from '../redux/account/actions';
 import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NotificationActions,
   NotificationBanner,
+  NotificationCloseAction,
   NotificationContent,
   NotificationIndicator,
   NotificationOpenLinkAction,
@@ -40,7 +45,7 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
-  const accountExpiry = useSelector((state: IReduxState) => state.account.expiry);
+  const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const version = useSelector((state: IReduxState) => state.version);
@@ -51,6 +56,8 @@ export default function NotificationArea(props: IProps) {
     (state: IReduxState) =>
       state.settings.splitTunneling && state.settings.splitTunnelingApplications.length > 0,
   );
+
+  const { hideNewDeviceBanner } = useActions(accountActions);
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
@@ -65,13 +72,20 @@ export default function NotificationArea(props: IProps) {
     new UnsupportedVersionNotificationProvider(version),
   ];
 
-  if (accountExpiry) {
+  if (account.expiry) {
     notificationProviders.push(
-      new CloseToAccountExpiryNotificationProvider({ accountExpiry, locale }),
+      new CloseToAccountExpiryNotificationProvider({ accountExpiry: account.expiry, locale }),
     );
   }
 
-  notificationProviders.push(new UpdateAvailableNotificationProvider(version));
+  notificationProviders.push(
+    new NewDeviceNotificationProvider({
+      shouldDisplay: account.status.type === 'ok' && account.status.newDeviceBanner,
+      deviceName: account.deviceName ?? '',
+      close: hideNewDeviceBanner,
+    }),
+    new UpdateAvailableNotificationProvider(version),
+  );
 
   const notificationProvider = notificationProviders.find((notification) =>
     notification.mayDisplay(),
@@ -86,7 +100,7 @@ export default function NotificationArea(props: IProps) {
           <NotificationIndicator type={notification.indicator} />
           <NotificationContent role="status" aria-live="polite">
             <NotificationTitle>{notification.title}</NotificationTitle>
-            <NotificationSubtitle>{notification.subtitle}</NotificationSubtitle>
+            <NotificationSubtitle>{formatHtml(notification.subtitle ?? '')}</NotificationSubtitle>
           </NotificationContent>
           {notification.action && <NotificationActionWrapper action={notification.action} />}
         </NotificationBanner>
@@ -128,6 +142,9 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
         case 'troubleshoot-dialog':
           setTroubleshootInfo(props.action.troubleshoot);
           break;
+        case 'close':
+          props.action.close();
+          break;
       }
     }
 
@@ -154,6 +171,8 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
           </>
         );
         break;
+      case 'close':
+        actionComponent = <NotificationCloseAction onClick={handleClick} />;
     }
   }
 

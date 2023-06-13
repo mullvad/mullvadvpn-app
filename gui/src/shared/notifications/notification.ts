@@ -15,6 +15,10 @@ export type InAppNotificationAction =
   | {
       type: 'troubleshoot-dialog';
       troubleshoot: InAppNotificationTroubleshootInfo;
+    }
+  | {
+      type: 'close';
+      close: () => void;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
