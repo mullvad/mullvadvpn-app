@@ -137,10 +137,13 @@
     <string name="remove_button">Ta bort</string>
     <string name="report_a_problem">Rapportera ett problem</string>
     <string name="reset_to_default_button">Återställ till standard</string>
+    <string name="search_placeholder">Sök efter …</string>
     <string name="secure_connection">SÄKER ANSLUTNING</string>
     <string name="secured">Skyddad</string>
     <string name="select_location">Välj plats</string>
     <string name="select_location_description">Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen.</string>
+    <string name="select_location_empty_text_first_row">Inga resultat för &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="select_location_empty_text_second_row">Testa en annan sökning.</string>
     <string name="send">Skicka</string>
     <string name="send_anyway">Skicka ändå</string>
     <string name="sending">Skicka...</string>
