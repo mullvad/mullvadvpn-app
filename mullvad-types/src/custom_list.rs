@@ -2,6 +2,9 @@ use serde::{Serialize, Deserialize};
 use crate::relay_constraints::{Constraint, LocationConstraint};
 use std::collections::HashMap;
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Id(String);
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomListsSettings {
     pub custom_lists: HashMap<String, CustomList>,
@@ -10,6 +13,10 @@ pub struct CustomListsSettings {
 }
 
 impl CustomListsSettings {
+    pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
+        self.custom_lists.values().find(|custom_list| &custom_list.name == name)
+    }
+
     pub fn get_selected_list_entry(&self) -> Option<&CustomList> {
         match &self.selected_list_entry {
             None => None,

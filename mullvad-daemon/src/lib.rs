@@ -38,7 +38,6 @@ use futures::{
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
-    SelectedCustomLists
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -2245,7 +2244,7 @@ where
     }
 
     async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
-        let result = self.settings.custom_lists.custom_lists.get(&name).cloned().ok_or(Error::CustomListError("a list with that name does not exist"));
+        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError("a list with that name does not exist"));
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
@@ -2257,10 +2256,11 @@ where
         } else {
             self.settings
                 .update(|settings| {
+                    let custom_list = CustomList::new(name);
                     assert!(settings
                         .custom_lists
                         .custom_lists
-                        .insert(name.clone(), CustomList::new(name))
+                        .insert(custom_list.id.clone(), custom_list)
                         .is_none());
                 })
                 .await
@@ -2271,14 +2271,17 @@ where
     }
 
     async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
+        let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
+        let result = if custom_list.is_none() {
             Err(Error::CustomListError(
                 "a list with that name does not exist",
             ))
         } else {
+            // TODO: Cleanup with match
+            let id = custom_list.as_ref().unwrap().id.clone();
             self.settings
                 .update(|settings| {
-                    let list = settings.custom_lists.custom_lists.remove(&name);
+                    let list = settings.custom_lists.custom_lists.remove(&id);
                     if let (Some(selected_entry_id), Some(selected_exit_id), Some(list)) =
                         (&mut settings.custom_lists.selected_list_entry, &mut settings.custom_lists.selected_list_exit, list)
                     {
@@ -2298,34 +2301,35 @@ where
     }
 
     async fn on_select_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        // TODO: Notify update settings listeners and steal inspiration from on_update_relay_settings
-        let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
-            Err(Error::CustomListError(
-                "a list with that name does not exist",
-            ))
-        } else {
-            let result = self.settings
-                .update(|settings| {
-                    let list = settings.custom_lists.custom_lists.get(&name).unwrap();
-                    // TODO: This needs to be select both exit and entry
-                    settings.custom_lists.selected_list_exit = Some(list.id.clone());
-                    match &mut settings.relay_settings {
-                        RelaySettings::Normal(relay_constraints) => {
-                            relay_constraints.location = Constraint::Only(Foo::Custom { locations: list.locations.clone() });
-                        },
-                        RelaySettings::CustomTunnelEndpoint(_) => {
-                            // TODO: What should this behavior be? Silent failure? Logging?
-                            // Checking before updating settings and returning an error?
-                        }
-                    }
-                })
-                .await
-                .map(|_| ())
-                .map_err(Error::SettingsError);
-            self.reconnect_tunnel();
-            result
-        };
-        Self::oneshot_send(tx, result, "select_custom_list response");
+        unimplemented!();
+        //// TODO: Notify update settings listeners and steal inspiration from on_update_relay_settings
+        //let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
+        //    Err(Error::CustomListError(
+        //        "a list with that name does not exist",
+        //    ))
+        //} else {
+        //    let result = self.settings
+        //        .update(|settings| {
+        //            let list = settings.custom_lists.custom_lists.get(&name).unwrap();
+        //            // TODO: This needs to be select both exit and entry
+        //            settings.custom_lists.selected_list_exit = Some(list.id.clone());
+        //            match &mut settings.relay_settings {
+        //                RelaySettings::Normal(relay_constraints) => {
+        //                    relay_constraints.location = Constraint::Only(Foo::Custom { locations: list.locations.clone() });
+        //                },
+        //                RelaySettings::CustomTunnelEndpoint(_) => {
+        //                    // TODO: What should this behavior be? Silent failure? Logging?
+        //                    // Checking before updating settings and returning an error?
+        //                }
+        //            }
+        //        })
+        //        .await
+        //        .map(|_| ())
+        //        .map_err(Error::SettingsError);
+        //    self.reconnect_tunnel();
+        //    result
+        //};
+        //Self::oneshot_send(tx, result, "select_custom_list response");
     }
 
     async fn on_update_custom_list_location(
@@ -2340,14 +2344,15 @@ where
             } => {
                 if new_location.is_any() {
                     Err(Error::CustomListError("cannot add 'any' to custom list"))
-                } else if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                } else if let Some(custom_list) = self.settings.custom_lists.get_custom_list_with_name(&name) {
+                    let id = custom_list.id.clone();
                     let new_location = new_location.unwrap();
-                    self.settings
+                    let settings_changed = self.settings
                         .update(|settings| {
                             let locations = &mut settings
                                 .custom_lists
                                 .custom_lists
-                                .get_mut(&name)
+                                .get_mut(&id)
                                 .unwrap()
                                 .locations;
                             if !locations.iter().any(|location| new_location == *location) {
@@ -2355,8 +2360,18 @@ where
                             }
                         })
                         .await
-                        .map(|_| ())
-                        .map_err(Error::SettingsError)
+                        .map_err(Error::SettingsError);
+                    if let Ok(settings_changed) = settings_changed {
+                        if settings_changed {
+                            self.event_listener
+                                .notify_settings(self.settings.to_settings());
+                            self.relay_selector
+                                .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                            log::info!("Initiating tunnel restart because the relay settings changed");
+                            self.reconnect_tunnel();
+                        }
+                    }
+                    settings_changed.map(|_| ())
                 } else {
                     Err(Error::CustomListError("no list with that name exists"))
                 }
@@ -2369,14 +2384,15 @@ where
                     Err(Error::CustomListError(
                         "cannot remove 'any' from custom list",
                     ))
-                } else if let Some(_) = self.settings.custom_lists.custom_lists.get(&name) {
+                } else if let Some(custom_list) = self.settings.custom_lists.get_custom_list_with_name(&name) {
+                    let id = custom_list.id.clone();
                     let location_to_remove = location_to_remove.unwrap();
-                    self.settings
+                    let settings_changed = self.settings
                         .update(|settings| {
                             let locations = &mut settings
                                 .custom_lists
                                 .custom_lists
-                                .get_mut(&name)
+                                .get_mut(&id)
                                 .unwrap()
                                 .locations;
                             if let Some(index) = locations
@@ -2387,8 +2403,18 @@ where
                             }
                         })
                         .await
-                        .map(|_| ())
-                        .map_err(Error::SettingsError)
+                        .map_err(Error::SettingsError);
+                    if let Ok(settings_changed) = settings_changed {
+                        if settings_changed {
+                            self.event_listener
+                                .notify_settings(self.settings.to_settings());
+                            self.relay_selector
+                                .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                            log::info!("Initiating tunnel restart because the relay settings changed");
+                            self.reconnect_tunnel();
+                        }
+                    }
+                    settings_changed.map(|_| ())
                 } else {
                     Err(Error::CustomListError("no list with that name exists"))
                 }
@@ -2555,41 +2581,43 @@ fn new_selector_config(
         TunnelType::Wireguard
     };
 
-    let mut relay_settings = settings.get_relay_settings();
+    //let mut relay_settings = settings.get_relay_settings();
 
-    if let Some(selected_list_exit_id) = &settings.custom_lists.selected_list_exit {
-        if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
-            // TODO: Log if custom list no longer exists, should be made impossible
-            if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_exit_id) {
-                relay_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-            }
-        }
-    }
+    //if let Some(selected_list_exit_id) = &settings.custom_lists.selected_list_exit {
+    //    if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
+    //        // TODO: Log if custom list no longer exists, should be made impossible
+    //        if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_exit_id) {
+    //            relay_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+    //        }
+    //    }
+    //}
 
-    let mut bridge_settings = settings.bridge_settings.clone();
+    //let mut bridge_settings = settings.bridge_settings.clone();
 
-    if let Some(selected_list_entry_id) = &settings.custom_lists.selected_list_entry {
-        if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
-            // TODO: Log if custom list no longer exists, should be made impossible
-            if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_entry_id) {
-                if relay_settings.wireguard_constraints.use_multihop {
-                    relay_settings.wireguard_constraints.entry_location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-                }
+    //if let Some(selected_list_entry_id) = &settings.custom_lists.selected_list_entry {
+    //    if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
+    //        // TODO: Log if custom list no longer exists, should be made impossible
+    //        if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_entry_id) {
+    //            if relay_settings.wireguard_constraints.use_multihop {
+    //                relay_settings.wireguard_constraints.entry_location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+    //            }
 
-                if let BridgeSettings::Normal(bridge_settings) = &mut bridge_settings {
-                    bridge_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-                }
-            }
-        }
-    }
+    //            if let BridgeSettings::Normal(bridge_settings) = &mut bridge_settings {
+    //                bridge_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
+    //            }
+    //        }
+    //    }
+    //}
 
-    log::error!("============{:?}, {:?}", relay_settings, bridge_settings);
+    //log::error!("============{:?}, {:?}", relay_settings, bridge_settings);
 
     SelectorConfig {
-        relay_settings,
+        relay_settings: settings.relay_settings.clone(),
         bridge_state: settings.bridge_state,
-        bridge_settings,
+        bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
+        // TODO: Should probably just pass the entire struct here and everywher else
+        custom_lists: settings.custom_lists.custom_lists.clone(),
     }
 }
