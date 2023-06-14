@@ -195,17 +195,15 @@ extension REST {
         ) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            if let urlError = error as? URLError, urlError.code == .cancelled {
+            if case URLError.cancelled = error {
                 finish(result: .failure(OperationError.cancelled))
-                return
+            } else {
+                logger.error(
+                    error: error,
+                    message: "Failed to perform request to \(endpoint) using \(transport.name)."
+                )
+                retryRequest(with: error)
             }
-
-            logger.error(
-                error: error,
-                message: "Failed to perform request to \(endpoint) using \(transport.name)."
-            )
-
-            retryRequest(with: error)
         }
 
         private func didReceiveURLResponse(

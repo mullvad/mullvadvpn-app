@@ -52,7 +52,7 @@ public final class TransportProvider: RESTTransport {
             guard let shadowsocksConfiguration,
                   let shadowsocksBridgeRelay
             else {
-                logger.error("Could not get shadow socks bridge information.")
+                logger.error("Failed to get shadow socks bridge information.")
                 return nil
             }
 
@@ -66,7 +66,7 @@ public final class TransportProvider: RESTTransport {
 
             return shadowsocksTransport
         } catch {
-            logger.error(error: error)
+            logger.error(error: error, message: "Failed to create shadowsocks transport.")
         }
         return nil
     }
@@ -88,7 +88,7 @@ public final class TransportProvider: RESTTransport {
 
         let currentStrategy = transportStrategy
         guard let transport = makeTransport() else { return AnyCancellable() }
-        let transportSwitchErrors: [URLError.Code] = [
+        let nonSwitchErrorCodes: [URLError.Code] = [
             .cancelled,
             .notConnectedToInternet,
             .internationalRoamingOff,
@@ -98,17 +98,11 @@ public final class TransportProvider: RESTTransport {
         let failureCompletionHandler: (Data?, URLResponse?, Error?)
             -> Void = { [weak self] data, response, maybeError in
                 guard let self else { return }
+
                 if let error = maybeError as? URLError,
-                   transportSwitchErrors.contains(error.code) == false
+                   nonSwitchErrorCodes.contains(error.code) == false
                 {
-                    parallelRequestsMutex.lock()
-                    // Guarantee that the transport strategy switches mode only once when parallel requests fail at
-                    // the same time.
-                    if currentStrategy == transportStrategy {
-                        transportStrategy.didFail()
-                        currentTransport = nil
-                    }
-                    parallelRequestsMutex.unlock()
+                    resetTransportMatching(currentStrategy)
                 }
                 completion(data, response, maybeError)
             }
@@ -116,7 +110,22 @@ public final class TransportProvider: RESTTransport {
         return transport.sendRequest(request, completion: failureCompletionHandler)
     }
 
-    func makeTransport() -> RESTTransport? {
+    /// When several requests fail at the same time,  prevents the `transportStrategy` from switching multiple times.
+    ///
+    /// The `strategy` is checked against the `transportStrategy`. When several requests are made and fail in parallel,
+    /// only the first failure will pass the equality check.
+    /// Subsequent failures will not cause the strategy to change several times in a quick fashion.
+    /// - Parameter strategy: The strategy object used when sending a request
+    private func resetTransportMatching(_ strategy: TransportStrategy) {
+        parallelRequestsMutex.lock()
+        if strategy == transportStrategy {
+            transportStrategy.didFail()
+            currentTransport = nil
+        }
+        parallelRequestsMutex.unlock()
+    }
+
+    private func makeTransport() -> RESTTransport? {
         if currentTransport == nil {
             switch transportStrategy.connectionTransport() {
             case .useShadowsocks:
