@@ -137,10 +137,13 @@
     <string name="remove_button">Удалить</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
+    <string name="search_placeholder">Поиск...</string>
     <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="secured">Подключение защищено</string>
     <string name="select_location">Выбор местоположения</string>
     <string name="select_location_description">При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе.</string>
+    <string name="select_location_empty_text_first_row">По запросу &lt;b&gt;%1$s&lt;/b&gt; ничего не найдено.</string>
+    <string name="select_location_empty_text_second_row">Измените условие поиска.</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
     <string name="sending">Идет отправка...</string>
