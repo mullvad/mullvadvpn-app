@@ -21,7 +21,9 @@ public struct TransportStrategy: Codable, Equatable {
     ///
     /// A value of `0` means  a direct transport suggestion, a value of `1` or `2` means a Shadowsocks transport
     /// suggestion.
-    private var connectionAttempts: UInt
+    ///
+    /// `internal` instead of `private` for testing purposes.
+    internal var connectionAttempts: UInt
 
     public init() {
         connectionAttempts = 0
@@ -31,9 +33,9 @@ public struct TransportStrategy: Codable, Equatable {
     ///
     /// Every third failure results in a direct transport suggestion.
     public mutating func didFail() {
-        connectionAttempts += 1
-        // Avoid overflowing by resetting back to 0 every 3rd failure
-        connectionAttempts = connectionAttempts.isMultiple(of: 3) ? 0 : connectionAttempts
+        let (partial, isOverflow) = connectionAttempts.addingReportingOverflow(1)
+        // UInt.max is a multiple of 3, go directly to 1 when overflowing
+        connectionAttempts = isOverflow ? 1 : partial
     }
 
     /// The suggested connection transport

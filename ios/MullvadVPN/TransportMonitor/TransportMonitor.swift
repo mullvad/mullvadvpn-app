@@ -31,8 +31,7 @@ final class TransportMonitor: RESTTransport {
 
     var name: String { selectTransport(transportProvider).name }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> MullvadTypes
-        .Cancellable
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> Cancellable
     {
         selectTransport(transportProvider).sendRequest(request, completion: completion)
     }
