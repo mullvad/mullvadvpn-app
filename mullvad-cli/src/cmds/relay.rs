@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Hostname,
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
+        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints, Foo,
+        WireguardConstraints, LocationConstraint,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -402,7 +402,7 @@ impl Relay {
                 for city in country.cities {
                     for relay in city.relays {
                         if relay.hostname.to_lowercase() == hostname.to_lowercase() {
-                            return Some(LocationConstraint::Hostname(
+                            return Some(GeographicLocationConstraint::Hostname(
                                 country.code,
                                 city.code,
                                 relay.hostname,
@@ -418,14 +418,14 @@ impl Relay {
 
         println!("Setting location constraint to {location}");
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(Foo::Normal { location })),
+            location: Some(Constraint::Only(LocationConstraint::Location { location })),
             ..Default::default()
         }))
         .await
     }
 
     async fn set_location(location_constraint: LocationArgs) -> Result<()> {
-        let location_constraint: Constraint<LocationConstraint> = Constraint::from(location_constraint);
+        let location_constraint: Constraint<GeographicLocationConstraint> = Constraint::from(location_constraint);
         match &location_constraint {
             Constraint::Any => (),
             Constraint::Only(constraint) => {
@@ -443,7 +443,7 @@ impl Relay {
             }
         }
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(location_constraint.map(|location| Foo::Normal { location })),
+            location: Some(location_constraint.map(|location| LocationConstraint::Location { location })),
             ..Default::default()
         }))
         .await

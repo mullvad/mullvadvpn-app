@@ -45,7 +45,7 @@ use mullvad_types::{
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate, Foo, RelaySettings, Constraint},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate, LocationConstraint, RelaySettings, Constraint},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},

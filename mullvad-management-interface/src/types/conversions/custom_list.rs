@@ -1,5 +1,5 @@
 use crate::types::{proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::LocationConstraint;
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use proto::RelayLocation;
 
 impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomListSettings {
@@ -78,8 +78,8 @@ impl TryFrom<proto::CustomListLocationUpdate> for mullvad_types::custom_list::Cu
 
     fn try_from(custom_list: proto::CustomListLocationUpdate) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::Constraint;
-        let location: Constraint<LocationConstraint> =
-            Constraint::<LocationConstraint>::from(
+        let location: Constraint<GeographicLocationConstraint> =
+            Constraint::<GeographicLocationConstraint>::from(
                 custom_list
                     .location
                     .ok_or(FromProtobufTypeError::InvalidArgument("missing location"))?,
@@ -123,10 +123,10 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
     type Error = FromProtobufTypeError;
 
     fn try_from(custom_list: proto::CustomList) -> Result<Self, Self::Error> {
-        let locations: Result<Vec<LocationConstraint>, _> = custom_list
+        let locations: Result<Vec<GeographicLocationConstraint>, _> = custom_list
             .locations
             .into_iter()
-            .map(LocationConstraint::try_from)
+            .map(GeographicLocationConstraint::try_from)
             .collect();
         let locations = locations.map_err(|_| {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
@@ -139,7 +139,7 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
     }
 }
 
-impl TryFrom<proto::RelayLocation> for LocationConstraint {
+impl TryFrom<proto::RelayLocation> for GeographicLocationConstraint {
     type Error = FromProtobufTypeError;
 
     fn try_from(relay_location: proto::RelayLocation) -> Result<Self, Self::Error> {
@@ -148,16 +148,16 @@ impl TryFrom<proto::RelayLocation> for LocationConstraint {
                 Err(FromProtobufTypeError::InvalidArgument("Relay location formatted incorrectly"))
             }
             (_country, "", "") => {
-                Ok(LocationConstraint::Country(relay_location.country))
+                Ok(GeographicLocationConstraint::Country(relay_location.country))
             }
             (_country, _city, "") => {
-                Ok(LocationConstraint::City(relay_location.country, relay_location.city))
+                Ok(GeographicLocationConstraint::City(relay_location.country, relay_location.city))
             }
             (_country, city, _hostname) => {
                 if city.is_empty() {
                     Err(FromProtobufTypeError::InvalidArgument("Relay location must contain a city if hostname is included"))
                 } else {
-                    Ok(LocationConstraint::Hostname(relay_location.country, relay_location.city, relay_location.hostname))
+                    Ok(GeographicLocationConstraint::Hostname(relay_location.country, relay_location.city, relay_location.hostname))
                 }
             }
         }

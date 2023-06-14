@@ -2,15 +2,19 @@
 //! updated as well.
 
 use crate::{
+    custom_list::CustomList,
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
     CustomTunnelEndpoint,
-    custom_list::CustomList,
 };
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::{collections::{HashSet, HashMap}, fmt, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    str::FromStr,
+};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -232,114 +236,117 @@ impl RelaySettings {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub enum Foo {
-    Normal { location: LocationConstraint },
-    Custom { list_id: String },
+pub enum LocationConstraint {
+    Location {
+        location: GeographicLocationConstraint,
+    },
+    CustomList {
+        list_id: String,
+    },
 }
 
 #[derive(Debug, Clone)]
-pub enum Bar {
-    Normal { location: LocationConstraint },
-    Custom { locations: Vec<LocationConstraint> },
+pub enum ResolvedLocationConstraint {
+    Location {
+        location: GeographicLocationConstraint,
+    },
+    Locations {
+        locations: Vec<GeographicLocationConstraint>,
+    },
 }
 
-impl Bar {
-    // TODO: Merge with from_constraint
-    pub fn new(location: Foo, custom_lists: &HashMap<String, CustomList>) -> Option<Self> {
-        log::error!("=========== {:?}", custom_lists);
-        match location {
-            Foo::Normal { location } => Some(Self::Normal { location }),
-            Foo::Custom { list_id } => {
-                custom_lists.get(&list_id).map(|custom_list| {
-                    Self::Custom { locations: custom_list.locations.clone() }
-                })
-            },
-        }
-    }
-
-    pub fn from_constraint(location: Constraint<Foo>, custom_lists: &HashMap<String, CustomList>) -> Constraint<Bar> {
+impl ResolvedLocationConstraint {
+    pub fn from_constraint(
+        location: Constraint<LocationConstraint>,
+        custom_lists: &HashMap<String, CustomList>,
+    ) -> Constraint<ResolvedLocationConstraint> {
         match location {
             Constraint::Any => Constraint::Any,
-            Constraint::Only(location) => {
-                match Bar::new(location, custom_lists) {
-                    None => Constraint::Any,
-                    Some(location) => Constraint::Only(location),
-                }
+            Constraint::Only(LocationConstraint::Location { location }) => {
+                Constraint::Only(Self::Location { location })
             }
+            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
+                .get(&list_id)
+                .map(|custom_list| {
+                    Constraint::Only(Self::Locations {
+                        locations: custom_list.locations.clone(),
+                    })
+                })
+                .unwrap_or(Constraint::Any),
         }
     }
-
 }
 
-impl From<LocationConstraint> for Foo {
-    fn from(location: LocationConstraint) -> Self {
-        Self::Normal { location }
+impl From<GeographicLocationConstraint> for LocationConstraint {
+    fn from(location: GeographicLocationConstraint) -> Self {
+        Self::Location { location }
     }
 }
 
-impl Set<Constraint<Bar>> for Constraint<Bar> {
+impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocationConstraint> {
     fn is_subset(&self, other: &Self) -> bool {
         match self {
             Constraint::Any => other.is_any(),
-            Constraint::Only(Bar::Normal { location }) => {
-                match other {
-                    Constraint::Any => true,
-                    Constraint::Only(Bar::Normal { location: other_location }) => {
-                        location.is_subset(other_location)
-                    }
-                    Constraint::Only(Bar::Custom { locations: other_locations }) => {
-                        other_locations.iter().any(|other_location| location.is_subset(other_location))
-                    }
-                }
-            }
-            Constraint::Only(Bar::Custom { locations }) => {
-                match other {
-                    Constraint::Any => true,
-                    Constraint::Only(Bar::Normal { location: other_location }) => {
-                        locations.iter().all(|location| location.is_subset(other_location))
-                    }
-                    Constraint::Only(Bar::Custom { locations: other_locations }) => {
-                        for location in locations {
-                            if !other_locations.iter().any(|other_location| location.is_subset(other_location)) {
-                                return false;
-                            }
+            Constraint::Only(ResolvedLocationConstraint::Location { location }) => match other {
+                Constraint::Any => true,
+                Constraint::Only(ResolvedLocationConstraint::Location {
+                    location: other_location,
+                }) => location.is_subset(other_location),
+                Constraint::Only(ResolvedLocationConstraint::Locations {
+                    locations: other_locations,
+                }) => other_locations
+                    .iter()
+                    .any(|other_location| location.is_subset(other_location)),
+            },
+            Constraint::Only(ResolvedLocationConstraint::Locations { locations }) => match other {
+                Constraint::Any => true,
+                Constraint::Only(ResolvedLocationConstraint::Location {
+                    location: other_location,
+                }) => locations
+                    .iter()
+                    .all(|location| location.is_subset(other_location)),
+                Constraint::Only(ResolvedLocationConstraint::Locations {
+                    locations: other_locations,
+                }) => {
+                    for location in locations {
+                        if !other_locations
+                            .iter()
+                            .any(|other_location| location.is_subset(other_location))
+                        {
+                            return false;
                         }
-                        true
                     }
+                    true
                 }
-            }
+            },
         }
     }
 }
 
-impl Constraint<Bar> {
+impl Constraint<ResolvedLocationConstraint> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             Constraint::Any => true,
-            Constraint::Only(Bar::Normal { location }) => {
+            Constraint::Only(ResolvedLocationConstraint::Location { location }) => {
                 location.matches_with_opts(relay, ignore_include_in_country)
             }
-            Constraint::Only(Bar::Custom { locations }) => {
-                locations
-                    .iter()
-                    .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country))
-            }
+            Constraint::Only(ResolvedLocationConstraint::Locations { locations }) => locations
+                .iter()
+                .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country)),
         }
     }
 }
 
-impl fmt::Display for Foo {
+impl fmt::Display for LocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            Self::Normal { location } => write!(f, "normal {location}"),
-            Self::Custom { list_id } => {
-                write!(f, "custom {list_id}")
-                //write!(f, "custom [")?;
-                //for location in locations {
-                //    write!(f, "{location},")?;
-                //}
-                //write!(f, "]")
-            },
+            Self::Location { location } => write!(f, "location: {location}"),
+            // FIXME: This seems awkward, the user shouldn't see the id and instead they probably
+            // want to see the locations. However in order to get that information we need access
+            // to the custom lists hashmap
+            Self::CustomList { list_id } => {
+                write!(f, "custom list: {list_id}")
+            }
         }
     }
 }
@@ -351,7 +358,7 @@ impl fmt::Display for Foo {
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
-    pub location: Constraint<Foo>,
+    pub location: Constraint<LocationConstraint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub providers: Constraint<Providers>,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -440,7 +447,7 @@ impl fmt::Display for RelayConstraints {
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub enum LocationConstraint {
+pub enum GeographicLocationConstraint {
     /// A country is represented by its two letter country code.
     Country(CountryCode),
     /// A city is composed of a country code and a city code.
@@ -449,22 +456,22 @@ pub enum LocationConstraint {
     Hostname(CountryCode, CityCode, Hostname),
 }
 
-impl LocationConstraint {
+impl GeographicLocationConstraint {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
-            LocationConstraint::Country(ref country) => {
+            GeographicLocationConstraint::Country(ref country) => {
                 relay
                     .location
                     .as_ref()
                     .map_or(false, |loc| loc.country_code == *country)
                     && (ignore_include_in_country || relay.include_in_country)
             }
-            LocationConstraint::City(ref country, ref city) => {
+            GeographicLocationConstraint::City(ref country, ref city) => {
                 relay.location.as_ref().map_or(false, |loc| {
                     loc.country_code == *country && loc.city_code == *city
                 })
             }
-            LocationConstraint::Hostname(ref country, ref city, ref hostname) => {
+            GeographicLocationConstraint::Hostname(ref country, ref city, ref hostname) => {
                 relay.location.as_ref().map_or(false, |loc| {
                     loc.country_code == *country
                         && loc.city_code == *city
@@ -475,7 +482,7 @@ impl LocationConstraint {
     }
 }
 
-impl Constraint<Vec<LocationConstraint>> {
+impl Constraint<Vec<GeographicLocationConstraint>> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             Constraint::Only(constraint) => constraint
@@ -486,43 +493,53 @@ impl Constraint<Vec<LocationConstraint>> {
     }
 }
 
-impl Constraint<LocationConstraint> {
+impl Constraint<GeographicLocationConstraint> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
-            Constraint::Only(constraint) => constraint.matches_with_opts(relay, ignore_include_in_country),
+            Constraint::Only(constraint) => {
+                constraint.matches_with_opts(relay, ignore_include_in_country)
+            }
             Constraint::Any => true,
         }
     }
 }
 
-impl Match<Relay> for LocationConstraint {
+impl Match<Relay> for GeographicLocationConstraint {
     fn matches(&self, relay: &Relay) -> bool {
         self.matches_with_opts(relay, false)
     }
 }
 
-impl Set<LocationConstraint> for LocationConstraint {
+impl Set<GeographicLocationConstraint> for GeographicLocationConstraint {
     /// Returns whether `self` is equal to or a subset of `other`.
     fn is_subset(&self, other: &Self) -> bool {
         match self {
-            LocationConstraint::Country(_) => self == other,
-            LocationConstraint::City(ref country, ref _city) => match other {
-                LocationConstraint::Country(ref other_country) => country == other_country,
-                LocationConstraint::City(..) => self == other,
+            GeographicLocationConstraint::Country(_) => self == other,
+            GeographicLocationConstraint::City(ref country, ref _city) => match other {
+                GeographicLocationConstraint::Country(ref other_country) => {
+                    country == other_country
+                }
+                GeographicLocationConstraint::City(..) => self == other,
                 _ => false,
             },
-            LocationConstraint::Hostname(ref country, ref city, ref _hostname) => match other {
-                LocationConstraint::Country(ref other_country) => country == other_country,
-                LocationConstraint::City(ref other_country, ref other_city) => {
-                    country == other_country && city == other_city
+            GeographicLocationConstraint::Hostname(ref country, ref city, ref _hostname) => {
+                match other {
+                    GeographicLocationConstraint::Country(ref other_country) => {
+                        country == other_country
+                    }
+                    GeographicLocationConstraint::City(ref other_country, ref other_city) => {
+                        country == other_country && city == other_city
+                    }
+                    GeographicLocationConstraint::Hostname(..) => self == other,
                 }
-                LocationConstraint::Hostname(..) => self == other,
-            },
+            }
         }
     }
 }
 
-impl Set<Constraint<Vec<LocationConstraint>>> for Constraint<Vec<LocationConstraint>> {
+impl Set<Constraint<Vec<GeographicLocationConstraint>>>
+    for Constraint<Vec<GeographicLocationConstraint>>
+{
     fn is_subset(&self, other: &Self) -> bool {
         match self {
             Constraint::Any => other.is_any(),
@@ -637,12 +654,14 @@ impl fmt::Display for Providers {
     }
 }
 
-impl fmt::Display for LocationConstraint {
+impl fmt::Display for GeographicLocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            LocationConstraint::Country(country) => write!(f, "country {country}"),
-            LocationConstraint::City(country, city) => write!(f, "city {city}, {country}"),
-            LocationConstraint::Hostname(country, city, hostname) => {
+            GeographicLocationConstraint::Country(country) => write!(f, "country {country}"),
+            GeographicLocationConstraint::City(country, city) => {
+                write!(f, "city {city}, {country}")
+            }
+            GeographicLocationConstraint::Hostname(country, city, hostname) => {
                 write!(f, "city {city}, {country}, hostname {hostname}")
             }
         }
@@ -683,7 +702,7 @@ pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
     pub use_multihop: bool,
-    pub entry_location: Constraint<Foo>,
+    pub entry_location: Constraint<LocationConstraint>,
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -767,7 +786,7 @@ pub struct ObfuscationSettings {
 #[serde(default)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
-    pub location: Constraint<Foo>,
+    pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
 }
@@ -818,7 +837,7 @@ impl fmt::Display for BridgeState {
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct InternalBridgeConstraints {
-    pub location: Constraint<Foo>,
+    pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
@@ -862,7 +881,7 @@ impl RelaySettingsUpdate {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
-    pub location: Option<Constraint<Foo>>,
+    pub location: Option<Constraint<LocationConstraint>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub providers: Option<Constraint<Providers>>,
     #[cfg_attr(target_os = "android", jnix(default))]
@@ -874,5 +893,3 @@ pub struct RelayConstraintsUpdate {
     #[cfg_attr(target_os = "android", jnix(default))]
     pub openvpn_constraints: Option<OpenVpnConstraints>,
 }
-
-

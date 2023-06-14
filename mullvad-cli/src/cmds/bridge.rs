@@ -3,8 +3,8 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
-        Provider, Providers, Foo,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, Ownership,
+        Provider, Providers, LocationConstraint,
     },
     relay_list::RelayEndpointData,
 };
@@ -331,7 +331,7 @@ impl Bridge {
     }
 
     async fn update_bridge_settings(
-        location: Option<Constraint<LocationConstraint>>,
+        location: Option<Constraint<GeographicLocationConstraint>>,
         providers: Option<Constraint<Providers>>,
         ownership: Option<Constraint<Ownership>>,
     ) -> Result<()> {
@@ -340,7 +340,7 @@ impl Bridge {
         let constraints = match rpc.get_settings().await?.bridge_settings {
             BridgeSettings::Normal(mut constraints) => {
                 if let Some(new_location) = location {
-                    constraints.location = new_location.map(Foo::from);
+                    constraints.location = new_location.map(LocationConstraint::from);
                 }
                 if let Some(new_providers) = providers {
                     constraints.providers = new_providers;
@@ -351,7 +351,7 @@ impl Bridge {
                 constraints
             }
             _ => BridgeConstraints {
-                location: location.unwrap_or(Constraint::Any).map(Foo::from),
+                location: location.unwrap_or(Constraint::Any).map(LocationConstraint::from),
                 providers: providers.unwrap_or(Constraint::Any),
                 ownership: ownership.unwrap_or(Constraint::Any),
             },
