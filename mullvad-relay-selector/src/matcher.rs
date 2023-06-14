@@ -1,8 +1,8 @@
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, WireguardConstraints, Foo, Bar,
+        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Providers,
+        RelayConstraints, WireguardConstraints, LocationConstraint, ResolvedLocationConstraint,
     },
     relay_list::{
         OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
@@ -20,7 +20,7 @@ use crate::CustomList;
 pub struct RelayMatcher<T: EndpointMatcher> {
     /// Locations allowed to be picked from. In the case of custom lists this may be multiple
     /// locations. In normal circumstances this contains only 1 location.
-    pub locations: Constraint<Bar>,
+    pub locations: Constraint<ResolvedLocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub endpoint_matcher: T,
@@ -34,7 +34,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
         custom_lists: &HashMap<String, CustomList>,
     ) -> Self {
         Self {
-            locations: Bar::from_constraint(constraints.location, custom_lists),
+            locations: ResolvedLocationConstraint::from_constraint(constraints.location, custom_lists),
             providers: constraints.providers,
             ownership: constraints.ownership,
             endpoint_matcher: AnyTunnelMatcher {

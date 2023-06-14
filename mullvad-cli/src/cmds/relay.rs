@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Location,
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
+        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints, Foo,
+        WireguardConstraints, LocationConstraint,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -437,7 +437,7 @@ impl Relay {
             {
                 Constraint::Only(relay)
             } else {
-                let location_constraint = Constraint::from(location_constraint_args);
+                let location_constraint: Constraint<LocationConstraint> = Constraint::from(location_constraint_args);
                 match &location_constraint {
                     Constraint::Any => (),
                     Constraint::Only(constraint) => {
@@ -456,7 +456,7 @@ impl Relay {
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(constraint.map(|location| Foo::Normal { location })),
+            location: Some(constraint.map(|location| LocationConstraint::Location { location })),
             ..Default::default()
         }))
         .await
@@ -626,7 +626,7 @@ pub fn find_relay_by_hostname(
                      city_code,
                      ..
                  }| {
-                    LocationConstraint::Hostname(country_code, city_code, relay.hostname)
+                    LocationConstraint::Normal { location: GeographicLocationConstraint::Hostname(country_code, city_code, relay.hostname) }
                 },
             )
         })
