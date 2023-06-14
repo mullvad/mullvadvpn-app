@@ -286,7 +286,7 @@ message BridgeSettings {
 
 message Foo {
   oneof type {
-    CustomLocationConstraints custom = 1;
+    string custom = 1;
     RelayLocation normal = 2;
   }
 }

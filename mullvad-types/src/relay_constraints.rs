@@ -5,11 +5,12 @@ use crate::{
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
     CustomTunnelEndpoint,
+    custom_list::CustomList,
 };
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr};
+use std::{collections::{HashSet, HashMap}, fmt, str::FromStr};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -233,7 +234,41 @@ impl RelaySettings {
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum Foo {
     Normal { location: LocationConstraint },
+    Custom { list_id: String },
+}
+
+#[derive(Debug, Clone)]
+pub enum Bar {
+    Normal { location: LocationConstraint },
     Custom { locations: Vec<LocationConstraint> },
+}
+
+impl Bar {
+    // TODO: Merge with from_constraint
+    pub fn new(location: Foo, custom_lists: &HashMap<String, CustomList>) -> Option<Self> {
+        log::error!("=========== {:?}", custom_lists);
+        match location {
+            Foo::Normal { location } => Some(Self::Normal { location }),
+            Foo::Custom { list_id } => {
+                custom_lists.get(&list_id).map(|custom_list| {
+                    Self::Custom { locations: custom_list.locations.clone() }
+                })
+            },
+        }
+    }
+
+    pub fn from_constraint(location: Constraint<Foo>, custom_lists: &HashMap<String, CustomList>) -> Constraint<Bar> {
+        match location {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(location) => {
+                match Bar::new(location, custom_lists) {
+                    None => Constraint::Any,
+                    Some(location) => Constraint::Only(location),
+                }
+            }
+        }
+    }
+
 }
 
 impl From<LocationConstraint> for Foo {
@@ -242,28 +277,28 @@ impl From<LocationConstraint> for Foo {
     }
 }
 
-impl Set<Constraint<Foo>> for Constraint<Foo> {
+impl Set<Constraint<Bar>> for Constraint<Bar> {
     fn is_subset(&self, other: &Self) -> bool {
         match self {
             Constraint::Any => other.is_any(),
-            Constraint::Only(Foo::Normal { location }) => {
+            Constraint::Only(Bar::Normal { location }) => {
                 match other {
                     Constraint::Any => true,
-                    Constraint::Only(Foo::Normal { location: other_location }) => {
+                    Constraint::Only(Bar::Normal { location: other_location }) => {
                         location.is_subset(other_location)
                     }
-                    Constraint::Only(Foo::Custom { locations: other_locations }) => {
+                    Constraint::Only(Bar::Custom { locations: other_locations }) => {
                         other_locations.iter().any(|other_location| location.is_subset(other_location))
                     }
                 }
             }
-            Constraint::Only(Foo::Custom { locations }) => {
+            Constraint::Only(Bar::Custom { locations }) => {
                 match other {
                     Constraint::Any => true,
-                    Constraint::Only(Foo::Normal { location: other_location }) => {
+                    Constraint::Only(Bar::Normal { location: other_location }) => {
                         locations.iter().all(|location| location.is_subset(other_location))
                     }
-                    Constraint::Only(Foo::Custom { locations: other_locations }) => {
+                    Constraint::Only(Bar::Custom { locations: other_locations }) => {
                         for location in locations {
                             if !other_locations.iter().any(|other_location| location.is_subset(other_location)) {
                                 return false;
@@ -277,14 +312,14 @@ impl Set<Constraint<Foo>> for Constraint<Foo> {
     }
 }
 
-impl Constraint<Foo> {
+impl Constraint<Bar> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             Constraint::Any => true,
-            Constraint::Only(Foo::Normal { location }) => {
+            Constraint::Only(Bar::Normal { location }) => {
                 location.matches_with_opts(relay, ignore_include_in_country)
             }
-            Constraint::Only(Foo::Custom { locations }) => {
+            Constraint::Only(Bar::Custom { locations }) => {
                 locations
                     .iter()
                     .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country))
@@ -297,12 +332,13 @@ impl fmt::Display for Foo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             Self::Normal { location } => write!(f, "normal {location}"),
-            Self::Custom { locations } => {
-                write!(f, "custom [")?;
-                for location in locations {
-                    write!(f, "{location},")?;
-                }
-                write!(f, "]")
+            Self::Custom { list_id } => {
+                write!(f, "custom {list_id}")
+                //write!(f, "custom [")?;
+                //for location in locations {
+                //    write!(f, "{location},")?;
+                //}
+                //write!(f, "]")
             },
         }
     }

@@ -8,8 +8,8 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
             custom_lists: settings
                 .custom_lists
                 .iter()
-                .map(|(name, custom_list)| {
-                    (name.clone(), proto::CustomList::from(custom_list.clone()))
+                .map(|(id, custom_list)| {
+                    (id.clone(), proto::CustomList::from(custom_list.clone()))
                 })
             .collect(),
             selected_list_entry: settings.selected_list_entry.clone(),
@@ -26,9 +26,9 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
             custom_lists: settings
                 .custom_lists
                 .into_iter()
-                .map(|(name, custom_list)| {
+                .map(|(id, custom_list)| {
                     Ok((
-                            name,
+                            id,
                             mullvad_types::custom_list::CustomList::try_from(custom_list)?,
                     ))
                 })
