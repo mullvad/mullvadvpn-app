@@ -137,10 +137,13 @@
     <string name="remove_button">Quitar</string>
     <string name="report_a_problem">Informar de un problema</string>
     <string name="reset_to_default_button">Restablecer a valores predeterminados</string>
+    <string name="search_placeholder">Buscar...</string>
     <string name="secure_connection">CONEXIÓN SEGURA</string>
     <string name="secured">Protegido</string>
     <string name="select_location">Seleccionar ubicación</string>
     <string name="select_location_description">Mientras esté conectado, su ubicación real permanecerá oculta con una ubicación privada y segura en la región seleccionada.</string>
+    <string name="select_location_empty_text_first_row">No hay resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="select_location_empty_text_second_row">Pruebe con otra búsqueda.</string>
     <string name="send">Enviar</string>
     <string name="send_anyway">Enviar de todos modos</string>
     <string name="sending">Enviando…</string>
