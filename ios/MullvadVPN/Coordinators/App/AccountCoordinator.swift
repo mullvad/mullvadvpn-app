@@ -48,6 +48,36 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 }
 
 extension AccountCoordinator: AccountViewControllerDelegate {
+    func accountViewController(
+        _ controller: AccountViewController,
+        didRequestRoutePresentation route: AccountsNavigationRoute
+    ) {
+        switch route {
+        case .redeemVoucher:
+            let coordinator = RedeemVoucherCoordinator(
+                navigationController: CustomNavigationController(),
+                interactor: RedeemVoucherInteractor(tunnelManager: interactor.tunnelManager)
+            )
+            coordinator.didFinish = { [weak self] coordinator in
+                self?.dismiss(animated: true)
+            }
+            coordinator.didCancel = { [weak self] coordinator in
+                self?.dismiss(animated: true)
+            }
+
+            coordinator.start()
+            presentChild(
+                coordinator,
+                animated: true,
+                configuration: ModalPresentationConfiguration(
+                    preferredContentSize: UIMetrics.voucherModalSize,
+                    modalPresentationStyle: .custom,
+                    transitioningDelegate: FormSheetTransitioningDelegate()
+                )
+            )
+        }
+    }
+
     func accountViewControllerDidFinish(_ controller: AccountViewController) {
         didFinish?(self, .none)
     }
@@ -55,4 +85,8 @@ extension AccountCoordinator: AccountViewControllerDelegate {
     func accountViewControllerDidLogout(_ controller: AccountViewController) {
         didFinish?(self, .userLoggedOut)
     }
+}
+
+private extension UIMetrics {
+    static let voucherModalSize = CGSize(width: 292, height: 263)
 }
