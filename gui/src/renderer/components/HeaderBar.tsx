@@ -1,12 +1,16 @@
 import React, { useCallback } from 'react';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { closeToExpiry, formatRemainingTime, hasExpired } from '../../shared/account-expiry';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { tinyText } from './common-styles';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
@@ -26,26 +30,32 @@ const headerBarStyleColorMap = {
 
 interface IHeaderBarContainerProps {
   barStyle?: HeaderBarStyle;
+  accountInfoVisible: boolean;
   unpinnedWindow: boolean;
 }
 
 const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
-  padding: '12px 16px',
+  padding: '15px 16px 0px',
+  minHeight: props.accountInfoVisible ? '80px' : '68px',
+  height: props.accountInfoVisible ? '80px' : '68px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
+  transitionProperty: 'height, min-height',
+  transitionDuration: '250ms',
+  transitionTimingFunction: 'ease-in-out',
 }));
 
 const HeaderBarContent = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  // In views without the brand components we still want the Header to have the same height.
-  minHeight: '51px',
+  height: '38px',
 });
 
 interface IHeaderBarProps {
   barStyle?: HeaderBarStyle;
   className?: string;
   children?: React.ReactNode;
+  showAccountInfo?: boolean;
 }
 
 export default function HeaderBar(props: IHeaderBarProps) {
@@ -55,8 +65,10 @@ export default function HeaderBar(props: IHeaderBarProps) {
     <HeaderBarContainer
       barStyle={props.barStyle}
       className={props.className}
+      accountInfoVisible={props.showAccountInfo ?? false}
       unpinnedWindow={unpinnedWindow}>
       <HeaderBarContent>{props.children}</HeaderBarContent>
+      {props.showAccountInfo && <HeaderBarDeviceInfo />}
     </HeaderBarContainer>
   );
 }
@@ -78,6 +90,62 @@ export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
       <ImageView width={38} height={38} source="logo-icon" />
       <Title height={15.4} source="logo-text" />
     </BrandContainer>
+  );
+}
+
+const StyledAccountInfo = styled.div({
+  display: 'flex',
+  marginTop: '2px',
+  maxWidth: '100%',
+});
+
+const StyledDeviceLabel = styled.div(tinyText, {
+  fontSize: '10px',
+  color: colors.white80,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const StyledTimeLeftLabel = styled.div(tinyText, {
+  fontSize: '10px',
+  color: colors.white80,
+  marginLeft: '16px',
+  whiteSpace: 'nowrap',
+});
+
+function HeaderBarDeviceInfo() {
+  const deviceName = useSelector((state) => state.account.deviceName);
+  const accountExpiry = useSelector((state) => state.account.expiry);
+  const isOutOfTime = accountExpiry ? hasExpired(accountExpiry) : false;
+  const formattedExpiry = isOutOfTime
+    ? sprintf(messages.ngettext('1 day', '%d days', 0), 0)
+    : accountExpiry
+    ? formatRemainingTime(accountExpiry)
+    : '';
+
+  return (
+    <StyledAccountInfo>
+      <StyledDeviceLabel>
+        {sprintf(
+          // TRANSLATORS: A label that will display the newly created device name to inform the user
+          // TRANSLATORS: about it.
+          // TRANSLATORS: Available placeholders:
+          // TRANSLATORS: %(deviceName)s - The name of the current device
+          messages.pgettext('device-management', 'Device name: %(deviceName)s'),
+          {
+            deviceName: capitalizeEveryWord(deviceName ?? ''),
+          },
+        )}
+      </StyledDeviceLabel>
+      {accountExpiry && !closeToExpiry(accountExpiry) && (
+        <StyledTimeLeftLabel>
+          {sprintf(messages.pgettext('device-management', 'Time left: %(timeLeft)s'), {
+            timeLeft: formattedExpiry,
+          })}
+        </StyledTimeLeftLabel>
+      )}
+    </StyledAccountInfo>
   );
 }
 
@@ -145,9 +213,12 @@ export function HeaderBarAccountButton() {
 
 export function DefaultHeaderBar(props: IHeaderBarProps) {
   const loggedIn = useSelector((state) => state.account.status.type === 'ok');
+  const showAccountInfo = useSelector(
+    (state) => state.account.status.type === 'ok' && !state.account.status.newDeviceBanner,
+  );
 
   return (
-    <HeaderBar {...props}>
+    <HeaderBar showAccountInfo={showAccountInfo} {...props}>
       <FocusFallback>
         <Brand />
       </FocusFallback>
