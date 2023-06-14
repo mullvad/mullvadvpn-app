@@ -4,7 +4,7 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate, Foo},
+    relay_constraints::{Constraint, GeographicLocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate, LocationConstraint},
 };
 
 #[derive(Subcommand, Debug)]
@@ -80,7 +80,7 @@ impl CustomList {
     }
 
     async fn add_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<LocationConstraint>::from(location_args);
+        let location = Constraint::<GeographicLocationConstraint>::from(location_args);
         let update = CustomListLocationUpdate::Add { name, location };
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.update_custom_list_location(update).await?;
@@ -88,7 +88,7 @@ impl CustomList {
     }
 
     async fn remove_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<LocationConstraint>::from(location_args);
+        let location = Constraint::<GeographicLocationConstraint>::from(location_args);
         let update = CustomListLocationUpdate::Remove { name, location };
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.update_custom_list_location(update).await?;
@@ -105,7 +105,7 @@ impl CustomList {
         let mut rpc = MullvadProxyClient::new().await?;
         let list_id = rpc.get_custom_list(name).await?.id;
         rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(Foo::Custom { list_id, })),
+            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id, })),
             ..Default::default()
         })).await?;
         Ok(())
