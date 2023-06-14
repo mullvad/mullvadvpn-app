@@ -137,10 +137,13 @@
     <string name="remove_button">ဖယ်ရှားရန်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
     <string name="reset_to_default_button">ပုံသေသို့ ပြန်လည်သတ်မှတ်ရန်</string>
+    <string name="search_placeholder">ရှာရန်...</string>
     <string name="secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="secured">လုံခြုံပါသည်</string>
     <string name="select_location">တည်နေရာ ရွေးရန်</string>
     <string name="select_location_description">ချိတ်ဆက်ထားချိန်တွင် သင့်တည်နေရာအမှန်ကို ရွေးချယ်ထားသည့် ဒေသရှိ လျှို့ဝှက်လုံခြုံသည့် တည်နေရာဖြင့် ဖုံးကွယ်ထားပါသည်။</string>
+    <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; အတွက် ရလဒ် မရှိပါ။</string>
+    <string name="select_location_empty_text_second_row">မတူညီသော ရှာဖွေမှုဖြင့် ကြိုးစားကြည့်ပါ။</string>
     <string name="send">ပို့ရန်</string>
     <string name="send_anyway">မည်သို့ပင်ဖြစ်စေ ပို့ရန်</string>
     <string name="sending">ပို့နေဆဲ...</string>

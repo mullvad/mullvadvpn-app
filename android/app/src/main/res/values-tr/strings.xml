@@ -137,10 +137,13 @@
     <string name="remove_button">Kaldır</string>
     <string name="report_a_problem">Bir sorun bildir</string>
     <string name="reset_to_default_button">Varsayılana sıfırla</string>
+    <string name="search_placeholder">Ara...</string>
     <string name="secure_connection">GÜVENLİ BAĞLANTI</string>
     <string name="secured">Güvenli</string>
     <string name="select_location">Konum seçin</string>
     <string name="select_location_description">Bağlıyken gerçek konumunuz, seçilen bölgedeki özel ve gizli bir konumla maskelenir.</string>
+    <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; için sonuç bulunamadı.</string>
+    <string name="select_location_empty_text_second_row">Farklı bir arama deneyin.</string>
     <string name="send">Gönder</string>
     <string name="send_anyway">Yine de gönder</string>
     <string name="sending">Gönderiliyor...</string>
