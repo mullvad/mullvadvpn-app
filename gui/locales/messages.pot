@@ -35,33 +35,11 @@ msgid_plural "%d years left"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "Account paid until %(expiry)s."
 msgstr ""
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgid "Account settings"
+msgstr ""
 
 msgid "Any"
 msgstr ""
@@ -165,9 +143,6 @@ msgid "less than a day"
 msgstr ""
 
 msgid "less than a day left"
-msgstr ""
-
-msgid "less than a minute ago"
 msgstr ""
 
 msgid "Next"
@@ -533,6 +508,10 @@ msgstr ""
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
+msgstr ""
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
 msgstr ""
 
 #. Page title informing user that the login failed due to too many registered
@@ -1069,21 +1048,12 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr ""
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr ""
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
 msgctxt "settings-view"
 msgid "App version"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
 msgstr ""
 
 #. Navigation button to the 'Split tunneling' view
@@ -1818,6 +1788,9 @@ msgstr ""
 msgid "You are running an unsupported app version."
 msgstr ""
 
+msgid "less than a minute ago"
+msgstr ""
+
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
 msgstr[0] ""
@@ -1825,5 +1798,30 @@ msgstr[1] ""
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""
