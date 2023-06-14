@@ -63,7 +63,7 @@ val uiModule = module {
 
     single { AccountExpiryNotification(get()) }
     single { TunnelStateNotification(get()) }
-    single { VersionInfoNotification(get()) }
+    single { VersionInfoNotification(BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get()) }
 
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
