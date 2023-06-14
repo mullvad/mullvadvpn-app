@@ -15,7 +15,7 @@ import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { bigText, measurements } from './common-styles';
+import { bigText, measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
@@ -65,8 +65,23 @@ const StyledSpacer = styled.div({
   flex: '1',
 });
 
-const StyledDeviceName = styled(Cell.Label)({
+const StyledDeviceInfo = styled(Cell.Label)({
+  display: 'flex',
+  flexDirection: 'column',
+  marginTop: '9px',
+  marginBottom: '9px',
+});
+
+const StyledDeviceName = styled.span(normalText, {
+  fontWeight: 'normal',
+  lineHeight: '20px',
   textTransform: 'capitalize',
+});
+
+const StyledDeviceDate = styled.span(tinyText, {
+  fontSize: '10px',
+  lineHeight: '10px',
+  color: colors.white60,
 });
 
 const StyledRemoveDeviceButton = styled.button({
@@ -210,11 +225,25 @@ function Device(props: IDeviceProps) {
   }, [props.onRemove, props.device.id, hideConfirmation, setDeleting, handleError]);
 
   const capitalizedDeviceName = capitalizeEveryWord(props.device.name);
+  const createdDate = props.device.created.toISOString().split('T')[0];
 
   return (
     <>
       <Cell.Container>
-        <StyledDeviceName aria-hidden>{props.device.name}</StyledDeviceName>
+        <StyledDeviceInfo>
+          <StyledDeviceName aria-hidden>{props.device.name}</StyledDeviceName>
+          <StyledDeviceDate>
+            {sprintf(
+              // TRANSLATORS: Label informing the user when a device was created.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(createdDate)s - The creation date of the device.
+              messages.pgettext('device-management', 'Created: %(createdDate)s'),
+              {
+                createdDate,
+              },
+            )}
+          </StyledDeviceDate>
+        </StyledDeviceInfo>
         {deleting ? (
           <ImageView source="icon-spinner" width={24} />
         ) : (
