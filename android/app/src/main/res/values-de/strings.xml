@@ -127,6 +127,7 @@
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
     <string name="report_a_problem">Problem melden</string>
+    <string name="search_placeholder">Suchen nach …</string>
     <string name="secure_connection">SICHERE VERBINDUNG</string>
     <string name="secured">Gesichert</string>
     <string name="select_location">Ort auswählen</string>

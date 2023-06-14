@@ -127,6 +127,7 @@
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="report_a_problem">Reportar um problema</string>
+    <string name="search_placeholder">Pesquisar por...</string>
     <string name="secure_connection">LIGAÇÃO SEGURA</string>
     <string name="secured">Seguro</string>
     <string name="select_location">Selecionar local</string>

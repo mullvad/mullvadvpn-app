@@ -127,6 +127,7 @@
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="report_a_problem">回報問題</string>
+    <string name="search_placeholder">搜尋…</string>
     <string name="secure_connection">安全連線</string>
     <string name="secured">安全</string>
     <string name="select_location">選擇位置</string>

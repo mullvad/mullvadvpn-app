@@ -127,6 +127,7 @@
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="report_a_problem">문제 신고</string>
+    <string name="search_placeholder">검색...</string>
     <string name="secure_connection">보안 연결</string>
     <string name="secured">안전함</string>
     <string name="select_location">위치 선택</string>
