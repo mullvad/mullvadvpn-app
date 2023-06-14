@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
@@ -31,6 +32,18 @@ class RelayListListener(
         }
         set(value) {
             connection.send(Request.SetRelayLocation(value).message)
+        }
+
+    var selectedWireguardConstraints: WireguardConstraints?
+        get() {
+            val settings = relaySettings as? RelaySettings.Normal
+
+            return settings?.relayConstraints?.wireguardConstraints?.port?.let { port ->
+                WireguardConstraints(port)
+            }
+        }
+        set(value) {
+            connection.send(Request.SetWireguardConstraints(value).message)
         }
 
     var onRelayListChange: ((RelayList, RelayItem?) -> Unit)? = null
@@ -66,7 +79,10 @@ class RelayListListener(
             val relayList = this.relayList
 
             relaySettings =
-                newRelaySettings ?: RelaySettings.Normal(RelayConstraints(Constraint.Any()))
+                newRelaySettings
+                    ?: RelaySettings.Normal(
+                        RelayConstraints(Constraint.Any(), WireguardConstraints(Constraint.Any()))
+                    )
 
             if (relayList != null) {
                 relayListChanged(relayList)
