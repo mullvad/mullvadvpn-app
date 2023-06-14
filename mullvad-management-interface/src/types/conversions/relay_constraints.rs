@@ -495,15 +495,15 @@ impl From<mullvad_types::relay_constraints::Foo> for proto::Foo {
                     location,
                 ))),
             },
-            Foo::Custom { locations } => {
-                let locations: Vec<_> = locations
-                    .into_iter()
-                    .map(proto::RelayLocation::from)
-                    .collect();
+            Foo::Custom { list_id } => {
+                //let locations: Vec<_> = locations
+                //    .into_iter()
+                //    .map(proto::RelayLocation::from)
+                //    .collect();
                 Self {
-                    r#type: Some(proto::foo::Type::Custom(proto::CustomLocationConstraints {
-                        locations,
-                    })),
+                    r#type: Some(proto::foo::Type::Custom(
+                        list_id,
+                    )),
                 }
             }
         }
@@ -523,28 +523,28 @@ impl From<proto::Foo> for Constraint<mullvad_types::relay_constraints::Foo> {
                     Constraint::Only(location) => Constraint::Only(Foo::Normal { location }),
                 }
             }
-            Some(proto::foo::Type::Custom(locations)) => {
-                let locations: Result<Vec<_>, _> = locations
-                    .locations
-                    .into_iter()
-                    .map(|location| {
-                        Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from(
-                            location,
-                        )
-                    }).try_fold(Vec::new(), |mut vec, location| {
-                        if location.is_any() {
-                            Err(Constraint::Any)
-                        } else {
-                            vec.push(location.unwrap());
-                            Ok(vec)
-                        }
-                    });
-                let locations = match locations {
-                    Err(any) => return any,
-                    Ok(locations) => locations,
-                };
+            Some(proto::foo::Type::Custom(list_id)) => {
+                //let locations: Result<Vec<_>, _> = locations
+                //    .locations
+                //    .into_iter()
+                //    .map(|location| {
+                //        Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from(
+                //            location,
+                //        )
+                //    }).try_fold(Vec::new(), |mut vec, location| {
+                //        if location.is_any() {
+                //            Err(Constraint::Any)
+                //        } else {
+                //            vec.push(location.unwrap());
+                //            Ok(vec)
+                //        }
+                //    });
+                //let list_id = match list_id {
+                //    Err(any) => return any,
+                //    Ok(list_id) => list_id,
+                //};
 
-                let location = Foo::Custom { locations };
+                let location = Foo::Custom { list_id };
                 Constraint::Only(location)
             }
             None => Constraint::Any,
