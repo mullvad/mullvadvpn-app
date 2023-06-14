@@ -22,8 +22,7 @@ final class SimulatorTunnelTransportProvider: RESTTransport {
         "SimulatorTunnelTransportProvider"
     }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> MullvadTypes
-        .Cancellable
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> Cancellable
     {
         urlSessionTransport.sendRequest(request, completion: completion)
     }

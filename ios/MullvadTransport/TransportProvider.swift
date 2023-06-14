@@ -67,8 +67,6 @@ public final class TransportProvider: RESTTransport {
     /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
     private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
         // If a previous shadowsocks configuration was in cache, return it directly.
-        // There is no previous configuration either if this is the first time this code ran
-        // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
         do {
             return try shadowsocksCache.read()
         } catch {
@@ -119,7 +117,7 @@ public final class TransportProvider: RESTTransport {
 
         let currentStrategy = transportStrategy
         guard let transport = makeTransport() else { return AnyCancellable() }
-        let transportSwitchErrors: [URLError.Code] = [
+        let nonSwitchErrorCodes: [URLError.Code] = [
             .cancelled,
             .notConnectedToInternet,
             .internationalRoamingOff,
@@ -129,17 +127,11 @@ public final class TransportProvider: RESTTransport {
         let failureCompletionHandler: (Data?, URLResponse?, Error?)
             -> Void = { [weak self] data, response, maybeError in
                 guard let self else { return }
+
                 if let error = maybeError as? URLError,
-                   transportSwitchErrors.contains(error.code) == false
+                   nonSwitchErrorCodes.contains(error.code) == false
                 {
-                    parallelRequestsMutex.lock()
-                    // Guarantee that the transport strategy switches mode only once when parallel requests fail at
-                    // the same time.
-                    if currentStrategy == transportStrategy {
-                        transportStrategy.didFail()
-                        currentTransport = nil
-                    }
-                    parallelRequestsMutex.unlock()
+                    resetTransportMatching(currentStrategy)
                 }
                 completion(data, response, maybeError)
             }
@@ -147,7 +139,28 @@ public final class TransportProvider: RESTTransport {
         return transport.sendRequest(request, completion: failureCompletionHandler)
     }
 
-    func makeTransport() -> RESTTransport? {
+    /// When several requests fail at the same time,  prevents the `transportStrategy` from switching multiple times.
+    ///
+    /// The `strategy` is checked against the `transportStrategy`. When several requests are made and fail in parallel,
+    /// only the first failure will pass the equality check.
+    /// Subsequent failures will not cause the strategy to change several times in a quick fashion.
+    /// - Parameter strategy: The strategy object used when sending a request
+    private func resetTransportMatching(_ strategy: TransportStrategy) {
+        parallelRequestsMutex.lock()
+        defer { parallelRequestsMutex.unlock() }
+
+        if strategy == transportStrategy {
+            transportStrategy.didFail()
+            currentTransport = nil
+        }
+    }
+
+    /// Sets and returns the `currentTransport` according to the suggestion from `transportStrategy`
+    ///
+    /// > Warning: Do not  lock the `parallelRequestsMutex` in this method
+    ///
+    /// - Returns: A `RESTTransport` object to make a connection
+    private func makeTransport() -> RESTTransport? {
         if currentTransport == nil {
             switch transportStrategy.connectionTransport() {
             case .useShadowsocks:
