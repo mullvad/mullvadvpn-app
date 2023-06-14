@@ -127,6 +127,7 @@
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="report_a_problem">报告问题</string>
+    <string name="search_placeholder">搜索…</string>
     <string name="secure_connection">安全连接</string>
     <string name="secured">已受保护</string>
     <string name="select_location">选择位置</string>

@@ -127,6 +127,7 @@
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="report_a_problem">Rapporter et problem</string>
+    <string name="search_placeholder">Søk etter ...</string>
     <string name="secure_connection">SIKKER TILKOBLING</string>
     <string name="secured">Sikret</string>
     <string name="select_location">Velg plassering</string>

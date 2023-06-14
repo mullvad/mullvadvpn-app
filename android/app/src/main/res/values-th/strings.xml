@@ -127,6 +127,7 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="report_a_problem">รายงานปัญหา</string>
+    <string name="search_placeholder">ค้นหา…</string>
     <string name="secure_connection">การเชื่อมต่อที่ปลอดภัย</string>
     <string name="secured">ปลอดภัย</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
