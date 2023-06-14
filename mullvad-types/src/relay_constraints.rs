@@ -244,7 +244,6 @@ pub struct RelayConstraints {
     pub ownership: Constraint<Ownership>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard_constraints: WireguardConstraints,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn_constraints: OpenVpnConstraints,
@@ -539,12 +538,49 @@ impl fmt::Display for OpenVpnConstraints {
 
 /// [`Constraint`]s applicable to WireGuard relays.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(default)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[serde(rename_all = "snake_case", default)]
 pub struct WireguardConstraints {
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|constraint| constraint.map(|v| Port { value: v as i32 })")
+    )]
     pub port: Constraint<u16>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ip_version: Constraint<IpVersion>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub use_multihop: bool,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for WireguardConstraints
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/WireguardConstraints;";
+
+    fn from_java(env: &JnixEnv<'env>, object: JObject<'sub_env>) -> Self {
+        let object = env
+            .call_method(
+                object,
+                "component1",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing WireguardConstraints.port")
+            .l()
+            .expect("WireguardConstraints.port did not return an object");
+
+        let port: Constraint<Port> = Constraint::from_java(env, object);
+
+        WireguardConstraints {
+            port: port.map(|port| port.value as u16),
+            ..Default::default()
+        }
+    }
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -567,6 +603,14 @@ impl fmt::Display for WireguardConstraints {
             Ok(())
         }
     }
+}
+
+/// Used for jni conversion.
+#[cfg(target_os = "android")]
+#[derive(Debug, Default, Clone, Eq, PartialEq, FromJava, IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+struct Port {
+    value: i32,
 }
 
 /// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
@@ -768,7 +812,6 @@ pub struct RelayConstraintsUpdate {
     pub ownership: Option<Constraint<Ownership>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
-    #[cfg_attr(target_os = "android", jnix(default))]
     pub wireguard_constraints: Option<WireguardConstraints>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub openvpn_constraints: Option<OpenVpnConstraints>,
