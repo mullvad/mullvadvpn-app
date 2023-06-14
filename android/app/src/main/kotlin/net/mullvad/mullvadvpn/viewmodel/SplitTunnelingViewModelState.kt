@@ -13,13 +13,13 @@ data class SplitTunnelingViewModelState(
             ?.partition { appData -> excludedApps.contains(appData.packageName) }
             ?.let { (excluded, included) ->
                 SplitTunnelingUiState.ShowAppList(
-                    excludedApps = excluded,
+                    excludedApps = excluded.sortedBy { it.name },
                     includedApps =
                         if (showSystemApps) {
                             included
                         } else {
                             included.filter { appData -> !appData.isSystemApp }
-                        },
+                        }.sortedBy { it.name },
                     showSystemApps = showSystemApps
                 )
             }
