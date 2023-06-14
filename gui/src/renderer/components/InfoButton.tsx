@@ -17,13 +17,14 @@ const StyledInfoButton = styled.button({
 
 interface IInfoIconProps {
   className?: string;
+  size?: number;
 }
 
 export function InfoIcon(props: IInfoIconProps) {
   return (
     <ImageView
       source="icon-info"
-      width={18}
+      width={props.size ?? 18}
       tintColor={colors.white}
       tintHoverColor={colors.white80}
       className={props.className}
