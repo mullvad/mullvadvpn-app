@@ -166,7 +166,6 @@ pub enum Error {
     TunnelError(#[error(source)] tunnel_state_machine::Error),
 
     #[error(display = "Custom list error")]
-    // TODO: Create different custom list errors types
     CustomListError(#[error(source)] custom_lists::Error),
 
     #[cfg(target_os = "macos")]
