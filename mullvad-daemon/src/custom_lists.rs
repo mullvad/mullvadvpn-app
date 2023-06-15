@@ -1,5 +1,10 @@
-use crate::{new_selector_config, Daemon, EventListener, settings};
-use mullvad_types::{relay_constraints::{RelaySettings, Constraint, LocationConstraint, BridgeState, BridgeSettings}, custom_list::{CustomListLocationUpdate, CustomList, Id}};
+use crate::{new_selector_config, settings, Daemon, EventListener};
+use mullvad_types::{
+    custom_list::{CustomList, CustomListLocationUpdate, Id},
+    relay_constraints::{
+        BridgeSettings, BridgeState, Constraint, LocationConstraint, RelaySettings,
+    },
+};
 use talpid_types::net::TunnelType;
 
 #[derive(err_derive::Error, Debug)]
@@ -17,7 +22,6 @@ pub enum Error {
     #[error(display = "Settings error")]
     SettingsError(#[error(source)] settings::Error),
 }
-
 
 impl<L> Daemon<L>
 where
@@ -47,7 +51,9 @@ where
                         .set_config(new_selector_config(&self.settings, &self.app_version_info));
 
                     if need_to_reconnect {
-                        log::info!("Initiating tunnel restart because a selected custom list was deleted");
+                        log::info!(
+                            "Initiating tunnel restart because a selected custom list was deleted"
+                        );
                         self.reconnect_tunnel();
                     }
                 }
@@ -59,10 +65,16 @@ where
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<(), Error> {
-        let result = if self.settings.custom_lists.get_custom_list_with_name(&name).is_some() {
+        let result = if self
+            .settings
+            .custom_lists
+            .get_custom_list_with_name(&name)
+            .is_some()
+        {
             Err(Error::ListExists)
         } else {
-            let settings_changed = self.settings
+            let settings_changed = self
+                .settings
                 .update(|settings| {
                     let custom_list = CustomList::new(name);
                     assert!(settings
@@ -77,10 +89,8 @@ where
             if let Ok(true) = settings_changed {
                 self.event_listener
                     .notify_settings(self.settings.to_settings());
-                self.relay_selector.set_config(new_selector_config(
-                        &self.settings,
-                        &self.app_version_info,
-                ));
+                self.relay_selector
+                    .set_config(new_selector_config(&self.settings, &self.app_version_info));
             }
 
             settings_changed.map(|_| ())
@@ -88,7 +98,10 @@ where
         result
     }
 
-    pub async fn update_custom_list_location(&mut self, update: CustomListLocationUpdate) -> Result<(), Error> {
+    pub async fn update_custom_list_location(
+        &mut self,
+        update: CustomListLocationUpdate,
+    ) -> Result<(), Error> {
         let result = match update {
             CustomListLocationUpdate::Add {
                 name,
@@ -125,8 +138,8 @@ where
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
                         self.relay_selector.set_config(new_selector_config(
-                                &self.settings,
-                                &self.app_version_info,
+                            &self.settings,
+                            &self.app_version_info,
                         ));
 
                         if should_reconnect {
@@ -179,8 +192,8 @@ where
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
                         self.relay_selector.set_config(new_selector_config(
-                                &self.settings,
-                                &self.app_version_info,
+                            &self.settings,
+                            &self.app_version_info,
                         ));
 
                         if should_reconnect {
@@ -200,30 +213,47 @@ where
         result
     }
 
-    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<(), Error> {
-        if self.settings.custom_lists.get_custom_list_with_name(&new_name).is_some() {
+    pub async fn rename_custom_list(
+        &mut self,
+        name: String,
+        new_name: String,
+    ) -> Result<(), Error> {
+        if self
+            .settings
+            .custom_lists
+            .get_custom_list_with_name(&new_name)
+            .is_some()
+        {
             Err(Error::ListExists)
         } else {
             match self.settings.custom_lists.get_custom_list_with_name(&name) {
                 Some(custom_list) => {
                     let id = custom_list.id.clone();
 
-                    let settings_changed = self.settings.update(|settings| {
-                        settings.custom_lists.custom_lists.get_mut(&id).unwrap().name = new_name;
-                    }).await;
+                    let settings_changed = self
+                        .settings
+                        .update(|settings| {
+                            settings
+                                .custom_lists
+                                .custom_lists
+                                .get_mut(&id)
+                                .unwrap()
+                                .name = new_name;
+                        })
+                        .await;
 
                     if let Ok(true) = settings_changed {
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
                         self.relay_selector.set_config(new_selector_config(
-                                &self.settings,
-                                &self.app_version_info,
+                            &self.settings,
+                            &self.app_version_info,
                         ));
                     }
 
                     Ok(())
                 }
-                None => Err(Error::ListNotFound)
+                None => Err(Error::ListNotFound),
             }
         }
     }
@@ -232,14 +262,18 @@ where
         let mut need_to_reconnect = false;
 
         if let RelaySettings::Normal(relay_settings) = &self.settings.relay_settings {
-            if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &relay_settings.location {
+            if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                &relay_settings.location
+            {
                 need_to_reconnect |= list_id == custom_list_id;
             }
             if let Constraint::Only(protocol) = relay_settings.tunnel_protocol {
                 match protocol {
                     TunnelType::Wireguard => {
                         if relay_settings.wireguard_constraints.use_multihop {
-                            if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &relay_settings.wireguard_constraints.entry_location {
+                            if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                                &relay_settings.wireguard_constraints.entry_location
+                            {
                                 need_to_reconnect |= list_id == custom_list_id;
                             }
                         }
@@ -247,8 +281,13 @@ where
 
                     TunnelType::OpenVpn => {
                         if !matches!(self.settings.bridge_state, BridgeState::Off) {
-                            if let BridgeSettings::Normal(bridge_settings) = &self.settings.bridge_settings {
-                                if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &bridge_settings.location {
+                            if let BridgeSettings::Normal(bridge_settings) =
+                                &self.settings.bridge_settings
+                            {
+                                if let Constraint::Only(LocationConstraint::CustomList {
+                                    list_id,
+                                }) = &bridge_settings.location
+                                {
                                     need_to_reconnect |= list_id == custom_list_id;
                                 }
                             }
@@ -260,5 +299,4 @@ where
 
         need_to_reconnect
     }
-
 }

@@ -4,6 +4,7 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -12,7 +13,6 @@ use mullvad_types::{
     states::TunnelState,
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
-    custom_list::{CustomListLocationUpdate, CustomList},
 };
 #[cfg(target_os = "windows")]
 use std::path::Path;
@@ -444,7 +444,9 @@ impl MullvadProxyClient {
             .list_custom_lists(())
             .await
             .map_err(Error::Rpc)?
-            .into_inner().try_into().map_err(Error::InvalidResponse)?;
+            .into_inner()
+            .try_into()
+            .map_err(Error::InvalidResponse)?;
         Ok(result)
     }
 
@@ -454,31 +456,27 @@ impl MullvadProxyClient {
             .get_custom_list(name)
             .await
             .map_err(Error::Rpc)?
-            .into_inner().try_into().map_err(Error::InvalidResponse)?;
+            .into_inner()
+            .try_into()
+            .map_err(Error::InvalidResponse)?;
         Ok(result)
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
-        self
-            .0
-            .create_custom_list(name)
-            .await
-            .map_err(Error::Rpc)?;
+        self.0.create_custom_list(name).await.map_err(Error::Rpc)?;
         Ok(())
     }
 
     pub async fn delete_custom_list(&mut self, name: String) -> Result<()> {
-        self
-            .0
-            .delete_custom_list(name)
-            .await
-            .map_err(Error::Rpc)?;
+        self.0.delete_custom_list(name).await.map_err(Error::Rpc)?;
         Ok(())
     }
 
-    pub async fn update_custom_list_location(&mut self, custom_list_update: CustomListLocationUpdate) -> Result<()> {
-        self
-            .0
+    pub async fn update_custom_list_location(
+        &mut self,
+        custom_list_update: CustomListLocationUpdate,
+    ) -> Result<()> {
+        self.0
             .update_custom_list_location(types::CustomListLocationUpdate::from(custom_list_update))
             .await
             .map_err(Error::Rpc)?;
@@ -606,7 +604,3 @@ fn map_location_error(status: Status) -> Error {
         _other => Error::Rpc(status),
     }
 }
-
-
-
-

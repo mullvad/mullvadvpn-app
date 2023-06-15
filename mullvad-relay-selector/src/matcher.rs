@@ -1,8 +1,9 @@
+use crate::CustomListsSettings;
 use mullvad_types::{
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, WireguardConstraints, LocationConstraint, ResolvedLocationConstraint,
+        Constraint, Match, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
+        ResolvedLocationConstraint, WireguardConstraints,
     },
     relay_list::{
         OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
@@ -12,9 +13,8 @@ use rand::{
     seq::{IteratorRandom, SliceRandom},
     Rng,
 };
-use std::{collections::HashMap, net::{IpAddr, SocketAddr}};
+use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{all_of_the_internet, wireguard, Endpoint, IpVersion, TunnelType};
-use crate::CustomListsSettings;
 
 #[derive(Clone)]
 pub struct RelayMatcher<T: EndpointMatcher> {
@@ -34,7 +34,10 @@ impl RelayMatcher<AnyTunnelMatcher> {
         custom_lists: &CustomListsSettings,
     ) -> Self {
         Self {
-            locations: ResolvedLocationConstraint::from_constraint(constraints.location, custom_lists),
+            locations: ResolvedLocationConstraint::from_constraint(
+                constraints.location,
+                custom_lists,
+            ),
             providers: constraints.providers,
             ownership: constraints.ownership,
             endpoint_matcher: AnyTunnelMatcher {
@@ -356,5 +359,3 @@ impl EndpointMatcher for BridgeMatcher {
         None
     }
 }
-
-

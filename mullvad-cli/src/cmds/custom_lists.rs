@@ -4,7 +4,10 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
-    relay_constraints::{Constraint, GeographicLocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate, LocationConstraint},
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraintsUpdate,
+        RelaySettingsUpdate,
+    },
 };
 
 #[derive(Subcommand, Debug)]
@@ -103,9 +106,10 @@ impl CustomList {
         let mut rpc = MullvadProxyClient::new().await?;
         let list_id = rpc.get_custom_list(name).await?.id;
         rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id, })),
+            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
             ..Default::default()
-        })).await?;
+        }))
+        .await?;
         Ok(())
     }
 

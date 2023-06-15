@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Hostname,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints, LocationConstraint,
+        Constraint, GeographicLocationConstraint, LocationConstraint, Match, OpenVpnConstraints,
+        Ownership, Provider, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -425,7 +425,8 @@ impl Relay {
     }
 
     async fn set_location(location_constraint: LocationArgs) -> Result<()> {
-        let location_constraint: Constraint<GeographicLocationConstraint> = Constraint::from(location_constraint);
+        let location_constraint: Constraint<GeographicLocationConstraint> =
+            Constraint::from(location_constraint);
         match &location_constraint {
             Constraint::Any => (),
             Constraint::Only(constraint) => {
@@ -443,7 +444,9 @@ impl Relay {
             }
         }
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(location_constraint.map(|location| LocationConstraint::Location { location })),
+            location: Some(
+                location_constraint.map(|location| LocationConstraint::Location { location }),
+            ),
             ..Default::default()
         }))
         .await
