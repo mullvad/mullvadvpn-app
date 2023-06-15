@@ -139,7 +139,7 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
                         location: constraints.location.and_then(|constraint| {
                             match constraint {
                                 Constraint::Any => None,
-                                Constraint::Only(location) => Some(proto::Foo::from(location)),
+                                Constraint::Only(location) => Some(proto::LocationConstraint::from(location)),
                             }
                         }),
                         providers: constraints
@@ -181,7 +181,7 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
                                 entry_location: wireguard_constraints
                                     .entry_location
                                     .option()
-                                    .map(proto::Foo::from),
+                                    .map(proto::LocationConstraint::from),
                             },
                         ),
                         openvpn_constraints: constraints.openvpn_constraints.map(
@@ -356,7 +356,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSet
                         .location
                         .clone()
                         .option()
-                        .map(proto::Foo::from),
+                        .map(proto::LocationConstraint::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                 })
@@ -413,7 +413,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                     location: constraints
                         .location
                         .option()
-                        .map(proto::Foo::from),
+                        .map(proto::LocationConstraint::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                     tunnel_type: match constraints.tunnel_protocol {
@@ -442,7 +442,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .wireguard_constraints
                             .entry_location
                             .option()
-                            .map(proto::Foo::from),
+                            .map(proto::LocationConstraint::from),
                     }),
 
                     openvpn_constraints: Some(proto::OpenvpnConstraints {
@@ -471,37 +471,18 @@ impl From<mullvad_types::relay_constraints::TransportPort> for proto::TransportP
     }
 }
 
-//impl From<mullvad_types::relay_constraints::Constraint<mullvad_types::relay_constraints::Foo>>
-//    for proto::RelayLocation
-//{
-//    fn from(
-//        location: mullvad_types::relay_constraints::Constraint<
-//            mullvad_types::relay_constraints::Foo,
-//        >,
-//    ) -> Self {
-//        location
-//            .option()
-//            .map(proto::RelayLocation::from)
-//            .unwrap_or_default()
-//    }
-//}
-
-impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Foo {
+impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::LocationConstraint {
     fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location {
             LocationConstraint::Location { location } => Self {
-                r#type: Some(proto::foo::Type::Normal(proto::RelayLocation::from(
+                r#type: Some(proto::location_constraint::Type::Normal(proto::RelayLocation::from(
                     location,
                 ))),
             },
             LocationConstraint::CustomList { list_id } => {
-                //let locations: Vec<_> = locations
-                //    .into_iter()
-                //    .map(proto::RelayLocation::from)
-                //    .collect();
                 Self {
-                    r#type: Some(proto::foo::Type::Custom(
+                    r#type: Some(proto::location_constraint::Type::Custom(
                         list_id,
                     )),
                 }
@@ -510,11 +491,11 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Foo {
     }
 }
 
-impl From<proto::Foo> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
-    fn from(location: proto::Foo) -> Self {
+impl From<proto::LocationConstraint> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
+    fn from(location: proto::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location.r#type {
-            Some(proto::foo::Type::Normal(location)) => {
+            Some(proto::location_constraint::Type::Normal(location)) => {
                 let location = Constraint::<mullvad_types::relay_constraints::GeographicLocationConstraint>::from(
                     location,
                 );
@@ -523,7 +504,7 @@ impl From<proto::Foo> for Constraint<mullvad_types::relay_constraints::LocationC
                     Constraint::Only(location) => Constraint::Only(LocationConstraint::Location { location }),
                 }
             }
-            Some(proto::foo::Type::Custom(list_id)) => {
+            Some(proto::location_constraint::Type::Custom(list_id)) => {
                 //let locations: Result<Vec<_>, _> = locations
                 //    .locations
                 //    .into_iter()
