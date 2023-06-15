@@ -38,9 +38,10 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
         controller.didSelectRelay = { [weak self] relay in
             guard let self else { return }
 
-            let newConstraints = RelayConstraints(location: .only(relay))
+            var relayConstraints = tunnelManager.settings.relayConstraints
+            relayConstraints.location = .only(relay)
 
-            tunnelManager.setRelayConstraints(newConstraints) {
+            tunnelManager.setRelayConstraints(relayConstraints) {
                 self.tunnelManager.startTunnel()
             }
 
