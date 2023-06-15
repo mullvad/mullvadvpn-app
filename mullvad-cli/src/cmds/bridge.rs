@@ -3,8 +3,8 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, Ownership,
-        Provider, Providers, LocationConstraint,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
+        LocationConstraint, Ownership, Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
@@ -380,7 +380,9 @@ impl Bridge {
                 constraints
             }
             _ => BridgeConstraints {
-                location: location.unwrap_or(Constraint::Any).map(LocationConstraint::from),
+                location: location
+                    .unwrap_or(Constraint::Any)
+                    .map(LocationConstraint::from),
                 providers: providers.unwrap_or(Constraint::Any),
                 ownership: ownership.unwrap_or(Constraint::Any),
             },

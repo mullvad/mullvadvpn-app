@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Location,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints, LocationConstraint,
+        Constraint, GeographicLocationConstraint, LocationConstraint, Match, OpenVpnConstraints,
+        Ownership, Provider, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,

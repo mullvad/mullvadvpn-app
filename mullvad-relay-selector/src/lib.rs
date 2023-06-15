@@ -4,13 +4,13 @@
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
-    custom_list::{CustomList, CustomListsSettings},
+    custom_list::CustomListsSettings,
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, LocationConstraint, ResolvedLocationConstraint, InternalBridgeConstraints,
-        GeographicLocationConstraint, Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, Set, TransportPort,
+        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
+        Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
+        RelaySettings, ResolvedLocationConstraint, SelectedObfuscation, Set, TransportPort,
         Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
@@ -24,7 +24,6 @@ use std::{
     path::Path,
     sync::Arc,
     time::{self, SystemTime},
-    collections::HashMap,
 };
 use talpid_types::{
     net::{
@@ -252,12 +251,7 @@ impl RelaySelector {
                             .location
                             .as_ref()
                             .expect("Relay has no location set");
-                        self.get_bridge_for(
-                            &config,
-                            location,
-                            retry_attempt,
-                            &config.custom_lists,
-                        )?
+                        self.get_bridge_for(&config, location, retry_attempt, &config.custom_lists)?
                     }
                     _ => None,
                 };
@@ -323,7 +317,11 @@ impl RelaySelector {
 
     /// Returns the average location of relays that match the given constraints.
     /// This returns none if the location is `any` or if no relays match the constraints.
-    pub fn get_relay_midpoint(&self, relay_constraints: &RelayConstraints, custom_lists: &CustomListsSettings) -> Option<Coordinates> {
+    pub fn get_relay_midpoint(
+        &self,
+        relay_constraints: &RelayConstraints,
+        custom_lists: &CustomListsSettings,
+    ) -> Option<Coordinates> {
         if relay_constraints.location.is_any() {
             return None;
         }
@@ -336,7 +334,12 @@ impl RelaySelector {
             )
         };
 
-        let matcher = RelayMatcher::new(relay_constraints.clone(), openvpn_data, wireguard_data, custom_lists);
+        let matcher = RelayMatcher::new(
+            relay_constraints.clone(),
+            openvpn_data,
+            wireguard_data,
+            custom_lists,
+        );
 
         let parsed_relays = self.parsed_relays.lock();
         let mut matching_locations: Vec<Location> = matcher
@@ -488,7 +491,10 @@ impl RelaySelector {
         // `wireguard_constraints.entry_location` is set as the entry location constraint.
         if !wireguard_constraints.use_multihop {
             let relay_matcher = RelayMatcher {
-                locations: ResolvedLocationConstraint::from_constraint(locations.clone(), custom_lists),
+                locations: ResolvedLocationConstraint::from_constraint(
+                    locations.clone(),
+                    custom_lists,
+                ),
                 providers: providers.clone(),
                 ownership: *ownership,
                 endpoint_matcher: WireguardMatcher::new(
@@ -507,7 +513,10 @@ impl RelaySelector {
                 .or_else(|_| self.get_tunnel_endpoint_internal(&relay_matcher))
         } else {
             let mut entry_relay_matcher = RelayMatcher {
-                locations: ResolvedLocationConstraint::from_constraint(wireguard_constraints.entry_location.clone(), custom_lists),
+                locations: ResolvedLocationConstraint::from_constraint(
+                    wireguard_constraints.entry_location.clone(),
+                    custom_lists,
+                ),
                 providers: providers.clone(),
                 ownership: *ownership,
                 endpoint_matcher: WireguardMatcher::new(
@@ -520,7 +529,11 @@ impl RelaySelector {
                 .port
                 .or(Self::preferred_wireguard_port(retry_attempt));
 
-            self.get_wireguard_multi_hop_endpoint(entry_relay_matcher, locations.clone(), custom_lists)
+            self.get_wireguard_multi_hop_endpoint(
+                entry_relay_matcher,
+                locations.clone(),
+                custom_lists,
+            )
         }
     }
 
@@ -541,21 +554,24 @@ impl RelaySelector {
             relay_constraints.clone(),
             openvpn_data,
             wireguard_data,
-            custom_lists
+            custom_lists,
         );
 
         let mut selected_entry_relay = None;
         let mut selected_entry_endpoint = None;
         let mut entry_matcher = RelayMatcher {
-                locations: ResolvedLocationConstraint::from_constraint(relay_constraints
+            locations: ResolvedLocationConstraint::from_constraint(
+                relay_constraints
                     .wireguard_constraints
                     .entry_location
-                    .clone(), custom_lists),
-                providers: relay_constraints.providers.clone(),
-                ownership: relay_constraints.ownership.clone(),
-                endpoint_matcher: matcher.endpoint_matcher.clone(),
-            }
-            .into_wireguard_matcher();
+                    .clone(),
+                custom_lists,
+            ),
+            providers: relay_constraints.providers.clone(),
+            ownership: relay_constraints.ownership.clone(),
+            endpoint_matcher: matcher.endpoint_matcher.clone(),
+        }
+        .into_wireguard_matcher();
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
         if relay_constraints.wireguard_constraints.use_multihop {
@@ -624,11 +640,11 @@ impl RelaySelector {
             bridge_state,
             retry_attempt,
             default_tunnel_type,
-            custom_lists
+            custom_lists,
         );
 
-        if let Ok(result) = self
-            .get_multihop_tunnel_endpoint_internal(&preferred_constraints, custom_lists)
+        if let Ok(result) =
+            self.get_multihop_tunnel_endpoint_internal(&preferred_constraints, custom_lists)
         {
             log::debug!(
                 "Relay matched on highest preference for retry attempt {}",
@@ -658,7 +674,10 @@ impl RelaySelector {
         default_tunnel_type: TunnelType,
         custom_lists: &CustomListsSettings,
     ) -> RelayConstraints {
-        let location = ResolvedLocationConstraint::from_constraint(original_constraints.location.clone(), custom_lists);
+        let location = ResolvedLocationConstraint::from_constraint(
+            original_constraints.location.clone(),
+            custom_lists,
+        );
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
             .preferred_tunnel_constraints(
                 retry_attempt,
@@ -780,11 +799,7 @@ impl RelaySelector {
                 match config.bridge_state {
                     BridgeState::On => {
                         let (settings, relay) = self
-                            .get_proxy_settings(
-                                &bridge_constraints,
-                                Some(location),
-                                custom_lists,
-                            )
+                            .get_proxy_settings(&bridge_constraints, Some(location), custom_lists)
                             .ok_or(Error::NoBridge)?;
                         Ok(Some(SelectedBridge::Normal(NormalSelectedBridge {
                             settings,
@@ -792,11 +807,7 @@ impl RelaySelector {
                         })))
                     }
                     BridgeState::Auto if Self::should_use_bridge(retry_attempt) => Ok(self
-                        .get_proxy_settings(
-                            &bridge_constraints,
-                            Some(location),
-                            custom_lists,
-                        )
+                        .get_proxy_settings(&bridge_constraints, Some(location), custom_lists)
                         .map(|(settings, relay)| {
                             SelectedBridge::Normal(NormalSelectedBridge { settings, relay })
                         })),
@@ -814,11 +825,13 @@ impl RelaySelector {
     }
 
     /// Returns a bridge based on the relay and bridge constraints, ignoring the bridge state.
-    pub fn get_bridge_forced(&self, ) -> Option<ProxySettings> {
+    pub fn get_bridge_forced(&self) -> Option<ProxySettings> {
         let config = self.config.lock();
 
         let near_location = match &config.relay_settings {
-            RelaySettings::Normal(settings) => self.get_relay_midpoint(settings, &config.custom_lists),
+            RelaySettings::Normal(settings) => {
+                self.get_relay_midpoint(settings, &config.custom_lists)
+            }
             _ => None,
         };
 
@@ -858,7 +871,10 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
     ) -> Option<(ProxySettings, Relay)> {
         let matcher = RelayMatcher {
-            locations: ResolvedLocationConstraint::from_constraint(constraints.location.clone(), custom_lists),
+            locations: ResolvedLocationConstraint::from_constraint(
+                constraints.location.clone(),
+                custom_lists,
+            ),
             providers: constraints.providers.clone(),
             ownership: constraints.ownership,
             endpoint_matcher: BridgeMatcher(()),
@@ -2127,9 +2143,7 @@ mod test {
                 config.relay_settings = config.relay_settings.merge(RelaySettingsUpdate::Normal(
                     RelayConstraintsUpdate {
                         tunnel_protocol: Some(tunnel_protocol),
-                        location: Some(Constraint::Only(Location::Country(
-                            "se".to_string(),
-                        ))),
+                        location: Some(Constraint::Only(Location::Country("se".to_string()))),
                         ..Default::default()
                     },
                 ));

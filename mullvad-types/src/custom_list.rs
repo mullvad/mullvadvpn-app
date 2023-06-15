@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -18,7 +18,9 @@ pub struct CustomListsSettings {
 
 impl CustomListsSettings {
     pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
-        self.custom_lists.values().find(|custom_list| &custom_list.name == name)
+        self.custom_lists
+            .values()
+            .find(|custom_list| &custom_list.name == name)
     }
 }
 
@@ -31,7 +33,7 @@ pub enum CustomListLocationUpdate {
     Remove {
         name: String,
         location: Constraint<GeographicLocationConstraint>,
-    }
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -50,5 +52,3 @@ impl CustomList {
         }
     }
 }
-
-

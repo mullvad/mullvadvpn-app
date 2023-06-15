@@ -5,6 +5,7 @@ pub mod account;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
+pub mod custom_lists;
 pub mod dns;
 pub mod lan;
 pub mod lockdown;
@@ -17,7 +18,6 @@ pub mod status;
 pub mod tunnel;
 pub mod tunnel_state;
 pub mod version;
-pub mod custom_lists;
 
 /// A value parser that parses "on" or "off" into a boolean
 #[derive(Debug, Clone, Copy)]
