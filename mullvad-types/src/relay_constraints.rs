@@ -10,11 +10,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::{HashMap, HashSet},
-    fmt,
-    str::FromStr,
-};
+use std::{collections::HashSet, fmt, str::FromStr};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -265,7 +261,8 @@ impl ResolvedLocationConstraint {
             Constraint::Only(LocationConstraint::Location { location }) => {
                 Constraint::Only(Self::Location { location })
             }
-            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists.custom_lists
+            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
+                .custom_lists
                 .get(&list_id)
                 .map(|custom_list| {
                     Constraint::Only(Self::Locations {

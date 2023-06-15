@@ -2,6 +2,7 @@
 
 pub mod account;
 pub mod auth_failed;
+pub mod custom_list;
 pub mod device;
 pub mod endpoint;
 pub mod location;
@@ -11,7 +12,6 @@ pub mod settings;
 pub mod states;
 pub mod version;
 pub mod wireguard;
-pub mod custom_list;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;

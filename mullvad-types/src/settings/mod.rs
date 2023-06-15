@@ -1,9 +1,9 @@
 use crate::{
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, GeographicLocationConstraint,
-        ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
-        SelectedObfuscation, WireguardConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
+        LocationConstraint, ObfuscationSettings, RelayConstraints, RelaySettings,
+        RelaySettingsUpdate, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
@@ -125,7 +125,9 @@ impl Default for Settings {
                     location: GeographicLocationConstraint::Country("se".to_owned()),
                 }),
                 wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Location { location: GeographicLocationConstraint::Country("se".to_owned()) } ),
+                    entry_location: Constraint::Only(LocationConstraint::Location {
+                        location: GeographicLocationConstraint::Country("se".to_owned()),
+                    }),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -206,5 +208,3 @@ impl Default for TunnelOptions {
         }
     }
 }
-
-

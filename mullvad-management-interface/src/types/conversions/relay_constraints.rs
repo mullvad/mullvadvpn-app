@@ -1,5 +1,8 @@
 use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
-use mullvad_types::{custom_list::Id, relay_constraints::{Constraint, RelaySettingsUpdate}};
+use mullvad_types::{
+    custom_list::Id,
+    relay_constraints::{Constraint, RelaySettingsUpdate},
+};
 use talpid_types::net::TunnelType;
 
 impl TryFrom<&proto::WireguardConstraints>
@@ -136,12 +139,14 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
             RelaySettingsUpdate::Normal(constraints) => proto::RelaySettingsUpdate {
                 r#type: Some(proto::relay_settings_update::Type::Normal(
                     proto::NormalRelaySettingsUpdate {
-                        location: constraints.location.and_then(|constraint| {
-                            match constraint {
+                        location: constraints
+                            .location
+                            .and_then(|constraint| match constraint {
                                 Constraint::Any => None,
-                                Constraint::Only(location) => Some(proto::LocationConstraint::from(location)),
-                            }
-                        }),
+                                Constraint::Only(location) => {
+                                    Some(proto::LocationConstraint::from(location))
+                                }
+                            }),
                         providers: constraints
                             .providers
                             .map(|constraint| proto::ProviderUpdate {
@@ -476,36 +481,38 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
         use mullvad_types::relay_constraints::LocationConstraint;
         match location {
             LocationConstraint::Location { location } => Self {
-                r#type: Some(proto::location_constraint::Type::Normal(proto::RelayLocation::from(
-                    location,
-                ))),
+                r#type: Some(proto::location_constraint::Type::Normal(
+                    proto::RelayLocation::from(location),
+                )),
             },
-            LocationConstraint::CustomList { list_id } => {
-                Self {
-                    r#type: Some(proto::location_constraint::Type::Custom(
-                        list_id.0,
-                    )),
-                }
-            }
+            LocationConstraint::CustomList { list_id } => Self {
+                r#type: Some(proto::location_constraint::Type::Custom(list_id.0)),
+            },
         }
     }
 }
 
-impl From<proto::LocationConstraint> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
+impl From<proto::LocationConstraint>
+    for Constraint<mullvad_types::relay_constraints::LocationConstraint>
+{
     fn from(location: proto::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location.r#type {
             Some(proto::location_constraint::Type::Normal(location)) => {
-                let location = Constraint::<mullvad_types::relay_constraints::GeographicLocationConstraint>::from(
-                    location,
-                );
+                let location = Constraint::<
+                    mullvad_types::relay_constraints::GeographicLocationConstraint,
+                >::from(location);
                 match location {
                     Constraint::Any => Constraint::Any,
-                    Constraint::Only(location) => Constraint::Only(LocationConstraint::Location { location }),
+                    Constraint::Only(location) => {
+                        Constraint::Only(LocationConstraint::Location { location })
+                    }
                 }
             }
             Some(proto::location_constraint::Type::Custom(list_id)) => {
-                let location = LocationConstraint::CustomList { list_id: Id(list_id) };
+                let location = LocationConstraint::CustomList {
+                    list_id: Id(list_id),
+                };
                 Constraint::Only(location)
             }
             None => Constraint::Any,
