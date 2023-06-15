@@ -31,19 +31,7 @@ where
             let settings_changed = self
                 .settings
                 .update(|settings| {
-                    let list = settings.custom_lists.custom_lists.remove(&id);
-                    if let (Some(selected_entry_id), Some(selected_exit_id), Some(list)) = (
-                        &mut settings.custom_lists.selected_list_entry,
-                        &mut settings.custom_lists.selected_list_exit,
-                        list,
-                    ) {
-                        if *selected_entry_id == list.id {
-                            settings.custom_lists.selected_list_entry = None;
-                        }
-                        if *selected_exit_id == list.id {
-                            settings.custom_lists.selected_list_exit = None;
-                        }
-                    }
+                    settings.custom_lists.custom_lists.remove(&id);
                 })
                 .await
                 .map_err(Error::SettingsError);
@@ -63,7 +51,7 @@ where
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<(), Error> {
-        let result = if self.settings.custom_lists.custom_lists.get(&name).is_some() {
+        let result = if self.settings.custom_lists.get_custom_list_with_name(&name).is_some() {
             Err(Error::ListExists
             )
         } else {
