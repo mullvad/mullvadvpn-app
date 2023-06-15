@@ -20,7 +20,7 @@ pub enum Error {
     CannotAddOrRemoveAny,
     /// Custom list settings error
     #[error(display = "Settings error")]
-    SettingsError(#[error(source)] settings::Error),
+    Settings(#[error(source)] settings::Error),
 }
 
 impl<L> Daemon<L>
@@ -29,7 +29,7 @@ where
 {
     pub async fn delete_custom_list(&mut self, name: String) -> Result<(), Error> {
         let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
-        let result = match &custom_list {
+        match &custom_list {
             None => Err(Error::ListNotFound),
             Some(custom_list) => {
                 let id = custom_list.id.clone();
@@ -40,7 +40,7 @@ where
                         settings.custom_lists.custom_lists.remove(&id);
                     })
                     .await
-                    .map_err(Error::SettingsError);
+                    .map_err(Error::Settings);
 
                 if let Ok(true) = settings_changed {
                     let need_to_reconnect = self.change_should_cause_reconnect(&id);
@@ -60,56 +60,56 @@ where
 
                 settings_changed.map(|_| ())
             }
-        };
-        result
+        }
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<(), Error> {
-        let result = if self
+        if self
             .settings
             .custom_lists
             .get_custom_list_with_name(&name)
             .is_some()
         {
-            Err(Error::ListExists)
-        } else {
-            let settings_changed = self
-                .settings
-                .update(|settings| {
-                    let custom_list = CustomList::new(name);
-                    assert!(settings
-                        .custom_lists
-                        .custom_lists
-                        .insert(custom_list.id.clone(), custom_list)
-                        .is_none());
-                })
-                .await
-                .map_err(Error::SettingsError);
+            return Err(Error::ListExists);
+        }
 
-            if let Ok(true) = settings_changed {
-                self.event_listener
-                    .notify_settings(self.settings.to_settings());
-                self.relay_selector
-                    .set_config(new_selector_config(&self.settings, &self.app_version_info));
-            }
+        let settings_changed = self
+            .settings
+            .update(|settings| {
+                let custom_list = CustomList::new(name);
+                assert!(settings
+                    .custom_lists
+                    .custom_lists
+                    .insert(custom_list.id.clone(), custom_list)
+                    .is_none());
+            })
+            .await
+            .map_err(Error::Settings);
 
-            settings_changed.map(|_| ())
-        };
-        result
+        if let Ok(true) = settings_changed {
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
+            self.relay_selector
+                .set_config(new_selector_config(&self.settings, &self.app_version_info));
+        }
+
+        settings_changed.map(|_| ())
     }
 
     pub async fn update_custom_list_location(
         &mut self,
         update: CustomListLocationUpdate,
     ) -> Result<(), Error> {
-        let result = match update {
+        match update {
             CustomListLocationUpdate::Add {
                 name,
                 location: new_location,
             } => {
                 if new_location.is_any() {
-                    Err(Error::CannotAddOrRemoveAny)
-                } else if let Some(custom_list) =
+                    return Err(Error::CannotAddOrRemoveAny);
+                }
+
+                if let Some(custom_list) =
                     self.settings.custom_lists.get_custom_list_with_name(&name)
                 {
                     let id = custom_list.id.clone();
@@ -130,7 +130,7 @@ where
                             }
                         })
                         .await
-                        .map_err(Error::SettingsError);
+                        .map_err(Error::Settings);
 
                     if let Ok(true) = settings_changed {
                         let should_reconnect = self.change_should_cause_reconnect(&id);
@@ -160,8 +160,10 @@ where
                 location: location_to_remove,
             } => {
                 if location_to_remove.is_any() {
-                    Err(Error::CannotAddOrRemoveAny)
-                } else if let Some(custom_list) =
+                    return Err(Error::CannotAddOrRemoveAny);
+                }
+
+                if let Some(custom_list) =
                     self.settings.custom_lists.get_custom_list_with_name(&name)
                 {
                     let id = custom_list.id.clone();
@@ -184,7 +186,7 @@ where
                             }
                         })
                         .await
-                        .map_err(Error::SettingsError);
+                        .map_err(Error::Settings);
 
                     if let Ok(true) = settings_changed {
                         let should_reconnect = self.change_should_cause_reconnect(&id);
@@ -209,8 +211,7 @@ where
                     Err(Error::ListNotFound)
                 }
             }
-        };
-        result
+        }
     }
 
     pub async fn rename_custom_list(
@@ -267,6 +268,7 @@ where
             {
                 need_to_reconnect |= list_id == custom_list_id;
             }
+
             if let Constraint::Only(protocol) = relay_settings.tunnel_protocol {
                 match protocol {
                     TunnelType::Wireguard => {
