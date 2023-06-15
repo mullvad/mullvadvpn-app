@@ -25,6 +25,7 @@ where
 {
     fn change_should_cause_reconnect(&self, custom_list_id: &Id) -> bool {
         let mut need_to_reconnect = false;
+
         if let RelaySettings::Normal(relay_settings) = &self.settings.relay_settings {
             if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &relay_settings.location {
                 need_to_reconnect |= list_id == custom_list_id;
@@ -38,6 +39,7 @@ where
                             }
                         }
                     }
+
                     TunnelType::OpenVpn => {
                         if !matches!(self.settings.bridge_state, BridgeState::Off) {
                             if let BridgeSettings::Normal(bridge_settings) = &self.settings.bridge_settings {
@@ -50,6 +52,7 @@ where
                 }
             }
         }
+
         need_to_reconnect
     }
 
@@ -92,8 +95,7 @@ where
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<(), Error> {
         let result = if self.settings.custom_lists.get_custom_list_with_name(&name).is_some() {
-            Err(Error::ListExists
-            )
+            Err(Error::ListExists)
         } else {
             self.settings
                 .update(|settings| {
@@ -124,6 +126,7 @@ where
                 {
                     let id = custom_list.id.clone();
                     let new_location = new_location.unwrap();
+
                     let settings_changed = self
                         .settings
                         .update(|settings| {
@@ -133,12 +136,14 @@ where
                                 .get_mut(&id)
                                 .unwrap()
                                 .locations;
+
                             if !locations.iter().any(|location| new_location == *location) {
                                 locations.push(new_location);
                             }
                         })
                         .await
                         .map_err(Error::SettingsError);
+
                     if let Ok(settings_changed) = settings_changed {
                         if settings_changed {
                             let should_reconnect = self.change_should_cause_reconnect(&id);
@@ -158,6 +163,7 @@ where
                             }
                         }
                     }
+
                     settings_changed.map(|_| ())
                 } else {
                     Err(Error::ListNotFound)
@@ -174,6 +180,7 @@ where
                 {
                     let id = custom_list.id.clone();
                     let location_to_remove = location_to_remove.unwrap();
+
                     let settings_changed = self
                         .settings
                         .update(|settings| {
@@ -192,6 +199,7 @@ where
                         })
                         .await
                         .map_err(Error::SettingsError);
+
                     if let Ok(settings_changed) = settings_changed {
                         if settings_changed {
                             let should_reconnect = self.change_should_cause_reconnect(&id);
@@ -211,6 +219,7 @@ where
                             }
                         }
                     }
+
                     settings_changed.map(|_| ())
                 } else {
                     Err(Error::ListNotFound)

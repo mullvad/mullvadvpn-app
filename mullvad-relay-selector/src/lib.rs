@@ -218,64 +218,6 @@ impl RelaySelector {
         self.parsed_relays.lock().locations().clone()
     }
 
-    //fn new_exit_relay_matcher_override_with_custom_list<T: EndpointMatcher>(
-    //    &self,
-    //    location: Constraint<LocationConstraint>,
-    //    providers: Constraint<Providers>,
-    //    ownership: Constraint<Ownership>,
-    //    endpoint_matcher: T,
-    //) -> RelayMatcher<T> {
-    //    self.new_relay_matcher_override_with_custom_list(
-    //        location,
-    //        providers,
-    //        ownership,
-    //        endpoint_matcher,
-    //        self.config.lock().selected_custom_list_exit.clone(),
-    //    )
-    //}
-
-    //fn new_entry_relay_matcher_override_with_custom_list<T: EndpointMatcher>(
-    //    &self,
-    //    location: Constraint<LocationConstraint>,
-    //    providers: Constraint<Providers>,
-    //    ownership: Constraint<Ownership>,
-    //    endpoint_matcher: T,
-    //) -> RelayMatcher<T> {
-    //    self.new_relay_matcher_override_with_custom_list(
-    //        location,
-    //        providers,
-    //        ownership,
-    //        endpoint_matcher,
-    //        self.config.lock().selected_custom_list.clone(),
-    //    )
-    //}
-
-    ///// Creates a new relay matcher which overrides the location constraint if there is a custom
-    ///// list selected.
-    //fn new_relay_matcher_override_with_custom_list<T: EndpointMatcher>(
-    //    &self,
-    //    location: Constraint<LocationConstraint>,
-    //    providers: Constraint<Providers>,
-    //    ownership: Constraint<Ownership>,
-    //    endpoint_matcher: T,
-    //    selected_custom_list: &Option<CustomList>,
-    //) -> RelayMatcher<T> {
-    //    match selected_custom_list {
-    //        None => RelayMatcher {
-    //            locations: location.map(|loc| vec![loc]),
-    //            providers,
-    //            ownership,
-    //            endpoint_matcher,
-    //        },
-    //        Some(custom_list) => RelayMatcher {
-    //            locations: Constraint::Only(custom_list.locations.clone()),
-    //            providers,
-    //            ownership,
-    //            endpoint_matcher,
-    //        },
-    //    }
-    //}
-
     /// Returns a random relay and relay endpoint matching the current constraints.
     pub fn get_relay(
         &self,
