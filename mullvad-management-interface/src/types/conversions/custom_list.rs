@@ -2,6 +2,21 @@ use crate::types::{proto, FromProtobufTypeError};
 use mullvad_types::{custom_list::Id, relay_constraints::GeographicLocationConstraint};
 use proto::RelayLocation;
 
+impl From<(String, String)> for proto::CustomListRename {
+    fn from(names: (String, String)) -> Self {
+        proto::CustomListRename {
+            name: names.0,
+            new_name: names.1,
+        }
+    }
+}
+
+impl From<proto::CustomListRename> for (String, String) {
+    fn from(names: proto::CustomListRename) -> Self {
+        (names.name, names.new_name)
+    }
+}
+
 impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomListSettings {
     fn from(settings: &mullvad_types::custom_list::CustomListsSettings) -> Self {
         Self {

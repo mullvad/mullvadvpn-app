@@ -257,6 +257,8 @@ pub enum DaemonCommand {
     DeleteCustomList(ResponseTx<(), Error>, String),
     /// Update a custom list by adding or removing a location
     UpdateCustomListLocation(ResponseTx<(), Error>, CustomListLocationUpdate),
+    /// Rename a custom list from the old name to a new name
+    RenameCustomList(ResponseTx<(), Error>, String, String),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1036,6 +1038,7 @@ where
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
             UpdateCustomListLocation(tx, update) => self.on_update_custom_list_location(tx, update).await,
+            RenameCustomList(tx, name, new_name) => self.on_rename_custom_list(tx, name, new_name).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2252,6 +2255,16 @@ where
     ) {
         let result = self.update_custom_list_location(update).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "update_custom_list_location response");
+    }
+
+    async fn on_rename_custom_list(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        name: String,
+        new_name: String,
+    ) {
+        let result = self.rename_custom_list(name, new_name).await.map_err(Error::CustomListError);
+        Self::oneshot_send(tx, result, "rename_custom_list response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
