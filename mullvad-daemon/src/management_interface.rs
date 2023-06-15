@@ -636,6 +636,16 @@ impl ManagementService for ManagementServiceImpl {
             .map(Response::new)
             .map_err(map_daemon_error)
     }
+    async fn rename_custom_list(&self, request: Request<types::CustomListRename>) -> ServiceResult<()> {
+        log::debug!("rename_custom_list");
+        let names: (String, String) = From::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RenameCustomList(tx, names.0, names.1))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
 
     // Split tunneling
     //

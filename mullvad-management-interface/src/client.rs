@@ -179,6 +179,14 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<()> {
+        self.0
+            .rename_custom_list(types::CustomListRename::from((name, new_name)))
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
+    }
+
     pub async fn get_current_location(&mut self) -> Result<GeoIpLocation> {
         let location = self
             .0
