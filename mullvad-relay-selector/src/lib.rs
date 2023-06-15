@@ -11,7 +11,7 @@ use mullvad_types::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
         Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
         RelaySettings, ResolvedLocationConstraint, SelectedObfuscation, Set, TransportPort,
-        Udp2TcpObfuscationSettings, WireguardConstraints,
+        Udp2TcpObfuscationSettings,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
     CustomTunnelEndpoint,
@@ -285,25 +285,14 @@ impl RelaySelector {
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
-                &relay_constraints.location,
-                &relay_constraints.providers,
-                &relay_constraints.ownership,
-                relay_constraints.openvpn_constraints,
+                relay_constraints,
                 bridge_state,
                 retry_attempt,
                 custom_lists,
             ),
 
             Constraint::Only(TunnelType::Wireguard) => {
-                let endpoint = self.get_wireguard_endpoint(
-                    &relay_constraints.location,
-                    &relay_constraints.providers,
-                    &relay_constraints.ownership,
-                    &relay_constraints.wireguard_constraints,
-                    retry_attempt,
-                    custom_lists,
-                );
-                endpoint
+                self.get_wireguard_endpoint(relay_constraints, retry_attempt, custom_lists)
             }
             Constraint::Any => self.get_any_tunnel_endpoint(
                 relay_constraints,
@@ -359,20 +348,20 @@ impl RelaySelector {
     /// protocol as only OpenVPN.
     fn get_openvpn_endpoint(
         &self,
-        locations: &Constraint<LocationConstraint>,
-        providers: &Constraint<Providers>,
-        ownership: &Constraint<Ownership>,
-        openvpn_constraints: OpenVpnConstraints,
+        relay_constraints: &RelayConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let mut relay_matcher = RelayMatcher {
-            locations: ResolvedLocationConstraint::from_constraint(locations.clone(), custom_lists),
-            providers: providers.clone(),
-            ownership: *ownership,
+            locations: ResolvedLocationConstraint::from_constraint(
+                relay_constraints.location.clone(),
+                custom_lists,
+            ),
+            providers: relay_constraints.providers.clone(),
+            ownership: relay_constraints.ownership,
             endpoint_matcher: OpenVpnMatcher::new(
-                openvpn_constraints,
+                relay_constraints.openvpn_constraints,
                 self.parsed_relays.lock().locations.openvpn.clone(),
             ),
         };
@@ -477,10 +466,7 @@ impl RelaySelector {
     /// tunnel protocol as only WireGuard.
     fn get_wireguard_endpoint(
         &self,
-        locations: &Constraint<LocationConstraint>,
-        providers: &Constraint<Providers>,
-        ownership: &Constraint<Ownership>,
-        wireguard_constraints: &WireguardConstraints,
+        relay_constraints: &RelayConstraints,
         retry_attempt: u32,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
@@ -489,17 +475,17 @@ impl RelaySelector {
         // NOTE: If not using multihop then `location` is set as the only location constraint.
         // If using multihop then location is the exit constraint and
         // `wireguard_constraints.entry_location` is set as the entry location constraint.
-        if !wireguard_constraints.use_multihop {
+        if !relay_constraints.wireguard_constraints.use_multihop {
             let relay_matcher = RelayMatcher {
                 locations: ResolvedLocationConstraint::from_constraint(
-                    locations.clone(),
+                    relay_constraints.location.clone(),
                     custom_lists,
                 ),
-                providers: providers.clone(),
-                ownership: *ownership,
+                providers: relay_constraints.providers.clone(),
+                ownership: relay_constraints.ownership,
                 endpoint_matcher: WireguardMatcher::new(
-                    wireguard_constraints.clone(),
-                    wg_endpoint_data.clone(),
+                    relay_constraints.wireguard_constraints.clone(),
+                    wg_endpoint_data,
                 ),
             };
 
@@ -514,13 +500,16 @@ impl RelaySelector {
         } else {
             let mut entry_relay_matcher = RelayMatcher {
                 locations: ResolvedLocationConstraint::from_constraint(
-                    wireguard_constraints.entry_location.clone(),
+                    relay_constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .clone(),
                     custom_lists,
                 ),
-                providers: providers.clone(),
-                ownership: *ownership,
+                providers: relay_constraints.providers.clone(),
+                ownership: relay_constraints.ownership,
                 endpoint_matcher: WireguardMatcher::new(
-                    wireguard_constraints.clone(),
+                    relay_constraints.wireguard_constraints.clone(),
                     wg_endpoint_data,
                 ),
             };
@@ -531,7 +520,7 @@ impl RelaySelector {
 
             self.get_wireguard_multi_hop_endpoint(
                 entry_relay_matcher,
-                locations.clone(),
+                relay_constraints.location.clone(),
                 custom_lists,
             )
         }
@@ -568,7 +557,7 @@ impl RelaySelector {
                 custom_lists,
             ),
             providers: relay_constraints.providers.clone(),
-            ownership: relay_constraints.ownership.clone(),
+            ownership: relay_constraints.ownership,
             endpoint_matcher: matcher.endpoint_matcher.clone(),
         }
         .into_wireguard_matcher();
