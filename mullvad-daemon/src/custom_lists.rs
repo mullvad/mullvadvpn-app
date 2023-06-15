@@ -1,5 +1,6 @@
 use crate::{new_selector_config, Daemon, EventListener, settings};
-use mullvad_types::custom_list::{CustomListLocationUpdate, CustomList};
+use mullvad_types::{relay_constraints::{RelaySettings, Constraint, LocationConstraint, BridgeState, BridgeSettings}, custom_list::{CustomListLocationUpdate, CustomList, Id}};
+use talpid_types::net::TunnelType;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -10,42 +11,81 @@ pub enum Error {
     #[error(display = "A list with that name does not exist")]
     ListNotFound,
     /// Can not add any to a custom list
-    #[error(display = "Can not add any to a custom list")]
-    CannotAddAny,
+    #[error(display = "Can not add or remove 'any' to a custom list")]
+    CannotAddOrRemoveAny,
     /// Custom list settings error
     #[error(display = "Settings error")]
     SettingsError(#[error(source)] settings::Error),
 }
 
+
 impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub async fn delete_custom_list(&mut self, name: String) -> Result<(), Error> {
-        let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
-        let result = if custom_list.is_none() {
-            Err(Error::ListNotFound)
-        } else {
-            // TODO: Cleanup with match
-            let id = custom_list.as_ref().unwrap().id.clone();
-            let settings_changed = self
-                .settings
-                .update(|settings| {
-                    settings.custom_lists.custom_lists.remove(&id);
-                })
-                .await
-                .map_err(Error::SettingsError);
-            if let Ok(settings_changed) = settings_changed {
-                if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
-                    log::info!("Initiating tunnel restart because the relay settings changed");
-                    self.reconnect_tunnel();
+    fn change_should_cause_reconnect(&self, custom_list_id: &Id) -> bool {
+        let mut need_to_reconnect = false;
+        if let RelaySettings::Normal(relay_settings) = &self.settings.relay_settings {
+            if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &relay_settings.location {
+                need_to_reconnect |= list_id == custom_list_id;
+            }
+            if let Constraint::Only(protocol) = relay_settings.tunnel_protocol {
+                match protocol {
+                    TunnelType::Wireguard => {
+                        if relay_settings.wireguard_constraints.use_multihop {
+                            if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &relay_settings.wireguard_constraints.entry_location {
+                                need_to_reconnect |= list_id == custom_list_id;
+                            }
+                        }
+                    }
+                    TunnelType::OpenVpn => {
+                        if !matches!(self.settings.bridge_state, BridgeState::Off) {
+                            if let BridgeSettings::Normal(bridge_settings) = &self.settings.bridge_settings {
+                                if let Constraint::Only(LocationConstraint::CustomList { list_id }) = &bridge_settings.location {
+                                    need_to_reconnect |= list_id == custom_list_id;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            settings_changed.map(|_| ())
+        }
+        need_to_reconnect
+    }
+
+    pub async fn delete_custom_list(&mut self, name: String) -> Result<(), Error> {
+        let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
+        let result = match &custom_list {
+            None => Err(Error::ListNotFound),
+            Some(custom_list) => {
+                let id = custom_list.id.clone();
+
+                let settings_changed = self
+                    .settings
+                    .update(|settings| {
+                        settings.custom_lists.custom_lists.remove(&id);
+                    })
+                    .await
+                    .map_err(Error::SettingsError);
+
+                if let Ok(settings_changed) = settings_changed {
+                    if settings_changed {
+                        let need_to_reconnect = self.change_should_cause_reconnect(&id);
+
+                        self.event_listener
+                            .notify_settings(self.settings.to_settings());
+                        self.relay_selector
+                            .set_config(new_selector_config(&self.settings, &self.app_version_info));
+
+                        if need_to_reconnect {
+                            log::info!("Initiating tunnel restart because a selected custom list was deleted");
+                            self.reconnect_tunnel();
+                        }
+                    }
+                }
+
+                settings_changed.map(|_| ())
+            }
         };
         result
     }
@@ -78,7 +118,7 @@ where
                 location: new_location,
             } => {
                 if new_location.is_any() {
-                    Err(Error::CannotAddAny)
+                    Err(Error::CannotAddOrRemoveAny)
                 } else if let Some(custom_list) =
                     self.settings.custom_lists.get_custom_list_with_name(&name)
                 {
@@ -101,16 +141,21 @@ where
                         .map_err(Error::SettingsError);
                     if let Ok(settings_changed) = settings_changed {
                         if settings_changed {
+                            let should_reconnect = self.change_should_cause_reconnect(&id);
+
                             self.event_listener
                                 .notify_settings(self.settings.to_settings());
                             self.relay_selector.set_config(new_selector_config(
                                 &self.settings,
                                 &self.app_version_info,
                             ));
-                            log::info!(
-                                "Initiating tunnel restart because the relay settings changed"
-                            );
-                            self.reconnect_tunnel();
+
+                            if should_reconnect {
+                                log::info!(
+                                    "Initiating tunnel restart because a selected custom list changed"
+                                );
+                                self.reconnect_tunnel();
+                            }
                         }
                     }
                     settings_changed.map(|_| ())
@@ -123,7 +168,7 @@ where
                 location: location_to_remove,
             } => {
                 if location_to_remove.is_any() {
-                    Err(Error::CannotAddAny)
+                    Err(Error::CannotAddOrRemoveAny)
                 } else if let Some(custom_list) =
                     self.settings.custom_lists.get_custom_list_with_name(&name)
                 {
@@ -149,16 +194,21 @@ where
                         .map_err(Error::SettingsError);
                     if let Ok(settings_changed) = settings_changed {
                         if settings_changed {
+                            let should_reconnect = self.change_should_cause_reconnect(&id);
+
                             self.event_listener
                                 .notify_settings(self.settings.to_settings());
                             self.relay_selector.set_config(new_selector_config(
                                 &self.settings,
                                 &self.app_version_info,
                             ));
-                            log::info!(
-                                "Initiating tunnel restart because the relay settings changed"
-                            );
-                            self.reconnect_tunnel();
+
+                            if should_reconnect {
+                                log::info!(
+                                    "Initiating tunnel restart because a selected custom list changed"
+                                );
+                                self.reconnect_tunnel();
+                            }
                         }
                     }
                     settings_changed.map(|_| ())
