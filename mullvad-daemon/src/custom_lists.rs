@@ -1,0 +1,184 @@
+use crate::{new_selector_config, Daemon, EventListener, settings};
+use mullvad_types::custom_list::{CustomListLocationUpdate, CustomList};
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Custom list already exists
+    #[error(display = "A list with that name already exists")]
+    ListExists,
+    /// Custom list does not exist
+    #[error(display = "A list with that name does not exist")]
+    ListNotFound,
+    /// Can not add any to a custom list
+    #[error(display = "Can not add any to a custom list")]
+    CannotAddAny,
+    /// Custom list settings error
+    #[error(display = "Settings error")]
+    SettingsError(#[error(source)] settings::Error),
+}
+
+impl<L> Daemon<L>
+where
+    L: EventListener + Clone + Send + 'static,
+{
+    pub async fn delete_custom_list(&mut self, name: String) -> Result<(), Error> {
+        let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
+        let result = if custom_list.is_none() {
+            Err(Error::ListNotFound)
+        } else {
+            // TODO: Cleanup with match
+            let id = custom_list.as_ref().unwrap().id.clone();
+            let settings_changed = self
+                .settings
+                .update(|settings| {
+                    let list = settings.custom_lists.custom_lists.remove(&id);
+                    if let (Some(selected_entry_id), Some(selected_exit_id), Some(list)) = (
+                        &mut settings.custom_lists.selected_list_entry,
+                        &mut settings.custom_lists.selected_list_exit,
+                        list,
+                    ) {
+                        if *selected_entry_id == list.id {
+                            settings.custom_lists.selected_list_entry = None;
+                        }
+                        if *selected_exit_id == list.id {
+                            settings.custom_lists.selected_list_exit = None;
+                        }
+                    }
+                })
+                .await
+                .map_err(Error::SettingsError);
+            if let Ok(settings_changed) = settings_changed {
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                    log::info!("Initiating tunnel restart because the relay settings changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            settings_changed.map(|_| ())
+        };
+        result
+    }
+
+    pub async fn create_custom_list(&mut self, name: String) -> Result<(), Error> {
+        let result = if self.settings.custom_lists.custom_lists.get(&name).is_some() {
+            Err(Error::ListExists
+            )
+        } else {
+            self.settings
+                .update(|settings| {
+                    let custom_list = CustomList::new(name);
+                    assert!(settings
+                        .custom_lists
+                        .custom_lists
+                        .insert(custom_list.id.clone(), custom_list)
+                        .is_none());
+                })
+                .await
+                .map(|_| ())
+                .map_err(Error::SettingsError)
+        };
+        result
+    }
+
+    pub async fn update_custom_list_location(&mut self, update: CustomListLocationUpdate) -> Result<(), Error> {
+        let result = match update {
+            CustomListLocationUpdate::Add {
+                name,
+                location: new_location,
+            } => {
+                if new_location.is_any() {
+                    Err(Error::CannotAddAny)
+                } else if let Some(custom_list) =
+                    self.settings.custom_lists.get_custom_list_with_name(&name)
+                {
+                    let id = custom_list.id.clone();
+                    let new_location = new_location.unwrap();
+                    let settings_changed = self
+                        .settings
+                        .update(|settings| {
+                            let locations = &mut settings
+                                .custom_lists
+                                .custom_lists
+                                .get_mut(&id)
+                                .unwrap()
+                                .locations;
+                            if !locations.iter().any(|location| new_location == *location) {
+                                locations.push(new_location);
+                            }
+                        })
+                        .await
+                        .map_err(Error::SettingsError);
+                    if let Ok(settings_changed) = settings_changed {
+                        if settings_changed {
+                            self.event_listener
+                                .notify_settings(self.settings.to_settings());
+                            self.relay_selector.set_config(new_selector_config(
+                                &self.settings,
+                                &self.app_version_info,
+                            ));
+                            log::info!(
+                                "Initiating tunnel restart because the relay settings changed"
+                            );
+                            self.reconnect_tunnel();
+                        }
+                    }
+                    settings_changed.map(|_| ())
+                } else {
+                    Err(Error::ListNotFound)
+                }
+            }
+            CustomListLocationUpdate::Remove {
+                name,
+                location: location_to_remove,
+            } => {
+                if location_to_remove.is_any() {
+                    Err(Error::CannotAddAny)
+                } else if let Some(custom_list) =
+                    self.settings.custom_lists.get_custom_list_with_name(&name)
+                {
+                    let id = custom_list.id.clone();
+                    let location_to_remove = location_to_remove.unwrap();
+                    let settings_changed = self
+                        .settings
+                        .update(|settings| {
+                            let locations = &mut settings
+                                .custom_lists
+                                .custom_lists
+                                .get_mut(&id)
+                                .unwrap()
+                                .locations;
+                            if let Some(index) = locations
+                                .iter()
+                                .position(|location| location == &location_to_remove)
+                            {
+                                locations.remove(index);
+                            }
+                        })
+                        .await
+                        .map_err(Error::SettingsError);
+                    if let Ok(settings_changed) = settings_changed {
+                        if settings_changed {
+                            self.event_listener
+                                .notify_settings(self.settings.to_settings());
+                            self.relay_selector.set_config(new_selector_config(
+                                &self.settings,
+                                &self.app_version_info,
+                            ));
+                            log::info!(
+                                "Initiating tunnel restart because the relay settings changed"
+                            );
+                            self.reconnect_tunnel();
+                        }
+                    }
+                    settings_changed.map(|_| ())
+                } else {
+                    Err(Error::ListNotFound)
+                }
+            }
+        };
+        result
+    }
+}

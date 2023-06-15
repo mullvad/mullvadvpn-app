@@ -73,7 +73,6 @@ service ManagementService {
   rpc GetCustomList(google.protobuf.StringValue) returns (CustomList) {}
   rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc SelectCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomListLocation(CustomListLocationUpdate) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux)

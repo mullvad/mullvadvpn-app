@@ -27,6 +27,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 mod version_check;
+mod custom_lists;
 
 use crate::target_state::PersistentTargetState;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -166,7 +167,7 @@ pub enum Error {
 
     #[error(display = "Custom list error")]
     // TODO: Create different custom list errors types
-    CustomListError(&'static str),
+    CustomListError(#[error(source)] custom_lists::Error),
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -255,8 +256,6 @@ pub enum DaemonCommand {
     CreateCustomList(ResponseTx<(), Error>, String),
     /// Delete custom list
     DeleteCustomList(ResponseTx<(), Error>, String),
-    /// Delete custom list
-    SelectCustomList(ResponseTx<(), Error>, String),
     /// Update a custom list by adding or removing a location
     UpdateCustomListLocation(ResponseTx<(), Error>, CustomListLocationUpdate),
     /// Get information about the currently running and latest app versions
@@ -1037,10 +1036,7 @@ where
             GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
-            SelectCustomList(tx, name) => self.on_select_custom_list(tx, name).await,
-            UpdateCustomListLocation(tx, update) => {
-                self.on_update_custom_list_location(tx, update).await
-            }
+            UpdateCustomListLocation(tx, update) => self.on_update_custom_list_location(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2236,92 +2232,18 @@ where
     }
 
     async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
-        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError("a list with that name does not exist"));
+        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = if self.settings.custom_lists.custom_lists.get(&name).is_some() {
-            Err(Error::CustomListError(
-                "a list with that name already exists",
-            ))
-        } else {
-            self.settings
-                .update(|settings| {
-                    let custom_list = CustomList::new(name);
-                    assert!(settings
-                        .custom_lists
-                        .custom_lists
-                        .insert(custom_list.id.clone(), custom_list)
-                        .is_none());
-                })
-                .await
-                .map(|_| ())
-                .map_err(Error::SettingsError)
-        };
+        let result = self.create_custom_list(name).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let custom_list = self.settings.custom_lists.get_custom_list_with_name(&name);
-        let result = if custom_list.is_none() {
-            Err(Error::CustomListError(
-                "a list with that name does not exist",
-            ))
-        } else {
-            // TODO: Cleanup with match
-            let id = custom_list.as_ref().unwrap().id.clone();
-            self.settings
-                .update(|settings| {
-                    let list = settings.custom_lists.custom_lists.remove(&id);
-                    if let (Some(selected_entry_id), Some(selected_exit_id), Some(list)) =
-                        (&mut settings.custom_lists.selected_list_entry, &mut settings.custom_lists.selected_list_exit, list)
-                    {
-                        if *selected_entry_id == list.id {
-                            settings.custom_lists.selected_list_entry = None;
-                        }
-                        if *selected_exit_id == list.id {
-                            settings.custom_lists.selected_list_exit = None;
-                        }
-                    }
-                })
-                .await
-                .map(|_| ())
-                .map_err(Error::SettingsError)
-        };
+        let result = self.delete_custom_list(name).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "delete_custom_list response");
-    }
-
-    async fn on_select_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        unimplemented!();
-        //// TODO: Notify update settings listeners and steal inspiration from on_update_relay_settings
-        //let result = if self.settings.custom_lists.custom_lists.get(&name).is_none() {
-        //    Err(Error::CustomListError(
-        //        "a list with that name does not exist",
-        //    ))
-        //} else {
-        //    let result = self.settings
-        //        .update(|settings| {
-        //            let list = settings.custom_lists.custom_lists.get(&name).unwrap();
-        //            // TODO: This needs to be select both exit and entry
-        //            settings.custom_lists.selected_list_exit = Some(list.id.clone());
-        //            match &mut settings.relay_settings {
-        //                RelaySettings::Normal(relay_constraints) => {
-        //                    relay_constraints.location = Constraint::Only(Foo::Custom { locations: list.locations.clone() });
-        //                },
-        //                RelaySettings::CustomTunnelEndpoint(_) => {
-        //                    // TODO: What should this behavior be? Silent failure? Logging?
-        //                    // Checking before updating settings and returning an error?
-        //                }
-        //            }
-        //        })
-        //        .await
-        //        .map(|_| ())
-        //        .map_err(Error::SettingsError);
-        //    self.reconnect_tunnel();
-        //    result
-        //};
-        //Self::oneshot_send(tx, result, "select_custom_list response");
     }
 
     async fn on_update_custom_list_location(
@@ -2329,89 +2251,7 @@ where
         tx: ResponseTx<(), Error>,
         update: CustomListLocationUpdate,
     ) {
-        let result = match update {
-            CustomListLocationUpdate::Add {
-                name,
-                location: new_location,
-            } => {
-                if new_location.is_any() {
-                    Err(Error::CustomListError("cannot add 'any' to custom list"))
-                } else if let Some(custom_list) = self.settings.custom_lists.get_custom_list_with_name(&name) {
-                    let id = custom_list.id.clone();
-                    let new_location = new_location.unwrap();
-                    let settings_changed = self.settings
-                        .update(|settings| {
-                            let locations = &mut settings
-                                .custom_lists
-                                .custom_lists
-                                .get_mut(&id)
-                                .unwrap()
-                                .locations;
-                            if !locations.iter().any(|location| new_location == *location) {
-                                locations.push(new_location);
-                            }
-                        })
-                        .await
-                        .map_err(Error::SettingsError);
-                    if let Ok(settings_changed) = settings_changed {
-                        if settings_changed {
-                            self.event_listener
-                                .notify_settings(self.settings.to_settings());
-                            self.relay_selector
-                                .set_config(new_selector_config(&self.settings, &self.app_version_info));
-                            log::info!("Initiating tunnel restart because the relay settings changed");
-                            self.reconnect_tunnel();
-                        }
-                    }
-                    settings_changed.map(|_| ())
-                } else {
-                    Err(Error::CustomListError("no list with that name exists"))
-                }
-            }
-            CustomListLocationUpdate::Remove {
-                name,
-                location: location_to_remove,
-            } => {
-                if location_to_remove.is_any() {
-                    Err(Error::CustomListError(
-                        "cannot remove 'any' from custom list",
-                    ))
-                } else if let Some(custom_list) = self.settings.custom_lists.get_custom_list_with_name(&name) {
-                    let id = custom_list.id.clone();
-                    let location_to_remove = location_to_remove.unwrap();
-                    let settings_changed = self.settings
-                        .update(|settings| {
-                            let locations = &mut settings
-                                .custom_lists
-                                .custom_lists
-                                .get_mut(&id)
-                                .unwrap()
-                                .locations;
-                            if let Some(index) = locations
-                                .iter()
-                                .position(|location| location == &location_to_remove)
-                            {
-                                locations.remove(index);
-                            }
-                        })
-                        .await
-                        .map_err(Error::SettingsError);
-                    if let Ok(settings_changed) = settings_changed {
-                        if settings_changed {
-                            self.event_listener
-                                .notify_settings(self.settings.to_settings());
-                            self.relay_selector
-                                .set_config(new_selector_config(&self.settings, &self.app_version_info));
-                            log::info!("Initiating tunnel restart because the relay settings changed");
-                            self.reconnect_tunnel();
-                        }
-                    }
-                    settings_changed.map(|_| ())
-                } else {
-                    Err(Error::CustomListError("no list with that name exists"))
-                }
-            }
-        };
+        let result = self.update_custom_list_location(update).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "update_custom_list_location response");
     }
 

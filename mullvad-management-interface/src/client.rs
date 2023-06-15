@@ -468,15 +468,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn select_custom_list(&mut self, name: String) -> Result<()> {
-        self
-            .0
-            .select_custom_list(name)
-            .await
-            .map_err(Error::Rpc)?;
-        Ok(())
-    }
-
     pub async fn update_custom_list_location(&mut self, custom_list_update: CustomListLocationUpdate) -> Result<()> {
         self
             .0
@@ -607,5 +598,7 @@ fn map_location_error(status: Status) -> Error {
         _other => Error::Rpc(status),
     }
 }
+
+
 
 
