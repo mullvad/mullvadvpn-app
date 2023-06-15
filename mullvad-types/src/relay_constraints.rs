@@ -2,7 +2,7 @@
 //! updated as well.
 
 use crate::{
-    custom_list::CustomList,
+    custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
     CustomTunnelEndpoint,
@@ -241,7 +241,7 @@ pub enum LocationConstraint {
         location: GeographicLocationConstraint,
     },
     CustomList {
-        list_id: String,
+        list_id: Id,
     },
 }
 
@@ -258,14 +258,14 @@ pub enum ResolvedLocationConstraint {
 impl ResolvedLocationConstraint {
     pub fn from_constraint(
         location: Constraint<LocationConstraint>,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Constraint<ResolvedLocationConstraint> {
         match location {
             Constraint::Any => Constraint::Any,
             Constraint::Only(LocationConstraint::Location { location }) => {
                 Constraint::Only(Self::Location { location })
             }
-            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
+            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists.custom_lists
                 .get(&list_id)
                 .map(|custom_list| {
                     Constraint::Only(Self::Locations {

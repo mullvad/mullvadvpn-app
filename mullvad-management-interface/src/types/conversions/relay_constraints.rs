@@ -1,5 +1,5 @@
 use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::{Constraint, RelaySettingsUpdate};
+use mullvad_types::{custom_list::Id, relay_constraints::{Constraint, RelaySettingsUpdate}};
 use talpid_types::net::TunnelType;
 
 impl TryFrom<&proto::WireguardConstraints>
@@ -483,7 +483,7 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
             LocationConstraint::CustomList { list_id } => {
                 Self {
                     r#type: Some(proto::location_constraint::Type::Custom(
-                        list_id,
+                        list_id.0,
                     )),
                 }
             }
@@ -505,27 +505,7 @@ impl From<proto::LocationConstraint> for Constraint<mullvad_types::relay_constra
                 }
             }
             Some(proto::location_constraint::Type::Custom(list_id)) => {
-                //let locations: Result<Vec<_>, _> = locations
-                //    .locations
-                //    .into_iter()
-                //    .map(|location| {
-                //        Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from(
-                //            location,
-                //        )
-                //    }).try_fold(Vec::new(), |mut vec, location| {
-                //        if location.is_any() {
-                //            Err(Constraint::Any)
-                //        } else {
-                //            vec.push(location.unwrap());
-                //            Ok(vec)
-                //        }
-                //    });
-                //let list_id = match list_id {
-                //    Err(any) => return any,
-                //    Ok(list_id) => list_id,
-                //};
-
-                let location = LocationConstraint::CustomList { list_id };
+                let location = LocationConstraint::CustomList { list_id: Id(list_id) };
                 Constraint::Only(location)
             }
             None => Constraint::Any,

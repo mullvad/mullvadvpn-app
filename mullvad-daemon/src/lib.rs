@@ -2448,7 +2448,6 @@ fn new_selector_config(
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
-        // TODO: Should probably just pass the entire struct here and everywher else
-        custom_lists: settings.custom_lists.custom_lists.clone(),
+        custom_lists: settings.custom_lists.clone(),
     }
 }

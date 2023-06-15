@@ -4,7 +4,7 @@
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
-    custom_list::CustomList,
+    custom_list::{CustomList, CustomListsSettings},
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
     relay_constraints::{
@@ -173,7 +173,7 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     pub default_tunnel_type: TunnelType,
-    pub custom_lists: HashMap<String, CustomList>,
+    pub custom_lists: CustomListsSettings,
 }
 
 #[derive(Clone)]
@@ -345,7 +345,7 @@ impl RelaySelector {
         bridge_state: BridgeState,
         retry_attempt: u32,
         default_tunnel_type: TunnelType,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
@@ -381,7 +381,7 @@ impl RelaySelector {
 
     /// Returns the average location of relays that match the given constraints.
     /// This returns none if the location is `any` or if no relays match the constraints.
-    pub fn get_relay_midpoint(&self, relay_constraints: &RelayConstraints, custom_lists: &HashMap<String, CustomList>) -> Option<Coordinates> {
+    pub fn get_relay_midpoint(&self, relay_constraints: &RelayConstraints, custom_lists: &CustomListsSettings) -> Option<Coordinates> {
         if relay_constraints.location.is_any() {
             return None;
         }
@@ -420,7 +420,7 @@ impl RelaySelector {
         openvpn_constraints: OpenVpnConstraints,
         bridge_state: BridgeState,
         retry_attempt: u32,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let mut relay_matcher = RelayMatcher {
             locations: ResolvedLocationConstraint::from_constraint(locations.clone(), custom_lists),
@@ -478,7 +478,7 @@ impl RelaySelector {
         &self,
         mut entry_matcher: RelayMatcher<WireguardMatcher>,
         exit_locations: Constraint<LocationConstraint>,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let mut exit_matcher = RelayMatcher {
             locations: ResolvedLocationConstraint::from_constraint(exit_locations, custom_lists),
@@ -537,7 +537,7 @@ impl RelaySelector {
         ownership: &Constraint<Ownership>,
         wireguard_constraints: &WireguardConstraints,
         retry_attempt: u32,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let wg_endpoint_data = self.parsed_relays.lock().locations.wireguard.clone();
 
@@ -545,7 +545,6 @@ impl RelaySelector {
         // If using multihop then location is the exit constraint and
         // `wireguard_constraints.entry_location` is set as the entry location constraint.
         if !wireguard_constraints.use_multihop {
-            log::error!("============ {:?}", locations);
             let relay_matcher = RelayMatcher {
                 locations: ResolvedLocationConstraint::from_constraint(locations.clone(), custom_lists),
                 providers: providers.clone(),
@@ -555,7 +554,6 @@ impl RelaySelector {
                     wg_endpoint_data.clone(),
                 ),
             };
-            log::error!("============ {:?}", relay_matcher.locations);
 
             let mut preferred_matcher: RelayMatcher<WireguardMatcher> = relay_matcher.clone();
             preferred_matcher.endpoint_matcher.port = preferred_matcher
@@ -588,7 +586,7 @@ impl RelaySelector {
     fn get_multihop_tunnel_endpoint_internal(
         &self,
         relay_constraints: &RelayConstraints,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let (openvpn_data, wireguard_data) = {
             let relays = self.parsed_relays.lock();
@@ -677,7 +675,7 @@ impl RelaySelector {
         bridge_state: BridgeState,
         retry_attempt: u32,
         default_tunnel_type: TunnelType,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let preferred_constraints = self.preferred_constraints(
             relay_constraints,
@@ -716,7 +714,7 @@ impl RelaySelector {
         bridge_state: BridgeState,
         retry_attempt: u32,
         default_tunnel_type: TunnelType,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> RelayConstraints {
         let location = ResolvedLocationConstraint::from_constraint(original_constraints.location.clone(), custom_lists);
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
@@ -826,7 +824,7 @@ impl RelaySelector {
         config: &MutexGuard<'_, SelectorConfig>,
         location: &mullvad_types::location::Location,
         retry_attempt: u32,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<Option<SelectedBridge>, Error> {
         match &config.bridge_settings {
             BridgeSettings::Normal(settings) => {
@@ -915,7 +913,7 @@ impl RelaySelector {
         &self,
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Option<(ProxySettings, Relay)> {
         let matcher = RelayMatcher {
             locations: ResolvedLocationConstraint::from_constraint(constraints.location.clone(), custom_lists),
