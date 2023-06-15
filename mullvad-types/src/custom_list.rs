@@ -3,46 +3,22 @@ use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct Id(String);
+pub struct Id(pub String);
+
+impl std::fmt::Display for Id {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fmt.write_str(&self.0)
+    }
+}
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomListsSettings {
-    pub custom_lists: HashMap<String, CustomList>,
-    pub selected_list_entry: Option<String>,
-    pub selected_list_exit: Option<String>,
+    pub custom_lists: HashMap<Id, CustomList>,
 }
 
 impl CustomListsSettings {
     pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
         self.custom_lists.values().find(|custom_list| &custom_list.name == name)
-    }
-
-    pub fn get_selected_list_entry(&self) -> Option<&CustomList> {
-        match &self.selected_list_entry {
-            None => None,
-            Some(selected_list) => {
-                for list in self.custom_lists.values() {
-                    if &list.id == selected_list {
-                        return Some(list);
-                    }
-                }
-                None
-            }
-        }
-    }
-
-    pub fn get_selected_list_exit(&self) -> Option<&CustomList> {
-        match &self.selected_list_exit {
-            None => None,
-            Some(selected_list) => {
-                for list in self.custom_lists.values() {
-                    if &list.id == selected_list {
-                        return Some(list);
-                    }
-                }
-                None
-            }
-        }
     }
 }
 
@@ -60,7 +36,7 @@ pub enum CustomListLocationUpdate {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomList {
-    pub id: String,
+    pub id: Id,
     pub name: String,
     pub locations: Vec<GeographicLocationConstraint>,
 }
@@ -68,7 +44,7 @@ pub struct CustomList {
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: Id(uuid::Uuid::new_v4().to_string()),
             name,
             locations: Vec::new(),
         }

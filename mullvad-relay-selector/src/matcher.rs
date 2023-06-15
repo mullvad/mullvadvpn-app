@@ -14,7 +14,7 @@ use rand::{
 };
 use std::{collections::HashMap, net::{IpAddr, SocketAddr}};
 use talpid_types::net::{all_of_the_internet, wireguard, Endpoint, IpVersion, TunnelType};
-use crate::CustomList;
+use crate::CustomListsSettings;
 
 #[derive(Clone)]
 pub struct RelayMatcher<T: EndpointMatcher> {
@@ -31,7 +31,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
         constraints: RelayConstraints,
         openvpn_data: OpenVpnEndpointData,
         wireguard_data: WireguardEndpointData,
-        custom_lists: &HashMap<String, CustomList>,
+        custom_lists: &CustomListsSettings,
     ) -> Self {
         Self {
             locations: ResolvedLocationConstraint::from_constraint(constraints.location, custom_lists),

@@ -1,5 +1,5 @@
 use crate::types::{proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::{custom_list::Id, relay_constraints::GeographicLocationConstraint};
 use proto::RelayLocation;
 
 impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomListSettings {
@@ -9,11 +9,9 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
                 .custom_lists
                 .iter()
                 .map(|(id, custom_list)| {
-                    (id.clone(), proto::CustomList::from(custom_list.clone()))
+                    (id.0.clone(), proto::CustomList::from(custom_list.clone()))
                 })
             .collect(),
-            selected_list_entry: settings.selected_list_entry.clone(),
-            selected_list_exit: settings.selected_list_exit.clone(),
         }
     }
 }
@@ -28,13 +26,11 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
                 .into_iter()
                 .map(|(id, custom_list)| {
                     Ok((
-                            id,
+                            Id(id),
                             mullvad_types::custom_list::CustomList::try_from(custom_list)?,
                     ))
                 })
             .collect::<Result<std::collections::HashMap<_, _>, _>>()?,
-            selected_list_entry: settings.selected_list_entry,
-            selected_list_exit: settings.selected_list_exit,
         })
     }
 }
@@ -112,7 +108,7 @@ impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
             .map(proto::RelayLocation::from)
             .collect();
         Self {
-            id: custom_list.id,
+            id: custom_list.id.0,
             name: custom_list.name,
             locations,
         }
@@ -132,7 +128,7 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
         })?;
         Ok(Self {
-            id: custom_list.id,
+            id: Id(custom_list.id),
             name: custom_list.name,
             locations,
         })
