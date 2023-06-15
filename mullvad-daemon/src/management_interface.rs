@@ -590,10 +590,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::ListCustomLists(tx))?;
         self.wait_for_result(rx)
             .await?
-            .map(|custom_lists| {
-                Response::new(mullvad_management_interface::types::CustomLists::from(custom_lists))
-            })
-            // TODO: Should this be settings error? Evaluate later
+            .map(|custom_lists| Response::new(mullvad_management_interface::types::CustomLists::from(custom_lists)))
             .map_err(map_daemon_error)
     }
 
@@ -606,7 +603,6 @@ impl ManagementService for ManagementServiceImpl {
             .map(|custom_list| {
                 Response::new(mullvad_management_interface::types::CustomList::from(custom_list))
             })
-            // TODO: Should this be settings error? Evaluate later
             .map_err(map_daemon_error)
     }
 
@@ -617,7 +613,6 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
-            // TODO: Should this be settings error? Evaluate later
             .map_err(map_daemon_error)
     }
 
@@ -628,18 +623,6 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
-            // TODO: Should this be settings error? Evaluate later
-            .map_err(map_daemon_error)
-    }
-
-    async fn select_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
-        log::debug!("select_custom_list");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SelectCustomList(tx, request.into_inner()))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            // TODO: Should this be settings error? Evaluate later
             .map_err(map_daemon_error)
     }
 
@@ -651,7 +634,6 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
-            // TODO: Should this be settings error? Evaluate later
             .map_err(map_daemon_error)
     }
 
