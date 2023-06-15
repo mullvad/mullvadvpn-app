@@ -74,6 +74,7 @@ service ManagementService {
   rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomListLocation(CustomListLocationUpdate) returns (google.protobuf.Empty) {}
+  rpc RenameCustomList(CustomListRename) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -322,6 +323,11 @@ message ObfuscationSettings {
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
+}
+
+message CustomListRename {
+  string name = 1;
+  string new_name = 2;
 }
 
 message CustomListLocationUpdate {

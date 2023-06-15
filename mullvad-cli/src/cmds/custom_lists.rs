@@ -37,6 +37,9 @@ pub enum CustomList {
 
     /// Use a random relay from the custom list
     Select { name: String },
+
+    /// Use a random relay from the custom list
+    Rename { name: String, new_name: String },
 }
 
 impl CustomList {
@@ -49,6 +52,7 @@ impl CustomList {
             CustomList::Remove { name, location } => Self::remove_location(name, location).await,
             CustomList::Delete { name } => Self::delete_list(name).await,
             CustomList::Select { name } => Self::select_list(name).await,
+            CustomList::Rename { name, new_name } => Self::rename_list(name, new_name).await,
         }
     }
 
@@ -102,6 +106,12 @@ impl CustomList {
             location: Some(Constraint::Only(LocationConstraint::CustomList { list_id, })),
             ..Default::default()
         })).await?;
+        Ok(())
+    }
+
+    async fn rename_list(name: String, new_name: String) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.rename_custom_list(name, new_name).await?;
         Ok(())
     }
 
