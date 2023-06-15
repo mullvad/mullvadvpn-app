@@ -55,10 +55,7 @@ impl CustomList {
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         for custom_list in rpc.list_custom_lists().await? {
-            println!("{}", custom_list.name);
-            for location in custom_list.locations {
-                println!("\t{}", location);
-            }
+            Self::print_custom_list(&custom_list);
         }
         Ok(())
     }
@@ -66,10 +63,7 @@ impl CustomList {
     async fn get(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let custom_list = rpc.get_custom_list(name).await?;
-        println!("{}", custom_list.name);
-        for location in custom_list.locations {
-            println!("\t{}", location);
-        }
+        Self::print_custom_list(&custom_list);
         Ok(())
     }
 
@@ -109,5 +103,12 @@ impl CustomList {
             ..Default::default()
         })).await?;
         Ok(())
+    }
+
+    fn print_custom_list(custom_list: &mullvad_types::custom_list::CustomList) {
+        println!("{}", custom_list.name);
+        for location in &custom_list.locations {
+            println!("\t{}", location);
+        }
     }
 }
