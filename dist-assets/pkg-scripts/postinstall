@@ -75,7 +75,10 @@ launchctl unload -w $DAEMON_PLIST_PATH
 cp "$LOG_DIR/daemon.log" "$LOG_DIR/old-install-daemon.log" \
   || echo "Failed to copy old daemon log"
 
-pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
+# For compatibility with versions older than 2022.5, kill the GUI after the
+# upgrade. We now do this in preinstall instead. This code can be removed when
+# we drop support for app versions older than 2022.5.
+pkill -x "Mullvad VPN"
 sleep 1
 
 echo "$DAEMON_PLIST" > $DAEMON_PLIST_PATH
