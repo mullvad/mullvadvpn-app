@@ -243,7 +243,9 @@ impl Bridge {
                 }
             },
             BridgeSettings::Normal(constraints) => {
-                println!("Bridge constraints: {constraints}")
+                let mut buf = String::new();
+                let _ = constraints.format(&mut buf, &settings.custom_lists);
+                println!("Bridge constraints: {buf}")
             }
         };
         Ok(())
