@@ -203,8 +203,11 @@ impl Relay {
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let relay_settings = rpc.get_settings().await?.relay_settings;
-        println!("Current constraints: {relay_settings}");
+        let settings = rpc.get_settings().await?;
+        let relay_settings = settings.relay_settings;
+        let mut buf = String::new();
+        let _ = relay_settings.format(&mut buf, &settings.custom_lists);
+        println!("Current constraints: {}", buf);
         Ok(())
     }
 
