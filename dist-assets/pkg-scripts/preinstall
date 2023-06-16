@@ -33,3 +33,11 @@ rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
 
 # Remove deprecated exclusion group. This line can be removed when 2023.4 is no longer supported
 dscl . -delete /groups/mullvad-exclusion &>/dev/null || true
+
+# Kill the GUI before proceeding with the daemon upgrade.
+"$INSTALL_DIR"/Mullvad VPN.app/Contents/Resources/mullvad-setup is-older-version 2022.5
+KILL_GUI_BEFORE_DAEMON=$?
+if [[ $KILL_GUI_BEFORE_DAEMON -eq 0 ]]; then
+    pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
+    sleep 1
+fi

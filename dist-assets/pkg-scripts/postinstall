@@ -75,6 +75,10 @@ launchctl unload -w $DAEMON_PLIST_PATH
 cp "$LOG_DIR/daemon.log" "$LOG_DIR/old-install-daemon.log" \
   || echo "Failed to copy old daemon log"
 
+# Kill the daemon before the GUI.
+# TODO: Remove this when versions prior to 2022.5 is no longer supported.
+# Default behaviour should be to kill the GUI before the daemon, which can be
+# done from preinstall rather than postinstall.
 pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
 sleep 1
 
