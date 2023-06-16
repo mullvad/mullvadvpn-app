@@ -1,13 +1,22 @@
 use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct Id(pub String);
+pub struct Id(pub uuid::Uuid);
+
+impl TryFrom<&str> for Id {
+    type Error = ();
+    fn try_from(string: &str) -> Result<Self, Self::Error> {
+        let uuid = uuid::Uuid::from_str(string).map_err(|_| ())?;
+        Ok(Id(uuid))
+    }
+}
 
 impl std::fmt::Display for Id {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fmt.write_str(&self.0)
+        fmt.write_str(&self.0.to_string())
     }
 }
 
@@ -46,7 +55,7 @@ pub struct CustomList {
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: Id(uuid::Uuid::new_v4().to_string()),
+            id: Id(uuid::Uuid::new_v4()),
             name,
             locations: Vec::new(),
         }

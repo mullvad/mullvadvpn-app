@@ -24,7 +24,7 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
                 .custom_lists
                 .iter()
                 .map(|(id, custom_list)| {
-                    (id.0.clone(), proto::CustomList::from(custom_list.clone()))
+                    (id.0.to_string(), proto::CustomList::from(custom_list.clone()))
                 })
                 .collect(),
         }
@@ -41,7 +41,7 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
                 .into_iter()
                 .map(|(id, custom_list)| {
                     Ok((
-                        Id(id),
+                        Id::try_from(id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
                         mullvad_types::custom_list::CustomList::try_from(custom_list)?,
                     ))
                 })
@@ -62,7 +62,7 @@ impl From<mullvad_types::custom_list::CustomListLocationUpdate>
                     Constraint::Only(location) => Some(RelayLocation::from(location)),
                 };
                 Self {
-                    state: 0,
+                    state: i32::from(proto::custom_list_location_update::State::Add),
                     name,
                     location,
                 }
@@ -73,7 +73,7 @@ impl From<mullvad_types::custom_list::CustomListLocationUpdate>
                     Constraint::Only(location) => Some(RelayLocation::from(location)),
                 };
                 Self {
-                    state: 1,
+                    state: i32::from(proto::custom_list_location_update::State::Remove),
                     name,
                     location,
                 }
@@ -95,16 +95,16 @@ impl TryFrom<proto::CustomListLocationUpdate>
                     .location
                     .ok_or(FromProtobufTypeError::InvalidArgument("missing location"))?,
             );
-        match custom_list.state {
-            0 => Ok(Self::Add {
+        match proto::custom_list_location_update::State::from_i32(custom_list.state) {
+            Some(proto::custom_list_location_update::State::Add) => Ok(Self::Add {
                 name: custom_list.name,
                 location,
             }),
-            1 => Ok(Self::Remove {
+            Some(proto::custom_list_location_update::State::Remove) => Ok(Self::Remove {
                 name: custom_list.name,
                 location,
             }),
-            _ => Err(FromProtobufTypeError::InvalidArgument("incorrect state")),
+            None => Err(FromProtobufTypeError::InvalidArgument("incorrect state")),
         }
     }
 }
@@ -117,7 +117,7 @@ impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
             .map(proto::RelayLocation::from)
             .collect();
         Self {
-            id: custom_list.id.0,
+            id: custom_list.id.0.to_string(),
             name: custom_list.name,
             locations,
         }
@@ -137,7 +137,7 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
         })?;
         Ok(Self {
-            id: Id(custom_list.id),
+            id: Id::try_from(custom_list.id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
             name: custom_list.name,
             locations,
         })
