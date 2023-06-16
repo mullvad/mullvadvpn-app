@@ -8,7 +8,6 @@ pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
 mod cleanup;
-mod custom_lists;
 pub mod device;
 mod dns;
 pub mod exception_logging;
@@ -28,6 +27,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 mod version_check;
+mod custom_lists;
 
 use crate::target_state::PersistentTargetState;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -1037,12 +1037,8 @@ where
             GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
-            UpdateCustomListLocation(tx, update) => {
-                self.on_update_custom_list_location(tx, update).await
-            }
-            RenameCustomList(tx, name, new_name) => {
-                self.on_rename_custom_list(tx, name, new_name).await
-            }
+            UpdateCustomListLocation(tx, update) => self.on_update_custom_list_location(tx, update).await,
+            RenameCustomList(tx, name, new_name) => self.on_rename_custom_list(tx, name, new_name).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2241,39 +2237,22 @@ where
     }
 
     async fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
-        let result = self
-            .settings
-            .custom_lists
-            .custom_lists
-            .values()
-            .cloned()
-            .collect();
+        let result = self.settings.custom_lists.custom_lists.values().cloned().collect();
         Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
     }
 
     async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
-        let result = self
-            .settings
-            .custom_lists
-            .get_custom_list_with_name(&name)
-            .cloned()
-            .ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
+        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self
-            .create_custom_list(name)
-            .await
-            .map_err(Error::CustomListError);
+        let result = self.create_custom_list(name).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self
-            .delete_custom_list(name)
-            .await
-            .map_err(Error::CustomListError);
+        let result = self.delete_custom_list(name).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "delete_custom_list response");
     }
 
@@ -2282,10 +2261,7 @@ where
         tx: ResponseTx<(), Error>,
         update: CustomListLocationUpdate,
     ) {
-        let result = self
-            .update_custom_list_location(update)
-            .await
-            .map_err(Error::CustomListError);
+        let result = self.update_custom_list_location(update).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "update_custom_list_location response");
     }
 
@@ -2295,10 +2271,7 @@ where
         name: String,
         new_name: String,
     ) {
-        let result = self
-            .rename_custom_list(name, new_name)
-            .await
-            .map_err(Error::CustomListError);
+        let result = self.rename_custom_list(name, new_name).await.map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "rename_custom_list response");
     }
 
@@ -2460,36 +2433,6 @@ fn new_selector_config(
         TunnelType::Wireguard
     };
 
-    //let mut relay_settings = settings.get_relay_settings();
-
-    //if let Some(selected_list_exit_id) = &settings.custom_lists.selected_list_exit {
-    //    if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
-    //        // TODO: Log if custom list no longer exists, should be made impossible
-    //        if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_exit_id) {
-    //            relay_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-    //        }
-    //    }
-    //}
-
-    //let mut bridge_settings = settings.bridge_settings.clone();
-
-    //if let Some(selected_list_entry_id) = &settings.custom_lists.selected_list_entry {
-    //    if let RelaySettings::Normal(relay_settings) = &mut relay_settings {
-    //        // TODO: Log if custom list no longer exists, should be made impossible
-    //        if let Some(custom_list) = settings.custom_lists.custom_lists.get(selected_list_entry_id) {
-    //            if relay_settings.wireguard_constraints.use_multihop {
-    //                relay_settings.wireguard_constraints.entry_location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-    //            }
-
-    //            if let BridgeSettings::Normal(bridge_settings) = &mut bridge_settings {
-    //                bridge_settings.location = Constraint::Only(Foo::Custom { locations: custom_list.locations.clone() });
-    //            }
-    //        }
-    //    }
-    //}
-
-    //log::error!("============{:?}, {:?}", relay_settings, bridge_settings);
-
     SelectorConfig {
         relay_settings: settings.relay_settings.clone(),
         bridge_state: settings.bridge_state,
@@ -2499,3 +2442,5 @@ fn new_selector_config(
         custom_lists: settings.custom_lists.clone(),
     }
 }
+
+

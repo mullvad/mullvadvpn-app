@@ -48,25 +48,6 @@ impl RelayMatcher<AnyTunnelMatcher> {
         }
     }
 
-    ///// Will replace location from `constraints` with `custom_list_locations`
-    //pub fn new_with_custom_list_locations(
-    //    constraints: RelayConstraints,
-    //    openvpn_data: OpenVpnEndpointData,
-    //    wireguard_data: WireguardEndpointData,
-    //    custom_list_locations: Vec<LocationConstraint>,
-    //) -> Self {
-    //    Self {
-    //        locations: Constraint::Only(custom_list_locations),
-    //        providers: constraints.providers,
-    //        ownership: constraints.ownership,
-    //        endpoint_matcher: AnyTunnelMatcher {
-    //            wireguard: WireguardMatcher::new(constraints.wireguard_constraints, wireguard_data),
-    //            openvpn: OpenVpnMatcher::new(constraints.openvpn_constraints, openvpn_data),
-    //            tunnel_type: constraints.tunnel_protocol,
-    //        },
-    //    }
-    //}
-
     pub fn into_wireguard_matcher(self) -> RelayMatcher<WireguardMatcher> {
         RelayMatcher {
             endpoint_matcher: self.endpoint_matcher.wireguard,

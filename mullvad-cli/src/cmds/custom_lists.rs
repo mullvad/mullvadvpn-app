@@ -41,7 +41,7 @@ pub enum CustomList {
     /// Use a random relay from the custom list
     Select { name: String },
 
-    /// Use a random relay from the custom list
+    /// Rename a custom list to a new name
     Rename { name: String, new_name: String },
 }
 
