@@ -10,7 +10,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr};
+use std::{collections::HashSet, fmt, str::FromStr, fmt::Write};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -204,13 +204,13 @@ pub enum RelaySettings {
     Normal(RelayConstraints),
 }
 
-impl fmt::Display for RelaySettings {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl RelaySettings {
+    pub fn format(&self, s: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
             RelaySettings::CustomTunnelEndpoint(endpoint) => {
-                write!(f, "custom endpoint {endpoint}")
+                write!(s, "custom endpoint {endpoint}")
             }
-            RelaySettings::Normal(constraints) => constraints.fmt(f),
+            RelaySettings::Normal(constraints) => constraints.format(s, custom_lists),
         }
     }
 }
@@ -334,15 +334,23 @@ impl Constraint<ResolvedLocationConstraint> {
     }
 }
 
-impl fmt::Display for LocationConstraint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl LocationConstraint {
+    fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
             Self::Location { location } => write!(f, "location: {location}"),
-            // FIXME: This seems awkward, the user shouldn't see the id and instead they probably
-            // want to see the locations. However in order to get that information we need access
-            // to the custom lists hashmap
             Self::CustomList { list_id } => {
-                write!(f, "custom list: {list_id}")
+                match custom_lists.custom_lists.get(list_id) {
+                    Some(list) => {
+                        writeln!(f, "custom list: {}", list.name)?;
+                        for location in &list.locations {
+                            writeln!(f, "\t{}", location)?;
+                        }
+                        Ok(())
+                    },
+                    None => {
+                        writeln!(f, "custom list: list not found")
+                    }
+                }
             }
         }
     }
@@ -398,19 +406,23 @@ impl RelayConstraints {
     }
 }
 
-impl fmt::Display for RelayConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl RelayConstraints {
+    pub fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self.tunnel_protocol {
-            Constraint::Any => write!(
-                f,
-                "Any tunnel protocol with OpenVPN through {} and WireGuard through {}",
-                &self.openvpn_constraints, &self.wireguard_constraints,
-            )?,
+            Constraint::Any => {
+                write!(
+                    f,
+                    "Any tunnel protocol with OpenVPN through {} and WireGuard through ",
+                    &self.openvpn_constraints, 
+                )?;
+                self.wireguard_constraints.format(f, custom_lists)?;
+            },
             Constraint::Only(ref tunnel_protocol) => {
-                tunnel_protocol.fmt(f)?;
+                write!(f, "{}", tunnel_protocol)?;
                 match tunnel_protocol {
                     TunnelType::Wireguard => {
-                        write!(f, " over {}", &self.wireguard_constraints)?;
+                        write!(f, " over ")?;
+                        self.wireguard_constraints.format(f, custom_lists)?;
                     }
                     TunnelType::OpenVpn => {
                         write!(f, " over {}", &self.openvpn_constraints)?;
@@ -421,12 +433,14 @@ impl fmt::Display for RelayConstraints {
         write!(f, " in ")?;
         match self.location {
             Constraint::Any => write!(f, "any location")?,
-            Constraint::Only(ref location_constraint) => location_constraint.fmt(f)?,
+            Constraint::Only(ref location_constraint) => {
+                location_constraint.format(f, custom_lists)?;
+            },
         }
         write!(f, " using ")?;
         match self.providers {
             Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => constraint.fmt(f)?,
+            Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
         }
         match self.ownership {
             Constraint::Any => Ok(()),
@@ -738,8 +752,8 @@ where
     }
 }
 
-impl fmt::Display for WireguardConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl WireguardConstraints {
+    fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
             Constraint::Only(port) => write!(f, "port {port}")?,
@@ -752,7 +766,11 @@ impl fmt::Display for WireguardConstraints {
         if self.use_multihop {
             match &self.entry_location {
                 Constraint::Any => write!(f, " (via any location)"),
-                Constraint::Only(location) => write!(f, " (via {location})"),
+                Constraint::Only(location) => {
+                    write!(f, " (via ")?;
+                    location.format(f, custom_lists)?;
+                    write!(f, ")")
+                },
             }
         } else {
             Ok(())
@@ -870,16 +888,16 @@ pub struct BridgeConstraints {
     pub ownership: Constraint<Ownership>,
 }
 
-impl fmt::Display for BridgeConstraints {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+impl BridgeConstraints {
+    pub fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self.location {
             Constraint::Any => write!(f, "any location")?,
-            Constraint::Only(ref location_constraint) => location_constraint.fmt(f)?,
+            Constraint::Only(ref location_constraint) => location_constraint.format(f, custom_lists)?,
         }
         write!(f, " using ")?;
         match self.providers {
             Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => constraint.fmt(f)?,
+            Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
         }
         match self.ownership {
             Constraint::Any => Ok(()),

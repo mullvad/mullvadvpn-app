@@ -649,7 +649,9 @@ impl RelaySelector {
             );
             Ok(result)
         } else {
-            log::warn!("No relays matching {}", &relay_constraints);
+            let mut relay_constraints_string = String::new();
+            let _ = relay_constraints.format(&mut relay_constraints_string, custom_lists);
+            log::warn!("No relays matching {}", &relay_constraints_string);
             Err(Error::NoRelay)
         }
     }

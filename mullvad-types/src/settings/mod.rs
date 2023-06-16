@@ -163,10 +163,16 @@ impl Settings {
             if !update_supports_bridge && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
             }
+
+            let mut old_settings_string = String::new();
+            let _ = self.relay_settings.format(&mut old_settings_string, &self.custom_lists);
+            let mut new_settings_string = String::new();
+            let _ = new_settings.format(&mut new_settings_string, &self.custom_lists);
+
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
-                self.relay_settings,
-                new_settings
+                old_settings_string,
+                new_settings_string,
             );
 
             self.relay_settings = new_settings;
@@ -207,3 +213,5 @@ impl Default for TunnelOptions {
         }
     }
 }
+
+
