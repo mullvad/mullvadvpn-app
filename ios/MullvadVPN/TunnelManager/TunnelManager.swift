@@ -48,6 +48,7 @@ final class TunnelManager: StorePaymentObserver {
     private let relayCacheTracker: RelayCacheTracker
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
+    private let apiProxy: REST.APIProxy
 
     private let logger = Logger(label: "TunnelManager")
     private var nslock = NSRecursiveLock()
@@ -82,13 +83,15 @@ final class TunnelManager: StorePaymentObserver {
         tunnelStore: TunnelStore,
         relayCacheTracker: RelayCacheTracker,
         accountsProxy: REST.AccountsProxy,
-        devicesProxy: REST.DevicesProxy
+        devicesProxy: REST.DevicesProxy,
+        apiProxy: REST.APIProxy
     ) {
         self.application = application
         self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
+        self.apiProxy = apiProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
 
@@ -398,6 +401,34 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operationQueue.addOperation(operation)
+    }
+
+    func redeemVoucher(
+        _ voucherCode: String,
+        completion: ((Result<REST.SubmitVoucherResponse, Error>) -> Void)? = nil
+    ) -> Cancellable {
+        let operation = RedeemVoucherOperation(
+            dispatchQueue: internalQueue,
+            interactor: TunnelInteractorProxy(self),
+            voucherCode: voucherCode,
+            apiProxy: apiProxy
+        )
+
+        operation.completionQueue = .main
+        operation.completionHandler = completion
+
+        operation.addObserver(
+            BackgroundObserver(
+                application: application,
+                name: "Redeem voucher",
+                cancelUponExpiration: true
+            )
+        )
+
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
+
+        operationQueue.addOperation(operation)
+        return operation
     }
 
     func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {

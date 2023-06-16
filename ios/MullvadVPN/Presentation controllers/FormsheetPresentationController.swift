@@ -1,5 +1,5 @@
 //
-//  FormsheetPresentationController.swift
+//  FormSheetPresentationController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 18/02/2023.
@@ -8,19 +8,15 @@
 
 import UIKit
 
-private let dimmingViewOpacity: CGFloat = 0.5
-private let presentedViewCornerRadius: CGFloat = 8
-private let animationDuration: TimeInterval = 0.5
-
 /**
  Custom implementation of a formsheet presentation controller.
  */
-class FormsheetPresentationController: UIPresentationController {
+class FormSheetPresentationController: UIPresentationController {
     /**
      Name of notification posted when fullscreen presentation changes, including during initial presentation.
      */
     static let willChangeFullScreenPresentation = Notification
-        .Name(rawValue: "FormsheetPresentationControllerWillChangeFullScreenPresentation")
+        .Name(rawValue: "FormSheetPresentationControllerWillChangeFullScreenPresentation")
 
     /**
      User info key passed along with `willChangeFullScreenPresentation` notification that contains boolean value that
@@ -33,9 +29,11 @@ class FormsheetPresentationController: UIPresentationController {
      */
     private var lastKnownIsInFullScreen: Bool?
 
+    private var keyboardResponder: AutomaticKeyboardResponder?
+
     private let dimmingView: UIView = {
         let dimmingView = UIView()
-        dimmingView.backgroundColor = .black
+        dimmingView.backgroundColor = UIMetrics.DimmingView.backgroundColor
         return dimmingView
     }()
 
@@ -55,6 +53,11 @@ class FormsheetPresentationController: UIPresentationController {
     var isInFullScreenPresentation: Bool {
         return useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact
+    }
+
+    override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
+        super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
+        addKeyboardResponder()
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -88,11 +91,11 @@ class FormsheetPresentationController: UIPresentationController {
         dimmingView.alpha = 0
         containerView?.addSubview(dimmingView)
 
-        presentedView?.layer.cornerRadius = presentedViewCornerRadius
+        presentedView?.layer.cornerRadius = UIMetrics.DimmingView.cornerRadius
         presentedView?.clipsToBounds = true
 
         let revealDimmingView = {
-            self.dimmingView.alpha = dimmingViewOpacity
+            self.dimmingView.alpha = UIMetrics.DimmingView.opacity
         }
 
         if let transitionCoordinator = presentingViewController.transitionCoordinator {
@@ -151,21 +154,40 @@ class FormsheetPresentationController: UIPresentationController {
             userInfo: [Self.isFullScreenUserInfoKey: NSNumber(booleanLiteral: currentIsInFullScreen)]
         )
     }
+
+    private func addKeyboardResponder() {
+        keyboardResponder = .init(targetView: presentedView!, handler: { [weak self] view, adjustment in
+            guard let self,
+                  let containerView,
+                  !isInFullScreenPresentation else { return }
+            let frame = view.frame
+            let bottomMarginFromKeyboard = adjustment > 0 ? UIMetrics.sectionSpacing : 0
+            view.frame = .init(
+                origin: CGPoint(
+                    x: frame.origin.x,
+                    y: containerView.bounds.midY - presentedViewController.preferredContentSize
+                        .height * 0.5 - adjustment - bottomMarginFromKeyboard
+                ),
+                size: frame.size
+            )
+            view.layoutIfNeeded()
+        })
+    }
 }
 
-class FormsheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     func animationController(
         forPresented presented: UIViewController,
         presenting: UIViewController,
         source: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        return FormsheetPresentationAnimator()
+        return FormSheetPresentationAnimator()
     }
 
     func animationController(forDismissed dismissed: UIViewController)
         -> UIViewControllerAnimatedTransitioning?
     {
-        return FormsheetPresentationAnimator()
+        return FormSheetPresentationAnimator()
     }
 
     func presentationController(
@@ -173,18 +195,18 @@ class FormsheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
         presenting: UIViewController?,
         source: UIViewController
     ) -> UIPresentationController? {
-        return FormsheetPresentationController(
+        return FormSheetPresentationController(
             presentedViewController: presented,
             presenting: source
         )
     }
 }
 
-class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
+class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
         -> TimeInterval
     {
-        return (transitionContext?.isAnimated ?? true) ? animationDuration : 0
+        return (transitionContext?.isAnimated ?? true) ? UIMetrics.Transition.duration : 0
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -212,8 +234,8 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         if transitionContext.isAnimated {
             UIView.animate(
                 withDuration: duration,
-                delay: 0,
-                options: [.curveEaseInOut],
+                delay: UIMetrics.Transition.delay,
+                options: UIMetrics.Transition.animationOptions,
                 animations: {
                     destinationView.frame = transitionContext.finalFrame(for: destinationController)
                 },
@@ -238,8 +260,8 @@ class FormsheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         if transitionContext.isAnimated {
             UIView.animate(
                 withDuration: duration,
-                delay: 0,
-                options: [.curveEaseInOut],
+                delay: UIMetrics.Transition.delay,
+                options: UIMetrics.Transition.animationOptions,
                 animations: {
                     sourceView.frame = initialFrame
                 },
