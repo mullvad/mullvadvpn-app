@@ -74,7 +74,6 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
-    #[serde(default)]
     pub custom_lists: CustomListsSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
