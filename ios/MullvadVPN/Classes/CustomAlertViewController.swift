@@ -94,11 +94,6 @@ class CustomAlertViewController: UIViewController {
         }
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        handlers.removeAll()
-    }
-
     func addAction(title: String, style: ActionStyle, handler: (() -> Void)? = nil) {
         // The presence of a button should reset any custom button margin to default.
         containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
@@ -183,8 +178,9 @@ class CustomAlertViewController: UIViewController {
             if let handler = handlers[button] {
                 handler()
             }
-
             didDismiss?()
+            didDismiss = nil
+            handlers.removeAll()
         }
     }
 }
