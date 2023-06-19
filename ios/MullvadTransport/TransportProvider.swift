@@ -42,10 +42,6 @@ public final class TransportProvider: RESTTransport {
 
     // MARK: RESTTransport implementation
 
-    private func transport() -> RESTTransport {
-        urlSessionTransport
-    }
-
     private func shadowsocksTransport() -> RESTTransport? {
         do {
             let shadowsocksConfiguration = try shadowsocksConfiguration()
@@ -166,7 +162,7 @@ public final class TransportProvider: RESTTransport {
             case .useShadowsocks:
                 currentTransport = shadowsocksTransport()
             case .useURLSession:
-                currentTransport = transport()
+                currentTransport = urlSessionTransport
             }
         }
         return currentTransport

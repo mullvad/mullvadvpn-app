@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euvx
+
 if [ "$#" -ne 1 ]
 then
     echo "Usage (note: only call inside xcode!):"
@@ -11,11 +13,9 @@ fi
 FFI_TARGET=$1
 
 RELFLAG=
-if [[ "$CONFIGURATION" -eq "Release" ]]; then
+if [[ "$CONFIGURATION" == "Release" ]]; then
   RELFLAG=--release
 fi
-
-set -euvx
 
 if [[ -n "${DEVELOPER_SDK_DIR:-}" ]]; then
   # Assume we're in Xcode, which means we're probably cross-compiling.
