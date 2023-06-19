@@ -37,8 +37,8 @@ final class PresentAlertOperation: AsyncOperation {
     }
 
     override func main() {
-        alertController.didDismiss = {
-            self.finish()
+        alertController.didDismiss = { [weak self] in
+            self?.finish()
         }
 
         presentingController.present(alertController, animated: true) {
