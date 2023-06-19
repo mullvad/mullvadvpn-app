@@ -6,7 +6,7 @@ license = "GPL-3.0"
 publish = false
 
 [lib]
-crate-type = [ "rlib", "staticlib" ]
+crate-type = [ "staticlib" ]
 bench = false
 
 [dependencies]
