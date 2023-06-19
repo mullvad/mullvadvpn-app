@@ -1,0 +1,5 @@
+framework module TunnelObfuscatorProxy {
+   header "tunnel_obfuscator_proxy.h"
+   link "libtunnel_obfuscator_proxy"
+   export *
+}
