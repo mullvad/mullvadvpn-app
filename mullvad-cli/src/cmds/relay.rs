@@ -3,9 +3,8 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    location::Hostname,
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
+        Constraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
         WireguardConstraints,
     },
@@ -42,13 +41,10 @@ pub enum Relay {
 pub enum SetCommands {
     /// Set country or city to select relays from. Use the 'list'
     /// command to show available alternatives.
+    ///
+    /// A relay can be selected by only supplying the hostname, such as
+    /// "se3-wireguard".
     Location(LocationArgs),
-
-    /// Set the location using only a hostname
-    Hostname {
-        /// A hostname, such as "se3-wireguard".
-        hostname: Hostname,
-    },
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -268,7 +264,6 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
-            SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
@@ -393,36 +388,6 @@ impl Relay {
                 fwmark: None,
             }),
         })
-    }
-
-    async fn set_hostname(hostname: String) -> Result<()> {
-        let countries = Self::get_filtered_relays().await?;
-
-        let find_relay = || {
-            for country in countries {
-                for city in country.cities {
-                    for relay in city.relays {
-                        if relay.hostname.to_lowercase() == hostname.to_lowercase() {
-                            return Some(LocationConstraint::Hostname(
-                                country.code,
-                                city.code,
-                                relay.hostname,
-                            ));
-                        }
-                    }
-                }
-            }
-            None
-        };
-
-        let location = find_relay().ok_or(anyhow!("Hostname not found"))?;
-
-        println!("Setting location constraint to {location}");
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(location)),
-            ..Default::default()
-        }))
-        .await
     }
 
     async fn set_location(location_constraint: LocationArgs) -> Result<()> {
