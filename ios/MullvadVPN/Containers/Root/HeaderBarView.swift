@@ -106,6 +106,12 @@ class HeaderBarView: UIView {
         }
     }
 
+    private var isAccountButtonHidden = false {
+        didSet {
+            self.accountButton.isHidden = isAccountButtonHidden
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         directionalLayoutMargins = NSDirectionalEdgeInsets(
@@ -173,11 +179,10 @@ class HeaderBarView: UIView {
 
         return brandNameRect.intersects(buttonContainerRect)
     }
-}
 
-extension HeaderBarView {
-    func update(configuration: RootConfiguration) {
-        if let name = configuration.deviceName {
+    private func update(name: String?) {
+        if let name {
+            deviceName.isHidden = false
             let formattedDeviceName = NSLocalizedString(
                 "DEVICE_NAME_HEADER_VIEW",
                 tableName: "Account",
@@ -185,9 +190,14 @@ extension HeaderBarView {
                 comment: ""
             )
             deviceName.text = .init(format: formattedDeviceName, name)
+        } else {
+            deviceName.isHidden = true
         }
+    }
 
-        if let expiry = configuration.expiry {
+    private func update(expiry: Date?) {
+        if let expiry {
+            timeLeft.isHidden = false
             let formattedTimeLeft = NSLocalizedString(
                 "TIME_LEFT_HEADER_VIEW",
                 tableName: "Account",
@@ -202,9 +212,16 @@ extension HeaderBarView {
                     unitsStyle: .full
                 ) ?? ""
             )
+        } else {
+            timeLeft.isHidden = true
         }
+    }
+}
 
-        deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = !configuration.showsDeviceInfo }
-        accountButton.isHidden = !configuration.showsAccountButton
+extension HeaderBarView {
+    func update(configuration: RootConfiguration) {
+        update(name: configuration.deviceName)
+        update(expiry: configuration.expiry)
+        isAccountButtonHidden = !configuration.showsAccountButton
     }
 }
