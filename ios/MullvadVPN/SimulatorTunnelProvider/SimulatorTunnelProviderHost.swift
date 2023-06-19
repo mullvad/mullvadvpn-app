@@ -22,7 +22,6 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var selectorResult: RelaySelectorResult?
     private let urlRequestProxy: URLRequestProxy
     private let relayCacheTracker: RelayCacheTracker
-    private let simulatorTransportProvider: SimulatorTunnelTransportProvider
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
@@ -32,12 +31,10 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
-        let simulatorTransportProvider = SimulatorTunnelTransportProvider(urlSessionTransport: urlSessionTransport)
-        self.simulatorTransportProvider = simulatorTransportProvider
 
         self.urlRequestProxy = URLRequestProxy(
             dispatchQueue: dispatchQueue,
-            transportProvider: { simulatorTransportProvider }
+            transportProvider: { urlSessionTransport }
         )
     }
 

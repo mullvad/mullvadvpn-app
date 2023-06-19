@@ -6,19 +6,19 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadREST
+@testable import MullvadREST
 import XCTest
 
 final class TransportStrategyTests: XCTestCase {
     func testEveryThirdConnectionAttemptsIsDirect() {
-        var strategy = TransportStrategy()
+        loopStrategyTest(with: TransportStrategy())
+    }
 
-        for index in 0 ... 12 {
-            let expectedResult: TransportStrategy.Transport
-            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
-            XCTAssertEqual(strategy.connectionTransport(), expectedResult)
-            strategy.didFail()
-        }
+    func testOverflowingConnectionAttempts() {
+        var strategy = TransportStrategy()
+        strategy.connectionAttempts = UInt.max
+
+        loopStrategyTest(with: strategy)
     }
 
     func testLoadingFromCacheDoesNotImpactStrategy() throws {
@@ -36,5 +36,16 @@ final class TransportStrategyTests: XCTestCase {
         // This should be the third failure, the next suggested transport will be a direct one
         reloadedStrategy.didFail()
         XCTAssertEqual(reloadedStrategy.connectionTransport(), .useURLSession)
+    }
+
+    private func loopStrategyTest(with strategy: TransportStrategy) {
+        var strategy = strategy
+
+        for index in 0 ... 12 {
+            let expectedResult: TransportStrategy.Transport
+            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
+            XCTAssertEqual(strategy.connectionTransport(), expectedResult)
+            strategy.didFail()
+        }
     }
 }
