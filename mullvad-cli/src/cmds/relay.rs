@@ -3,8 +3,9 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    location::Location,
     relay_constraints::{
-        Constraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
+        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
         WireguardConstraints,
     },
@@ -39,11 +40,28 @@ pub enum Relay {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetCommands {
-    /// Set country or city to select relays from. Use the 'list'
-    /// command to show available alternatives.
-    ///
-    /// A relay can be selected by only supplying the hostname, such as
-    /// "se3-wireguard".
+    /// Select a relay using country, city or hostname.
+    /// The 'mullvad relay list' command shows the available relays and their
+    /// geographical location.
+    #[command(
+        override_usage = "mullvad relay set location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
+
+  Select relay using a country:
+
+\tmullvad relay set location se
+
+  Select relay using a country and city:
+
+\tmullvad relay set location se got
+
+  Select relay using a country, city and hostname:
+
+\tmullvad relay set location se got se-got-wg-004
+
+  Select relay using only its hostname:
+
+\tmullvad relay set location se-got-wg-004"
+    )]
     Location(LocationArgs),
 
     /// Set hosting provider(s) to select relays from. The 'list'
@@ -390,26 +408,35 @@ impl Relay {
         })
     }
 
-    async fn set_location(location_constraint: LocationArgs) -> Result<()> {
-        let location_constraint = Constraint::from(location_constraint);
-        match &location_constraint {
-            Constraint::Any => (),
-            Constraint::Only(constraint) => {
-                let countries = Self::get_filtered_relays().await?;
+    async fn set_location(location_constraint_args: LocationArgs) -> Result<()> {
+        let countries = Self::get_filtered_relays().await?;
+        let constraint =
+            if let Some(relay) =
+                // The country field is assumed to be hostname due to CLI argument parsing
+                find_relay_by_hostname(&countries, &location_constraint_args.country)
+            {
+                Constraint::Only(relay)
+            } else {
+                let location_constraint = Constraint::from(location_constraint_args);
+                match &location_constraint {
+                    Constraint::Any => (),
+                    Constraint::Only(constraint) => {
+                        let found = countries
+                            .into_iter()
+                            .flat_map(|country| country.cities)
+                            .flat_map(|city| city.relays)
+                            .any(|relay| constraint.matches(&relay));
 
-                let found = countries
-                    .into_iter()
-                    .flat_map(|country| country.cities)
-                    .flat_map(|city| city.relays)
-                    .any(|relay| constraint.matches(&relay));
-
-                if !found {
-                    eprintln!("Warning: No matching relay was found.");
+                        if !found {
+                            eprintln!("Warning: No matching relay was found.");
+                        }
+                    }
                 }
-            }
-        }
+                location_constraint
+            };
+
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(location_constraint),
+            location: Some(constraint),
             ..Default::default()
         }))
         .await
@@ -552,4 +579,28 @@ fn parse_transport_port(
         }
         (port, Constraint::Only(protocol)) => Constraint::Only(TransportPort { protocol, port }),
     }
+}
+
+/// Lookup a relay among a list of [`RelayListCountry`]s by hostname.
+/// The matching is exact, bar capitalization.
+fn find_relay_by_hostname(
+    countries: &[RelayListCountry],
+    hostname: &str,
+) -> Option<LocationConstraint> {
+    countries
+        .iter()
+        .flat_map(|country| country.cities.clone())
+        .flat_map(|city| city.relays)
+        .find(|relay| relay.hostname.to_lowercase() == hostname.to_lowercase())
+        .and_then(|relay| {
+            relay.location.map(
+                |Location {
+                     country_code,
+                     city_code,
+                     ..
+                 }| {
+                    LocationConstraint::Hostname(country_code, city_code, relay.hostname)
+                },
+            )
+        })
 }
