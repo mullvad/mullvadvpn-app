@@ -13,9 +13,17 @@ import Operations
 import StoreKit
 import UIKit
 
+enum AccountsNavigationRoute {
+    case redeemVoucher
+}
+
 protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidFinish(_ controller: AccountViewController)
     func accountViewControllerDidLogout(_ controller: AccountViewController)
+    func accountViewController(
+        _ controller: AccountViewController,
+        didRequestRoutePresentation route: AccountsNavigationRoute
+    )
 }
 
 class AccountViewController: UIViewController {
@@ -89,6 +97,12 @@ class AccountViewController: UIViewController {
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in
             self?.copyAccountToken()
         }
+
+        contentView.redeemVoucherButton.addTarget(
+            self,
+            action: #selector(redeemVoucher),
+            for: .touchUpInside
+        )
 
         contentView.restorePurchasesButton.addTarget(
             self,
@@ -277,6 +291,10 @@ class AccountViewController: UIViewController {
     }
 
     // MARK: - Actions
+
+    @objc private func redeemVoucher() {
+        delegate?.accountViewController(self, didRequestRoutePresentation: .redeemVoucher)
+    }
 
     @objc private func logout() {
         let alertController = CustomAlertViewController(

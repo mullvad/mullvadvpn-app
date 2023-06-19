@@ -408,7 +408,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(formSheetControllerWillChangeFullscreenPresentation(_:)),
-            name: FormsheetPresentationController.willChangeFullScreenPresentation,
+            name: FormSheetPresentationController.willChangeFullScreenPresentation,
             object: secondaryNavigationContainer
         )
     }
@@ -419,7 +419,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func removeSecondaryContextPresentationStyleObserver() {
         NotificationCenter.default.removeObserver(
             self,
-            name: FormsheetPresentationController.willChangeFullScreenPresentation,
+            name: FormSheetPresentationController.willChangeFullScreenPresentation,
             object: secondaryNavigationContainer
         )
     }
