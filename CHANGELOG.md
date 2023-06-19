@@ -38,6 +38,8 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad tunnel ipv6 get`.
 - Update the CLI multihop settings to make it possible to set the entry location without toggling
   multihop on or off.
+- In the CLI, the `mullvad account get` command will now print the account
+  number (if there is one) after the device has been revoked.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
