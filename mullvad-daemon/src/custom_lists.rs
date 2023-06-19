@@ -260,6 +260,7 @@ where
     }
 
     fn change_should_cause_reconnect(&self, custom_list_id: &Id) -> bool {
+        use mullvad_types::states::TunnelState;
         let mut need_to_reconnect = false;
 
         if let RelaySettings::Normal(relay_settings) = &self.settings.relay_settings {
@@ -269,8 +270,8 @@ where
                 need_to_reconnect |= list_id == custom_list_id;
             }
 
-            if let Constraint::Only(protocol) = relay_settings.tunnel_protocol {
-                match protocol {
+            if let TunnelState::Connecting { endpoint, location: _ } | TunnelState::Connected { endpoint, location: _ }  = &self.tunnel_state {
+                match endpoint.tunnel_type {
                     TunnelType::Wireguard => {
                         if relay_settings.wireguard_constraints.use_multihop {
                             if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
