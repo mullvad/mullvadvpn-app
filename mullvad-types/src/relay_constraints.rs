@@ -337,18 +337,18 @@ impl Constraint<ResolvedLocationConstraint> {
 impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
-            Self::Location { location } => write!(f, "location: {location}"),
+            Self::Location { location } => write!(f, "location - {location}"),
             Self::CustomList { list_id } => {
                 match custom_lists.custom_lists.get(list_id) {
                     Some(list) => {
-                        writeln!(f, "custom list: {}", list.name)?;
+                        writeln!(f, "custom list - {}", list.name)?;
                         for location in &list.locations {
                             writeln!(f, "\t{}", location)?;
                         }
                         Ok(())
                     },
                     None => {
-                        writeln!(f, "custom list: list not found")
+                        writeln!(f, "custom list - list not found")
                     }
                 }
             }
@@ -410,42 +410,41 @@ impl RelayConstraints {
     pub fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self.tunnel_protocol {
             Constraint::Any => {
-                write!(
+                writeln!(
                     f,
-                    "Any tunnel protocol with OpenVPN through {} and WireGuard through ",
+                    "Tunnel protocol: Any\nOpenVPN: {}\nWireguard: ",
                     &self.openvpn_constraints, 
                 )?;
                 self.wireguard_constraints.format(f, custom_lists)?;
             },
             Constraint::Only(ref tunnel_protocol) => {
-                write!(f, "{}", tunnel_protocol)?;
+                writeln!(f, "Tunnel protocol: {}", tunnel_protocol)?;
                 match tunnel_protocol {
                     TunnelType::Wireguard => {
-                        write!(f, " over ")?;
+                        writeln!(f, "Wireguard constraints: ")?;
                         self.wireguard_constraints.format(f, custom_lists)?;
                     }
                     TunnelType::OpenVpn => {
-                        write!(f, " over {}", &self.openvpn_constraints)?;
+                        writeln!(f, "OpenVPN constraints: {}", &self.openvpn_constraints)?;
                     }
                 };
             }
         }
-        write!(f, " in ")?;
         match self.location {
-            Constraint::Any => write!(f, "any location")?,
+            Constraint::Any => writeln!(f, "Location: Any")?,
             Constraint::Only(ref location_constraint) => {
+                write!(f, "Location: ")?;
                 location_constraint.format(f, custom_lists)?;
             },
         }
-        write!(f, " using ")?;
         match self.providers {
-            Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
+            Constraint::Any => writeln!(f, "Provider: Any")?,
+            Constraint::Only(ref constraint) => writeln!(f, "Provider: {}", constraint)?,
         }
         match self.ownership {
             Constraint::Any => Ok(()),
             Constraint::Only(ref constraint) => {
-                write!(f, " and {constraint}")
+                write!(f, "Constraints: {constraint}")
             }
         }
     }
@@ -755,21 +754,19 @@ where
 impl WireguardConstraints {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self.port {
-            Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {port}")?,
+            Constraint::Any => writeln!(f, "Port: Any")?,
+            Constraint::Only(port) => writeln!(f, "port {port}")?,
         }
-        write!(f, " over ")?;
         match self.ip_version {
-            Constraint::Any => write!(f, "IPv4 or IPv6")?,
-            Constraint::Only(protocol) => write!(f, "{protocol}")?,
+            Constraint::Any => writeln!(f, "Protocol: IPv4 or IPv6")?,
+            Constraint::Only(protocol) => writeln!(f, "Protocol: {protocol}")?,
         }
         if self.use_multihop {
             match &self.entry_location {
-                Constraint::Any => write!(f, " (via any location)"),
+                Constraint::Any => writeln!(f, "Entry location: Any"),
                 Constraint::Only(location) => {
-                    write!(f, " (via ")?;
-                    location.format(f, custom_lists)?;
-                    write!(f, ")")
+                    write!(f, "Wireguard entry ")?;
+                    location.format(f, custom_lists)
                 },
             }
         } else {

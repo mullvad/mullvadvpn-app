@@ -149,6 +149,8 @@ pub enum EntryLocation {
 \tmullvad relay set tunnel wireguard entry-location se-got-wg-004"
     )]
     EntryLocation(LocationArgs),
+    /// Name of custom list to use to pick entry endpoint.
+    CustomList { custom_list_name: String },
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -207,7 +209,7 @@ impl Relay {
         let relay_settings = settings.relay_settings;
         let mut buf = String::new();
         let _ = relay_settings.format(&mut buf, &settings.custom_lists);
-        println!("Current constraints: {}", buf);
+        println!("Current constraints: \n{}", buf);
         Ok(())
     }
 
@@ -546,15 +548,22 @@ impl Relay {
         if let Some(use_multihop) = use_multihop {
             wireguard_constraints.use_multihop = *use_multihop;
         }
-        if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
-            let countries = Self::get_filtered_relays().await?;
-            // The country field is assumed to be hostname due to CLI argument parsing
-            wireguard_constraints.entry_location =
+        match entry_location {
+            Some(EntryLocation::EntryLocation(entry)) => {
+                let countries = Self::get_filtered_relays().await?;
+                // The country field is assumed to be hostname due to CLI argument parsing
+                wireguard_constraints.entry_location = 
                 if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
                     Constraint::Only(relay)
                 } else {
                     Constraint::from(entry)
                 };
+            },
+            Some(EntryLocation::CustomList { custom_list_name }) => {
+                let list = rpc.get_custom_list(custom_list_name).await?;
+                wireguard_constraints.entry_location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+            },
+            None => (),
         }
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
