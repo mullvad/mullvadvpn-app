@@ -81,7 +81,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             tunnelStore: tunnelStore,
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy
+            devicesProxy: devicesProxy,
+            apiProxy: apiProxy
         )
 
         storePaymentManager = StorePaymentManager(

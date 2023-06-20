@@ -12,7 +12,7 @@ import UIKit
  This is a presentation controller class used for presentation of secondary navigation context
  in application coordinator.
  */
-class SecondaryContextPresentationController: FormsheetPresentationController {
+class SecondaryContextPresentationController: FormSheetPresentationController {
     override func presentationTransitionWillBegin() {
         super.presentationTransitionWillBegin()
 
@@ -49,7 +49,7 @@ class SecondaryContextPresentationController: FormsheetPresentationController {
     }
 }
 
-class SecondaryContextTransitioningDelegate: FormsheetTransitioningDelegate {
+class SecondaryContextTransitioningDelegate: FormSheetTransitioningDelegate {
     override func presentationController(
         forPresented presented: UIViewController,
         presenting: UIViewController?,

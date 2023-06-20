@@ -27,7 +27,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
         var groupSize: UInt8
 
         /// Maximum number of groups of characters allowed.
-        var maxGroups: UInt
+        var maxGroups: UInt8
     }
 
     var configuration: Configuration {
@@ -259,11 +259,12 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
     }
 
     private func isAllowed(_ character: Character) -> Bool {
+        guard character.isASCII else { return false }
         switch configuration.allowedInput {
         case .numeric:
-            return character.isASCII && character.isNumber
+            return character.isNumber
         case .alphanumeric:
-            return character.isASCII && character.isLetter
+            return character.isLetter || character.isNumber
         }
     }
 }
