@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad tunnel ipv6 get`.
 - Update the CLI multihop settings to make it possible to set the entry location without toggling
   multihop on or off.
+- Update the CLI relay, multihop & bridge selection interface to accept a
+  hostname as sole argument, inheriting the behavior of `mullvad relay set
+  hostname`. This is in addition to accepting a geographical location as basis
+  for filtering relays.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
@@ -59,6 +63,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
 
+### Removed
+- Remove the CLI subcommand `mullvad relay set hostname`.
 
 ## [android/2023.2] - 2023-05-22
 ### Changed
