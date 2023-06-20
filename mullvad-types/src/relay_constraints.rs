@@ -337,7 +337,7 @@ impl Constraint<ResolvedLocationConstraint> {
 impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
-            Self::Location { location } => write!(f, "location - {location}"),
+            Self::Location { location } => writeln!(f, "location - {location}"),
             Self::CustomList { list_id } => {
                 match custom_lists.custom_lists.get(list_id) {
                     Some(list) => {

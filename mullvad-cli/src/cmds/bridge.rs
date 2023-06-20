@@ -26,7 +26,10 @@ pub enum Bridge {
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum BridgeLocation {
+pub enum SetCommands {
+    /// Specify whether to use a bridge
+    State { policy: BridgeState },
+
     /// Set country or city to select relays from.
     /// Use the 'mullvad bridge list' command to show available alternatives.
     #[command(
@@ -49,17 +52,10 @@ pub enum BridgeLocation {
 \tmullvad bridge set location se-got-br-001"
     )]
     Location(LocationArgs),
-    /// Name of custom list to use to pick entry endpoint.
+
+    /// Set custom list to select relays from. Use the 'custom-lists list'
+    /// command to show available alternatives.
     CustomList { custom_list_name: String },
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum SetCommands {
-    /// Specify whether to use a bridge
-    State { policy: BridgeState },
-
-    #[clap(subcommand)]
-    Location(BridgeLocation),
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -166,21 +162,18 @@ impl Bridge {
                 Ok(())
             }
             SetCommands::Location(location) => {
-                let location = match location {
-                    BridgeLocation::Location(location) => {
-                        let countries = rpc.get_relay_locations().await?.countries;
-                        let location = if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
-                                Constraint::Only(relay)
-                            } else {
-                                Constraint::from(location)
-                            };
-                        location.map(|location| LocationConstraint::Location { location })
-                    }
-                    BridgeLocation::CustomList { custom_list_name } => {
-                        let list = rpc.get_custom_list(custom_list_name).await?;
-                        Constraint::Only(LocationConstraint::CustomList { list_id: list.id })
-                    }
+                let countries = rpc.get_relay_locations().await?.countries;
+                let location = if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
+                    Constraint::Only(relay)
+                } else {
+                    Constraint::from(location)
                 };
+                let location = location.map(|location| LocationConstraint::Location { location });
+                Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
+            }
+            SetCommands::CustomList { custom_list_name } => {
+                let list = rpc.get_custom_list(custom_list_name).await?;
+                let location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {
