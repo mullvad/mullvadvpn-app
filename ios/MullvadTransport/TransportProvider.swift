@@ -115,13 +115,13 @@ public final class TransportProvider: RESTTransport {
         guard let transport = makeTransport() else { return AnyCancellable() }
 
         let failureCompletionHandler: (Data?, URLResponse?, Error?)
-            -> Void = { [weak self] data, response, maybeError in
+            -> Void = { [weak self] data, response, error in
                 guard let self else { return }
 
-                if let error = maybeError as? URLError, error.shouldResetNetworkTransport {
+                if let error = error as? URLError, error.shouldResetNetworkTransport {
                     resetTransportMatching(currentStrategy)
                 }
-                completion(data, response, maybeError)
+                completion(data, response, error)
             }
 
         return transport.sendRequest(request, completion: failureCompletionHandler)
