@@ -257,7 +257,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Private
 
-    private var isPresentingRegisteredDeviceBanner = false
+    private var isPresentingAccountExpiryBanner = false
 
     /**
      Continues application flow by evaluating what route to present next.
@@ -703,17 +703,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         self.tunnelObserver = tunnelObserver
 
-        updateView(deviceState: tunnelManager.deviceState)
+        updateDeviceInfo(deviceState: tunnelManager.deviceState)
 
         splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
 
     private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
         splitViewController.preferredDisplayMode = deviceState.splitViewMode
-        updateView(
-            deviceState: deviceState,
-            showDeviceInfo: shouldShowDeviceInfo(deviceState, previousDeviceState: previousDeviceState)
-        )
+        updateDeviceInfo(deviceState: deviceState)
 
         switch deviceState {
         case let .loggedIn(accountData, _):
@@ -741,28 +738,22 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func shouldShowDeviceInfo(_ deviceState: DeviceState, previousDeviceState: DeviceState) -> Bool {
-        switch (previousDeviceState, deviceState) {
-        case (.loggedOut, .loggedIn):
-            isPresentingRegisteredDeviceBanner = true
-            return false
-        case (.loggedIn, .loggedIn):
-            return !isPresentingRegisteredDeviceBanner
-        default:
-            return false
+    private func updateDeviceInfo(deviceState: DeviceState) {
+        switch deviceState {
+        case let .loggedIn(storedAccountData, _):
+            let configuration = RootConfiguration(
+                deviceName: deviceState.deviceData?.capitalizedName,
+                expiry: (isPresentingAccountExpiryBanner || storedAccountData.isExpired)
+                    ? nil
+                    : deviceState.accountData?.expiry,
+                showsAccountButton: true
+            )
+            primaryNavigationContainer.update(configuration: configuration)
+            secondaryNavigationContainer.update(configuration: configuration)
+        case .loggedOut, .revoked:
+            primaryNavigationContainer.hideDeviceInfo()
+            secondaryNavigationContainer.hideDeviceInfo()
         }
-    }
-
-    private func updateView(deviceState: DeviceState, showDeviceInfo: Bool = true) {
-        let configuration = RootConfiguration(
-            deviceName: deviceState.deviceData?.capitalizedName,
-            expiry: deviceState.accountData?.expiry,
-            showsAccountButton: deviceState.isLoggedIn,
-            showsDeviceInfo: showDeviceInfo
-        )
-
-        primaryNavigationContainer.update(configuration: configuration)
-        secondaryNavigationContainer.update(configuration: configuration)
     }
 
     // MARK: - Out of time
@@ -891,6 +882,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ manager: NotificationManager,
         notifications: [InAppNotificationDescriptor]
     ) {
+        isPresentingAccountExpiryBanner = notifications
+            .contains(where: { $0.identifier == .accountExpiryInAppNotification })
+        updateDeviceInfo(deviceState: tunnelManager.deviceState)
         notificationController.setNotifications(notifications, animated: true)
     }
 
@@ -898,9 +892,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         switch response.providerIdentifier {
         case .accountExpirySystemNotification:
             router.present(.account)
-        case .registeredDeviceInAppNotification:
-            isPresentingRegisteredDeviceBanner = false
-            updateView(deviceState: tunnelManager.deviceState)
+        case .accountExpiryInAppNotification:
+            isPresentingAccountExpiryBanner = false
+            updateDeviceInfo(deviceState: tunnelManager.deviceState)
         default: return
         }
     }

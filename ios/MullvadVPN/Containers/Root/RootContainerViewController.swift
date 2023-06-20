@@ -70,7 +70,7 @@ class RootContainerViewController: UIViewController {
     let transitionContainer = UIView(frame: UIScreen.main.bounds)
     private var presentationContainerAccountButton: UIButton?
     private var presentationContainerSettingsButton: UIButton?
-    private var configuration = RootConfiguration(showsAccountButton: false, showsDeviceInfo: true)
+    private var configuration = RootConfiguration(showsAccountButton: false)
 
     private(set) var headerBarPresentation = HeaderBarPresentation.default
     private(set) var headerBarHidden = false
@@ -789,8 +789,11 @@ extension UIViewController {
 extension RootContainerViewController {
     func update(configuration: RootConfiguration) {
         self.configuration = configuration
-
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
         headerBarView.update(configuration: configuration)
+    }
+
+    func hideDeviceInfo() {
+        update(configuration: RootConfiguration(showsAccountButton: false))
     }
 }

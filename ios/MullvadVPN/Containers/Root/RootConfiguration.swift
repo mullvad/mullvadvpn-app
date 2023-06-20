@@ -12,5 +12,4 @@ struct RootConfiguration {
     var deviceName: String?
     var expiry: Date?
     var showsAccountButton: Bool
-    let showsDeviceInfo: Bool
 }

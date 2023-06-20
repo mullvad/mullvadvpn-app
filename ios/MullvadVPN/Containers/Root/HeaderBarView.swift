@@ -29,7 +29,7 @@ class HeaderBarView: UIView {
         return stackView
     }()
 
-    private lazy var deviceName: UILabel = {
+    private lazy var deviceNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
@@ -37,7 +37,7 @@ class HeaderBarView: UIView {
         return label
     }()
 
-    private lazy var timeLeft: UILabel = {
+    private lazy var timeLeftLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
@@ -106,6 +106,53 @@ class HeaderBarView: UIView {
         }
     }
 
+    private var isAccountButtonHidden = false {
+        didSet {
+            accountButton.isHidden = isAccountButtonHidden
+        }
+    }
+
+    private var timeLeft: Date? {
+        didSet {
+            if let timeLeft {
+                timeLeftLabel.isHidden = false
+                let formattedTimeLeft = NSLocalizedString(
+                    "TIME_LEFT_HEADER_VIEW",
+                    tableName: "Account",
+                    value: "Time left: %@",
+                    comment: ""
+                )
+                timeLeftLabel.text = .init(
+                    format: formattedTimeLeft,
+                    CustomDateComponentsFormatting.localizedString(
+                        from: Date(),
+                        to: timeLeft,
+                        unitsStyle: .full
+                    ) ?? ""
+                )
+            } else {
+                timeLeftLabel.isHidden = true
+            }
+        }
+    }
+
+    private var deviceName: String? {
+        didSet {
+            if let deviceName {
+                deviceNameLabel.isHidden = false
+                let formattedDeviceName = NSLocalizedString(
+                    "DEVICE_NAME_HEADER_VIEW",
+                    tableName: "Account",
+                    value: "Device name: %@",
+                    comment: ""
+                )
+                deviceNameLabel.text = .init(format: formattedDeviceName, deviceName)
+            } else {
+                deviceNameLabel.isHidden = true
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         directionalLayoutMargins = NSDirectionalEdgeInsets(
@@ -120,7 +167,7 @@ class HeaderBarView: UIView {
         let imageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
 
-        [deviceName, timeLeft].forEach { deviceInfoHolder.addArrangedSubview($0) }
+        [deviceNameLabel, timeLeftLabel].forEach { deviceInfoHolder.addArrangedSubview($0) }
 
         addConstrainedSubviews([logoImageView, brandNameImageView, buttonContainer, deviceInfoHolder]) {
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
@@ -173,38 +220,10 @@ class HeaderBarView: UIView {
 
         return brandNameRect.intersects(buttonContainerRect)
     }
-}
 
-extension HeaderBarView {
     func update(configuration: RootConfiguration) {
-        if let name = configuration.deviceName {
-            let formattedDeviceName = NSLocalizedString(
-                "DEVICE_NAME_HEADER_VIEW",
-                tableName: "Account",
-                value: "Device name: %@",
-                comment: ""
-            )
-            deviceName.text = .init(format: formattedDeviceName, name)
-        }
-
-        if let expiry = configuration.expiry {
-            let formattedTimeLeft = NSLocalizedString(
-                "TIME_LEFT_HEADER_VIEW",
-                tableName: "Account",
-                value: "Time left: %@",
-                comment: ""
-            )
-            timeLeft.text = .init(
-                format: formattedTimeLeft,
-                CustomDateComponentsFormatting.localizedString(
-                    from: Date(),
-                    to: expiry,
-                    unitsStyle: .full
-                ) ?? ""
-            )
-        }
-
-        deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = !configuration.showsDeviceInfo }
-        accountButton.isHidden = !configuration.showsAccountButton
+        deviceName = configuration.deviceName
+        timeLeft = configuration.expiry
+        isAccountButtonHidden = !configuration.showsAccountButton
     }
 }
