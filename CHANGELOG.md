@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad tunnel ipv6 get`.
 - Update the CLI multihop settings to make it possible to set the entry location without toggling
   multihop on or off.
+- Update the CLI relay, multihop & bridge selection interface to accept a
+  hostname as sole argument. This is in addition to their old behavior of
+  accepting a geographical location as basis for filtering relays.
+- Remove the CLI subcommand `mullvad relay set hostname`.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
