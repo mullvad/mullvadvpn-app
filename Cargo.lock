@@ -3264,7 +3264,7 @@ dependencies = [
 [[package]]
 name = "shadowsocks"
 version = "1.15.3"
-source = "git+https://github.com/mullvad/shadowsocks-rust?rev=8f6afd081a9440fff2dda565908eddc27a3295f1#8f6afd081a9440fff2dda565908eddc27a3295f1"
+source = "git+https://github.com/mullvad/shadowsocks-rust?rev=c45980bb22d0d50ac888813c59a1edf0cff14a36#c45980bb22d0d50ac888813c59a1edf0cff14a36"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -3329,7 +3329,7 @@ dependencies = [
 [[package]]
 name = "shadowsocks-service"
 version = "1.15.3"
-source = "git+https://github.com/mullvad/shadowsocks-rust?rev=8f6afd081a9440fff2dda565908eddc27a3295f1#8f6afd081a9440fff2dda565908eddc27a3295f1"
+source = "git+https://github.com/mullvad/shadowsocks-rust?rev=c45980bb22d0d50ac888813c59a1edf0cff14a36#c45980bb22d0d50ac888813c59a1edf0cff14a36"
 dependencies = [
  "arc-swap",
  "async-trait",

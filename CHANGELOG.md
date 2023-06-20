@@ -52,6 +52,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
   started, the relay list would only be updated after attempting to connect to the VPN.
+- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
 
 #### Android
 - Fix connection header flickering.
