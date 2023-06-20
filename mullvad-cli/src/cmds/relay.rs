@@ -261,6 +261,7 @@ impl Relay {
         Ok(())
     }
 
+    /// Get active relays which are not bridges.
     async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
         let mut rpc = MullvadProxyClient::new().await?;
         let relay_list = rpc.get_relay_locations().await?;
