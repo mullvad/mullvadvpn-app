@@ -25,23 +25,17 @@ pub enum Bridge {
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum BridgeLocation {
-    /// Set country or city to select relays from. Use the 'list'
-    /// command to show available alternatives.
-    Location(LocationArgs),
-    /// Name of custom list to use to pick entry endpoint.
-    CustomList { custom_list_name: String },
-}
-
-#[derive(Subcommand, Debug, Clone)]
 pub enum SetCommands {
     /// Specify whether to use a bridge
     State { policy: BridgeState },
 
     /// Set country or city to select relays from. Use the 'list'
     /// command to show available alternatives.
-    #[clap(subcommand)]
-    Location(BridgeLocation),
+    Location(LocationArgs),
+
+    /// Set custom list to select relays from. Use the 'custom-lists list'
+    /// command to show available alternatives.
+    CustomList { custom_list_name: String },
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -148,16 +142,13 @@ impl Bridge {
                 Ok(())
             }
             SetCommands::Location(location) => {
-                let location = match location {
-                    BridgeLocation::Location(location) => {
-                        let location = Constraint::from(location);
-                        location.map(|location| LocationConstraint::Location { location })
-                    }
-                    BridgeLocation::CustomList { custom_list_name } => {
-                        let list = rpc.get_custom_list(custom_list_name).await?;
-                        Constraint::Only(LocationConstraint::CustomList { list_id: list.id })
-                    }
-                };
+                let location = Constraint::from(location);
+                let location = location.map(|location| LocationConstraint::Location { location });
+                Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
+            }
+            SetCommands::CustomList { custom_list_name } => {
+                let list = rpc.get_custom_list(custom_list_name).await?;
+                let location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {

@@ -44,6 +44,13 @@ pub enum SetCommands {
     /// command to show available alternatives.
     Location(LocationArgs),
 
+    /// Set custom list to select relays from. Use the 'custom-lists list'
+    /// command to show available alternatives.
+    CustomList {
+        /// Name of the custom list to use
+        custom_list_name: String,
+    },
+
     /// Set the location using only a hostname
     Hostname {
         /// A hostname, such as "se3-wireguard".
@@ -273,6 +280,7 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
+            SetCommands::CustomList { custom_list_name } => Self::set_custom_list(custom_list_name).await,
             SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
@@ -455,6 +463,17 @@ impl Relay {
             ..Default::default()
         }))
         .await
+    }
+
+    async fn set_custom_list(custom_list_name: String) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let list_id = rpc.get_custom_list(custom_list_name).await?.id;
+        rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
+            ..Default::default()
+        }))
+        .await?;
+        Ok(())
     }
 
     async fn set_providers(providers: Vec<String>) -> Result<()> {
