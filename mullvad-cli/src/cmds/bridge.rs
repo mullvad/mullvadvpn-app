@@ -11,6 +11,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
+use super::relay::find_relay_by_hostname;
 use super::relay_constraints::LocationArgs;
 
 #[derive(Subcommand, Debug)]
@@ -31,6 +32,25 @@ pub enum SetCommands {
 
     /// Set country or city to select relays from. Use the 'list'
     /// command to show available alternatives.
+    #[command(
+        override_usage = "mullvad bridge set location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
+
+  Select relay using a country:
+
+\tmullvad relay set bridge se
+
+  Select relay using a country and city:
+
+\tmullvad relay set bridge se got
+
+  Select relay using a country, city and hostname:
+
+\tmullvad relay set bridge se got se-got-wg-004
+
+  Select relay using only its hostname:
+
+\tmullvad relay set bridge se-got-wg-004"
+    )]
     Location(LocationArgs),
 
     /// Set hosting provider(s) to select relays from. The 'list'
@@ -138,7 +158,17 @@ impl Bridge {
                 Ok(())
             }
             SetCommands::Location(location) => {
-                Self::update_bridge_settings(Some(Constraint::from(location)), None, None).await
+                let mut rpc = MullvadProxyClient::new().await?;
+                let countries = rpc.get_relay_locations().await?.countries;
+                let location_constraint = if let Some(relay) =
+                    find_relay_by_hostname(&countries, &location.country)
+                {
+                    Constraint::Only(relay)
+                } else {
+                    Constraint::from(location)
+                };
+
+                Self::update_bridge_settings(Some(location_constraint), None, None).await
             }
             SetCommands::Ownership { ownership } => {
                 Self::update_bridge_settings(None, None, Some(ownership)).await
