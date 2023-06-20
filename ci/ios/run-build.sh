@@ -11,8 +11,13 @@
 set -eu -o pipefail
 
 # Add SSH key for iOS build VMs to be able to SSH into them without user interaction
+eval $(ssh-agent)
 ssh-add ~/.ssh/ios-vm-key
 
+# This single path really screws with XCode and wireguard-go's makefiles, which
+# really do not like the whitespace. Thus, the build source is copied to a
+# non-whitespaced `~/build`, built there and the resulting `MullvadVPN.ipa` is
+# copied back.
 VM_BUILD_DIR="\"/Volumes/My Shared Files/build\""
 MULLVAD_CHECKOUT_DIR="${MULLVAD_CHECKOUT_DIR:-mullvadvpn-app}"
 
@@ -35,11 +40,11 @@ cp "${MULLVAD_CHECKOUT_DIR}/ios/Build/MullvadVPN.ipa" build-output/MullvadVPN.ip
 VM_UPLOAD_IPA_PATH="/Volumes/My\ Shared\ Files/build-output/MullvadVPN.ipa"
 # TODO figure out path to API key
 API_KEY_PATH="~/ci/app-store-connect-key.json"
-UPLOAD_SCRIPT="(
+UPLOAD_SCRIPT="
 	cd ci/
 	source ~/.zshrc
 	source ~/.zprofile
 	bundle exec fastlane pilot upload --api-key-path ${API_KEY_PATH} --ipa ${VM_UPLOAD_IPA_PATH}
-)"
+"
 
 bash run-in-vm.sh "ios-upload" "${UPLOAD_SCRIPT}" "build-output:build-output"
