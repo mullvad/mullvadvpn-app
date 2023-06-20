@@ -5,8 +5,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraintsUpdate,
-        RelaySettingsUpdate,
+        Constraint, GeographicLocationConstraint
     },
 };
 
@@ -38,9 +37,6 @@ pub enum CustomList {
     /// Delete the custom list
     Delete { name: String },
 
-    /// Use a random relay from the custom list
-    Select { name: String },
-
     /// Rename a custom list to a new name
     Rename { name: String, new_name: String },
 }
@@ -54,7 +50,6 @@ impl CustomList {
             CustomList::Add { name, location } => Self::add_location(name, location).await,
             CustomList::Remove { name, location } => Self::remove_location(name, location).await,
             CustomList::Delete { name } => Self::delete_list(name).await,
-            CustomList::Select { name } => Self::select_list(name).await,
             CustomList::Rename { name, new_name } => Self::rename_list(name, new_name).await,
         }
     }
@@ -99,17 +94,6 @@ impl CustomList {
     async fn delete_list(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.delete_custom_list(name).await?;
-        Ok(())
-    }
-
-    async fn select_list(name: String) -> Result<()> {
-        let mut rpc = MullvadProxyClient::new().await?;
-        let list_id = rpc.get_custom_list(name).await?.id;
-        rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
-            ..Default::default()
-        }))
-        .await?;
         Ok(())
     }
 
