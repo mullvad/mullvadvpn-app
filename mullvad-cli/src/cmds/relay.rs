@@ -610,7 +610,7 @@ fn parse_transport_port(
 
 /// Lookup a relay among a list of [`RelayListCountry`]s by hostname.
 /// The matching is exact.
-fn find_relay_by_hostname(
+pub fn find_relay_by_hostname(
     countries: &[RelayListCountry],
     hostname: &str,
 ) -> Option<LocationConstraint> {
