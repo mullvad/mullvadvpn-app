@@ -129,6 +129,25 @@ pub enum SetTunnelCommands {
 pub enum EntryLocation {
     /// Entry endpoint to use. This can be 'any' or any location that is valid with 'set location',
     /// such as 'se got'.
+    #[command(
+        override_usage = "mullvad relay set tunnel wireguard entry-location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
+
+  Select entry location using a country:
+
+\tmullvad relay set tunnel wireguard entry-location se
+
+  Select entry location using a country and city:
+
+\tmullvad relay set tunnel wireguard entry-location se got
+
+  Select entry location using a country, city and hostname:
+
+\tmullvad relay set tunnel wireguard entry-location se got se-got-wg-004
+
+  Select entry location using only its hostname:
+
+\tmullvad relay set tunnel wireguard entry-location se-got-wg-004"
+    )]
     EntryLocation(LocationArgs),
 }
 
@@ -522,7 +541,14 @@ impl Relay {
             wireguard_constraints.use_multihop = *use_multihop;
         }
         if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
-            wireguard_constraints.entry_location = Constraint::from(entry);
+            let countries = Self::get_filtered_relays().await?;
+            wireguard_constraints.entry_location = if let Some(location_constraint) =
+                find_relay_by_hostname(&countries, &entry.country)
+            {
+                Constraint::Only(location_constraint)
+            } else {
+                Constraint::from(entry)
+            };
         }
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
