@@ -11,6 +11,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
+use super::relay::find_relay_by_hostname;
 use super::relay_constraints::LocationArgs;
 
 #[derive(Subcommand, Debug)]
@@ -29,8 +30,27 @@ pub enum SetCommands {
     /// Specify whether to use a bridge
     State { policy: BridgeState },
 
-    /// Set country or city to select relays from. Use the 'list'
-    /// command to show available alternatives.
+    /// Set country or city to select relays from.
+    /// Use the 'mullvad bridge list' command to show available alternatives.
+    #[command(
+        override_usage = "mullvad bridge set location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
+
+  Select bridge using a country:
+
+\tmullvad bridge set location se
+
+  Select bridge using a country and city:
+
+\tmullvad bridge set location se got
+
+  Select bridge using a country, city and hostname:
+
+\tmullvad bridge set location se got se-got-br-001
+
+  Select bridge using only its hostname:
+
+\tmullvad bridge set location se-got-br-001"
+    )]
     Location(LocationArgs),
 
     /// Set hosting provider(s) to select relays from. The 'list'
@@ -138,7 +158,16 @@ impl Bridge {
                 Ok(())
             }
             SetCommands::Location(location) => {
-                Self::update_bridge_settings(Some(Constraint::from(location)), None, None).await
+                let mut rpc = MullvadProxyClient::new().await?;
+                let countries = rpc.get_relay_locations().await?.countries;
+                let location_constraint =
+                    if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
+                        Constraint::Only(relay)
+                    } else {
+                        Constraint::from(location)
+                    };
+
+                Self::update_bridge_settings(Some(location_constraint), None, None).await
             }
             SetCommands::Ownership { ownership } => {
                 Self::update_bridge_settings(None, None, Some(ownership)).await
