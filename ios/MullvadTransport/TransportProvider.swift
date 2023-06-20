@@ -113,20 +113,12 @@ public final class TransportProvider: RESTTransport {
 
         let currentStrategy = transportStrategy
         guard let transport = makeTransport() else { return AnyCancellable() }
-        let nonSwitchErrorCodes: [URLError.Code] = [
-            .cancelled,
-            .notConnectedToInternet,
-            .internationalRoamingOff,
-            .callIsActive,
-        ]
 
         let failureCompletionHandler: (Data?, URLResponse?, Error?)
             -> Void = { [weak self] data, response, maybeError in
                 guard let self else { return }
 
-                if let error = maybeError as? URLError,
-                   nonSwitchErrorCodes.contains(error.code) == false
-                {
+                if let error = maybeError as? URLError, error.shouldResetNetworkTransport {
                     resetTransportMatching(currentStrategy)
                 }
                 completion(data, response, maybeError)
@@ -166,5 +158,21 @@ public final class TransportProvider: RESTTransport {
             }
         }
         return currentTransport
+    }
+}
+
+private extension URLError {
+    /// Whether the transport selection should be reset.
+    ///
+    /// `true` if the network request
+    ///  * Was not cancelled
+    ///  * Was not done during a phone call
+    ///  * Was made when internet connection was available
+    ///  * Was made in a context with data roaming, but international roaming was turned off
+    var shouldResetNetworkTransport: Bool {
+        code != .cancelled &&
+            code != .notConnectedToInternet &&
+            code != .internationalRoamingOff &&
+            code != .callIsActive
     }
 }
