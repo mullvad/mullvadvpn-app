@@ -16,7 +16,7 @@ use hyper::{
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
-    crypto::v1::CipherKind,
+    crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
     ServerConfig,
 };
@@ -207,7 +207,7 @@ impl HttpsConnectorWithSni {
         if let Some(mut tx) = socket_bypass_tx {
             let (done_tx, done_rx) = oneshot::channel();
             let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
-            if let Err(_) = done_rx.await {
+            if done_rx.await.is_err() {
                 log::error!("Failed to bypass socket, connection might fail");
             }
         }

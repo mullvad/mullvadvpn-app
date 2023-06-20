@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 - Clarify some of the error messages showed in notifications.
 
 ### Fixed
+- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
+
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
