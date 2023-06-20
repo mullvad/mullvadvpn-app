@@ -27,7 +27,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
     private var attributedBody: NSAttributedString {
         let formattedString = NSLocalizedString(
             "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY",
-            value: "Welcome, this device is now called **%@**. For more details see the info button in Account.",
+            value: "Welcome, this device is now called **%@**.",
             comment: ""
         )
         let deviceName = storedDeviceData?.capitalizedName ?? ""
