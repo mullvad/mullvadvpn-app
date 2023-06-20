@@ -15,7 +15,6 @@ public struct ProxyURLRequest: Codable {
     public let method: String?
     public let httpBody: Data?
     public let httpHeaders: [String: String]?
-    public let useShadowsocksTransport: Bool
 
     public var urlRequest: URLRequest {
         var urlRequest = URLRequest(url: url)
@@ -25,7 +24,7 @@ public struct ProxyURLRequest: Codable {
         return urlRequest
     }
 
-    public init?(id: UUID, urlRequest: URLRequest, useShadowsocksTransport: Bool = false) {
+    public init?(id: UUID, urlRequest: URLRequest) {
         guard let urlRequestUrl = urlRequest.url else { return nil }
 
         self.id = id
@@ -33,6 +32,5 @@ public struct ProxyURLRequest: Codable {
         method = urlRequest.httpMethod
         httpBody = urlRequest.httpBody
         httpHeaders = urlRequest.allHTTPHeaderFields
-        self.useShadowsocksTransport = useShadowsocksTransport
     }
 }
