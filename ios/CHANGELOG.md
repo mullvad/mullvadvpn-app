@@ -29,7 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add a dedicated account button on the main view and remove it from settings.
 - Rotate public key from within packet tunnel when it detects that the key stored on backend does 
   not match the one stored on device.
-
+- Add redeeming voucher code on account view.
 
 ## [2023.2 - 2023-04-03]
 ### Changed
