@@ -498,9 +498,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         tunnelStartupFailureRecoveryTimer = nil
     }
 
-    /**
-     Called once the tunnel was able to read configuration and start WireGuard adapter.
-     */
+    /// Called once the tunnel was able to read configuration and start WireGuard adapter.
     private func tunnelAdapterDidStart() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
@@ -681,17 +679,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
 
     // MARK: - Device check
 
-    /**
-     Start device diagnostics to determine the reason why the tunnel is not functional.
-
-     This involves the following steps:
-
-     1. Fetch account and device data.
-     2. Check account validity and whether it has enough time left.
-     3. Verify that current device is registered with backend and that both device and backend point to the same public
-        key.
-     4. Rotate WireGuard key on key mismatch.
-     */
+    /// Start device diagnostics to determine the reason why the tunnel is not functional.
+    ///
+    /// This involves the following steps:
+    ///
+    /// 1. Fetch account and device data.
+    /// 2. Check account validity and whether it has enough time left.
+    /// 3. Verify that current device is registered with backend and that both device and backend point to the same
+    /// public
+    ///   key.
+    /// 4. Rotate WireGuard key on key mismatch.
     private func startDeviceCheck(shouldImmediatelyRotateKeyOnMismatch: Bool = false) {
         let checkOperation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,

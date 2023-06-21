@@ -8,25 +8,18 @@
 
 import UIKit
 
-/**
- Custom implementation of a formsheet presentation controller.
- */
+/// Custom implementation of a formsheet presentation controller.
 class FormSheetPresentationController: UIPresentationController {
-    /**
-     Name of notification posted when fullscreen presentation changes, including during initial presentation.
-     */
+    /// Name of notification posted when fullscreen presentation changes, including during initial presentation.
     static let willChangeFullScreenPresentation = Notification
         .Name(rawValue: "FormSheetPresentationControllerWillChangeFullScreenPresentation")
 
-    /**
-     User info key passed along with `willChangeFullScreenPresentation` notification that contains boolean value that
-     indicates if presentation controller is using fullscreen presentation.
-     */
+    /// User info key passed along with `willChangeFullScreenPresentation` notification that contains boolean value that
+    /// indicates if presentation controller is using fullscreen presentation.
     static let isFullScreenUserInfoKey = "isFullScreen"
 
-    /**
-     Last known presentation style used to prevent emitting duplicate `willChangeFullScreenPresentation` notifications.
-     */
+    /// Last known presentation style used to prevent emitting duplicate `willChangeFullScreenPresentation`
+    /// notifications.
     private var lastKnownIsInFullScreen: Bool?
 
     private var keyboardResponder: AutomaticKeyboardResponder?
@@ -41,15 +34,11 @@ class FormSheetPresentationController: UIPresentationController {
         false
     }
 
-    /**
-     Flag indicating whether presentation controller should use fullscreen presentation when in
-     compact width environment
-     */
+    /// Flag indicating whether presentation controller should use fullscreen presentation when in
+    /// compact width environment
     var useFullScreenPresentationInCompactWidth = false
 
-    /**
-     Returns `true` if presentation controller is in fullscreen presentation.
-     */
+    /// Returns `true` if presentation controller is in fullscreen presentation.
     var isInFullScreenPresentation: Bool {
         useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact

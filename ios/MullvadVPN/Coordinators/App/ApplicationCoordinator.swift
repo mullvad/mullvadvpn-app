@@ -11,39 +11,29 @@ import MullvadTypes
 import RelayCache
 import UIKit
 
-/**
- Preferred content size for controllers presented using formsheet modal presentation style.
- */
+/// Preferred content size for controllers presented using formsheet modal presentation style.
 private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
 
-/**
- Application coordinator managing split view and two navigation contexts.
- */
+/// Application coordinator managing split view and two navigation contexts.
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, ApplicationRouterDelegate,
     NotificationManagerDelegate
 {
-    /**
-     Application router.
-     */
+    /// Application router.
     private var router: ApplicationRouter!
 
-    /**
-     Primary navigation container.
-
-     On iPhone, it is used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
-
-     On iPad, it is used as a container to hold split view controller. Secondary navigation
-     container presented modally is used for horizontal flows.
-     */
+    /// Primary navigation container.
+    ///
+    /// On iPhone, it is used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
+    ///
+    /// On iPad, it is used as a container to hold split view controller. Secondary navigation
+    /// container presented modally is used for horizontal flows.
     private let primaryNavigationContainer = RootContainerViewController()
 
-    /**
-     Secondary navigation container.
-
-     On iPad, it is used in place of primary container for horizontal flows and displayed modally
-     above primary container. Unused on iPhone.
-     */
+    /// Secondary navigation container.
+    ///
+    /// On iPad, it is used in place of primary container for horizontal flows and displayed modally
+    /// above primary container. Unused on iPhone.
     private let secondaryNavigationContainer = RootContainerViewController()
 
     private lazy var secondaryRootConfiguration = ModalPresentationConfiguration(
@@ -94,10 +84,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
 
-        /*
-         Uncomment if you'd like to test TOS again
-         TermsOfService.unsetAgreed()
-         */
+        // Uncomment if you'd like to test TOS again
+        // TermsOfService.unsetAgreed()
 
         super.init()
 
@@ -217,10 +205,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         shouldDismissWithContext context: RouteDismissalContext
     ) -> Bool {
         context.dismissedRoutes.allSatisfy { dismissedRoute in
-            /*
-             Prevent dismissal of "out of time" route in response to device state change when
-             making payment. It will dismiss itself once done.
-             */
+            // Prevent dismissal of "out of time" route in response to device state change when
+            // making payment. It will dismiss itself once done.
             if dismissedRoute.route == .outOfTime {
                 let coordinator = dismissedRoute.coordinator as! OutOfTimeCoordinator
 
@@ -259,17 +245,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private var isPresentingRegisteredDeviceBanner = false
 
-    /**
-     Continues application flow by evaluating what route to present next.
-     */
+    /// Continues application flow by evaluating what route to present next.
     private func continueFlow(animated: Bool) {
         let next = evaluateNextRoute()
 
-        /*
-         On iPad the main route is always visible as it's a part of root controller hence we never
-         ask router to navigate to it. Instead this is when we hide the primary horizontal
-         navigation.
-         */
+        // On iPad the main route is always visible as it's a part of root controller hence we never
+        // ask router to navigate to it. Instead this is when we hide the primary horizontal
+        // navigation.
         if isPad, next == .main {
             router.dismissAll(.primary, animated: animated)
         } else {
@@ -322,9 +304,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    /**
-     Navigation controller used for horizontal flows.
-     */
+    /// Navigation controller used for horizontal flows.
     private var horizontalFlowController: RootContainerViewController {
         if isPad {
             return secondaryNavigationContainer
@@ -333,14 +313,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    /**
-     Begins horizontal flow presenting a navigation controller suitable for current user interface
-     idiom.
-
-     On iPad this takes care of presenting a secondary navigation context using modal presentation.
-
-     On iPhone this does nothing.
-     */
+    /// Begins horizontal flow presenting a navigation controller suitable for current user interface
+    /// idiom.
+    ///
+    /// On iPad this takes care of presenting a secondary navigation context using modal presentation.
+    ///
+    /// On iPhone this does nothing.
     private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
         if isPad, secondaryNavigationContainer.presentingViewController == nil {
             secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
@@ -356,14 +334,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    /**
-     Marks the end of horizontal flow.
-
-     On iPad this method dismisses the modally presented  secondary navigation container and
-     releases all child view controllers from it.
-
-     Does nothing on iPhone.
-     */
+    /// Marks the end of horizontal flow.
+    ///
+    /// On iPad this method dismisses the modally presented  secondary navigation container and
+    /// releases all child view controllers from it.
+    ///
+    /// Does nothing on iPhone.
     private func endHorizontalFlow(animated: Bool = true, completion: (() -> Void)? = nil) {
         if isPad {
             removeSecondaryContextPresentationStyleObserver()
@@ -379,10 +355,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    /**
-     Assigns notification controller to either primary or secondary container making sure that only one of them holds
-     the reference.
-     */
+    /// Assigns notification controller to either primary or secondary container making sure that only one of them holds
+    /// the reference.
     private func setNotificationControllerParent(isPrimary: Bool) {
         if isPrimary {
             secondaryNavigationContainer.notificationController = nil
@@ -393,15 +367,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    /**
-     Start observing secondary context presentation style which is in compact environment turns into fullscreen
-     and otherwise looks like formsheet.
-
-     In response to compact environment and fullscreen presentation, the observer re-assigns notification controller
-     from primary to secondary context to mimic the look and feel of iPhone app. The opposite is also true, that it
-     will make sure that notification controller is presented within primary context when secondary context is in
-     formsheet presentation style.
-     */
+    /// Start observing secondary context presentation style which is in compact environment turns into fullscreen
+    /// and otherwise looks like formsheet.
+    ///
+    /// In response to compact environment and fullscreen presentation, the observer re-assigns notification controller
+    /// from primary to secondary context to mimic the look and feel of iPhone app. The opposite is also true, that it
+    /// will make sure that notification controller is presented within primary context when secondary context is in
+    /// formsheet presentation style.
     private func addSecondaryContextPresentationStyleObserver() {
         removeSecondaryContextPresentationStyleObserver()
 
@@ -413,9 +385,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
     }
 
-    /**
-     Stop observing secondary context presentation style.
-     */
+    /// Stop observing secondary context presentation style.
     private func removeSecondaryContextPresentationStyleObserver() {
         NotificationCenter.default.removeObserver(
             self,
@@ -424,10 +394,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
     }
 
-    /**
-     This method is called in response to changes in fullscreen presentation style of form sheet presentation
-     controller.
-     */
+    /// This method is called in response to changes in fullscreen presentation style of form sheet presentation
+    /// controller.
     @objc private func formSheetControllerWillChangeFullscreenPresentation(_ note: Notification) {
         guard let isFullscreenNumber = note
             .userInfo?[SecondaryContextPresentationController.isFullScreenUserInfoKey] as? NSNumber else { return }
@@ -788,10 +756,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     // MARK: - Settings
 
-    /**
-     This closure is called each time when settings are presented or when navigating from any of sub-routes within
-     settings back to root.
-     */
+    /// This closure is called each time when settings are presented or when navigating from any of sub-routes within
+    /// settings back to root.
     var onShowSettings: (() -> Void)?
 
     /// This closure is called each time when account controller is being presented.

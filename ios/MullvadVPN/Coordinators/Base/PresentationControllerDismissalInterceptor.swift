@@ -8,10 +8,8 @@
 
 import UIKit
 
-/**
- Presentation controller delegate class that intercepts interactive dismissal and calls
- `dismissHandler` closure. Forwards all delegate calls to the `forwardingTarget`.
- */
+/// Presentation controller delegate class that intercepts interactive dismissal and calls
+/// `dismissHandler` closure. Forwards all delegate calls to the `forwardingTarget`.
 final class PresentationControllerDismissalInterceptor: NSObject,
     UIAdaptivePresentationControllerDelegate
 {

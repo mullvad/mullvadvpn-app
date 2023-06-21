@@ -452,11 +452,9 @@ class RootContainerViewController: UIViewController {
         let viewControllersToRemove = viewControllers.filter { !newViewControllers.contains($0) }
 
         let finishTransition = {
-            /*
-             Finish transition appearance.
-             Note this has to be done before the call to `didMove(to:)` or `removeFromParent()`
-             otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
-             */
+            // Finish transition appearance.
+            // Note this has to be done before the call to `didMove(to:)` or `removeFromParent()`
+            // otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
             if shouldHandleAppearanceEvents {
                 if let targetViewController,
                    sourceViewController != targetViewController
@@ -710,9 +708,7 @@ class RootContainerViewController: UIViewController {
 
     // MARK: - Notification controller support
 
-    /**
-     An instance of notification controller presented within container.
-     */
+    /// An instance of notification controller presented within container.
     var notificationController: NotificationController? {
         didSet {
             guard oldValue != notificationController else { return }
@@ -722,12 +718,10 @@ class RootContainerViewController: UIViewController {
         }
     }
 
-    /**
-     Layout guide for notification view.
-
-     When set, notification view follows the layout guide that defines its dimensions and position, otherwise it's
-     laid out within container's safe area.
-     */
+    /// Layout guide for notification view.
+    ///
+    /// When set, notification view follows the layout guide that defines its dimensions and position, otherwise it's
+    /// laid out within container's safe area.
     var notificationViewLayoutGuide: UILayoutGuide? {
         didSet {
             notificationController.flatMap { updateNotificationViewConstraints($0) }
