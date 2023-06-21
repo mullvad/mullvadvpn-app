@@ -58,7 +58,7 @@ class RedeemVoucherSucceededViewController: UIViewController {
     }()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     weak var delegate: RedeemVoucherSucceededViewControllerDelegate?

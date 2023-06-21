@@ -37,7 +37,7 @@ final class TunnelManager: StorePaymentObserver {
         case tunnelStateUpdate
 
         var category: String {
-            return "TunnelManager.\(rawValue)"
+            "TunnelManager.\(rawValue)"
         }
     }
 
@@ -1162,15 +1162,15 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     var tunnel: Tunnel? {
-        return tunnelManager.tunnel
+        tunnelManager.tunnel
     }
 
     func getPersistentTunnels() -> [Tunnel] {
-        return tunnelManager.tunnelStore.getPersistentTunnels()
+        tunnelManager.tunnelStore.getPersistentTunnels()
     }
 
     func createNewTunnel() -> Tunnel {
-        return tunnelManager.tunnelStore.createNewTunnel()
+        tunnelManager.tunnelStore.createNewTunnel()
     }
 
     func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool) {
@@ -1178,23 +1178,23 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     var tunnelStatus: TunnelStatus {
-        return tunnelManager.tunnelStatus
+        tunnelManager.tunnelStatus
     }
 
     func updateTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
-        return tunnelManager.setTunnelStatus(block)
+        tunnelManager.setTunnelStatus(block)
     }
 
     var isConfigurationLoaded: Bool {
-        return tunnelManager.isConfigurationLoaded
+        tunnelManager.isConfigurationLoaded
     }
 
     var settings: TunnelSettingsV2 {
-        return tunnelManager.settings
+        tunnelManager.settings
     }
 
     var deviceState: DeviceState {
-        return tunnelManager.deviceState
+        tunnelManager.deviceState
     }
 
     func setConfigurationLoaded() {
@@ -1218,7 +1218,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     func selectRelay() throws -> RelaySelectorResult {
-        return try tunnelManager.selectRelay()
+        try tunnelManager.selectRelay()
     }
 
     func handleRestError(_ error: Error) {

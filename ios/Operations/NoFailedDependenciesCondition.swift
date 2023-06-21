@@ -10,11 +10,11 @@ import Foundation
 
 public final class NoFailedDependenciesCondition: OperationCondition {
     public var name: String {
-        return "NoFailedDependenciesCondition"
+        "NoFailedDependenciesCondition"
     }
 
     public var isMutuallyExclusive: Bool {
-        return false
+        false
     }
 
     public let ignoreCancellations: Bool

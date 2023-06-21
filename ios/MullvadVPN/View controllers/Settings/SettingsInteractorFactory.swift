@@ -29,21 +29,21 @@ final class SettingsInteractorFactory {
     }
 
     func makeAccountInteractor() -> AccountInteractor {
-        return AccountInteractor(
+        AccountInteractor(
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
     }
 
     func makePreferencesInteractor() -> PreferencesInteractor {
-        return PreferencesInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
+        PreferencesInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
     }
 
     func makeProblemReportInteractor() -> ProblemReportInteractor {
-        return ProblemReportInteractor(apiProxy: apiProxy, tunnelManager: tunnelManager)
+        ProblemReportInteractor(apiProxy: apiProxy, tunnelManager: tunnelManager)
     }
 
     func makeSettingsInteractor() -> SettingsInteractor {
-        return SettingsInteractor(tunnelManager: tunnelManager)
+        SettingsInteractor(tunnelManager: tunnelManager)
     }
 }

@@ -173,7 +173,7 @@ final class AddressCacheTracker {
 
     private func _nextScheduleDate() -> Date {
         let nextDate = lastFailureAttemptDate.map { date in
-            return Date(
+            Date(
                 timeInterval: Self.retryInterval,
                 since: date
             )

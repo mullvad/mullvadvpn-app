@@ -12,7 +12,7 @@ import WireGuardKit
 
 extension MullvadEndpoint {
     var ipv4RelayEndpoint: Endpoint {
-        return Endpoint(host: .ipv4(ipv4Relay.ip), port: .init(integerLiteral: ipv4Relay.port))
+        Endpoint(host: .ipv4(ipv4Relay.ip), port: .init(integerLiteral: ipv4Relay.port))
     }
 
     var ipv6RelayEndpoint: Endpoint? {

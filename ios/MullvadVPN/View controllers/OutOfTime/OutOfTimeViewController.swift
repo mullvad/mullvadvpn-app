@@ -39,7 +39,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     private lazy var contentView = OutOfTimeContentView()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
@@ -52,7 +52,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     init(interactor: OutOfTimeInteractor) {

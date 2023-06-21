@@ -350,7 +350,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                 dispatchQueue.async { [self] in
                     let result = result
                         .map { device in
-                            return NewDevice(privateKey: privateKey, device: device)
+                            NewDevice(privateKey: privateKey, device: device)
                         }
                         .inspectError { error in
                             logger.error(error: error, message: "Failed to create device.")

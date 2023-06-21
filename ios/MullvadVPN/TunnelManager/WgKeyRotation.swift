@@ -103,7 +103,7 @@ struct WgKeyRotation {
 
     /// Returns `true` if the app should rotate the private key.
     var shouldRotate: Bool {
-        return nextRotationDate <= Date()
+        nextRotationDate <= Date()
     }
 
     /**

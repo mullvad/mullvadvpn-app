@@ -12,11 +12,11 @@ public final class BlockCondition: OperationCondition {
     public typealias HandlerBlock = (Operation, @escaping (Bool) -> Void) -> Void
 
     public var name: String {
-        return "BlockCondition"
+        "BlockCondition"
     }
 
     public var isMutuallyExclusive: Bool {
-        return false
+        false
     }
 
     public let block: HandlerBlock

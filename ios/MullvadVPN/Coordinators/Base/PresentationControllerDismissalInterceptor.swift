@@ -34,7 +34,7 @@ final class PresentationControllerDismissalInterceptor: NSObject,
     }
 
     override func responds(to aSelector: Selector!) -> Bool {
-        return super.responds(to: aSelector) || (
+        super.responds(to: aSelector) || (
             protocolSelectors.contains(aSelector) &&
                 forwardingTarget?.responds(to: aSelector) ?? false
         )
@@ -73,6 +73,6 @@ private func getProtocolMethods(
     defer { methodDescriptions.map { free($0) } }
 
     return (0 ..< methodCount).compactMap { index in
-        return methodDescriptions?[Int(index)].name
+        methodDescriptions?[Int(index)].name
     }
 }

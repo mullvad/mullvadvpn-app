@@ -54,7 +54,7 @@ class AccountViewController: UIViewController {
     // MARK: - View lifecycle
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     override func viewDidLoad() {

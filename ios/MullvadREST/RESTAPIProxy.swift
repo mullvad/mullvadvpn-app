@@ -30,7 +30,7 @@ extension REST {
             completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
-                return try self.requestFactory.createRequest(
+                try self.requestFactory.createRequest(
                     endpoint: endpoint,
                     method: .get,
                     pathTemplate: "api-addrs"
@@ -323,7 +323,7 @@ extension REST {
         public let newExpiry: Date
 
         public var dateComponents: DateComponents {
-            return DateComponents(second: timeAdded)
+            DateComponents(second: timeAdded)
         }
     }
 }

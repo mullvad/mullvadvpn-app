@@ -16,7 +16,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         case basicCell
 
         var reusableViewClass: AnyClass {
-            return SettingsCell.self
+            SettingsCell.self
         }
     }
 
@@ -24,7 +24,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         case spacer
 
         var reusableViewClass: AnyClass {
-            return EmptyTableViewHeaderFooterView.self
+            EmptyTableViewHeaderFooterView.self
         }
     }
 
@@ -41,7 +41,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         case faq
 
         var reuseIdentifier: CellReuseIdentifiers {
-            return .basicCell
+            .basicCell
         }
     }
 
@@ -90,21 +90,21 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return tableView.dequeueReusableHeaderFooterView(
+        tableView.dequeueReusableHeaderFooterView(
             withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
         )
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
+        nil
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.sectionSpacing
+        UIMetrics.sectionSpacing
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0
+        0
     }
 
     // MARK: - Private

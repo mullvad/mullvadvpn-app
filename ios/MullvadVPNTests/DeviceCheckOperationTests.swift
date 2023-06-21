@@ -23,7 +23,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
             getAccount: { accountNumber in
-                return Account.mock(expiry: .distantPast)
+                Account.mock(expiry: .distantPast)
             }
         )
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
@@ -470,7 +470,7 @@ private enum LastKeyRotationState {
 
 extension MockDeviceStateAccessor {
     static func mockLoggedIn(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> MockDeviceStateAccessor {
-        return MockDeviceStateAccessor(initialState: .loggedIn(
+        MockDeviceStateAccessor(initialState: .loggedIn(
             StoredAccountData.mock(),
             StoredDeviceData.mock(wgKeyData: StoredWgKeyData.mock(currentKey: currentKey, rotationState: rotationState))
         ))
@@ -502,7 +502,7 @@ private extension StoredWgKeyData {
 
 private extension StoredAccountData {
     static func mock() -> StoredAccountData {
-        return StoredAccountData(
+        StoredAccountData(
             identifier: "account-id",
             number: "account-number",
             expiry: .distantFuture
@@ -512,7 +512,7 @@ private extension StoredAccountData {
 
 private extension StoredDeviceData {
     static func mock(wgKeyData: StoredWgKeyData) -> StoredDeviceData {
-        return StoredDeviceData(
+        StoredDeviceData(
             creationDate: Date(),
             identifier: "device-id",
             name: "device-name",
@@ -526,7 +526,7 @@ private extension StoredDeviceData {
 
 private extension Device {
     static func mock(publicKey: PublicKey) -> Device {
-        return Device(
+        Device(
             id: "device-id",
             name: "device-name",
             pubkey: publicKey,
@@ -541,7 +541,7 @@ private extension Device {
 
 private extension Account {
     static func mock(expiry: Date = .distantFuture) -> Account {
-        return Account(
+        Account(
             id: "account-id",
             expiry: expiry,
             maxPorts: 5,

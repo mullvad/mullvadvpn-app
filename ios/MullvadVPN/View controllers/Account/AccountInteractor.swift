@@ -43,7 +43,7 @@ final class AccountInteractor {
     }
 
     var deviceState: DeviceState {
-        return tunnelManager.deviceState
+        tunnelManager.deviceState
     }
 
     func logout(_ completion: @escaping () -> Void) {
@@ -58,7 +58,7 @@ final class AccountInteractor {
         for accountNumber: String,
         completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
-        return storePaymentManager.restorePurchases(
+        storePaymentManager.restorePurchases(
             for: accountNumber,
             completionHandler: completionHandler
         )
@@ -68,7 +68,7 @@ final class AccountInteractor {
         with productIdentifiers: Set<StoreSubscription>,
         completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
-        return storePaymentManager.requestProducts(
+        storePaymentManager.requestProducts(
             with: productIdentifiers,
             completionHandler: completionHandler
         )

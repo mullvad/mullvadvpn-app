@@ -165,6 +165,6 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
 
 struct StoreReceiptNotFound: LocalizedError {
     var errorDescription: String? {
-        return "AppStore receipt file does not exist on disk."
+        "AppStore receipt file does not exist on disk."
     }
 }

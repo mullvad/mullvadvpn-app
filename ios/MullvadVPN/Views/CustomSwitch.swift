@@ -13,12 +13,12 @@ class CustomSwitch: UISwitch {
     private var backgroundView: UIView? {
         // Go two levels deep only
         let subviewsToExamine = subviews.flatMap { view -> [UIView] in
-            return [view] + view.subviews
+            [view] + view.subviews
         }
 
         // Find the first subview that has background color set.
         let backgroundView = subviewsToExamine.first { subview in
-            return subview.backgroundColor != nil
+            subview.backgroundColor != nil
         }
 
         return backgroundView

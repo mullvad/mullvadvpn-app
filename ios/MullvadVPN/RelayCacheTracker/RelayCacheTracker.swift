@@ -170,7 +170,7 @@ final class RelayCacheTracker {
     private func handleResponse(result: Result<REST.ServerRelaysCacheResponse, Error>)
         -> Result<RelaysFetchResult, Error>
     {
-        return result.tryMap { response -> RelaysFetchResult in
+        result.tryMap { response -> RelaysFetchResult in
             switch response {
             case let .newContent(etag, relays):
                 try self.storeResponse(etag: etag, relays: relays)
@@ -255,6 +255,6 @@ enum RelaysFetchResult: CustomStringConvertible {
 
 struct NoCachedRelaysError: LocalizedError {
     var errorDescription: String? {
-        return "Relay cache is empty."
+        "Relay cache is empty."
     }
 }

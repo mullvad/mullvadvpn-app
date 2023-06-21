@@ -38,7 +38,7 @@ class FormSheetPresentationController: UIPresentationController {
     }()
 
     override var shouldRemovePresentersView: Bool {
-        return false
+        false
     }
 
     /**
@@ -51,7 +51,7 @@ class FormSheetPresentationController: UIPresentationController {
      Returns `true` if presentation controller is in fullscreen presentation.
      */
     var isInFullScreenPresentation: Bool {
-        return useFullScreenPresentationInCompactWidth &&
+        useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact
     }
 
@@ -185,13 +185,13 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
         presenting: UIViewController,
         source: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        return FormSheetPresentationAnimator()
+        FormSheetPresentationAnimator()
     }
 
     func animationController(forDismissed dismissed: UIViewController)
         -> UIViewControllerAnimatedTransitioning?
     {
-        return FormSheetPresentationAnimator()
+        FormSheetPresentationAnimator()
     }
 
     func presentationController(
@@ -199,7 +199,7 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
         presenting: UIViewController?,
         source: UIViewController
     ) -> UIPresentationController? {
-        return FormSheetPresentationController(
+        FormSheetPresentationController(
             presentedViewController: presented,
             presenting: source
         )
@@ -210,7 +210,7 @@ class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
         -> TimeInterval
     {
-        return (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration : 0
+        (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration : 0
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

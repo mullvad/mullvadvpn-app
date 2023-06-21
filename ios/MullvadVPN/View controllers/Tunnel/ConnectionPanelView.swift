@@ -196,7 +196,7 @@ class ConnectionPanelAddressRow: UIView {
 
     var title: String? {
         get {
-            return textLabel.text
+            textLabel.text
         }
         set {
             textLabel.text = newValue
@@ -206,7 +206,7 @@ class ConnectionPanelAddressRow: UIView {
 
     var value: String? {
         get {
-            return detailTextLabel.text
+            detailTextLabel.text
         }
         set {
             detailTextLabel.text = newValue

@@ -53,7 +53,7 @@ final class AsyncResultBlockOperationTests: XCTestCase {
         let expectation = expectation(description: "Should finish")
 
         let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
-            return AnyCancellable {
+            AnyCancellable {
                 finish(.failure(URLError(.cancelled)))
             }
         }

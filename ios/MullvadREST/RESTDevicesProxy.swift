@@ -62,7 +62,7 @@ extension REST {
 
                     if httpStatus.isSuccess {
                         return .decoding {
-                            return try self.responseDecoder.decode(Device.self, from: data)
+                            try self.responseDecoder.decode(Device.self, from: data)
                         }
                     } else {
                         return .unhandledResponse(

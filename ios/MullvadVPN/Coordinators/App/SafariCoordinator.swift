@@ -13,7 +13,7 @@ class SafariCoordinator: Coordinator, Presentable, SFSafariViewControllerDelegat
     var didFinish: (() -> Void)?
 
     var presentedViewController: UIViewController {
-        return safariController
+        safariController
     }
 
     private let safariController: SFSafariViewController

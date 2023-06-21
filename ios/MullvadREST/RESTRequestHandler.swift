@@ -31,7 +31,7 @@ extension REST {
 
         init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
             _createURLRequest = { endpoint, authorization in
-                return try createURLRequest(endpoint)
+                try createURLRequest(endpoint)
             }
             authorizationProvider = nil
         }
@@ -41,7 +41,7 @@ extension REST {
             authorizationProvider: RESTAuthorizationProvider
         ) {
             _createURLRequest = { endpoint, authorization in
-                return try createURLRequest(endpoint, authorization!)
+                try createURLRequest(endpoint, authorization!)
             }
             self.authorizationProvider = authorizationProvider
         }
@@ -50,7 +50,7 @@ extension REST {
             endpoint: AnyIPEndpoint,
             authorization: REST.Authorization?
         ) throws -> REST.Request {
-            return try _createURLRequest(endpoint, authorization)
+            try _createURLRequest(endpoint, authorization)
         }
     }
 }

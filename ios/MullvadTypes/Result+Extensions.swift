@@ -37,7 +37,7 @@ extension Result {
     }
 
     public func tryMap<NewSuccess>(_ body: (Success) throws -> NewSuccess) -> Result<NewSuccess, Error> {
-        return Result<NewSuccess, Error> {
+        Result<NewSuccess, Error> {
             let value = try self.get()
 
             return try body(value)

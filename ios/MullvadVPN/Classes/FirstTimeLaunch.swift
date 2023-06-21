@@ -12,7 +12,7 @@ enum FirstTimeLaunch {
     private static let userDefaultsKey = "hasFinishedFirstTimeLaunch"
 
     static var hasFinished: Bool {
-        return UserDefaults.standard.bool(forKey: userDefaultsKey)
+        UserDefaults.standard.bool(forKey: userDefaultsKey)
     }
 
     static func setHasFinished() {

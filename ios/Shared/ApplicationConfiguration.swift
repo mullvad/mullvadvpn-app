@@ -12,17 +12,17 @@ import struct Network.IPv4Address
 enum ApplicationConfiguration {
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
-        return Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
+        Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
     }
 
     /// Container URL for security group.
     static var containerURL: URL {
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
     }
 
     /// Returns URL for log file associated with application target and located within shared container.
     static func logFileURL(for target: ApplicationTarget) -> URL {
-        return containerURL.appendingPathComponent("\(target.bundleIdentifier).log", isDirectory: false)
+        containerURL.appendingPathComponent("\(target.bundleIdentifier).log", isDirectory: false)
     }
 
     /// Privacy policy URL.

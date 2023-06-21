@@ -13,10 +13,10 @@ public final class AsyncOperationQueue: OperationQueue {
         if let operation = operation as? AsyncOperation {
             let categories = operation.conditions
                 .filter { condition in
-                    return condition.isMutuallyExclusive
+                    condition.isMutuallyExclusive
                 }
                 .map { condition in
-                    return condition.name
+                    condition.name
                 }
 
             if !categories.isEmpty {

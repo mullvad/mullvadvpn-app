@@ -142,7 +142,7 @@ final class Pinger {
         sa.sin_len = UInt8(MemoryLayout.size(ofValue: sa))
         sa.sin_family = sa_family_t(AF_INET)
         sa.sin_addr = address.rawValue.withUnsafeBytes { buffer in
-            return buffer.bindMemory(to: in_addr.self).baseAddress!.pointee
+            buffer.bindMemory(to: in_addr.self).baseAddress!.pointee
         }
 
         let sequenceNumber = nextSequenceNumber()
@@ -152,7 +152,7 @@ final class Pinger {
         )
 
         let bytesSent = packetData.withUnsafeBytes { dataBuffer -> Int in
-            return withUnsafeBytes(of: &sa) { bufferPointer in
+            withUnsafeBytes(of: &sa) { bufferPointer in
                 let sockaddrPointer = bufferPointer.bindMemory(to: sockaddr.self).baseAddress!
 
                 return sendto(
@@ -218,7 +218,7 @@ final class Pinger {
     }
 
     private func parseICMPResponse(buffer: inout [UInt8], length: Int) throws -> ICMPHeader {
-        return try buffer.withUnsafeMutableBytes { bufferPointer in
+        try buffer.withUnsafeMutableBytes { bufferPointer in
             // Check IP packet size.
             guard length >= MemoryLayout<IPv4Header>.size else {
                 throw Error.malformedResponse(.ipv4PacketTooSmall)
@@ -322,7 +322,7 @@ final class Pinger {
 
         if sa.sa_family == AF_INET6 {
             return withUnsafeBytes(of: sa) { buffer in
-                return buffer.bindMemory(to: sockaddr_in6.self).baseAddress
+                buffer.bindMemory(to: sockaddr_in6.self).baseAddress
                     .flatMap { boundPointer in
                         var saddr6 = boundPointer.pointee
                         let data = Data(
@@ -425,11 +425,11 @@ private func in_chksum(_ data: some Sequence<UInt8>) -> UInt16 {
 private extension IPv4Header {
     /// Returns IPv4 header length.
     var headerLength: Int {
-        return Int(versionAndHeaderLength & 0x0F) * MemoryLayout<UInt32>.size
+        Int(versionAndHeaderLength & 0x0F) * MemoryLayout<UInt32>.size
     }
 
     /// Returns `true` if version header indicates IPv4.
     var isIPv4Version: Bool {
-        return (versionAndHeaderLength & 0xF0) == 0x40
+        (versionAndHeaderLength & 0xF0) == 0x40
     }
 }

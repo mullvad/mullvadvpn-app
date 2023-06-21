@@ -84,7 +84,7 @@ struct PrivateKeyWithMetadata: Equatable, Codable {
 
     /// Public key
     var publicKey: PublicKey {
-        return privateKey.publicKey
+        privateKey.publicKey
     }
 
     /// Initialize the new private key

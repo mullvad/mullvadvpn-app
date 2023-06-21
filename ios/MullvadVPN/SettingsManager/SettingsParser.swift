@@ -35,12 +35,12 @@ struct SettingsParser {
 
     /// Produces versioned data encoded as the given type
     func producePayload(_ payload: some Codable, version: Int) throws -> Data {
-        return try encoder.encode(VersionedPayload(version: version, data: payload))
+        try encoder.encode(VersionedPayload(version: version, data: payload))
     }
 
     /// Produces unversioned data encoded as the given type
     func produceUnversionedPayload(_ payload: some Codable) throws -> Data {
-        return try encoder.encode(payload)
+        try encoder.encode(payload)
     }
 
     /// Returns settings version if found inside the stored data.
@@ -55,7 +55,7 @@ struct SettingsParser {
         as type: T.Type,
         from data: Data
     ) throws -> T {
-        return try decoder.decode(T.self, from: data)
+        try decoder.decode(T.self, from: data)
     }
 
     /// Returns data from versioned payload parsed as the given type.
@@ -63,6 +63,6 @@ struct SettingsParser {
         as type: T.Type,
         from data: Data
     ) throws -> T {
-        return try decoder.decode(Payload<T>.self, from: data).data
+        try decoder.decode(Payload<T>.self, from: data).data
     }
 }

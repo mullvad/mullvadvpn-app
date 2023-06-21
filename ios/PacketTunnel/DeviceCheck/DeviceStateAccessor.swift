@@ -12,7 +12,7 @@ import MullvadTypes
 /// An object that provides access to `DeviceState` used by `DeviceCheckOperation`.
 struct DeviceStateAccessor: DeviceStateAccessorProtocol {
     func read() throws -> DeviceState {
-        return try SettingsManager.readDeviceState()
+        try SettingsManager.readDeviceState()
     }
 
     func write(_ deviceState: DeviceState) throws {

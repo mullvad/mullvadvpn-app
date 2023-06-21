@@ -33,12 +33,12 @@ class Coordinator: NSObject {
 
     /// Child coordinators.
     var childCoordinators: [Coordinator] {
-        return _children
+        _children
     }
 
     /// Parent coordinator.
     var parent: Coordinator? {
-        return _parent
+        _parent
     }
 
     // MARK: - Children

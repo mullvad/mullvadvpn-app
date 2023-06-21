@@ -226,7 +226,7 @@ extension REST {
                 // Response handler returned a block decoding value.
                 let decodeResult = Result { try decoderBlock() }
                     .mapError { error -> REST.Error in
-                        return .decodeResponse(error)
+                        .decodeResponse(error)
                     }
                 finish(result: decodeResult.mapError { $0 })
 

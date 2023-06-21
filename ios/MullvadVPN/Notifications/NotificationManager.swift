@@ -30,7 +30,7 @@ final class NotificationManager: NotificationProviderDelegate {
             _notificationProviders = newNotificationProviders
         }
         get {
-            return _notificationProviders
+            _notificationProviders
         }
     }
 
@@ -218,13 +218,13 @@ final class NotificationManager: NotificationProviderDelegate {
                             return replaceNotificationDescriptor
                         } else {
                             return inAppNotificationDescriptors.first { descriptor in
-                                return descriptor.identifier == notificationProvider.identifier
+                                descriptor.identifier == notificationProvider.identifier
                             }
                         }
                     }
             } else {
                 newNotificationDescriptors.removeAll { descriptor in
-                    return descriptor.identifier == notificationProvider.identifier
+                    descriptor.identifier == notificationProvider.identifier
                 }
             }
 

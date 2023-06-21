@@ -41,15 +41,15 @@ extension REST {
         }
 
         public func createAPIProxy() -> REST.APIProxy {
-            return REST.APIProxy(configuration: configuration)
+            REST.APIProxy(configuration: configuration)
         }
 
         public func createAccountsProxy() -> REST.AccountsProxy {
-            return REST.AccountsProxy(configuration: configuration)
+            REST.AccountsProxy(configuration: configuration)
         }
 
         public func createDevicesProxy() -> REST.DevicesProxy {
-            return REST.DevicesProxy(configuration: configuration)
+            REST.DevicesProxy(configuration: configuration)
         }
     }
 }

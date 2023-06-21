@@ -26,7 +26,7 @@ public struct PacketTunnelOptions {
     private var _rawOptions: [String: NSObject]
 
     public func rawOptions() -> [String: NSObject] {
-        return _rawOptions
+        _rawOptions
     }
 
     public init() {
@@ -48,16 +48,16 @@ public struct PacketTunnelOptions {
     }
 
     public func isOnDemand() -> Bool {
-        return _rawOptions[Keys.isOnDemand.rawValue] as? Int == 1
+        _rawOptions[Keys.isOnDemand.rawValue] as? Int == 1
     }
 
     /// Encode custom parameter value
     private static func encode(_ value: some Codable) throws -> Data {
-        return try JSONEncoder().encode(value)
+        try JSONEncoder().encode(value)
     }
 
     /// Decode custom parameter value
     private static func decode<T: Codable>(_ type: T.Type, _ data: Data) throws -> T {
-        return try JSONDecoder().decode(T.self, from: data)
+        try JSONDecoder().decode(T.self, from: data)
     }
 }
