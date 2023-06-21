@@ -7,11 +7,16 @@ import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -22,11 +27,18 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
+import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.relayListListener
 import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
 
@@ -34,6 +46,7 @@ class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
     private val resources: Resources,
+    private val serviceConnectionManager: ServiceConnectionManager,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -44,21 +57,38 @@ class VpnSettingsViewModel(
         MutableStateFlow<VpnSettingsDialogState>(VpnSettingsDialogState.NoDialog)
 
     private val vmState =
-        combine(repository.settingsUpdates, dialogState) { settings, dialogState ->
-                VpnSettingsViewModelState(
-                    mtuValue = settings?.mtuString() ?: "",
-                    isAutoConnectEnabled = settings?.autoConnect ?: false,
-                    isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
-                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    contentBlockersOptions = settings?.contentBlockersSettings()
-                            ?: DefaultDnsOptions(),
-                    isAllowLanEnabled = settings?.allowLan ?: false,
-                    selectedObfuscation = settings?.selectedObfuscationSettings()
-                            ?: SelectedObfuscation.Off,
-                    dialogState = dialogState,
-                    quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off
-                )
+        serviceConnectionManager.connectionState
+            .flatMapLatest { state ->
+                if (state is ServiceConnectionState.ConnectedReady) {
+                    flowOf(state.container)
+                } else {
+                    emptyFlow()
+                }
+            }
+            .flatMapLatest { serviceConnection ->
+                combine(
+                    repository.settingsUpdates,
+                    serviceConnection.relayListListener.portRangesCallbackFlow(),
+                    dialogState
+                ) { settings, portRanges, dialogState ->
+                    VpnSettingsViewModelState(
+                        mtuValue = settings?.mtuString() ?: "",
+                        isAutoConnectEnabled = settings?.autoConnect ?: false,
+                        isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
+                        isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                        customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                        contentBlockersOptions = settings?.contentBlockersSettings()
+                                ?: DefaultDnsOptions(),
+                        isAllowLanEnabled = settings?.allowLan ?: false,
+                        selectedObfuscation = settings?.selectedObfuscationSettings()
+                                ?: SelectedObfuscation.Off,
+                        dialogState = dialogState,
+                        quantumResistant = settings?.quantumResistant()
+                                ?: QuantumResistantState.Off,
+                        selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
+                        availablePortRanges = portRanges
+                    )
+                }
             }
             .stateIn(
                 viewModelScope,
@@ -317,6 +347,17 @@ class VpnSettingsViewModel(
         dialogState.update { VpnSettingsDialogState.QuantumResistanceInfoDialog }
     }
 
+    fun onWireguardPortSelected(port: Constraint<Port>) {
+        viewModelScope.launch(dispatcher) {
+            serviceConnectionManager.relayListListener()?.selectedWireguardConstraints =
+                WireguardConstraints(port = port)
+        }
+    }
+
+    fun onWireguardPortInfoClicked() {
+        dialogState.update { VpnSettingsDialogState.WireguardPortInfoDialog }
+    }
+
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository.setDnsOptions(
@@ -362,6 +403,17 @@ class VpnSettingsViewModel(
     private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
 
     private fun Settings.selectedObfuscationSettings() = obfuscationSettings.selectedObfuscation
+
+    private fun RelayListListener.portRangesCallbackFlow() = callbackFlow {
+        onPortRangesChange = { portRanges -> this.trySend(portRanges) }
+        awaitClose { onPortRangesChange = null }
+    }
+
+    private fun Settings.getWireguardPort() =
+        when (relaySettings) {
+            RelaySettings.CustomTunnelEndpoint -> Constraint.Any()
+            is RelaySettings.Normal -> relaySettings.relayConstraints.wireguardConstraints.port
+        }
 
     private fun String.isValidIp(): Boolean {
         return inetAddressValidator.isValid(this)

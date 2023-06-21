@@ -184,4 +184,5 @@
     <string name="we_will_look_into_this">Verificheremo.</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
+    <string name="wireguard_port_info_description">L\'impostazione automatica sceglierà in modo casuale una porta valida negli intervalli mostrati di seguito.</string>
 </resources>

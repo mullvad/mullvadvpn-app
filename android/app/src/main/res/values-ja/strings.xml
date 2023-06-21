@@ -184,4 +184,5 @@
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
+    <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
 </resources>
