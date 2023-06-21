@@ -184,4 +184,5 @@
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
+    <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
 </resources>

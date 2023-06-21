@@ -21,6 +21,10 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.Port
+import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.onNodeWithTagAndChildrenText
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -601,6 +605,90 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule.onNodeWithText("Got it!").assertExists()
+    }
+
+    @Test
+    @OptIn(ExperimentalMaterialApi::class)
+    fun testShowWireguardPortOptions() {
+        // Arrange
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.DefaultUiState(
+                        selectedWireguardPort = Constraint.Only(Port(53))
+                    ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(
+                hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
+            )
+
+        // Assert
+        composeTestRule
+            .onNodeWithTagAndChildrenText(
+                testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
+                text = "51820"
+            )
+            .assertExists()
+    }
+
+    @Test
+    @OptIn(ExperimentalMaterialApi::class)
+    fun testSelectWireguardPortOption() {
+        // Arrange
+        val mockSelectWireguardPortSelectionListener: (Constraint<Port>) -> Unit =
+            mockk(relaxed = true)
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.DefaultUiState(
+                        selectedWireguardPort = Constraint.Only(Port(53))
+                    ),
+                onWireguardPortSelected = mockSelectWireguardPortSelectionListener,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(
+                hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
+            )
+
+        // Assert
+        composeTestRule
+            .onNodeWithTagAndChildrenText(
+                testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
+                text = "51820"
+            )
+            .performClick()
+        verify(exactly = 1) {
+            mockSelectWireguardPortSelectionListener.invoke(Constraint.Only(Port(51820)))
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalMaterialApi::class)
+    fun testShowWireguardPortInfo() {
+        // Arrange
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.WireguardPortInfoDialogUiState(
+                        availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
+                    ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Assert
+        composeTestRule
+            .onNodeWithText(
+                "The automatic setting will randomly choose from the valid port ranges shown below."
+            )
+            .assertExists()
     }
 
     companion object {

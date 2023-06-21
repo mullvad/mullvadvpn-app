@@ -184,4 +184,5 @@
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
+    <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
 </resources>
