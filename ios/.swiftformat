@@ -20,4 +20,5 @@
 --allman false
 # Use consistent ordering for member modifiers.
 --modifierorder
+--enable blockComments
 --disable initCoderUnavailable, unusedArguments, redundantRawValues, preferKeyPath, extensionAccessControl, hoistTry

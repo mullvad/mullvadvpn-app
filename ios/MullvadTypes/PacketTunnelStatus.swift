@@ -53,10 +53,8 @@ public enum KeyRotationStatus: Equatable, Codable {
     }
 }
 
-/**
- Struct holding data associated with account and device diagnostics and also device key recovery performed by packet
- tunnel process.
- */
+/// Struct holding data associated with account and device diagnostics and also device key recovery performed by packet
+/// tunnel process.
 public struct DeviceCheck: Codable, Equatable {
     /// The verdict of account status check.
     public var accountVerdict: AccountVerdict
