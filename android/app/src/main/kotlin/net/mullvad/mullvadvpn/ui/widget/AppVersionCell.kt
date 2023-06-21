@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
 class AppVersionCell : UrlCell {
     private val warningIcon =
@@ -67,7 +68,7 @@ class AppVersionCell : UrlCell {
         cell.addView(versionLabel, cell.getChildCount() - 1)
 
         if (url == null) {
-            url = Uri.parse(context.getString(R.string.download_url))
+            url = Uri.parse(context.getString(R.string.download_url).appendHideNavOnReleaseBuild())
         }
     }
 }
