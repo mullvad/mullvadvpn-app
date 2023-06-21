@@ -3,9 +3,13 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
 class VersionInfoNotification(val isEnabled: Boolean, context: Context) :
-    NotificationWithUrl(context, R.string.download_url) {
+    NotificationWithUrl(
+        context,
+        context.getString(R.string.download_url).appendHideNavOnReleaseBuild()
+    ) {
     private val unsupportedVersion = context.getString(R.string.unsupported_version)
     private val updateAvailable = context.getString(R.string.update_available)
 
