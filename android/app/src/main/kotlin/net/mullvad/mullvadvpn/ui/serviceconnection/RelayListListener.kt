@@ -73,7 +73,7 @@ class RelayListListener(
         eventDispatcher.registerHandler(Event.NewRelayList::class) { event ->
             event.relayList?.let { relayLocations ->
                 relayListChanged(RelayList(relayLocations))
-                onPortRangesChange?.invoke(relayLocations.wireguardEndpointData.portRanges)
+                portRangesChanged(relayLocations.wireguardEndpointData.portRanges)
             }
         }
 
@@ -90,6 +90,7 @@ class RelayListListener(
     private fun relaySettingsChanged(newRelaySettings: RelaySettings?) {
         synchronized(this) {
             val relayList = this.relayList
+            val portRanges = this.portRanges
 
             relaySettings =
                 newRelaySettings
@@ -100,6 +101,7 @@ class RelayListListener(
             if (relayList != null) {
                 relayListChanged(relayList)
             }
+            portRangesChanged(portRanges)
         }
     }
 
@@ -109,6 +111,14 @@ class RelayListListener(
             selectedRelayItem = findSelectedRelayItem()
 
             onRelayListChange?.invoke(newRelayList, selectedRelayItem)
+        }
+    }
+
+    private fun portRangesChanged(newPortRanges: List<PortRange>) {
+        synchronized(this) {
+            portRanges = newPortRanges
+
+            onPortRangesChange?.invoke(portRanges)
         }
     }
 
