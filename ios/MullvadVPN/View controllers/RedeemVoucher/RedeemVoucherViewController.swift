@@ -35,7 +35,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     // MARK: - Life Cycle

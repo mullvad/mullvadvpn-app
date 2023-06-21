@@ -17,7 +17,7 @@ public enum RelaySelector {
      Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
      */
     public static func getShadowsocksTCPBridge(relays: REST.ServerRelaysResponse) -> REST.ServerShadowsocks? {
-        return relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
+        relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
     }
 
     /// Return a random Shadowsocks bridge relay, or `nil` if no relay were found.
@@ -72,7 +72,7 @@ public enum RelaySelector {
         _ constraints: RelayConstraints,
         relays: [RelayWithLocation]
     ) -> [RelayWithLocation] {
-        return relays.filter { relayWithLocation -> Bool in
+        relays.filter { relayWithLocation -> Bool in
             switch constraints.location {
             case .any:
                 return true
@@ -93,7 +93,7 @@ public enum RelaySelector {
                 }
             }
         }.filter { relayWithLocation -> Bool in
-            return relayWithLocation.relay.active
+            relayWithLocation.relay.active
         }
     }
 
@@ -119,7 +119,7 @@ public enum RelaySelector {
 
     private static func pickRandomRelay(relays: [RelayWithLocation]) -> RelayWithLocation? {
         let totalWeight = relays.reduce(0) { accummulatedWeight, relayWithLocation in
-            return accummulatedWeight + relayWithLocation.relay.weight
+            accummulatedWeight + relayWithLocation.relay.weight
         }
 
         // Return random relay when all relays within the list have zero weight.
@@ -148,7 +148,7 @@ public enum RelaySelector {
     private static func pickRandomPort(rawPortRanges: [[UInt16]]) -> UInt16? {
         let portRanges = parseRawPortRanges(rawPortRanges)
         let portAmount = portRanges.reduce(0) { partialResult, closedRange in
-            return partialResult + closedRange.count
+            partialResult + closedRange.count
         }
 
         guard var portIndex = (0 ..< portAmount).randomElement() else {
@@ -169,7 +169,7 @@ public enum RelaySelector {
     }
 
     private static func parseRawPortRanges(_ rawPortRanges: [[UInt16]]) -> [ClosedRange<UInt16>] {
-        return rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
+        rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
             guard inputRange.count == 2 else { return nil }
 
             let startPort = inputRange[0]
@@ -184,7 +184,7 @@ public enum RelaySelector {
     }
 
     private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
-        return response.wireguard.relays.compactMap { serverRelay -> RelayWithLocation? in
+        response.wireguard.relays.compactMap { serverRelay -> RelayWithLocation? in
             guard let serverLocation = response.locations[serverRelay.location] else { return nil }
 
             let locationComponents = serverRelay.location.split(separator: "-")
@@ -206,7 +206,7 @@ public enum RelaySelector {
 
 public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
     public var errorDescription: String? {
-        return "No relays satisfying constraints."
+        "No relays satisfying constraints."
     }
 }
 
@@ -216,7 +216,7 @@ public struct RelaySelectorResult: Codable {
     public var location: Location
 
     public var packetTunnelRelay: PacketTunnelRelay {
-        return PacketTunnelRelay(
+        PacketTunnelRelay(
             ipv4Relay: endpoint.ipv4Relay,
             ipv6Relay: endpoint.ipv6Relay,
             hostname: relay.hostname,

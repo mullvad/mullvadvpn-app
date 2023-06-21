@@ -46,7 +46,7 @@ public struct OSLogHandler: LogHandler {
 
     public subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {
         get {
-            return metadata[metadataKey]
+            metadata[metadataKey]
         }
         set(newValue) {
             metadata[metadataKey] = newValue
@@ -64,7 +64,7 @@ public struct OSLogHandler: LogHandler {
     ) {
         let mergedMetadata = self.metadata
             .merging(metadata ?? [:]) { lhs, rhs -> Logging.Logger.MetadataValue in
-                return rhs
+                rhs
             }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let logMessage = prettyMetadata.isEmpty ? message : "\(prettyMetadata) \(message)"
@@ -73,7 +73,7 @@ public struct OSLogHandler: LogHandler {
     }
 
     private static func formatMetadata(_ metadata: Logging.Logger.Metadata) -> String {
-        return metadata.map { "\($0)=\($1)" }.joined(separator: " ")
+        metadata.map { "\($0)=\($1)" }.joined(separator: " ")
     }
 }
 

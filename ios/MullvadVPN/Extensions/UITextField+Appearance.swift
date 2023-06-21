@@ -16,7 +16,7 @@ extension UITextField {
         let leftViewTintColor: UIColor
 
         static var active: SearchTextFieldAppearance {
-            return SearchTextFieldAppearance(
+            SearchTextFieldAppearance(
                 placeholderTextColor: .SearchTextField.placeholderTextColor,
                 textColor: .SearchTextField.textColor,
                 backgroundColor: .SearchTextField.backgroundColor,
@@ -25,7 +25,7 @@ extension UITextField {
         }
 
         static var inactive: SearchTextFieldAppearance {
-            return SearchTextFieldAppearance(
+            SearchTextFieldAppearance(
                 placeholderTextColor: .SearchTextField.inactivePlaceholderTextColor,
                 textColor: .SearchTextField.inactiveTextColor,
                 backgroundColor: .SearchTextField.inactiveBackgroundColor,

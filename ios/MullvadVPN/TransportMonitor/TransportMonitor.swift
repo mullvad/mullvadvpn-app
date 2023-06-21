@@ -51,7 +51,7 @@ final class TransportMonitor: RESTTransport {
     /// - Returns: A transport to use for sending an `URLRequest`
     private func selectTransport(_ transport: RESTTransport) -> RESTTransport {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
-            return tunnel.status == .connecting ||
+            tunnel.status == .connecting ||
                 tunnel.status == .reasserting ||
                 tunnel.status == .connected
         }

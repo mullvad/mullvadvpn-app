@@ -39,7 +39,7 @@ enum ChangeLog {
      Reads changelog file from bundle and returns its contents as a string.
      */
     static func readFromFile() throws -> String {
-        return try String(contentsOfFile: try getPathToChangesFile())
+        try String(contentsOfFile: try getPathToChangesFile())
             .split(whereSeparator: { $0.isNewline })
             .compactMap { line in
                 let trimmedString = line.trimmingCharacters(in: .whitespaces)

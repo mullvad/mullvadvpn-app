@@ -43,7 +43,7 @@ final class RelayCacheTests: XCTestCase {
 
 private extension REST.ServerRelaysResponse {
     static func mock() -> Self {
-        return REST.ServerRelaysResponse(
+        REST.ServerRelaysResponse(
             locations: [:],
             wireguard: REST.ServerWireguardTunnels(
                 ipv4Gateway: .loopback,

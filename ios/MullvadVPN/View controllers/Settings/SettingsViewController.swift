@@ -23,7 +23,7 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
     private let interactor: SettingsInteractor
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     init(interactor: SettingsInteractor) {

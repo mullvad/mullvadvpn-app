@@ -12,7 +12,7 @@ enum TermsOfService {
     private static let userDefaultsKey = "isAgreedToTermsOfService"
 
     static var isAgreed: Bool {
-        return UserDefaults.standard.bool(forKey: userDefaultsKey)
+        UserDefaults.standard.bool(forKey: userDefaultsKey)
     }
 
     static func setAgreed() {

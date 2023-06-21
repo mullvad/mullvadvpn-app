@@ -57,11 +57,11 @@ class CustomTextField: UITextField {
     }
 
     override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: textMargins)
+        bounds.inset(by: textMargins)
     }
 
     override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return textRect(forBounds: bounds)
+        textRect(forBounds: bounds)
     }
 
     private func updatePlaceholderTextColor() {

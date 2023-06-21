@@ -36,7 +36,7 @@ struct InAppNotificationAction: Equatable {
     var handler: (() -> Void)?
 
     static func == (lhs: InAppNotificationAction, rhs: InAppNotificationAction) -> Bool {
-        return lhs.image == rhs.image
+        lhs.image == rhs.image
     }
 }
 

@@ -29,11 +29,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
-        return navigationController
+        navigationController
     }
 
     var presentationContext: UIViewController {
-        return navigationController
+        navigationController
     }
 
     var willNavigate: ((

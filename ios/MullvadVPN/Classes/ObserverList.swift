@@ -10,7 +10,7 @@ import Foundation
 
 struct WeakBox<T> {
     var value: T? {
-        return valueProvider()
+        valueProvider()
     }
 
     private let valueProvider: () -> T?
@@ -19,12 +19,12 @@ struct WeakBox<T> {
         let reference = value as AnyObject
 
         valueProvider = { [weak reference] in
-            return reference as? T
+            reference as? T
         }
     }
 
     static func == (lhs: WeakBox<T>, rhs: T) -> Bool {
-        return (lhs.value as AnyObject) === (rhs as AnyObject)
+        (lhs.value as AnyObject) === (rhs as AnyObject)
     }
 }
 
@@ -36,7 +36,7 @@ final class ObserverList<T> {
         lock.lock()
 
         let hasObserver = observers.contains { box in
-            return box == observer
+            box == observer
         }
 
         if !hasObserver {
@@ -50,7 +50,7 @@ final class ObserverList<T> {
         lock.lock()
 
         let index = observers.firstIndex { box in
-            return box == observer
+            box == observer
         }
 
         if let index {

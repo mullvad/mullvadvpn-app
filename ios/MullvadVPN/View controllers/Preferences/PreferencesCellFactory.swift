@@ -241,7 +241,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
     }
 
     private func dsnEntryIsValid(identifier: UUID, cell: SettingsDNSTextCell) -> Bool {
-        return delegate?.didChangeDNSEntry(
+        delegate?.didChangeDNSEntry(
             with: identifier,
             inputString: cell.textField.text ?? ""
         ) ?? false

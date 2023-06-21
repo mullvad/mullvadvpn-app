@@ -64,7 +64,7 @@ struct DNSSettings: Codable, Equatable {
 
     /// Effective state of the custom DNS setting.
     var effectiveEnableCustomDNS: Bool {
-        return blockingOptions.isEmpty && enableCustomDNS && !customDNSDomains.isEmpty
+        blockingOptions.isEmpty && enableCustomDNS && !customDNSDomains.isEmpty
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -30,7 +30,7 @@ class StatusImageView: UIImageView {
     }
 
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: 60, height: 60)
+        CGSize(width: 60, height: 60)
     }
 
     override init(frame: CGRect) {

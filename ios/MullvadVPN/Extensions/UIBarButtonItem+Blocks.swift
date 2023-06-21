@@ -18,7 +18,7 @@ extension UIBarButtonItem {
      */
     var actionHandler: ActionHandler? {
         get {
-            return objc_getAssociatedObject(self, &actionHandlerAssociatedKey) as? ActionHandler
+            objc_getAssociatedObject(self, &actionHandlerAssociatedKey) as? ActionHandler
         }
         set {
             objc_setAssociatedObject(self, &actionHandlerAssociatedKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

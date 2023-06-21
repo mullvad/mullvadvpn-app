@@ -27,11 +27,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     private var tunnelObserver: TunnelObserver?
 
     private var appDelegate: AppDelegate {
-        return UIApplication.shared.delegate as! AppDelegate
+        UIApplication.shared.delegate as! AppDelegate
     }
 
     private var tunnelManager: TunnelManager {
-        return appDelegate.tunnelManager
+        appDelegate.tunnelManager
     }
 
     // MARK: - Private

@@ -13,11 +13,11 @@ extension REST {
         public let milliseconds: UInt64
 
         public var seconds: UInt64 {
-            return milliseconds / 1000
+            milliseconds / 1000
         }
 
         public var timeInterval: TimeInterval {
-            return TimeInterval(milliseconds) / 1000
+            TimeInterval(milliseconds) / 1000
         }
 
         private init(milliseconds: UInt64) {
@@ -40,23 +40,23 @@ extension REST {
         }
 
         public static func seconds(_ seconds: UInt64) -> Duration {
-            return Duration(milliseconds: seconds.saturatingMultiplication(1000))
+            Duration(milliseconds: seconds.saturatingMultiplication(1000))
         }
 
         public static func milliseconds(_ milliseconds: UInt64) -> Duration {
-            return Duration(milliseconds: milliseconds)
+            Duration(milliseconds: milliseconds)
         }
 
         public static func < (lhs: Duration, rhs: Duration) -> Bool {
-            return lhs.milliseconds < rhs.milliseconds
+            lhs.milliseconds < rhs.milliseconds
         }
 
         public static func == (lhs: Duration, rhs: Duration) -> Bool {
-            return lhs.milliseconds == rhs.milliseconds
+            lhs.milliseconds == rhs.milliseconds
         }
 
         public static func * (lhs: Duration, factor: UInt64) -> Duration {
-            return Duration(milliseconds: lhs.milliseconds.saturatingMultiplication(factor))
+            Duration(milliseconds: lhs.milliseconds.saturatingMultiplication(factor))
         }
     }
 }

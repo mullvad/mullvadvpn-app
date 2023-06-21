@@ -30,7 +30,7 @@ struct HeaderBarPresentation {
     let showsDivider: Bool
 
     static var `default`: HeaderBarPresentation {
-        return HeaderBarPresentation(style: .default, showsDivider: false)
+        HeaderBarPresentation(style: .default, showsDivider: false)
     }
 }
 
@@ -83,25 +83,25 @@ class RootContainerViewController: UIViewController {
     private var interfaceOrientationMask: UIInterfaceOrientationMask?
 
     var topViewController: UIViewController? {
-        return viewControllers.last
+        viewControllers.last
     }
 
     weak var delegate: RootContainerViewControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
-        return topViewController
+        topViewController
     }
 
     override var childForStatusBarHidden: UIViewController? {
-        return topViewController
+        topViewController
     }
 
     override var shouldAutomaticallyForwardAppearanceMethods: Bool {
-        return false
+        false
     }
 
     override var disablesAutomaticKeyboardDismissal: Bool {
-        return topViewController?.disablesAutomaticKeyboardDismissal ?? super
+        topViewController?.disablesAutomaticKeyboardDismissal ?? super
             .disablesAutomaticKeyboardDismissal
     }
 
@@ -168,11 +168,11 @@ class RootContainerViewController: UIViewController {
     // MARK: - Autorotation
 
     override var shouldAutorotate: Bool {
-        return true
+        true
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return interfaceOrientationMask ?? super.supportedInterfaceOrientations
+        interfaceOrientationMask ?? super.supportedInterfaceOrientations
     }
 
     // MARK: - Public
@@ -326,7 +326,7 @@ class RootContainerViewController: UIViewController {
     // MARK: - Accessibility
 
     override func accessibilityPerformMagicTap() -> Bool {
-        return delegate?.rootContainerViewAccessibilityPerformMagicTap(self) ?? super
+        delegate?.rootContainerViewAccessibilityPerformMagicTap(self) ?? super
             .accessibilityPerformMagicTap()
     }
 

@@ -13,15 +13,15 @@ class TermsOfServiceViewController: UIViewController, RootContainment {
     var completionHandler: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return HeaderBarPresentation(style: .default, showsDivider: false)
+        HeaderBarPresentation(style: .default, showsDivider: false)
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     // MARK: - View lifecycle

@@ -27,6 +27,6 @@ public enum OperationError: LocalizedError, Equatable {
 
 extension Error {
     public var isOperationCancellationError: Bool {
-        return (self as? OperationError) == .cancelled
+        (self as? OperationError) == .cancelled
     }
 }

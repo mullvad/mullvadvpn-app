@@ -40,7 +40,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 return classDelegate
             } else {
                 return DispatchQueue.main.sync {
-                    return classDelegate
+                    classDelegate
                 }
             }
         }
@@ -60,7 +60,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     /// Returns true if the device is able to make payments.
     class var canMakePayments: Bool {
-        return SKPaymentQueue.canMakePayments()
+        SKPaymentQueue.canMakePayments()
     }
 
     init(
@@ -151,7 +151,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         for accountNumber: String,
         completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
-        return sendStoreReceipt(
+        sendStoreReceipt(
             accountNumber: accountNumber,
             forceRefresh: true,
             completionHandler: completionHandler
@@ -182,7 +182,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         completionHandler: @escaping (StorePaymentManagerError?) -> Void
     ) {
         let accountOperation = ResultBlockOperation<Account>(dispatchQueue: .main) { finish in
-            return self.accountsProxy.getAccountData(
+            self.accountsProxy.getAccountData(
                 accountNumber: accountNumber,
                 retryStrategy: .default,
                 completion: finish

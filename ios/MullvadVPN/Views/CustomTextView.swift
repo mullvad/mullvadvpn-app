@@ -23,7 +23,7 @@ class CustomTextView: UITextView {
             placeholderTextLabel.text = newValue
         }
         get {
-            return placeholderTextLabel.text
+            placeholderTextLabel.text
         }
     }
 

@@ -17,7 +17,7 @@ import Foundation
     case finished
 
     static func < (lhs: State, rhs: State) -> Bool {
-        return lhs.rawValue < rhs.rawValue
+        lhs.rawValue < rhs.rawValue
     }
 
     var description: String {
@@ -114,7 +114,7 @@ open class AsyncOperation: Operation {
     }
 
     public var error: Error? {
-        return _error
+        _error
     }
 
     override public final var isReady: Bool {
@@ -141,19 +141,19 @@ open class AsyncOperation: Operation {
     }
 
     override public final var isExecuting: Bool {
-        return state == .executing
+        state == .executing
     }
 
     override public final var isFinished: Bool {
-        return state == .finished
+        state == .finished
     }
 
     override public final var isCancelled: Bool {
-        return _isCancelled
+        _isCancelled
     }
 
     override public final var isAsynchronous: Bool {
-        return true
+        true
     }
 
     // MARK: - Observers
@@ -278,15 +278,15 @@ open class AsyncOperation: Operation {
     }
 
     @objc class func keyPathsForValuesAffectingIsReady() -> Set<String> {
-        return [#keyPath(state)]
+        [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsExecuting() -> Set<String> {
-        return [#keyPath(state)]
+        [#keyPath(state)]
     }
 
     @objc class func keyPathsForValuesAffectingIsFinished() -> Set<String> {
-        return [#keyPath(state)]
+        [#keyPath(state)]
     }
 
     // MARK: - Lifecycle

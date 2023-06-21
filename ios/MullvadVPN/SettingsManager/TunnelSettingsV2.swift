@@ -45,7 +45,7 @@ struct StoredAccountData: Codable, Equatable {
 
     /// Returns `true` if account has expired.
     var isExpired: Bool {
-        return expiry <= Date()
+        expiry <= Date()
     }
 }
 
@@ -111,7 +111,7 @@ struct StoredDeviceData: Codable, Equatable {
 
     /// Returns capitalized device name.
     var capitalizedName: String {
-        return name.capitalized
+        name.capitalized
     }
 
     /// Fill in part of the structure that contains device related properties from `Device` struct.

@@ -15,7 +15,7 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
     public var port: RelayConstraint<UInt16>
 
     public var debugDescription: String {
-        return "RelayConstraints { location: \(location), port: \(port) }"
+        "RelayConstraints { location: \(location), port: \(port) }"
     }
 
     public init(

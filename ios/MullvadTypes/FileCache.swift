@@ -20,7 +20,7 @@ public struct FileCache<Content: Codable>: FileCacheProtocol {
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         return try fileCoordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { fileURL in
-            return try JSONDecoder().decode(Content.self, from: Data(contentsOf: fileURL))
+            try JSONDecoder().decode(Content.self, from: Data(contentsOf: fileURL))
         }
     }
 

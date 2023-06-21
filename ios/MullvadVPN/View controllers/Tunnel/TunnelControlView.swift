@@ -104,7 +104,7 @@ final class TunnelControlView: UIView {
     var actionHandler: ((TunnelControlAction) -> Void)?
 
     var mapCenterAlignmentView: UIView {
-        return activityIndicator
+        activityIndicator
     }
 
     override init(frame: CGRect) {

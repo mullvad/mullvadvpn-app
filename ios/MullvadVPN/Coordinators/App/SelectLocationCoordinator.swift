@@ -14,7 +14,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObse
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
-        return navigationController
+        navigationController
     }
 
     private let tunnelManager: TunnelManager

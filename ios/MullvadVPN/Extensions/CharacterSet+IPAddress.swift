@@ -10,10 +10,10 @@ import Foundation
 
 extension CharacterSet {
     static var ipv4AddressCharset: CharacterSet {
-        return CharacterSet(charactersIn: "0123456789.")
+        CharacterSet(charactersIn: "0123456789.")
     }
 
     static var ipv6AddressCharset: CharacterSet {
-        return CharacterSet(charactersIn: "0123456789abcdef:.")
+        CharacterSet(charactersIn: "0123456789abcdef:.")
     }
 }

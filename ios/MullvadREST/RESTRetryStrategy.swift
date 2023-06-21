@@ -73,12 +73,12 @@ extension REST {
             switch self {
             case .never:
                 return AnyIterator {
-                    return nil
+                    nil
                 }
 
             case let .constant(duration):
                 return AnyIterator {
-                    return duration
+                    duration
                 }
 
             case let .exponentialBackoff(initial, multiplier, maxDelay):

@@ -28,7 +28,7 @@ extension REST {
             completion: @escaping CompletionHandler<NewAccountData>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
-                return try self.requestFactory.createRequest(
+                try self.requestFactory.createRequest(
                     endpoint: endpoint,
                     method: .post,
                     pathTemplate: "accounts"

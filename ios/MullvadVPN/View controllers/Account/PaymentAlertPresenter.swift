@@ -66,7 +66,7 @@ class PaymentAlertPresenter {
     }
 
     private func okButtonTextForKey(_ key: String) -> String {
-        return NSLocalizedString(
+        NSLocalizedString(
             key,
             tableName: "Payment",
             value: "Got it!",

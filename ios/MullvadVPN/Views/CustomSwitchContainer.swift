@@ -23,7 +23,7 @@ class CustomSwitchContainer: UIView {
 
     var isEnabled: Bool {
         get {
-            return control.isEnabled
+            control.isEnabled
         }
         set {
             control.isEnabled = newValue
@@ -32,11 +32,11 @@ class CustomSwitchContainer: UIView {
     }
 
     override var intrinsicContentSize: CGSize {
-        return controlSize()
+        controlSize()
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return controlSize()
+        controlSize()
     }
 
     override init(frame: CGRect) {

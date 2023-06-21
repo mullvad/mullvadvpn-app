@@ -51,11 +51,11 @@ final class OutOfTimeInteractor {
     }
 
     var tunnelStatus: TunnelStatus {
-        return tunnelManager.tunnelStatus
+        tunnelManager.tunnelStatus
     }
 
     var deviceState: DeviceState {
-        return tunnelManager.deviceState
+        tunnelManager.deviceState
     }
 
     func stopTunnel() {
@@ -73,7 +73,7 @@ final class OutOfTimeInteractor {
             Error
         >) -> Void
     ) -> Cancellable {
-        return storePaymentManager.restorePurchases(
+        storePaymentManager.restorePurchases(
             for: accountNumber,
             completionHandler: completionHandler
         )
@@ -83,7 +83,7 @@ final class OutOfTimeInteractor {
         with productIdentifiers: Set<StoreSubscription>,
         completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
-        return storePaymentManager.requestProducts(
+        storePaymentManager.requestProducts(
             with: productIdentifiers,
             completionHandler: completionHandler
         )

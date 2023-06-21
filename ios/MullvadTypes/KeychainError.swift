@@ -16,7 +16,7 @@ public struct KeychainError: LocalizedError, Equatable {
     }
 
     public var errorDescription: String? {
-        return SecCopyErrorMessageString(code, nil) as String?
+        SecCopyErrorMessageString(code, nil) as String?
     }
 
     public static let duplicateItem = KeychainError(code: errSecDuplicateItem)
@@ -24,6 +24,6 @@ public struct KeychainError: LocalizedError, Equatable {
     public static let interactionNotAllowed = KeychainError(code: errSecInteractionNotAllowed)
 
     public static func == (lhs: KeychainError, rhs: KeychainError) -> Bool {
-        return lhs.code == rhs.code
+        lhs.code == rhs.code
     }
 }

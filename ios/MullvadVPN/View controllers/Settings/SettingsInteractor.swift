@@ -15,7 +15,7 @@ final class SettingsInteractor {
     var didUpdateDeviceState: ((DeviceState) -> Void)?
 
     var deviceState: DeviceState {
-        return tunnelManager.deviceState
+        tunnelManager.deviceState
     }
 
     init(tunnelManager: TunnelManager) {

@@ -16,7 +16,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     private var tunnelObserver: TunnelBlockObserver?
 
     override var identifier: NotificationProviderIdentifier {
-        return .tunnelStatusNotificationProvider
+        .tunnelStatusNotificationProvider
     }
 
     var notificationDescriptor: InAppNotificationDescriptor? {
@@ -117,7 +117,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: String) -> InAppNotificationDescriptor {
-        return InAppNotificationDescriptor(
+        InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,
             title: NSLocalizedString(
@@ -174,7 +174,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func connectivityNotificationDescription() -> InAppNotificationDescriptor {
-        return InAppNotificationDescriptor(
+        InAppNotificationDescriptor(
             identifier: identifier,
             style: .warning,
             title: NSLocalizedString(
@@ -196,7 +196,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func noNetworkNotificationDescription() -> InAppNotificationDescriptor {
-        return InAppNotificationDescriptor(
+        InAppNotificationDescriptor(
             identifier: identifier,
             style: .warning,
             title: NSLocalizedString(

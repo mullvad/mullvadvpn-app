@@ -51,7 +51,7 @@ class VoucherTextField: CustomTextField, UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        return inputFormatter.textField(
+        inputFormatter.textField(
             textField,
             shouldChangeCharactersIn: range,
             replacementString: string

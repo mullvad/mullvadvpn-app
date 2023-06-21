@@ -16,11 +16,11 @@ final class TunnelViewControllerInteractor {
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
     var tunnelStatus: TunnelStatus {
-        return tunnelManager.tunnelStatus
+        tunnelManager.tunnelStatus
     }
 
     var deviceState: DeviceState {
-        return tunnelManager.deviceState
+        tunnelManager.deviceState
     }
 
     init(tunnelManager: TunnelManager) {
