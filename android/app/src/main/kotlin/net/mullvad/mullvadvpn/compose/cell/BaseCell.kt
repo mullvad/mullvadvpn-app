@@ -115,10 +115,15 @@ internal fun BaseCell(
 }
 
 @Composable
-internal fun BaseCellTitle(title: String, style: TextStyle, modifier: Modifier = Modifier) {
+internal fun BaseCellTitle(
+    title: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Center
+) {
     Text(
         text = title,
-        textAlign = TextAlign.Center,
+        textAlign = textAlign,
         style = style,
         color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()

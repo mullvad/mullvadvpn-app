@@ -65,16 +65,22 @@ import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MtuDialog
 import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.QuantumResistanceInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.util.hasValue
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -119,7 +125,9 @@ private fun PreviewVpnSettings() {
             onSelectObfuscationSetting = {},
             onObfuscationInfoClick = {},
             onSelectQuantumResistanceSetting = {},
-            onQuantumResistanceInfoClicked = {}
+            onQuantumResistanceInfoClicked = {},
+            onWireguardPortSelected = {},
+            onWireguardPortInfoClicked = {}
         )
     }
 }
@@ -159,7 +167,9 @@ fun VpnSettingsScreen(
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
     onObfuscationInfoClick: () -> Unit = {},
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
-    onQuantumResistanceInfoClicked: () -> Unit = {}
+    onQuantumResistanceInfoClicked: () -> Unit = {},
+    onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
+    onWireguardPortInfoClicked: () -> Unit = {}
 ) {
     val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
     val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
@@ -201,6 +211,9 @@ fun VpnSettingsScreen(
         }
         is VpnSettingsUiState.QuantumResistanceInfoDialogUiState -> {
             QuantumResistanceInfoDialog(onDismissInfoClick)
+        }
+        is VpnSettingsUiState.WireguardPortInfoDialogUiState -> {
+            WireguardPortInfoDialog(uiState.availablePortRanges, onDismissInfoClick)
         }
         else -> {
             // NOOP
@@ -421,6 +434,33 @@ fun VpnSettingsScreen(
                     isSelected = uiState.quantumResistant == QuantumResistantState.Off,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
+            }
+
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(cellVerticalSpacing))
+                InformationComposeCell(
+                    title = stringResource(id = R.string.wireguard_port_title),
+                    onInfoClicked = onWireguardPortInfoClicked
+                )
+            }
+
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.selectedWireguardPort is Constraint.Any,
+                    onCellClicked = { onWireguardPortSelected(Constraint.Any()) }
+                )
+            }
+
+            WIREGUARD_PRESET_PORTS.forEach { port ->
+                itemWithDivider {
+                    SelectableCell(
+                        title = port.toString(),
+                        testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
+                        isSelected = uiState.selectedWireguardPort.hasValue(port),
+                        onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
+                    )
+                }
             }
 
             item {

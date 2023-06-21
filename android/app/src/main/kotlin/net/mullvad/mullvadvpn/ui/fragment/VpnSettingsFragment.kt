@@ -57,7 +57,9 @@ class VpnSettingsFragment : BaseFragment() {
                         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
                         onObfuscationInfoClick = vm::onObfuscationInfoClick,
                         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
-                        onQuantumResistanceInfoClicked = vm::onQuantumResistanceInfoClicked
+                        onQuantumResistanceInfoClicked = vm::onQuantumResistanceInfoClicked,
+                        onWireguardPortSelected = vm::onWireguardPortSelected,
+                        onWireguardPortInfoClicked = vm::onWireguardPortInfoClicked
                     )
                 }
             }
