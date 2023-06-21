@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   is turned off.
 - Add creation date below device name in the device list screen.
 - Add quantum resistant tunneling.
+- Add search for select location.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
