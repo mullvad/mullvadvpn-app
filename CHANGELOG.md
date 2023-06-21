@@ -40,6 +40,10 @@ Line wrap the file at 100 chars.                                              Th
   multihop on or off.
 - In the CLI, the `mullvad account get` command will now print the account
   number (if there is one) after the device has been revoked.
+- Update the CLI relay, multihop & bridge selection interface to accept a
+  hostname as sole argument, inheriting the behavior of `mullvad relay set
+  hostname`. This is in addition to accepting a geographical location as basis
+  for filtering relays.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
@@ -62,6 +66,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
 
+### Removed
+- Remove the CLI subcommand `mullvad relay set hostname`.
 
 ## [android/2023.2] - 2023-05-22
 ### Changed

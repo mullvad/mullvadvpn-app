@@ -3,7 +3,7 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    location::Hostname,
+    location::Location,
     relay_constraints::{
         Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
         RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
@@ -40,15 +40,29 @@ pub enum Relay {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetCommands {
-    /// Set country or city to select relays from. Use the 'list'
-    /// command to show available alternatives.
-    Location(LocationArgs),
+    /// Select a relay using country, city or hostname.
+    /// The 'mullvad relay list' command shows the available relays and their
+    /// geographical location.
+    #[command(
+        override_usage = "mullvad relay set location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
 
-    /// Set the location using only a hostname
-    Hostname {
-        /// A hostname, such as "se3-wireguard".
-        hostname: Hostname,
-    },
+  Select relay using a country:
+
+\tmullvad relay set location se
+
+  Select relay using a country and city:
+
+\tmullvad relay set location se got
+
+  Select relay using a country, city and hostname:
+
+\tmullvad relay set location se got se-got-wg-004
+
+  Select relay using only its hostname:
+
+\tmullvad relay set location se-got-wg-004"
+    )]
+    Location(LocationArgs),
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -115,6 +129,25 @@ pub enum SetTunnelCommands {
 pub enum EntryLocation {
     /// Entry endpoint to use. This can be 'any' or any location that is valid with 'set location',
     /// such as 'se got'.
+    #[command(
+        override_usage = "mullvad relay set tunnel wireguard entry-location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
+
+  Select entry location using a country:
+
+\tmullvad relay set tunnel wireguard entry-location se
+
+  Select entry location using a country and city:
+
+\tmullvad relay set tunnel wireguard entry-location se got
+
+  Select entry location using a country, city and hostname:
+
+\tmullvad relay set tunnel wireguard entry-location se got se-got-wg-004
+
+  Select entry location using only its hostname:
+
+\tmullvad relay set tunnel wireguard entry-location se-got-wg-004"
+    )]
     EntryLocation(LocationArgs),
 }
 
@@ -228,6 +261,7 @@ impl Relay {
         Ok(())
     }
 
+    /// Get active relays which are not bridges.
     async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
         let mut rpc = MullvadProxyClient::new().await?;
         let relay_list = rpc.get_relay_locations().await?;
@@ -268,7 +302,6 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
-            SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
@@ -395,56 +428,35 @@ impl Relay {
         })
     }
 
-    async fn set_hostname(hostname: String) -> Result<()> {
+    async fn set_location(location_constraint_args: LocationArgs) -> Result<()> {
         let countries = Self::get_filtered_relays().await?;
+        let constraint =
+            if let Some(relay) =
+                // The country field is assumed to be hostname due to CLI argument parsing
+                find_relay_by_hostname(&countries, &location_constraint_args.country)
+            {
+                Constraint::Only(relay)
+            } else {
+                let location_constraint = Constraint::from(location_constraint_args);
+                match &location_constraint {
+                    Constraint::Any => (),
+                    Constraint::Only(constraint) => {
+                        let found = countries
+                            .into_iter()
+                            .flat_map(|country| country.cities)
+                            .flat_map(|city| city.relays)
+                            .any(|relay| constraint.matches(&relay));
 
-        let find_relay = || {
-            for country in countries {
-                for city in country.cities {
-                    for relay in city.relays {
-                        if relay.hostname.to_lowercase() == hostname.to_lowercase() {
-                            return Some(LocationConstraint::Hostname(
-                                country.code,
-                                city.code,
-                                relay.hostname,
-                            ));
+                        if !found {
+                            eprintln!("Warning: No matching relay was found.");
                         }
                     }
                 }
-            }
-            None
-        };
+                location_constraint
+            };
 
-        let location = find_relay().ok_or(anyhow!("Hostname not found"))?;
-
-        println!("Setting location constraint to {location}");
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(location)),
-            ..Default::default()
-        }))
-        .await
-    }
-
-    async fn set_location(location_constraint: LocationArgs) -> Result<()> {
-        let location_constraint = Constraint::from(location_constraint);
-        match &location_constraint {
-            Constraint::Any => (),
-            Constraint::Only(constraint) => {
-                let countries = Self::get_filtered_relays().await?;
-
-                let found = countries
-                    .into_iter()
-                    .flat_map(|country| country.cities)
-                    .flat_map(|city| city.relays)
-                    .any(|relay| constraint.matches(&relay));
-
-                if !found {
-                    eprintln!("Warning: No matching relay was found.");
-                }
-            }
-        }
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(location_constraint),
+            location: Some(constraint),
             ..Default::default()
         }))
         .await
@@ -532,7 +544,14 @@ impl Relay {
             wireguard_constraints.use_multihop = *use_multihop;
         }
         if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
-            wireguard_constraints.entry_location = Constraint::from(entry);
+            let countries = Self::get_filtered_relays().await?;
+            // The country field is assumed to be hostname due to CLI argument parsing
+            wireguard_constraints.entry_location =
+                if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
+                    Constraint::Only(relay)
+                } else {
+                    Constraint::from(entry)
+                };
         }
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
@@ -587,4 +606,28 @@ fn parse_transport_port(
         }
         (port, Constraint::Only(protocol)) => Constraint::Only(TransportPort { protocol, port }),
     }
+}
+
+/// Lookup a relay among a list of [`RelayListCountry`]s by hostname.
+/// The matching is exact, bar capitalization.
+pub fn find_relay_by_hostname(
+    countries: &[RelayListCountry],
+    hostname: &str,
+) -> Option<LocationConstraint> {
+    countries
+        .iter()
+        .flat_map(|country| country.cities.clone())
+        .flat_map(|city| city.relays)
+        .find(|relay| relay.hostname.to_lowercase() == hostname.to_lowercase())
+        .and_then(|relay| {
+            relay.location.map(
+                |Location {
+                     country_code,
+                     city_code,
+                     ..
+                 }| {
+                    LocationConstraint::Hostname(country_code, city_code, relay.hostname)
+                },
+            )
+        })
 }
