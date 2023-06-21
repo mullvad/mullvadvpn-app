@@ -6,10 +6,77 @@
 
 # format options
 --indent 4
+# Google suggests 100, but Mullvad historically uses 120
 --maxwidth 120
+# The cardinal rules of Google Swift style for line-wrapping are:
+  # If the entire declaration, statement, or expression fits on one line, then do that.
+  # All elements must fit on the same line, or each element must be on its own line.
 --wraparguments before-first
 --wrapcollections before-first
 --wrapternary before-operators
 --redundanttype inferred
 --ifdef no-indent
---disable initCoderUnavailable, redundantReturn, unusedArguments, redundantRawValues, preferKeyPath, extensionAccessControl, hoistTry
+# Use K&R brace style, which is what Apple also uses
+--allman false
+# Use consistent ordering for member modifiers.
+--modifierorder
+--disable                         \
+initCoderUnavailable,             \
+unusedArguments,                  \
+redundantRawValues,               \
+preferKeyPath,                    \
+extensionAccessControl,           \
+hoistTry,                         \
+# Do not reorganize declarations
+organizeDeclarations,             \
+# Do not reorder switch case statements
+sortedSwitchCases,                \
+# Do not add // MARK: ClassName before every type
+markTypes
+
+
+--rules                           \
+blankLinesAroundMark,             \
+blankLinesAtEndOfScope,           \
+blankLinesAtStartOfScope,         \
+blankLinesBetweenScopes,          \
+braces,                           \
+consecutiveBlankLines,            \
+consecutiveSpaces,                \
+duplicateImports,                 \
+elseOnSameLine,                   \
+emptyBraces,                      \
+enumNamespaces,                   \
+extensionAccessControl,           \
+hoistPatternLet,                  \
+indent,                           \
+leadingDelimiters,                \
+linebreakAtEndOfFile,             \
+redundantInit,                    \
+redundantParens,                  \
+redundantPattern,                 \
+redundantRawValues,               \
+redundantType,                    \
+redundantVoidReturnType,          \
+semicolons,                       \
+sortedImports,                    \
+spaceAroundBraces,                \
+spaceAroundBrackets,              \
+spaceAroundComments,              \
+spaceAroundGenerics,              \
+spaceAroundOperators,             \
+spaceAroundParens,                \
+spaceInsideBraces,                \
+spaceInsideBrackets,              \
+spaceInsideComments,              \
+spaceInsideGenerics,              \
+spaceInsideParens,                \
+todos,                            \
+trailingClosures,                 \
+trailingCommas,                   \
+trailingSpace,                    \
+typeSugar,                        \
+void,                             \
+wrap,                             \
+wrapArguments,                    \
+wrapAttributes

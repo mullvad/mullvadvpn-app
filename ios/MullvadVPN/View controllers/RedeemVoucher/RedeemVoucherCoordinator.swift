@@ -25,7 +25,7 @@ final class RedeemVoucherCoordinator: Coordinator, Presentable {
     }
 
     var presentedViewController: UIViewController {
-        return navigationController
+        navigationController
     }
 
     func start() {

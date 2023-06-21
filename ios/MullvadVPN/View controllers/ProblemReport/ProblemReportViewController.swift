@@ -179,12 +179,12 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     // MARK: - View lifecycle
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     override var disablesAutomaticKeyboardDismissal: Bool {
         // Allow dismissing the keyboard in .formSheet presentation style
-        return false
+        false
     }
 
     init(interactor: ProblemReportInteractor) {
@@ -606,7 +606,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         }
 
         var isValid: Bool {
-            return !message.isEmpty
+            !message.isEmpty
         }
     }
 

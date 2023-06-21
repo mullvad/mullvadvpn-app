@@ -61,6 +61,6 @@ final class ProblemReportInteractor {
     }
 
     var reportString: String {
-        return consolidatedLog.string
+        consolidatedLog.string
     }
 }

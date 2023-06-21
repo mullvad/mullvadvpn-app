@@ -10,7 +10,7 @@ import UIKit
 
 class LaunchViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     init() {

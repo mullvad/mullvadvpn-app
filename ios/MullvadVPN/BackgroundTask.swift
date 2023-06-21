@@ -26,10 +26,10 @@ enum BackgroundTask: String {
     /// Returns background task identifier.
     /// Use it when registering or scheduling tasks with `BGTaskScheduler`.
     var identifier: String {
-        return "\(ApplicationTarget.mainApp.bundleIdentifier).\(capitalizedRawValue)"
+        "\(ApplicationTarget.mainApp.bundleIdentifier).\(capitalizedRawValue)"
     }
 
     private var capitalizedRawValue: String {
-        return rawValue.prefix(1).uppercased() + rawValue.dropFirst()
+        rawValue.prefix(1).uppercased() + rawValue.dropFirst()
     }
 }

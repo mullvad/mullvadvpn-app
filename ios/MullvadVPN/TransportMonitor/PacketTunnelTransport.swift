@@ -15,7 +15,7 @@ import TunnelProviderMessaging
 
 struct PacketTunnelTransport: RESTTransport {
     var name: String {
-        return "packet-tunnel"
+        "packet-tunnel"
     }
 
     let tunnel: Tunnel

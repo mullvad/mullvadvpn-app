@@ -226,7 +226,7 @@ extension REST {
                 // Response handler returned a block decoding value.
                 let decodeResult = Result { try decoderBlock() }
                     .mapError { error -> REST.Error in
-                        return .decodeResponse(error)
+                        .decodeResponse(error)
                     }
                 finish(result: decodeResult.mapError { $0 })
 
@@ -234,8 +234,7 @@ extension REST {
                 // Response handler couldn't handle the response.
                 if serverErrorResponse?.code == .invalidAccessToken,
                    requiresAuthorization,
-                   retryInvalidAccessTokenError
-                {
+                   retryInvalidAccessTokenError {
                     logger.debug("Received invalid access token error. Retry once.")
                     retryInvalidAccessTokenError = false
                     startRequest()

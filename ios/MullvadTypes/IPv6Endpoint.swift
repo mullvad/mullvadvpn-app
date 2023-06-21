@@ -62,10 +62,10 @@ public struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
     }
 
     public var description: String {
-        return "[\(ip)]:\(port)"
+        "[\(ip)]:\(port)"
     }
 
     public static func == (lhs: IPv6Endpoint, rhs: IPv6Endpoint) -> Bool {
-        return lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
+        lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
     }
 }

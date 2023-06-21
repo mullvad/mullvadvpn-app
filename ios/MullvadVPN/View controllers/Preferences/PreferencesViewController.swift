@@ -14,7 +14,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     private let alertPresenter = AlertPresenter()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     init(interactor: PreferencesInteractor) {
@@ -94,7 +94,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     private func humanReadablePortRepresentation(_ ranges: [[UInt16]]) -> String {
-        return ranges
+        ranges
             .compactMap { range in
                 if let minPort = range.first, let maxPort = range.last {
                     return minPort == maxPort ? String(minPort) : "\(minPort)-\(maxPort)"

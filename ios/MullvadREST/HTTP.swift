@@ -27,7 +27,7 @@ struct HTTPStatus: RawRepresentable, Equatable {
     static let notFound = HTTPStatus(rawValue: 404)
 
     static func isSuccess(_ code: Int) -> Bool {
-        return (200 ..< 300).contains(code)
+        (200 ..< 300).contains(code)
     }
 
     let rawValue: Int
@@ -36,7 +36,7 @@ struct HTTPStatus: RawRepresentable, Equatable {
     }
 
     var isSuccess: Bool {
-        return Self.isSuccess(rawValue)
+        Self.isSuccess(rawValue)
     }
 }
 

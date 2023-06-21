@@ -40,9 +40,8 @@ extension REST {
         }
 
         func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
-            .ResponseHandlerResult<Success>
-        {
-            return handlerBlock(response, data)
+            .ResponseHandlerResult<Success> {
+            handlerBlock(response, data)
         }
     }
 
@@ -53,7 +52,7 @@ extension REST {
         decoding type: T.Type,
         with decoder: JSONDecoder
     ) -> AnyResponseHandler<T> {
-        return AnyResponseHandler { response, data in
+        AnyResponseHandler { response, data in
             if HTTPStatus.isSuccess(response.statusCode) {
                 return .decoding {
                     try decoder.decode(type, from: data)

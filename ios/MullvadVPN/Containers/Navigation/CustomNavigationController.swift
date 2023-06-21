@@ -10,11 +10,11 @@ import UIKit
 
 class CustomNavigationController: UINavigationController {
     override var childForStatusBarHidden: UIViewController? {
-        return topViewController
+        topViewController
     }
 
     override var childForStatusBarStyle: UIViewController? {
-        return topViewController
+        topViewController
     }
 
     override func viewDidLoad() {

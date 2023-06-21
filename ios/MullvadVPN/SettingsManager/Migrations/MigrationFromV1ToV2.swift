@@ -104,7 +104,7 @@ final class MigrationFromV1ToV2: Migration {
 
         // Find device that matches the public key stored in legacy settings.
         let device = devices.first { device in
-            return device.pubkey == interfaceData.privateKey.publicKey ||
+            device.pubkey == interfaceData.privateKey.publicKey ||
                 device.pubkey == interfaceData.nextPrivateKey?.publicKey
         }
 

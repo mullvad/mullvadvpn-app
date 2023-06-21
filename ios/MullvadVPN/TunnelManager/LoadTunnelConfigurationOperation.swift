@@ -58,7 +58,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     }
 
     private func readSettings() -> Result<TunnelSettingsV2?, Error> {
-        return Result { try SettingsManager.readSettings() }
+        Result { try SettingsManager.readSettings() }
             .flatMapError { error in
                 if let error = error as? KeychainError, error == .itemNotFound {
                     logger.debug("Settings not found in keychain.")
@@ -76,7 +76,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     }
 
     private func readDeviceState() -> Result<DeviceState?, Error> {
-        return Result { try SettingsManager.readDeviceState() }
+        Result { try SettingsManager.readDeviceState() }
             .flatMapError { error in
                 if let error = error as? KeychainError, error == .itemNotFound {
                     logger.debug("Device state not found in keychain.")

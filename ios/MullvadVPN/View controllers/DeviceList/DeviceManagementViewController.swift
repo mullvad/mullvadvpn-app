@@ -21,15 +21,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     weak var delegate: DeviceManagementViewControllerDelegate?
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return .default
+        .default
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     private let alertPresenter = AlertPresenter()
@@ -103,7 +103,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     private func setDevices(_ devices: [Device], animated: Bool) {
         let viewModels = devices.map { restDevice -> DeviceViewModel in
-            return DeviceViewModel(
+            DeviceViewModel(
                 id: restDevice.id,
                 name: restDevice.name.capitalized,
                 creationDate: DateFormatter.localizedString(

@@ -21,7 +21,7 @@ enum CustomDNSPrecondition {
 
     /// Returns localized description explaining how to enable Custom DNS.
     func localizedDescription(isEditing: Bool) -> String? {
-        return attributedLocalizedDescription(
+        attributedLocalizedDescription(
             isEditing: isEditing,
             preferredFont: UIFont.systemFont(ofSize: UIFont.systemFontSize)
         )?.string
@@ -132,7 +132,7 @@ struct PreferencesViewModel: Equatable {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
-                return AnyIPAddress(entry.address) != nil
+                AnyIPAddress(entry.address) != nil
             }
 
             if hasValidDNSDomains {
@@ -145,11 +145,11 @@ struct PreferencesViewModel: Equatable {
 
     /// Effective state of the custom DNS setting.
     var effectiveEnableCustomDNS: Bool {
-        return customDNSPrecondition == .satisfied && enableCustomDNS
+        customDNSPrecondition == .satisfied && enableCustomDNS
     }
 
     var customWireGuardPort: UInt16? {
-        return wireGuardPort.flatMap { port in
+        wireGuardPort.flatMap { port in
             Self.defaultWireGuardPorts.contains(port) ? nil : port
         }
     }
@@ -163,7 +163,7 @@ struct PreferencesViewModel: Equatable {
         blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
-            return DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
+            DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
         }
         wireGuardPort = tunnelSettings.relayConstraints.port.value
     }
@@ -196,15 +196,15 @@ struct PreferencesViewModel: Equatable {
     }
 
     func dnsEntry(entryIdentifier: UUID) -> DNSServerEntry? {
-        return customDNSDomains.first { entry in
-            return entry.identifier == entryIdentifier
+        customDNSDomains.first { entry in
+            entry.identifier == entryIdentifier
         }
     }
 
     /// Returns an index of entry in `customDNSDomains`, otherwise `nil`.
     func indexOfDNSEntry(entryIdentifier: UUID) -> Int? {
-        return customDNSDomains.firstIndex { entry in
-            return entry.identifier == entryIdentifier
+        customDNSDomains.firstIndex { entry in
+            entry.identifier == entryIdentifier
         }
     }
 
@@ -244,19 +244,19 @@ struct PreferencesViewModel: Equatable {
         dnsSettings.blockingOptions = blockingOptions
         dnsSettings.enableCustomDNS = enableCustomDNS
         dnsSettings.customDNSDomains = customDNSDomains.compactMap { entry in
-            return AnyIPAddress(entry.address)
+            AnyIPAddress(entry.address)
         }
         return dnsSettings
     }
 
     /// Returns true if the given string is empty or a valid IP address.
     func isDNSDomainUserInputValid(_ string: String) -> Bool {
-        return string.isEmpty || AnyIPAddress(string) != nil
+        string.isEmpty || AnyIPAddress(string) != nil
     }
 
     /// Returns true if the given port is in within the supported ranges.
     func isPortWithinValidWireGuardRanges(_ port: UInt16) -> Bool {
-        return availableWireGuardPortRanges.contains { range in
+        availableWireGuardPortRanges.contains { range in
             if let minPort = range.first, let maxPort = range.last {
                 return (minPort ... maxPort).contains(port)
             }
@@ -271,7 +271,7 @@ struct PreferencesViewModel: Equatable {
 
         return newDomains.map { otherEntry in
             let sameEntryIndex = oldDomains.firstIndex { entry in
-                return entry.address == otherEntry.address
+                entry.address == otherEntry.address
             }
 
             if let sameEntryIndex {

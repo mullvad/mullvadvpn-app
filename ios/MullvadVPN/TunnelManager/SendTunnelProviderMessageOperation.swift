@@ -301,6 +301,6 @@ enum SendTunnelProviderMessageError: LocalizedError, WrappingError {
 
 struct EmptyTunnelProviderResponseError: LocalizedError {
     var errorDescription: String? {
-        return "Unexpected empty (nil) response from the tunnel."
+        "Unexpected empty (nil) response from the tunnel."
     }
 }

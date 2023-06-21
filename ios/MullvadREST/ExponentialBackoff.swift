@@ -34,8 +34,7 @@ struct ExponentialBackoff: IteratorProtocol {
 }
 
 struct Jittered<InnerIterator: IteratorProtocol>: IteratorProtocol
-    where InnerIterator.Element == REST.Duration
-{
+    where InnerIterator.Element == REST.Duration {
     private var inner: InnerIterator
 
     init(_ inner: InnerIterator) {

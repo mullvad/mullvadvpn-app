@@ -322,7 +322,7 @@ class AccountNumberRow: UIView {
 
         if isObscured {
             return String(formattedString.map { ch in
-                return ch == " " ? ch : "•"
+                ch == " " ? ch : "•"
             })
         } else {
             return formattedString
@@ -459,7 +459,7 @@ class AccountExpiryRow: UIView {
                 valueLabel.textColor = .dangerColor
             } else {
                 let formattedDate = expiry.map { date in
-                    return DateFormatter.localizedString(
+                    DateFormatter.localizedString(
                         from: date,
                         dateStyle: .medium,
                         timeStyle: .short

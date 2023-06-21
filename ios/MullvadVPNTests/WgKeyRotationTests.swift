@@ -89,7 +89,7 @@ final class WgKeyRotationTests: XCTestCase {
 
 private extension StoredDeviceData {
     static func mock(keyData: StoredWgKeyData) -> StoredDeviceData {
-        return StoredDeviceData(
+        StoredDeviceData(
             creationDate: Date(),
             identifier: "device-id",
             name: "device-name",
@@ -103,7 +103,7 @@ private extension StoredDeviceData {
 
 private extension Device {
     static func mock(privateKey: PrivateKey) -> Device {
-        return Device(
+        Device(
             id: "device-id",
             name: "device-name",
             pubkey: privateKey.publicKey,

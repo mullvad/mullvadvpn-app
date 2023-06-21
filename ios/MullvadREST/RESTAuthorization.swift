@@ -31,9 +31,9 @@ extension REST {
             completion: @escaping (Result<REST.Authorization, Swift.Error>)
                 -> Void
         ) -> Cancellable {
-            return accessTokenManager.getAccessToken(accountNumber: accountNumber) { result in
+            accessTokenManager.getAccessToken(accountNumber: accountNumber) { result in
                 completion(result.map { tokenData in
-                    return tokenData.accessToken
+                    tokenData.accessToken
                 })
             }
         }
@@ -42,7 +42,7 @@ extension REST {
 
 extension REST.Proxy where ConfigurationType == REST.AuthProxyConfiguration {
     func createAuthorizationProvider(accountNumber: String) -> RESTAuthorizationProvider {
-        return REST.AccessTokenProvider(
+        REST.AccessTokenProvider(
             accessTokenManager: configuration.accessTokenManager,
             accountNumber: accountNumber
         )

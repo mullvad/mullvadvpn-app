@@ -11,7 +11,7 @@ import UIKit
 extension UIColor {
     /// Returns the color lighter by the given percent (in range from 0..1)
     func lightened(by percent: CGFloat) -> UIColor? {
-        return darkened(by: -percent)
+        darkened(by: -percent)
     }
 
     /// Returns the color darker by the given percent (in range from 0..1)
@@ -33,5 +33,5 @@ extension UIColor {
 }
 
 private func clampColorComponent(_ value: CGFloat) -> CGFloat {
-    return min(1.0, max(value, 0.0))
+    min(1.0, max(value, 0.0))
 }

@@ -79,7 +79,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
     var didFinish: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
@@ -92,7 +92,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     private let interactor: RevokedDeviceInteractor

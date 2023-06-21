@@ -21,8 +21,7 @@ private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, ApplicationRouterDelegate,
-    NotificationManagerDelegate
-{
+    NotificationManagerDelegate {
     /**
      Application router.
      */
@@ -78,7 +77,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private var outOfTimeTimer: Timer?
 
     var rootViewController: UIViewController {
-        return primaryNavigationContainer
+        primaryNavigationContainer
     }
 
     init(
@@ -216,7 +215,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ router: ApplicationRouter,
         shouldDismissWithContext context: RouteDismissalContext
     ) -> Bool {
-        return context.dismissedRoutes.allSatisfy { dismissedRoute in
+        context.dismissedRoutes.allSatisfy { dismissedRoute in
             /*
              Prevent dismissal of "out of time" route in response to device state change when
              making payment. It will dismiss itself once done.
@@ -436,7 +435,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private var isPad: Bool {
-        return UIDevice.current.userInterfaceIdiom == .pad
+        UIDevice.current.userInterfaceIdiom == .pad
     }
 
     private func setupSplitView() {
@@ -555,7 +554,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func shouldDismissOutOfTime() -> Bool {
-        return !(tunnelManager.deviceState.accountData?.isExpired ?? false)
+        !(tunnelManager.deviceState.accountData?.isExpired ?? false)
     }
 
     private func presentSelectLocation(
@@ -600,8 +599,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func makeSelectLocationCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> SelectLocationCoordinator
-    {
+        -> SelectLocationCoordinator {
         let navigationController = CustomNavigationController()
         navigationController.isNavigationBarHidden = !isModalPresentation
 
@@ -790,26 +788,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     /// Returns `true` if settings are being presented.
     var isPresentingSettings: Bool {
-        return router.isPresenting(.settings)
+        router.isPresenting(.settings)
     }
 
     /// Returns `true` if account controller is being presented.
     var isPresentingAccount: Bool {
-        return router.isPresenting(.account)
+        router.isPresenting(.account)
     }
 
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
-        -> UIViewController?
-    {
-        return splitLocationCoordinator?.navigationController
+        -> UIViewController? {
+        splitLocationCoordinator?.navigationController
     }
 
     func primaryViewController(forCollapsing splitViewController: UISplitViewController)
-        -> UIViewController?
-    {
-        return splitTunnelCoordinator?.rootViewController
+        -> UIViewController? {
+        splitTunnelCoordinator?.rootViewController
     }
 
     func splitViewController(
@@ -817,14 +813,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         collapseSecondary secondaryViewController: UIViewController,
         onto primaryViewController: UIViewController
     ) -> Bool {
-        return true
+        true
     }
 
     func splitViewController(
         _ splitViewController: UISplitViewController,
         separateSecondaryFrom primaryViewController: UIViewController
     ) -> UIViewController? {
-        return nil
+        nil
     }
 
     func splitViewControllerDidExpand(_ svc: UISplitViewController) {
@@ -849,8 +845,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
-        -> UIInterfaceOrientationMask
-    {
+        -> UIInterfaceOrientationMask {
         if isPad {
             return [.landscape, .portrait]
         } else {
@@ -859,8 +854,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
-        -> Bool
-    {
+        -> Bool {
         guard tunnelManager.deviceState.isLoggedIn else { return false }
 
         switch tunnelManager.tunnelStatus.state {
@@ -902,12 +896,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     // MARK: - Presenting
 
     var presentationContext: UIViewController {
-        return primaryNavigationContainer.presentedViewController ?? primaryNavigationContainer
+        primaryNavigationContainer.presentedViewController ?? primaryNavigationContainer
     }
 }
 
 extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
-        return isLoggedIn ? .allVisible : .secondaryOnly
+        isLoggedIn ? .allVisible : .secondaryOnly
     }
 }

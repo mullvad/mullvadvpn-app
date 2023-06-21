@@ -47,11 +47,11 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
 
     private var dividerView: UIView? {
         let subviews = view.subviews.flatMap { view -> [UIView] in
-            return [view] + view.subviews
+            [view] + view.subviews
         }
 
         return subviews.first { view -> Bool in
-            return view.description.hasPrefix("<UIPanelBorderView")
+            view.description.hasPrefix("<UIPanelBorderView")
         }
     }
 
@@ -62,8 +62,7 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
     }
 
     override func overrideTraitCollection(forChild childViewController: UIViewController)
-        -> UITraitCollection?
-    {
+        -> UITraitCollection? {
         guard let traitCollection = super.overrideTraitCollection(forChild: childViewController)
         else { return nil }
 

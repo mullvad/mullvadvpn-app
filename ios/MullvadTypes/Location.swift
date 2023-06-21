@@ -18,7 +18,7 @@ public struct Location: Codable, Equatable {
     public var longitude: Double
 
     public var geoCoordinate: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
     public init(

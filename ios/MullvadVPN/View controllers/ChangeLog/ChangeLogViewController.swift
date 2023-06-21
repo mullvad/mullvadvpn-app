@@ -12,11 +12,11 @@ class ChangeLogViewController: UIViewController, RootContainment {
     // MARK: - RootContainment
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return HeaderBarPresentation(style: .default, showsDivider: false)
+        HeaderBarPresentation(style: .default, showsDivider: false)
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     // MARK: - Public
@@ -36,7 +36,7 @@ class ChangeLogViewController: UIViewController, RootContainment {
     private let contentView = ChangeLogContentView()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     override func loadView() {

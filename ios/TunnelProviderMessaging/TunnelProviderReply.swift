@@ -21,6 +21,6 @@ public struct TunnelProviderReply<T: Codable>: Codable {
     }
 
     public func encode() throws -> Data {
-        return try JSONEncoder().encode(self)
+        try JSONEncoder().encode(self)
     }
 }

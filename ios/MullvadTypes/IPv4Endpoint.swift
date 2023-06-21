@@ -26,8 +26,7 @@ public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
         )
 
         if components.count == 2, let parsedIP = IPv4Address(String(components[0])),
-           let parsedPort = UInt16(components[1])
-        {
+           let parsedPort = UInt16(components[1]) {
             ip = parsedIP
             port = parsedPort
         } else {
@@ -56,10 +55,10 @@ public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertibl
     }
 
     public var description: String {
-        return "\(ip):\(port)"
+        "\(ip):\(port)"
     }
 
     public static func == (lhs: IPv4Endpoint, rhs: IPv4Endpoint) -> Bool {
-        return lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
+        lhs.ip.rawValue == rhs.ip.rawValue && lhs.port == rhs.port
     }
 }

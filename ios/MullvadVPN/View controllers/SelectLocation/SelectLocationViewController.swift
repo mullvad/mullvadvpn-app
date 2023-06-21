@@ -19,7 +19,7 @@ final class SelectLocationViewController: UIViewController {
     var relayLocation: RelayLocation?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var didSelectRelay: ((RelayLocation) -> Void)?

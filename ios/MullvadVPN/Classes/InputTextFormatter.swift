@@ -76,8 +76,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
         if replacementString.isEmpty, emptySelection,
-           !formattedString.isEmpty
-        {
+           !formattedString.isEmpty {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
                 .lastIndex { isAllowed($0) } ?? formattedString.startIndex
@@ -135,8 +134,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
             // Add separator between the groups of digits
             if numDigits > 0,
                configuration.groupSize > 0,
-               numDigits % Int(configuration.groupSize) == 0
-            {
+               numDigits % Int(configuration.groupSize) == 0 {
                 reformattedString.append(configuration.groupSeparator)
 
                 if originalCaretPosition > index {

@@ -83,7 +83,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case dnsServer(_ uniqueID: UUID)
 
         static var contentBlockers: [Item] {
-            return [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
+            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
         }
 
         static var wireGuardPorts: [Item] {
@@ -464,11 +464,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let items = snapshot().itemIdentifiers(inSection: sectionIdentifier)
 
         let indexPathForFirstRow = items.first(where: Item.isDNSServerItem).flatMap { item in
-            return indexPath(for: item)
+            indexPath(for: item)
         }
 
         let indexPathForLastRow = items.last(where: Item.isDNSServerItem).flatMap { item in
-            return indexPath(for: item)
+            indexPath(for: item)
         }
 
         guard let indexPathForFirstRow,
@@ -526,7 +526,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         newSnapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
-            return Item.dnsServer(entry.identifier)
+            Item.dnsServer(entry.identifier)
         }
         newSnapshot.appendItems(dnsServerItems, toSection: .customDNS)
 
@@ -550,8 +550,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     private func reload(item: Item) {
         if let indexPath = indexPath(for: item),
-           let cell = tableView?.cellForRow(at: indexPath)
-        {
+           let cell = tableView?.cellForRow(at: indexPath) {
             preferencesCellFactory.configureCell(cell, item: item, indexPath: indexPath)
         }
     }
@@ -670,8 +669,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 }
 
             if let lastDNSEntry,
-               let indexPath = self?.indexPath(for: lastDNSEntry)
-            {
+               let indexPath = self?.indexPath(for: lastDNSEntry) {
                 let cell = self?.tableView?.cellForRow(at: indexPath) as? SettingsDNSTextCell
 
                 self?.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
@@ -684,7 +682,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let oldViewModel = viewModel
 
         let entryIndex = viewModel.customDNSDomains.firstIndex { entry in
-            return entry.identifier == entryIdentifier
+            entry.identifier == entryIdentifier
         }
 
         guard let entryIndex else { return }
@@ -846,7 +844,7 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
         with identifier: UUID,
         inputString: String
     ) -> Bool {
-        return handleDNSEntryChange(with: identifier, inputString: inputString)
+        handleDNSEntryChange(with: identifier, inputString: inputString)
     }
 
     func showInfo(for item: InfoButtonItem) {

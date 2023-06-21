@@ -211,8 +211,7 @@ class AppButton: CustomButton {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom,
-           !overrideContentEdgeInsets
-        {
+           !overrideContentEdgeInsets {
             contentEdgeInsets = defaultContentInsets
         }
     }
@@ -350,10 +349,10 @@ class CustomButton: UIButton {
     }
 
     override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
-        return computeLayout(forContentRect: contentRect).1
+        computeLayout(forContentRect: contentRect).1
     }
 
     override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
-        return computeLayout(forContentRect: contentRect).0
+        computeLayout(forContentRect: contentRect).0
     }
 }

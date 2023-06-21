@@ -124,7 +124,7 @@ extension REST {
 
     public struct NoTransportError: LocalizedError {
         public var errorDescription: String? {
-            return "Transport is not configured."
+            "Transport is not configured."
         }
     }
 }

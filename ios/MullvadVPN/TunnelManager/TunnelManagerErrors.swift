@@ -11,7 +11,7 @@ import MullvadTypes
 
 struct UnsetTunnelError: LocalizedError {
     var errorDescription: String? {
-        return NSLocalizedString(
+        NSLocalizedString(
             "UNSET_TUNNEL_ERROR",
             tableName: "TunnelManager",
             value: "Tunnel is unset.",
@@ -22,7 +22,7 @@ struct UnsetTunnelError: LocalizedError {
 
 struct InvalidDeviceStateError: LocalizedError {
     var errorDescription: String? {
-        return NSLocalizedString(
+        NSLocalizedString(
             "INVALID_DEVICE_STATE_ERROR",
             tableName: "TunnelManager",
             value: "Invalid device state.",
@@ -35,7 +35,7 @@ struct StartTunnelError: LocalizedError, WrappingError {
     private let _underlyingError: Error
 
     var errorDescription: String? {
-        return NSLocalizedString(
+        NSLocalizedString(
             "START_TUNNEL_ERROR",
             tableName: "TunnelManager",
             value: "Failed to start the tunnel.",
@@ -44,7 +44,7 @@ struct StartTunnelError: LocalizedError, WrappingError {
     }
 
     var underlyingError: Error? {
-        return _underlyingError
+        _underlyingError
     }
 
     init(underlyingError: Error) {
@@ -56,7 +56,7 @@ struct StopTunnelError: LocalizedError, WrappingError {
     private let _underlyingError: Error
 
     var errorDescription: String? {
-        return NSLocalizedString(
+        NSLocalizedString(
             "STOP_TUNNEL_ERROR",
             tableName: "TunnelManager",
             value: "Failed to stop the tunnel.",
@@ -65,7 +65,7 @@ struct StopTunnelError: LocalizedError, WrappingError {
     }
 
     var underlyingError: Error? {
-        return _underlyingError
+        _underlyingError
     }
 
     init(underlyingError: Error) {
