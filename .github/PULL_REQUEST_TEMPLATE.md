@@ -3,8 +3,9 @@ PR checklist (just intended as a reminder for the PR author. No need to fill it 
 
 * [ ] The change is added to `CHANGELOG.md` under the `[Unreleased]` header.
 * [ ] The change/commits follow the Mullvad coding guidelines: https://github.com/mullvad/coding-guidelines
-* [ ] The PR description describes **what** this PR changes. **Why** this is wanted.
-      And, if needed, **how** it does it.
+* [ ] The PR description describes **what** this PR changes. **Why** this is wanted. **How** to test
+      the changes. And, if needed, **how** it does it.
+
 
 👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋👋
   THIRD PARTY CONTRIBUTOR, PLEASE READ THIS
