@@ -13,16 +13,6 @@ extension NSAttributedString {
         case bold
     }
 
-    struct MarkdownStylingOptions {
-        var font: UIFont
-        var paragraphStyle: NSParagraphStyle = .default
-
-        var boldFont: UIFont {
-            let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font.fontDescriptor
-            return UIFont(descriptor: fontDescriptor, size: font.pointSize)
-        }
-    }
-
     convenience init(
         markdownString: String,
         options: MarkdownStylingOptions,
