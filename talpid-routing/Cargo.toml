@@ -21,7 +21,7 @@ talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
-lazy_static = "1.0"
+once_cell = "1.13"
 rtnetlink = "0.11"
 netlink-packet-route = "0.13"
 netlink-sys = "0.8.3"

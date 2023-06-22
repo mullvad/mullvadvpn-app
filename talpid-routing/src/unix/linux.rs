@@ -16,7 +16,6 @@ use futures::{
     StreamExt, TryStream, TryStreamExt,
 };
 use ipnetwork::IpNetwork;
-use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
 use netlink_packet_route::{
     constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
@@ -32,30 +31,29 @@ use netlink_packet_route::{
     rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
     NetlinkMessage, NetlinkPayload, RtnlMessage,
 };
+use once_cell::sync::Lazy;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
     Handle, IpVersion,
 };
 
-lazy_static! {
-    static ref SUPPRESS_RULE_V4: RuleMessage = RuleMessage {
-        header: RuleHeader {
-            family: AF_INET as u8,
-            action: FR_ACT_TO_TBL,
-            ..RuleHeader::default()
-        },
-        nlas: vec![
-            RuleNla::SuppressPrefixLen(0),
-            RuleNla::Table(RT_TABLE_MAIN as u32),
-        ],
-    };
-    static ref SUPPRESS_RULE_V6: RuleMessage = {
-        let mut v6_rule = SUPPRESS_RULE_V4.clone();
-        v6_rule.header.family = AF_INET6 as u8;
-        v6_rule
-    };
-}
+static SUPPRESS_RULE_V4: Lazy<RuleMessage> = Lazy::new(|| RuleMessage {
+    header: RuleHeader {
+        family: AF_INET as u8,
+        action: FR_ACT_TO_TBL,
+        ..RuleHeader::default()
+    },
+    nlas: vec![
+        RuleNla::SuppressPrefixLen(0),
+        RuleNla::Table(RT_TABLE_MAIN as u32),
+    ],
+});
+static SUPPRESS_RULE_V6: Lazy<RuleMessage> = Lazy::new(|| {
+    let mut v6_rule = SUPPRESS_RULE_V4.clone();
+    v6_rule.header.family = AF_INET6 as u8;
+    v6_rule
+});
 
 fn all_rules(fwmark: u32, table: u32) -> [RuleMessage; 4] {
     [
