@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{
     ffi::CStr,
     fmt, io, mem,
@@ -28,10 +28,8 @@ use winreg::{
     RegKey,
 };
 
-lazy_static! {
-    /// Shared `WintunDll` instance
-    static ref WINTUN_DLL: Mutex<Option<Arc<WintunDll>>> = Mutex::new(None);
-}
+/// Shared `WintunDll` instance
+static WINTUN_DLL: Lazy<Mutex<Option<Arc<WintunDll>>>> = Lazy::new(|| Mutex::new(None));
 
 type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
     name: *const u16,

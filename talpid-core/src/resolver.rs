@@ -12,6 +12,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 
+use once_cell::sync::Lazy;
 use trust_dns_server::{
     authority::{
         EmptyLookup, LookupObject, MessageRequest, MessageResponse, MessageResponseBuilder,
@@ -32,13 +33,12 @@ use trust_dns_server::{
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::AAAA, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
-lazy_static::lazy_static! {
-    static ref ALLOWED_DOMAINS: Vec<LowerName> =
-        CAPTIVE_PORTAL_DOMAINS
-            .iter()
-            .map(|domain| LowerName::from(Name::from_str(domain).unwrap()))
-            .collect();
-}
+static ALLOWED_DOMAINS: Lazy<Vec<LowerName>> = Lazy::new(|| {
+    CAPTIVE_PORTAL_DOMAINS
+        .iter()
+        .map(|domain| LowerName::from(Name::from_str(domain).unwrap()))
+        .collect()
+});
 
 const TTL_SECONDS: u32 = 3;
 /// An IP address to be used in the DNS response to the captive domain query. The address itself

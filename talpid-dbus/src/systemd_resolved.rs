@@ -7,8 +7,8 @@ use dbus::{
     },
     message::{MatchRule, SignalArgs},
 };
-use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
+use once_cell::sync::Lazy;
 use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -59,14 +59,14 @@ pub enum Error {
     AsyncTaskError(#[error(source)] tokio::task::JoinError),
 }
 
-lazy_static! {
-    static ref RESOLVED_STUB_PATHS: Vec<&'static Path> = vec![
+static RESOLVED_STUB_PATHS: Lazy<Vec<&'static Path>> = Lazy::new(|| {
+    vec![
         Path::new("/run/systemd/resolve/stub-resolv.conf"),
         Path::new("/run/systemd/resolve/resolv.conf"),
         Path::new("/var/run/systemd/resolve/stub-resolv.conf"),
         Path::new("/var/run/systemd/resolve/resolv.conf"),
-    ];
-}
+    ]
+});
 
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 const STATIC_STUB_PATH: &str = "/usr/lib/systemd/resolv.conf";

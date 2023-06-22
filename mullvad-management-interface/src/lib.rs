@@ -21,10 +21,10 @@ pub type ManagementServiceClient =
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
 #[cfg(unix)]
-lazy_static::lazy_static! {
-    static ref MULLVAD_MANAGEMENT_SOCKET_GROUP: Option<String> = env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP")
-        .ok();
-}
+use once_cell::sync::Lazy;
+#[cfg(unix)]
+static MULLVAD_MANAGEMENT_SOCKET_GROUP: Lazy<Option<String>> =
+    Lazy::new(|| env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP").ok());
 
 pub const CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS: &[u8] = b"custom_list_location_not_found";
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
