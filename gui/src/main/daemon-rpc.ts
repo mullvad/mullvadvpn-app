@@ -1233,15 +1233,25 @@ function convertFromConnectionConfig(
   }
 }
 
-function convertFromLocation(location: grpcTypes.RelayLocation.AsObject): RelayLocation {
-  if (location.hostname) {
-    return { hostname: [location.country, location.city, location.hostname] };
+function convertFromLocation(location: grpcTypes.LocationConstraint.AsObject): RelayLocation {
+  // FIXME: This is a hack that assumes that the LocationConstraint is not a custom list.
+  // If it is we just set the country to "any" even if that isn't correct.
+  if (location.location == undefined) {
+    return { country: "any" };
   }
-  if (location.city) {
-    return { city: [location.country, location.city] };
-  }
+  else {
+    const loc = location.location;
 
-  return { country: location.country };
+    if (loc.hostname) {
+      return { hostname: [loc.country, loc.city, loc.hostname] };
+    }
+
+    if (loc.city) {
+      return { city: [loc.country, loc.city] };
+    }
+
+    return { country: loc.country };
+  }
 }
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
@@ -1460,24 +1470,24 @@ function convertToNormalBridgeSettings(
 
 function convertToLocation(
   constraint: RelayLocation | undefined,
-): grpcTypes.RelayLocation | undefined {
+): grpcTypes.LocationConstraint | undefined {
+  const locationConstraint = new grpcTypes.LocationConstraint();
   const location = new grpcTypes.RelayLocation();
   if (constraint && 'hostname' in constraint) {
     const [countryCode, cityCode, hostname] = constraint.hostname;
     location.setCountry(countryCode);
     location.setCity(cityCode);
     location.setHostname(hostname);
-    return location;
   } else if (constraint && 'city' in constraint) {
     location.setCountry(constraint.city[0]);
     location.setCity(constraint.city[1]);
-    return location;
   } else if (constraint && 'country' in constraint) {
     location.setCountry(constraint.country);
-    return location;
   } else {
     return undefined;
   }
+  locationConstraint.setLocation(location);
+  return locationConstraint;
 }
 
 function convertToTunnelTypeConstraint(
