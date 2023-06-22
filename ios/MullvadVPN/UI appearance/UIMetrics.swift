@@ -129,4 +129,7 @@ extension UIMetrics {
     static let padding32: CGFloat = 32
     static let padding40: CGFloat = 40
     static let padding48: CGFloat = 48
+
+    /// Preferred content size for controllers presented using formsheet modal presentation style.
+    static let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
 }
