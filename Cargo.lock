@@ -3569,7 +3569,6 @@ dependencies = [
  "internet-checksum",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "libc",
  "log",
  "memoffset 0.6.4",

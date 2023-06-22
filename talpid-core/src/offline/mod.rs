@@ -1,4 +1,5 @@
 use futures::channel::mpsc::UnboundedSender;
+use once_cell::sync::Lazy;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
@@ -20,12 +21,12 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
-lazy_static::lazy_static! {
-    /// Disables offline monitor
-    static ref FORCE_DISABLE_OFFLINE_MONITOR: bool = std::env::var("TALPID_DISABLE_OFFLINE_MONITOR")
+/// Disables offline monitor
+static FORCE_DISABLE_OFFLINE_MONITOR: Lazy<bool> = Lazy::new(|| {
+    std::env::var("TALPID_DISABLE_OFFLINE_MONITOR")
         .map(|v| v != "0")
-        .unwrap_or(false);
-}
+        .unwrap_or(false)
+});
 
 pub use self::imp::Error;
 

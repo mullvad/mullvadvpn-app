@@ -1,5 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
@@ -26,18 +26,21 @@ mod imp;
 
 pub use self::imp::Error;
 
-lazy_static! {
-    /// When "allow local network" is enabled the app will allow traffic to and from these networks.
-    pub(crate) static ref ALLOWED_LAN_NETS: [IpNetwork; 6] = [
+/// When "allow local network" is enabled the app will allow traffic to and from these networks.
+pub(crate) static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 6]> = Lazy::new(|| {
+    [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap()),
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xfc00, 0, 0, 0, 0, 0, 0, 0), 7).unwrap()),
-    ];
-    /// When "allow local network" is enabled the app will allow traffic to these networks.
-    pub(crate) static ref ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 8] = [
+    ]
+});
+/// When "allow local network" is enabled the app will allow traffic to these networks.
+#[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
+pub(crate) static ALLOWED_LAN_MULTICAST_NETS: Lazy<[IpNetwork; 8]> = Lazy::new(|| {
+    [
         // Local network broadcast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(255, 255, 255, 255), 32).unwrap()),
         // Local subnetwork multicast. Not routable
@@ -54,20 +57,34 @@ lazy_static! {
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff04, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
         // Site-local IPv6 multicast.
         IpNetwork::V6(Ipv6Network::new(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 0, 0), 16).unwrap()),
-    ];
-    static ref IPV6_LINK_LOCAL: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
-    /// The allowed target addresses of outbound DHCPv6 requests
-    static ref DHCPV6_SERVER_ADDRS: [Ipv6Addr; 2] = [
+    ]
+});
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+static IPV6_LINK_LOCAL: Lazy<Ipv6Network> =
+    Lazy::new(|| Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
+/// The allowed target addresses of outbound DHCPv6 requests
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+static DHCPV6_SERVER_ADDRS: Lazy<[Ipv6Addr; 2]> = Lazy::new(|| {
+    [
         Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
-    ];
-    static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
-    static ref SOLICITED_NODE_MULTICAST: Ipv6Network = Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap();
-    static ref LOOPBACK_NETS: [IpNetwork; 2] = [
+    ]
+});
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+static ROUTER_SOLICITATION_OUT_DST_ADDR: Lazy<Ipv6Addr> =
+    Lazy::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+static SOLICITED_NODE_MULTICAST: Lazy<Ipv6Network> =
+    Lazy::new(|| Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap());
+static LOOPBACK_NETS: Lazy<[IpNetwork; 2]> = Lazy::new(|| {
+    [
         IpNetwork::V4(ipnetwork::Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
-        IpNetwork::V6(ipnetwork::Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
-    ];
-}
+        IpNetwork::V6(
+            ipnetwork::Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap(),
+        ),
+    ]
+});
+
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
 #[cfg(all(unix, not(target_os = "android")))]
