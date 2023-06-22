@@ -40,8 +40,7 @@ extension REST {
         }
 
         func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST
-            .ResponseHandlerResult<Success>
-        {
+            .ResponseHandlerResult<Success> {
             handlerBlock(response, data)
         }
     }

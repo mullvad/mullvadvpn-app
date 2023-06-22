@@ -550,8 +550,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     private func reload(item: Item) {
         if let indexPath = indexPath(for: item),
-           let cell = tableView?.cellForRow(at: indexPath)
-        {
+           let cell = tableView?.cellForRow(at: indexPath) {
             preferencesCellFactory.configureCell(cell, item: item, indexPath: indexPath)
         }
     }
@@ -670,8 +669,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 }
 
             if let lastDNSEntry,
-               let indexPath = self?.indexPath(for: lastDNSEntry)
-            {
+               let indexPath = self?.indexPath(for: lastDNSEntry) {
                 let cell = self?.tableView?.cellForRow(at: indexPath) as? SettingsDNSTextCell
 
                 self?.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)

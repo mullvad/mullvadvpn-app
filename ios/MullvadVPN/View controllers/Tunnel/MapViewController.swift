@@ -180,8 +180,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
                 for geometry in feature.geometry {
                     if let polygon = geometry as? MKPolygon {
                         if let interiorPolygons = polygon.interiorPolygons,
-                           !interiorPolygons.isEmpty
-                        {
+                           !interiorPolygons.isEmpty {
                             overlays
                                 .append(MKPolygon(
                                     points: polygon.points(),

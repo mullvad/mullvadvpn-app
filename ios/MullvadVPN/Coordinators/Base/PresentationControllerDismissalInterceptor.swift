@@ -11,8 +11,7 @@ import UIKit
 /// Presentation controller delegate class that intercepts interactive dismissal and calls
 /// `dismissHandler` closure. Forwards all delegate calls to the `forwardingTarget`.
 final class PresentationControllerDismissalInterceptor: NSObject,
-    UIAdaptivePresentationControllerDelegate
-{
+    UIAdaptivePresentationControllerDelegate {
     private let dismissHandler: (UIPresentationController) -> Void
     private let forwardingTarget: UIAdaptivePresentationControllerDelegate?
     private let protocolSelectors: [Selector]

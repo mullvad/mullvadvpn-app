@@ -30,8 +30,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     ) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
            let serverTrust = challenge.protectionSpace.serverTrust,
-           verifyServerTrust(serverTrust)
-        {
+           verifyServerTrust(serverTrust) {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
             completionHandler(.rejectProtectionSpace, nil)

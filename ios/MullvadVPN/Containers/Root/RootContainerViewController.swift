@@ -457,14 +457,12 @@ class RootContainerViewController: UIViewController {
             // otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
             if shouldHandleAppearanceEvents {
                 if let targetViewController,
-                   sourceViewController != targetViewController
-                {
+                   sourceViewController != targetViewController {
                     self.endChildControllerTransition(targetViewController)
                 }
 
                 if let sourceViewController,
-                   sourceViewController != targetViewController
-                {
+                   sourceViewController != targetViewController {
                     self.endChildControllerTransition(sourceViewController)
                 }
             }
@@ -527,8 +525,7 @@ class RootContainerViewController: UIViewController {
         // Begin appearance transition
         if shouldHandleAppearanceEvents {
             if let sourceViewController,
-               sourceViewController != targetViewController
-            {
+               sourceViewController != targetViewController {
                 beginChildControllerTransition(
                     sourceViewController,
                     isAppearing: false,
@@ -536,8 +533,7 @@ class RootContainerViewController: UIViewController {
                 )
             }
             if let targetViewController,
-               sourceViewController != targetViewController
-            {
+               sourceViewController != targetViewController {
                 beginChildControllerTransition(
                     targetViewController,
                     isAppearing: true,

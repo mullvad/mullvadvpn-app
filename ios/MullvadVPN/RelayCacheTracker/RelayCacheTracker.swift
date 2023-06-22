@@ -94,8 +94,7 @@ final class RelayCacheTracker {
     }
 
     func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)? = nil)
-        -> Cancellable
-    {
+        -> Cancellable {
         let operation = ResultBlockOperation<RelaysFetchResult> { finish in
             let cachedRelays = try? self.getCachedRelays()
 
@@ -168,8 +167,7 @@ final class RelayCacheTracker {
     }
 
     private func handleResponse(result: Result<REST.ServerRelaysCacheResponse, Error>)
-        -> Result<RelaysFetchResult, Error>
-    {
+        -> Result<RelaysFetchResult, Error> {
         result.tryMap { response -> RelaysFetchResult in
             switch response {
             case let .newContent(etag, relays):

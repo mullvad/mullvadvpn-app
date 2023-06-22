@@ -17,8 +17,7 @@ private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
 /// Application coordinator managing split view and two navigation contexts.
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, ApplicationRouterDelegate,
-    NotificationManagerDelegate
-{
+    NotificationManagerDelegate {
     /// Application router.
     private var router: ApplicationRouter!
 
@@ -568,8 +567,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func makeSelectLocationCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> SelectLocationCoordinator
-    {
+        -> SelectLocationCoordinator {
         let navigationController = CustomNavigationController()
         navigationController.isNavigationBarHidden = !isModalPresentation
 
@@ -776,14 +774,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
-        -> UIViewController?
-    {
+        -> UIViewController? {
         splitLocationCoordinator?.navigationController
     }
 
     func primaryViewController(forCollapsing splitViewController: UISplitViewController)
-        -> UIViewController?
-    {
+        -> UIViewController? {
         splitTunnelCoordinator?.rootViewController
     }
 
@@ -824,8 +820,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
-        -> UIInterfaceOrientationMask
-    {
+        -> UIInterfaceOrientationMask {
         if isPad {
             return [.landscape, .portrait]
         } else {
@@ -834,8 +829,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
-        -> Bool
-    {
+        -> Bool {
         guard tunnelManager.deviceState.isLoggedIn else { return false }
 
         switch tunnelManager.tunnelStatus.state {

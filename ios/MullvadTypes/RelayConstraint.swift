@@ -11,8 +11,7 @@ import Foundation
 private let anyConstraint = "any"
 
 public enum RelayConstraint<T>: Codable, Equatable,
-    CustomDebugStringConvertible where T: Codable & Equatable
-{
+    CustomDebugStringConvertible where T: Codable & Equatable {
     case any
     case only(T)
 
