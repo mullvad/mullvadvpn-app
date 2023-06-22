@@ -16,7 +16,7 @@ class CustomAlertViewController: UIViewController {
         case info
         case spinner
 
-        var image: UIImage? {
+        fileprivate var image: UIImage? {
             switch self {
             case .alert:
                 return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
@@ -59,28 +59,44 @@ class CustomAlertViewController: UIViewController {
 
     private var handlers = [UIButton: Handler]()
 
-    init(title: String? = nil, message: String? = nil, icon: Icon? = nil) {
+    init(header: String? = nil, title: String? = nil, message: String? = nil, icon: Icon? = nil) {
         super.init(nibName: nil, bundle: nil)
 
+        setUp(header: header, title: title, icon: icon) {
+            message.flatMap { addMessage($0) }
+        }
+    }
+
+    init(header: String? = nil, title: String? = nil, attributedMessage: NSAttributedString?, icon: Icon? = nil) {
+        super.init(nibName: nil, bundle: nil)
+
+        setUp(header: header, title: title, icon: icon) {
+            attributedMessage.flatMap { addMessage($0) }
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // This code runs before viewDidLoad(). As such, no implicit calls to self.view should be made before this point.
+    private func setUp(header: String?, title: String?, icon: Icon?, addMessageCallback: () -> Void) {
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
 
         icon.flatMap { addIcon($0) }
+        header.flatMap { addHeader($0) }
         title.flatMap { addTitle($0) }
-        message.flatMap { addMessage($0) }
+        addMessageCallback()
 
         containerView.arrangedSubviews.last.flatMap {
             containerView.setCustomSpacing(UIMetrics.CustomAlert.containerMargins.top, after: $0)
         }
 
         // Icon only alerts should have equal top and bottom margin.
-        if title == nil, message == nil {
+        if icon != nil, containerView.arrangedSubviews.count == 1 {
             containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.top
         }
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -89,8 +105,19 @@ class CustomAlertViewController: UIViewController {
         view.backgroundColor = .black.withAlphaComponent(0.5)
 
         view.addConstrainedSubviews([containerView]) {
-            containerView.pinEdges(.init([.leading(0), .trailing(0)]), to: view.layoutMarginsGuide)
+            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
             containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+
+            containerView.widthAnchor
+                .constraint(lessThanOrEqualToConstant: UIMetrics.preferredFormSheetContentSize.width)
+
+            containerView.leadingAnchor
+                .constraint(equalTo: view.layoutMarginsGuide.leadingAnchor)
+                .withPriority(.defaultHigh)
+
+            view.layoutMarginsGuide.trailingAnchor
+                .constraint(equalTo: containerView.trailingAnchor)
+                .withPriority(.defaultHigh)
         }
     }
 
@@ -107,30 +134,57 @@ class CustomAlertViewController: UIViewController {
         handler.flatMap { handlers[button] = $0 }
     }
 
+    func addHeader(_ title: String) {
+        let header = UILabel()
+
+        header.text = title
+        header.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        header.textColor = .white
+        header.adjustsFontForContentSizeCategory = true
+        header.textAlignment = .center
+        header.numberOfLines = 0
+
+        containerView.addArrangedSubview(header)
+        containerView.setCustomSpacing(16, after: header)
+    }
+
     private func addTitle(_ title: String) {
         let label = UILabel()
 
         label.text = title
         label.font = .preferredFont(forTextStyle: .title3, weight: .semibold)
-        label.textColor = .white
+        label.textColor = .white.withAlphaComponent(0.9)
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+
+        containerView.addArrangedSubview(label)
+        containerView.setCustomSpacing(8, after: label)
+    }
+
+    private func addMessage(_ message: String) {
+        let label = UILabel()
+
+        let font = UIFont.preferredFont(forTextStyle: .body)
+        let style = NSMutableParagraphStyle()
+        style.paragraphSpacing = 16
+        style.lineBreakMode = .byWordWrapping
+
+        label.attributedText = NSAttributedString(
+            markdownString: message,
+            options: MarkdownStylingOptions(font: font, paragraphStyle: style)
+        )
+        label.font = font
+        label.textColor = .white.withAlphaComponent(0.8)
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 
         containerView.addArrangedSubview(label)
     }
 
-    private func addMessage(_ message: String) {
+    private func addMessage(_ message: NSAttributedString) {
         let label = UILabel()
 
-        let style = NSMutableParagraphStyle()
-        style.paragraphSpacing = 16
-
-        label.attributedText = NSAttributedString(
-            markdownString: message,
-            options: .init(font: .preferredFont(forTextStyle: .body), paragraphStyle: style)
-        )
-        label.font = .preferredFont(forTextStyle: .body)
-        label.textColor = .white.withAlphaComponent(0.8)
+        label.attributedText = message
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 
