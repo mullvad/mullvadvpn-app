@@ -106,4 +106,7 @@ extension UIMetrics {
 
     /// Height of brand name. Width is automatically produced based on aspect ratio.
     static let headerBarBrandNameHeight: CGFloat = 18
+
+    /// Preferred content size for controllers presented using formsheet modal presentation style.
+    static let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
 }
