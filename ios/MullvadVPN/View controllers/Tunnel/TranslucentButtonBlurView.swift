@@ -48,8 +48,7 @@ private extension AppButton {
 
 private extension AppButton.Style {
     func cornerMask(_ userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection)
-        -> CACornerMask
-    {
+        -> CACornerMask {
         switch (self, userInterfaceLayoutDirection) {
         case (.translucentDangerSplitLeft, .leftToRight),
              (.translucentDangerSplitRight, .rightToLeft):

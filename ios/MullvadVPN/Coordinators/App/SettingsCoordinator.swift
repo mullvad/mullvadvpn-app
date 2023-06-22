@@ -18,8 +18,7 @@ enum SettingsNavigationRoute: Equatable {
 }
 
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    UINavigationControllerDelegate
-{
+    UINavigationControllerDelegate {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private let interactorFactory: SettingsInteractorFactory
@@ -61,8 +60,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         }
 
         if let initialRoute, initialRoute != .root,
-           let nextController = makeViewController(for: initialRoute)
-        {
+           let nextController = makeViewController(for: initialRoute) {
             navigationController.pushViewController(nextController, animated: false)
         }
     }

@@ -21,4 +21,63 @@
 # Use consistent ordering for member modifiers.
 --modifierorder
 --enable blockComments
---disable initCoderUnavailable, unusedArguments, redundantRawValues, preferKeyPath, extensionAccessControl, hoistTry
+--disable                         \
+initCoderUnavailable,             \
+unusedArguments,                  \
+redundantRawValues,               \
+preferKeyPath,                    \
+extensionAccessControl,           \
+hoistTry,                         \
+# Do not reorganize declarations
+organizeDeclarations,             \
+# Do not reorder switch case statements
+sortedSwitchCases,                \
+# Do not add // MARK: ClassName before every type
+markTypes
+
+
+--rules                           \
+blankLinesAroundMark,             \
+blankLinesAtEndOfScope,           \
+blankLinesAtStartOfScope,         \
+blankLinesBetweenScopes,          \
+braces,                           \
+consecutiveBlankLines,            \
+consecutiveSpaces,                \
+duplicateImports,                 \
+elseOnSameLine,                   \
+emptyBraces,                      \
+enumNamespaces,                   \
+extensionAccessControl,           \
+hoistPatternLet,                  \
+indent,                           \
+leadingDelimiters,                \
+linebreakAtEndOfFile,             \
+redundantInit,                    \
+redundantParens,                  \
+redundantPattern,                 \
+redundantRawValues,               \
+redundantType,                    \
+redundantVoidReturnType,          \
+semicolons,                       \
+sortedImports,                    \
+spaceAroundBraces,                \
+spaceAroundBrackets,              \
+spaceAroundComments,              \
+spaceAroundGenerics,              \
+spaceAroundOperators,             \
+spaceAroundParens,                \
+spaceInsideBraces,                \
+spaceInsideBrackets,              \
+spaceInsideComments,              \
+spaceInsideGenerics,              \
+spaceInsideParens,                \
+todos,                            \
+trailingClosures,                 \
+trailingCommas,                   \
+trailingSpace,                    \
+typeSugar,                        \
+void,                             \
+wrap,                             \
+wrapArguments,                    \
+wrapAttributes

@@ -492,8 +492,7 @@ final class AccountInputGroupView: UIView {
         bottomRowView.accessibilityElementsHidden = !shouldShow
 
         if lastUsedAccountButton.accessibilityElementIsFocused() ||
-            removeLastUsedAccountButton.accessibilityElementIsFocused()
-        {
+            removeLastUsedAccountButton.accessibilityElementIsFocused() {
             UIAccessibility.post(notification: .layoutChanged, argument: textField)
         }
     }

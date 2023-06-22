@@ -134,8 +134,7 @@ final class TunnelControlView: UIView {
         }
 
         if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
-            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass
-        {
+            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
             updateActionButtons()
         }
     }

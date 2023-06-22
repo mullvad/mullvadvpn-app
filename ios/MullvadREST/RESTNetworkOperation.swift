@@ -234,8 +234,7 @@ extension REST {
                 // Response handler couldn't handle the response.
                 if serverErrorResponse?.code == .invalidAccessToken,
                    requiresAuthorization,
-                   retryInvalidAccessTokenError
-                {
+                   retryInvalidAccessTokenError {
                     logger.debug("Received invalid access token error. Retry once.")
                     retryInvalidAccessTokenError = false
                     startRequest()

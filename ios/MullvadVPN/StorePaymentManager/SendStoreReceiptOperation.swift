@@ -122,8 +122,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
         do {
             return try Data(contentsOf: appStoreReceiptURL)
         } catch let error as CocoaError
-            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
-        {
+            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
             throw StoreReceiptNotFound()
         } catch {
             throw error

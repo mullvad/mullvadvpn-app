@@ -211,8 +211,7 @@ class AppButton: CustomButton {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom,
-           !overrideContentEdgeInsets
-        {
+           !overrideContentEdgeInsets {
             contentEdgeInsets = defaultContentInsets
         }
     }

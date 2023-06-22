@@ -178,8 +178,7 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
     }
 
     func animationController(forDismissed dismissed: UIViewController)
-        -> UIViewControllerAnimatedTransitioning?
-    {
+        -> UIViewControllerAnimatedTransitioning? {
         FormSheetPresentationAnimator()
     }
 
@@ -197,8 +196,7 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
 
 class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
-        -> TimeInterval
-    {
+        -> TimeInterval {
         (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration : 0
     }
 

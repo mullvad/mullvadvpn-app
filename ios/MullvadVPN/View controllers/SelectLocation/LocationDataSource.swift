@@ -292,8 +292,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
                 if let location = node.children.last?.location,
                    let lastInsertedIndexPath = self?.indexPath(for: location),
                    let lastVisibleIndexPath = visibleIndexPaths.last,
-                   lastInsertedIndexPath >= lastVisibleIndexPath
-                {
+                   lastInsertedIndexPath >= lastVisibleIndexPath {
                     self?.tableView.scrollToRow(
                         at: lastInsertedIndexPath,
                         at: .bottom,
@@ -345,8 +344,7 @@ extension LocationDataSource: UITableViewDelegate {
         forRowAt indexPath: IndexPath
     ) {
         if let item = item(for: indexPath),
-           item.location == selectedRelayLocation
-        {
+           item.location == selectedRelayLocation {
             cell.setSelected(true, animated: false)
         }
     }
@@ -359,8 +357,7 @@ extension LocationDataSource: UITableViewDelegate {
         }
 
         if let indexPath = indexPathForSelectedRelay(),
-           let cell = tableView.cellForRow(at: indexPath)
-        {
+           let cell = tableView.cellForRow(at: indexPath) {
             cell.setSelected(false, animated: false)
         }
 

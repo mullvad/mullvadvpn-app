@@ -217,8 +217,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
                 comment: ""
             )
         } else if let error = error as? SettingsMigrationError,
-                  error.underlyingError is REST.Error
-        {
+                  error.underlyingError is REST.Error {
             return NSLocalizedString(
                 "NETWORK_ERROR",
                 tableName: "SettingsMigrationUI",

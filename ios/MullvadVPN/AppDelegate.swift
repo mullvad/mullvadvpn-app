@@ -425,8 +425,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             if !FirstTimeLaunch.hasFinished, SettingsManager.getShouldWipeSettings() {
                 if let deviceState = try? SettingsManager.readDeviceState(),
                    let accountData = deviceState.accountData,
-                   let deviceData = deviceState.deviceData
-                {
+                   let deviceData = deviceState.deviceData {
                     _ = self.devicesProxy.deleteDevice(
                         accountNumber: accountData.number,
                         identifier: deviceData.identifier,

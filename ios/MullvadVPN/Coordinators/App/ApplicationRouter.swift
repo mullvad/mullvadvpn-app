@@ -304,8 +304,7 @@ final class ApplicationRouter {
     ) {
         /// Pass sub-route for routes supporting sub-navigation.
         if route.supportsSubNavigation, modalStack.contains(route.routeGroup),
-           var presentedRoute = presentedRoutes[route.routeGroup]?.first
-        {
+           var presentedRoute = presentedRoutes[route.routeGroup]?.first {
             let context = RouteSubnavigationContext(
                 presentedRoute: presentedRoute,
                 route: route,
@@ -336,8 +335,7 @@ final class ApplicationRouter {
 
         /// Check if route can be presented above the last route in the modal stack.
         if let lastRouteGroup = modalStack.last, lastRouteGroup >= route.routeGroup,
-           route.routeGroup.isModal, route.isExclusive
-        {
+           route.routeGroup.isModal, route.isExclusive {
             completion(.blockedByModalContext)
             return
         }
@@ -421,8 +419,7 @@ final class ApplicationRouter {
         if let lastModalGroup = modalStack.last,
            lastModalGroup != dismissRoute.routeGroup,
            dismissRoute.routeGroup.isModal,
-           isLastRoute
-        {
+           isLastRoute {
             completion(.blockedByModalAbove)
             return
         }

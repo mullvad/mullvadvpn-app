@@ -62,8 +62,7 @@ class CustomSplitViewController: UISplitViewController, RootContainment {
     }
 
     override func overrideTraitCollection(forChild childViewController: UIViewController)
-        -> UITraitCollection?
-    {
+        -> UITraitCollection? {
         guard let traitCollection = super.overrideTraitCollection(forChild: childViewController)
         else { return nil }
 
