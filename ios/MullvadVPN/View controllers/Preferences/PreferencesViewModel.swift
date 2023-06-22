@@ -55,7 +55,7 @@ enum CustomDNSPrecondition {
                         value: "Tap **Edit** to add at least one DNS server.",
                         comment: "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
                     ),
-                    options: NSAttributedString.MarkdownStylingOptions(font: preferredFont)
+                    options: MarkdownStylingOptions(font: preferredFont)
                 )
             }
 
