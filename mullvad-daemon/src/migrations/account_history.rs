@@ -1,5 +1,6 @@
 use super::{Error, Result};
 use mullvad_types::account::AccountToken;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Deserialize;
 use std::path::Path;
@@ -16,9 +17,7 @@ use tokio::{
 
 const ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
-lazy_static::lazy_static! {
-    static ref ACCOUNT_REGEX: Regex = Regex::new(r"^[0-9]+$").unwrap();
-}
+static ACCOUNT_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9]+$").unwrap());
 
 pub async fn migrate_location(old_dir: &Path, new_dir: &Path) {
     let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);

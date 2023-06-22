@@ -9,8 +9,8 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use std::sync::OnceLock;
 use proxy::ApiConnectionMode;
+use std::sync::OnceLock;
 use std::{
     cell::Cell,
     collections::BTreeMap,
