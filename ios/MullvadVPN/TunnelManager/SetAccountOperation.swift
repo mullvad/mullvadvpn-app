@@ -12,6 +12,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 enum SetAccountAction {
     /// Set new account.
@@ -348,17 +349,52 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         let task = devicesProxy
             .createDevice(accountNumber: accountNumber, request: request, retryStrategy: .default) { [self] result in
                 dispatchQueue.async { [self] in
-                    let result = result
-                        .map { device in
-                            return NewDevice(privateKey: privateKey, device: device)
+                    // Due to retry strategy, it's possible for server to register the new key without being
+                    // able to return the acknowledgment back to client.
+                    // In that case the subsequent retry attempt will error with `.publicKeyInUse`. Fetch the device
+                    // from API when that happens.
+                    if let error = result.error as? REST.Error, error.compareErrorCode(.publicKeyInUse) {
+                        self.findDevice(accountNumber: accountNumber, publicKey: privateKey.publicKey) { result in
+                            let result = result.flatMap { device -> Result<NewDevice, Error> in
+                                if let device {
+                                    return .success(NewDevice(privateKey: privateKey, device: device))
+                                } else {
+                                    return .failure(error)
+                                }
+                            }
+                            completion(result)
                         }
-                        .inspectError { error in
-                            logger.error(error: error, message: "Failed to create device.")
-                        }
-
-                    completion(result)
+                    } else {
+                        completion(result.map { NewDevice(privateKey: privateKey, device: $0) })
+                    }
                 }
             }
+
+        tasks.append(task)
+    }
+
+    /// Find device by public key in the list of devices registered on server. The result passed to `completion` handler
+    /// may contain `nil` if such device is not found for some reason.
+    private func findDevice(
+        accountNumber: String,
+        publicKey: PublicKey,
+        completion: @escaping (Result<Device?, Error>) -> Void
+    ) {
+        let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
+            dispatchQueue.async { [self] in
+                let result = result
+                    .flatMap { devices in
+                        return .success(devices.first { device in
+                            return device.pubkey == publicKey
+                        })
+                    }
+                    .inspectError { error in
+                        logger.error(error: error, message: "Failed to get devices.")
+                    }
+
+                completion(result)
+            }
+        }
 
         tasks.append(task)
     }
