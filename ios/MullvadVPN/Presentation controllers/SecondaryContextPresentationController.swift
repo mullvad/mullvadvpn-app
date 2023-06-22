@@ -8,8 +8,10 @@
 
 import UIKit
 
-/// This is a presentation controller class used for presentation of secondary navigation context
-/// in application coordinator.
+/**
+ This is a presentation controller class used for presentation of secondary navigation context
+ in application coordinator.
+ */
 class SecondaryContextPresentationController: FormSheetPresentationController {
     override func presentationTransitionWillBegin() {
         super.presentationTransitionWillBegin()

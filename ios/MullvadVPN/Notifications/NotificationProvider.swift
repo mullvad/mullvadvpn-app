@@ -19,26 +19,32 @@ protocol NotificationProviderDelegate: AnyObject {
 class NotificationProvider: NotificationProviderProtocol {
     weak var delegate: NotificationProviderDelegate?
 
-    /// Provider identifier.
-    ///
-    /// Override in subclasses and make sure each provider has unique identifier. It's preferred that identifiers use
-    /// reverse domain name, for instance: `com.example.app.ProviderName`.
+    /**
+     Provider identifier.
+
+     Override in subclasses and make sure each provider has unique identifier. It's preferred that identifiers use
+     reverse domain name, for instance: `com.example.app.ProviderName`.
+     */
     var identifier: NotificationProviderIdentifier {
         .default
     }
 
-    /// Send action to notification manager delegate.
-    ///
-    /// Usually in response to user interacting with notification banner, i.e by tapping a button. Use different action
-    /// identifiers if notification offers more than one action that user can perform.
+    /**
+     Send action to notification manager delegate.
+
+     Usually in response to user interacting with notification banner, i.e by tapping a button. Use different action
+     identifiers if notification offers more than one action that user can perform.
+     */
     func sendAction(_ actionIdentifier: String = UNNotificationDefaultActionIdentifier) {
         dispatchOnMain {
             self.delegate?.notificationProvider(self, didReceiveAction: actionIdentifier)
         }
     }
 
-    /// This method tells notification manager to re-evalute the notification content.
-    /// Call this method when notification provider wants to change the content it presents.
+    /**
+     This method tells notification manager to re-evalute the notification content.
+     Call this method when notification provider wants to change the content it presents.
+     */
     func invalidate() {
         dispatchOnMain {
             self.delegate?.notificationProviderDidInvalidate(self)

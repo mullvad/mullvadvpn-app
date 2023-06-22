@@ -13,7 +13,9 @@ private var actionHandlerAssociatedKey = 0
 extension UIBarButtonItem {
     typealias ActionHandler = () -> Void
 
-    /// Block handler assigned to bar button item.
+    /**
+     Block handler assigned to bar button item.
+     */
     var actionHandler: ActionHandler? {
         get {
             objc_getAssociatedObject(self, &actionHandlerAssociatedKey) as? ActionHandler
@@ -26,7 +28,9 @@ extension UIBarButtonItem {
         }
     }
 
-    /// Initialize bar button item with block handler.
+    /**
+     Initialize bar button item with block handler.
+     */
     convenience init(systemItem: UIBarButtonItem.SystemItem, actionHandler: @escaping ActionHandler) {
         self.init(barButtonSystemItem: systemItem, target: nil, action: nil)
 

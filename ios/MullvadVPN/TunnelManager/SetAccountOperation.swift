@@ -87,14 +87,16 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
     // MARK: - Private
 
-    /// Begin logout flow by performing the following steps:
-    ///
-    /// 1. Delete currently logged in device from the API if device is logged in.
-    /// 2. Transition device state to logged out state.
-    /// 3. Remove system VPN configuration if exists.
-    /// 4. Reset tunnel status to disconnected state.
-    ///
-    /// Does nothing if device is already logged out.
+    /**
+     Begin logout flow by performing the following steps:
+
+     1. Delete currently logged in device from the API if device is logged in.
+     2. Transition device state to logged out state.
+     3. Remove system VPN configuration if exists.
+     4. Reset tunnel status to disconnected state.
+
+     Does nothing if device is already logged out.
+     */
     private func startLogoutFlow(completion: @escaping () -> Void) {
         switch interactor.deviceState {
         case let .loggedIn(accountData, deviceData):
@@ -110,20 +112,24 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         }
     }
 
-    /// Begin login flow with a new account and performing the following steps:
-    ///
-    /// 1. Create new account via API.
-    /// 2. Call `continueLoginFlow()` passing the result of account creation request.
+    /**
+     Begin login flow with a new account and performing the following steps:
+
+     1. Create new account via API.
+     2. Call `continueLoginFlow()` passing the result of account creation request.
+     */
     private func startNewAccountFlow(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
         createAccount { [self] result in
             continueLoginFlow(result, completion: completion)
         }
     }
 
-    /// Begin login flow with an existing account by performing the following steps:
-    ///
-    /// 1. Retrieve existing account from the API.
-    /// 2. Call `continueLoginFlow()` passing the result of account retrieval request.
+    /**
+     Begin login flow with an existing account by performing the following steps:
+
+     1. Retrieve existing account from the API.
+     2. Call `continueLoginFlow()` passing the result of account retrieval request.
+     */
     private func startExistingAccountFlow(
         accountNumber: String,
         completion: @escaping (Result<StoredAccountData, Error>) -> Void
@@ -133,12 +139,14 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         }
     }
 
-    /// Continue login flow after receiving account data as a part of creating new or retrieving existing account from
-    /// the API by performing the following steps:
-    ///
-    /// 1. Store last used account number.
-    /// 2. Create new device with the API.
-    /// 3. Persist settings.
+    /**
+     Continue login flow after receiving account data as a part of creating new or retrieving existing account from
+     the API by performing the following steps:
+
+     1. Store last used account number.
+     2. Create new device with the API.
+     3. Persist settings.
+     */
     private func continueLoginFlow(
         _ result: Result<StoredAccountData, Error>,
         completion: @escaping (Result<StoredAccountData, Error>) -> Void
@@ -283,13 +291,14 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         tasks.append(task)
     }
 
-    /// Transitions device state into logged out state by performing the following tasks:
-    ///
-    /// 1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN
-    /// status
-    ///   notifications coming from VPN configuration.
-    /// 2. Reset device staate to logged out and persist it.
-    /// 3. Remove VPN configuration and release an instance of `Tunnel` object.
+    /**
+     Transitions device state into logged out state by performing the following tasks:
+
+     1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN status
+        notifications coming from VPN configuration.
+     2. Reset device staate to logged out and persist it.
+     3. Remove VPN configuration and release an instance of `Tunnel` object.
+     */
     private func unsetDeviceState(completion: @escaping () -> Void) {
         // Tell the caller to unsubscribe from VPN status notifications.
         interactor.prepareForVPNConfigurationDeletion()

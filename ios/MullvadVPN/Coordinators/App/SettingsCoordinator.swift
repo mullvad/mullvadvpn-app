@@ -115,9 +115,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         willShow viewController: UIViewController,
         animated: Bool
     ) {
-        // Navigation controller calls this delegate method on `viewWillAppear`, for instance during cancellation
-        // of interactive dismissal of a modally presented settings navigation controller, so it's important that we
-        // ignore repeating routes.
+        /*
+         Navigation controller calls this delegate method on `viewWillAppear`, for instance during cancellation
+         of interactive dismissal of a modally presented settings navigation controller, so it's important that we
+         ignore repeating routes.
+         */
         guard let route = route(for: viewController), currentRoute != route else { return }
 
         logger.debug(
