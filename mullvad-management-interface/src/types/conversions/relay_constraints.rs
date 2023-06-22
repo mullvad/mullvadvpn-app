@@ -484,12 +484,12 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
         use mullvad_types::relay_constraints::LocationConstraint;
         match location {
             LocationConstraint::Location { location } => Self {
-                r#type: Some(proto::location_constraint::Type::Normal(
+                r#type: Some(proto::location_constraint::Type::Location(
                     proto::RelayLocation::from(location),
                 )),
             },
             LocationConstraint::CustomList { list_id } => Self {
-                r#type: Some(proto::location_constraint::Type::Custom(
+                r#type: Some(proto::location_constraint::Type::CustomList(
                     list_id.0.to_string(),
                 )),
             },
@@ -505,7 +505,7 @@ impl TryFrom<proto::LocationConstraint>
     fn try_from(location: proto::LocationConstraint) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location.r#type {
-            Some(proto::location_constraint::Type::Normal(location)) => {
+            Some(proto::location_constraint::Type::Location(location)) => {
                 let location = Constraint::<
                     mullvad_types::relay_constraints::GeographicLocationConstraint,
                 >::from(location);
@@ -516,7 +516,7 @@ impl TryFrom<proto::LocationConstraint>
                     }
                 }
             }
-            Some(proto::location_constraint::Type::Custom(list_id)) => {
+            Some(proto::location_constraint::Type::CustomList(list_id)) => {
                 let location = LocationConstraint::CustomList {
                     list_id: Id::try_from(list_id.as_str()).map_err(|_| {
                         FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
