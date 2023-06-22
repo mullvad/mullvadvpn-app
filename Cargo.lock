@@ -3618,9 +3618,9 @@ version = "0.0.0"
 dependencies = [
  "dbus",
  "err-derive",
- "lazy_static",
  "libc",
  "log",
+ "once_cell",
  "tokio",
 ]
 
