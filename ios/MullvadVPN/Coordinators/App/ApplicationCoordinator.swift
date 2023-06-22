@@ -12,11 +12,6 @@ import RelayCache
 import UIKit
 
 /**
- Preferred content size for controllers presented using formsheet modal presentation style.
- */
-private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
-
-/**
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
@@ -46,7 +41,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let secondaryNavigationContainer = RootContainerViewController()
 
     private lazy var secondaryRootConfiguration = ModalPresentationConfiguration(
-        preferredContentSize: preferredFormSheetContentSize,
+        preferredContentSize: UIMetrics.preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
         transitioningDelegate: SecondaryContextTransitioningDelegate()
@@ -148,7 +143,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             presentLogin(animated: animated, completion: completion)
 
         case .changelog:
-            presentChangeLog(animated: animated, completion: completion)
+            presentChangeLog(completion: completion)
 
         case .tos:
             presentTOS(animated: animated, completion: completion)
@@ -497,19 +492,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(navigationController: horizontalFlowController)
-
-        coordinator.didFinish = { [weak self] coordinator in
-            self?.continueFlow(animated: true)
-        }
+    private func presentChangeLog(completion: @escaping (Coordinator) -> Void) {
+        let coordinator = ChangeLogCoordinator(navigationController: primaryNavigationContainer)
 
         addChild(coordinator)
-        coordinator.start(animated: animated)
+        coordinator.start(animated: false)
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        continueFlow(animated: false)
+        completion(coordinator)
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -703,7 +693,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             coordinator,
             animated: animated,
             configuration: ModalPresentationConfiguration(
-                preferredContentSize: preferredFormSheetContentSize,
+                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
                 modalPresentationStyle: .formSheet
             )
         ) { [weak self] in
@@ -747,7 +737,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             coordinator,
             animated: animated,
             configuration: ModalPresentationConfiguration(
-                preferredContentSize: preferredFormSheetContentSize,
+                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
                 modalPresentationStyle: .formSheet
             )
         ) {
