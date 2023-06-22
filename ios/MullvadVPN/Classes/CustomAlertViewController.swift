@@ -175,7 +175,7 @@ class CustomAlertViewController: UIViewController {
 
     @objc private func didTapButton(_ button: AppButton) {
         dismiss(animated: true) { [self] in
-            if let handler = handlers[button] {
+            if let handler = handlers.removeValue(forKey: button) {
                 handler()
             }
             didDismiss?()
