@@ -102,17 +102,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         }
     }
 
-    /// Refresh login metadata (account and device data) potentially throttling refresh requests based on recency of
-    /// the last issued request.
-    ///
-    /// Account data is always refreshed when either settings or account are presented on screen, otherwise only when
-    /// close
-    /// to or past expiry.
-    ///
-    /// Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
-    ///
-    /// For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
-    /// `DeviceDataThrottling` types.
+    /**
+     Refresh login metadata (account and device data) potentially throttling refresh requests based on recency of
+     the last issued request.
+
+     Account data is always refreshed when either settings or account are presented on screen, otherwise only when close
+     to or past expiry.
+
+     Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
+
+     For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
+     `DeviceDataThrottling` types.
+     */
     private func refreshLoginMetadata(forceUpdate: Bool) {
         let condition: AccountDataThrottling.Condition
 
@@ -129,7 +130,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         deviceDataThrottling?.requestUpdate(forceUpdate: forceUpdate)
     }
 
-    /// Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
+    /**
+     Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
+     */
     private func resetLoginMetadataThrottling() {
         accountDataThrottling?.reset()
         deviceDataThrottling?.reset()

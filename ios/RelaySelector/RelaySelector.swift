@@ -13,7 +13,9 @@ import MullvadTypes
 private let defaultPort: UInt16 = 53
 
 public enum RelaySelector {
-    /// Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
+    /**
+     Returns random shadowsocks TCP bridge, otherwise `nil` if there are no shadowdsocks bridges.
+     */
     public static func getShadowsocksTCPBridge(relays: REST.ServerRelaysResponse) -> REST.ServerShadowsocks? {
         relays.bridge.shadowsocks.filter { $0.protocol == "tcp" }.randomElement()
     }
@@ -27,8 +29,10 @@ public enum RelaySelector {
         relays.bridge.relays.filter { $0.active }.randomElement()
     }
 
-    /// Filters relay list using given constraints and selects random relay.
-    /// Throws an error if there are no relays satisfying the given constraints.
+    /**
+     Filters relay list using given constraints and selects random relay.
+     Throws an error if there are no relays satisfying the given constraints.
+     */
     public static func evaluate(
         relays: REST.ServerRelaysResponse,
         constraints: RelayConstraints,

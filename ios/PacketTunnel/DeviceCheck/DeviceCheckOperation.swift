@@ -14,17 +14,18 @@ import Operations
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
-/// An operation that is responsible for performing account and device diagnostics and key rotation from within packet
-/// tunnel process.
-///
-/// Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnKeyMismatch` flag set to
-/// `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
-/// stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key
-/// rotation
-/// is not performed.
-///
-/// Other times, packet tunnel runs this operation with `rotateImmediatelyOnKeyMismatch` set to `false`, in which
-/// case it respects the 24 hour interval between key rotation retry attempts.
+/**
+ An operation that is responsible for performing account and device diagnostics and key rotation from within packet
+ tunnel process.
+
+ Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnKeyMismatch` flag set to
+ `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
+ stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key rotation
+ is not performed.
+
+ Other times, packet tunnel runs this operation with `rotateImmediatelyOnKeyMismatch` set to `false`, in which
+ case it respects the 24 hour interval between key rotation retry attempts.
+ */
 final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
     private let logger = Logger(label: "DeviceCheckOperation")
 
@@ -60,9 +61,10 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
     // MARK: - Flow
 
-    /// Begins the flow by fetching device state and then fetching account and device data. Calls `didReceiveData()`
-    /// with
-    /// the received data when done.
+    /**
+     Begins the flow by fetching device state and then fetching account and device data. Calls `didReceiveData()` with
+     the received data when done.
+     */
     private func startFlow(completion: @escaping (Result<DeviceCheck, Error>) -> Void) {
         do {
             guard case let .loggedIn(accountData, deviceData) = try deviceStateAccessor.read() else {
@@ -80,8 +82,10 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         }
     }
 
-    /// Handles received data results and initiates key rotation when the key stored on server does not match the key
-    /// stored on device.
+    /**
+     Handles received data results and initiates key rotation when the key stored on server does not match the key
+     stored on device.
+     */
     private func didReceiveData(
         accountResult: Result<Account, Error>,
         deviceResult: Result<Device, Error>,
@@ -148,9 +152,11 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 
     // MARK: - Key rotation
 
-    /// Checks if the key should be rotated by checking when the last rotation took place. If conditions are satisfied,
-    /// then it rotate device key by marking the beginning of key rotation, updating device state and persisting before
-    /// proceeding to rotate the key.
+    /**
+     Checks if the key should be rotated by checking when the last rotation took place. If conditions are satisfied,
+     then it rotate device key by marking the beginning of key rotation, updating device state and persisting before
+     proceeding to rotate the key.
+     */
     private func rotateKeyIfNeeded(completion: @escaping (Result<KeyRotationStatus, Error>) -> Void) {
         let deviceState: DeviceState
         do {
@@ -212,9 +218,10 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         tasks.append(task)
     }
 
-    /// Updates device state with the new data received from `Device` and marks key rotation as completed by swapping
-    /// the
-    /// current private key and erasing information about the last key rotation attempt.
+    /**
+     Updates device state with the new data received from `Device` and marks key rotation as completed by swapping the
+     current private key and erasing information about the last key rotation attempt.
+     */
     private func completeKeyRotation(_ device: Device) throws {
         logger.debug("Successfully rotated device key. Persisting device state...")
 

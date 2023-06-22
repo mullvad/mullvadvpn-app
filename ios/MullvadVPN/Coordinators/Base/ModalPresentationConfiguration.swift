@@ -8,7 +8,9 @@
 
 import UIKit
 
-/// A struct holding modal presentation configuration.
+/**
+ A struct holding modal presentation configuration.
+ */
 struct ModalPresentationConfiguration {
     var preferredContentSize: CGSize?
     var modalPresentationStyle: UIModalPresentationStyle?
@@ -34,9 +36,11 @@ struct ModalPresentationConfiguration {
         vc.presentationController?.delegate = presentationControllerDelegate
     }
 
-    /// Wraps `presentationControllerDelegate` into forwarding delegate that intercepts interactive
-    /// dismissal and calls `dismissalHandler` while proxying all delegate calls to the former
-    /// delegate.
+    /**
+     Wraps `presentationControllerDelegate` into forwarding delegate that intercepts interactive
+     dismissal and calls `dismissalHandler` while proxying all delegate calls to the former
+     delegate.
+     */
     mutating func notifyInteractiveDismissal(_ dismissalHandler: @escaping () -> Void) {
         presentationControllerDelegate =
             PresentationControllerDismissalInterceptor(

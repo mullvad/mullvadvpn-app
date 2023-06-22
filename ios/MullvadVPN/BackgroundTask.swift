@@ -8,17 +8,18 @@
 
 import Foundation
 
-/// Background tasks defined by the app.
-///
-/// When adding new background tasks, don't forget to update `BGTaskSchedulerPermittedIdentifiers` key in `Info.plist`
-/// by adding a task identifier
-/// using the following pattern:
-///
-/// ```
-/// $(APPLICATION_IDENTIFIER).<TaskName>
-/// ```
-///
-/// Note that `<TaskName>` is capitalized in plist, but the label for enum case should start with a lowercase letter.
+/**
+ Background tasks defined by the app.
+
+ When adding new background tasks, don't forget to update `BGTaskSchedulerPermittedIdentifiers` key in `Info.plist` by adding a task identifier
+ using the following pattern:
+
+ ```
+ $(APPLICATION_IDENTIFIER).<TaskName>
+ ```
+
+ Note that `<TaskName>` is capitalized in plist, but the label for enum case should start with a lowercase letter.
+ */
 enum BackgroundTask: String {
     case appRefresh, privateKeyRotation, addressCacheUpdate
 

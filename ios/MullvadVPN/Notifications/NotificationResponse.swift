@@ -9,7 +9,9 @@
 import Foundation
 import UserNotifications
 
-/// Struct holding system or in-app notification response.
+/**
+ Struct holding system or in-app notification response.
+ */
 struct NotificationResponse {
     /// Provider identifier.
     var providerIdentifier: NotificationProviderIdentifier
