@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{
@@ -32,10 +32,7 @@ impl StringValue {
     /// The input XML file might have line breaks inside the string, and they should be collapsed
     /// into a single whitespace character.
     fn collapse_line_breaks(original: String) -> String {
-        lazy_static! {
-            static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
-        }
-
+        static LINE_BREAKS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s*\n\s*").unwrap());
         LINE_BREAKS.replace_all(&original, " ").into_owned()
     }
 
@@ -46,9 +43,7 @@ impl StringValue {
     /// would update the string so that all parameters have indices: `Things are %1$d, %3$s and
     /// %4$s`.
     fn ensure_parameters_are_indexed(original: String) -> String {
-        lazy_static! {
-            static ref PARAMETER_INDEX: Regex = Regex::new(r"^(\d+)\$").unwrap();
-        }
+        static PARAMETER_INDEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d+)\$").unwrap());
 
         let mut parts = original.split('%');
         let mut output = parts.next().unwrap().to_owned();

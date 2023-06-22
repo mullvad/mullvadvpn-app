@@ -1,5 +1,6 @@
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -7,11 +8,10 @@ use std::{
     str::FromStr,
 };
 
-lazy_static::lazy_static! {
-    static ref STABLE_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)$").unwrap();
-    static ref BETA_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap();
-    static ref DEV_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap();
-}
+static STABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
+static BETA_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
+static DEV_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap());
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.

@@ -4,6 +4,7 @@ use mullvad_api::{
     rest::{Error, RequestServiceHandle},
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
+use once_cell::sync::Lazy;
 use talpid_types::ErrorExt;
 
 // Define the Mullvad connection checking api endpoint.
@@ -15,27 +16,25 @@ use talpid_types::ErrorExt;
 // production build, a warning will be logged and the env variable *won´t* have
 // any effect on the api call. The default host name `am.i.mullvad.net` will
 // always be used in release mode.
-lazy_static::lazy_static! {
-    static ref MULLVAD_CONNCHECK_HOST: String = {
-        const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
-        let conncheck_host_var = std::env::var("MULLVAD_CONNCHECK_HOST").ok();
-        let host = if cfg!(feature = "api-override") {
-            match conncheck_host_var.as_deref() {
-                Some(host) => {
-                    log::debug!("Overriding conncheck endpoint. Using {}", &host);
-                    host
-                },
-                None => DEFAULT_CONNCHECK_HOST,
+static MULLVAD_CONNCHECK_HOST: Lazy<String> = Lazy::new(|| {
+    const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
+    let conncheck_host_var = std::env::var("MULLVAD_CONNCHECK_HOST").ok();
+    let host = if cfg!(feature = "api-override") {
+        match conncheck_host_var.as_deref() {
+            Some(host) => {
+                log::debug!("Overriding conncheck endpoint. Using {}", &host);
+                host
             }
-        } else {
-            if conncheck_host_var.is_some() {
-                log::warn!("These variables are ignored in production builds: MULLVAD_CONNCHECK_HOST");
-            };
-            DEFAULT_CONNCHECK_HOST
+            None => DEFAULT_CONNCHECK_HOST,
+        }
+    } else {
+        if conncheck_host_var.is_some() {
+            log::warn!("These variables are ignored in production builds: MULLVAD_CONNCHECK_HOST");
         };
-        host.to_string()
+        DEFAULT_CONNCHECK_HOST
     };
-}
+    host.to_string()
+});
 
 pub async fn send_location_request(
     request_sender: RequestServiceHandle,

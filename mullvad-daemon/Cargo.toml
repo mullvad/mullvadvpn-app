@@ -17,7 +17,8 @@ chrono = { workspace = true }
 err-derive = "0.3.1"
 fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
-lazy_static = "1.0"
+ipnetwork = "0.16"
+once_cell = "1.13"
 libc = "0.2"
 log = "0.4"
 parking_lot = "0.12.0"
