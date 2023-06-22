@@ -289,8 +289,8 @@ message BridgeSettings {
 
 message LocationConstraint {
   oneof type {
-    string custom = 1;
-    RelayLocation normal = 2;
+    string customList = 1;
+    RelayLocation location = 2;
   }
 }
 
