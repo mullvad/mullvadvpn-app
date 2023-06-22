@@ -2051,6 +2051,7 @@ dependencies = [
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.1",
+ "once_cell",
  "rand 0.8.5",
  "talpid-tunnel",
  "talpid-types",
@@ -4131,7 +4132,7 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "htmlize",
- "lazy_static",
+ "once_cell",
  "quick-xml",
  "regex",
  "serde",
