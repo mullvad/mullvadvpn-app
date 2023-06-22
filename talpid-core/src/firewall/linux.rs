@@ -1,13 +1,13 @@
 use super::{FirewallArguments, FirewallPolicy};
 use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
-use lazy_static::lazy_static;
 use libc;
 use nftnl::{
     self,
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
     nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
+use once_cell::sync::Lazy;
 use std::{
     env,
     ffi::{CStr, CString},
@@ -56,27 +56,29 @@ pub enum Error {
     LookupIfaceIndexError(String, #[error(source)] crate::linux::IfaceIndexLookupError),
 }
 
-lazy_static! {
-    /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
-    /// replaced by allowing the table name to be configured from the public API of this crate.
-    static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
-    static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
-    static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
-    static ref FORWARD_CHAIN_NAME: CString = CString::new("forward").unwrap();
-    static ref PREROUTING_CHAIN_NAME: CString = CString::new("prerouting").unwrap();
-    static ref MANGLE_CHAIN_NAME: CString = CString::new("mangle").unwrap();
-    static ref NAT_CHAIN_NAME: CString = CString::new("nat").unwrap();
+/// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
+/// replaced by allowing the table name to be configured from the public API of this crate.
+static TABLE_NAME: Lazy<CString> = Lazy::new(|| CString::new("mullvad").unwrap());
+static IN_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("input").unwrap());
+static OUT_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("output").unwrap());
+static FORWARD_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("forward").unwrap());
+static PREROUTING_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("prerouting").unwrap());
+static MANGLE_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("mangle").unwrap());
+static NAT_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("nat").unwrap());
 
-    /// Allows controlling whether firewall rules should have packet counters or not from an env
-    /// variable. Useful for debugging the rules.
-    static ref ADD_COUNTERS: bool = env::var("TALPID_FIREWALL_DEBUG")
+/// Allows controlling whether firewall rules should have packet counters or not from an env
+/// variable. Useful for debugging the rules.
+static ADD_COUNTERS: Lazy<bool> = Lazy::new(|| {
+    env::var("TALPID_FIREWALL_DEBUG")
         .map(|v| v != "0")
-        .unwrap_or(false);
+        .unwrap_or(false)
+});
 
-    static ref DONT_SET_SRC_VALID_MARK: bool = env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
+static DONT_SET_SRC_VALID_MARK: Lazy<bool> = Lazy::new(|| {
+    env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
         .map(|v| v != "0")
-        .unwrap_or(false);
-}
+        .unwrap_or(false)
+});
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 enum Direction {
@@ -1027,10 +1029,10 @@ fn set_src_valid_mark_sysctl() -> io::Result<()> {
 /// Tables that are no longer used but need to be deleted due to upgrades.
 /// This can be removed when upgrades from 2023.3 are no longer supported.
 fn batch_deprecated_tables(batch: &mut Batch) {
-    lazy_static! {
-        static ref MANGLE_TABLE_NAME_V4: CString = CString::new("mullvadmangle4").unwrap();
-        static ref MANGLE_TABLE_NAME_V6: CString = CString::new("mullvadmangle6").unwrap();
-    }
+    static MANGLE_TABLE_NAME_V4: Lazy<CString> =
+        Lazy::new(|| CString::new("mullvadmangle4").unwrap());
+    static MANGLE_TABLE_NAME_V6: Lazy<CString> =
+        Lazy::new(|| CString::new("mullvadmangle6").unwrap());
     let tables = [
         Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
         Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),

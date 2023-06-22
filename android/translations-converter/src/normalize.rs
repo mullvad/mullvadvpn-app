@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 pub trait Normalize {
@@ -12,11 +12,9 @@ mod android {
     use super::*;
     use crate::android::StringValue;
 
-    lazy_static! {
-        static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
-        static ref DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
-        static ref PARAMETERS: Regex = Regex::new(r"%[0-9]*\$").unwrap();
-    }
+    static APOSTROPHES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\'").unwrap());
+    static DOUBLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\\""#).unwrap());
+    static PARAMETERS: Lazy<Regex> = Lazy::new(|| Regex::new(r"%[0-9]*\$").unwrap());
 
     impl Normalize for StringValue {
         fn normalize(&self) -> String {
@@ -37,11 +35,9 @@ mod gettext {
     use super::*;
     use crate::gettext::MsgString;
 
-    lazy_static! {
-        static ref ESCAPED_SINGLE_QUOTES: Regex = Regex::new(r"\\'").unwrap();
-        static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
-        static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
-    }
+    static ESCAPED_SINGLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\'").unwrap());
+    static ESCAPED_DOUBLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\\""#).unwrap());
+    static PARAMETERS: Lazy<Regex> = Lazy::new(|| Regex::new(r"%\([^)]*\)").unwrap());
 
     impl Normalize for MsgString {
         fn normalize(&self) -> String {
