@@ -8,7 +8,7 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 #[cfg(windows)]
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
@@ -160,16 +160,12 @@ impl Drop for ObfuscatorHandle {
 }
 
 #[cfg(target_os = "linux")]
-lazy_static! {
-    /// Overrides the preference for the kernel module for WireGuard.
-    static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+/// Overrides the preference for the kernel module for WireGuard.
+static FORCE_USERSPACE_WIREGUARD: Lazy<bool> = Lazy::new(|| {
+    env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
-        .unwrap_or(false);
-
-    static ref FORCE_NM_WIREGUARD: bool = env::var("TALPID_FORCE_NM_WIREGUARD")
-        .map(|v| v != "0")
-        .unwrap_or(false);
-}
+        .unwrap_or(false)
+});
 
 async fn maybe_create_obfuscator(
     config: &mut Config,
