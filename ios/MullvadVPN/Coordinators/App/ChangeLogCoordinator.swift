@@ -9,38 +9,94 @@
 import MullvadLogging
 import UIKit
 
-final class ChangeLogCoordinator: Coordinator {
+final class ChangeLogCoordinator: Coordinator, Presentable {
     private let logger = Logger(label: "ChangeLogCoordinator")
+    private let navigationController: RootContainerViewController
 
-    let navigationController: RootContainerViewController
+    var presentedViewController: UIViewController {
+        return navigationController
+    }
 
-    var didFinish: ((ChangeLogCoordinator) -> Void)?
+    private var changeLogText: NSAttributedString? {
+        guard let changeLogText = try? ChangeLog.readFromFile() else {
+            logger.error("Cannot read changelog from bundle.")
+            return nil
+        }
+
+        let bullet = "•  "
+        let font = UIFont.preferredFont(forTextStyle: .body)
+
+        let bulletList = changeLogText.split(whereSeparator: { $0.isNewline })
+            .map { "\(bullet)\($0)" }
+            .joined(separator: "\n")
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
+
+        return NSAttributedString(
+            string: bulletList,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .font: font,
+                .foregroundColor: UIColor.white.withAlphaComponent(0.8),
+            ]
+        )
+    }
 
     init(navigationController: RootContainerViewController) {
         self.navigationController = navigationController
     }
 
     func start(animated: Bool) {
-        let controller = ChangeLogViewController()
+        ChangeLog.markAsSeen()
 
-        controller.setApplicationVersion(Bundle.main.shortVersion)
-
-        do {
-            let string = try ChangeLog.readFromFile()
-
-            controller.setChangeLogText(string)
-        } catch {
-            logger.error(error: error, message: "Cannot read changelog from bundle.")
+        guard let changeLogText else {
+            return
         }
 
-        controller.onFinish = { [weak self] in
-            guard let self else { return }
+        let alertController = CustomAlertViewController(
+            title: NSLocalizedString(
+                "CHANGE_LOG_TITLE",
+                tableName: "Account",
+                value: "Changes in this version:",
+                comment: ""
+            ),
+            attributedMessage: changeLogText
+        )
 
-            ChangeLog.markAsSeen()
+        alertController.addVersionHeader()
 
-            didFinish?(self)
+        alertController.addAction(
+            title: NSLocalizedString(
+                "CHANGE_LOG_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default
+        )
+
+        presentedViewController.present(alertController, animated: animated)
+    }
+}
+
+private extension CustomAlertViewController {
+    func addVersionHeader() {
+        let header = UILabel()
+
+        header.text = Bundle.main.shortVersion
+        header.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        header.textColor = .white
+        header.adjustsFontForContentSizeCategory = true
+        header.textAlignment = .center
+        header.numberOfLines = 0
+
+        if let title = containerView.arrangedSubviews.first {
+            containerView.setCustomSpacing(8, after: title)
         }
 
-        navigationController.pushViewController(controller, animated: animated)
+        containerView.insertArrangedSubview(header, at: 0)
+        containerView.setCustomSpacing(16, after: header)
     }
 }

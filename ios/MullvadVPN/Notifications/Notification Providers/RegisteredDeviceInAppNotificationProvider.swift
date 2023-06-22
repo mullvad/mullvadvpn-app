@@ -33,7 +33,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
         let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
 
-        let stylingOptions = NSAttributedString.MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
+        let stylingOptions = MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
 
         return NSMutableAttributedString(markdownString: string, options: stylingOptions) { markdownType, string in
             switch markdownType {
