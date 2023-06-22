@@ -2,6 +2,7 @@ use clap::Parser;
 use mullvad_api::{self, proxy::ApiConnectionMode};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
+use once_cell::sync::Lazy;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
 use talpid_core::{
     firewall::{self, Firewall},
@@ -9,10 +10,8 @@ use talpid_core::{
 };
 use talpid_types::ErrorExt;
 
-lazy_static::lazy_static! {
-    static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap();
-    static ref IS_DEV_BUILD: bool = APP_VERSION.is_dev();
-}
+static APP_VERSION: Lazy<ParsedAppVersion> =
+    Lazy::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
 
 const KEY_RETRY_INTERVAL: Duration = Duration::ZERO;
 const KEY_RETRY_MAX_RETRIES: usize = 4;

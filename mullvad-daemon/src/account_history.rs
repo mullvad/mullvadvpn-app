@@ -1,4 +1,5 @@
 use mullvad_types::account::AccountToken;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::Path;
 use talpid_types::ErrorExt;
@@ -32,9 +33,7 @@ pub struct AccountHistory {
     token: Option<AccountToken>,
 }
 
-lazy_static::lazy_static! {
-    static ref ACCOUNT_REGEX: Regex = Regex::new(r"^[0-9]+$").unwrap();
-}
+static ACCOUNT_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9]+$").unwrap());
 
 impl AccountHistory {
     pub async fn new(

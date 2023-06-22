@@ -26,4 +26,4 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }
 
 [dev-dependencies]
-lazy_static = "1.0"
+once_cell = "1.13"

@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
-use lazy_static::lazy_static;
 use mullvad_api::proxy::ApiConnectionMode;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -413,9 +413,7 @@ impl ProblemReport {
     }
 
     fn redact_account_number(input: &str) -> Cow<'_, str> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new("\\d{16}").unwrap();
-        }
+        static RE: Lazy<Regex> = Lazy::new(|| Regex::new("\\d{16}").unwrap());
         RE.replace_all(input, "[REDACTED ACCOUNT NUMBER]")
     }
 
@@ -424,29 +422,25 @@ impl ProblemReport {
     }
 
     fn redact_network_info(input: &str) -> Cow<'_, str> {
-        lazy_static! {
-            static ref RE: Regex = {
-                let boundary = "[^0-9a-zA-Z.:]";
-                let combined_pattern = format!(
-                    "(?P<start>^|{})(?:{}|{}|{})",
-                    boundary,
-                    build_ipv4_regex(),
-                    build_ipv6_regex(),
-                    build_mac_regex(),
-                );
-                Regex::new(&combined_pattern).unwrap()
-            };
-        }
+        static RE: Lazy<Regex> = Lazy::new(|| {
+            let boundary = "[^0-9a-zA-Z.:]";
+            let combined_pattern = format!(
+                "(?P<start>^|{})(?:{}|{}|{})",
+                boundary,
+                build_ipv4_regex(),
+                build_ipv6_regex(),
+                build_mac_regex(),
+            );
+            Regex::new(&combined_pattern).unwrap()
+        });
         RE.replace_all(input, "$start[REDACTED]")
     }
 
     fn redact_guids(input: &str) -> Cow<'_, str> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
-                r#"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?"#
-            )
-            .unwrap();
-        }
+        static RE: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r#"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?"#)
+                .unwrap()
+        });
         RE.replace_all(input, "[REDACTED]")
     }
 
