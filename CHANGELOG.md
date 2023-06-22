@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add `--help` and `--version` options to the desktop GUI application.
 
+- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
+  `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
+
 #### Android
 - Add UDP-over-TCP.
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
