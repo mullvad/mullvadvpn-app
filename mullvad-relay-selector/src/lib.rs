@@ -869,15 +869,6 @@ impl RelaySelector {
         })
     }
 
-    pub fn get_obfuscator(
-        &self,
-        relay: &Relay,
-        endpoint: &MullvadWireguardEndpoint,
-        retry_attempt: u32,
-    ) -> Result<Option<SelectedObfuscator>, Error> {
-        self.get_obfuscator_inner(&self.config.lock(), relay, endpoint, retry_attempt)
-    }
-
     fn get_obfuscator_inner(
         &self,
         config: &MutexGuard<'_, SelectorConfig>,
@@ -1249,6 +1240,17 @@ mod test {
     };
     use std::collections::HashSet;
     use talpid_types::net::{wireguard::PublicKey, Endpoint};
+
+    impl RelaySelector {
+        fn get_obfuscator(
+            &self,
+            relay: &Relay,
+            endpoint: &MullvadWireguardEndpoint,
+            retry_attempt: u32,
+        ) -> Result<Option<SelectedObfuscator>, Error> {
+            self.get_obfuscator_inner(&self.config.lock(), relay, endpoint, retry_attempt)
+        }
+    }
 
     lazy_static::lazy_static! {
         static ref RELAYS: RelayList = RelayList {
