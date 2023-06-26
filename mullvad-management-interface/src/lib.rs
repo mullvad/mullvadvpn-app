@@ -97,6 +97,12 @@ pub enum Error {
 
     #[error(display = "Can not add or remove 'any' to or from a custom list")]
     CustomListCannotAddOrRemoveAny,
+
+    #[error(display = "Location already exists in the custom list")]
+    LocationExistsInCustomList,
+
+    #[error(display = "Location was not found in the custom list")]
+    LocationNotFoundInCustomlist,
 }
 
 #[deprecated(note = "Prefer MullvadProxyClient")]
