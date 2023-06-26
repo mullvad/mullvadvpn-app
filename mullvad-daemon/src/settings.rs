@@ -420,7 +420,7 @@ mod test {
               "settings_version": 5,
               "show_beta_releases": false,
               "custom_lists": {
-                "custom_lists": {}
+                "custom_lists": []
               }
         }"#;
 
