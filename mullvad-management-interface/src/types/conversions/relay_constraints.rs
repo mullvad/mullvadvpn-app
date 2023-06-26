@@ -40,13 +40,12 @@ impl TryFrom<&proto::WireguardConstraints>
             entry_location: constraints
                 .entry_location
                 .clone()
-                .map(|loc| {
+                .and_then(|loc| {
                     Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
                         loc,
                     )
                     .ok()
                 })
-                .flatten()
                 .unwrap_or(Constraint::Any),
         })
     }
@@ -103,8 +102,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
             proto::relay_settings::Endpoint::Normal(settings) => {
                 let location = settings
                     .location
-                    .map(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
-                    .flatten()
+                    .and_then(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
@@ -258,8 +256,7 @@ impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::R
                 // then the constraint is set to `Constraint::Any`.
                 let location = settings
                     .location
-                    .map(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
-                    .flatten();
+                    .and_then(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok());
                 let providers = if let Some(ref provider_update) = settings.providers {
                     Some(try_providers_constraint_from_proto(
                         &provider_update.providers,
