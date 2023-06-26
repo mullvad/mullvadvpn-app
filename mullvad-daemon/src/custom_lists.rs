@@ -16,7 +16,7 @@ pub enum Error {
     #[error(display = "A list with that name does not exist")]
     ListNotFound,
     /// Can not add any to a custom list
-    #[error(display = "Can not add or remove 'any' to a custom list")]
+    #[error(display = "Can not add or remove 'any' to or from a custom list")]
     CannotAddOrRemoveAny,
     /// Custom list settings error
     #[error(display = "Settings error")]
