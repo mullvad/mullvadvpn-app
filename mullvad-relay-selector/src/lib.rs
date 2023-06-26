@@ -869,7 +869,8 @@ impl RelaySelector {
         })
     }
 
-    pub fn get_obfuscator(
+    #[cfg(test)]
+    fn get_obfuscator(
         &self,
         relay: &Relay,
         endpoint: &MullvadWireguardEndpoint,
