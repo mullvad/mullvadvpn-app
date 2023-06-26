@@ -16,8 +16,14 @@ pub enum Error {
     #[error(display = "A list with that name does not exist")]
     ListNotFound,
     /// Can not add any to a custom list
-    #[error(display = "Can not add or remove 'any' to a custom list")]
+    #[error(display = "Can not add or remove 'any' to or from a custom list")]
     CannotAddOrRemoveAny,
+    /// Location already exists in the custom list
+    #[error(display = "Location already exists in the custom list")]
+    LocationExists,
+    /// Location was not found in the list
+    #[error(display = "Location was not found in the list")]
+    LocationNotFoundInlist,
     /// Custom list settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -148,6 +154,8 @@ where
                             );
                             self.reconnect_tunnel();
                         }
+                    } else if let Ok(false) = settings_changed {
+                        return Err(Error::LocationExists);
                     }
 
                     settings_changed.map(|_| ())
@@ -204,6 +212,8 @@ where
                             );
                             self.reconnect_tunnel();
                         }
+                    } else if let Ok(false) = settings_changed {
+                        return Err(Error::LocationNotFoundInlist);
                     }
 
                     settings_changed.map(|_| ())

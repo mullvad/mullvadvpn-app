@@ -179,14 +179,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<()> {
-        self.0
-            .rename_custom_list(types::CustomListRename::from((name, new_name)))
-            .await
-            .map_err(Error::Rpc)?;
-        Ok(())
-    }
-
     pub async fn get_current_location(&mut self) -> Result<GeoIpLocation> {
         let location = self
             .0
@@ -443,7 +435,7 @@ impl MullvadProxyClient {
             .0
             .list_custom_lists(())
             .await
-            .map_err(Error::Rpc)?
+            .map_err(map_custom_list_error)?
             .into_inner()
             .try_into()
             .map_err(Error::InvalidResponse)?;
@@ -455,7 +447,7 @@ impl MullvadProxyClient {
             .0
             .get_custom_list(name)
             .await
-            .map_err(Error::Rpc)?
+            .map_err(map_custom_list_error)?
             .into_inner()
             .try_into()
             .map_err(Error::InvalidResponse)?;
@@ -463,12 +455,12 @@ impl MullvadProxyClient {
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
-        self.0.create_custom_list(name).await.map_err(Error::Rpc)?;
+        self.0.create_custom_list(name).await.map_err(map_custom_list_error)?;
         Ok(())
     }
 
     pub async fn delete_custom_list(&mut self, name: String) -> Result<()> {
-        self.0.delete_custom_list(name).await.map_err(Error::Rpc)?;
+        self.0.delete_custom_list(name).await.map_err(map_custom_list_error)?;
         Ok(())
     }
 
@@ -479,7 +471,15 @@ impl MullvadProxyClient {
         self.0
             .update_custom_list_location(types::CustomListLocationUpdate::from(custom_list_update))
             .await
-            .map_err(Error::Rpc)?;
+            .map_err(map_custom_list_error)?;
+        Ok(())
+    }
+
+    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<()> {
+        self.0
+            .rename_custom_list(types::CustomListRename::from((name, new_name)))
+            .await
+            .map_err(map_custom_list_error)?;
         Ok(())
     }
 
@@ -601,6 +601,33 @@ fn map_device_error(status: Status) -> Error {
 fn map_location_error(status: Status) -> Error {
     match status.code() {
         Code::NotFound => Error::NoLocationData,
+        _other => Error::Rpc(status),
+    }
+}
+
+fn map_custom_list_error(status: Status) -> Error {
+    match status.code() {
+        Code::NotFound => {
+            let details = status.details();
+            if details == crate::CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS {
+                Error::LocationNotFoundInCustomlist
+            } else if details == crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS {
+                Error::CustomListListNotFound
+            } else {
+                Error::Rpc(status)
+            }
+        },
+        Code::AlreadyExists => {
+            let details = status.details();
+            if details == crate::CUSTOM_LIST_LOCATION_EXISTS_DETAILS {
+                Error::LocationExistsInCustomList
+            } else if details == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
+                Error::CustomListExists
+            } else {
+                Error::Rpc(status)
+            }
+        },
+        Code::InvalidArgument => Error::CustomListCannotAddOrRemoveAny,
         _other => Error::Rpc(status),
     }
 }
