@@ -1033,8 +1033,8 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
-            ListCustomLists(tx) => self.on_list_custom_lists(tx).await,
-            GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
+            ListCustomLists(tx) => self.on_list_custom_lists(tx),
+            GetCustomList(tx, name) => self.on_get_custom_list(tx, name),
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
             UpdateCustomListLocation(tx, update) => {
@@ -2240,7 +2240,7 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
-    async fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
+    fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
         let result = self
             .settings
             .custom_lists
@@ -2251,7 +2251,7 @@ where
         Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
     }
 
-    async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
+    fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
         let result = self
             .settings
             .custom_lists
