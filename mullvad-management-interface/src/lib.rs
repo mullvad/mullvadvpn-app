@@ -88,6 +88,15 @@ pub enum Error {
 
     #[error(display = "Location data is unavailable")]
     NoLocationData,
+
+    #[error(display = "A custom list with that name already exists")]
+    CustomListExists,
+
+    #[error(display = "A custom list with that name does not exist")]
+    CustomListListNotFound,
+
+    #[error(display = "Can not add or remove 'any' to or from a custom list")]
+    CustomListCannotAddOrRemoveAny,
 }
 
 #[deprecated(note = "Prefer MullvadProxyClient")]
