@@ -5,9 +5,9 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 
-abstract class NotificationWithUrl(protected val context: Context, urlId: Int) :
+abstract class NotificationWithUrl(protected val context: Context, urlString: String) :
     InAppNotification() {
-    private val url = Uri.parse(context.getString(urlId))
+    private val url = Uri.parse(urlString)
 
     protected val openUrl: suspend () -> Unit = {
         val intent = Intent(Intent.ACTION_VIEW, url).apply { flags = FLAG_ACTIVITY_NEW_TASK }
