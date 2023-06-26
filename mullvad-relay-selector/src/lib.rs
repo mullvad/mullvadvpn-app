@@ -1298,13 +1298,15 @@ impl NormalSelectedRelay {
 mod test {
     use super::*;
     use mullvad_types::{
+        custom_list::CustomListsSettings,
         relay_constraints::{
-            BridgeConstraints, RelayConstraints, RelayConstraintsUpdate, RelaySettingsUpdate, GeographicLocationConstraint, WireguardConstraints
+            BridgeConstraints, GeographicLocationConstraint, RelayConstraints,
+            RelayConstraintsUpdate, RelaySettingsUpdate, WireguardConstraints,
         },
         relay_list::{
             OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
-        }, custom_list::CustomListsSettings,
+        },
     };
     use std::collections::HashSet;
     use talpid_types::net::{wireguard::PublicKey, Endpoint};
@@ -1455,7 +1457,9 @@ mod test {
             ))),
             config: Arc::new(Mutex::new(SelectorConfig {
                 relay_settings: RelaySettings::Normal(RelayConstraints {
-                    location: Constraint::Only(LocationConstraint::from(GeographicLocationConstraint::Country("se".to_owned()))),
+                    location: Constraint::Only(LocationConstraint::from(
+                        GeographicLocationConstraint::Country("se".to_owned()),
+                    )),
                     ..Default::default()
                 }),
                 bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
@@ -1494,7 +1498,8 @@ mod test {
             &relay_constraints,
             BridgeState::Off,
             0,
-            TunnelType::Wireguard, &CustomListsSettings::default()
+            TunnelType::Wireguard,
+            &CustomListsSettings::default(),
         );
         assert_eq!(
             preferred.tunnel_protocol,
@@ -1507,7 +1512,8 @@ mod test {
                     &relay_constraints,
                     BridgeState::Off,
                     attempt,
-                    TunnelType::Wireguard, &CustomListsSettings::default()
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default()
                 )
                 .is_ok());
         }
@@ -1528,7 +1534,8 @@ mod test {
             &relay_constraints,
             BridgeState::Off,
             0,
-            TunnelType::Wireguard, &CustomListsSettings::default()
+            TunnelType::Wireguard,
+            &CustomListsSettings::default(),
         );
         assert_eq!(
             preferred.tunnel_protocol,
@@ -1541,7 +1548,8 @@ mod test {
                     &relay_constraints,
                     BridgeState::Off,
                     attempt,
-                    TunnelType::Wireguard, &CustomListsSettings::default()
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default()
                 )
                 .is_ok());
         }
@@ -1596,7 +1604,8 @@ mod test {
         };
 
         relay_constraints.wireguard_constraints.use_multihop = true;
-        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(LocationConstraint::from(location1));
+        relay_constraints.wireguard_constraints.entry_location =
+            Constraint::Only(LocationConstraint::from(location1));
 
         // The same host cannot be used for entry and exit
         assert!(relay_selector
@@ -1604,11 +1613,13 @@ mod test {
                 &relay_constraints,
                 BridgeState::Off,
                 0,
-                TunnelType::Wireguard, &CustomListsSettings::default()
+                TunnelType::Wireguard,
+                &CustomListsSettings::default()
             )
             .is_err());
 
-        relay_constraints.wireguard_constraints.entry_location = Constraint::Only(LocationConstraint::from(location2));
+        relay_constraints.wireguard_constraints.entry_location =
+            Constraint::Only(LocationConstraint::from(location2));
 
         // If the entry and exit differ, this should succeed
         assert!(relay_selector
@@ -1616,7 +1627,8 @@ mod test {
                 &relay_constraints,
                 BridgeState::Off,
                 0,
-                TunnelType::Wireguard, &CustomListsSettings::default()
+                TunnelType::Wireguard,
+                &CustomListsSettings::default()
             )
             .is_ok());
     }
@@ -1627,7 +1639,10 @@ mod test {
 
         let specific_hostname = "se10-wireguard";
 
-        let location_general = LocationConstraint::from(GeographicLocationConstraint::City("se".to_string(), "got".to_string()));
+        let location_general = LocationConstraint::from(GeographicLocationConstraint::City(
+            "se".to_string(),
+            "got".to_string(),
+        ));
         let location_specific = LocationConstraint::from(GeographicLocationConstraint::Hostname(
             "se".to_string(),
             "got".to_string(),
@@ -1646,7 +1661,13 @@ mod test {
 
         // The exit must not equal the entry
         let exit_relay = relay_selector
-            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, TunnelType::OpenVpn, &CustomListsSettings::default())
+            .get_tunnel_endpoint(
+                &relay_constraints,
+                BridgeState::Off,
+                0,
+                TunnelType::OpenVpn,
+                &CustomListsSettings::default(),
+            )
             .map_err(|error| error.to_string())?
             .exit_relay;
 
@@ -1665,7 +1686,8 @@ mod test {
                 &relay_constraints,
                 BridgeState::Off,
                 0,
-                TunnelType::Wireguard, &CustomListsSettings::default()
+                TunnelType::Wireguard,
+                &CustomListsSettings::default(),
             )
             .map_err(|error| error.to_string())?;
 
@@ -1781,7 +1803,8 @@ mod test {
                     &relay_constraints,
                     BridgeState::Auto,
                     retry_attempt,
-                    default_tunnel_type(), &CustomListsSettings::default()
+                    default_tunnel_type(),
+                    &CustomListsSettings::default(),
                 );
 
                 println!("relay: {relay:?}, constraints: {relay_constraints:?}");
@@ -1829,7 +1852,8 @@ mod test {
             &relay_constraints,
             BridgeState::On,
             0,
-            TunnelType::Wireguard, &CustomListsSettings::default()
+            TunnelType::Wireguard,
+            &CustomListsSettings::default(),
         );
         assert_eq!(
             preferred.tunnel_protocol,
@@ -1859,7 +1883,8 @@ mod test {
             &relay_constraints,
             BridgeState::On,
             0,
-            TunnelType::Wireguard, &CustomListsSettings::default()
+            TunnelType::Wireguard,
+            &CustomListsSettings::default(),
         );
         assert_eq!(
             preferred.tunnel_protocol,
@@ -1882,7 +1907,8 @@ mod test {
                 &relay_constraints,
                 BridgeState::On,
                 0,
-                TunnelType::Wireguard, &CustomListsSettings::default()
+                TunnelType::Wireguard,
+                &CustomListsSettings::default(),
             );
             assert_eq!(
                 preferred.tunnel_protocol,
@@ -1893,7 +1919,8 @@ mod test {
             &relay_constraints,
             BridgeState::On,
             2,
-            TunnelType::Wireguard, &CustomListsSettings::default()
+            TunnelType::Wireguard,
+            &CustomListsSettings::default(),
         );
         assert_eq!(
             preferred.tunnel_protocol,
@@ -2061,7 +2088,8 @@ mod test {
                     &WIREGUARD_SINGLEHOP_CONSTRAINTS,
                     BridgeState::Off,
                     attempt,
-                    TunnelType::Wireguard, &CustomListsSettings::default()
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default(),
                 )
                 .expect("Failed to select a WireGuard relay");
             assert!(result.entry_relay.is_none());
@@ -2098,7 +2126,13 @@ mod test {
         for i in 0..10 {
             constraints.ownership = Constraint::Only(Ownership::MullvadOwned);
             let relay = relay_selector
-                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard, &CustomListsSettings::default())
+                .get_tunnel_endpoint(
+                    &constraints,
+                    BridgeState::Auto,
+                    i,
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default(),
+                )
                 .unwrap();
             assert!(matches!(
                 relay,
@@ -2110,7 +2144,13 @@ mod test {
 
             constraints.ownership = Constraint::Only(Ownership::Rented);
             let relay = relay_selector
-                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard, &CustomListsSettings::default())
+                .get_tunnel_endpoint(
+                    &constraints,
+                    BridgeState::Auto,
+                    i,
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default(),
+                )
                 .unwrap();
             assert!(matches!(
                 relay,
@@ -2137,7 +2177,9 @@ mod test {
                 config.relay_settings = config.relay_settings.merge(RelaySettingsUpdate::Normal(
                     RelayConstraintsUpdate {
                         tunnel_protocol: Some(tunnel_protocol),
-                        location: Some(Constraint::Only(LocationConstraint::from(GeographicLocationConstraint::Country("se".to_string())))),
+                        location: Some(Constraint::Only(LocationConstraint::from(
+                            GeographicLocationConstraint::Country("se".to_string()),
+                        ))),
                         ..Default::default()
                     },
                 ));
@@ -2181,7 +2223,13 @@ mod test {
                 Providers::new(EXPECTED_PROVIDERS.into_iter().map(|p| p.to_owned())).unwrap(),
             );
             let relay = relay_selector
-                .get_tunnel_endpoint(&constraints, BridgeState::Auto, i, TunnelType::Wireguard, &CustomListsSettings::default())
+                .get_tunnel_endpoint(
+                    &constraints,
+                    BridgeState::Auto,
+                    i,
+                    TunnelType::Wireguard,
+                    &CustomListsSettings::default(),
+                )
                 .unwrap();
             assert!(
                 EXPECTED_PROVIDERS.contains(&relay.exit_relay.provider.as_str()),

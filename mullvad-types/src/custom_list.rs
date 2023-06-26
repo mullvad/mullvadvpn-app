@@ -1,8 +1,8 @@
 use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
