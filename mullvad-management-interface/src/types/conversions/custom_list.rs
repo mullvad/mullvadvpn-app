@@ -37,7 +37,7 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
             custom_lists: settings
                 .custom_lists
                 .into_iter()
-                .map(|custom_list| mullvad_types::custom_list::CustomList::try_from(custom_list))
+                .map(mullvad_types::custom_list::CustomList::try_from)
                 .collect::<Result<Vec<_>, _>>()?,
         })
     }
