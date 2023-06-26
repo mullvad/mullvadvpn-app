@@ -607,8 +607,27 @@ fn map_location_error(status: Status) -> Error {
 
 fn map_custom_list_error(status: Status) -> Error {
     match status.code() {
-        Code::NotFound => Error::CustomListListNotFound,
-        Code::AlreadyExists => Error::CustomListExists,
+        Code::NotFound => {
+            let details = status.details();
+            // TODO: Should these be constants? Where should they be defined?
+            if details == b"location" {
+                Error::LocationNotFoundInCustomlist
+            } else if details == b"list" {
+                Error::CustomListListNotFound
+            } else {
+                Error::Rpc(status)
+            }
+        },
+        Code::AlreadyExists => {
+            let details = status.details();
+            if details == b"location" {
+                Error::LocationExistsInCustomList
+            } else if details == b"list" {
+                Error::CustomListExists
+            } else {
+                Error::Rpc(status)
+            }
+        },
         Code::InvalidArgument => Error::CustomListCannotAddOrRemoveAny,
         _other => Error::Rpc(status),
     }
