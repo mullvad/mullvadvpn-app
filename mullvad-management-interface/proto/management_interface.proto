@@ -205,7 +205,9 @@ message TunnelEndpoint {
   TunnelMetadata tunnel_metadata = 8;
 }
 
-enum ObfuscationType { UDP2TCP = 0; }
+enum ObfuscationType {
+  UDP2TCP = 0;
+}
 
 message ObfuscationEndpoint {
   string address = 1;
