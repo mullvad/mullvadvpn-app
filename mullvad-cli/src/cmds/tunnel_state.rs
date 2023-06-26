@@ -2,8 +2,7 @@ use crate::format;
 use anyhow::{anyhow, Result};
 use futures::{Stream, StreamExt};
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
-use mullvad_types::device::DeviceState;
-use mullvad_types::states::TunnelState;
+use mullvad_types::{device::DeviceState, states::TunnelState};
 
 pub async fn connect(wait: bool) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
