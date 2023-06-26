@@ -6,6 +6,8 @@
 - Endpoint - a combination of a socket address and the transport protocol
 - Transport protocol - TCP or UDP
 - Tunnel protocol - WireGuard or OpenVPN
+- Obfuscator - a service that obfuscates WireGuard traffic, often running on the same WireGuard
+  relay as the server whose traffic it is obfuscating, e.g. _udp2tcp_.
 
 # Relay selector
 
@@ -53,10 +55,25 @@ constraints, following default ones will take effect:
     The client's decision will persist over time.
     If the client decides to use WireGuard it will have the same behavior as MacOS and Linux.
 
-- If the tunnel protocol is specified as WireGuard without any other protocol constraints, then the
-  transport protocol is not applicable as only UDP endpoints exist and any port will be matched.
-  The target port alternates between a random one every two attempts, and port 53 for the next 2
-  attempts.
+- If the tunnel protocol is specified as WireGuard without any other protocol
+  constraints and obfuscator mode is set to _auto_, then the transport protocol
+  is not applicable as only UDP endpoints exist and any port will be matched.
+  If obfuscation is set to auto:
+  - First two attempts will be used without _udp2tcp_, using a random port
+    on first attempt, and port 53 on second attempt.
+  - Next two attempts will use _udp2tcp_ on ports 80 and 5001 respectively.
+  - The above steps repeat ad infinitum.
+
+  If obfuscation is turned on, connections will alternate between port 80 and port 5001 using
+  _udp2tcp_ all of the time.
+
+  If obfuscation is turned _off_, WireGuard connections will first alternate between using
+  a random port and port 53, with 2 attempts each, e.g. first attempt using port 22151, second
+  26107, third attempt and fourth attempt using port 53, and then back to random ports.
+
+  If the user has specified a specific port for either _udp2tcp_ or WireGuard, it will override the
+  port selection, but it will not change the connection type described above (WireGuard or WireGuard
+  over _udp2tcp_).
 
 - If no OpenVPN tunnel constraints are specified, then the first two attempts at selecting a tunnel
   will try to select UDP endpoints on any port, and the third and fourth attempts will filter for
@@ -82,6 +99,7 @@ The transport protocol is supposedly inferred by the selected bridge- but for no
 supports TCP bridges, so only TCP bridges are being selected. If no location constraint is specified
 explicitly, then the relay location will be used.
 
+
 ### Selecting a bridge endpoint between filtered relays
 
 When filtering bridge endpoints by location, if multiple bridge endpoints match the specified
@@ -98,3 +116,9 @@ have bridges that support UDP tunnels over TCP bridges, this behavior should be 
 changing the tunnel constraints to ones that do not support bridges (WireGuard, OpenVPN over UDP)
 will indirectly change the bridge state to _Auto_ if it was previously set to _On_.
 
+
+### Obfuscator caveats
+
+Currently, there is only a single type of obfuscator - _udp2tcp_, and it's only used if it's mode is
+set to _On_ or if it's _Auto_ and the user has selected WireGuard to be the only tunnel protocol to
+be used.
