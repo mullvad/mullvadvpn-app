@@ -1232,7 +1232,7 @@ function convertFromLocation(location: grpcTypes.LocationConstraint.AsObject): R
   // FIXME: This is a hack that assumes that the LocationConstraint is not a custom list.
   // If it is we just set the country to "any" even if that isn't correct.
   if (location.location == undefined) {
-    return { country: "any" };
+    return { country: 'any' };
   }
   const loc = location.location;
 

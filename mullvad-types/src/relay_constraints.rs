@@ -236,6 +236,8 @@ impl RelaySettings {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     Location {
         location: GeographicLocationConstraint,

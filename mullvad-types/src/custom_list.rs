@@ -4,6 +4,8 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Id(pub uuid::Uuid);
 
 impl TryFrom<&str> for Id {
@@ -21,6 +23,8 @@ impl std::fmt::Display for Id {
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomListsSettings {
     pub custom_lists: HashMap<Id, CustomList>,
 }
@@ -46,6 +50,8 @@ pub enum CustomListLocationUpdate {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomList {
     pub id: Id,
     pub name: String,

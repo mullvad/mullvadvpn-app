@@ -489,6 +489,8 @@ impl RelaySelector {
                 ),
             };
 
+            // Nightly clippy seems wrong about this being a redundant clone
+            #[allow(clippy::redundant_clone)]
             let mut preferred_matcher: RelayMatcher<WireguardMatcher> = relay_matcher.clone();
             preferred_matcher.endpoint_matcher.port = preferred_matcher
                 .endpoint_matcher
