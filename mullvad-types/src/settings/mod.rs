@@ -165,7 +165,9 @@ impl Settings {
             }
 
             let mut old_settings_string = String::new();
-            let _ = self.relay_settings.format(&mut old_settings_string, &self.custom_lists);
+            let _ = self
+                .relay_settings
+                .format(&mut old_settings_string, &self.custom_lists);
             let mut new_settings_string = String::new();
             let _ = new_settings.format(&mut new_settings_string, &self.custom_lists);
 
@@ -213,5 +215,3 @@ impl Default for TunnelOptions {
         }
     }
 }
-
-

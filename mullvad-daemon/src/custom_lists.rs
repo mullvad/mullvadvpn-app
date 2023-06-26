@@ -280,7 +280,15 @@ where
                 need_to_reconnect |= list_id == custom_list_id;
             }
 
-            if let TunnelState::Connecting { endpoint, location: _ } | TunnelState::Connected { endpoint, location: _ }  = &self.tunnel_state {
+            if let TunnelState::Connecting {
+                endpoint,
+                location: _,
+            }
+            | TunnelState::Connected {
+                endpoint,
+                location: _,
+            } = &self.tunnel_state
+            {
                 match endpoint.tunnel_type {
                     TunnelType::Wireguard => {
                         if relay_settings.wireguard_constraints.use_multihop {
