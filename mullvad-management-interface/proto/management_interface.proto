@@ -295,7 +295,7 @@ message LocationConstraint {
 }
 
 message CustomLocationConstraints {
-    repeated RelayLocation locations = 1;
+  repeated RelayLocation locations = 1
 }
 
 message RelayLocation {
@@ -333,7 +333,7 @@ message CustomListRename {
 message CustomListLocationUpdate {
   enum State {
     ADD = 0;
-    REMOVE= 1;
+    REMOVE= 1
   }
   State state = 1;
   string name = 2;
@@ -347,11 +347,11 @@ message CustomList {
 }
 
 message CustomLists {
-  repeated CustomList custom_lists = 1;
+  repeated CustomList custom_lists = 1
 }
 
 message CustomListSettings {
-  map<string, CustomList> custom_lists = 1;
+  map<string, CustomList> custom_lists = 1
 }
 
 message Settings {
