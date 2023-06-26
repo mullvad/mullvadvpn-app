@@ -1,4 +1,4 @@
-use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener, custom_lists};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -1022,6 +1022,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
+        DaemonError::CustomListError(error) => map_custom_list_error(error),
         error => Status::unknown(error.to_string()),
     }
 }
@@ -1098,6 +1099,24 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         }
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
+        }
+    }
+}
+
+/// Converts an instance of [`mullvad_daemon::account_history::Error`] into a tonic status.
+fn map_custom_list_error(error: custom_lists::Error) -> Status {
+    match error {
+        custom_lists::Error::ListExists => {
+            Status::new(Code::AlreadyExists, error.to_string())
+        }
+        custom_lists::Error::ListNotFound => {
+            Status::new(Code::NotFound, error.to_string())
+        }
+        custom_lists::Error::CannotAddOrRemoveAny => {
+            Status::new(Code::InvalidArgument, error.to_string())
+        }
+        custom_lists::Error::Settings(error) => {
+            map_settings_error(error)
         }
     }
 }
