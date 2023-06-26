@@ -69,6 +69,15 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove the CLI subcommand `mullvad relay set hostname`.
 
+## [android/2023.3] - 2023-06-27
+### Changed
+#### Android
+- Change so that all links and texts leading to the mullvad webpage display a modified version of
+  the webpage that does not include links to the account page in order to comply with
+  the Google Play payment policies. This doesn't apply to F-Droid builds.
+- Hide the FAQs and Guides button for Google Play users.
+
+
 ## [android/2023.2] - 2023-05-22
 ### Changed
 #### Android
