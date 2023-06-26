@@ -1,19 +1,18 @@
 use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct Id(pub uuid::Uuid);
+pub struct Id(pub String);
 
 impl TryFrom<&str> for Id {
     type Error = ();
     fn try_from(string: &str) -> Result<Self, Self::Error> {
-        let uuid = uuid::Uuid::from_str(string).map_err(|_| ())?;
-        Ok(Id(uuid))
+        Ok(Id(string.to_string()))
     }
 }
 
@@ -62,7 +61,7 @@ pub struct CustomList {
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: Id(uuid::Uuid::new_v4()),
+            id: Id(uuid::Uuid::new_v4().to_string()),
             name,
             locations: Vec::new(),
         }
