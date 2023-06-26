@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayConstraints
@@ -12,6 +13,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.util.toGeographicLocationConstraint
 
 class RelayListListener(
     private val connection: Messenger,
@@ -25,12 +27,12 @@ class RelayListListener(
     var selectedRelayItem: RelayItem? = null
         private set
 
-    var selectedRelayLocation: LocationConstraint?
+    var selectedRelayLocation: GeographicLocationConstraint?
         get() {
             val settings = relaySettings as? RelaySettings.Normal
             val location = settings?.relayConstraints?.location as? Constraint.Only
 
-            return location?.value
+            return location?.value?.toGeographicLocationConstraint()
         }
         set(value) {
             connection.send(Request.SetRelayLocation(value).message)
@@ -119,7 +121,10 @@ class RelayListListener(
             is RelaySettings.Normal -> {
                 val location = relaySettings.relayConstraints.location
 
-                return relayList?.findItemForLocation(location, true)
+                return relayList?.findItemForLocation(
+                    location.toGeographicLocationConstraint(),
+                    true
+                )
             }
             else -> {
                 /* NOOP */

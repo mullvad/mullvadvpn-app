@@ -73,6 +73,7 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub custom_lists: CustomListsSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
@@ -165,7 +166,9 @@ impl Settings {
             }
 
             let mut old_settings_string = String::new();
-            let _ = self.relay_settings.format(&mut old_settings_string, &self.custom_lists);
+            let _ = self
+                .relay_settings
+                .format(&mut old_settings_string, &self.custom_lists);
             let mut new_settings_string = String::new();
             let _ = new_settings.format(&mut new_settings_string, &self.custom_lists);
 
@@ -213,5 +216,3 @@ impl Default for TunnelOptions {
         }
     }
 }
-
-

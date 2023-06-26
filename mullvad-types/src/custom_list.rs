@@ -1,34 +1,21 @@
 use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
+#[cfg(target_os = "android")]
+use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::str::FromStr;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct Id(pub uuid::Uuid);
-
-impl TryFrom<&str> for Id {
-    type Error = ();
-    fn try_from(string: &str) -> Result<Self, Self::Error> {
-        let uuid = uuid::Uuid::from_str(string).map_err(|_| ())?;
-        Ok(Id(uuid))
-    }
-}
-
-impl std::fmt::Display for Id {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fmt.write_str(&self.0.to_string())
-    }
-}
+pub type Id = String;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomListsSettings {
-    pub custom_lists: HashMap<Id, CustomList>,
+    pub custom_lists: Vec<CustomList>,
 }
 
 impl CustomListsSettings {
     pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
         self.custom_lists
-            .values()
+            .iter()
             .find(|custom_list| &custom_list.name == name)
     }
 }
@@ -46,6 +33,8 @@ pub enum CustomListLocationUpdate {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomList {
     pub id: Id,
     pub name: String,
@@ -55,7 +44,7 @@ pub struct CustomList {
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: Id(uuid::Uuid::new_v4()),
+            id: uuid::Uuid::new_v4().to_string(),
             name,
             locations: Vec::new(),
         }

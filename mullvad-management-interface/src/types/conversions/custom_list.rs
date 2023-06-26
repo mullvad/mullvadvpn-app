@@ -23,9 +23,7 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
             custom_lists: settings
                 .custom_lists
                 .iter()
-                .map(|(id, custom_list)| {
-                    (id.0.to_string(), proto::CustomList::from(custom_list.clone()))
-                })
+                .map(|custom_list| proto::CustomList::from(custom_list.clone()))
                 .collect(),
         }
     }
@@ -39,13 +37,8 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
             custom_lists: settings
                 .custom_lists
                 .into_iter()
-                .map(|(id, custom_list)| {
-                    Ok((
-                        Id::try_from(id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
-                        mullvad_types::custom_list::CustomList::try_from(custom_list)?,
-                    ))
-                })
-                .collect::<Result<std::collections::HashMap<_, _>, _>>()?,
+                .map(mullvad_types::custom_list::CustomList::try_from)
+                .collect::<Result<Vec<_>, _>>()?,
         })
     }
 }
@@ -117,7 +110,7 @@ impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
             .map(proto::RelayLocation::from)
             .collect();
         Self {
-            id: custom_list.id.0.to_string(),
+            id: custom_list.id.to_string(),
             name: custom_list.name,
             locations,
         }
@@ -137,7 +130,9 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
         })?;
         Ok(Self {
-            id: Id::try_from(custom_list.id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
+            id: Id::try_from(custom_list.id.as_str()).map_err(|_| {
+                FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
+            })?,
             name: custom_list.name,
             locations,
         })
@@ -153,7 +148,7 @@ impl TryFrom<proto::RelayLocation> for GeographicLocationConstraint {
             relay_location.city.as_ref(),
             relay_location.hostname.as_ref(),
         ) {
-            ("", _, _) => Err(FromProtobufTypeError::InvalidArgument(
+            ("", ..) => Err(FromProtobufTypeError::InvalidArgument(
                 "Relay location formatted incorrectly",
             )),
             (_country, "", "") => Ok(GeographicLocationConstraint::Country(

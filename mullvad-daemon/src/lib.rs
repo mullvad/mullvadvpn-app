@@ -8,6 +8,7 @@ pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
 mod cleanup;
+mod custom_lists;
 pub mod device;
 mod dns;
 pub mod exception_logging;
@@ -27,7 +28,6 @@ mod target_state;
 mod tunnel;
 pub mod version;
 mod version_check;
-mod custom_lists;
 
 use crate::target_state::PersistentTargetState;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -1033,12 +1033,16 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
-            ListCustomLists(tx) => self.on_list_custom_lists(tx).await,
-            GetCustomList(tx, name) => self.on_get_custom_list(tx, name).await,
+            ListCustomLists(tx) => self.on_list_custom_lists(tx),
+            GetCustomList(tx, name) => self.on_get_custom_list(tx, name),
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
-            UpdateCustomListLocation(tx, update) => self.on_update_custom_list_location(tx, update).await,
-            RenameCustomList(tx, name, new_name) => self.on_rename_custom_list(tx, name, new_name).await,
+            UpdateCustomListLocation(tx, update) => {
+                self.on_update_custom_list_location(tx, update).await
+            }
+            RenameCustomList(tx, name, new_name) => {
+                self.on_rename_custom_list(tx, name, new_name).await
+            }
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2236,23 +2240,34 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
-    async fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
-        let result = self.settings.custom_lists.custom_lists.values().cloned().collect();
+    fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
+        let result = self.settings.custom_lists.custom_lists.clone();
         Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
     }
 
-    async fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
-        let result = self.settings.custom_lists.get_custom_list_with_name(&name).cloned().ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
+    fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
+        let result = self
+            .settings
+            .custom_lists
+            .get_custom_list_with_name(&name)
+            .cloned()
+            .ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self.create_custom_list(name).await.map_err(Error::CustomListError);
+        let result = self
+            .create_custom_list(name)
+            .await
+            .map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
     async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self.delete_custom_list(name).await.map_err(Error::CustomListError);
+        let result = self
+            .delete_custom_list(name)
+            .await
+            .map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "delete_custom_list response");
     }
 
@@ -2261,7 +2276,10 @@ where
         tx: ResponseTx<(), Error>,
         update: CustomListLocationUpdate,
     ) {
-        let result = self.update_custom_list_location(update).await.map_err(Error::CustomListError);
+        let result = self
+            .update_custom_list_location(update)
+            .await
+            .map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "update_custom_list_location response");
     }
 
@@ -2271,7 +2289,10 @@ where
         name: String,
         new_name: String,
     ) {
-        let result = self.rename_custom_list(name, new_name).await.map_err(Error::CustomListError);
+        let result = self
+            .rename_custom_list(name, new_name)
+            .await
+            .map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "rename_custom_list response");
     }
 
@@ -2442,5 +2463,3 @@ fn new_selector_config(
         custom_lists: settings.custom_lists.clone(),
     }
 }
-
-

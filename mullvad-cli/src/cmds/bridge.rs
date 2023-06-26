@@ -3,16 +3,15 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint,
-        LocationConstraint, Ownership, Provider, Providers,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
+        Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use super::relay::find_relay_by_hostname;
-use super::relay_constraints::LocationArgs;
+use super::{relay::find_relay_by_hostname, relay_constraints::LocationArgs};
 
 #[derive(Subcommand, Debug)]
 pub enum Bridge {
@@ -163,17 +162,19 @@ impl Bridge {
             }
             SetCommands::Location(location) => {
                 let countries = rpc.get_relay_locations().await?.countries;
-                let location = if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
-                    Constraint::Only(relay)
-                } else {
-                    Constraint::from(location)
-                };
+                let location =
+                    if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
+                        Constraint::Only(relay)
+                    } else {
+                        Constraint::from(location)
+                    };
                 let location = location.map(|location| LocationConstraint::Location { location });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::CustomList { custom_list_name } => {
                 let list = rpc.get_custom_list(custom_list_name).await?;
-                let location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+                let location =
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {

@@ -1232,21 +1232,19 @@ function convertFromLocation(location: grpcTypes.LocationConstraint.AsObject): R
   // FIXME: This is a hack that assumes that the LocationConstraint is not a custom list.
   // If it is we just set the country to "any" even if that isn't correct.
   if (location.location == undefined) {
-    return { country: "any" };
+    return { country: 'any' };
   }
-  else {
-    const loc = location.location;
+  const loc = location.location;
 
-    if (loc.hostname) {
-      return { hostname: [loc.country, loc.city, loc.hostname] };
-    }
-
-    if (loc.city) {
-      return { city: [loc.country, loc.city] };
-    }
-
-    return { country: loc.country };
+  if (loc.hostname) {
+    return { hostname: [loc.country, loc.city, loc.hostname] };
   }
+
+  if (loc.city) {
+    return { city: [loc.country, loc.city] };
+  }
+
+  return { country: loc.country };
 }
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {

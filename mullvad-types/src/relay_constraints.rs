@@ -10,7 +10,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr, fmt::Write};
+use std::{collections::HashSet, fmt, fmt::Write, str::FromStr};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -205,7 +205,11 @@ pub enum RelaySettings {
 }
 
 impl RelaySettings {
-    pub fn format(&self, s: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
+    pub fn format(
+        &self,
+        s: &mut String,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<(), fmt::Error> {
         match self {
             RelaySettings::CustomTunnelEndpoint(endpoint) => {
                 write!(s, "custom endpoint {endpoint}")
@@ -232,6 +236,9 @@ impl RelaySettings {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     Location {
         location: GeographicLocationConstraint,
@@ -263,7 +270,8 @@ impl ResolvedLocationConstraint {
             }
             Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
                 .custom_lists
-                .get(&list_id)
+                .iter()
+                .find(|custom_list| custom_list.id == list_id)
                 .map(|custom_list| {
                     Constraint::Only(Self::Locations {
                         locations: custom_list.locations.clone(),
@@ -338,20 +346,22 @@ impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
             Self::Location { location } => writeln!(f, "location - {location}"),
-            Self::CustomList { list_id } => {
-                match custom_lists.custom_lists.get(list_id) {
-                    Some(list) => {
-                        writeln!(f, "custom list - {}", list.name)?;
-                        for location in &list.locations {
-                            writeln!(f, "\t{}", location)?;
-                        }
-                        Ok(())
-                    },
-                    None => {
-                        writeln!(f, "custom list - list not found")
+            Self::CustomList { list_id } => match custom_lists
+                .custom_lists
+                .iter()
+                .find(|custom_list| &custom_list.id == list_id)
+            {
+                Some(list) => {
+                    writeln!(f, "custom list - {}", list.name)?;
+                    for location in &list.locations {
+                        writeln!(f, "\t{}", location)?;
                     }
+                    Ok(())
                 }
-            }
+                None => {
+                    writeln!(f, "custom list - list not found")
+                }
+            },
         }
     }
 }
@@ -407,16 +417,20 @@ impl RelayConstraints {
 }
 
 impl RelayConstraints {
-    pub fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
+    pub fn format(
+        &self,
+        f: &mut String,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<(), fmt::Error> {
         match self.tunnel_protocol {
             Constraint::Any => {
                 writeln!(
                     f,
-                    "Tunnel protocol: Any\nOpenVPN: {}\nWireguard: ",
-                    &self.openvpn_constraints, 
+                    "Tunnel protocol: Any\nOpenVPN constraints: {}\nWireguard constraints: ",
+                    &self.openvpn_constraints,
                 )?;
                 self.wireguard_constraints.format(f, custom_lists)?;
-            },
+            }
             Constraint::Only(ref tunnel_protocol) => {
                 writeln!(f, "Tunnel protocol: {}", tunnel_protocol)?;
                 match tunnel_protocol {
@@ -435,7 +449,7 @@ impl RelayConstraints {
             Constraint::Only(ref location_constraint) => {
                 write!(f, "Location: ")?;
                 location_constraint.format(f, custom_lists)?;
-            },
+            }
         }
         match self.providers {
             Constraint::Any => writeln!(f, "Provider: Any")?,
@@ -767,7 +781,7 @@ impl WireguardConstraints {
                 Constraint::Only(location) => {
                     write!(f, "Wireguard entry ")?;
                     location.format(f, custom_lists)
-                },
+                }
             }
         } else {
             Ok(())
@@ -886,10 +900,16 @@ pub struct BridgeConstraints {
 }
 
 impl BridgeConstraints {
-    pub fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
+    pub fn format(
+        &self,
+        f: &mut String,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<(), fmt::Error> {
         match self.location {
             Constraint::Any => write!(f, "any location")?,
-            Constraint::Only(ref location_constraint) => location_constraint.format(f, custom_lists)?,
+            Constraint::Only(ref location_constraint) => {
+                location_constraint.format(f, custom_lists)?
+            }
         }
         write!(f, " using ")?;
         match self.providers {
