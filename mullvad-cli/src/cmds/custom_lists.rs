@@ -4,9 +4,7 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
-    relay_constraints::{
-        Constraint, GeographicLocationConstraint
-    },
+    relay_constraints::{Constraint, GeographicLocationConstraint},
 };
 
 #[derive(Subcommand, Debug)]

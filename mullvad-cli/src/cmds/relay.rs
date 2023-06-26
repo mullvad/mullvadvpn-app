@@ -280,7 +280,9 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
-            SetCommands::CustomList { custom_list_name } => Self::set_custom_list(custom_list_name).await,
+            SetCommands::CustomList { custom_list_name } => {
+                Self::set_custom_list(custom_list_name).await
+            }
             SetCommands::Hostname { hostname } => Self::set_hostname(hostname).await,
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
@@ -560,11 +562,12 @@ impl Relay {
         match entry_location {
             Some(EntryLocation::EntryLocation(entry)) => {
                 wireguard_constraints.entry_location = Constraint::from(entry);
-            },
+            }
             Some(EntryLocation::CustomList { custom_list_name }) => {
                 let list = rpc.get_custom_list(custom_list_name).await?;
-                wireguard_constraints.entry_location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
-            },
+                wireguard_constraints.entry_location =
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+            }
             None => (),
         }
 

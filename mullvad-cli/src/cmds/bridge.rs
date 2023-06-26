@@ -3,8 +3,8 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint,
-        LocationConstraint, Ownership, Provider, Providers,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
+        Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
@@ -148,7 +148,8 @@ impl Bridge {
             }
             SetCommands::CustomList { custom_list_name } => {
                 let list = rpc.get_custom_list(custom_list_name).await?;
-                let location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+                let location =
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {

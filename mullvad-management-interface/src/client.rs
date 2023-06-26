@@ -455,12 +455,18 @@ impl MullvadProxyClient {
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
-        self.0.create_custom_list(name).await.map_err(map_custom_list_error)?;
+        self.0
+            .create_custom_list(name)
+            .await
+            .map_err(map_custom_list_error)?;
         Ok(())
     }
 
     pub async fn delete_custom_list(&mut self, name: String) -> Result<()> {
-        self.0.delete_custom_list(name).await.map_err(map_custom_list_error)?;
+        self.0
+            .delete_custom_list(name)
+            .await
+            .map_err(map_custom_list_error)?;
         Ok(())
     }
 
@@ -616,7 +622,7 @@ fn map_custom_list_error(status: Status) -> Error {
             } else {
                 Error::Rpc(status)
             }
-        },
+        }
         Code::AlreadyExists => {
             let details = status.details();
             if details == crate::CUSTOM_LIST_LOCATION_EXISTS_DETAILS {
@@ -626,7 +632,7 @@ fn map_custom_list_error(status: Status) -> Error {
             } else {
                 Error::Rpc(status)
             }
-        },
+        }
         Code::InvalidArgument => Error::CustomListCannotAddOrRemoveAny,
         _other => Error::Rpc(status),
     }

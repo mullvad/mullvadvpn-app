@@ -24,7 +24,10 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
                 .custom_lists
                 .iter()
                 .map(|(id, custom_list)| {
-                    (id.0.to_string(), proto::CustomList::from(custom_list.clone()))
+                    (
+                        id.0.to_string(),
+                        proto::CustomList::from(custom_list.clone()),
+                    )
                 })
                 .collect(),
         }
@@ -41,7 +44,11 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
                 .into_iter()
                 .map(|(id, custom_list)| {
                     Ok((
-                        Id::try_from(id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
+                        Id::try_from(id.as_str()).map_err(|_| {
+                            FromProtobufTypeError::InvalidArgument(
+                                "Id could not be parsed to a uuid",
+                            )
+                        })?,
                         mullvad_types::custom_list::CustomList::try_from(custom_list)?,
                     ))
                 })
@@ -137,7 +144,9 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             FromProtobufTypeError::InvalidArgument("Could not convert custom list from proto")
         })?;
         Ok(Self {
-            id: Id::try_from(custom_list.id.as_str()).map_err(|_| FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid"))?,
+            id: Id::try_from(custom_list.id.as_str()).map_err(|_| {
+                FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
+            })?,
             name: custom_list.name,
             locations,
         })
