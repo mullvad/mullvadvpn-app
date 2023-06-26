@@ -1,1 +1,1 @@
-Update wording and messages to align with app distribution policies.
+Prevent app from leading to the Mullvad payment website in order to comply with distribution policies.
