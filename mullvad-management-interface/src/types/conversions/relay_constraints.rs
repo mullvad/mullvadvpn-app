@@ -40,7 +40,12 @@ impl TryFrom<&proto::WireguardConstraints>
             entry_location: constraints
                 .entry_location
                 .clone()
-                .map(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
+                .map(|loc| {
+                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
+                        loc,
+                    )
+                    .ok()
+                })
                 .flatten()
                 .unwrap_or(Constraint::Any),
         })
@@ -589,9 +594,9 @@ impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::Bridge
             proto::bridge_settings::Type::Normal(constraints) => {
                 let location = match constraints.location {
                     None => Constraint::Any,
-                    Some(location) => {
-                        Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(location)?
-                    }
+                    Some(location) => Constraint::<
+                        mullvad_types::relay_constraints::LocationConstraint,
+                    >::try_from(location)?,
                 };
                 let providers = try_providers_constraint_from_proto(&constraints.providers)?;
                 let ownership = try_ownership_constraint_from_i32(constraints.ownership)?;

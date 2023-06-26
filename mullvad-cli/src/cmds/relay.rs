@@ -314,7 +314,9 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
-            SetCommands::CustomList { custom_list_name } => Self::set_custom_list(custom_list_name).await,
+            SetCommands::CustomList { custom_list_name } => {
+                Self::set_custom_list(custom_list_name).await
+            }
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
@@ -448,9 +450,10 @@ impl Relay {
                 // The country field is assumed to be hostname due to CLI argument parsing
                 find_relay_by_hostname(&countries, &location_constraint_args.country)
             {
-                Constraint::Only(relay)
+                Constraint::Only(LocationConstraint::Location { location: relay })
             } else {
-                let location_constraint: Constraint<LocationConstraint> = Constraint::from(location_constraint_args);
+                let location_constraint: Constraint<GeographicLocationConstraint> =
+                    Constraint::from(location_constraint_args);
                 match &location_constraint {
                     Constraint::Any => (),
                     Constraint::Only(constraint) => {
@@ -465,11 +468,11 @@ impl Relay {
                         }
                     }
                 }
-                location_constraint
+                location_constraint.map(|location| LocationConstraint::Location { location })
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(constraint.map(|location| LocationConstraint::Location { location })),
+            location: Some(constraint),
             ..Default::default()
         }))
         .await
@@ -571,17 +574,18 @@ impl Relay {
             Some(EntryLocation::EntryLocation(entry)) => {
                 let countries = Self::get_filtered_relays().await?;
                 // The country field is assumed to be hostname due to CLI argument parsing
-                wireguard_constraints.entry_location = 
-                if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
-                    Constraint::Only(relay)
-                } else {
-                    Constraint::from(entry)
-                };
-            },
+                wireguard_constraints.entry_location =
+                    if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
+                        Constraint::Only(LocationConstraint::Location { location: relay })
+                    } else {
+                        Constraint::from(entry)
+                    };
+            }
             Some(EntryLocation::CustomList { custom_list_name }) => {
                 let list = rpc.get_custom_list(custom_list_name).await?;
-                wireguard_constraints.entry_location = Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
-            },
+                wireguard_constraints.entry_location =
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+            }
             None => (),
         }
 
@@ -644,7 +648,7 @@ fn parse_transport_port(
 pub fn find_relay_by_hostname(
     countries: &[RelayListCountry],
     hostname: &str,
-) -> Option<LocationConstraint> {
+) -> Option<GeographicLocationConstraint> {
     countries
         .iter()
         .flat_map(|country| country.cities.clone())
@@ -657,7 +661,7 @@ pub fn find_relay_by_hostname(
                      city_code,
                      ..
                  }| {
-                    LocationConstraint::Normal { location: GeographicLocationConstraint::Hostname(country_code, city_code, relay.hostname) }
+                    GeographicLocationConstraint::Hostname(country_code, city_code, relay.hostname)
                 },
             )
         })

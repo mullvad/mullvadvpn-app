@@ -1234,19 +1234,17 @@ function convertFromLocation(location: grpcTypes.LocationConstraint.AsObject): R
   if (location.location == undefined) {
     return { country: "any" };
   }
-  else {
-    const loc = location.location;
+  const loc = location.location;
 
-    if (loc.hostname) {
-      return { hostname: [loc.country, loc.city, loc.hostname] };
-    }
-
-    if (loc.city) {
-      return { city: [loc.country, loc.city] };
-    }
-
-    return { country: loc.country };
+  if (loc.hostname) {
+    return { hostname: [loc.country, loc.city, loc.hostname] };
   }
+
+  if (loc.city) {
+    return { city: [loc.country, loc.city] };
+  }
+
+  return { country: loc.country };
 }
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
