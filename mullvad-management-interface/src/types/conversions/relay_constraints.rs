@@ -494,9 +494,7 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
                 )),
             },
             LocationConstraint::CustomList { list_id } => Self {
-                r#type: Some(proto::location_constraint::Type::CustomList(
-                    list_id.0,
-                )),
+                r#type: Some(proto::location_constraint::Type::CustomList(list_id.0)),
             },
         }
     }

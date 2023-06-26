@@ -269,7 +269,8 @@ impl ResolvedLocationConstraint {
             }
             Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
                 .custom_lists
-                .get(&list_id)
+                .iter()
+                .find(|custom_list| custom_list.id == list_id)
                 .map(|custom_list| {
                     Constraint::Only(Self::Locations {
                         locations: custom_list.locations.clone(),
@@ -344,7 +345,11 @@ impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
             Self::Location { location } => writeln!(f, "location - {location}"),
-            Self::CustomList { list_id } => match custom_lists.custom_lists.get(list_id) {
+            Self::CustomList { list_id } => match custom_lists
+                .custom_lists
+                .iter()
+                .find(|custom_list| &custom_list.id == list_id)
+            {
                 Some(list) => {
                     writeln!(f, "custom list - {}", list.name)?;
                     for location in &list.locations {

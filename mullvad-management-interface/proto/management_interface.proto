@@ -346,7 +346,7 @@ message CustomList {
 
 message CustomLists { repeated CustomList custom_lists = 1; }
 
-message CustomListSettings { map<string, CustomList> custom_lists = 1; }
+message CustomListSettings { repeated CustomList custom_lists = 1; }
 
 message Settings {
   RelaySettings relay_settings = 1;

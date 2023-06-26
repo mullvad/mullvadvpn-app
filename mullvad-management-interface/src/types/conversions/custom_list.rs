@@ -23,12 +23,7 @@ impl From<&mullvad_types::custom_list::CustomListsSettings> for proto::CustomLis
             custom_lists: settings
                 .custom_lists
                 .iter()
-                .map(|(id, custom_list)| {
-                    (
-                        id.0.to_string(),
-                        proto::CustomList::from(custom_list.clone()),
-                    )
-                })
+                .map(|custom_list| proto::CustomList::from(custom_list.clone()))
                 .collect(),
         }
     }
@@ -42,17 +37,8 @@ impl TryFrom<proto::CustomListSettings> for mullvad_types::custom_list::CustomLi
             custom_lists: settings
                 .custom_lists
                 .into_iter()
-                .map(|(id, custom_list)| {
-                    Ok((
-                        Id::try_from(id.as_str()).map_err(|_| {
-                            FromProtobufTypeError::InvalidArgument(
-                                "Id could not be parsed to a uuid",
-                            )
-                        })?,
-                        mullvad_types::custom_list::CustomList::try_from(custom_list)?,
-                    ))
-                })
-                .collect::<Result<std::collections::HashMap<_, _>, _>>()?,
+                .map(|custom_list| mullvad_types::custom_list::CustomList::try_from(custom_list))
+                .collect::<Result<Vec<_>, _>>()?,
         })
     }
 }
