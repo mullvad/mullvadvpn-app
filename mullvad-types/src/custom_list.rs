@@ -2,7 +2,6 @@ use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
@@ -26,13 +25,13 @@ impl std::fmt::Display for Id {
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomListsSettings {
-    pub custom_lists: HashMap<Id, CustomList>,
+    pub custom_lists: Vec<CustomList>,
 }
 
 impl CustomListsSettings {
     pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
         self.custom_lists
-            .values()
+            .iter()
             .find(|custom_list| &custom_list.name == name)
     }
 }

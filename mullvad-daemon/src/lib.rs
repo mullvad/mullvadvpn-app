@@ -2241,13 +2241,7 @@ where
     }
 
     fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
-        let result = self
-            .settings
-            .custom_lists
-            .custom_lists
-            .values()
-            .cloned()
-            .collect();
+        let result = self.settings.custom_lists.custom_lists.clone();
         Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
     }
 

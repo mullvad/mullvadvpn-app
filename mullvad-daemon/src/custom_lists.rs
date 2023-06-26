@@ -43,7 +43,15 @@ where
                 let settings_changed = self
                     .settings
                     .update(|settings| {
-                        settings.custom_lists.custom_lists.remove(&id);
+                        let index = settings
+                            .custom_lists
+                            .custom_lists
+                            .iter()
+                            .position(|custom_list| custom_list.id == id)
+                            .unwrap();
+                        // NOTE: Not using swap remove because it would make user output slightly
+                        // more confusing and the cost is so small.
+                        settings.custom_lists.custom_lists.remove(index);
                     })
                     .await
                     .map_err(Error::Settings);
@@ -83,11 +91,7 @@ where
             .settings
             .update(|settings| {
                 let custom_list = CustomList::new(name);
-                assert!(settings
-                    .custom_lists
-                    .custom_lists
-                    .insert(custom_list.id.clone(), custom_list)
-                    .is_none());
+                settings.custom_lists.custom_lists.push(custom_list);
             })
             .await
             .map_err(Error::Settings);
@@ -127,7 +131,8 @@ where
                             let locations = &mut settings
                                 .custom_lists
                                 .custom_lists
-                                .get_mut(&id)
+                                .iter_mut()
+                                .find(|custom_list| custom_list.id == id)
                                 .unwrap()
                                 .locations;
 
@@ -183,7 +188,8 @@ where
                             let locations = &mut settings
                                 .custom_lists
                                 .custom_lists
-                                .get_mut(&id)
+                                .iter_mut()
+                                .find(|custom_list| custom_list.id == id)
                                 .unwrap()
                                 .locations;
                             if let Some(index) = locations
@@ -247,7 +253,8 @@ where
                             settings
                                 .custom_lists
                                 .custom_lists
-                                .get_mut(&id)
+                                .iter_mut()
+                                .find(|custom_list| custom_list.id == id)
                                 .unwrap()
                                 .name = new_name;
                         })
