@@ -162,7 +162,7 @@ impl TryFrom<proto::RelayLocation> for GeographicLocationConstraint {
             relay_location.city.as_ref(),
             relay_location.hostname.as_ref(),
         ) {
-            ("", _, _) => Err(FromProtobufTypeError::InvalidArgument(
+            ("", ..) => Err(FromProtobufTypeError::InvalidArgument(
                 "Relay location formatted incorrectly",
             )),
             (_country, "", "") => Ok(GeographicLocationConstraint::Country(

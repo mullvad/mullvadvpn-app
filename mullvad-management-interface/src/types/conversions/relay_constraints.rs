@@ -254,9 +254,12 @@ impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::R
                 // If `location` isn't provided, no changes are made.
                 // If `location` is provided, but is an empty vector,
                 // then the constraint is set to `Constraint::Any`.
-                let location = settings
-                    .location
-                    .and_then(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok());
+                let location = settings.location.and_then(|loc| {
+                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
+                        loc,
+                    )
+                    .ok()
+                });
                 let providers = if let Some(ref provider_update) = settings.providers {
                     Some(try_providers_constraint_from_proto(
                         &provider_update.providers,
