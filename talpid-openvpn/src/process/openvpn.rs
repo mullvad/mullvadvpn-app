@@ -15,6 +15,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
     &["--tls-client"],
     &["--nobind"],
+    &["--mute-replay-warnings"],
     #[cfg(not(windows))]
     &["--dev", "tun"],
     #[cfg(windows)]
