@@ -413,7 +413,7 @@ impl RelayConstraints {
             Constraint::Any => {
                 writeln!(
                     f,
-                    "Tunnel protocol: Any\nOpenVPN: {}\nWireguard: ",
+                    "Tunnel protocol: Any\nOpenVPN constraints: {}\nWireguard constraints: ",
                     &self.openvpn_constraints, 
                 )?;
                 self.wireguard_constraints.format(f, custom_lists)?;
