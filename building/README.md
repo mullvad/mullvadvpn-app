@@ -22,6 +22,9 @@ docker:
     sigstore-staging: file://${repo}/building/sigstore
 ```
 
+Sign in to ghcr.io with a classic auth token. Read more here:
+https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic
+
 Build and publish the container image. Tag it with the github hash of the current commit.
 This also adds the container GPG signatures to the sigstore and commits that to git.
 The single sigstore addition (signed) commit can be pushed directly to the main branch without PR.
