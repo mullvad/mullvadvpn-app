@@ -26,6 +26,11 @@ lazy_static::lazy_static! {
         .ok();
 }
 
+pub const CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS: &[u8] = b"custom_list_location_not_found";
+pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
+pub const CUSTOM_LIST_LOCATION_EXISTS_DETAILS: &[u8] = b"custom_list_location_exists";
+pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
