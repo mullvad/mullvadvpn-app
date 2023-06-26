@@ -1107,19 +1107,19 @@ fn map_account_history_error(error: account_history::Error) -> Status {
 fn map_custom_list_error(error: custom_lists::Error) -> Status {
     match error {
         custom_lists::Error::ListExists => {
-            Status::with_details(Code::AlreadyExists, error.to_string(), b"list"[..].into())
+            Status::with_details(Code::AlreadyExists, error.to_string(), mullvad_management_interface::CUSTOM_LIST_LIST_EXISTS_DETAILS.into())
         }
         custom_lists::Error::ListNotFound => {
-            Status::with_details(Code::NotFound, error.to_string(), b"list"[..].into())
+            Status::with_details(Code::NotFound, error.to_string(), mullvad_management_interface::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS.into())
         }
         custom_lists::Error::CannotAddOrRemoveAny => {
             Status::new(Code::InvalidArgument, error.to_string())
         }
         custom_lists::Error::LocationExists => {
-            Status::with_details(Code::AlreadyExists, error.to_string(), b"location"[..].into())
+            Status::with_details(Code::AlreadyExists, error.to_string(), mullvad_management_interface::CUSTOM_LIST_LOCATION_EXISTS_DETAILS.into())
         }
         custom_lists::Error::LocationNotFoundInlist => {
-            Status::with_details(Code::NotFound, error.to_string(), b"location"[..].into())
+            Status::with_details(Code::NotFound, error.to_string(), mullvad_management_interface::CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS.into())
         }
         custom_lists::Error::Settings(error) => {
             map_settings_error(error)
