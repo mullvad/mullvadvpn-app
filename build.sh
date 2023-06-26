@@ -104,7 +104,7 @@ if [[ "$SIGN" == "true" ]]; then
             exit 1
         fi
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
-            read -spr "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+            read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
             export CSC_KEY_PASSWORD
         fi
