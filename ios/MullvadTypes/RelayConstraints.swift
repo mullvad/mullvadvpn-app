@@ -8,6 +8,18 @@
 
 import Foundation
 
+public protocol ConstraintsPropagation {
+    var onNewConstraints: ((RelayConstraints) -> Void)? { get set }
+}
+
+public class RelayConstraintsUpdater: ConstraintsPropagation {
+    public var onNewConstraints: ((RelayConstraints) -> Void)?
+
+    public init(onNewConstraints: ((RelayConstraints) -> Void)? = nil) {
+        self.onNewConstraints = onNewConstraints
+    }
+}
+
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
     public var location: RelayConstraint<RelayLocation>
 
