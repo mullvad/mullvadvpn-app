@@ -66,7 +66,7 @@ Line wrap the file at 100 chars.                                              Th
   packages.
 
 
-## [android/2023.3] - 2023-05-22
+## [android/2023.3] - 2023-06-27
 ### Changed
 #### Android
 - Change so that all links and texts leading to the mullvad webpage display a modified version of
