@@ -84,7 +84,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private var canBeginLogin: Bool {
-        return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
+        contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 
     private let interactor: LoginInteractor
@@ -92,15 +92,15 @@ class LoginViewController: UIViewController, RootContainment {
     var didFinishLogin: ((LoginAction, Error?) -> EndLoginAction)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return HeaderBarPresentation(style: .transparent, showsDivider: false)
+        HeaderBarPresentation(style: .transparent, showsDivider: false)
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     init(interactor: LoginInteractor) {
@@ -168,7 +168,7 @@ class LoginViewController: UIViewController, RootContainment {
 
     override var disablesAutomaticKeyboardDismissal: Bool {
         // Allow dismissing the keyboard in .formSheet presentation style
-        return false
+        false
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

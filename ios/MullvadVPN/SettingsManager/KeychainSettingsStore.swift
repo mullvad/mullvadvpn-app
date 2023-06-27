@@ -34,7 +34,7 @@ class KeychainSettingsStore: SettingsStore {
     private func addItem(_ item: SettingsKey, data: Data) throws {
         var query = createDefaultAttributes(item: item)
         query.merge(createAccessAttributes()) { current, _ in
-            return current
+            current
         }
         query[kSecValueData] = data
 
@@ -89,7 +89,7 @@ class KeychainSettingsStore: SettingsStore {
     }
 
     private func createDefaultAttributes(item: SettingsKey) -> [CFString: Any] {
-        return [
+        [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: serviceName,
             kSecAttrAccount: item.rawValue,
@@ -97,7 +97,7 @@ class KeychainSettingsStore: SettingsStore {
     }
 
     private func createAccessAttributes() -> [CFString: Any] {
-        return [
+        [
             kSecAttrAccessGroup: accessGroup,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
         ]

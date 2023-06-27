@@ -12,7 +12,7 @@ class TermsOfServiceCoordinator: Coordinator, Presenting {
     private let navigationController: RootContainerViewController
 
     var presentationContext: UIViewController {
-        return navigationController
+        navigationController
     }
 
     var didFinish: ((TermsOfServiceCoordinator) -> Void)?

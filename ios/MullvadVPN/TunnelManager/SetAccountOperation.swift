@@ -384,8 +384,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
             dispatchQueue.async { [self] in
                 let result = result
                     .flatMap { devices in
-                        return .success(devices.first { device in
-                            return device.pubkey == publicKey
+                        .success(devices.first { device in
+                            device.pubkey == publicKey
                         })
                     }
                     .inspectError { error in

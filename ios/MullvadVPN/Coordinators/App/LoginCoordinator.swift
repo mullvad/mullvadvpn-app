@@ -37,7 +37,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         let loginController = LoginViewController(interactor: interactor)
 
         loginController.didFinishLogin = { [weak self] action, error in
-            return self?.didFinishLogin(action: action, error: error) ?? .nothing
+            self?.didFinishLogin(action: action, error: error) ?? .nothing
         }
 
         navigationController.pushViewController(loginController, animated: animated)

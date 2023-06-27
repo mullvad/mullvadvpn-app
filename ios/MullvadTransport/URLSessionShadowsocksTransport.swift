@@ -21,7 +21,7 @@ public final class URLSessionShadowsocksTransport: RESTTransport {
     public let urlSession: URLSession
 
     public var name: String {
-        return "shadow-socks-url-session"
+        "shadow-socks-url-session"
     }
 
     public init(

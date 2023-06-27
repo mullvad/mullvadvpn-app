@@ -50,7 +50,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     }
 
     var parsedToken: String {
-        return inputFormatter.string
+        inputFormatter.string
     }
 
     var enableReturnKey = true {
@@ -75,7 +75,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        return inputFormatter.textField(
+        inputFormatter.textField(
             textField,
             shouldChangeCharactersIn: range,
             replacementString: string
@@ -83,7 +83,7 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return onReturnKey?(self) ?? true
+        onReturnKey?(self) ?? true
     }
 
     // MARK: - Notifications

@@ -24,7 +24,7 @@ class TunnelViewController: UIViewController, RootContainment {
     private let mapViewController = MapViewController()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+        .lightContent
     }
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
@@ -40,7 +40,7 @@ class TunnelViewController: UIViewController, RootContainment {
     }
 
     var prefersHeaderBarHidden: Bool {
-        return false
+        false
     }
 
     init(interactor: TunnelViewControllerInteractor) {

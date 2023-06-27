@@ -42,7 +42,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
         applicationGroupContainers = securityGroupIdentifiers
             .compactMap { securityGroupIdentifier -> URL? in
-                return FileManager.default
+                FileManager.default
                     .containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)
             }
     }
@@ -140,7 +140,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             String(decoding: data, as: UTF8.self)
                 .drop { ch in
                     // Drop leading replacement characters produced when decoding data
-                    return ch == replacementCharacter
+                    ch == replacementCharacter
                 }
         )
 
@@ -148,26 +148,26 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     }
 
     private func redactCustomStrings(string: String) -> String {
-        return redactCustomStrings.reduce(string) { resultString, redact -> String in
-            return resultString.replacingOccurrences(of: redact, with: kRedactedPlaceholder)
+        redactCustomStrings.reduce(string) { resultString, redact -> String in
+            resultString.replacingOccurrences(of: redact, with: kRedactedPlaceholder)
         }
     }
 
     private func redact(string: String) -> String {
-        return [
+        [
             redactContainerPaths,
             Self.redactAccountNumber,
             Self.redactIPv4Address,
             Self.redactIPv6Address,
             redactCustomStrings,
         ].reduce(string) { resultString, transform -> String in
-            return transform(resultString)
+            transform(resultString)
         }
     }
 
     private func redactContainerPaths(string: String) -> String {
-        return applicationGroupContainers.reduce(string) { resultString, containerURL -> String in
-            return resultString.replacingOccurrences(
+        applicationGroupContainers.reduce(string) { resultString, containerURL -> String in
+            resultString.replacingOccurrences(
                 of: containerURL.path,
                 with: kRedactedContainerPlaceholder
             )
@@ -175,7 +175,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     }
 
     private static func redactAccountNumber(string: String) -> String {
-        return redact(
+        redact(
             regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
             string: string,
             replacementString: kRedactedAccountPlaceholder
@@ -183,7 +183,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     }
 
     private static func redactIPv4Address(string: String) -> String {
-        return redact(
+        redact(
             regularExpression: NSRegularExpression.ipv4RegularExpression,
             string: string,
             replacementString: kRedactedPlaceholder
@@ -191,7 +191,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     }
 
     private static func redactIPv6Address(string: String) -> String {
-        return redact(
+        redact(
             regularExpression: NSRegularExpression.ipv6RegularExpression,
             string: string,
             replacementString: kRedactedPlaceholder

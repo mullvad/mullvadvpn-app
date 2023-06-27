@@ -10,18 +10,18 @@ import Foundation
 
 public final class NoCancelledDependenciesCondition: OperationCondition {
     public var name: String {
-        return "NoCancelledDependenciesCondition"
+        "NoCancelledDependenciesCondition"
     }
 
     public var isMutuallyExclusive: Bool {
-        return false
+        false
     }
 
     public init() {}
 
     public func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void) {
         let satisfy = operation.dependencies.allSatisfy { operation in
-            return !operation.isCancelled
+            !operation.isCancelled
         }
 
         completion(satisfy)

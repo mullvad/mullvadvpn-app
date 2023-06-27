@@ -31,15 +31,15 @@ final class AccountInputGroupView: UIView {
     }()
 
     var textField: UITextField {
-        return privateTextField
+        privateTextField
     }
 
     var parsedToken: String {
-        return privateTextField.parsedToken
+        privateTextField.parsedToken
     }
 
     var satisfiesMinimumTokenLengthRequirement: Bool {
-        return privateTextField.parsedToken.count > minimumAccountTokenLength
+        privateTextField.parsedToken.count > minimumAccountTokenLength
     }
 
     var didRemoveLastUsedAccount: (() -> Void)?
@@ -398,7 +398,7 @@ final class AccountInputGroupView: UIView {
     // MARK: - Private
 
     private static func accountNumberFont() -> UIFont {
-        return UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
+        UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
     }
 
     private func addTextFieldNotificationObservers() {
@@ -492,8 +492,7 @@ final class AccountInputGroupView: UIView {
         bottomRowView.accessibilityElementsHidden = !shouldShow
 
         if lastUsedAccountButton.accessibilityElementIsFocused() ||
-            removeLastUsedAccountButton.accessibilityElementIsFocused()
-        {
+            removeLastUsedAccountButton.accessibilityElementIsFocused() {
             UIAccessibility.post(notification: .layoutChanged, argument: textField)
         }
     }

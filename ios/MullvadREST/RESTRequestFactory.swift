@@ -20,7 +20,7 @@ extension REST {
             pathPrefix: String,
             bodyEncoder: JSONEncoder
         ) -> RequestFactory {
-            return RequestFactory(
+            RequestFactory(
                 hostname: defaultAPIHostname,
                 pathPrefix: pathPrefix,
                 networkTimeout: defaultAPINetworkTimeout,
@@ -120,7 +120,7 @@ extension REST {
         }
 
         func getRequest() -> REST.Request {
-            return restRequest
+            restRequest
         }
     }
 
@@ -227,7 +227,7 @@ extension REST {
         }
 
         static func + (lhs: URLPathTemplate, rhs: URLPathTemplate) -> URLPathTemplate {
-            return URLPathTemplate(components: lhs.components + rhs.components)
+            URLPathTemplate(components: lhs.components + rhs.components)
         }
     }
 }

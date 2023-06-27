@@ -122,8 +122,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
         do {
             return try Data(contentsOf: appStoreReceiptURL)
         } catch let error as CocoaError
-            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile
-        {
+            where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
             throw StoreReceiptNotFound()
         } catch {
             throw error
@@ -165,6 +164,6 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
 
 struct StoreReceiptNotFound: LocalizedError {
     var errorDescription: String? {
-        return "AppStore receipt file does not exist on disk."
+        "AppStore receipt file does not exist on disk."
     }
 }

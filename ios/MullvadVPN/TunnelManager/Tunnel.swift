@@ -58,13 +58,13 @@ final class Tunnel: Equatable {
 
     /// Tunnel connection status.
     var status: NEVPNStatus {
-        return tunnelProvider.connection.status
+        tunnelProvider.connection.status
     }
 
     /// Whether on-demand VPN is enabled.
     var isOnDemandEnabled: Bool {
         get {
-            return tunnelProvider.isOnDemandEnabled
+            tunnelProvider.isOnDemandEnabled
         }
         set {
             tunnelProvider.isOnDemandEnabled = newValue
@@ -194,7 +194,7 @@ final class Tunnel: Equatable {
     }
 
     static func == (lhs: Tunnel, rhs: Tunnel) -> Bool {
-        return lhs.tunnelProvider == rhs.tunnelProvider
+        lhs.tunnelProvider == rhs.tunnelProvider
     }
 }
 

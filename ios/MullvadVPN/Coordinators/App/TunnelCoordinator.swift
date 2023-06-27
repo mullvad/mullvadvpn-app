@@ -16,7 +16,7 @@ class TunnelCoordinator: Coordinator {
     private var tunnelObserver: TunnelObserver?
 
     var rootViewController: UIViewController {
-        return controller
+        controller
     }
 
     var showSelectLocationPicker: (() -> Void)?

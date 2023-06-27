@@ -47,6 +47,6 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     }
 
     public func encode() throws -> Data {
-        return try JSONEncoder().encode(self)
+        try JSONEncoder().encode(self)
     }
 }

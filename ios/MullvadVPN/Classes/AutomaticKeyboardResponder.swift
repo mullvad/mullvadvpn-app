@@ -127,7 +127,7 @@ class AutomaticKeyboardResponder {
         // Find the container view that private `_UIFormSheetPresentationController` moves
         // along with the keyboard.
         return iterator.first { view -> Bool in
-            return view.description.starts(with: "<UIDropShadowView")
+            view.description.starts(with: "<UIDropShadowView")
         }
     }
 

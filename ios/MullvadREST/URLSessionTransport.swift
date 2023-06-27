@@ -14,7 +14,7 @@ extension URLSessionTask: Cancellable {}
 extension REST {
     public final class URLSessionTransport: RESTTransport {
         public var name: String {
-            return "url-session"
+            "url-session"
         }
 
         public let urlSession: URLSession
@@ -43,7 +43,7 @@ extension REST {
         public let urlSession: URLSession
 
         public var name: String {
-            return "shadow-socks-url-session"
+            "shadow-socks-url-session"
         }
 
         public init(

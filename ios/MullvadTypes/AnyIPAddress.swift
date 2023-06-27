@@ -28,7 +28,7 @@ public enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConver
     }
 
     public var rawValue: Data {
-        return innerAddress.rawValue
+        innerAddress.rawValue
     }
 
     public init(from decoder: Decoder) throws {
@@ -79,19 +79,19 @@ public enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConver
     }
 
     public var interface: NWInterface? {
-        return innerAddress.interface
+        innerAddress.interface
     }
 
     public var isLoopback: Bool {
-        return innerAddress.isLoopback
+        innerAddress.isLoopback
     }
 
     public var isLinkLocal: Bool {
-        return innerAddress.isLinkLocal
+        innerAddress.isLinkLocal
     }
 
     public var isMulticast: Bool {
-        return innerAddress.isMulticast
+        innerAddress.isMulticast
     }
 
     public var debugDescription: String {

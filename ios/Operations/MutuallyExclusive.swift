@@ -12,7 +12,7 @@ public final class MutuallyExclusive: OperationCondition {
     public let name: String
 
     public var isMutuallyExclusive: Bool {
-        return true
+        true
     }
 
     public init(category: String) {

@@ -40,7 +40,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
     private let locationCellFactory: LocationCellFactory
 
     private class func makeRootNode() -> Node {
-        return Node(
+        Node(
             type: .root,
             location: RelayLocation.country("#root"),
             displayName: "",
@@ -144,7 +144,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
     }
 
     func indexPathForSelectedRelay() -> IndexPath? {
-        return selectedRelayLocation.flatMap { indexPath(for: $0) }
+        selectedRelayLocation.flatMap { indexPath(for: $0) }
     }
 
     func filterRelays(by searchString: String) {
@@ -292,8 +292,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
                 if let location = node.children.last?.location,
                    let lastInsertedIndexPath = self?.indexPath(for: location),
                    let lastVisibleIndexPath = visibleIndexPaths.last,
-                   lastInsertedIndexPath >= lastVisibleIndexPath
-                {
+                   lastInsertedIndexPath >= lastVisibleIndexPath {
                     self?.tableView.scrollToRow(
                         at: lastInsertedIndexPath,
                         at: .bottom,
@@ -322,7 +321,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
     }
 
     private func item(for indexPath: IndexPath) -> LocationDataSourceItemProtocol? {
-        return itemIdentifier(for: indexPath).flatMap { nodeByLocation[$0] }
+        itemIdentifier(for: indexPath).flatMap { nodeByLocation[$0] }
     }
 
     private func scrollToTop(animated: Bool) {
@@ -332,11 +331,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        return item(for: indexPath)?.isActive ?? false
+        item(for: indexPath)?.isActive ?? false
     }
 
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
-        return item(for: indexPath)?.indentationLevel ?? 0
+        item(for: indexPath)?.indentationLevel ?? 0
     }
 
     func tableView(
@@ -345,8 +344,7 @@ extension LocationDataSource: UITableViewDelegate {
         forRowAt indexPath: IndexPath
     ) {
         if let item = item(for: indexPath),
-           item.location == selectedRelayLocation
-        {
+           item.location == selectedRelayLocation {
             cell.setSelected(true, animated: false)
         }
     }
@@ -359,8 +357,7 @@ extension LocationDataSource: UITableViewDelegate {
         }
 
         if let indexPath = indexPathForSelectedRelay(),
-           let cell = tableView.cellForRow(at: indexPath)
-        {
+           let cell = tableView.cellForRow(at: indexPath) {
             cell.setSelected(false, animated: false)
         }
 
@@ -457,7 +454,7 @@ extension LocationDataSource {
                 fallthrough
             case .city:
                 isActive = children.contains(where: { node -> Bool in
-                    return node.isActive
+                    node.isActive
                 })
             case .relay:
                 break
@@ -465,7 +462,7 @@ extension LocationDataSource {
         }
 
         func flatRelayLocationList(includeHiddenChildren: Bool = false) -> [RelayLocation] {
-            return children.reduce(into: []) { array, node in
+            children.reduce(into: []) { array, node in
                 Self.flatten(node: node, into: &array, includeHiddenChildren: includeHiddenChildren)
             }
         }
@@ -474,11 +471,11 @@ extension LocationDataSource {
             switch nodeType {
             case .root, .country:
                 children.sort { a, b -> Bool in
-                    return lexicalSortComparator(a.displayName, b.displayName)
+                    lexicalSortComparator(a.displayName, b.displayName)
                 }
             case .city:
                 children.sort { a, b -> Bool in
-                    return fileSortComparator(
+                    fileSortComparator(
                         a.location.stringRepresentation,
                         b.location.stringRepresentation
                     )
@@ -500,11 +497,11 @@ extension LocationDataSource {
 }
 
 private func lexicalSortComparator(_ a: String, _ b: String) -> Bool {
-    return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+    a.localizedCaseInsensitiveCompare(b) == .orderedAscending
 }
 
 private func fileSortComparator(_ a: String, _ b: String) -> Bool {
-    return a.localizedStandardCompare(b) == .orderedAscending
+    a.localizedStandardCompare(b) == .orderedAscending
 }
 
 private extension [RelayLocation] {

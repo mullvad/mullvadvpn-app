@@ -34,6 +34,6 @@ extension Bundle {
 
     /// Returns short version XXXX.YY (i.e 2020.5).
     var shortVersion: String {
-        return object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "???"
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "???"
     }
 }

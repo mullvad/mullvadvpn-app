@@ -136,8 +136,8 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
         let ipv6AddressCharset = CharacterSet.ipv6AddressCharset
 
         return [ipv4AddressCharset, ipv6AddressCharset].contains { charset in
-            return string.unicodeScalars.allSatisfy { scalar in
-                return charset.contains(scalar)
+            string.unicodeScalars.allSatisfy { scalar in
+                charset.contains(scalar)
             }
         }
     }

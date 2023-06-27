@@ -20,11 +20,11 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
     let navigationController: UINavigationController
     var presentedViewController: UIViewController {
-        return navigationController
+        navigationController
     }
 
     var presentationContext: UIViewController {
-        return navigationController
+        navigationController
     }
 
     var didFinish: ((AccountCoordinator, AccountDismissReason) -> Void)?

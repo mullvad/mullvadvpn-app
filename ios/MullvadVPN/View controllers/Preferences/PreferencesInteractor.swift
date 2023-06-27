@@ -18,11 +18,11 @@ final class PreferencesInteractor {
     var cachedRelaysDidChange: ((CachedRelays) -> Void)?
 
     var tunnelSettings: TunnelSettingsV2 {
-        return tunnelManager.settings
+        tunnelManager.settings
     }
 
     var cachedRelays: CachedRelays? {
-        return try? relayCacheTracker.getCachedRelays()
+        try? relayCacheTracker.getCachedRelays()
     }
 
     init(tunnelManager: TunnelManager, relayCacheTracker: RelayCacheTracker) {

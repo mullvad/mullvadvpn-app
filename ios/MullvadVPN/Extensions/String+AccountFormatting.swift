@@ -10,6 +10,6 @@ import Foundation
 
 extension String {
     var formattedAccountNumber: String {
-        return split(every: 4).joined(separator: " ")
+        split(every: 4).joined(separator: " ")
     }
 }

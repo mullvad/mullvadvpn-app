@@ -421,12 +421,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// If (1) is `false` and (2) is `true`, we know that the app has been freshly installed/reinstalled and is
     /// compatible, thus triggering a settings wipe.
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
-        return AsyncBlockOperation {
+        AsyncBlockOperation {
             if !FirstTimeLaunch.hasFinished, SettingsManager.getShouldWipeSettings() {
                 if let deviceState = try? SettingsManager.readDeviceState(),
                    let accountData = deviceState.accountData,
-                   let deviceData = deviceState.deviceData
-                {
+                   let deviceData = deviceState.deviceData {
                     _ = self.devicesProxy.deleteDevice(
                         accountNumber: accountData.number,
                         identifier: deviceData.identifier,
@@ -450,7 +449,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Since we do not persist the relation between payment and account number between the
         // app launches, we assume that all successful purchases belong to the active account
         // number.
-        return tunnelManager.deviceState.accountData?.number
+        tunnelManager.deviceState.accountData?.number
     }
 
     // MARK: - UNUserNotificationCenterDelegate

@@ -68,12 +68,12 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
 
     var shouldRemovePendingRequests: Bool {
         // Remove pending notifications when account expiry is not set (user logged out)
-        return shouldRemovePendingOrDeliveredRequests
+        shouldRemovePendingOrDeliveredRequests
     }
 
     var shouldRemoveDeliveredRequests: Bool {
         // Remove delivered notifications when account expiry is not set (user logged out)
-        return shouldRemovePendingOrDeliveredRequests
+        shouldRemovePendingOrDeliveredRequests
     }
 
     // MARK: - Private
@@ -100,7 +100,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     }
 
     private var shouldRemovePendingOrDeliveredRequests: Bool {
-        return accountExpiry == nil
+        accountExpiry == nil
     }
 
     private func invalidate(deviceState: DeviceState) {

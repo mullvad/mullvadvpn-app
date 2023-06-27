@@ -15,7 +15,7 @@ final class RevokedDeviceInteractor {
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
     var tunnelStatus: TunnelStatus {
-        return tunnelManager.tunnelStatus
+        tunnelManager.tunnelStatus
     }
 
     init(tunnelManager: TunnelManager) {

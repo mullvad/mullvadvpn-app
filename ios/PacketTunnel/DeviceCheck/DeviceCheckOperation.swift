@@ -99,7 +99,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
             if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
                 rotateKeyIfNeeded { rotationResult in
                     completion(rotationResult.map { rotationStatus in
-                        return DeviceCheck(
+                        DeviceCheck(
                             accountVerdict: accountVerdict,
                             deviceVerdict: rotationStatus.isSucceeded ? .active : .keyMismatch,
                             keyRotationStatus: rotationStatus

@@ -187,7 +187,7 @@ class DeviceManagementContentView: UIView {
 
     func setDeviceViewModels(_ newModels: [DeviceViewModel], animated: Bool) {
         let difference = newModels.difference(from: currentDeviceModels) { newModel, model in
-            return newModel.id == model.id
+            newModel.id == model.id
         }
 
         currentDeviceModels = newModels

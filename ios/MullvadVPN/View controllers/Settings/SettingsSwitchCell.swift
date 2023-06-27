@@ -59,7 +59,7 @@ class SettingsSwitchCell: SettingsCell {
         }
         get {
             // Use UISwitch traits to make the entire cell behave as "Switch button"
-            return switchContainer.control.accessibilityTraits
+            switchContainer.control.accessibilityTraits
         }
     }
 
@@ -68,7 +68,7 @@ class SettingsSwitchCell: SettingsCell {
             super.accessibilityLabel = newValue
         }
         get {
-            return titleLabel.text
+            titleLabel.text
         }
     }
 
@@ -77,7 +77,7 @@ class SettingsSwitchCell: SettingsCell {
             super.accessibilityValue = newValue
         }
         get {
-            return self.switchContainer.control.accessibilityValue
+            self.switchContainer.control.accessibilityValue
         }
     }
 
@@ -86,7 +86,7 @@ class SettingsSwitchCell: SettingsCell {
             super.accessibilityFrame = newValue
         }
         get {
-            return UIAccessibility.convertToScreenCoordinates(self.bounds, in: self)
+            UIAccessibility.convertToScreenCoordinates(self.bounds, in: self)
         }
     }
 
@@ -95,7 +95,7 @@ class SettingsSwitchCell: SettingsCell {
             super.accessibilityPath = newValue
         }
         get {
-            return UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: 4)
+            UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: 4)
         }
     }
 

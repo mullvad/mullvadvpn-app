@@ -549,8 +549,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     private func makeConfiguration(_ nextRelay: NextRelay)
-        throws -> PacketTunnelConfiguration
-    {
+        throws -> PacketTunnelConfiguration {
         let tunnelSettings = try SettingsManager.readSettings()
         let selectorResult: RelaySelectorResult
 
@@ -668,8 +667,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Load relay cache with potential networking to refresh the cache and pick the relay for the
     /// given relay constraints.
     private func selectRelayEndpoint(relayConstraints: RelayConstraints) throws
-        -> RelaySelectorResult
-    {
+        -> RelaySelectorResult {
         let cachedRelayList = try relayCache.read()
 
         return try RelaySelector.evaluate(

@@ -37,7 +37,7 @@ class SpinnerActivityIndicatorView: UIView {
     private var sceneActivationObserver: Any?
 
     override var intrinsicContentSize: CGSize {
-        return style.intrinsicSize
+        style.intrinsicSize
     }
 
     init(style: Style) {

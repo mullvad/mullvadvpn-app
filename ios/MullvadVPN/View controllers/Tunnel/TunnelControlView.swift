@@ -104,7 +104,7 @@ final class TunnelControlView: UIView {
     var actionHandler: ((TunnelControlAction) -> Void)?
 
     var mapCenterAlignmentView: UIView {
-        return activityIndicator
+        activityIndicator
     }
 
     override init(frame: CGRect) {
@@ -134,8 +134,7 @@ final class TunnelControlView: UIView {
         }
 
         if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
-            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass
-        {
+            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
             updateActionButtons()
         }
     }

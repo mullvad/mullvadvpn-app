@@ -28,12 +28,12 @@ enum StoreSubscription: String {
 
 extension SKProduct {
     var customLocalizedTitle: String? {
-        return StoreSubscription(rawValue: productIdentifier)?.localizedTitle
+        StoreSubscription(rawValue: productIdentifier)?.localizedTitle
     }
 }
 
 extension Set<StoreSubscription> {
     var productIdentifiersSet: Set<String> {
-        return Set<String>(map { $0.rawValue })
+        Set<String>(map { $0.rawValue })
     }
 }

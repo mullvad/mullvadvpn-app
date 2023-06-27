@@ -54,12 +54,12 @@ class SimulatorTunnelProviderDelegate {
     fileprivate(set) var connection: SimulatorVPNConnection?
 
     var protocolConfiguration: NEVPNProtocol {
-        return connection?.protocolConfiguration ?? NEVPNProtocol()
+        connection?.protocolConfiguration ?? NEVPNProtocol()
     }
 
     var reasserting: Bool {
         get {
-            return connection?.reasserting ?? false
+            connection?.reasserting ?? false
         }
         set {
             connection?.reasserting = newValue
@@ -354,7 +354,7 @@ final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerPr
     ) -> Void) {
         Self.tunnelsLock.lock()
         let tunnelProviders = tunnels.map { tunnelInfo in
-            return SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
+            SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
         }
         Self.tunnelsLock.unlock()
 

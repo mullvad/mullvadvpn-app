@@ -35,7 +35,7 @@ enum SettingsManager {
     )
 
     private static func makeParser() -> SettingsParser {
-        return SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
 
     // MARK: - Last used account
@@ -71,7 +71,7 @@ enum SettingsManager {
     // MARK: - Should wipe settings
 
     static func getShouldWipeSettings() -> Bool {
-        return (try? store.read(key: .shouldWipeSettings)) != nil
+        (try? store.read(key: .shouldWipeSettings)) != nil
     }
 
     static func setShouldWipeSettings() {
@@ -300,7 +300,7 @@ enum SettingsManager {
 
         // Find settings matching the account number stored in user defaults.
         let matchingSettings = storedSettings.first { settings in
-            return settings.accountNumber == storedAccountNumber
+            settings.accountNumber == storedAccountNumber
         }
 
         guard let matchingSettings else {
@@ -452,11 +452,11 @@ struct ReadSettingsVersionError: LocalizedError, WrappingError {
     private let inner: Error
 
     var underlyingError: Error? {
-        return inner
+        inner
     }
 
     var errorDescription: String? {
-        return "Failed to read settings version."
+        "Failed to read settings version."
     }
 
     init(underlyingError: Error) {
@@ -470,7 +470,7 @@ struct UnsupportedSettingsVersionError: LocalizedError {
     let currentVersion: SchemaVersion
 
     var errorDescription: String? {
-        return """
+        """
         Stored settings version was not the same as current version, \
         stored version: \(storedVersion), current version: \(currentVersion)
         """
@@ -483,11 +483,11 @@ struct SettingsMigrationError: LocalizedError, WrappingError {
     let sourceVersion, targetVersion: SchemaVersion
 
     var underlyingError: Error? {
-        return inner
+        inner
     }
 
     var errorDescription: String? {
-        return "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
+        "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
     }
 
     init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
@@ -501,7 +501,7 @@ struct StringDecodingError: LocalizedError {
     let data: Data
 
     var errorDescription: String? {
-        return "Failed to decode string from data."
+        "Failed to decode string from data."
     }
 }
 
@@ -509,6 +509,6 @@ struct StringEncodingError: LocalizedError {
     let string: String
 
     var errorDescription: String? {
-        return "Failed to encode string into data."
+        "Failed to encode string into data."
     }
 }

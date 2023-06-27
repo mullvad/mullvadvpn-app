@@ -59,7 +59,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
     }
 
     static func < (lhs: AppRouteGroup, rhs: AppRouteGroup) -> Bool {
-        return lhs.order < rhs.order
+        lhs.order < rhs.order
     }
 }
 
@@ -347,7 +347,7 @@ final class ApplicationRouter {
      Returns `true` is the given route group is currently being presented.
      */
     func isPresenting(_ group: AppRouteGroup) -> Bool {
-        return modalStack.contains(group)
+        modalStack.contains(group)
     }
 
     /**
@@ -399,8 +399,7 @@ final class ApplicationRouter {
          Pass sub-route for routes supporting sub-navigation.
          */
         if route.supportsSubNavigation, modalStack.contains(route.routeGroup),
-           var presentedRoute = presentedRoutes[route.routeGroup]?.first
-        {
+           var presentedRoute = presentedRoutes[route.routeGroup]?.first {
             let context = RouteSubnavigationContext(
                 presentedRoute: presentedRoute,
                 route: route,
@@ -437,8 +436,7 @@ final class ApplicationRouter {
          Check if route can be presented above the last route in the modal stack.
          */
         if let lastRouteGroup = modalStack.last, lastRouteGroup >= route.routeGroup,
-           route.routeGroup.isModal, route.isExclusive
-        {
+           route.routeGroup.isModal, route.isExclusive {
             completion(.blockedByModalContext)
             return
         }
@@ -532,8 +530,7 @@ final class ApplicationRouter {
         if let lastModalGroup = modalStack.last,
            lastModalGroup != dismissRoute.routeGroup,
            dismissRoute.routeGroup.isModal,
-           isLastRoute
-        {
+           isLastRoute {
             completion(.blockedByModalAbove)
             return
         }
@@ -569,7 +566,7 @@ final class ApplicationRouter {
         isProcessingPendingRoutes = true
 
         let pendingRoute = pendingRoutes.first { pendingRoute in
-            return !skipRouteGroups.contains(pendingRoute.operation.routeGroup)
+            !skipRouteGroups.contains(pendingRoute.operation.routeGroup)
         }
 
         guard let pendingRoute else {
@@ -640,7 +637,7 @@ final class ApplicationRouter {
         var routes = presentedRoutes[route.routeGroup] ?? []
 
         routes.removeAll { presentedRoute in
-            return presentedRoute.coordinator == coordinator
+            presentedRoute.coordinator == coordinator
         }
 
         if routes.isEmpty {

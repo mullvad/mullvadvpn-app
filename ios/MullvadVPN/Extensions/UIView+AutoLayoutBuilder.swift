@@ -27,14 +27,14 @@ extension UIView {
      Pin all edges to edges of other view.
      */
     func pinEdgesTo(_ other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
-        return pinEdges(.all(), to: other)
+        pinEdges(.all(), to: other)
     }
 
     /**
      Pin edges to edges of other view.
      */
     func pinEdges(_ edges: PinnableEdges, to other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
-        return edges.makeConstraints(firstView: self, secondView: other)
+        edges.makeConstraints(firstView: self, secondView: other)
     }
 
     /**
@@ -80,31 +80,31 @@ extension UIView {
  */
 @resultBuilder enum AutoLayoutBuilder {
     static func buildBlock(_ components: [NSLayoutConstraint]...) -> [NSLayoutConstraint] {
-        return components.flatMap { $0 }
+        components.flatMap { $0 }
     }
 
     static func buildExpression(_ expression: NSLayoutConstraint) -> [NSLayoutConstraint] {
-        return [expression]
+        [expression]
     }
 
     static func buildExpression(_ expression: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
-        return expression
+        expression
     }
 
     static func buildOptional(_ components: [NSLayoutConstraint]?) -> [NSLayoutConstraint] {
-        return components ?? []
+        components ?? []
     }
 
     static func buildEither(first components: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
-        return components
+        components
     }
 
     static func buildEither(second components: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
-        return components
+        components
     }
 
     static func buildArray(_ components: [[NSLayoutConstraint]]) -> [NSLayoutConstraint] {
-        return components.flatMap { $0 }
+        components.flatMap { $0 }
     }
 }
 
@@ -180,7 +180,7 @@ struct PinnableEdges {
         }
 
         static func == (lhs: Self, rhs: Self) -> Bool {
-            return lhs.rectEdge == rhs.rectEdge
+            lhs.rectEdge == rhs.rectEdge
         }
 
         func makeConstraint(
@@ -219,7 +219,7 @@ struct PinnableEdges {
      Returns new `PinnableEdges` with the given edge(s) excluded.
      */
     func excluding(_ excludeEdges: NSDirectionalRectEdge) -> Self {
-        return Self(inner.filter { !excludeEdges.contains($0.rectEdge) })
+        Self(inner.filter { !excludeEdges.contains($0.rectEdge) })
     }
 
     /**
@@ -227,7 +227,7 @@ struct PinnableEdges {
      `NSDirectionalEdgeInsets`.
      */
     static func all(_ directionalEdgeInsets: NSDirectionalEdgeInsets = .zero) -> Self {
-        return Self([
+        Self([
             .top(directionalEdgeInsets.top),
             .bottom(directionalEdgeInsets.bottom),
             .leading(directionalEdgeInsets.leading),
@@ -242,6 +242,6 @@ struct PinnableEdges {
         firstView: AutoLayoutAnchorsProtocol,
         secondView: AutoLayoutAnchorsProtocol
     ) -> [NSLayoutConstraint] {
-        return inner.map { $0.makeConstraint(firstView: firstView, secondView: secondView) }
+        inner.map { $0.makeConstraint(firstView: firstView, secondView: secondView) }
     }
 }
