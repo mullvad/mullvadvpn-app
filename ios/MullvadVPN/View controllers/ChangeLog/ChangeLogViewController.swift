@@ -19,6 +19,10 @@ class ChangeLogViewController: UIViewController, RootContainment {
         return false
     }
 
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
+
     // MARK: - Public
 
     var onFinish: (() -> Void)?
