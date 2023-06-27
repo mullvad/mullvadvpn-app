@@ -8,15 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -63,47 +64,48 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },
-        buttons = {
-            Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
-                Button(
-                    modifier =
-                        Modifier.height(dimensionResource(id = R.dimen.button_height))
-                            .defaultMinSize(
-                                minWidth = 0.dp,
-                                minHeight = dimensionResource(id = R.dimen.button_height)
-                            )
-                            .fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(id = R.color.red),
-                            contentColor = Color.White
-                        ),
-                    onClick = { viewModel.confirmRemovalOfStagedDevice() }
-                ) {
-                    Text(text = stringResource(id = R.string.confirm_removal), fontSize = 18.sp)
-                }
-                Button(
-                    contentPadding = PaddingValues(0.dp),
-                    modifier =
-                        Modifier.focusOrder(FocusRequester())
-                            .padding(top = 16.dp)
-                            .height(dimensionResource(id = R.dimen.button_height))
-                            .defaultMinSize(
-                                minWidth = 0.dp,
-                                minHeight = dimensionResource(id = R.dimen.button_height)
-                            )
-                            .fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(id = R.color.blue),
-                            contentColor = Color.White
-                        ),
-                    onClick = { viewModel.clearStagedDevice() }
-                ) {
-                    Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
-                }
+        dismissButton = {
+            Button(
+                modifier =
+                    Modifier.height(dimensionResource(id = R.dimen.button_height))
+                        .defaultMinSize(
+                            minWidth = 0.dp,
+                            minHeight = dimensionResource(id = R.dimen.button_height)
+                        )
+                        .fillMaxWidth(),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.red),
+                        contentColor = Color.White
+                    ),
+                onClick = { viewModel.confirmRemovalOfStagedDevice() },
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(text = stringResource(id = R.string.confirm_removal), fontSize = 18.sp)
             }
         },
-        backgroundColor = colorResource(id = R.color.darkBlue)
+        confirmButton = {
+            Button(
+                contentPadding = PaddingValues(0.dp),
+                modifier =
+                    Modifier.focusRequester(FocusRequester())
+                        .height(dimensionResource(id = R.dimen.button_height))
+                        .defaultMinSize(
+                            minWidth = 0.dp,
+                            minHeight = dimensionResource(id = R.dimen.button_height)
+                        )
+                        .fillMaxWidth(),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.blue),
+                        contentColor = Color.White
+                    ),
+                onClick = { viewModel.clearStagedDevice() },
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
+            }
+        },
+        containerColor = colorResource(id = R.color.darkBlue)
     )
 }

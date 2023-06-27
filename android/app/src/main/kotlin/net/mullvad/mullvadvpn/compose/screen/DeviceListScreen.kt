@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -174,8 +174,8 @@ fun DeviceListScreen(
                 isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadGreen,
-                        disabledBackgroundColor = MullvadGreen40,
+                        containerColor = MullvadGreen,
+                        disabledContainerColor = MullvadGreen40,
                         disabledContentColor = MullvadWhite80,
                         contentColor = MullvadWhite
                     )
@@ -186,7 +186,7 @@ fun DeviceListScreen(
                 onClick = onBackClick,
                 colors =
                     ButtonDefaults.buttonColors(
-                        backgroundColor = MullvadBlue,
+                        containerColor = MullvadBlue,
                         contentColor = MullvadWhite
                     ),
                 modifier = Modifier.padding(top = 16.dp)

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -61,14 +62,16 @@ private val MullvadColorPalette =
         onPrimary = MullvadWhite,
         onSecondary = MullvadWhite60,
         inversePrimary = MullvadGreen,
-        error = MullvadRed
+        error = MullvadRed,
+        outlineVariant = Color.Transparent // Used by divider
     )
 
 val Shapes =
     Shapes(
         small = RoundedCornerShape(4.dp),
         medium = RoundedCornerShape(4.dp),
-        large = RoundedCornerShape(0.dp)
+        large = RoundedCornerShape(0.dp),
+        extraLarge = RoundedCornerShape(4.dp)
     )
 
 val Dimens: Dimensions

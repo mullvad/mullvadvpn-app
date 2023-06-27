@@ -10,9 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,8 +74,9 @@ fun CollapsingTopBar(
         colors =
             ButtonDefaults.buttonColors(
                 contentColor = Color.White,
-                backgroundColor = MullvadDarkBlue
-            )
+                containerColor = MullvadDarkBlue
+            ),
+        shape = MaterialTheme.shapes.small
     ) {
         Image(
             painter = painterResource(id = backIcon ?: R.drawable.icon_back),
