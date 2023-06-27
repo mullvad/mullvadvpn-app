@@ -40,6 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
+    private var relayConstraintsObserver: TunnelBlockObserver!
 
     // MARK: - Application lifecycle
 
@@ -85,6 +86,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             apiProxy: apiProxy
         )
 
+        let constraintsUpdater = RelayConstraintsUpdater()
+        relayConstraintsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+            constraintsUpdater.onNewConstraints?(settings.relayConstraints)
+        })
+
         storePaymentManager = StorePaymentManager(
             application: application,
             queue: .default(),
@@ -98,8 +104,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,
             addressCache: addressCache,
-            shadowsocksCache: shadowsocksCache
+            shadowsocksCache: shadowsocksCache,
+            constraintsUpdater: constraintsUpdater
         )
+
+        tunnelManager.addObserver(relayConstraintsObserver)
 
         transportMonitor = TransportMonitor(
             tunnelManager: tunnelManager,
