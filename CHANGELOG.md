@@ -31,11 +31,14 @@ Line wrap the file at 100 chars.                                              Th
 - Clarify some of the error messages showed in notifications.
 
 ### Fixed
-- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
-
 #### Android
 - Fix adaptive app icon which previously had a displaced nose and some other oddities.
 - Fix app version sometimes missing in the settings menu.
+
+
+## [2023.4] - 2023-06-27
+### Fixed
+- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
 
 
 ## [2023.4-beta1] - 2023-05-02
