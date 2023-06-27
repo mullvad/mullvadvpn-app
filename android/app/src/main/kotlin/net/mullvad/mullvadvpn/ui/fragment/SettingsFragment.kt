@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.CollapsibleTitleController
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.appVersionInfoCache
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
+import net.mullvad.mullvadvpn.ui.widget.UrlCell
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
@@ -79,6 +81,13 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
         appVersionMenu = view.findViewById<AppVersionCell>(R.id.app_version)
 
         titleController = CollapsibleTitleController(view)
+
+        view.findViewById<UrlCell>(R.id.faqs_and_guides).visibility =
+            if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
 
         return view
     }
