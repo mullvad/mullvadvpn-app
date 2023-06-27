@@ -59,7 +59,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
   started, the relay list would only be updated after attempting to connect to the VPN.
-- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
 
 #### Android
 - Fix connection header flickering.
@@ -69,6 +68,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Remove the CLI subcommand `mullvad relay set hostname`.
+
+
+## [2023.4] - 2023-06-27
+### Fixed
+- Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
+
 
 ## [android/2023.3] - 2023-06-27
 ### Changed
