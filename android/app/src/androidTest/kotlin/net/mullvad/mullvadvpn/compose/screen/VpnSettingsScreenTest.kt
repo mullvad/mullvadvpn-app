@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
@@ -39,7 +38,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDefaultState() {
         // Arrange
         composeTestRule.setContent {
@@ -62,7 +60,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuCustomValue() {
         // Arrange
         composeTestRule.setContent {
@@ -77,7 +74,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
@@ -97,7 +93,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogWithDefaultValue() {
         // Arrange
         composeTestRule.setContent {
@@ -112,7 +107,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogWithEditValue() {
         // Arrange
         composeTestRule.setContent {
@@ -127,7 +121,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogTextInput() {
         // Arrange
         val mockedInputHandler: (String) -> Unit = mockk(relaxed = true)
@@ -147,7 +140,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogSubmitOfValidValue() {
         // Arrange
         val mockedSubmitHandler: () -> Unit = mockk(relaxed = true)
@@ -167,7 +159,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() {
         // Arrange
         composeTestRule.setContent {
@@ -183,7 +174,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogResetClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
@@ -203,7 +193,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testMtuDialogCancelClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
@@ -223,7 +212,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testCustomDnsAddressesAndAddButtonVisibleWhenCustomDnsEnabled() {
         // Arrange
         composeTestRule.setContent {
@@ -255,7 +243,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testCustomDnsAddressesAndAddButtonNotVisibleWhenCustomDnsDisabled() {
         // Arrange
         composeTestRule.setContent {
@@ -277,7 +264,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressIsUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -298,7 +284,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testLanWarningNotShowedWhenLanTrafficDisabledAndLocalAddressIsNotUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -319,7 +304,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testLanWarningNotShowedWhenLanTrafficEnabledAndLocalAddressIsNotUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -340,7 +324,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testLanWarningShowedWhenAllowLanEnabledAndLocalDnsAddressIsUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -366,7 +349,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testClickAddDns() {
         // Arrange
         val mockedClickHandler: (Int?) -> Unit = mockk(relaxed = true)
@@ -389,7 +371,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testShowDnsDialogForNewDnsServer() {
         // Arrange
         composeTestRule.setContent {
@@ -410,7 +391,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testShowDnsDialogForUpdatingDnsServer() {
         // Arrange
         composeTestRule.setContent {
@@ -432,7 +412,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogLanWarningShownWhenLanTrafficDisabledAndLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -455,7 +434,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -478,7 +456,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndNonLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -501,7 +478,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogLanWarningNotShownWhenLanTrafficDisabledAndNonLocalAddressUsed() {
         // Arrange
         composeTestRule.setContent {
@@ -524,7 +500,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() {
         // Arrange
         composeTestRule.setContent {
@@ -546,7 +521,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() {
         // Arrange
         composeTestRule.setContent {
@@ -568,7 +542,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testShowSelectedTunnelQuantumOption() {
         // Arrange
         composeTestRule.setContent {
@@ -589,7 +562,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testSelectTunnelQuantumOption() {
         // Arrange
         val mockSelectQuantumResistantSettingListener: (QuantumResistantState) -> Unit =
@@ -618,7 +590,6 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun testShowTunnelQuantumInfo() {
         // Arrange
         composeTestRule.setContent {

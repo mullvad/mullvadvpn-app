@@ -5,10 +5,11 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,7 +51,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
                 changesList.forEach { changeItem -> ChangeListItem(text = changeItem) }
             }
         },
-        buttons = {
+        confirmButton = {
             Button(
                 modifier =
                     Modifier.wrapContentHeight()
@@ -59,10 +60,11 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(id = R.color.blue),
+                        containerColor = colorResource(id = R.color.blue),
                         contentColor = colorResource(id = R.color.white)
                     ),
-                onClick = { onDismiss() }
+                onClick = { onDismiss() },
+                shape = MaterialTheme.shapes.small
             ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_dismiss_button),
@@ -75,7 +77,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
                 dismissOnClickOutside = true,
                 dismissOnBackPress = true,
             ),
-        backgroundColor = colorResource(id = R.color.darkBlue)
+        containerColor = colorResource(id = R.color.darkBlue)
     )
 }
 
