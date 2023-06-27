@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -18,6 +19,7 @@ class RelayListListener(
 ) {
     private var relayList: RelayList? = null
     private var relaySettings: RelaySettings? = null
+    private var portRanges: List<PortRange> = emptyList()
 
     var selectedRelayItem: RelayItem? = null
         private set
@@ -46,9 +48,19 @@ class RelayListListener(
             }
         }
 
+    var onPortRangesChange: ((List<PortRange>) -> Unit)? = null
+        set(value) {
+            field = value
+
+            synchronized(this) { value?.invoke(portRanges) }
+        }
+
     init {
         eventDispatcher.registerHandler(Event.NewRelayList::class) { event ->
-            event.relayList?.let { relayLocations -> relayListChanged(RelayList(relayLocations)) }
+            event.relayList?.let { relayLocations ->
+                relayListChanged(RelayList(relayLocations))
+                onPortRangesChange?.invoke(relayLocations.wireguardEndpointData.portRanges)
+            }
         }
 
         settingsListener.relaySettingsNotifier.subscribe(this) { newRelaySettings ->
