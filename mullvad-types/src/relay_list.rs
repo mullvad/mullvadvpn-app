@@ -22,7 +22,6 @@ pub struct RelayList {
     pub openvpn: OpenVpnEndpointData,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge: BridgeEndpointData,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub wireguard: WireguardEndpointData,
 }
 
@@ -118,13 +117,22 @@ pub struct OpenVpnEndpoint {
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-#[cfg_attr(target_os = "android", jnix(skip_all))]
+#[serde(rename_all = "snake_case")]
 pub struct WireguardEndpointData {
     /// Port to connect to
+    #[cfg_attr(
+        target_os = "android",
+        jnix(
+            map = "|ranges| ranges.iter().map(|r| PortRange { from: r.0 as i32, to: r.1 as i32 } ).collect::<Vec<PortRange>>()"
+        )
+    )]
     pub port_ranges: Vec<(u16, u16)>,
     /// Gateways to be used with the tunnel
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ipv4_gateway: Ipv4Addr,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ipv6_gateway: Ipv6Addr,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub udp2tcp_ports: Vec<u16>,
 }
 
@@ -137,6 +145,15 @@ impl Default for WireguardEndpointData {
             udp2tcp_ports: vec![],
         }
     }
+}
+
+/// Used for jni conversion
+#[derive(Clone, Eq, PartialEq, Hash, Debug)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+struct PortRange {
+    from: i32,
+    to: i32,
 }
 
 /// Contains data about specific WireGuard endpoints, i.e. their public keys.
