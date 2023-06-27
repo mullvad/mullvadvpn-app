@@ -8,9 +8,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
+import net.mullvad.mullvadvpn.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import org.junit.Before
@@ -131,10 +133,15 @@ class SelectLocationScreenTest {
         private val DUMMY_RELAY_COUNTRY_2 =
             RelayListCountry("Relay Country 2", "RCo2", arrayListOf(DUMMY_RELAY_CITY_2))
 
+        private val DUMMY_WIREGUARD_PORT_RANGES = ArrayList<PortRange>()
+        private val DUMMY_WIREGUARD_ENDPOINT_DATA =
+            WireguardEndpointData(DUMMY_WIREGUARD_PORT_RANGES)
+
         private val DUMMY_RELAY_LIST =
             RelayList(
                 net.mullvad.mullvadvpn.model.RelayList(
-                    arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2)
+                    arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2),
+                    DUMMY_WIREGUARD_ENDPOINT_DATA
                 )
             )
     }
