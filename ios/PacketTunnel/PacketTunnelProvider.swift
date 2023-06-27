@@ -105,6 +105,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     /// Whether to use the cached device state.
     private var useCachedDeviceState = false
 
+    private let constraintsUpdater = RelayConstraintsUpdater()
+
     /// Returns `PacketTunnelStatus` used for sharing with main bundle process.
     private var packetTunnelStatus: PacketTunnelStatus {
         let errors: [PacketTunnelErrorWrapper?] = [
@@ -147,7 +149,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,
             addressCache: addressCache,
-            shadowsocksCache: shadowsocksCache
+            shadowsocksCache: shadowsocksCache,
+            constraintsUpdater: constraintsUpdater
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
@@ -569,6 +572,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         case let .set(aSelectorResult):
             selectorResult = aSelectorResult
         }
+
+        constraintsUpdater.onNewConstraints?(tunnelSettings.relayConstraints)
 
         return PacketTunnelConfiguration(
             deviceState: deviceState,

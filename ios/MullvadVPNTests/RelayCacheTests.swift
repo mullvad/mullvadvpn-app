@@ -6,7 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadREST
+@testable import MullvadREST
 import MullvadTransport
 @testable import RelayCache
 import XCTest

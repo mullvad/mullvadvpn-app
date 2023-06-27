@@ -23,19 +23,30 @@ public final class TransportProvider: RESTTransport {
 
     private var currentTransport: RESTTransport?
     private let parallelRequestsMutex = NSLock()
+    private var relayConstraints = RelayConstraints(location: .any)
+    private let constraintsUpdater: RelayConstraintsUpdater
 
     public init(
         urlSessionTransport: URLSessionTransport,
         relayCache: RelayCache,
         addressCache: REST.AddressCache,
         shadowsocksCache: ShadowsocksConfigurationCache,
-        transportStrategy: TransportStrategy = .init()
+        transportStrategy: TransportStrategy = .init(),
+        constraintsUpdater: RelayConstraintsUpdater
     ) {
         self.urlSessionTransport = urlSessionTransport
         self.relayCache = relayCache
         self.addressCache = addressCache
         self.shadowsocksCache = shadowsocksCache
         self.transportStrategy = transportStrategy
+        self.constraintsUpdater = constraintsUpdater
+        constraintsUpdater.onNewConstraints = { [weak self] newConstraints in
+            self?.parallelRequestsMutex.lock()
+            defer {
+                self?.parallelRequestsMutex.unlock()
+            }
+            self?.relayConstraints = newConstraints
+        }
     }
 
     // MARK: -
@@ -75,10 +86,13 @@ public final class TransportProvider: RESTTransport {
     /// Returns a randomly selected shadowsocks configuration.
     private func makeNewShadowsocksConfiguration() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
-        let bridgeAddress = RelaySelector.getShadowsocksRelay(relays: cachedRelays.relays)?.ipv4AddrIn
         let bridgeConfiguration = RelaySelector.getShadowsocksTCPBridge(relays: cachedRelays.relays)
+        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
+            by: relayConstraints,
+            in: cachedRelays.relays
+        )
 
-        guard let bridgeAddress, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+        guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
 
         let newConfiguration = ShadowsocksConfiguration(
             bridgeAddress: bridgeAddress,

@@ -11,6 +11,19 @@ import MullvadTypes
 import struct Network.IPv4Address
 import struct Network.IPv6Address
 
+public protocol Relay: Codable, Equatable {
+    var hostname: String { get }
+    var active: Bool { get }
+    var owned: Bool { get }
+    var location: String { get }
+    var provider: String { get }
+    var ipv4AddrIn: IPv4Address { get }
+    var ipv6AddrIn: IPv6Address { get }
+    var weight: UInt64 { get }
+    var publicKey: Data { get }
+    var includeInCountry: Bool { get }
+}
+
 extension REST {
     public struct ServerLocation: Codable, Equatable {
         public let country: String
@@ -26,7 +39,7 @@ extension REST {
         }
     }
 
-    public struct BridgeRelay: Codable, Equatable {
+    public struct BridgeRelay: Relay {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -35,9 +48,17 @@ extension REST {
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
         public let includeInCountry: Bool
+        // Unused, therefore not included in `CodingKeys`
+        public let ipv6AddrIn: IPv6Address = .loopback
+        // Unused, therefore not included in `CodingKeys`
+        public let publicKey = Data()
+
+        private enum CodingKeys: String, CodingKey {
+            case hostname, active, owned, location, provider, ipv4AddrIn, weight, includeInCountry
+        }
     }
 
-    public struct ServerRelay: Codable, Equatable {
+    public struct ServerRelay: Relay {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -48,30 +69,6 @@ extension REST {
         public let ipv6AddrIn: IPv6Address
         public let publicKey: Data
         public let includeInCountry: Bool
-
-        public init(
-            hostname: String,
-            active: Bool,
-            owned: Bool,
-            location: String,
-            provider: String,
-            weight: UInt64,
-            ipv4AddrIn: IPv4Address,
-            ipv6AddrIn: IPv6Address,
-            publicKey: Data,
-            includeInCountry: Bool
-        ) {
-            self.hostname = hostname
-            self.active = active
-            self.owned = owned
-            self.location = location
-            self.provider = provider
-            self.weight = weight
-            self.ipv4AddrIn = ipv4AddrIn
-            self.ipv6AddrIn = ipv6AddrIn
-            self.publicKey = publicKey
-            self.includeInCountry = includeInCountry
-        }
     }
 
     public struct ServerWireguardTunnels: Codable, Equatable {
@@ -79,18 +76,6 @@ extension REST {
         public let ipv6Gateway: IPv6Address
         public let portRanges: [[UInt16]]
         public let relays: [ServerRelay]
-
-        public init(
-            ipv4Gateway: IPv4Address,
-            ipv6Gateway: IPv6Address,
-            portRanges: [[UInt16]],
-            relays: [REST.ServerRelay]
-        ) {
-            self.ipv4Gateway = ipv4Gateway
-            self.ipv6Gateway = ipv6Gateway
-            self.portRanges = portRanges
-            self.relays = relays
-        }
     }
 
     public struct ServerShadowsocks: Codable, Equatable {
@@ -98,38 +83,16 @@ extension REST {
         public let port: UInt16
         public let cipher: String
         public let password: String
-
-        public init(protocol: String, port: UInt16, cipher: String, password: String) {
-            self.protocol = `protocol`
-            self.port = port
-            self.cipher = cipher
-            self.password = password
-        }
     }
 
     public struct ServerBridges: Codable, Equatable {
         public let shadowsocks: [ServerShadowsocks]
         public let relays: [BridgeRelay]
-
-        public init(shadowsocks: [REST.ServerShadowsocks], relays: [BridgeRelay]) {
-            self.shadowsocks = shadowsocks
-            self.relays = relays
-        }
     }
 
     public struct ServerRelaysResponse: Codable, Equatable {
         public let locations: [String: ServerLocation]
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
-
-        public init(
-            locations: [String: REST.ServerLocation],
-            wireguard: REST.ServerWireguardTunnels,
-            bridge: ServerBridges
-        ) {
-            self.locations = locations
-            self.wireguard = wireguard
-            self.bridge = bridge
-        }
     }
 }

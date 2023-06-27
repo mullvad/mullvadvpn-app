@@ -23,10 +23,27 @@ public enum RelaySelector {
     /// Return a random Shadowsocks bridge relay, or `nil` if no relay were found.
     ///
     /// Non `active` relays are filtered out.
-    /// - Parameter relays: The list of relays to randomly select from
-    /// - Returns: A Shadowsocks relay or `nil` if no relay were found.
+    /// - Parameter relays: The list of relays to randomly select from.
+    /// - Returns: A Shadowsocks relay or `nil` if no active relay were found.
     public static func getShadowsocksRelay(relays: REST.ServerRelaysResponse) -> REST.BridgeRelay? {
         relays.bridge.relays.filter { $0.active }.randomElement()
+    }
+
+    /// Returns the closest Shadowsocks relay using the given `constraints`, or a random relay if `constraints` were
+    /// unsatisfiable.
+    ///
+    /// - Parameters:
+    ///   - constraints: The user selected `constraints`
+    ///   - relays: The list of relays to randomly select from.
+    /// - Returns: A Shadowsocks relay or `nil` if no active relay were found.
+    public static func closestShadowsocksRelayConstrained(
+        by constraints: RelayConstraints,
+        in relays: REST.ServerRelaysResponse
+    ) -> REST.BridgeRelay? {
+        let mappedBridges = mapRelayBridgesIn(relays)
+        let filteredRelays = applyConstraints(constraints, relays: mappedBridges)
+        let randomBridgeRelay = pickRandomRelay(relays: filteredRelays)
+        return randomBridgeRelay?.relay as? REST.BridgeRelay ?? getShadowsocksRelay(relays: relays)
     }
 
     /**
@@ -38,7 +55,7 @@ public enum RelaySelector {
         constraints: RelayConstraints,
         numberOfFailedAttempts: UInt
     ) throws -> RelaySelectorResult {
-        let filteredRelays = applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
+        let filteredRelays = applyConstraints(constraints, relays: mapRelaysIn(relays))
         let port = applyConstraints(
             constraints,
             rawPortRanges: relays.wireguard.portRanges,
@@ -62,7 +79,7 @@ public enum RelaySelector {
 
         return RelaySelectorResult(
             endpoint: endpoint,
-            relay: relayWithLocation.relay,
+            relay: relayWithLocation.relay as! REST.ServerRelay,
             location: relayWithLocation.location
         )
     }
@@ -127,7 +144,7 @@ public enum RelaySelector {
             return relays.randomElement()
         }
 
-        // Pick a random number in the range 1 - totalWeight. This choses the relay with a
+        // Pick a random number in the range 1 - totalWeight. This chooses the relay with a
         // non-zero weight.
         var i = (1 ... totalWeight).randomElement()!
 
@@ -183,24 +200,37 @@ public enum RelaySelector {
         }
     }
 
-    private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
-        response.wireguard.relays.compactMap { serverRelay -> RelayWithLocation? in
+    private static func mapRelaysIn(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
+        response.wireguard.relays.compactMap { serverRelay in
             guard let serverLocation = response.locations[serverRelay.location] else { return nil }
-
-            let locationComponents = serverRelay.location.split(separator: "-")
-            guard locationComponents.count > 1 else { return nil }
-
-            let location = Location(
-                country: serverLocation.country,
-                countryCode: String(locationComponents[0]),
-                city: serverLocation.city,
-                cityCode: String(locationComponents[1]),
-                latitude: serverLocation.latitude,
-                longitude: serverLocation.longitude
-            )
-
-            return RelayWithLocation(relay: serverRelay, location: location)
+            return makeRelayWithLocationFrom(serverLocation, relay: serverRelay)
         }
+    }
+
+    private static func mapRelayBridgesIn(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
+        response.bridge.relays.compactMap { bridge in
+            guard let serverLocation = response.locations[bridge.location] else { return nil }
+            return makeRelayWithLocationFrom(serverLocation, relay: bridge)
+        }
+    }
+
+    private static func makeRelayWithLocationFrom(
+        _ serverLocation: REST.ServerLocation,
+        relay: any Relay
+    ) -> RelayWithLocation? {
+        let locationComponents = relay.location.split(separator: "-")
+        guard locationComponents.count > 1 else { return nil }
+
+        let location = Location(
+            country: serverLocation.country,
+            countryCode: String(locationComponents[0]),
+            city: serverLocation.city,
+            cityCode: String(locationComponents[1]),
+            latitude: serverLocation.latitude,
+            longitude: serverLocation.longitude
+        )
+
+        return RelayWithLocation(relay: relay, location: location)
     }
 }
 
@@ -226,6 +256,6 @@ public struct RelaySelectorResult: Codable {
 }
 
 private struct RelayWithLocation {
-    var relay: REST.ServerRelay
+    var relay: any Relay
     var location: Location
 }
