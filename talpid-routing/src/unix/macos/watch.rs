@@ -48,6 +48,16 @@ impl RoutingTable {
     }
 
     pub async fn add_route(&mut self, message: &RouteMessage) -> Result<()> {
+        if let Ok(destination) = message.destination_ip() {
+            if Some(destination.ip()) == message.gateway_ip() {
+                // Workaround that allows us to reach a wg peer on our router.
+                // If we don't do this, adding the route fails due to errno 49
+                // ("Can't assign requested address").
+                log::warn!("Ignoring route because the destination equals its gateway");
+                return Ok(());
+            }
+        }
+
         let msg = self
             .alter_routing_table(message, MessageType::RTM_ADD)
             .await;
