@@ -23,7 +23,8 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "missing 'created' timestamp",
             ))?;
-        let ndt = chrono::NaiveDateTime::from_timestamp(created.seconds, created.nanos as u32);
+        let ndt = chrono::NaiveDateTime::from_timestamp_opt(created.seconds, created.nanos as u32)
+            .unwrap();
 
         Ok(mullvad_types::wireguard::PublicKey {
             key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())

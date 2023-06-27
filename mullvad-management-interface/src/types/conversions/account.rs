@@ -23,7 +23,8 @@ impl TryFrom<types::VoucherSubmission> for VoucherSubmission {
             .new_expiry
             .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
         let ndt =
-            chrono::NaiveDateTime::from_timestamp(new_expiry.seconds, new_expiry.nanos as u32);
+            chrono::NaiveDateTime::from_timestamp_opt(new_expiry.seconds, new_expiry.nanos as u32)
+                .unwrap();
 
         Ok(VoucherSubmission {
             new_expiry: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
@@ -50,7 +51,8 @@ impl TryFrom<types::AccountData> for AccountData {
         let expiry = data
             .expiry
             .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
-        let ndt = chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32);
+        let ndt =
+            chrono::NaiveDateTime::from_timestamp_opt(expiry.seconds, expiry.nanos as u32).unwrap();
 
         Ok(AccountData {
             expiry: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),

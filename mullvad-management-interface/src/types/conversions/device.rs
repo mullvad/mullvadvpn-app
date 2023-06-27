@@ -16,7 +16,7 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
                 .collect(),
             hijack_dns: device.hijack_dns,
             created: chrono::DateTime::from_utc(
-                chrono::NaiveDateTime::from_timestamp(
+                chrono::NaiveDateTime::from_timestamp_opt(
                     device
                         .created
                         .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -24,7 +24,8 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
                         ))?
                         .seconds,
                     0,
-                ),
+                )
+                .unwrap(),
                 chrono::Utc,
             ),
         })
