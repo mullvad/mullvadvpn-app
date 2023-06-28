@@ -7,7 +7,7 @@ export interface StartAppResponse {
 }
 
 export interface TestUtils {
-  currentRoute: () => Promise<void>;
+  currentRoute: () => Promise<string>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) =>  Promise<string>;
 }
 
@@ -43,7 +43,7 @@ export const launch = async (options: LaunchOptions): Promise<ElectronApplicatio
 
 const currentRouteFactory = (app: ElectronApplication) => {
   return async () => {
-    return await app.evaluate(({ webContents }) => {
+    return await app.evaluate<string>(({ webContents }) => {
       return webContents.getAllWebContents()
           // Select window that isn't devtools
           .find((webContents) => webContents.getURL().startsWith('file://'))!
