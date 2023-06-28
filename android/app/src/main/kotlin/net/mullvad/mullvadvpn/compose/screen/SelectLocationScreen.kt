@@ -23,7 +23,7 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.RelayLocationCell
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
+import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -54,7 +54,7 @@ fun SelectLocationScreen(
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
     LaunchedEffect(Unit) { uiCloseAction.collect { onBackClick() } }
-    CollapsableAwareToolbarScaffold(
+    CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
