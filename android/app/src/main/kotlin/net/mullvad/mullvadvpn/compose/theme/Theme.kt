@@ -72,6 +72,7 @@ private val MullvadColorPalette =
         onSurface = MullvadWhite,
         inversePrimary = MullvadGreen,
         error = MullvadRed,
+        errorContainer = Color(0xFFFFD323),
         outlineVariant = Color.Transparent, // Used by divider
         inverseSurface = MullvadWhite
     )

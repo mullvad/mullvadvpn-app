@@ -16,8 +16,13 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
@@ -31,9 +36,14 @@ import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import org.joda.time.DateTime
 
-class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionManager) :
-    ViewModel() {
+class ConnectViewModel(
+    private val serviceConnectionManager: ServiceConnectionManager,
+    private val isVersionInfoNotificationEnabled: Boolean =
+        BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS,
+    accountRepository: AccountRepository
+) : ViewModel() {
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -56,6 +66,7 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     serviceConnection.appVersionInfoCache.appVersionCallbackFlow(),
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
+                    accountRepository.accountExpiryState,
                     _isTunnelInfoExpanded
                 ) {
                     location,
@@ -63,6 +74,7 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     versionInfo,
                     tunnelUiState,
                     tunnelRealState,
+                    accountExpiry,
                     isTunnelInfoExpanded ->
                     ConnectUiState(
                         location =
@@ -73,7 +85,6 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                             }
                                 ?: location,
                         relayLocation = relayLocation,
-                        versionInfo = versionInfo,
                         tunnelUiState = tunnelUiState,
                         tunnelRealState = tunnelRealState,
                         isTunnelInfoExpanded = isTunnelInfoExpanded,
@@ -97,7 +108,13 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                                 is TunnelState.Connecting -> false
                                 is TunnelState.Connected -> false
                                 is TunnelState.Error -> true
-                            }
+                            },
+                        connectNotificationState =
+                            calculateNotificationState(
+                                tunnelUiState = tunnelUiState,
+                                versionInfo = versionInfo,
+                                accountExpiry = accountExpiry
+                            )
                     )
                 }
             }
@@ -122,6 +139,36 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
 
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
+
+    private fun calculateNotificationState(
+        tunnelUiState: TunnelState,
+        versionInfo: VersionInfo?,
+        accountExpiry: AccountExpiry
+    ): ConnectNotificationState =
+        when {
+            tunnelUiState is TunnelState.Connecting ->
+                ConnectNotificationState.ShowTunnelStateNotificationBlocked
+            tunnelUiState is TunnelState.Disconnecting &&
+                (tunnelUiState.actionAfterDisconnect == ActionAfterDisconnect.Block ||
+                    tunnelUiState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ->
+                ConnectNotificationState.ShowTunnelStateNotificationBlocked
+            tunnelUiState is TunnelState.Error ->
+                ConnectNotificationState.ShowTunnelStateNotificationError(tunnelUiState.errorState)
+            isVersionInfoNotificationEnabled &&
+                versionInfo != null &&
+                (versionInfo.isOutdated || !versionInfo.isSupported) ->
+                ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
+            accountExpiry.shouldShowNotification() ->
+                ConnectNotificationState.ShowAccountExpiryNotification(
+                    accountExpiry.date() ?: DateTime.now()
+                )
+            else -> ConnectNotificationState.HideNotification
+        }
+
+    private fun AccountExpiry.shouldShowNotification(): Boolean {
+        val threeDaysFromNow = DateTime.now().plusDays(3)
+        return this.date()?.isBefore(threeDaysFromNow) == true
+    }
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
